@@ -1,0 +1,365 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_prometheus_node_exporter_api.pl --plugin=cloud::prometheus::exporters::nodeexporter::plugin --mode=storage --hostname=$_HOSTPROMETHEUSAPIHOSTNAME$ --url-path=\\'$_HOSTPROMETHEUSAPIURL$\\' --port=\\'$_HOSTPROMETHEUSAPIPORT$\\' --proto=\\'$_HOSTPROMETHEUSAPIPROTO$\\' $_HOSTEXTRAOPTIONS$ --instance=\\'$_SERVICEINSTANCE$\\' --mountpoint=\\'$_SERVICEMOUNTPOINT$\\' --fstype=\\'$_SERVICEFSTYPE$\\' --units=\\'$_SERVICEUNITS$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Prometheus-Node-Exporter-Api-Storage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_prometheus_node_exporter_api.pl --plugin=cloud::prometheus::exporters::nodeexporter::plugin --mode=memory --hostname=$_HOSTPROMETHEUSAPIHOSTNAME$ --url-path=\\'$_HOSTPROMETHEUSAPIURL$\\' --port=\\'$_HOSTPROMETHEUSAPIPORT$\\' --proto=\\'$_HOSTPROMETHEUSAPIPROTO$\\' $_HOSTEXTRAOPTIONS$ --instance=\\'$_SERVICEINSTANCE$\\' --units=\\'$_SERVICEUNITS$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-buffer=\\'$_SERVICEWARNINGBUFFER$\\' --critical-buffer=\\'$_SERVICECRITICALBUFFER$\\' --warning-cached=\\'$_SERVICEWARNINGCACHED$\\' --critical-cached=\\'$_SERVICECRITICALCACHED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Prometheus-Node-Exporter-Api-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_prometheus_node_exporter_api.pl --plugin=cloud::prometheus::exporters::nodeexporter::plugin --mode=load --hostname=$_HOSTPROMETHEUSAPIHOSTNAME$ --url-path=\\'$_HOSTPROMETHEUSAPIURL$\\' --port=\\'$_HOSTPROMETHEUSAPIPORT$\\' --proto=\\'$_HOSTPROMETHEUSAPIPROTO$\\' $_HOSTEXTRAOPTIONS$ --instance=\\'$_SERVICEINSTANCE$\\' --warning-load1=\\'$_SERVICEWARNINGLOAD1$\\' --critical-load1=\\'$_SERVICECRITICALLOAD1$\\' --warning-load5=\\'$_SERVICEWARNINGLOAD5$\\' --critical-load5=\\'$_SERVICECRITICALLOAD5$\\' --warning-load15=\\'$_SERVICEWARNINGLOAD15$\\' --critical-load15=\\'$_SERVICECRITICALLOAD15$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Prometheus-Node-Exporter-Api-Load",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_prometheus_node_exporter_api.pl --plugin=cloud::prometheus::exporters::nodeexporter::plugin --mode=cpu-detailed --hostname=$_HOSTPROMETHEUSAPIHOSTNAME$ --url-path=\\'$_HOSTPROMETHEUSAPIURL$\\' --port=\\'$_HOSTPROMETHEUSAPIPORT$\\' --proto=\\'$_HOSTPROMETHEUSAPIPROTO$\\' $_HOSTEXTRAOPTIONS$ --instance=\\'$_SERVICEINSTANCE$\\' --cpu=\\'$_SERVICECPU$\\' --type=\\'$_SERVICETYPE$\\' --warning-node-idle=\\'$_SERVICEWARNINGNODEIDLE$\\' --critical-node-idle=\\'$_SERVICECRITICALNODEIDLE$\\' --warning-node-wait=\\'$_SERVICEWARNINGNODEWAIT$\\' --critical-node-wait=\\'$_SERVICECRITICALNODEWAIT$\\' --warning-node-interrupt=\\'$_SERVICEWARNINGNODEINTERRUPT$\\' --critical-node-interrupt=\\'$_SERVICECRITICALNODEINTERRUPT$\\' --warning-node-nice=\\'$_SERVICEWARNINGNODENICE$\\' --critical-node-nice=\\'$_SERVICECRITICALNODENICE$\\' --warning-node-softirq=\\'$_SERVICEWARNINGNODESOFTIRQ$\\' --critical-node-softirq=\\'$_SERVICECRITICALNODESOFTIRQ$\\' --warning-node-steal=\\'$_SERVICEWARNINGNODESTEAL$\\' --critical-node-steal=\\'$_SERVICECRITICALNODESTEAL$\\' --warning-node-system=\\'$_SERVICEWARNINGNODESYSTEM$\\' --critical-node-system=\\'$_SERVICECRITICALNODESYSTEM$\\' --warning-node-user=\\'$_SERVICEWARNINGNODEUSER$\\' --critical-node-user=\\'$_SERVICECRITICALNODEUSER$\\' --warning-cpu-idle=\\'$_SERVICEWARNINGCPUIDLE$\\' --critical-cpu-idle=\\'$_SERVICECRITICALCPUIDLE$\\' --warning-cpu-wait=\\'$_SERVICEWARNINGCPUWAIT$\\' --critical-cpu-wait=\\'$_SERVICECRITICALCPUWAIT$\\' --warning-cpu-interrupt=\\'$_SERVICEWARNINGCPUINTERRUPT$\\' --critical-cpu-interrupt=\\'$_SERVICECRITICALCPUINTERRUPT$\\' --warning-cpu-nice=\\'$_SERVICEWARNINGCPUNICE$\\' --critical-cpu-nice=\\'$_SERVICECRITICALCPUNICE$\\' --warning-cpu-softirq=\\'$_SERVICEWARNINGCPUSOFTIRQ$\\' --critical-cpu-softirq=\\'$_SERVICECRITICALCPUSOFTIRQ$\\' --warning-cpu-steal=\\'$_SERVICEWARNINGCPUSTEAL$\\' --critical-cpu-steal=\\'$_SERVICECRITICALCPUSTEAL$\\' --warning-cpu-system=\\'$_SERVICEWARNINGCPUSYSTEM$\\' --critical-cpu-system=\\'$_SERVICECRITICALCPUSYSTEM$\\' --warning-cpu-user=\\'$_SERVICEWARNINGCPUUSER$\\' --critical-cpu-user=\\'$_SERVICECRITICALCPUUSER$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Prometheus-Node-Exporter-Api-Cpu-Detailed",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_prometheus_node_exporter_api.pl --plugin=cloud::prometheus::exporters::nodeexporter::plugin --mode=cpu --hostname=$_HOSTPROMETHEUSAPIHOSTNAME$ --url-path=\\'$_HOSTPROMETHEUSAPIURL$\\' --port=\\'$_HOSTPROMETHEUSAPIPORT$\\' --proto=\\'$_HOSTPROMETHEUSAPIPROTO$\\' $_HOSTEXTRAOPTIONS$ --instance=\\'$_SERVICEINSTANCE$\\' --cpu=\\'$_SERVICECPU$\\' --warning-node-usage=\\'$_SERVICEWARNINGNODEUSAGE$\\' --critical-node-usage=\\'$_SERVICECRITICALNODEUSAGE$\\' --warning-cpu-usage=\\'$_SERVICEWARNINGCPUUSAGE$\\' --critical-cpu-usage=\\'$_SERVICECRITICALCPUUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Prometheus-Node-Exporter-Api-Cpu",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Node Exporter metrics through Prometheus",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "prometheus-64.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROMETHEUSAPIURL$",
+                    "value": "/api/v1"
+                },
+                {
+                    "key": "$_HOSTPROMETHEUSAPIPORT$",
+                    "value": "9090"
+                },
+                {
+                    "key": "$_HOSTPROMETHEUSAPIPROTO$",
+                    "value": "http"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Prometheus-Node-Exporter-Api",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Prometheus-Node-Exporter-Storage-Api",
+                "Cloud-Prometheus-Node-Exporter-Memory-Api",
+                "Cloud-Prometheus-Node-Exporter-Load-Api",
+                "Cloud-Prometheus-Node-Exporter-Cpu-Detailed-Api",
+                "Cloud-Prometheus-Node-Exporter-Cpu-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "prometheus-64.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix storage and cpu modes",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Node Exporter with Prometheus :\r\n\r\n* Cpu\r\n* Cpu Detailed\r\n* Load\r\n* Memory\r\n* Storage"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser Node Exporter avec Prometheus :\r\n\r\n* Cpu\r\n* Cpu D\u00e9taill\u00e9e\r\n* Charge\r\n* M\u00e9moire\r\n* Stockage"
+            }
+        ],
+        "discovery_category": "",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Cloud-Prometheus-Node-Exporter-Api\r\n\r\n## Centreon Configuration\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Cloud-Prometheus-Node-Exporter-Api-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Host Macro Configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"23%\" />\r\n<col width=\"53%\" />\r\n<col width=\"24%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>PROMETHEUSAPIHOSTNAME</p></td>\r\n<td align=\"left\"><p>Hostname of the Prometheus Server</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>PROMETHEUSAPIURL</p></td>\r\n<td align=\"left\"><p>URL of the API</p></td>\r\n<td align=\"left\"><p>/api/v1</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>PROMETHEUSAPIPORT</p></td>\r\n<td align=\"left\"><p>Port of the API</p></td>\r\n<td align=\"left\"><p>9090</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>PROMETHEUSAPIPROTO</p></td>\r\n<td align=\"left\"><p>Protocol used by API</p></td>\r\n<td align=\"left\"><p>http</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Node Exporter",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_prometheus_node_exporter_api.pl",
+                "package_name": "centreon-plugin-Cloud-Prometheus-Node-Exporter-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-prometheus-node-exporter-api",
+        "status": "stable",
+        "status_message": "fix storage and cpu modes",
+        "tags": [
+            "Prometheus",
+            "Node Exporter",
+            "Cloud",
+            "Restapi",
+            "Docker",
+            "Kubernetes"
+        ],
+        "update_date": "1549298859",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le la consommation du stockage du noeud.}\r\n\r\n{EN: Check node storage usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Node-Storage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Prometheus-Node-Exporter-Api-Storage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINSTANCE$",
+                    "password": false,
+                    "value": "instance=~\".*\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEMOUNTPOINT$",
+                    "password": false,
+                    "value": "mountpoint=~\".*\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFSTYPE$",
+                    "password": false,
+                    "value": "fstype!~\"linuxfs|rootfs|tmpfs\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNITS$",
+                    "password": false,
+                    "value": "%"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGUSAGE$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALUSAGE$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Prometheus-Node-Exporter-Storage-Api",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la consommation m\u00e9moire du noeud.}\r\n\r\n{EN: Check node memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Node-Memory",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Prometheus-Node-Exporter-Api-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINSTANCE$",
+                    "password": false,
+                    "value": "instance=~\".*\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNITS$",
+                    "password": false,
+                    "value": "%"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGUSAGE$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALUSAGE$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Prometheus-Node-Exporter-Memory-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la charge du noeud.}\r\n\r\n{EN: Check node load.}",
+            "active_checks_enabled": 2,
+            "alias": "Node-Load",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Prometheus-Node-Exporter-Api-Load",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINSTANCE$",
+                    "password": false,
+                    "value": "instance=~\".*\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Prometheus-Node-Exporter-Load-Api",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation CPU d\u00e9taill\u00e9e du noeud.}\r\n\r\n{EN: Check node detailed CPU usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Node-Cpu-Detailed",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Prometheus-Node-Exporter-Api-Cpu-Detailed",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINSTANCE$",
+                    "password": false,
+                    "value": "instance=~\".*\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECPU$",
+                    "password": false,
+                    "value": "cpu=~\".*\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETYPE$",
+                    "password": false,
+                    "value": "mode=~\".*\""
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Prometheus-Node-Exporter-Cpu-Detailed-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation CPU du noeud.}\r\n\r\n{EN: Check node CPU usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Node-Cpu",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Prometheus-Node-Exporter-Api-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINSTANCE$",
+                    "password": false,
+                    "value": "instance=~\".*\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECPU$",
+                    "password": false,
+                    "value": "cpu=~\".*\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGNODEUSAGE$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALNODEUSAGE$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Prometheus-Node-Exporter-Cpu-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,189 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_asterisk_ami.pl --plugin=apps::voip::asterisk::ami::plugin --mode=sip-peers-usage --ami-hostname=\\'$HOSTADDRESS$\\' --ami-port=\\'$_HOSTASTERISKAMIPORT$\\' --ami-username=\\'$_HOSTASTERISKAMIUSERNAME$\\' --ami-password=\\'$_HOSTASTERISKAMIPASSWORD$\\' $_HOSTASTERISKAMIEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-total-peers=\\'$_SERVICEWARNINGTOTALPEERS$\\' --critical-total-peers=\\'$_SERVICECRITICALTOTALPEERS$\\' --warning-monitor-online-peers=\\'$_SERVICEWARNINGMONITORONLINEPEERS$\\' --critical-monitor-online-peers=\\'$_SERVICECRITICALMONITORONLINEPEERS$\\' --warning-monitor-offline-peers=\\'$_SERVICEWARNINGMONITOROFFLINEPEERS$\\' --critical-monitor-offline-peers=\\'$_SERVICECRITICALMONITOROFFLINEPEERS$\\' --warning-unmonitor-online-peers=\\'$_SERVICEWARNINGUNMONITORONLINEPEERS$\\' --critical-unmonitor-online-peers=\\'$_SERVICECRITICALUNMONITORONLINEPEERS$\\' --warning-unmonitor-offline-peers=\\'$_SERVICEWARNINGUNMONITOROFFLINEPEERS$\\' --critical-unmonitor-offline-peers=\\'$_SERVICECRITICALUNMONITOROFFLINEPEERS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-VoIP-Asterisk-AMI-Sip-Peers-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_asterisk_ami.pl --plugin=apps::voip::asterisk::ami::plugin  --mode=channel-usage --ami-hostname=\\'$HOSTADDRESS$\\' --ami-port=\\'$_HOSTASTERISKAMIPORT$\\' --ami-username=\\'$_HOSTASTERISKAMIUSERNAME$\\' --ami-password=\\'$_HOSTASTERISKAMIPASSWORD$\\' $_HOSTASTERISKAMIEXTRAOPTIONS$ --warning-channels-active=\\'$_SERVICEWARNINGCHANNELSACTIVE$\\' --critical-channels-active=\\'$_SERVICECRITICALCHANNELSACTIVE$\\' --warning-calls-active=\\'$_SERVICEWARNINGCALLSACTIVE$\\' --critical-calls-active=\\'$_SERVICECRITICALCALLSACTIVE$\\' --warning-calls-count=\\'$_SERVICEWARNINGCALLSCOUNT$\\' --critical-calls-count=\\'$_SERVICECRITICALCALLSCOUNT$\\' --warning-extcalls-active=\\'$_SERVICEWARNINGEXTCALLSACTIVE$\\' --critical-extcalls-active=\\'$_SERVICECRITICALEXTCALLSACTIVE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-VoIP-Asterisk-AMI-Channel-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_asterisk_ami.pl --plugin=apps::voip::asterisk::ami::plugin  --mode=dahdi-status --ami-hostname=\\'$HOSTADDRESS$\\' --ami-port=\\'$_HOSTASTERISKAMIPORT$\\' --ami-username=\\'$_HOSTASTERISKAMIUSERNAME$\\' --ami-password=\\'$_HOSTASTERISKAMIPASSWORD$\\' $_HOSTASTERISKAMIEXTRAOPTIONS$ --filter-description=\\'$_SERVICEFILTERDESCRIPTION$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-VoIP-Asterisk-AMI-Dahdi-Status",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Asterisk VoIP Application through AMI Interface",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "app-asterisk-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-VoIP-Asterisk-AMI",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Voip-Asterisk-AMI-Sip-Peers-Usage",
+                "App-Voip-Asterisk-AMI-Channel-Usage"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "app-asterisk-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Initial release",
+        "dependencies": [],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Asterisk server via AMI interface:\r\n* Channel Usage\r\n* Dahdi Status\r\n* SIP Peers"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un serveur Asterisk via l\\'interface AMI :\r\n* Channel Usage\r\n* Dahdi Status\r\n* SIP Peers"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Voip-Asterisk-Ami\r\n\r\n\r\n### Asterisk server configuration\r\nAfter connecting with root account to your Asterisk server, you must do\r\nthe following configurations.\r\n\r\n### AMI\r\n\r\nFor any remote acces, you must create an Asterisk user:\r\n\r\n    vi /etc/aserisk/manager.conf\r\n\r\nexample of user:\r\n\r\n    [xivo_centreon_user]\r\n    secret = centreon\r\n    deny=0.0.0.0/0.0.0.0\r\n    permit=127.0.0.1/255.255.255.0\r\n    read = system,call,log,verbose,command,agent,user,dtmf\r\n    write = system,call,log,verbose,command,agent,user,dtmf\r\n\r\nIn te newly created user, add a *permit* line to allow the centreon\r\nserver to conect to the AMI:\r\n\r\n    vi /etc/aserisk/manager.conf\r\n\r\nexample:\r\n\r\n    permit=10.30.2.32/255.255.255.0\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-VoIP-Asterisk-AMI-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Asterisk VoIP Server",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_asterisk_ami.pl",
+                "package_name": "centreon-plugin-Applications-Voip-Asterisk-Ami",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-voip-asterisk-ami",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Asterisk",
+            "VoIP",
+            "AMI",
+            "Application",
+            "Server"
+        ],
+        "update_date": "1512655451",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des lien SIPs.}\r\n{EN: Check SIP peers usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Sip-Peers-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-VoIP-Asterisk-AMI-Sip-Peers-Usage",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /LAGGED|UNKNOWN/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /UNREACHABLE/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Voip-Asterisk-AMI-Sip-Peers-Usage",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre d'appels et canaux en cours.}\r\n{EN: Check number of calls and channels.}",
+            "active_checks_enabled": 2,
+            "alias": "Channel-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-VoIP-Asterisk-AMI-Channel-Usage",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Voip-Asterisk-AMI-Channel-Usage",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des lignes 'dahdi'.}\r\n{EN: Check status of dahdi lines.}",
+            "active_checks_enabled": 2,
+            "alias": "Dahdi-Status",
+            "check_timeperiod": "",
+            "command_name": "App-VoIP-Asterisk-AMI-Dahdi-Status",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /UNCONFIGURED|YEL|BLU/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /RED/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Voip-Asterisk-AMI-Dahdi-Status",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

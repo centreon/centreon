@@ -1,0 +1,973 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v1.0": [
+                {
+                    "command": "Net-Versa-Director-Restapi-HostDiscovery-devices",
+                    "default_template": "generic-active-host",
+                    "description": "Discover Versa Networks devices using Director RestAPI",
+                    "mapping": {
+                        "versa_networks_device": {
+                            "association": {
+                                "description": [
+                                    "${name}",
+                                    "${uuid}"
+                                ],
+                                "hostname": [
+                                    "${name}",
+                                    "${uuid}"
+                                ],
+                                "ip": [
+                                    "${ip}"
+                                ]
+                            },
+                            "attributes": {
+                                "ip": {
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "organizations": {
+                                    "type": "array"
+                                },
+                                "type": {
+                                    "type": "string"
+                                },
+                                "uuid": {
+                                    "type": "string"
+                                }
+                            },
+                            "filters": {},
+                            "macros": [
+                                {
+                                    "from": "parameters",
+                                    "name": "DIRECTORAPIHOSTNAME",
+                                    "type": "text",
+                                    "value": "DIRECTORAPIHOSTNAME"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "DIRECTORAPIPORT",
+                                    "type": "text",
+                                    "value": "DIRECTORAPIPORT"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "DIRECTORAPIPROTO",
+                                    "type": "text",
+                                    "value": "DIRECTORAPIPROTO"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "DIRECTORAPIUSERNAME",
+                                    "type": "text",
+                                    "value": "DIRECTORAPIUSERNAME"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "DIRECTORAPIPASSWORD",
+                                    "type": "password",
+                                    "value": "DIRECTORAPIPASSWORD"
+                                },
+                                {
+                                    "from": "results",
+                                    "name": "DIRECTORDEVICENAME",
+                                    "type": "text",
+                                    "value": "name"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "DIRECTORAPIEXTRAOPTIONS",
+                                    "type": "text",
+                                    "value": "DIRECTORAPIEXTRAOPTIONS"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "PROXYURL",
+                                    "type": "text",
+                                    "value": "PROXYURL"
+                                }
+                            ],
+                            "object": "host",
+                            "templates": [
+                                "Net-Versa-Director-Device-Restapi-custom"
+                            ]
+                        }
+                    },
+                    "name": "Versa Networks devices (Director RestAPI)",
+                    "parameters": [
+                        {
+                            "description": "Director Hostname",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "DIRECTORAPIHOSTNAME",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Director API port",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "DIRECTORAPIPORT",
+                            "type": "text",
+                            "value": "9182"
+                        },
+                        {
+                            "description": "Director API proto",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "DIRECTORAPIPROTO",
+                            "type": "text",
+                            "value": "https"
+                        },
+                        {
+                            "description": "Director API username",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "DIRECTORAPIUSERNAME",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Director API password",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "DIRECTORAPIPASSWORD",
+                            "type": "password",
+                            "value": null
+                        },
+                        {
+                            "description": "Proxy URL",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "PROXYURL",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Timeout",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "TIMEOUT",
+                            "type": "text",
+                            "value": 10
+                        },
+                        {
+                            "description": "Extra Options",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "DIRECTORAPIEXTRAOPTIONS",
+                            "type": "text",
+                            "value": null
+                        }
+                    ],
+                    "test_option": null,
+                    "type": "versa director"
+                }
+            ],
+            "v2.0": [
+                {
+                    "attributes": {
+                        "ip": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "organizations": {
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "uuid": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Net-Versa-Director-Restapi-HostDiscovery-devices",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Director API username",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "DIRECTORAPIUSERNAME",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Director API password",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "DIRECTORAPIPASSWORD",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-active-host",
+                    "description": "Discover Versa Networks devices using Director RestAPI",
+                    "discovery_examples": [
+                        {
+                            "ip": "10.30.2.110",
+                            "name": "CEN-FR-BRANCH001",
+                            "organizations": [
+                                "CENTREON-FRANCE"
+                            ],
+                            "type": "branch",
+                            "uuid": "5f5661aa-0a30-4f6d-b2f7-31cf06e5e288"
+                        },
+                        {
+                            "ip": "10.30.2.111",
+                            "name": "CEN-CA-BRANCH001",
+                            "organizations": [
+                                "CENTREON-CANADA"
+                            ],
+                            "type": "branch",
+                            "uuid": "023e1f87-ac2f-4c3e-8de9-640cff61a39a"
+                        },
+                        {
+                            "ip": "10.30.2.112",
+                            "name": "CEN-TLS-CPE001",
+                            "organizations": [
+                                "CENTREON-FRANCE",
+                                "CENTREOn-CANADA"
+                            ],
+                            "type": "cpe",
+                            "uuid": "9b5241ca-04a0-4207-9c14-9a236042054c"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.ip"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.DIRECTORAPIUSERNAME",
+                                "is_password": false,
+                                "source": "discovery.credentials.DIRECTORAPIUSERNAME"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.DIRECTORAPIPASSWORD",
+                                "is_password": true,
+                                "source": "discovery.credentials.DIRECTORAPIPASSWORD"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.DIRECTORDEVICENAME",
+                                "is_password": false,
+                                "source": "discovery.results.name"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.DIRECTORAPIHOSTNAME",
+                                "is_password": false,
+                                "source": "discovery.parameters.DIRECTORAPIHOSTNAME"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.DIRECTORAPIPROTO",
+                                "is_password": false,
+                                "source": "discovery.parameters.DIRECTORAPIPROTO"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.DIRECTORAPIPORT",
+                                "is_password": false,
+                                "source": "discovery.parameters.DIRECTORAPIPORT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.DIRECTORAPIEXTRAOPTIONS",
+                                "is_password": false,
+                                "source": "discovery.parameters.DIRECTORAPIEXTRAOPTIONS"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Net-Versa-Director-Device-Restapi-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Versa Networks devices (Director RestAPI)",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Director Hostname",
+                                "group": "Versa Director",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "DIRECTORAPIHOSTNAME",
+                                "value": null
+                            },
+                            {
+                                "description": "Director API Port",
+                                "group": "Versa Director",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "DIRECTORAPIPORT",
+                                "value": "9182"
+                            },
+                            {
+                                "description": "Director API proto",
+                                "group": "Versa Director",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "DIRECTORAPIPROTO",
+                                "value": "https"
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "DIRECTORAPIEXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "versa-director-devices",
+                    "type": "versa director",
+                    "uuid_attributes": [
+                        "uuid"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "ip": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "organizations": {
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "uuid": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Net-Versa-Director-Restapi-HostDiscovery-devices",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Director API username",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "DIRECTORAPIUSERNAME",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Director API password",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "DIRECTORAPIPASSWORD",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-active-host",
+                    "description": "Discover Versa Networks devices using Director RestAPI",
+                    "discovery_examples": [
+                        {
+                            "ip": "10.30.2.110",
+                            "name": "CEN-FR-BRANCH001",
+                            "organizations": [
+                                "CENTREON-FRANCE"
+                            ],
+                            "type": "branch",
+                            "uuid": "5f5661aa-0a30-4f6d-b2f7-31cf06e5e288"
+                        },
+                        {
+                            "ip": "10.30.2.111",
+                            "name": "CEN-CA-BRANCH001",
+                            "organizations": [
+                                "CENTREON-CANADA"
+                            ],
+                            "type": "branch",
+                            "uuid": "023e1f87-ac2f-4c3e-8de9-640cff61a39a"
+                        },
+                        {
+                            "ip": "10.30.2.112",
+                            "name": "CEN-TLS-CPE001",
+                            "organizations": [
+                                "CENTREON-FRANCE",
+                                "CENTREOn-CANADA"
+                            ],
+                            "type": "cpe",
+                            "uuid": "9b5241ca-04a0-4207-9c14-9a236042054c"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.ip"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.DIRECTORAPIUSERNAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.DIRECTORAPIUSERNAME"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.DIRECTORAPIPASSWORD",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.DIRECTORAPIPASSWORD"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.DIRECTORDEVICENAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.DIRECTORAPIHOSTNAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.DIRECTORAPIHOSTNAME"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.DIRECTORAPIPROTO",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.DIRECTORAPIPROTO"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.DIRECTORAPIPORT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.DIRECTORAPIPORT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.DIRECTORAPIEXTRAOPTIONS",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.DIRECTORAPIEXTRAOPTIONS"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Net-Versa-Director-Device-Restapi-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Versa Networks devices (Director RestAPI)",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Director Hostname",
+                                "group": "Versa Director",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "DIRECTORAPIHOSTNAME",
+                                "value": null
+                            },
+                            {
+                                "description": "Director API Port",
+                                "group": "Versa Director",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "DIRECTORAPIPORT",
+                                "value": "9182"
+                            },
+                            {
+                                "description": "Director API proto",
+                                "group": "Versa Director",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "DIRECTORAPIPROTO",
+                                "value": "https"
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "DIRECTORAPIEXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "versa-director-devices",
+                    "type": "versa director",
+                    "uuid_attributes": [
+                        "uuid"
+                    ]
+                }
+            ]
+        },
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Versa-Director-Restapi-Paths-Discover",
+                "command_for_macro": "Net-Versa-Director-Restapi-Paths-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Versa-Director-Device-Restapi"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERLOCALWANLINK",
+                        "value": "^$local_wan_link$$"
+                    },
+                    {
+                        "is_empty": null,
+                        "name": "GROUP",
+                        "value": "localWanLink"
+                    }
+                ],
+                "name": "Net-Versa-Director-Restapi-Path-LocalWanLink",
+                "service_display_name": "Path-$local_wan_link$",
+                "service_template": "Net-Versa-Director-Paths-Restapi"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_versa_director_restapi.pl --plugin=network::versa::director::restapi::plugin --mode=list-paths --hostname=127.0.0.1 --api-username=none --api-password=none --statefile-suffix=\\'autodiscovery\\' --disco-format\\\"",
+            "name": "Net-Versa-Director-Restapi-Paths-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_versa_director_restapi.pl --plugin=network::versa::director::restapi::plugin --mode=list-paths --hostname=\\'$_HOSTDIRECTORAPIHOSTNAME$\\' --port=\\'$_HOSTDIRECTORAPIPORT$\\' --proto=\\'$_HOSTDIRECTORAPIPROTO$\\' --api-username=\\'$_HOSTDIRECTORAPIUSERNAME$\\' --api-password=\\'$_HOSTDIRECTORAPIPASSWORD$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTDIRECTORAPIEXTRAOPTIONS$ --filter-device-name=\\'^$_HOSTDIRECTORDEVICENAME$$$\\' --filter-device-type=\\'$_HOSTDIRECTORDEVICETYPE$\\' --statefile-suffix=\\'autodiscovery\\' --disco-show\\\"",
+            "name": "Net-Versa-Director-Restapi-Paths-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_versa_director_restapi.pl --plugin=network::versa::director::restapi::plugin --mode=devices --hostname=\\'$_HOSTDIRECTORAPIHOSTNAME$\\' --port=\\'$_HOSTDIRECTORAPIPORT$\\' --proto=\\'$_HOSTDIRECTORAPIPROTO$\\' --api-username=\\'$_HOSTDIRECTORAPIUSERNAME$\\' --api-password=\\'$_HOSTDIRECTORAPIPASSWORD$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTDIRECTORAPIEXTRAOPTIONS$ --organization=\\'$_HOSTDIRECTORORGANIZATION$\\' --filter-org-name=\\'$_HOSTDIRECTORORGNAME$\\' --filter-device-name=\\'^$_HOSTDIRECTORDEVICENAME$$$\\' --filter-device-type=\\'$_HOSTDIRECTORDEVICETYPE$\\' --warning-bgp-health-up=\\'$_SERVICEWARNINGBGPHEALTHUP$\\' --critical-bgp-health-up=\\'$_SERVICECRITICALBGPHEALTHUP$\\' --warning-bgp-health-down=\\'$_SERVICEWARNINGBGPHEALTHDOWN$\\' --critical-bgp-health-down=\\'$_SERVICECRITICALBGPHEALTHDOWN$\\' --warning-bgp-health-disabled=\\'$_SERVICEWARNINGBGPHEALTHDISABLED$\\' --critical-bgp-health-disabled=\\'$_SERVICECRITICALBGPHEALTHDISABLED$\\' --warning-alarms-critical=\\'$_SERVICEWARNINGALARMSCRITICAL$\\' --critical-alarms-critical=\\'$_SERVICECRITICALALARMSCRITICAL$\\' --warning-alarms-major=\\'$_SERVICEWARNINGALARMSMAJOR$\\' --critical-alarms-major=\\'$_SERVICECRITICALALARMSMAJOR$\\' --warning-alarms-minor=\\'$_SERVICEWARNINGALARMSMINOR$\\' --critical-alarms-minor=\\'$_SERVICECRITICALALARMSMINOR$\\' --warning-alarms-warning=\\'$_SERVICEWARNINGALARMSWARNING$\\' --critical-alarms-warning=\\'$_SERVICECRITICALALARMSWARNING$\\' --warning-alarms-indeterminate=\\'$_SERVICEWARNINGALARMSINDETERMINATE$\\' --critical-alarms-indeterminate=\\'$_SERVICECRITICALALARMSINDETERMINATE$\\' --warning-interface-health-up=\\'$_SERVICEWARNINGINTERFACEHEALTHUP$\\' --critical-interface-health-up=\\'$_SERVICECRITICALINTERFACEHEALTHUP$\\' --warning-interface-health-down=\\'$_SERVICEWARNINGINTERFACEHEALTHDOWN$\\' --critical-interface-health-down=\\'$_SERVICECRITICALINTERFACEHEALTHDOWN$\\' --warning-interface-health-disabled=\\'$_SERVICEWARNINGINTERFACEHEALTHDISABLED$\\' --critical-interface-health-disabled=\\'$_SERVICECRITICALINTERFACEHEALTHDISABLED$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-disk-usage=\\'$_SERVICEWARNINGDISKUSAGE$\\' --critical-disk-usage=\\'$_SERVICECRITICALDISKUSAGE$\\' --warning-disk-usage-free=\\'$_SERVICEWARNINGDISKUSAGEFREE$\\' --critical-disk-usage-free=\\'$_SERVICECRITICALDISKUSAGEFREE$\\' --warning-disk-usage-prct=\\'$_SERVICEWARNINGDISKUSAGEPRCT$\\' --critical-disk-usage-prct=\\'$_SERVICECRITICALDISKUSAGEPRCT$\\' --warning-ike-health-up=\\'$_SERVICEWARNINGIKEHEALTHUP$\\' --critical-ike-health-up=\\'$_SERVICECRITICALIKEHEALTHUP$\\' --warning-ike-health-down=\\'$_SERVICEWARNINGIKEHEALTHDOWN$\\' --critical-ike-health-down=\\'$_SERVICECRITICALIKEHEALTHDOWN$\\' --warning-ike-health-disabled=\\'$_SERVICEWARNINGIKEHEALTHDISABLED$\\' --critical-ike-health-disabled=\\'$_SERVICECRITICALIKEHEALTHDISABLED$\\' --warning-memory-usage=\\'$_SERVICEWARNINGMEMORYUSAGE$\\' --critical-memory-usage=\\'$_SERVICECRITICALMEMORYUSAGE$\\' --warning-memory-usage-free=\\'$_SERVICEWARNINGMEMORYUSAGEFREE$\\' --critical-memory-usage-free=\\'$_SERVICECRITICALMEMORYUSAGEFREE$\\' --warning-memory-usage-prct=\\'$_SERVICEWARNINGMEMORYUSAGEPRCT$\\' --critical-memory-usage-prct=\\'$_SERVICECRITICALMEMORYUSAGEPRCT$\\' --warning-packets-dropped-novalidlink=\\'$_SERVICEWARNINGPACKETSDROPPEDNOVALIDLINK$\\' --critical-packets-dropped-novalidlink=\\'$_SERVICECRITICALPACKETSDROPPEDNOVALIDLINK$\\' --warning-packets-dropped-slaaction=\\'$_SERVICEWARNINGPACKETSDROPPEDSLAACTION$\\' --critical-packets-dropped-slaaction=\\'$_SERVICECRITICALPACKETSDROPPEDSLAACTION$\\' --warning-config-health-up=\\'$_SERVICEWARNINGCONFIGHEALTHUP$\\' --critical-config-health-up=\\'$_SERVICECRITICALCONFIGHEALTHUP$\\' --warning-config-health-down=\\'$_SERVICEWARNINGCONFIGHEALTHDOWN$\\' --critical-config-health-down=\\'$_SERVICECRITICALCONFIGHEALTHDOWN$\\' --warning-config-health-disabled=\\'$_SERVICEWARNINGCONFIGHEALTHDISABLED$\\' --critical-config-health-disabled=\\'$_SERVICECRITICALCONFIGHEALTHDISABLED$\\' --warning-paths-up=\\'$_SERVICEWARNINGPATHSUP$\\' --critical-paths-up=\\'$_SERVICECRITICALPATHSUP$\\' --warning-paths-down=\\'$_SERVICEWARNINGPATHSDOWN$\\' --critical-paths-down=\\'$_SERVICECRITICALPATHSDOWN$\\' --warning-reachability-health-up=\\'$_SERVICEWARNINGREACHABILITYHEALTHUP$\\' --critical-reachability-health-up=\\'$_SERVICECRITICALREACHABILITYHEALTHUP$\\' --warning-reachability-health-down=\\'$_SERVICEWARNINGREACHABILITYHEALTHDOWN$\\' --critical-reachability-health-down=\\'$_SERVICECRITICALREACHABILITYHEALTHDOWN$\\' --warning-reachability-health-disabled=\\'$_SERVICEWARNINGREACHABILITYHEALTHDISABLED$\\' --critical-reachability-health-disabled=\\'$_SERVICECRITICALREACHABILITYHEALTHDISABLED$\\' --warning-service-health-up=\\'$_SERVICEWARNINGSERVICEHEALTHUP$\\' --critical-service-health-up=\\'$_SERVICECRITICALSERVICEHEALTHUP$\\' --warning-service-health-down=\\'$_SERVICEWARNINGSERVICEHEALTHDOWN$\\' --critical-service-health-down=\\'$_SERVICECRITICALSERVICEHEALTHDOWN$\\' --warning-service-health-disabled=\\'$_SERVICEWARNINGSERVICEHEALTHDISABLED$\\' --critical-service-health-disabled=\\'$_SERVICECRITICALSERVICEHEALTHDISABLED$\\' --warning-port-health-up=\\'$_SERVICEWARNINGPORTHEALTHUP$\\' --critical-port-health-up=\\'$_SERVICECRITICALPORTHEALTHUP$\\' --warning-port-health-down=\\'$_SERVICEWARNINGPORTHEALTHDOWN$\\' --critical-port-health-down=\\'$_SERVICECRITICALPORTHEALTHDOWN$\\' --warning-port-health-disabled=\\'$_SERVICEWARNINGPORTHEALTHDISABLED$\\' --critical-port-health-disabled=\\'$_SERVICECRITICALPORTHEALTHDISABLED$\\' --warning-path-health-up=\\'$_SERVICEWARNINGPATHHEALTHUP$\\' --critical-path-health-up=\\'$_SERVICECRITICALPATHHEALTHUP$\\' --warning-path-health-down=\\'$_SERVICEWARNINGPATHHEALTHDOWN$\\' --critical-path-health-down=\\'$_SERVICECRITICALPATHHEALTHDOWN$\\' --warning-path-health-disabled=\\'$_SERVICEWARNINGPATHHEALTHDISABLED$\\' --critical-path-health-disabled=\\'$_SERVICECRITICALPATHHEALTHDISABLED$\\' --warning-total=\\'$_SERVICEWARNINGTOTAL$\\' --critical-total=\\'$_SERVICECRITICALTOTAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Versa-Director-Restapi-Devices",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_versa_director_restapi.pl --plugin network::versa::director::restapi::plugin --mode=paths --hostname=\\'$_HOSTDIRECTORAPIHOSTNAME$\\' --port=\\'$_HOSTDIRECTORAPIPORT$\\' --proto=\\'$_HOSTDIRECTORAPIPROTO$\\' --api-username=\\'$_HOSTDIRECTORAPIUSERNAME$\\' --api-password=\\'$_HOSTDIRECTORAPIPASSWORD$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTDIRECTORAPIEXTRAOPTIONS$ --organization=\\'$_HOSTDIRECTORORGANIZATION$\\' --filter-org-name=\\'$_HOSTDIRECTORORGNAME$\\' --filter-device-name=\\'^$_HOSTDIRECTORDEVICENAME$$$\\' --filter-device-type=\\'$_HOSTDIRECTORDEVICETYPE$\\' --filter-local-wan-link=\\'$_SERVICEFILTERLOCALWANLINK$\\' --filter-remote-wan-link=\\'$_SERVICEFILTERREMOTEWANLINK$\\' --filter-remote-site-name=\\'$_SERVICEFILTERREMOTESITENAME$\\' --group=\\'$_SERVICEGROUP$\\' --warning-group-paths-up=\\'$_SERVICEWARNINGGROUPPATHSUP$\\' --critical-group-paths-up=\\'$_SERVICECRITICALGROUPPATHSUP$\\' --warning-group-paths-down=\\'$_SERVICEWARNINGGROUPPATHSDOWN$\\' --critical-group-paths-down=\\'$_SERVICECRITICALGROUPPATHSDOWN$\\' --warning-subgroup-paths-up=\\'$_SERVICEWARNINGSUBGROUPPATHSUP$\\' --critical-subgroup-paths-up=\\'$_SERVICECRITICALSUBGROUPPATHSUP$\\' --warning-subgroup-paths-down=\\'$_SERVICEWARNINGSUBGROUPPATHSDOWN$\\' --critical-subgroup-paths-down=\\'$_SERVICECRITICALSUBGROUPPATHSDOWN$\\' --warning-total-paths-up=\\'$_SERVICEWARNINGTOTALPATHSUP$\\' --critical-total-paths-up=\\'$_SERVICECRITICALTOTALPATHSUP$\\' --warning-total-paths-down=\\'$_SERVICEWARNINGTOTALPATHSDOWN$\\' --critical-total-paths-down=\\'$_SERVICECRITICALTOTALPATHSDOWN$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Versa-Director-Restapi-Paths",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_versa_director_restapi.pl --plugin network::versa::director::restapi::plugin --mode discovery --hostname=\\r\\n$_DIRECTORAPIHOSTNAME$ --port='$_DIRECTORAPIPORT$' --proto='$_DIRECTORAPIPROTO$' --api-username='$_DIRECTORAPIUSERNAME$' --api-password='$_DIRECTORAPIPASSWORD$' --proxyurl='$_PROXYURL$' --timeout='$_TIMEOUT$' $_DIRECTORAPIEXTRAOPTIONS$ --resource-type=device\"",
+            "name": "Net-Versa-Director-Restapi-HostDiscovery-devices",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Versa avec la Director Rest API}\r\n{EN: Template to check Versa devices using Director Rest API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Versa Networks devices using Director Restapi",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "versa-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTDIRECTORAPIPORT$",
+                    "value": "9182"
+                },
+                {
+                    "key": "$_HOSTDIRECTORAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTDIRECTORORGANIZATION$",
+                    "value": ".*"
+                },
+                {
+                    "key": "$_HOSTDIRECTORAPIHOSTNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTDIRECTORAPIUSERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTDIRECTORAPIPASSWORD$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTDIRECTORDEVICENAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTDIRECTORAPIEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Versa-Director-Device-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Versa-Director-Devices-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "versa-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Add paths service",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Versa Networks device using Director Restapi:\r\n* Devices\r\n* Paths"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un \u00e9quipement Versa Networks via la RestAPI Director :\r\n* Devices\r\n* Paths"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAABBNSURBVHic7dx7eBTlvcDx729mEwh3FVABEQJeIF6q9dFafXrw8cpRPArMJiSICAQUVEBr9alHu+ppsa23Rw2YBBQJue0EtHos2ipoq7bq8YYleAtBUBDvIgTY7M7v/LHJ7gY2m002to/nvJ/n2efJzLzvO+/uzLz3CRiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRiGYRj/MpJxCqXbemHvPRvVPIQBwLeobMWz6tneuJ7AWeHMs2l8XzK7AZY2nI1KJXBoOyF2g7yA4pLF41wx8puMzmd0u67fAKWbD8fy3gP6phljFyrlRHx3c9URn3T5vEa3sroc09aLSf/iA/RBdCG+5o2UbbqGgHb93Ea36fpF8OjZxZh9Ee5n6GaX+z/o0eXzG90ig6cw8lpmp9aJ5Nh1qGbeEDW6rOs3wOzRLwNvZnj+iyjfPCfDNIwMZFYPe3ot4GWUhugvM4pvZCSzG2DOqBdRvSvDPBzBsi1DMkzD6CIfwOJ3OcbzOHSw8nd/HqFOpTBg7y182+ts0B93d+Ycp2isiLbeHKFgsOov6cVzbJGss1q3Ve0G161ozM+/7DjPaz6ys/no3bvnc8uXL98LMKmg4BTbswakCi8iuzwv1OC67ufppD99+vSeTU2hM1XJU5FeFuwEb0so1OOvjz++vFNjJ47j9FfJngWa47O8h2tqaralCu8r2cgE9XhcwPpc+KSknvt9PSidM4pv0zqjPy/EQw1TsOUNoE9nMttiOzOO2M7MAw+opSehrGzdnjRpyphVq6rf7ShBkazzFZ6K74mcBjRGNDJPxLqysxncu3fvcGArgOVZ9yqcmSq8qoJkqeMvfBPlPtetWgno/uECgYBVX//+/N1NoV8CAxEQtCWgkJUdijj+oqfVkt/W1az8axpZFSTrKUHPAIh41kzHcY53XXdXexEsPIqJVwVDgd+G97GlZCO/v/9thqVxUrhy1AeIlqQV9sA8P4rIAT8OgHjNLvBZLLM+6/J0UlSYkbD5lutWvdq1vGVEgJMRVjj+KcFx48b59g9QX//+UoV7gIHtpGGDXiie94LfX1ieLI1Ek/OLzgXOSNg1Qi3fFaniWJq8Jd8P5ed2FptKNhJ8YCPjUiUC0Mu36+WOwiQRxgsvbe+g67ohRB6O7VCmd/QjXHrptEOAixLiPNhO0EaBR9L5WJbVzhOk/xBwEz/Ak8A7tHniZfLAwUNuTozpOEWXKiRcHH1b4GZBZgvcCqwj3sAWIPv5559POa8iqvMP3CfXBgKBdtt6vuYQ92b34CpgUJLjWSiOBc6D9dRbsDhbqZ6Vx1f7Bzx9YPC457YnKcdTW8ycoxpShvDsJUj4BqJPw2EDDx16AfDf7QXPygpPU2gdYPqmZ0+7Jlk4RV5zg5Uzkh1LlyK1brDqv5Idc5zCHyHUAaMABK4bP378nWvWrNlHdEfij/VnNDw+6LqRhH135Ofnj/E8+3cIeVlZck2qvOTn5x/tKRe0bO4G/QZkKDC6vv69C4nemAewFp7ENyL8Z0dfVmCswoP7hB0lG1hbUs/tJRsoerCeyxbXs3hEvzcndpTGfr4iO/v2jgK57ootIE/H8qFeyoumaLyaEB6tqKjY3cl8dQvXrXoL1cSL3K93//7xhrLomNjfSp3b9uIDUFtbu9F1qyagzadVVlbuTHU+Vd98WqtyYQXKkvgxOaBkaGUBfHYsS4HXO/pSLXwIZwG3IKwUWKFwldDJET3VW7h82JfphY0siW/IBMdxDksWzHEKTwU5sXXbC2t5p/LU7cJ/A2IXViJ2fNZUiRfnFqemSqWj3sQll0wfoOi02A5PlkC4DGgtbc7Oz596YrK4FkBA8DyL+SRpqX4vVOvZtqUs3eB5eceuARpbNn0q2UVJk5XEOpW1q1ZVb8gglxmLRLIHA3Z8j5fQs9L18T+Z6eQXPpKfnx8vFTrBl908m3gPbK3rVr7juu7nCKtiZ8ZLWoXEGlTXHMtLJRupQ3G6kolOsWVhZxaKBAIBz3GmlCGyCEBEZwF3J4ZxHCcHKIjtUFlCCoKe7PcXddBz8XYFg9U3ppvP/Vk+vSlhMwThWCkrWPcpOpHWYluZ7mFPd/yF7ys8jSVPfPHpJy901PBzHMcGjXVtBX2g9W8Vr0TUKmxJf+qUKVNurq6u3pEYv22LOsz12FwI9Orkd+0EfYyZo/7U2Vg+H0vDEX4F9EQ5Nj+/6Ce1tZV/j4fImgy0DtBsP+ig3n/oIMnRio5OHUS+BNq9AUQ4aNKkwtzEfZYlvdXSo8RjFjA+HpjlbtCNlQDBYOVLk/MLr5BoXZ34ex8tcDSeXjto8JCvnPzCWlu8RTU1NVuT58E3SWFky+YW1XCssVdXU/Oy4y98Hfgx0CMSkdnAHW3ym7gx73i2SrRf+n0JEWn/B02lurr6CyGxSNO2/duE4l+grKysrLnLuUyXcp1l05D4QXS9KKuQhIsPb+A1/2L/6HW1VStQ3xiEe4AtSc5wMMpVEc96x3GmXJDkOKpWrIEnsPiAxmRiYxCuchwnO/HwAX1qu4lFzb2YJjC8ve/ddXIPV+Z+kEH8JaDR+l8pmDBh9sInnyxrcpzLRkLk31oChcNhaXdsIUblZeDelGcTb1/X8wrANwqlOT3sOyoqqpL2RqK9HK4Hrnecwh+J8O+qegEipxO/Pv0RqZs4sejY1asrP26NO6mg4BQ8/WnLZliVdQeWSPYrnkaaiJYyh4v4/BAfXT3gBphzCk2LN3CzChWZfPMkdpATXpRJAsFg5UuOU/gmwklAvx69dk0GVohEZmisNNMnV6+u+jhVOgAqfFwXrKzLJD/ANmB7wvbBxItjRXVCnVv9YrqJuW7VW8BbwG8KCgqGRNS6HY2NF/S2fDodiI072J61IKHV7kN4xUpocgJ4un+BIAtJuAGSjhBdNZZKIO2Mp0XlJqYelbIvmw4RifUeRJkRCAQshXgXKKHI+74pLHGDVae0ftDmE4APW7OHWGUTJszuUnuqpqZmm1tbNQvVhDkAGdv6V0FBwRClSw32kx1nSmwuI+kNIIKKsIBM5/pj9A22jVjRLSlpaCXQeiP9bMOG9+cSr64a8vKOea47ztMVruvuEmQ6sb6/jsnJ2f37ZGEdxxnk5Bfed/HFM1Kvq7QksfEXe5wjas8FWupz/QR4toPP5lgqIgta/2x3XH3uGF5/sJ4KgbQmYFJQkAUEpFtuJtd1d032F1YIzAMEIbYeQZElgUCgm27argkGK1/y+wsXKdHRVUXnOs7UZ1x35ROtYcaPH98DyVqNcmaPnnsvnJxfeGNdbdVj7DcO4zhTj0G9xMbkO7H4qsWxvWotcN3U1ZnfX3iOwp9bNi9xnMtGum5FY8qJlXCEG7NsLgX6pfHd21NFcW46U5lpsyVS4kWfACE+7r9HNPRIumkIeqbjFCYdH08S+kbXraxPN+3PPtt226BBQ89F9LRodG/ZxIlTT1i9euV2gD59DppCfEp5tCirHH/hFkHWgDaqarOIHKd4+cS7iLu9MFUAffsePE3RwS37t6XR5SUYrHrWcQo3IOQBtkpkLnBDyhVBC45nhwh3pvvFk9iD1/1LvmprazcCbW4qgRrXdQ+YpEphCMJF6XzUlkM6k7/nn38+bFnhIuC7ll0DbZ/3KC3vYbhu1XKUadBmzcVwReco3InI3S0zha0X31NhbmsPQFWvjsVSXZxul1ctLW39W2B2UVFRvw6XhA30uBvoatdtEXNGJevfZkxFfk28TmxSlUyXpnWr2traBpSfJ+w61+8vjNW9rltVkeVjpEKA5GMAUcp6gfPraqtWADjOlHMRTmg5us/no+Mub4vQnpzlxNtP/UIhnZayCgDw5xEq2chNaHwQJk1b8Xre3XGwrqmrrfyT4xT+VC09zcZ7pjZY+35Hcbyw/Nq2409BunKyJP4AqDULvD4AXsRKudzKdavKJhUUvGZFLAtAkTbL7aqqqr4GbgNui079+k4S0UOBHFV2gLzqupXvtE01qx4NnwJgWZGm6uraHaTpiSce/s5xpp7amn/LinyT9gxeST3PAOe1d/zNL8a/sfS9kpNjO5R8ZucG003f+NdIe1WwrSwE0pzAkZcpHul2MU/GP1GHVUCrK/OoL6mnDJjbQVAPy5vf3jq/H7xlW4awe9+XXHtUdJj44Q+PoM+obfglQvkHw/CIv+6W0/dTInsihMJD2ybSezuE+pPTcyfTDosOEZc2DI+1lx5pHICVZcfWSyzZOhRf8yH03/Mu/rxoNXLP1hwGeIcDEInspjg3XhWUbzoUr+d3zBnSRGCdj+G5w+kz/CP8EqF0Wy+svaNptrcy98ivO/VeQA/lFiD1Ig5hGTNH/U9n0v1B0XAtOb54dzNireXrj1q6ZPYfsewKLLsUyy5lz+6TCOvRWPZKLHstlv0XLHslvtCJ2JH5hJqi08Wlm0/Gkk0s+TCaTsRbQvO+8wms81HeWImveS1wFztz3qO88ScA9A2fRiTyKpFIKbCO8k0vU7ot2mtQfQhrzzgCajF0xKOEvaujF3/z4Vj71oMsIjvyBksbLuzUDdCyFvCOFEG+w5ZbO5PmD5P3M5Zuujr5IZlBce45FOeew5xRL1Kcu57i3NMRfQhkBcW5pzNzxN8QqcbT6DI6y5sEfI5t/Qf3f9ADlXHs2/sEw468EvRgPvkoj+Lc81CdBxqfo1Fepzj3XIpzxwKCtfeMNnkZsmkx6BfMHnld9Dx6KuhW9oQnsjNrLE3es51+M+jzHZQA/2jn8G1cMfLTzqb5g6N2McoNlDYc+H6ApX+gfNN6yje9kjKNmblvI5ZSvnkMMBG15gKT6WWfB7zAvLxdoGcg6sYWzxSP+iNwSKykQIdR3jib8k03AEdi+RJWQMmvEJmKZ8XHcax9a0GayLE/oV9oMX1kcKdvgMBZhD1p078FYFBO407673kgWZz/cyw+xbKmY8lK9h8l9WQakjWOZjvp/H0bqjXg3Q58RPGRjyOMjs7+abT35LEFzzouFn7ppiMB4ZBR0WrYkizwDgZuQuUKZg5P7JauR+R6LK+awLpoW2/GMbuYNeIiIA+VnUSsu7r0buA1Y3hGaDPr9t2wnHd/EWug/H8wc8S6lmVng9vst7gEQpeTHZ7e8nS3TyPVwCRUahBRlNUoZ/Fd9hoARO5B9BKWNtxHWeN8lKcRbsAv0QEwj0aKR92JWrMQ7zcENyQs9tDHmDWyFGULw4ZHp5CXNU5maeM6BAfIRdnS5ZdD545lLsIZCtM8i2PnHUeG/y/gB8LTh1Av+qQVj/gdqvMI724d8r0L9AtULFT2+23lOTzvqTa75hzVADqPLB4HQCMPAcVcd8SeaPq5O/D0JDzZgHg54E1lVm505M/zNgHLAJg94jHgQXb1iS5xEyqwfdFX6Jr3zEXlS5a925dZuS7CrUBPhCAD9rR5WcUwDMMwDMMwDMMwDMMwDMMwDMMwDMMwDMMwDMMwDMMwDMMwDMMwDMMwDMMwDMMwDMMwDMMwDMMwDMMwDMMwDMMwDMP4J/tf2Bz0VUuWahIAAAAASUVORK5CYII=",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Versa Director Restapi",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_versa_director_restapi.pl",
+                "package_name": "centreon-plugin-Network-Versa-Director-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-versa-director-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Versa",
+            "API",
+            "SD-WAN",
+            "Network"
+        ],
+        "update_date": "1621408609",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des syst\u00e8mes (processeur, m\u00e9moire et sessions.) \u00e0 l'aide de l'API Rest Director}\r\n\r\n{EN: Check device system statistics (cpu, memory, sessions) using director RestAPI.}",
+            "active_checks_enabled": 2,
+            "alias": "Devices",
+            "check_timeperiod": "",
+            "command_name": "Net-Versa-Director-Restapi-Devices",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{ping_status} ne \"reachable\" or %{services_status} ne \"good\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Versa-Director-Devices-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des paths.}\r\n\r\n{EN: Check paths.}",
+            "active_checks_enabled": 2,
+            "alias": "Paths",
+            "check_timeperiod": "",
+            "command_name": "Net-Versa-Director-Restapi-Paths",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEGROUP$",
+                    "password": false,
+                    "value": "remoteSiteName"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Versa-Director-Paths-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

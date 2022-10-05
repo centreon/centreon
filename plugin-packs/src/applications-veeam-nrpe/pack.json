@@ -1,0 +1,285 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::backup::veeam::local::plugin\\' \\'job-status\\'  \\' --filter-name=\\\\\\\"$_SERVICEFILTERNAME$\\\\\\\" --filter-start-time=\\\\\\\"$_SERVICEFILTERSTARTTIME$\\\\\\\" --filter-end-time=\\\\\\\"$_SERVICEFILTERENDTIME$\\\\\\\" --filter-counters=\\\\\\\"$_SERVICEFILTERCOUNTERS$\\\\\\\" --ok-status=\\\\\\\"$_SERVICEOKSTATUS$\\\\\\\" --warning-status=\\\\\\\"$_SERVICEWARNINGSTATUS$\\\\\\\" --critical-status=\\\\\\\"$_SERVICECRITICALSTATUS$\\\\\\\" --warning-long=\\\\\\\"$_SERVICEWARNINGLONG$\\\\\\\" --critical-long=\\\\\\\"$_SERVICECRITICALLONG$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Veeam-NRPE-Job-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::backup::veeam::local::plugin\\' \\'tape-jobs\\'  \\' --filter-name=\\\\\\\"$_SERVICEFILTERNAME$\\\\\\\" --warning-status=\\\\\\\"$_SERVICEWARNINGSTATUS$\\\\\\\" --critical-status=\\\\\\\"$_SERVICECRITICALSTATUS$\\\\\\\" --warning-total=\\\\\\\"$_SERVICEWARNINGTOTAL$\\\\\\\" --critical-total=\\\\\\\"$_SERVICECRITICALTOTAL$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Veeam-NRPE-Tape-Jobs",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::backup::veeam::local::plugin\\' \\'vsb-jobs\\'  \\' --filter-name=\\\\\\\"$_SERVICEFILTERNAME$\\\\\\\" --filter-type=\\\\\\\"$_SERVICEFILTERTYPE$\\\\\\\" --warning-jobs-detected=\\\\\\\"$_SERVICEWARNINGJOBSDETECTED$\\\\\\\" --critical-jobs-detected=\\\\\\\"$_SERVICECRITICALJOBSDETECTED$\\\\\\\" --warning-jobs-success=\\\\\\\"$_SERVICEWARNINGJOBSSUCCESS$\\\\\\\" --critical-jobs-success=\\\\\\\"$_SERVICECRITICALJOBSSUCCESS$\\\\\\\" --warning-jobs-failed=\\\\\\\"$_SERVICEWARNINGJOBSFAILED$\\\\\\\" --critical-jobs-failed=\\\\\\\"$_SERVICECRITICALJOBSFAILED$\\\\\\\" --warning-jobs-warning=\\\\\\\"$_SERVICEWARNINGJOBSWARNING$\\\\\\\" --critical-jobs-warning=\\\\\\\"$_SERVICECRITICALJOBSWARNING$\\\\\\\" --warning-status=\\\\\\\"$_SERVICEWARNINGSTATUS$\\\\\\\" --critical-status=\\\\\\\"$_SERVICECRITICALSTATUS$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Veeam-NRPE-Vsb-Jobs",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::backup::veeam::local::plugin\\' \\'licenses\\'  \\' --filter-to=\\\\\\\"$_SERVICEFILTERTO$\\\\\\\" --filter-type=\\\\\\\"$_SERVICEFILTERTYPE$\\\\\\\" --filter-status=\\\\\\\"$_SERVICEFILTERSTATUS$\\\\\\\" --unit=\\\\\\\"$_SERVICEUNIT$\\\\\\\" --warning-status=\\\\\\\"$_SERVICEWARNINGSTATUS$\\\\\\\" --critical-status=\\\\\\\"$_SERVICECRITICALSTATUS$\\\\\\\" --warning-expires=\\\\\\\"$_SERVICEWARNINGEXPIRES$\\\\\\\" --critical-expires=\\\\\\\"$_SERVICECRITICALEXPIRES$\\\\\\\" --warning-license-instances-usage=\\\\\\\"$_SERVICEWARNINGLICENSEINSTANCESUSAGE$\\\\\\\" --critical-license-instances-usage=\\\\\\\"$_SERVICECRITICALLICENSEINSTANCESUSAGE$\\\\\\\" --warning-license-instances-free=\\\\\\\"$_SERVICEWARNINGLICENSEINSTANCESFREE$\\\\\\\" --critical-license-instances-free=\\\\\\\"$_SERVICECRITICALLICENSEINSTANCESFREE$\\\\\\\" --warning-license-instances-usage-prct=\\\\\\\"$_SERVICEWARNINGLICENSEINSTANCESUSAGEPRCT$\\\\\\\" --critical-license-instances-usage-prct=\\\\\\\"$_SERVICECRITICALLICENSEINSTANCESUSAGEPRCT$\\\\\\\" --warning-total=\\\\\\\"$_SERVICEWARNINGTOTAL$\\\\\\\" --critical-total=\\\\\\\"$_SERVICECRITICALTOTAL$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Veeam-NRPE-Licenses",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::backup::veeam::local::plugin\\' \\'repositories\\'  \\' --filter-name=\\\\\\\"$_SERVICEFILTERNAME$\\\\\\\" --filter-type=\\\\\\\"$_SERVICEFILTERTYPE$\\\\\\\" --warning-status=\\\\\\\"$_SERVICEWARNINGSTATUS$\\\\\\\" --critical-status=\\\\\\\"$_SERVICECRITICALSTATUS$\\\\\\\" --warning-space-usage=\\\\\\\"$_SERVICEWARNINGSPACEUSAGE$\\\\\\\" --critical-space-usage=\\\\\\\"$_SERVICECRITICALSPACEUSAGE$\\\\\\\" --warning-space-usage-free=\\\\\\\"$_SERVICEWARNINGSPACEUSAGEFREE$\\\\\\\" --critical-space-usage-free=\\\\\\\"$_SERVICECRITICALSPACEUSAGEFREE$\\\\\\\" --warning-space-usage-prct=\\\\\\\"$_SERVICEWARNINGSPACEUSAGEPRCT$\\\\\\\" --critical-space-usage-prct=\\\\\\\"$_SERVICECRITICALSPACEUSAGEPRCT$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Veeam-NRPE-Repositories",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser des serveurs Veeam via NRPE}\r\n{EN: Template to check Veeam using NRPE protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Veeam using NRPE protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "veeam-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTNRPECLIENT$",
+                    "value": "check_centreon_nrpe"
+                },
+                {
+                    "key": "$_HOSTNRPEEXTRAOPTIONS$",
+                    "value": "-u -m 8192"
+                },
+                {
+                    "key": "$_HOSTNRPEPORT$",
+                    "value": "5666"
+                },
+                {
+                    "key": "$_HOSTNRPETIMEOUT$",
+                    "value": "55"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Veeam-NRPE",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Veeam-Job-Status-NRPE"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAAsSAAALEgHS3X78AAAEg0lEQVR42u2bMWhUQRCGzxglaTSSwsYqnVin1MokchG8FNEzOU2Ui4WVTWwVC5FUllZGRBGC5Cy0E6xsrhDstFCxEATTaJEoJJzzwh7GA0Gy+96bmf//4W+TfTPf7e3+865SoSiKoiiKoiiKoiiKoiiKoiiKoiiKoiiK6tHpVq2zC0//798fm2m2xZ0Ij2qtXba2yGdrIwAwF1mkB4oBWI58tnkEAAbEaxFF2hAPK2z+cFjbbp9rbWx2YcA9AKFYS5GflEWFACxGPtMSxBkgFGtEvBVRrA/j9WafmubPXu7L1hTxPFktRmAACBA8j/zETCr69Fcjn+UFzC3AY9GytUQ+SxUOgInzCy62zRRfZyflKwQOAC8HJ3cH2oIByK5O61FXp5nmYInNH4y80q6ru9IWCYD18CT735FrX4aLgj3Fpy5j7aIBsFpIF7m/IgDMzQdc5P6KADA1H3CT+2sBwNp1yk3urwwAE/MBV7m/JgCszAdc5f4KAVBfXFe5vzYAtM8H3OX+2gDQfsDy+CKLRgBUzgdc5v4aAdAasrjM/RUDoC5m9fw6uzoAtBXcbe6vHAA18wG3ub9yAFTMB1zn/poB0HLtcp37GwCg1PmA+9xfOwBlzwfc5/5GACitCe5zfwsAlDUfgMj9LQBQ1kEMIvc3BECh8wGY3N8KAEWHMTC5vzEACotjYXJ/SwAU1Rio3N8gALnPB6Byf4MA5DofSJL7yxoJQL4Q5HY9g8v9jQKQy3wAMve3CEBe8wHI3N8wAMmbBZn7WwUg9XwANve3CkDqAxts7m8cgCTzAejc3zIAqUIb6NzfAQDRsS107m8dgETzAdzc3wkAcyUCME8Aygcgdj6Am/t7ACDRNQ4z93cEQGyQg5n7JwTgbNnrTjAfwMv9EwLQUABAtUAAqgTgb18te90J5gN4uX9CAG5pWHuC+QBW7p8QgEdKAIidD2Dl/gkBeKtl/QnmAzi5f0IANsUHlQAwmiMAowTg355StAu0mfsXD8BjRQDMMfcvHoB18bASAFLPB3zm/okByHxD0S6wxNy/eAC+iw9XKFgAMj9hFW0D8CsBBPOspF0AviYAYEN8gtW0CcCbBAB0zwPHWVF7AKwmAqC7EzRYVVsA3E4IQNfL4iFW1wYA53IAoBPOFguTz870s8q6ARjJCYCuP4qviQ+x2go1sTKdQfAlZwgy/xS3xJfER1h5XbvAwwIA6PXnAMSd7BUzcT172xjNWgColwAALdYCwIFwhWNTEAEIEKywIdgAnGJDgAGYbNX6ZEHv2RRQAMIu0GRTsAHYH4IbNgcRAF4JCUClujq1Rxb2ks0BBWDHfOAHGwQKQICgwQYBAxAguMsmIQOwOrVXFvmUjQIFYMfVsMVmgQIQIOgX32PDQAHYVmcbhCvhN4FsHhwAf3aDo+LXbB4oANthUauWhUUXxJ/YREAAduwG+8QXxW02ExCAHhiOiW8GGDbZXDAAemAYEo+Lr4vvi1+J34m/hVfPtth8xwBQFEVRFEVRFEVRFEVRFEVRFEVRFEVRFBWl36ch3O077QYBAAAAAElFTkSuQmCC",
+            "name": "veeam-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* add services repositories and licenses",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Veeam application:\r\n* Job-status\r\n* Licenses\r\n* Repositories\r\n* Tape-jobs\r\n* Vsb-jobs"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser l\\'application Veeam :\r\n* Job-status\r\n* Licenses\r\n* Repositories\r\n* Tape-jobs\r\n* Vsb-jobs"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Veeam",
+        "plugins_requirements": [],
+        "requirement": [],
+        "slug": "applications-veeam-nrpe",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Backup",
+            "Application",
+            "Veeam"
+        ],
+        "update_date": "1646140510",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'\u00e9tat des jobs de sauvegarde.}\r\n\r\n{EN: Check job status.}",
+            "active_checks_enabled": 2,
+            "alias": "Job-Status",
+            "check_timeperiod": "",
+            "command_name": "App-Veeam-NRPE-Job-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERENDTIME$",
+                    "password": false,
+                    "value": "86400"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{is_running} == 0 and not %{status} =~ /Success/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Veeam-Job-Status-NRPE",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'\u00e9tat des jobs sur bande.}\r\n\r\n{EN: Check job tape status.}",
+            "active_checks_enabled": 2,
+            "alias": "Tape-Jobs",
+            "check_timeperiod": "",
+            "command_name": "App-Veeam-NRPE-Tape-Jobs",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{enabled} == 1 and not %{last_result} =~ /Success|None/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Veeam-Tape-Jobs-NRPE",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des jobs SureBackup.}\r\n\r\n{EN: Check SureBackup jobs.}",
+            "active_checks_enabled": 2,
+            "alias": "Vsb-Jobs",
+            "check_timeperiod": "",
+            "command_name": "App-Veeam-NRPE-Vsb-Jobs",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "not %{status} =~ /success/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Veeam-Vsb-Jobs-NRPE",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les licences.}\r\n\r\n{EN: Check licenses.}",
+            "active_checks_enabled": 2,
+            "alias": "Licenses",
+            "check_timeperiod": "",
+            "command_name": "App-Veeam-NRPE-Licenses",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /expired|invalid/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Veeam-Licenses-NRPE",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les d\u00e9p\u00f4ts.}\r\n\r\n{EN: Check repositories.}",
+            "active_checks_enabled": 2,
+            "alias": "Repositories",
+            "check_timeperiod": "",
+            "command_name": "App-Veeam-NRPE-Repositories",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "not %{status} =~ /ordinal|maintenance/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Veeam-Repositories-NRPE",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

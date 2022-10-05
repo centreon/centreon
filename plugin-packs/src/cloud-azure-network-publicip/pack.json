@@ -1,0 +1,1130 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-PublicIP-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Network Public IP resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Network/publicIPAddresses/IPA123456ABCD78",
+                            "location": "westeurope",
+                            "name": "IPA123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/publicIPAddresses"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Network/publicIPAddresses/IPA789012EFGH34",
+                            "location": "westus",
+                            "name": "IPA789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/publicIPAddresses"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": "discovery.results.id"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-PublicIP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Public IP",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-network-publicip",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-PublicIP-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Network Public IP resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Network/publicIPAddresses/IPA123456ABCD78",
+                            "location": "westeurope",
+                            "name": "IPA123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/publicIPAddresses"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Network/publicIPAddresses/IPA789012EFGH34",
+                            "location": "westus",
+                            "name": "IPA789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/publicIPAddresses"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-PublicIP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Public IP",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-network-publicip",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-PublicIP-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Network Public IP resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Network/publicIPAddresses/IPA123456ABCD78",
+                            "location": "westeurope",
+                            "name": "IPA123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/publicIPAddresses"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Network/publicIPAddresses/IPA789012EFGH34",
+                            "location": "westus",
+                            "name": "IPA789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/publicIPAddresses"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-PublicIP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Public IP",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-network-publicip",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_publicip_api.pl --plugin=cloud::azure::network::publicip::plugin --mode=status --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$  --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\'  --warning-ddos-status=\\'$_SERVICEWARNINGDDOSSTATUS$\\' --critical-ddos-status=\\'$_SERVICECRITICALDDOSSTATUS$\\' --warning-provisioning-state=\\'$_SERVICEWARNINGPROVISIONINGSTATE$\\' --critical-provisioning-state=\\'$_SERVICECRITICALPROVISIONINGSTATE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-PublicIP-Api-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_publicip_api.pl --plugin=cloud::azure::network::publicip::plugin --mode=ddos-traffic --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-ddos-inbound=\\'$_SERVICEWARNINGDDOSINBOUND$\\' --critical-ddos-inbound=\\'$_SERVICECRITICALDDOSINBOUND$\\' --warning-ddos-inbound-packets=\\'$_SERVICEWARNINGDDOSINBOUNDPACKETS$\\' --critical-ddos-inbound-packets=\\'$_SERVICECRITICALDDOSINBOUNDPACKETS$\\' --warning-ddos-dropped-packets=\\'$_SERVICEWARNINGDDOSDROPPEDPACKETS$\\' --critical-ddos-dropped-packets=\\'$_SERVICECRITICALDDOSDROPPEDPACKETS$\\' --warning-ddos-forwarded=\\'$_SERVICEWARNINGDDOSFORWARDED$\\' --critical-ddos-forwarded=\\'$_SERVICECRITICALDDOSFORWARDED$\\' --warning-ddos-dropped=\\'$_SERVICEWARNINGDDOSDROPPED$\\' --critical-ddos-dropped=\\'$_SERVICECRITICALDDOSDROPPED$\\' --warning-ddos-forwarded-packets=\\'$_SERVICEWARNINGDDOSFORWARDEDPACKETS$\\' --critical-ddos-forwarded-packets=\\'$_SERVICECRITICALDDOSFORWARDEDPACKETS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-PublicIP-Api-Ddos-Traffic",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_network_publicip_api.pl --statefile-suffix='autodiscovery' --plugin=cloud::azure::network::publicip::plugin --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Network-PublicIP-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les instances Azure Public IP via l'API}\r\n{EN: Template to check Azure Public IP resources service using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Network Public IP service using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-network-publicip-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-PublicIP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Network-PublicIP-Status-Api",
+                "Cloud-Azure-Network-PublicIP-Ddos-Traffic-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-network-publicip-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ add tags management",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Azure Network Public IP service using RestAPI or AZCLI.**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|Cloud-Azure-Network-PublicIP-custom|\r\n|---|\r\n|Ddos-Traffic|\r\n|Status|\r\n\r\nThis Plugin-Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin-Pack pour superviser les resources Azure Network Public IP via RestAPI ou AZCLI.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponibles et services associ\u00e9s:\r\n\r\n|Cloud-Azure-Network-PublicIP-custom|\r\n|---|\r\n|Ddos-Traffic|\r\n|Status|\r\n\r\nCe Plugin-Pack fournit un *provider* Host Discovery pour le module d\\'auto-d\u00e9couverte d\\'H\u00f4tes"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure Public IP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_network_publicip_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Network-PublicIP-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-network-publicip",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Cloud",
+            "Azure",
+            "Microsoft",
+            "Network",
+            "HostDisco",
+            "API",
+            "Restapi"
+        ],
+        "update_date": "1636825088",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des Public IPs Azure.}\r\n\r\n{EN: Check Azure Public IP status.}",
+            "active_checks_enabled": 2,
+            "alias": "Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-PublicIP-Api-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALDDOSSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /DDOS Attack ongoing/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALPROVISIONINGSTATE$",
+                    "password": false,
+                    "value": "%{state} =~ /Failed/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-PublicIP-Status-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le trafic DDOS des Public IPs Azure.}\r\n\r\n{EN: Check Azure Public IP DDOS traffic.}",
+            "active_checks_enabled": 2,
+            "alias": "Ddos-Traffic",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-PublicIP-Api-Ddos-Traffic",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Maximum"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--zeroed"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-PublicIP-Ddos-Traffic-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

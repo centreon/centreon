@@ -1,0 +1,1092 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v1.0": [
+                {
+                    "command": "App-Ansible-Cli-HostDiscovery-Local",
+                    "default_template": "generic-active-host",
+                    "description": "Discover hosts by using Ansible CLI locally",
+                    "mapping": {
+                        "ansible_cli_local_linux": {
+                            "association": {
+                                "description": [
+                                    "${fqdn}",
+                                    "${hostname}"
+                                ],
+                                "hostname": [
+                                    "${hostname}"
+                                ],
+                                "ip": [
+                                    "${ip}",
+                                    "${hostname}",
+                                    "${fqdn}"
+                                ]
+                            },
+                            "attributes": {
+                                "all_ips": {
+                                    "type": "array"
+                                },
+                                "distribution": {
+                                    "type": "string"
+                                },
+                                "fqdn": {
+                                    "type": "string"
+                                },
+                                "hostname": {
+                                    "type": "string"
+                                },
+                                "ip": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                }
+                            },
+                            "filters": {
+                                "type": "Linux"
+                            },
+                            "macros": [],
+                            "object": "host",
+                            "templates": [
+                                "OS-Linux-SNMP-custom"
+                            ]
+                        },
+                        "ansible_cli_local_windows": {
+                            "association": {
+                                "description": [
+                                    "${fqdn}",
+                                    "${hostname}"
+                                ],
+                                "hostname": [
+                                    "${hostname}"
+                                ],
+                                "ip": [
+                                    "${ip}",
+                                    "${hostname}",
+                                    "${fqdn}"
+                                ]
+                            },
+                            "attributes": {
+                                "all_ips": {
+                                    "type": "array"
+                                },
+                                "distribution": {
+                                    "type": "string"
+                                },
+                                "fqdn": {
+                                    "type": "string"
+                                },
+                                "hostname": {
+                                    "type": "string"
+                                },
+                                "ip": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                }
+                            },
+                            "filters": {
+                                "type": "Windows"
+                            },
+                            "macros": [],
+                            "object": "host",
+                            "templates": [
+                                "OS-Windows-SNMP-custom"
+                            ]
+                        }
+                    },
+                    "name": "Ansible (Local)",
+                    "parameters": [
+                        {
+                            "description": "Ansible Command Line",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "ANSIBLECOMMAND",
+                            "type": "text",
+                            "value": "ANSIBLE_LOAD_CALLBACK_PLUGINS=true ANSIBLE_STDOUT_CALLBACK=json ansible"
+                        },
+                        {
+                            "description": "Hostname Pattern To Search For",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "HOSTPATTERN",
+                            "type": "text",
+                            "value": "all"
+                        },
+                        {
+                            "description": "Timeout",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "TIMEOUT",
+                            "type": "text",
+                            "value": "50"
+                        },
+                        {
+                            "description": "Extra Options",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "EXTRAOPTIONS",
+                            "type": "text",
+                            "value": null
+                        }
+                    ],
+                    "type": "ansible"
+                },
+                {
+                    "command": "App-Ansible-Cli-HostDiscovery-Remote",
+                    "default_template": "generic-active-host",
+                    "description": "Discover hosts by using Ansible CLI remotly",
+                    "mapping": {
+                        "ansible_cli_remote_linux": {
+                            "association": {
+                                "description": [
+                                    "${fqdn}",
+                                    "${hostname}"
+                                ],
+                                "hostname": [
+                                    "${hostname}"
+                                ],
+                                "ip": [
+                                    "${ip}",
+                                    "${hostname}",
+                                    "${fqdn}"
+                                ]
+                            },
+                            "attributes": {
+                                "all_ips": {
+                                    "type": "array"
+                                },
+                                "distribution": {
+                                    "type": "string"
+                                },
+                                "fqdn": {
+                                    "type": "string"
+                                },
+                                "hostname": {
+                                    "type": "string"
+                                },
+                                "ip": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                }
+                            },
+                            "filters": {
+                                "type": "Linux"
+                            },
+                            "macros": [],
+                            "object": "host",
+                            "templates": [
+                                "OS-Linux-SNMP-custom"
+                            ]
+                        },
+                        "ansible_cli_remote_windows": {
+                            "association": {
+                                "description": [
+                                    "${fqdn}",
+                                    "${hostname}"
+                                ],
+                                "hostname": [
+                                    "${hostname}"
+                                ],
+                                "ip": [
+                                    "${ip}",
+                                    "${hostname}",
+                                    "${fqdn}"
+                                ]
+                            },
+                            "attributes": {
+                                "all_ips": {
+                                    "type": "array"
+                                },
+                                "distribution": {
+                                    "type": "string"
+                                },
+                                "fqdn": {
+                                    "type": "string"
+                                },
+                                "hostname": {
+                                    "type": "string"
+                                },
+                                "ip": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                }
+                            },
+                            "filters": {
+                                "type": "Windows"
+                            },
+                            "macros": [],
+                            "object": "host",
+                            "templates": [
+                                "OS-Windows-SNMP-custom"
+                            ]
+                        }
+                    },
+                    "name": "Ansible (Remote)",
+                    "parameters": [
+                        {
+                            "description": "Ansible Hostname",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "ANSIBLEHOSTNAME",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Ansible Command Line",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "ANSIBLECOMMAND",
+                            "type": "text",
+                            "value": "ANSIBLE_LOAD_CALLBACK_PLUGINS=true ANSIBLE_STDOUT_CALLBACK=json ansible"
+                        },
+                        {
+                            "description": "Hostname Pattern To Search For",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "HOSTPATTERN",
+                            "type": "text",
+                            "value": "all"
+                        },
+                        {
+                            "description": "Timeout",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "TIMEOUT",
+                            "type": "text",
+                            "value": "50"
+                        },
+                        {
+                            "description": "Extra Options",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "EXTRAOPTIONS",
+                            "type": "text",
+                            "value": null
+                        }
+                    ],
+                    "type": "ansible"
+                }
+            ],
+            "v2.0": [
+                {
+                    "attributes": {
+                        "distribution": {
+                            "type": "string"
+                        },
+                        "fqdn": {
+                            "type": "string"
+                        },
+                        "hostname": {
+                            "type": "string"
+                        },
+                        "ip": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "App-Ansible-Cli-HostDiscovery-Local",
+                    "credentials": {},
+                    "default_template": "generic-active-host",
+                    "description": "Discover hosts by using Ansible CLI locally",
+                    "discovery_examples": [
+                        {
+                            "distribution": "Linux 3.10.0-862.14.4.el7.x86_64",
+                            "fqdn": "localhost",
+                            "hostname": "localhost.localdomain",
+                            "ip": "10.1.2.1",
+                            "type": "Linux"
+                        },
+                        {
+                            "distribution": "Linux 3.10.0-862.14.4.el7.x86_64",
+                            "fqdn": "localhost",
+                            "hostname": "localhost.localdomain",
+                            "ip": "10.1.2.1",
+                            "type": "Linux"
+                        },
+                        {
+                            "distribution": "Linux 3.10.0-862.14.4.el7.x86_64",
+                            "fqdn": "localhost",
+                            "hostname": "localhost.localdomain",
+                            "ip": "10.1.2.1",
+                            "type": "Linux"
+                        },
+                        {
+                            "distribution": "Linux 3.10.0-862.14.4.el7.x86_64",
+                            "fqdn": "localhost",
+                            "hostname": "localhost.localdomain",
+                            "ip": "10.1.2.1",
+                            "type": "Linux"
+                        },
+                        {
+                            "distribution": "Linux 3.10.0-862.14.4.el7.x86_64",
+                            "fqdn": "localhost",
+                            "hostname": "localhost.localdomain",
+                            "ip": "10.1.2.1",
+                            "type": "Linux"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.hostname"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.hostname"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.ip"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Linux"
+                                    }
+                                ],
+                                "value": "OS-Linux-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Windows"
+                                    }
+                                ],
+                                "value": "OS-Windows-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Ansible (Local)",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Ansible Command Line",
+                                "group": "Ansible",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "ANSIBLECOMMAND",
+                                "type": "text",
+                                "value": "ANSIBLE_LOAD_CALLBACK_PLUGINS=true ANSIBLE_STDOUT_CALLBACK=json ansible"
+                            },
+                            {
+                                "description": "Hostname Pattern To Search For",
+                                "group": "Ansible",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "HOSTPATTERN",
+                                "type": "text",
+                                "value": "all"
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": "50"
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": false,
+                    "slug": "ansible-cli-local",
+                    "type": "ansible",
+                    "uuid_attributes": [
+                        "hostname",
+                        "ip"
+                    ]
+                },
+                {
+                    "attributes": {
+                        "distribution": {
+                            "type": "string"
+                        },
+                        "fqdn": {
+                            "type": "string"
+                        },
+                        "hostname": {
+                            "type": "string"
+                        },
+                        "ip": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "App-Ansible-Cli-HostDiscovery-Remote",
+                    "credentials": {},
+                    "default_template": "generic-active-host",
+                    "description": "Discover hosts by using Ansible CLI remotly",
+                    "discovery_examples": [
+                        {
+                            "distribution": "Linux 3.10.0-862.14.4.el7.x86_64",
+                            "fqdn": "localhost.localdomain",
+                            "hostname": "localhost",
+                            "ip": "10.1.2.1",
+                            "type": "Linux"
+                        },
+                        {
+                            "distribution": "Linux 3.10.0-862.14.4.el7.x86_64",
+                            "fqdn": "localhost.localdomain",
+                            "hostname": "localhost",
+                            "ip": "10.1.2.1",
+                            "type": "Linux"
+                        },
+                        {
+                            "distribution": "Linux 3.10.0-862.14.4.el7.x86_64",
+                            "fqdn": "localhost.localdomain",
+                            "hostname": "localhost",
+                            "ip": "10.1.2.1",
+                            "type": "Linux"
+                        },
+                        {
+                            "distribution": "Linux 3.10.0-862.14.4.el7.x86_64",
+                            "fqdn": "localhost.localdomain",
+                            "hostname": "localhost",
+                            "ip": "10.1.2.1",
+                            "type": "Linux"
+                        },
+                        {
+                            "distribution": "Linux 3.10.0-862.14.4.el7.x86_64",
+                            "fqdn": "localhost.localdomain",
+                            "hostname": "localhost",
+                            "ip": "10.1.2.1",
+                            "type": "Linux"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.hostname"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.hostname"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.ip"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Linux"
+                                    }
+                                ],
+                                "value": "OS-Linux-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Windows"
+                                    }
+                                ],
+                                "value": "OS-Windows-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Ansible (Remote)",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Ansible Hostname",
+                                "group": "Ansible",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "ANSIBLEHOSTNAME",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Ansible Command Line",
+                                "group": "Ansible",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "ANSIBLECOMMAND",
+                                "type": "text",
+                                "value": "ANSIBLE_LOAD_CALLBACK_PLUGINS=true ANSIBLE_STDOUT_CALLBACK=json ansible"
+                            },
+                            {
+                                "description": "Hostname Pattern To Search For",
+                                "group": "Ansible",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "HOSTPATTERN",
+                                "type": "text",
+                                "value": "all"
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": "50"
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": false,
+                    "slug": "ansible-cli-remote",
+                    "type": "ansible",
+                    "uuid_attributes": [
+                        "hostname",
+                        "ip"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "distribution": {
+                            "type": "string"
+                        },
+                        "fqdn": {
+                            "type": "string"
+                        },
+                        "hostname": {
+                            "type": "string"
+                        },
+                        "ip": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "App-Ansible-Cli-HostDiscovery-Local",
+                    "credentials": {},
+                    "default_template": "generic-active-host",
+                    "description": "Discover hosts by using Ansible CLI locally",
+                    "discovery_examples": [
+                        {
+                            "distribution": "Linux 3.10.0-862.14.4.el7.x86_64",
+                            "fqdn": "localhost",
+                            "hostname": "localhost.localdomain",
+                            "ip": "10.1.2.1",
+                            "type": "Linux"
+                        },
+                        {
+                            "distribution": "Linux 3.10.0-862.14.4.el7.x86_64",
+                            "fqdn": "localhost",
+                            "hostname": "localhost.localdomain",
+                            "ip": "10.1.2.1",
+                            "type": "Linux"
+                        },
+                        {
+                            "distribution": "Linux 3.10.0-862.14.4.el7.x86_64",
+                            "fqdn": "localhost",
+                            "hostname": "localhost.localdomain",
+                            "ip": "10.1.2.1",
+                            "type": "Linux"
+                        },
+                        {
+                            "distribution": "Linux 3.10.0-862.14.4.el7.x86_64",
+                            "fqdn": "localhost",
+                            "hostname": "localhost.localdomain",
+                            "ip": "10.1.2.1",
+                            "type": "Linux"
+                        },
+                        {
+                            "distribution": "Linux 3.10.0-862.14.4.el7.x86_64",
+                            "fqdn": "localhost",
+                            "hostname": "localhost.localdomain",
+                            "ip": "10.1.2.1",
+                            "type": "Linux"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.hostname"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.hostname"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.ip"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Linux"
+                                    }
+                                ],
+                                "value": "OS-Linux-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Windows"
+                                    }
+                                ],
+                                "value": "OS-Windows-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Ansible (Local)",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Ansible Command Line",
+                                "group": "Ansible",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "ANSIBLECOMMAND",
+                                "type": "text",
+                                "value": "ANSIBLE_LOAD_CALLBACK_PLUGINS=true ANSIBLE_STDOUT_CALLBACK=json ansible"
+                            },
+                            {
+                                "description": "Hostname Pattern To Search For",
+                                "group": "Ansible",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "HOSTPATTERN",
+                                "type": "text",
+                                "value": "all"
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": "50"
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": false,
+                    "slug": "ansible-cli-local",
+                    "type": "ansible",
+                    "uuid_attributes": [
+                        "hostname",
+                        "ip"
+                    ]
+                },
+                {
+                    "attributes": {
+                        "distribution": {
+                            "type": "string"
+                        },
+                        "fqdn": {
+                            "type": "string"
+                        },
+                        "hostname": {
+                            "type": "string"
+                        },
+                        "ip": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "App-Ansible-Cli-HostDiscovery-Remote",
+                    "credentials": {},
+                    "default_template": "generic-active-host",
+                    "description": "Discover hosts by using Ansible CLI remotly",
+                    "discovery_examples": [
+                        {
+                            "distribution": "Linux 3.10.0-862.14.4.el7.x86_64",
+                            "fqdn": "localhost.localdomain",
+                            "hostname": "localhost",
+                            "ip": "10.1.2.1",
+                            "type": "Linux"
+                        },
+                        {
+                            "distribution": "Linux 3.10.0-862.14.4.el7.x86_64",
+                            "fqdn": "localhost.localdomain",
+                            "hostname": "localhost",
+                            "ip": "10.1.2.1",
+                            "type": "Linux"
+                        },
+                        {
+                            "distribution": "Linux 3.10.0-862.14.4.el7.x86_64",
+                            "fqdn": "localhost.localdomain",
+                            "hostname": "localhost",
+                            "ip": "10.1.2.1",
+                            "type": "Linux"
+                        },
+                        {
+                            "distribution": "Linux 3.10.0-862.14.4.el7.x86_64",
+                            "fqdn": "localhost.localdomain",
+                            "hostname": "localhost",
+                            "ip": "10.1.2.1",
+                            "type": "Linux"
+                        },
+                        {
+                            "distribution": "Linux 3.10.0-862.14.4.el7.x86_64",
+                            "fqdn": "localhost.localdomain",
+                            "hostname": "localhost",
+                            "ip": "10.1.2.1",
+                            "type": "Linux"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.hostname"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.hostname"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.ip"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Linux"
+                                    }
+                                ],
+                                "value": "OS-Linux-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Windows"
+                                    }
+                                ],
+                                "value": "OS-Windows-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Ansible (Remote)",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Ansible Hostname",
+                                "group": "Ansible",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "ANSIBLEHOSTNAME",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Ansible Command Line",
+                                "group": "Ansible",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "ANSIBLECOMMAND",
+                                "type": "text",
+                                "value": "ANSIBLE_LOAD_CALLBACK_PLUGINS=true ANSIBLE_STDOUT_CALLBACK=json ansible"
+                            },
+                            {
+                                "description": "Hostname Pattern To Search For",
+                                "group": "Ansible",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "HOSTPATTERN",
+                                "type": "text",
+                                "value": "all"
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": "50"
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": false,
+                    "slug": "ansible-cli-remote",
+                    "type": "ansible",
+                    "uuid_attributes": [
+                        "hostname",
+                        "ip"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_ansible_cli.pl --plugin=apps::automation::ansible::cli::plugin --mode=discovery --timeout='$_TIMEOUT$' --command='$_ANSIBLECOMMAND$' --host-pattern='$_HOSTPATTERN$' $_EXTRAOPTIONS$\"",
+            "name": "App-Ansible-Cli-HostDiscovery-Local",
+            "type": "4"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_ansible_cli.pl --plugin=apps::automation::ansible::cli::plugin --mode=discovery --hostname='$_ANSIBLEHOSTNAME$' --remote --timeout='$_TIMEOUT$' --command='$_ANSIBLECOMMAND$' --host-pattern='$_HOSTPATTERN$' $_EXTRAOPTIONS$\"",
+            "name": "App-Ansible-Cli-HostDiscovery-Remote",
+            "type": "4"
+        }
+    ],
+    "host_templates": [],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Adding HD v3 provider",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to interact with Ansible using CLI.**\r\n\r\nThis pack does not provide any monitoring configuration.\r\n\r\nThis pack provides a host discovery rule."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour int\u00e9ragir avec Ansible en utilisant la CLI.**\r\n\r\nCe pack ne fournit pas de configuration pour la supervision.\r\n\r\nCe pack fournit une r\u00e8gle de d\u00e9couverte d\\'h\u00f4te."
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n\r\n## Prerequisites\r\n\r\n### Centreon Plugin\r\n\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Ansible-Cli",
+        "name": "Ansible",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_ansible_cli.pl",
+                "package_name": "centreon-plugin-Applications-Ansible-Cli",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-ansible-cli",
+        "status": "stable",
+        "status_message": "Adding HD v3 provider",
+        "tags": [
+            "Ansible",
+            "Automation",
+            "CLI",
+            "Application"
+        ],
+        "update_date": "1617287977",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [],
+    "timeperiods": []
+}

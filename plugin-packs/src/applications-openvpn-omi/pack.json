@@ -1,0 +1,126 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_openvpn_omi.pl --plugin=apps::openvpn::omi::plugin --mode=server-usage  --omi-hostname=\\'$HOSTADDRESS$\\' --omi-password=\\'$_HOSTOMIPASSWORD$\\' --omi-port=\\'$_HOSTOMIPORT$\\' $_HOSTOMIEXTRAOPTIONS$ --warning-num-clients=\\'$_SERVICEWARNINGNUMCLIENTS$\\' --critical-num-clients=\\'$_SERVICECRITICALNUMCLIENTS$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Openvpn-Omi-Server-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4ler OpenVPN via l'interface de management.}\r\n{EN: Check OpenVPN through management interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Template to monitor OpenVPN using management interface",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "openvpn-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTOMIPORT$",
+                    "value": "7505"
+                },
+                {
+                    "key": "$_HOSTOMIPASSWORD$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTOMIEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Openvpn-OMI",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Openvpn-Server-Usage-OMI"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "openvpn-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ tag / dep update",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor OpenVPN server:\r\n* Server-Usage"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un serveur OpenVPN :\r\n* Server-Usage"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "OpenVPN OMI",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_openvpn_omi.pl",
+                "package_name": "centreon-plugin-Applications-Openvpn-Omi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-openvpn-omi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "OpenVPN",
+            "VPN",
+            "OMI",
+            "Application",
+            "Security"
+        ],
+        "update_date": "1628800105",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4ler l'utilisation du serveur vpn.}\r\n\r\n{EN: Check server usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Server-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-Openvpn-Omi-Server-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Openvpn-Server-Usage-OMI",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

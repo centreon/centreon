@@ -1,0 +1,1434 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v1.0": [
+                {
+                    "command": "Cloud-Azure-Network-VpnGateway-Api-HostDiscovery",
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure VPN Gateway resources",
+                    "mapping": {
+                        "azure_vpngateway": {
+                            "association": {
+                                "description": [
+                                    "${name}"
+                                ],
+                                "hostname": [
+                                    "${name}"
+                                ],
+                                "ip": [
+                                    "${name}"
+                                ]
+                            },
+                            "attributes": {
+                                "id": {
+                                    "type": "string"
+                                },
+                                "location": {
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "resourceGroup": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                }
+                            },
+                            "filters": {
+                                "type": "Microsoft.Network/virtualNetworkGateways"
+                            },
+                            "macros": [
+                                {
+                                    "from": "parameters",
+                                    "name": "AZURESUBSCRIPTION",
+                                    "type": "text",
+                                    "value": "AZURESUBSCRIPTION"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AZURETENANT",
+                                    "type": "text",
+                                    "value": "AZURETENANT"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AZURECLIENTID",
+                                    "type": "text",
+                                    "value": "AZURECLIENTID"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AZURECLIENTSECRET",
+                                    "type": "password",
+                                    "value": "AZURECLIENTSECRET"
+                                },
+                                {
+                                    "from": "results",
+                                    "name": "AZURERESOURCE",
+                                    "type": "text",
+                                    "value": "name"
+                                },
+                                {
+                                    "from": "results",
+                                    "name": "AZURERESOURCEGROUP",
+                                    "type": "text",
+                                    "value": "resourceGroup"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "PROXYURL",
+                                    "type": "text",
+                                    "value": "PROXYURL"
+                                }
+                            ],
+                            "object": "host",
+                            "templates": [
+                                "Cloud-Azure-Network-VpnGateway"
+                            ]
+                        }
+                    },
+                    "name": "Microsoft Azure VPN Gateway",
+                    "parameters": [
+                        {
+                            "description": "Azure Subscription ID",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AZURESUBSCRIPTION",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Azure Tenant ID",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AZURETENANT",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Azure Client ID",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AZURECLIENTID",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Azure Client Secret",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AZURECLIENTSECRET",
+                            "type": "password",
+                            "value": null
+                        },
+                        {
+                            "description": "Resource Group Name",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "RESOURCEGROUP",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Location",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "LOCATION",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Timeout",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "TIMEOUT",
+                            "type": "text",
+                            "value": 10
+                        },
+                        {
+                            "description": "Proxy URL",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "PROXYURL",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Extra Options",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "EXTRAOPTIONS",
+                            "type": "text",
+                            "value": null
+                        }
+                    ],
+                    "test_option": "--test-login",
+                    "type": "azure"
+                }
+            ],
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-VpnGateway-Api-HostDiscovery-v2",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure VPN Gateway resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGUS001/providers/Microsoft.Network/virtualNetworkGateways/VIRTNETGATEUS002",
+                            "location": "westus",
+                            "name": "VIRTNETGATEUS002",
+                            "resourceGroup": "RGUS001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworkGateways"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGUS001/providers/Microsoft.Network/virtualNetworkGateways/VIRTNETGATEUS002",
+                            "location": "westus",
+                            "name": "VIRTNETGATEUS002",
+                            "resourceGroup": "RGUS001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworkGateways"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGUS001/providers/Microsoft.Network/virtualNetworkGateways/VIRTNETGATEUS002",
+                            "location": "westus",
+                            "name": "VIRTNETGATEUS002",
+                            "resourceGroup": "RGUS001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworkGateways"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGUS001/providers/Microsoft.Network/virtualNetworkGateways/VIRTNETGATEUS002",
+                            "location": "westus",
+                            "name": "VIRTNETGATEUS002",
+                            "resourceGroup": "RGUS001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworkGateways"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGUS001/providers/Microsoft.Network/virtualNetworkGateways/VIRTNETGATEUS002",
+                            "location": "westus",
+                            "name": "VIRTNETGATEUS002",
+                            "resourceGroup": "RGUS001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworkGateways"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": "discovery.results.name"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-VpnGateway-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure VPN Gateway",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-vpn-gateway",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-VpnGateway-Api-HostDiscovery-v2",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure VPN Gateway resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGUS001/providers/Microsoft.Network/virtualNetworkGateways/VIRTNETGATEUS002",
+                            "location": "westus",
+                            "name": "VIRTNETGATEUS002",
+                            "resourceGroup": "RGUS001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworkGateways"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGUS001/providers/Microsoft.Network/virtualNetworkGateways/VIRTNETGATEUS002",
+                            "location": "westus",
+                            "name": "VIRTNETGATEUS002",
+                            "resourceGroup": "RGUS001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworkGateways"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGUS001/providers/Microsoft.Network/virtualNetworkGateways/VIRTNETGATEUS002",
+                            "location": "westus",
+                            "name": "VIRTNETGATEUS002",
+                            "resourceGroup": "RGUS001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworkGateways"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGUS001/providers/Microsoft.Network/virtualNetworkGateways/VIRTNETGATEUS002",
+                            "location": "westus",
+                            "name": "VIRTNETGATEUS002",
+                            "resourceGroup": "RGUS001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworkGateways"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGUS001/providers/Microsoft.Network/virtualNetworkGateways/VIRTNETGATEUS002",
+                            "location": "westus",
+                            "name": "VIRTNETGATEUS002",
+                            "resourceGroup": "RGUS001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworkGateways"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-VpnGateway-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure VPN Gateway",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-vpn-gateway",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-VpnGateway-Api-HostDiscovery-v2",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure VPN Gateway resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGUS001/providers/Microsoft.Network/virtualNetworkGateways/VIRTNETGATEUS002",
+                            "location": "westus",
+                            "name": "VIRTNETGATEUS002",
+                            "resourceGroup": "RGUS001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworkGateways"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGUS001/providers/Microsoft.Network/virtualNetworkGateways/VIRTNETGATEUS002",
+                            "location": "westus",
+                            "name": "VIRTNETGATEUS002",
+                            "resourceGroup": "RGUS001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworkGateways"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGUS001/providers/Microsoft.Network/virtualNetworkGateways/VIRTNETGATEUS002",
+                            "location": "westus",
+                            "name": "VIRTNETGATEUS002",
+                            "resourceGroup": "RGUS001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworkGateways"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGUS001/providers/Microsoft.Network/virtualNetworkGateways/VIRTNETGATEUS002",
+                            "location": "westus",
+                            "name": "VIRTNETGATEUS002",
+                            "resourceGroup": "RGUS001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworkGateways"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGUS001/providers/Microsoft.Network/virtualNetworkGateways/VIRTNETGATEUS002",
+                            "location": "westus",
+                            "name": "VIRTNETGATEUS002",
+                            "resourceGroup": "RGUS001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworkGateways"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-VpnGateway-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure VPN Gateway",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-vpn-gateway",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_vpngateway_api.pl --plugin=cloud::azure::network::vpngateway::plugin --mode=health --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --ok-status=\\'$_HOSTSTATUSOK$\\' --warning-status=\\'$_HOSTSTATUSWARNING$\\' --critical-status=\\'$_HOSTSTATUSCRITICAL$\\' --unknown-status=\\'$_HOSTSTATUSUNKNOWN$\\' $_HOSTEXTRAOPTIONS$ --api-version=2017-07-01\\\"",
+            "name": "Cloud-Azure-Network-VpnGateway-Api-Health",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_vpngateway_api.pl --plugin=cloud::azure::network::vpngateway::plugin --mode=vpn-gateway-status --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --filter-name=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-VpnGateway-Api-Vpn-Gateway-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_vpngateway_api.pl --plugin=cloud::azure::network::vpngateway::plugin --mode=tunnel-traffic --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-tunnelingressbytes-total=\\'$_SERVICEWARNINGTUNNELINGRESSBYTESTOTAL$\\' --critical-tunnelingressbytes-total=\\'$_SERVICECRITICALTUNNELINGRESSBYTESTOTAL$\\' --warning-tunnelegressbytes-total=\\'$_SERVICEWARNINGTUNNELEGRESSBYTESTOTAL$\\' --critical-tunnelegresspackets-total=\\'$_SERVICECRITICALTUNNELEGRESSPACKETSTOTAL$\\' --warning-tunnelingresspackets-total=\\'$_SERVICEWARNINGTUNNELINGRESSPACKETSTOTAL$\\' --critical-tunnelingresspackets-total=\\'$_SERVICECRITICALTUNNELINGRESSPACKETSTOTAL$\\' --warning-tunnelegresspackets-total=\\'$_SERVICEWARNINGTUNNELEGRESSPACKETSTOTAL$\\' --critical-tunnelegresspackets-total=\\'$_SERVICECRITICALTUNNELEGRESSPACKETSTOTAL$\\' --warning-tunnelingresspacketdroptsmismatch-total=\\'$_SERVICEWARNINGTUNNELINGRESSPACKETDROPMISMATCHTOTAL$\\' --critical-tunnelingresspacketdroptsmismatch-total=\\'$_SERVICECRITICALTUNNELINGRESSPACKETDROPMISMATCHTOTAL$\\' --warning-tunnelegresspacketdroptsmismatch-total=\\'$_SERVICEWARNINGTUNNELEGRESSPACKETDROPMISMATCHTOTAL$\\' --critical-tunnelegresspacketdroptsmismatch-total=\\'$_SERVICECRITICALTUNNELEGRESSPACKETDROPMISMATCHTOTAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-VpnGateway-Api-Tunnel-Traffic",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_vpngateway_api.pl --plugin=cloud::azure::network::vpngateway::plugin --mode=site-traffic --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-averagebandwidth-average=\\'$_SERVICEWARNINGAVERAGEBANDWIDTHAVERAGE$\\' --critical-averagebandwidth-average=\\'$_SERVICECRITICALAVERAGEBANDWIDTHAVERAGE$\\' --warning-p2sbandwidth-average=\\'$_SERVICEWARNINGP2SBANDWIDTHAVERAGE$\\' --critical-p2sbandwidth-average=\\'$_SERVICECRITICALP2SBANDWIDTHAVERAGE$\\' --warning-p2sconnectioncount-maximum=\\'$_SERVICEWARNINGP2SCONNECTIONCOUNTMAXIMUM$\\' --critical-p2sconnectioncount-maximum=\\'$_SERVICECRITICALP2SCONNECTIONCOUNTMAXIMUM$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-VpnGateway-Api-Site-Traffic",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_network_vpngateway_api.pl --plugin=cloud::azure::network::vpngateway::plugin --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Network-VpnGateway-Api-HostDiscovery",
+            "type": "4"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_network_vpngateway_api.pl --plugin=cloud::azure::network::vpngateway::plugin --statefile-suffix='autodiscovery' --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Network-VpnGateway-Api-HostDiscovery-v2",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Azure VPN Gateway via l'API}\r\n{EN: Template to check Azure VPN Gateway service using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure VPN Gateway service using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": "Cloud-Azure-Network-VpnGateway-Api-Health",
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-network-vpn-gateway-color-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTSTATUSOK$",
+                    "value": "%{status} =~ /^Available$/"
+                },
+                {
+                    "key": "$_HOSTSTATUSCRITICAL$",
+                    "value": "%{status} =~ /^Unavailable$/"
+                },
+                {
+                    "key": "$_HOSTSTATUSUNKNOWN$",
+                    "value": "%{status} =~ /^Unknown$/"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-VpnGateway",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "Generic-Active-Cloud-Host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Network-VpnGateway-Vpn-Gateway-Status-Api",
+                "Cloud-Azure-Network-VpnGateway-Tunnel-Traffic-Api",
+                "Cloud-Azure-Network-VpnGateway-Site-Traffic-Api",
+                "Cloud-Azure-Network-VpnGateway-Health-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-network-vpn-gateway-color-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ add proper tags management",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Microsoft Azure VPN Gateway using Azure CLI or RestAPI.**\r\n\r\nAvailable host templates and related services:\r\n\r\n|Cloud-Azure-Network-VpnGateway|\r\n|---|\r\n|Site-Traffic|\r\n|Tunnel-Traffic|\r\n|Vpn-Gateway-Status|\r\n|Health|\r\n\r\nThis pack provides a host discovery rule."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser Microsoft Azure VPN Gateway via la CLI ou la RestAPI Azure.**\r\n\r\nMod\u00e8les d\\'h\u00f4te disponibles et leurs services :\r\n\r\n|Cloud-Azure-Network-VpnGateway|\r\n|---|\r\n|Site-Traffic|\r\n|Tunnel-Traffic|\r\n|Vpn-Gateway-Status|\r\n|Health|\r\n\r\nCe pack fournit une r\u00e8gle de d\u00e9couverte d\\'h\u00f4te."
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Azure VPN Gateway",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_network_vpngateway_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Network-VpnGateway-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-network-vpngateway",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Azure",
+            "Network",
+            "VPN",
+            "VPN Gateway",
+            "Cloud",
+            "Microsoft",
+            "Security",
+            "HostDisco"
+        ],
+        "update_date": "1636825312",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le statut du provisionement de la passerelle VPN.}\r\n\r\n{EN: Check VPN gateway provisionning status.}",
+            "active_checks_enabled": 2,
+            "alias": "Vpn-Gateway-Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-VpnGateway-Api-Vpn-Gateway-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{provisioning_state} ne \"Succeeded\""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-VpnGateway-Vpn-Gateway-Status-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le trafic entrant et sortant du tunnel.}\r\n\r\n{EN: Check inbound and outbound tunnel traffic.}",
+            "active_checks_enabled": 2,
+            "alias": "Tunnel-Traffic",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-VpnGateway-Api-Tunnel-Traffic",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-VpnGateway-Tunnel-Traffic-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le trafic entrant et sortant du site.}\r\n\r\n{EN: Check inbound and outbound site traffic.}",
+            "active_checks_enabled": 2,
+            "alias": "Site-Traffic",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-VpnGateway-Api-Site-Traffic",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--aggregation='Maximum'"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-VpnGateway-Site-Traffic-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut de la passerelle VPN.}\r\n\r\n{EN: Check VPN gateway state.}",
+            "active_checks_enabled": 2,
+            "alias": "Health",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-VpnGateway-Api-Health",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-VpnGateway-Health-Api",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

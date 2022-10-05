@@ -1,0 +1,1323 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v1.0": [
+                {
+                    "command": "Cloud-Azure-Network-VirtualNetwork-Api-HostDiscovery",
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Virtual Network resources",
+                    "mapping": {
+                        "azure_virtualnetwork": {
+                            "association": {
+                                "description": [
+                                    "${name}"
+                                ],
+                                "hostname": [
+                                    "${name}"
+                                ],
+                                "ip": [
+                                    "${name}"
+                                ]
+                            },
+                            "attributes": {
+                                "id": {
+                                    "type": "string"
+                                },
+                                "location": {
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "resourceGroup": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                }
+                            },
+                            "filters": {
+                                "type": "Microsoft.Network/virtualNetworks"
+                            },
+                            "macros": [
+                                {
+                                    "from": "parameters",
+                                    "name": "AZURESUBSCRIPTION",
+                                    "type": "text",
+                                    "value": "AZURESUBSCRIPTION"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AZURETENANT",
+                                    "type": "text",
+                                    "value": "AZURETENANT"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AZURECLIENTID",
+                                    "type": "text",
+                                    "value": "AZURECLIENTID"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AZURECLIENTSECRET",
+                                    "type": "password",
+                                    "value": "AZURECLIENTSECRET"
+                                },
+                                {
+                                    "from": "results",
+                                    "name": "AZURERESOURCE",
+                                    "type": "text",
+                                    "value": "name"
+                                },
+                                {
+                                    "from": "results",
+                                    "name": "AZURERESOURCEGROUP",
+                                    "type": "text",
+                                    "value": "resourceGroup"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "PROXYURL",
+                                    "type": "text",
+                                    "value": "PROXYURL"
+                                }
+                            ],
+                            "object": "host",
+                            "templates": [
+                                "Cloud-Azure-Network-VirtualNetwork"
+                            ]
+                        }
+                    },
+                    "name": "Microsoft Azure Virtual Network",
+                    "parameters": [
+                        {
+                            "description": "Azure Subscription ID",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AZURESUBSCRIPTION",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Azure Tenant ID",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AZURETENANT",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Azure Client ID",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AZURECLIENTID",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Azure Client Secret",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AZURECLIENTSECRET",
+                            "type": "password",
+                            "value": null
+                        },
+                        {
+                            "description": "Resource Group Name",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "RESOURCEGROUP",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Location",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "LOCATION",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Timeout",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "TIMEOUT",
+                            "type": "text",
+                            "value": 10
+                        },
+                        {
+                            "description": "Proxy URL",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "PROXYURL",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Extra Options",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "EXTRAOPTIONS",
+                            "type": "text",
+                            "value": null
+                        }
+                    ],
+                    "test_option": "--test-login",
+                    "type": "azure"
+                }
+            ],
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-VirtualNetwork-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Virtual Network resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGVNPROD/providers/Microsoft.Network/virtualNetworks/VNPRODNE001",
+                            "location": "northeurope",
+                            "name": "VNPRODNE001",
+                            "resourceGroup": "RGVNPROD",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworks"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGVNPROD/providers/Microsoft.Network/virtualNetworks/VNPRODNE001",
+                            "location": "northeurope",
+                            "name": "VNPRODNE001",
+                            "resourceGroup": "RGVNPROD",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworks"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGVNPROD/providers/Microsoft.Network/virtualNetworks/VNPRODNE001",
+                            "location": "northeurope",
+                            "name": "VNPRODNE001",
+                            "resourceGroup": "RGVNPROD",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworks"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGVNPROD/providers/Microsoft.Network/virtualNetworks/VNPRODNE001",
+                            "location": "northeurope",
+                            "name": "VNPRODNE001",
+                            "resourceGroup": "RGVNPROD",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworks"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGVNPROD/providers/Microsoft.Network/virtualNetworks/VNPRODNE001",
+                            "location": "northeurope",
+                            "name": "VNPRODNE001",
+                            "resourceGroup": "RGVNPROD",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworks"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": "discovery.results.name"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-VirtualNetwork-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Virtual Network",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-sql-virtualnetwork",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-VirtualNetwork-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Virtual Network resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGVNPROD/providers/Microsoft.Network/virtualNetworks/VNPRODNE001",
+                            "location": "northeurope",
+                            "name": "VNPRODNE001",
+                            "resourceGroup": "RGVNPROD",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworks"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGVNPROD/providers/Microsoft.Network/virtualNetworks/VNPRODNE001",
+                            "location": "northeurope",
+                            "name": "VNPRODNE001",
+                            "resourceGroup": "RGVNPROD",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworks"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGVNPROD/providers/Microsoft.Network/virtualNetworks/VNPRODNE001",
+                            "location": "northeurope",
+                            "name": "VNPRODNE001",
+                            "resourceGroup": "RGVNPROD",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworks"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGVNPROD/providers/Microsoft.Network/virtualNetworks/VNPRODNE001",
+                            "location": "northeurope",
+                            "name": "VNPRODNE001",
+                            "resourceGroup": "RGVNPROD",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworks"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGVNPROD/providers/Microsoft.Network/virtualNetworks/VNPRODNE001",
+                            "location": "northeurope",
+                            "name": "VNPRODNE001",
+                            "resourceGroup": "RGVNPROD",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworks"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-VirtualNetwork-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Virtual Network",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-sql-virtualnetwork",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-VirtualNetwork-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Virtual Network resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGVNPROD/providers/Microsoft.Network/virtualNetworks/VNPRODNE001",
+                            "location": "northeurope",
+                            "name": "VNPRODNE001",
+                            "resourceGroup": "RGVNPROD",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworks"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGVNPROD/providers/Microsoft.Network/virtualNetworks/VNPRODNE001",
+                            "location": "northeurope",
+                            "name": "VNPRODNE001",
+                            "resourceGroup": "RGVNPROD",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworks"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGVNPROD/providers/Microsoft.Network/virtualNetworks/VNPRODNE001",
+                            "location": "northeurope",
+                            "name": "VNPRODNE001",
+                            "resourceGroup": "RGVNPROD",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworks"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGVNPROD/providers/Microsoft.Network/virtualNetworks/VNPRODNE001",
+                            "location": "northeurope",
+                            "name": "VNPRODNE001",
+                            "resourceGroup": "RGVNPROD",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworks"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGVNPROD/providers/Microsoft.Network/virtualNetworks/VNPRODNE001",
+                            "location": "northeurope",
+                            "name": "VNPRODNE001",
+                            "resourceGroup": "RGVNPROD",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/virtualNetworks"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-VirtualNetwork-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Virtual Network",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-sql-virtualnetwork",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_virtualnetwork_api.pl --plugin=cloud::azure::network::virtualnetwork::plugin --mode=peerings-status --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-VirtualNetwork-Api-Peerings-Status",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_network_virtualnetwork_api.pl --plugin=cloud::azure::network::virtualnetwork::plugin --statefile-suffix='autodiscovery' --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Network-VirtualNetwork-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Azure Virtual Network via l'API}\r\n{EN: Template to check Azure Virtual Network service using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Virtual Network service using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-network-vitualnetwork-color-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-VirtualNetwork",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Network-VirtualNetwork-Peerings-Status-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-network-vitualnetwork-color-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "fix resource macro",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Microsoft Azure Virtual Network using Azure CLI or RestAPI.**\r\n\r\nAvailable host templates and related services:\r\n\r\n|Cloud-Azure-Network-VirtualNetwork|\r\n|---|\r\n|Peerings-Status|\r\n\r\nThis pack provides a host discovery rule."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser Microsoft Azure Virtual Network via la CLI ou la RestAPI Azure.**\r\n\r\nMod\u00e8les d\\'h\u00f4te disponibles et leurs services :\r\n\r\n|Cloud-Azure-Network-VirtualNetwork|\r\n|---|\r\n|Peerings-Status|\r\n\r\nCe pack fournit une r\u00e8gle de d\u00e9couverte d\\'h\u00f4te."
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAH4AAAB+CAYAAADiI6WIAAADdklEQVR42u2dO3bTQBRAXdBR07OBrICGOktgDdAR7Io9ZBPeBAU7gKMcsJfAMkBvFIETrHkz4/nI8+49RydFYnmerub/yWYDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHHc/Xiz+fDtVXdxSUyfju8RvCR9d/y92R5+dSX/7dcXLiYX2/Ezos9Jn69e5Iv03eHL09iQf156L/LPSUe+Iv1UvjzAa2R3vPfHZlW+Jl0u+ZtrbtDNdTvyjUhHvmHpyDcsHfmGpc98HF4utvK7lW9dekgXrzv524cbpFuTH1K3WZJuQj7SDcpHukH5SDcoH+kG5SPdoHxNem+LK5CPdJvykW5QPtINyke6QflIX598WeZVdImalgikN5Q//r6IfBFaU/ru++vN9ue78Tv3Uwkz/pRNCZeOBcjn5T5TLIPLLfI9Ml9+USkoaXULLIdsaW0uv2bxLgl3YrwB7qMDnBZC7L0x3B1uo9M7Ca9TDFeVX7tO1+uzf98bmktDRhXnK2ark+9FSk3rKuTXlq7nnv9zfs6X6e81VjNqlTGWDiXS2lx+bemSI0JzZcz4f7Qgdw36S1ogrc3lh+xwyd16l1wWL0jvx4YWx88vX9FcKq1N5beQnlTMnwSWO2e6OB9uMpciYSVJE/mnW3oXH8goqARqS95zeXN84j19cSa/pEpaS5aWao+l1bx6ci5SGk1TXz3hvp4GXshy8ZTSqUQDPKqKaSE/td7Uul/artWly1c0rqWOL7JDJ2TnR3b5KblT6XqFrOtP6XqlpNXXbliF9JiGQ075bli4QA6KyfWhgy3xuf7+OqS3kh9cf0b0UcNmuOJjCW7kZRxDr7oBs7b8KTcNWYZVg0WN8aV0U91kkm+gK2MvqMmu29ryn8zQPc6gSR156Zi3fH6eoZOH5HoTAUO06rM5Sau7d4a0NpfeUj6sZH898g1KR75h6cg3LB35hqUj37B05NeXvrrniHyD0mPkl5rPR/o1yOfo7r6kI9+wdOQblj4TsmTaonwTx8ZwerNB6cg3LB35hqVbl89RcAblI92gfKQblI/0Cx5OzgMFaqPtBTQ/YbUkv4eDlKTEQnqE/J5Oz3q+iwfpC/J7/G/S85wF0j3yezwnz507kHHDJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABM/AFMybf+h1jqnwAAAABJRU5ErkJggg==",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires the version 19.10.1 or later of the Plugin Pack Manager module\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure Virtual Network",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_network_virtualnetwork_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Network-VirtualNetwork-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-network-virtualnetwork",
+        "status": "stable",
+        "status_message": "fix resource macro",
+        "tags": [
+            "Azure",
+            "Network",
+            "Virtual Network",
+            "Cloud",
+            "Microsoft",
+            "HostDisco",
+            "VPN"
+        ],
+        "update_date": "1641399379",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des pairs.}\r\n\r\n{EN: Check peerings status.}",
+            "active_checks_enabled": 2,
+            "alias": "Peerings-Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-VirtualNetwork-Api-Peerings-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{peering_state} ne \"Connected\" || %{provisioning_state} ne \"Succeeded\""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-VirtualNetwork-Peerings-Status-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

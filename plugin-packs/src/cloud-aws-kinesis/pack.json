@@ -1,0 +1,740 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v1.0": [
+                {
+                    "command": "Cloud-Aws-Kinesis-Api-HostDiscovery",
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Amazon AWS Kinesis streams",
+                    "mapping": {
+                        "aws_kinesis": {
+                            "association": {
+                                "description": [
+                                    "${name}"
+                                ],
+                                "hostname": [
+                                    "${name}"
+                                ],
+                                "ip": [
+                                    "${name}"
+                                ]
+                            },
+                            "attributes": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                }
+                            },
+                            "filters": {
+                                "type": "kinesis_stream"
+                            },
+                            "macros": [
+                                {
+                                    "from": "parameters",
+                                    "name": "AWSSECRETKEY",
+                                    "type": "password",
+                                    "value": "AWSSECRETKEY"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AWSACCESSKEY",
+                                    "type": "text",
+                                    "value": "AWSACCESSKEY"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AWSREGION",
+                                    "type": "text",
+                                    "value": "REGION"
+                                },
+                                {
+                                    "from": "results",
+                                    "name": "STREAMNAME",
+                                    "type": "text",
+                                    "value": "name"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "PROXYURL",
+                                    "type": "text",
+                                    "value": "PROXYURL"
+                                }
+                            ],
+                            "object": "host",
+                            "templates": [
+                                "Cloud-Aws-Kinesis"
+                            ]
+                        }
+                    },
+                    "name": "Amazon AWS Kinesis",
+                    "parameters": [
+                        {
+                            "description": "AWS Access Key",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AWSACCESSKEY",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "AWS Secret Key",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AWSSECRETKEY",
+                            "type": "password",
+                            "value": null
+                        },
+                        {
+                            "description": "Region",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "REGION",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Timeout",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "TIMEOUT",
+                            "type": "text",
+                            "value": 10
+                        },
+                        {
+                            "description": "Proxy URL",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "PROXYURL",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Extra Options",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "EXTRAOPTIONS",
+                            "type": "text",
+                            "value": null
+                        }
+                    ],
+                    "test_option": null,
+                    "type": "aws"
+                }
+            ],
+            "v2.0": [
+                {
+                    "attributes": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Aws-Kinesis-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "AWS Access Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSACCESSKEY",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "AWS Secret Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSSECRETKEY",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Amazon AWS Kinesis streams",
+                    "discovery_examples": [
+                        {
+                            "name": "stream-dev-1",
+                            "type": "ec2"
+                        },
+                        {
+                            "name": "stream-dev-1",
+                            "type": "ec2"
+                        },
+                        {
+                            "name": "stream-dev-1",
+                            "type": "ec2"
+                        },
+                        {
+                            "name": "stream-dev-1",
+                            "type": "ec2"
+                        },
+                        {
+                            "name": "stream-dev-1",
+                            "type": "ec2"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSACCESSKEY",
+                                "is_password": false,
+                                "source": "discovery.credentials.AWSACCESSKEY"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSSECRETKEY",
+                                "is_password": true,
+                                "source": "discovery.credentials.AWSSECRETKEY"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSREGION",
+                                "is_password": false,
+                                "source": "discovery.parameters.REGION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.STREAMNAME",
+                                "is_password": false,
+                                "source": "discovery.results.name"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Aws-Kinesis-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Amazon AWS Kinesis",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Region",
+                                "group": "AWS",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "REGION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "amazon-kinesis",
+                    "type": "aws",
+                    "uuid_attributes": [
+                        "name"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Aws-Kinesis-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "AWS Access Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSACCESSKEY",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "AWS Secret Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSSECRETKEY",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Amazon AWS Kinesis streams",
+                    "discovery_examples": [
+                        {
+                            "name": "stream-dev-1",
+                            "type": "ec2"
+                        },
+                        {
+                            "name": "stream-dev-1",
+                            "type": "ec2"
+                        },
+                        {
+                            "name": "stream-dev-1",
+                            "type": "ec2"
+                        },
+                        {
+                            "name": "stream-dev-1",
+                            "type": "ec2"
+                        },
+                        {
+                            "name": "stream-dev-1",
+                            "type": "ec2"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSACCESSKEY",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSACCESSKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSSECRETKEY",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSSECRETKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSREGION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.REGION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.STREAMNAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Aws-Kinesis-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Amazon AWS Kinesis",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Region",
+                                "group": "AWS",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "REGION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "amazon-kinesis",
+                    "type": "aws",
+                    "uuid_attributes": [
+                        "name"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_kinesis_api.pl --plugin=cloud::aws::kinesis::plugin --mode=streams --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --stream-name=\\'$_HOSTSTREAMNAME$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-incoming-volume=\\'$_SERVICEWARNINGINCOMINGVOLUME$\\' --critical-incoming-volume=\\'$_SERVICECRITICALINCOMINGVOLUME$\\' --warning-incoming-records=\\'$_SERVICEWARNINGINCOMINGRECORDS$\\' --critical-incoming-records=\\'$_SERVICECRITICALINCOMINGRECORDS$\\' --warning-outgoing-records=\\'$_SERVICEWARNINGOUTGOINGRECORDS$\\' --critical-outgoing-records=\\'$_SERVICECRITICALOUTGOINGRECORDS$\\' --warning-outgoing-volume=\\'$_SERVICEWARNINGOUTGOINGVOLUME$\\' --critical-outgoing-volume=\\'$_SERVICECRITICALOUTGOINGVOLUME$\\'\\\"",
+            "name": "Cloud-Aws-Kinesis-Api-Streams",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_kinesis_api.pl --plugin=cloud::aws::kinesis::plugin --mode=records-stats --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --stream-name=\\'$_HOSTSTREAMNAME$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-records-get-iteratorage=\\'$_SERVICEWARNINGRECORDSGETITERATORAGE$\\' --critical-records-get-iteratorage=\\'$_SERVICECRITICALRECORDSGETITERATORAGE$\\' --warning-records-get-success=\\'$_SERVICEWARNINGRECORDSGETSUCCESS$\\' --critical-records-get-success=\\'$_SERVICECRITICALRECORDSGETSUCCESS$\\' --warning-records-get-volume=\\'$_SERVICEWARNINGGETRECORDSVOLUME$\\' --critical-records-get-volume=\\'$_SERVICECRITICALGETRECORDSVOLUME$\\' --warning-records-get-latency=\\'$_SERVICEWARNINGRECORDSGETLATENCY$\\' --critical-records-get-latency=\\'$_SERVICECRITICALRECORDSGETLATENCY$\\' --warning-records-put-success=\\'$_SERVICEWARNINGRECORDSPUTSUCCESS$\\' --critical-records-put-success=\\'$_SERVICECRITICALRECORDSPUTSUCCESS$\\' --warning-records-put-volume=\\'$_SERVICEWARNINGRECORDSPUTVOLUME$\\' --critical-records-put-volume=\\'$_SERVICECRITICALRECORDSPUTVOLUME$\\' --warning-records-put-latency=\\'$_SERVICEWARNINGRECORDSPUTLATENCY$\\' --critical-records-put-latency=\\'$_SERVICECRITICALRECORDSPUTLATENCY$\\'\\\"",
+            "name": "Cloud-Aws-Kinesis-Api-Records-Statistics",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_aws_kinesis_api.pl --plugin=cloud::aws::kinesis::plugin --custommode='awscli' --mode=discovery --aws-access-key='$_AWSACCESSKEY$' --aws-secret-key='$_AWSSECRETKEY$' --proxyurl='$_PROXYURL$' --timeout='$_TIMEOUT$' --region='$_REGION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Aws-Kinesis-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Amazon Kinesis via l'API}\r\n{EN: Template to check Amazon Kinesis metrics using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Amazon Kinesis metrics using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "aws-kinesis-icon.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSSECRETKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSACCESSKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSCUSTOMMODE$",
+                    "value": "awscli"
+                },
+                {
+                    "key": "$_HOSTAWSREGION$",
+                    "value": "us-east-1"
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Kinesis",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Aws-Kinesis-Streams-Api",
+                "Cloud-Aws-Kinesis-RecordStatistics-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAH8AAAB/CAYAAADGvR0TAAAFtElEQVR42u3dT2wUVRwH8D1wMOHgCb020KUJ/Uu7B+P2YAjRWIPbVAJpg1GDqbHSCCS0GkldKxhbUre7NiFqS4mxi0FDxKAEaqcJiUljNIIoBwwGDoKJGIx2u2y35Nnf4GyGZdrdzu7MvHm/7y/5XaDsn/l8mc6b995uIIBCoVAoFAqlaEUfC6wajQQ7xiKVN/6KNt75aXftyPjzgQdwZJigj7UGBXXqYEhvhIARej4+QsAIfSl8hIABeiF8hEBh9GLxjZ7pqm7GEVYEHfiM0YHPGB34jNGBzxgd+IzRgc8YHfiM0YHPGB34jNGBzxgd+IzRgc8YHfiM0cuFf+jxh1ePPr0ufGzb+g9/2VMz+H3n2geBLjl6KfiJJyvXLILvGosEJ43H+XTb+tzP/rqvfub8q9VPAF0R/FPPVb08GqnsW+q9mfGNvr6/Ma382cCP6CvFJ9zlHscK39w/76k9DnSm+L/1NFxVBt7v6MAvofyODnzgAx/4wAc+8IEvMz7dYDrz7LqHgK8wPg2jD7dWVHwUWdui31xqDSbNr/nyvvofv+uuaQO+z/H/v10c1ofPhFxgCJ1/F9H17WTALx+++X+13dd8K9pQAXyf4dOs4Hhb8EvgK4x/pafhWu53OM0Imk7vl/bWid/f2CjOdVaLz9urgK8aPgEv9W/p78w/ezPaKGa6asTRNuCzwy/0nMAHPvCBD3zgAx/4wAc+8IEPfOADH/jABz7wgQ984AMf+MAHPvCBD3zgAx/4wAc+8IEPfOADH/jABz7wgQ989fFp94kKTZ+vV0wX2ghp7Kq101OdlY12nhOFQqFQKNTy9ceZQ6vTp2MV5qY/w5GRoKaj0VX5ONRZLRbOaPGO/M5qib4FLZHM76wWv7AwnRCldHY6MWn12PNTw7usXktm8r1aq9dO70kZIKs3SG/c6oDQgbLEoQNbIo7v2+K4UFsGa7Gtjju1q/jGmPPEi48IrecpvS8ffkXv6xOvib9PHtCbPW4pZx1tWGRPv6N35kSPyBzfLTLJLpH+YKveqcHm3DjfE/xiGyGxh1psS43PISROoLLClzEkXqIC36GQ3PqiX3pU4EswsQN84AMf+MAHPvCBzxE/CXw5evZAU9KTe/y0EiX3UeHAdw17tr+pw9WlWyqGQX7o0A1psf0eBkmx46m3Qy3/vr5xjVJz9bKFAdgurZxZ0OItNCdtnsun26x0y5Vuv7LAH2wWt4/s0G8nZ88O3rNg5O6xibf4bmWRsfrGWG1jd7GG22HwAtvOSqK7K5ZiYSlWBV0aeak3qyXi+soTB6dJnQ6DbNgrXQVEBnPHunuv9G5272va6cBNtNct/PDuDjH71YBrc+blDoOvsM1nhMXnuv3xTpEaCN/xfLsWTZ1ejO10NQjlCINfsA1wmnKei22Wd68eBeHqkb0ifXbI9dU0Kw2DzNg6+DdD+nNbgUu/UfPr7k2eBYGazkT0/N++uVVMdNQXxvcY21g5pIOPbCn6jCT9Ll0CoFU081PDnq2zuycM7XVSYBvg8yf366/FzrWHr7ZoG0Hgvjx7/tRbtsF9vz+fTsU0Yvjzsz5e4HSlXsY1gr7/cAYKghcjBq+v1IEvydCx7FfqDoKz+FgWr0cMtoZmK7hS9x2+PjNX4HvenQyClyOGpa7U9bX+bs8KHmy68E9/KDwdDbh7v58+h8arEHg9dCx1aFYudM9n9LwOAbVbIwYnrtR9iS5jCJwYOuYmUTzcviUtuowhKHXE4PTQTDl0WUNgDsJyI4ZiJ1GA7tMQ5A8d7UyiAF2BEMi0eldZdJlDAHTGIQA64xAAnXEIgM44BEBnHAKgMw4B0BmHAOiMQwB0xiEAOuMQAJ1xCIDOOARAZxwCoDMOwf3ooYtAVzgE421VN+/DH3j0GtCZhODo9g0vfLK9OpMa2pSee3/LMzgqzIq+q1aprzxDoVCogvUf/VMTEDLhWoYAAAAASUVORK5CYII=",
+            "name": "aws-kinesis-icon.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Adding HD v3 provider",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Amazon Kinesis service.**\r\n\r\nAvailable host templates and related services:\r\n\r\n|Cloud-Aws-Kinesis|\r\n|---|\r\n|Streams|\r\n|Record-statistics|\r\n\r\nThis pack provides a host discovery rule."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser le service Amazon Kinesis.**\r\n\r\nMod\u00e8les d\\'h\u00f4te disponibles et leurs services :\r\n\r\n|Cloud-Aws-Kinesis|\r\n|---|\r\n|Streams|\r\n|Record-statistics|\r\n\r\nCe pack fournit une r\u00e8gle de d\u00e9couverte d\\'h\u00f4te."
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n\r\n## Prerequisites\r\n\r\n### Centreon Plugin\r\n\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Cloud-Aws-Kinesis-Api\r\n\r\nTo use it, you can either install 'awscli' (AWS Command Line Interface) or 'paws' (Perl AWS SDK).\r\n\r\n### Install awscli\r\n\r\nOn CentOS, install with following commands:\r\n\r\n    # yum install awscli\r\n\r\n## Centreon Configuration\r\n\r\n### Create a host using the appropriate template\r\n\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Field</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>Name</p></td>\r\n            <td align=\"left\"><p><em>Name of the host</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Alias</p></td>\r\n            <td align=\"left\"><p><em>Description</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>IP Address / DNS</p></td>\r\n            <td align=\"left\"><p><em>Can be localhost</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Monitored from</p></td>\r\n            <td align=\"left\"><p><em>Poller used to monitor</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Templates</p></td>\r\n            <td align=\"left\"><p>Cloud-Aws-Lambda-custom</p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nThe following host macros should be set as shown:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Macro</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSACCESSKEY</p></td>\r\n            <td align=\"left\"><p><em>AWS access key</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSSECRETKEY</p></td>\r\n            <td align=\"left\"><p><em>AWS secret key</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSCUSTOMMODE</p></td>\r\n            <td align=\"left\"><p><em>Plugin custom mode: awscli or paws</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSREGION</p></td>\r\n            <td align=\"left\"><p><em>AWS region</em></p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nCheck the *Create Services linked to the Template too* box and click on the *Save* button.\r\n\r\nThe following service will be created:\r\n\r\n* Streams\r\n* Records-Statistics\r\n\r\nThe following service macros should be set as shown:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Macro</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>STREAMNAME</p></td>\r\n            <td align=\"left\"><p><em>Name of Kinesis stream</em></p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n",
+        "name": "Amazon Kinesis",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_aws_kinesis_api.pl",
+                "package_name": "centreon-plugin-Cloud-Aws-Kinesis-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-aws-kinesis",
+        "status": "stable",
+        "status_message": "Adding HD v3 provider",
+        "tags": [
+            "Amazon",
+            "AWS",
+            "Cloud",
+            "Kinesis"
+        ],
+        "update_date": "1617291424",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "Streams",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Kinesis-Api-Streams",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Kinesis-Streams-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "Records-Statistics",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Kinesis-Api-Records-Statistics",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Kinesis-RecordStatistics-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,323 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_asterisk_snmp.pl --plugin=apps::voip::asterisk::snmp::plugin  --mode=channel-usage --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-channels-active=\\'$_SERVICEWARNINGCHANNELSACTIVE$\\' --critical-channels-active=\\'$_SERVICECRITICALCHANNELSACTIVE$\\' --warning-calls-active=\\'$_SERVICEWARNINGCALLSACTIVE$\\' --critical-calls-active=\\'$_SERVICECRITICALCALLSACTIVE$\\' --warning-calls-count=\\'$_SERVICEWARNINGCALLSCOUNT$\\' --critical-calls-count=\\'$_SERVICECRITICALCALLSCOUNT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-VoIP-Asterisk-SNMP-Channel-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_asterisk.pl --plugin=apps::voip::asterisk::remote::plugin --mode=showpeers --remote=$_SERVICEREMOTE$ --hostname=$HOSTADDRESS$ --port=$_HOSTAMIPORT$ --username=$_HOSTAMIUSERNAME$ --password=$_HOSTAMIPASSWORD$ --ssh-option=\\'-l$_HOSTSSHUSERNAME$\\' --protocol=$_SERVICEPROTOCOL$ --warning=$_SERVICEWARNING$ --critical=$_SERVICECRITICAL$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-VoIP-Asterisk-Remote-Showpeers",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_asterisk.pl --plugin=apps::voip::asterisk::remote::plugin --mode=activecalls --remote=$_SERVICEREMOTE$ --hostname=$HOSTADDRESS$ --port=$_HOSTAMIPORT$ --username=$_HOSTAMIUSERNAME$ --password=$_HOSTAMIPASSWORD$ --ssh-option=\\'-l$_HOSTSSHUSERNAME$\\' --ssh-option=\\'-p=$_HOSTSSHPORT$\\' --warning=$_SERVICEWARNING$ --critical=$_SERVICECRITICAL$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-VoIP-Asterisk-Remote-Activecalls",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_asterisk.pl --plugin=apps::voip::asterisk::remote::plugin --mode=externalcalls --remote=$_SERVICEREMOTE$ --hostname=$HOSTADDRESS$ --port=$_HOSTAMIPORT$ --username=$_HOSTAMIUSERNAME$ --password=$_HOSTAMIPASSWORD$ --ssh-option=\\'-l$_HOSTSSHUSERNAME$\\' --ssh-option=\\'-p=$_HOSTSSHPORT$\\' --warning=$_SERVICEWARNING$ --critical=$_SERVICECRITICAL$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-VoIP-Asterisk-Remote-Externalcalls",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_asterisk.pl --plugin=apps::voip::asterisk::remote::plugin --mode=dahdistatus --remote=$_SERVICEREMOTE$ --hostname=$HOSTADDRESS$ --port=$_HOSTAMIPORT$ --username=$_HOSTAMIUSERNAME$ --password=$_HOSTAMIPASSWORD$ --ssh-option=\\'-l$_HOSTSSHUSERNAME$\\' --ssh-option=\\'-p=$_HOSTSSHPORT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-VoIP-Asterisk-Remote-Dahdistatus",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_asterisk.pl --plugin=apps::voip::asterisk::snmp::plugin --mode=activecalls --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=$_HOSTSNMPCOMMUNITY$ $_HOSTSNMPEXTRAOPTIONS$ --warning=$_SERVICEWARNING$ --critical=$_SERVICECRITICAL$\\\"",
+            "name": "App-VoIP-Asterisk-SNMP-activecalls",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_asterisk.pl --plugin=apps::voip::asterisk::snmp::plugin --mode=externalcalls --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=$_HOSTSNMPCOMMUNITY$ $_HOSTSNMPEXTRAOPTIONS$ --warning=$_SERVICEWARNING$ --critical=$_SERVICECRITICAL$ --trunkusernamelist=$_HOSTTRUNKUSERNAMELIST$ --critontrunk=$_SERVICECRITONTRUNK$ --warnontrunk=$_SERVICEWARNONTRUNK$\\\"",
+            "name": "App-VoIP-Asterisk-SNMP-externalcalls",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Asterisk VoIP Application in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "App-VoIP-Asterisk-64.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-VoIP-Asterisk-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Voip-Asterisk-SNMP-Channel-Usage"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "App-VoIP-Asterisk-64.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* deprecated version",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Asterisk server via SNMP:\r\n* Active-calls\r\n* External-calls"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un serveur Asterisk via SNMP :\r\n* Active-calls\r\n* External-calls"
+            }
+        ],
+        "discovery_category": "toip-voip",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Voip-Asterisk\r\n\r\n\r\n### Asterisk server configuration\r\nAfter connecting with root account to your Asterisk server, you must do\r\nthe following configurations.\r\n\r\n### SNMP mode\r\n* Install *snmpd* daemon.\r\n* Modify the file `/etc/asterisk/modules.conf` by commenting out the\r\n    line containing `res_snmp.so`:\r\n\r\n    vi /etc/asterisk/modules.conf\r\n\r\nexample: \r\n\r\n    [modules] autoload=yes\r\n    ... noload => res_config_pgsql.so noload => res_phoneprov.so #noload => res_snmp.so noload => res_speech.so noload => res_config_sqlite.so ...\r\n\r\n* Modify or create the file `/etc/asterisk/res_snmp.conf` to add the following parameters:\r\n\r\n\r\n    vi /etc/asterisk/res\\_snmp.conf\r\n\r\n    [general]\r\n    subagent = yes\r\n    enabled = yes\r\n\r\n* Modify the file `/etc/snmp/snmpd.conf` to add some parameters:\r\n\r\n\r\n    /etc/snmp/snmpd.conf\r\n\r\nexemple:\r\n\r\n    # Acces to Asterisk snmp\r\n    # Asterisk user\r\n    createUser asteriskUser SHA \"password\" AES\r\n    rwuser asteriskUser priv\r\n    # Enable AgentX support\r\n    master agentx\r\n    agentXSocket /var/agentx/master\r\n    # Set permissions on AgentX socket and containing\r\n    # directory such that process in group 'asterisk'\r\n    # will be able to connect\r\n    agentXPerms  0660 0550 nobody asterisk\r\n\r\n* Download the following 2 files and place them into\r\n    /usr/share/snmp/mibs (or mib2c-data):\r\n\r\n\r\n    wget https://wiki.asterisk.org/wiki/display/AST/Asterisk+MIB+Definitions\r\n    wget https://wiki.asterisk.org/wiki/display/AST/Digium+MIB+Definitions\r\n\r\n* Restart snmpd and asterisk server:\r\n\r\n\r\n    /etc/init.d/snmpd restart /etc/init.d/asterisk restart\r\n\r\nHere is an exemple of a command to check the snmp functionality:\r\n\r\n    snmpwalk -v 3 -u asteriskUser -l authPriv -a SHA -A \"password\" -x AES -X \"password\" <xivo serveur IP> .1.3.6.1.4.1.22736\r\n\r\n### Remote mode\r\n1.  Commun\r\n\r\nFor any remote acces, you must create an Asterisk user:\r\n\r\n    vi /etc/aserisk/manager.conf\r\n\r\nexample of user:\r\n\r\n    [xivo_centreon_user]\r\n    secret = centreon\r\n    deny=0.0.0.0/0.0.0.0\r\n    permit=127.0.0.1/255.255.255.0\r\n    read = system,call,log,verbose,command,agent,user,dtmf\r\n    write = system,call,log,verbose,command,agent,user,dtmf\r\n\r\n2.  AMI\r\n\r\nIn te newly created user, add a *permit* line to allow the centreon\r\nserver to conect to the AMI:\r\n\r\n    vi /etc/aserisk/manager.conf\r\n\r\nexample:\r\n\r\n    permit=10.30.2.32/255.255.255.0\r\n\r\n3.  SSH\r\n\r\n* Create a system user, *centreon* for exemple:\r\n\r\n\r\n    useradd centreon passwd centreon\r\n\r\n* Echange ssh keys from the centreon server to the asterisk server\r\n    (user *centreon* in our exemple):\r\n\r\n\r\n    ssh-copy-id centreon@<asterisk server>\r\n\r\n* Push the script\r\n    `/usr/lib/nagios/plugins/apps/voip/asterisk/remote/remote-script/asterisk_sendcommand.pm`\r\n    to `/home/centreon/bin`:\r\n\r\n\r\n    scp /usr/lib/nagios/plugins/apps/voip/asterisk/remote/remote-script/asterisk\\_sendcommand.pm /home/centreon/bin/.\r\n\r\n* Push from the centreon server\r\n    `/usr/lib/nagios/plugins/apps/voip/asterisk/remote/remote-script/asterisk_sendcommand.conf`or\r\n    create it at `/home/centreon/bin/asterisk_centreon.conf` directly on\r\n    the asterisk server\r\n\r\n* Copy the *user name* and the *secret* of the centreon user contained\r\n    into `/etc/asterisk/manager.conf` to\r\n    `/home/centreon/bin/asterisk_centreon.conf`:\r\n\r\n\r\n    vi /home/centreon/bin/asterisk_centreon.conf\r\n\r\nadd the line:\r\n\r\n    xivo_centreon_user centreon\r\n\r\nWarning: this file must contain only one line\r\n\r\nWarning: the files ``/home/centreon/bin/asterisk_centreon.conf`` and ``/home/centreon/bin/asterisk_centreon.conf`` must be executable and readable by the *centreon* user",
+        "name": "Asterisk VoIP Server",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_asterisk.pl",
+                "package_name": "centreon-plugin-Applications-Voip-Asterisk",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Applications-Voip-Asterisk",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "applications-voip-asterisk",
+        "status": "deprecated",
+        "status_message": "",
+        "tags": [
+            "Asterisk",
+            "Call",
+            "Server",
+            "ToIP",
+            "Voice",
+            "VoIP"
+        ],
+        "update_date": "1512653482",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre d'appels et canaux en cours.}\r\n{EN: Check number of calls and channels.}",
+            "active_checks_enabled": 2,
+            "alias": "Channel-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-VoIP-Asterisk-SNMP-Channel-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Voip-Asterisk-SNMP-Channel-Usage",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des pairs par connection SSH.} {EN: Check status of peers by SSH connexion}",
+            "active_checks_enabled": 2,
+            "alias": "Asterisk-Showpeers",
+            "check_timeperiod": "",
+            "command_name": "App-VoIP-Asterisk-Remote-Showpeers",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "25"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "50"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROTOCOL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEREMOTE$",
+                    "password": false,
+                    "value": "ssh"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Voip-Asterisk-Showpeers",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre d'appels actifs par connection SSH.} {EN: Check the number of active calls by SSH connexion}",
+            "active_checks_enabled": 2,
+            "alias": "Asterisk-Activecalls",
+            "check_timeperiod": "",
+            "command_name": "App-VoIP-Asterisk-Remote-Activecalls",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "50"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEREMOTE$",
+                    "password": false,
+                    "value": "ssh"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "25"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Voip-Asterisk-Activecalls",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre d'appels externes par connection SSH.} {EN: Check the number of external calls by SSH connexion}",
+            "active_checks_enabled": 2,
+            "alias": "Asterisk-Externalcalls",
+            "check_timeperiod": "",
+            "command_name": "App-VoIP-Asterisk-Remote-Externalcalls",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "50"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEREMOTE$",
+                    "password": false,
+                    "value": "ssh"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "25"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Voip-Asterisk-Externalcalls",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des lignes physiques DAHDI par connection SSH.} {EN: Check state of DAHDI physical link by SSH connexion}",
+            "active_checks_enabled": 2,
+            "alias": "Asterisk-Dahdistatus",
+            "check_timeperiod": "",
+            "command_name": "App-VoIP-Asterisk-Remote-Dahdistatus",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEREMOTE$",
+                    "password": false,
+                    "value": "ssh"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Voip-Asterisk-Dahdistatus",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Nombre d'appels en cours}\r\n{EN: Number of active calls}",
+            "active_checks_enabled": 2,
+            "alias": "Asterisk-SNMP-Activecalls",
+            "check_timeperiod": "",
+            "command_name": "App-VoIP-Asterisk-SNMP-activecalls",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Voip-Asterisk-SNMP-Activecalls",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Nombre d'appels sur les lignes externes}\r\n{EN: Number of calls on external trunk}",
+            "active_checks_enabled": 2,
+            "alias": "Asterisk-SNMP-Externalcalls",
+            "check_timeperiod": "",
+            "command_name": "App-VoIP-Asterisk-SNMP-externalcalls",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Voip-Asterisk-SNMP-Externalcalls",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

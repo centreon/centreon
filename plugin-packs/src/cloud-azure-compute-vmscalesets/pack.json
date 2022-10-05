@@ -1,0 +1,908 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Compute-Vmscalesets-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Azure Virtual Machine Scale Sets.",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Compute/virtualMachineScaleSets/ELPUS001",
+                            "location": "westus",
+                            "name": "ELPUS001",
+                            "resourceGroup": "RSG2345",
+                            "type": "Microsoft.Compute/virtualMachineScaleSets"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Compute/virtualMachineScaleSets/JDOlMS45",
+                            "location": "westeurope",
+                            "name": "JDOlMS45",
+                            "resourceGroup": "RSG1234",
+                            "type": "Microsoft.Compute/virtualMachineScaleSets"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Compute-Vmscalesets-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Virtual Machine Scale Sets",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": false,
+                    "slug": "azure-compute-vmscalesets",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Compute-Vmscalesets-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Azure Virtual Machine Scale Sets.",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Compute/virtualMachineScaleSets/ELPUS001",
+                            "location": "westus",
+                            "name": "ELPUS001",
+                            "resourceGroup": "RSG2345",
+                            "tags": [
+                                {
+                                    "key": "env",
+                                    "value": "prod"
+                                },
+                                {
+                                    "key": "datacenter",
+                                    "value": "003"
+                                }
+                            ],
+                            "type": "Microsoft.Compute/virtualMachineScaleSets\""
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Compute/virtualMachineScaleSets/JDOlMS45",
+                            "location": "westeurope",
+                            "name": "JDOlMS45",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "tags": [
+                                {
+                                    "key": "env",
+                                    "value": "dev"
+                                }
+                            ],
+                            "type": "Microsoft.Compute/virtualMachineScaleSets"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Compute-Vmscalesets-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Virtual Machine Scale Sets",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": false,
+                    "slug": "azure-compute-vmscalesets",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_compute_vmscalesets_api.pl --plugin=cloud::azure::compute::vmscalesets::plugin --mode=health --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --ok-status=\\'$_SERVICESTATUSOK$\\' --warning-status=\\'$_SERVICESTATUSWARNING$\\' --critical-status=\\'$_SERVICESTATUSCRITICAL$\\' --unknown-status=\\'$_SERVICESTATUSUNKNOWN$\\' $_HOSTEXTRAOPTIONS$  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Compute-Vmscalesets-Api-Health",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_compute_vmscalesets_api.pl --plugin=cloud::azure::compute::vmscalesets::plugin --mode=traffic --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Compute-Vmscalesets-Api-Traffic",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_compute_vmscalesets_api.pl --plugin=cloud::azure::compute::vmscalesets::plugin --mode=memory --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --warning-memory-available=\\'$_SERVICEWARNINGMEMORYAVAILABLE$\\' --critical-memory-available=\\'$_SERVICECRITICALMEMORYAVAILABLE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Compute-Vmscalesets-Api-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_compute_vmscalesets_api.pl --plugin=cloud::azure::compute::vmscalesets::plugin --mode=diskio --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --warning-disk-read-ops-persec=\\'$_SERVICEWARNINGDISKREADOPS$\\' --critical-disk-read-ops-persec=\\'$_SERVICECRITICALDISKREADOPS$\\' --warning-disk-write-ops-persec=\\'$_SERVICEWARNINGDISKWRITEOPS$\\' --critical-disk-write-ops-persec=\\'$_SERVICECRITICALDISKWRITEOPS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Compute-Vmscalesets-Api-Diskio",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_compute_vmscalesets_api.pl --plugin=cloud::azure::compute::vmscalesets::plugin --mode=cpu --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --warning-cpu-usage=\\'$_SERVICEWARNINGCPUUSAGE$\\' --critical-cpu-usage=\\'$_SERVICECRITICALCPUUSAGE$\\' --warning-cpu-credits-remaining=\\'$_SERVICEWARNINGCPUCREDREMAINING$\\' --critical-cpu-credits-remaining=\\'$_SERVICECRITICALCPUCREDREMAINING$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Compute-Vmscalesets-Api-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_compute_vmscalesets_api.pl --plugin=cloud::azure::compute::vmscalesets::plugin --custommode='api' --mode=discovery --statefile-suffix='autodiscovery' --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Compute-Vmscalesets-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser un Virtual Machine Scale Sets via API}\r\n{EN: Template to check Virtual Machine Scale Sets using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Virtual Machine Scale Sets",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": "Cloud-Azure-Compute-Vmscalesets-Api-Health",
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-compute-vmscalesets-2.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Compute-Vmscalesets",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "Generic-Active-Cloud-Host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Compute-Vmscalesets-Traffic-Api",
+                "Cloud-Azure-Compute-Vmscalesets-Memory-Api",
+                "Cloud-Azure-Compute-Vmscalesets-Health-Api",
+                "Cloud-Azure-Compute-Vmscalesets-Diskio-Api",
+                "Cloud-Azure-Compute-Vmscalesets-Cpu-Usage-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-compute-vmscalesets-2.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Fixing broken icon",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin Pack to monitor Azure Virtual Machine Scale Sets using RestAPI or AZCLI**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|Cloud-Azure-Compute-Vmscalesets-custom|\r\n|---|\r\n|Cpu-Usage|\r\n|Diskio|\r\n|Health|\r\n|Memory|\r\n|Traffic|\r\n\r\nThis Plugin-Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin Pack permettant de superviser Azure Virtual Machine Scale Sets via RestAPI ou AZCLI**\r\n\r\nMod\u00e8les d\\'h\u00f4te et services li\u00e9s:\r\n\r\n|Cloud-Azure-Compute-Vmscalesets-custom|\r\n|---|\r\n|Cpu-Usage|\r\n|Diskio|\r\n|Health|\r\n|Memory|\r\n|Traffic|\r\n\r\nThis Plugin-Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure Virtual Machine Scale Sets",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_compute_vmscalesets_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Compute-Vmscalesets-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-compute-vmscalesets",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "API",
+            "HostDisco",
+            "Restapi",
+            "Azure",
+            "Virtual Machines"
+        ],
+        "update_date": "1646213944",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du r\u00e9seau du Virtual Machine Scale Sets.}\r\n\r\n{EN: Check Virtual Machine Scale Sets network usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Compute-Vmscalesets-Api-Traffic",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Compute-Vmscalesets-Traffic-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la m\u00e9moire disponible restante sur le Virtual Machine Scale Sets.}\r\n\r\n{EN: Check memory available on Virtual Machine Scale Sets.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Compute-Vmscalesets-Api-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Compute-Vmscalesets-Memory-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut du Virtual Machine Scale Sets.}\r\n\r\n{EN: Check Virtual Machine Scale Sets state.}",
+            "active_checks_enabled": 2,
+            "alias": "Health",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Compute-Vmscalesets-Api-Health",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATUSOK$",
+                    "password": false,
+                    "value": "%{status} =~ /^Available$/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATUSCRITICAL$",
+                    "password": false,
+                    "value": "%{status} =~ /^Unavailable$/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATUSUNKNOWN$",
+                    "password": false,
+                    "value": "%{status} =~ /^Unknown$/"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Compute-Vmscalesets-Health-Api",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des \u00e9critures/lectures des disques.}\r\n\r\n{EN: Check disks I/O utilization.}",
+            "active_checks_enabled": 2,
+            "alias": "Diskio",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Compute-Vmscalesets-Api-Diskio",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Compute-Vmscalesets-Diskio-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le CPU du Virtual Machine Scale Sets .}\r\n\r\n{EN: Check CPU of Virtual Machine Scale Sets.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu-Usage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Compute-Vmscalesets-Api-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Compute-Vmscalesets-Cpu-Usage-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

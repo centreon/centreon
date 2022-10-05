@@ -1,0 +1,1397 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v1.0": [
+                {
+                    "command": "Net-Aruba-Standard-SNMP-AP-HostDiscovery",
+                    "default_template": "generic-active-host",
+                    "description": "Discover Aruba Access Points throught the Aruba Controller",
+                    "mapping": {
+                        "aruba_ap": {
+                            "association": {
+                                "description": [
+                                    "${location}",
+                                    "${name}"
+                                ],
+                                "hostname": [
+                                    "${name}"
+                                ],
+                                "ip": [
+                                    "${ip}",
+                                    "${name}"
+                                ]
+                            },
+                            "attributes": {
+                                "group": {
+                                    "type": "string"
+                                },
+                                "ip": {
+                                    "type": "string"
+                                },
+                                "location": {
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "status": {
+                                    "type": "string"
+                                }
+                            },
+                            "filters": {
+                                "type": "ap"
+                            },
+                            "macros": [
+                                {
+                                    "from": "parameters",
+                                    "name": "SNMPCOMMUNITY",
+                                    "type": "text",
+                                    "value": "SNMPCOMMUNITY"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "SNMPVERSION",
+                                    "type": "text",
+                                    "value": "SNMPVERSION"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "SNMPPORT",
+                                    "type": "text",
+                                    "value": "SNMPPORT"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "SNMPTIMEOUT",
+                                    "type": "text",
+                                    "value": "TIMEOUT"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "ARUBACONTROLLERHOSTNAME",
+                                    "type": "text",
+                                    "value": "ARUBACONTROLLERHOSTNAME"
+                                },
+                                {
+                                    "from": "results",
+                                    "name": "APNAME",
+                                    "type": "text",
+                                    "value": "name"
+                                }
+                            ],
+                            "object": "host",
+                            "templates": [
+                                "Net-Aruba-Standard-Ap-SNMP"
+                            ]
+                        }
+                    },
+                    "name": "Aruba Access Points",
+                    "parameters": [
+                        {
+                            "description": "Aruba Controller Hostname",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "ARUBACONTROLLERHOSTNAME",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "SNMP Community",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "SNMPCOMMUNITY",
+                            "type": "text",
+                            "value": "public"
+                        },
+                        {
+                            "description": "SNMP Version",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "SNMPVERSION",
+                            "type": "text",
+                            "value": "2c"
+                        },
+                        {
+                            "description": "SNMP Port",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "SNMPPORT",
+                            "type": "text",
+                            "value": 161
+                        },
+                        {
+                            "description": "Timeout",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "TIMEOUT",
+                            "type": "text",
+                            "value": 3
+                        },
+                        {
+                            "description": "Extra Options",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "EXTRAOPTIONS",
+                            "type": "text",
+                            "value": null
+                        }
+                    ],
+                    "type": "aruba"
+                }
+            ],
+            "v2.0": [
+                {
+                    "attributes": {
+                        "group": {
+                            "type": "string"
+                        },
+                        "ip": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "status": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Net-Aruba-Standard-SNMP-AP-HostDiscovery",
+                    "credentials": {},
+                    "default_template": "generic-active-host",
+                    "description": "Discover Aruba Access Points throught the Aruba Controller",
+                    "discovery_examples": [],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.ip"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.SNMPCOMMUNITY",
+                                "is_password": false,
+                                "source": "discovery.parameters.SNMPCOMMUNITY"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.SNMPVERSION",
+                                "is_password": false,
+                                "source": "discovery.parameters.SNMPVERSION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.SNMPPORT",
+                                "is_password": false,
+                                "source": "discovery.parameters.SNMPPORT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.APNAME",
+                                "is_password": false,
+                                "source": "discovery.parameters.ARUBACONTROLLERHOSTNAME"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.APNAME",
+                                "is_password": false,
+                                "source": "discovery.results.name"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Net-Aruba-Standard-Ap-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Aruba Access Points",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Aruba Controller Hostname",
+                                "group": "Aruba Controller",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "ARUBACONTROLLERHOSTNAME",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "SNMP Community",
+                                "group": "SNMP configuration",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "SNMPCOMMUNITY",
+                                "type": "text",
+                                "value": "public"
+                            },
+                            {
+                                "description": "SNMP Version",
+                                "group": "SNMP configuration",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "SNMPVERSION",
+                                "type": "text",
+                                "value": "2c"
+                            },
+                            {
+                                "description": "SNMP Port",
+                                "group": "SNMP configuration",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "SNMPPORT",
+                                "type": "text",
+                                "value": 161
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 1
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": false,
+                    "slug": "aruba-access-points",
+                    "type": "aruba",
+                    "uuid_attributes": [
+                        "location",
+                        "name"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "group": {
+                            "type": "string"
+                        },
+                        "ip": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "status": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Net-Aruba-Standard-SNMP-AP-HostDiscovery",
+                    "credentials": {},
+                    "default_template": "generic-active-host",
+                    "description": "Discover Aruba Access Points throught the Aruba Controller",
+                    "discovery_examples": [],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.ip"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.SNMPCOMMUNITY",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.SNMPCOMMUNITY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.SNMPVERSION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.SNMPVERSION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.SNMPPORT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.SNMPPORT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.APNAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.ARUBACONTROLLERHOSTNAME"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.APNAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Net-Aruba-Standard-Ap-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Aruba Access Points",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Aruba Controller Hostname",
+                                "group": "Aruba Controller",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "ARUBACONTROLLERHOSTNAME",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "SNMP Community",
+                                "group": "SNMP configuration",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "SNMPCOMMUNITY",
+                                "type": "text",
+                                "value": "public"
+                            },
+                            {
+                                "description": "SNMP Version",
+                                "group": "SNMP configuration",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "SNMPVERSION",
+                                "type": "text",
+                                "value": "2c"
+                            },
+                            {
+                                "description": "SNMP Port",
+                                "group": "SNMP configuration",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "SNMPPORT",
+                                "type": "text",
+                                "value": 161
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 1
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": false,
+                    "slug": "aruba-access-points",
+                    "type": "aruba",
+                    "uuid_attributes": [
+                        "location",
+                        "name"
+                    ]
+                }
+            ]
+        },
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Aruba-Standard-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Aruba-Standard-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Aruba-Standard-Controller-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Aruba-Standard-SNMP-Packet-Errors-Name",
+                "service_display_name": "Packet-Errors-$name$",
+                "service_template": "Net-Aruba-Standard-Packet-Errors-Global-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Aruba-Standard-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Aruba-Standard-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Aruba-Standard-Controller-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Aruba-Standard-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Aruba-Standard-Traffic-Global-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aruba.pl --plugin=network::aruba::standard::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Aruba-Standard-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aruba.pl --plugin=network::aruba::standard::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Aruba-Standard-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aruba.pl --plugin=network::aruba::standard::snmp::plugin --mode=storage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\'  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Aruba-Standard-SNMP-Storage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aruba.pl --plugin=network::aruba::standard::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Aruba-Standard-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aruba.pl --plugin=network::aruba::standard::snmp::plugin --mode=license --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Aruba-Standard-SNMP-License",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aruba.pl --plugin=network::aruba::standard::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Aruba-Standard-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aruba.pl --plugin=network::aruba::standard::snmp::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-utilization=\\'$_SERVICEWARNING$\\' --critical-utilization=\\'$_SERVICECRITICAL$\\'  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Aruba-Standard-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aruba.pl --plugin=network::aruba::standard::snmp::plugin --mode=controller-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-connected-current=\\'$_SERVICEWARNINGCONNECTEDCURRENT$\\' --critical-connected-current=\\'$_SERVICECRITICALCONNECTEDCURRENT$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Aruba-Standard-SNMP-Controller-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aruba.pl --plugin=network::aruba::standard::snmp::plugin --mode=ap-status --hostname=$_HOSTARUBACONTROLLERHOSTNAME$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-port=\\'$_HOSTSNMPPORT$\\' --snmp-timeout=\\'$_HOSTSNMPTIMEOUT$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_HOSTAPNAME$\\' --warning-connected-current=\\'$_SERVICEWARNINGCONNECTEDCURRENT$\\' --critical-connected-current=\\'$_SERVICECRITICALCONNECTEDCURRENT$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-uptime=\\'$_SERVICEWARNINGUPTIME$\\' --critical-uptime=\\'$_SERVICECRITICALUPTIME$\\' --warning-controller-bootstrap=\\'$_SERVICEWARNINGCONTROLLERBOOTSTRAP$\\' --critical-controller-bootstrap=\\'$_SERVICECRITICALCONTROLLERBOOTSTRAP$\\' --warning-reboot=\\'$_SERVICEWARNINGREBOOT$\\' --critical-reboot=\\'$_SERVICECRITICALREBOOT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Aruba-Standard-SNMP-Ap-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aruba.pl --plugin=network::aruba::standard::snmp::plugin --mode=ap-ssid-statistics --hostname=$_HOSTARUBACONTROLLERHOSTNAME$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-port=\\'$_HOSTSNMPPORT$\\' --snmp-timeout=\\'$_HOSTSNMPTIMEOUT$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-ap=\\'$_HOSTAPNAME$\\' --warning-bssid-stations-associated=\\'$_SERVICEWARNINGBSSIDSTATIONSASSOCIATED$\\' --critical-bssid-stations-associated=\\'$_SERVICECRITICALBSSIDSTATIONSASSOCIATED$\\' --warning-channel-noise=\\'$_SERVICEWARNINGCHANNELNOISE$\\' --critical-channel-noise=\\'$_SERVICECRITICALCHANNELNOISE$\\' --warning-signal-noise-ratio=\\'$_SERVICEWARNINGSIGNALNOISERATIO$\\' --critical-signal-noise-ratio=\\'$_SERVICECRITICALSIGNALNOISERATIO$\\' --warning-essid-stations-associated=\\'$_SERVICEWARNINGESSIDSTATIONSASSOCIATED$\\' --critical-essid-stations-associated=\\'$_SERVICECRITICALESSIDSTATIONSASSOCIATED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Aruba-Standard-SNMP-Ap-Ssid-Statistics",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aruba.pl --plugin=network::aruba::standard::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACEID$\\' --add-status --add-errors --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Aruba-Standard-SNMP-Packet-Errors-Id",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aruba.pl --plugin=network::aruba::standard::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$$$\\' --name --add-status --add-errors --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Aruba-Standard-SNMP-Packet-Errors-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aruba.pl --plugin=network::aruba::standard::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-errors --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Aruba-Standard-SNMP-Packet-Errors-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aruba.pl --plugin=network::aruba::standard::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Aruba-Standard-SNMP-Traffic-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aruba.pl --plugin=network::aruba::standard::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$$$\\' --name --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Aruba-Standard-SNMP-Traffic-Name",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_aruba.pl --plugin=network::aruba::standard::snmp::plugin --mode=discovery --hostname=$_ARUBACONTROLLERHOSTNAME$ --snmp-version='$_SNMPVERSION$' --snmp-community='$_SNMPCOMMUNITY$' --snmp-port='$_SNMPPORT$' --snmp-timeout='$_TIMEOUT$' $_EXTRAOPTIONS$\"",
+            "name": "Net-Aruba-Standard-SNMP-AP-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les contr\u00f4leurs Aruba en SNMP}\r\n{EN: Template to check Aruba controllers using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Aruba Controllers using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "aruba-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Aruba-Standard-Controller-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Aruba-Standard-Storage-SNMP",
+                "Net-Aruba-Standard-Memory-SNMP",
+                "Net-Aruba-Standard-License-SNMP",
+                "Net-Aruba-Standard-Hardware-Global-SNMP",
+                "Net-Aruba-Standard-Cpu-SNMP",
+                "Net-Aruba-Standard-Controller-Status-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les points d'acc\u00e8s Aruba en SNMP}\r\n{EN: Template to check Aruba access points using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Aruba Access Points using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "aruba-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTARUBACONTROLLERHOSTNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAPNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Aruba-Standard-Ap-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Aruba-Standard-Ap-Status-SNMP",
+                "Net-Aruba-Standard-Ap-Ssid-Statistics-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "aruba-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Fixing extra space in discovery commands",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin Pack to monitor Aruba controllers and access points via SNMP.**\r\n\r\nAvailable host templates and related services:\r\n\r\n|Net-Aruba-Standard-Controller-SNMP|\r\n|---|\r\n|Cpu|\r\n|Memory|\r\n|Storage|\r\n|Hardware|\r\n|Controller-Status|\r\n|License|\r\n\r\n|Net-Aruba-Standard-Ap-SNMP|\r\n|---|\r\n|Ap-Ssid-Statistics|\r\n|Ap-Status|\r\n\r\nAvailable service discovery rules:\r\n\r\n* Net-Aruba-Standard-SNMP-Packet-Errors-Name\r\n* Net-Aruba-Standard-SNMP-Traffic-Name\r\n\r\nDeprecated host template:\r\n\r\n* Net-Aruba-Standard-SNMP\r\n\r\nDeprecated service templates:\r\n\r\n* Net-Aruba-Standard-Ap-Connections-SNMP\r\n* Net-Aruba-Standard-Ap-Users-SNMP\r\n\r\nThis pack provides a host discovery rule."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser les contr\u00f4leurs et les points d\\'acc\u00e8s Aruba via SNMP.**\r\n\r\nMod\u00e8les d\\'h\u00f4te disponibles et leurs services :\r\n\r\n|Net-Aruba-Standard-Controller-SNMP|\r\n|---|\r\n|Cpu|\r\n|Memory|\r\n|Storage|\r\n|Hardware|\r\n|Controller-Status|\r\n|License|\r\n\r\n|Net-Aruba-Standard-Ap-SNMP|\r\n|---|\r\n|Ap-Ssid-Statistics|\r\n|Ap-Status|\r\n\r\nR\u00e8gles de d\u00e9couverte de services disponibles :\r\n\r\n* Net-Aruba-Standard-SNMP-Packet-Errors-Name\r\n* Net-Aruba-Standard-SNMP-Traffic-Name\r\n\r\nMod\u00e8le d\\'h\u00f4te obsol\u00e8te :\r\n\r\n* Net-Aruba-Standard-SNMP\r\n\r\nMod\u00e8les de service obsol\u00e8te :\r\n\r\n* Net-Aruba-Standard-Ap-Connections-SNMP\r\n* Net-Aruba-Standard-Ap-Users-SNMP\r\n\r\nCe pack fournit une r\u00e8gle de d\u00e9couverte d\\'h\u00f4te."
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n\r\n## Prerequisites\r\n\r\n### Centreon Plugin\r\n\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Switchs-Aruba-Standard-Snmp\r\n\r\n### Configure SNMP\r\n\r\nFollow constructor procedure to enable and configure SNMP on the equipment.\r\n\r\nRead *[this guide](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp)* to troubleshoot SNMP problems.\r\n\r\n## Centreon Configuration\r\n\r\n### Create hosts using the appropriate template\r\n\r\nBoth controllers and access points can be monitored using specific host templates.\r\n\r\nBe sure to have with you the following information:\r\n\r\n* Read-only SNMP community\r\n* IP Address of the equipment\r\n\r\n#### Controller\r\n\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Field</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>Name</p></td>\r\n            <td align=\"left\"><p><em>Name of the controller</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Alias</p></td>\r\n            <td align=\"left\"><p><em>Description</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>IP Address / DNS</p></td>\r\n            <td align=\"left\"><p><em>IP address of the controller</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>SNMP Community & Version</p></td>\r\n            <td align=\"left\"><p><em>Community and version of the SNMP agent</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Monitored from</p></td>\r\n            <td align=\"left\"><p><em>Poller used to monitor</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Templates</p></td>\r\n            <td align=\"left\"><p>Net-Aruba-Standard-Controller-SNMP-custom</p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nCheck the *Create Services linked to the Template too* box and click on the *Save* button.\r\n\r\nThe following services will be created:\r\n\r\n* Cpu\r\n* Memory\r\n* Storage\r\n* Hardware\r\n* License\r\n* Controller-Status\r\n\r\nThe following rules are linked to this host template:\r\n\r\n* Net-Aruba-Standard-SNMP-Packet-Errors-Name \r\n* Net-Aruba-Standard-SNMP-Traffic-Name \r\n\r\n#### Access Point\r\n\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Field</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>Name</p></td>\r\n            <td align=\"left\"><p><em>Name of the access point</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Alias</p></td>\r\n            <td align=\"left\"><p><em>Description</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>IP Address / DNS</p></td>\r\n            <td align=\"left\"><p><em><b>IP address of the controller</b></em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>SNMP Community & Version</p></td>\r\n            <td align=\"left\"><p><em>Community and version of the SNMP agent</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Monitored from</p></td>\r\n            <td align=\"left\"><p><em>Poller used to monitor</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Templates</p></td>\r\n            <td align=\"left\"><p>Net-Aruba-Standard-Ap-SNMP-custom</p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nThe following host macros should be set as shown:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Macro</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>APNAME</p></td>\r\n            <td align=\"left\"><p><em>Name of the access point</em></p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nCheck the *Create Services linked to the Template too* box and click on the *Save* button.\r\n\r\nThe following services will be created:\r\n\r\n* Ap-Ssid-Statistics\r\n* Ap-Status\r\n",
+        "name": "Aruba Standard",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_aruba.pl",
+                "package_name": "centreon-plugin-Network-Switchs-Aruba-Standard-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Network-Switchs-Aruba-Standard-Snmp",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "network-switchs-aruba-standard-snmp",
+        "status": "stable",
+        "status_message": "Fixing extra space in discovery commands",
+        "tags": [
+            "Access Point",
+            "AP",
+            "Aruba",
+            "Hardware",
+            "Network",
+            "SNMP"
+        ],
+        "update_date": "1617294805",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des disques du mat\u00e9riel}\r\n\r\n{EN: Check storage device usages.}",
+            "active_checks_enabled": 2,
+            "alias": "Storage",
+            "check_timeperiod": "",
+            "command_name": "Net-Aruba-Standard-SNMP-Storage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Aruba-Standard-Storage-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation m\u00e9moire du mat\u00e9riel}\r\n\r\n{EN: Check machine memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Aruba-Standard-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Aruba-Standard-Memory-SNMP",
+            "normal_check_interval": 10,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des licences du contr\u00f4leur.}\r\n\r\n{EN: Check the status of the licenses on the controller.}",
+            "active_checks_enabled": 2,
+            "alias": "License",
+            "check_timeperiod": "",
+            "command_name": "Net-Aruba-Standard-SNMP-License",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{flag} !~ /enabled/i || (%{expires} ne \"Never\" && %{expires} < 86400)"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Aruba-Standard-License-SNMP",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'ensemble du mat\u00e9riel ('ventilateur', 'modules', 'alimentations') de l'\u00e9quipement.}\r\n\r\n{EN: Check hardware status ('fan', 'module', 'power supply').}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Aruba-Standard-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Aruba-Standard-Hardware-Global-SNMP",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine. Ce contr\u00f4le pourra remonter la moyenne du taux d'utilisation des CPU.}\r\n\r\n{EN: Check the rate of utilization of CPU for the machine. This check can give the average utilization rate of CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Aruba-Standard-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "95"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Aruba-Standard-Cpu-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des contr\u00f4leurs (fonctionne seulement sur le contr\u00f4leur ma\u00eetre).}\r\n\r\n{EN: Check controllers status (works only on master controller).}",
+            "active_checks_enabled": 2,
+            "alias": "Controller-Status",
+            "check_timeperiod": "",
+            "command_name": "Net-Aruba-Standard-SNMP-Controller-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /active/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Aruba-Standard-Controller-Status-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du ou des points d'acc\u00e8s.}\r\n\r\n{EN: Check access points status.}",
+            "active_checks_enabled": 2,
+            "alias": "Ap-Status",
+            "check_timeperiod": "",
+            "command_name": "Net-Aruba-Standard-SNMP-Ap-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /up/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Aruba-Standard-Ap-Status-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques des ESSID et BSSID du ou des points d'acc\u00e8s.}\r\n\r\n{EN: Check access points' ESSID and BSSID statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Ap-Ssid-Statistics",
+            "check_timeperiod": "",
+            "command_name": "Net-Aruba-Standard-SNMP-Ap-Ssid-Statistics",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Aruba-Standard-Ap-Ssid-Statistics-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les ventilateurs de l'\u00e9quipement.}\r\n\r\n{EN: Check fan status on hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Fan",
+            "check_timeperiod": "",
+            "command_name": "Net-Aruba-Standard-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "fan"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Aruba-Standard-Hardware-Fan-SNMP",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les modules de l'\u00e9quipement.}\r\n\r\n{EN: Check module status on hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Module",
+            "check_timeperiod": "",
+            "command_name": "Net-Aruba-Standard-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "module"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Aruba-Standard-Hardware-Module-SNMP",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les alimentations de l'\u00e9quipement.}\r\n\r\n{EN: Check power supply status on hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Psu",
+            "check_timeperiod": "",
+            "command_name": "Net-Aruba-Standard-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "psu"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Aruba-Standard-Hardware-Psu-SNMP",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le pourcentage de paquets en erreur/\u00e9cart\u00e9 d'une interface r\u00e9seau.}\r\n\r\n{EN: Check packets on errors/discards of a network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Packet-Errors-Generic-Id",
+            "check_timeperiod": "",
+            "command_name": "Net-Aruba-Standard-SNMP-Packet-Errors-Id",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-Aruba-Standard-Packet-Errors-Generic-Id-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le pourcentage de paquets en erreur/\u00e9cart\u00e9 d'une interface r\u00e9seau.}\r\n\r\n{EN: Check packets on errors/discards of a network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Packet-Errors-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-Aruba-Standard-SNMP-Packet-Errors-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-Aruba-Standard-Packet-Errors-Generic-Name-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le pourcentage de paquets en erreur/\u00e9cart\u00e9 d'une interface r\u00e9seau.}\r\n\r\n{EN: Check packets on errors/discards of a network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Packet-Errors-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Aruba-Standard-SNMP-Packet-Errors-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Aruba-Standard-Packet-Errors-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau d'une interface r\u00e9seau.}\r\n\r\n{EN: Check traffic of an network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Id",
+            "check_timeperiod": "",
+            "command_name": "Net-Aruba-Standard-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Aruba-Standard-Traffic-Generic-Id-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau d'une interface r\u00e9seau.}\r\n\r\n{EN: Check traffic of an network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-Aruba-Standard-SNMP-Traffic-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Aruba-Standard-Traffic-Generic-Name-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau d'une interface r\u00e9seau.}\r\n\r\n{EN: Check traffic of an network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Aruba-Standard-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Aruba-Standard-Traffic-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

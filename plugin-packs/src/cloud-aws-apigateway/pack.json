@@ -1,0 +1,1050 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v1.0": [
+                {
+                    "command": "Cloud-Aws-ApiGateway-Api-HostDiscovery",
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Amazon AWS API Gateway instances",
+                    "mapping": {
+                        "aws_apigateway": {
+                            "association": {
+                                "description": [
+                                    "${name}"
+                                ],
+                                "hostname": [
+                                    "${name}"
+                                ],
+                                "ip": [
+                                    "${name}"
+                                ]
+                            },
+                            "attributes": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                }
+                            },
+                            "filters": {
+                                "type": "apigateway"
+                            },
+                            "macros": [
+                                {
+                                    "from": "parameters",
+                                    "name": "AWSSECRETKEY",
+                                    "type": "password",
+                                    "value": "AWSSECRETKEY"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AWSACCESSKEY",
+                                    "type": "text",
+                                    "value": "AWSACCESSKEY"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AWSREGION",
+                                    "type": "text",
+                                    "value": "REGION"
+                                },
+                                {
+                                    "from": "results",
+                                    "name": "APINAME",
+                                    "type": "text",
+                                    "value": "name"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "PROXYURL",
+                                    "type": "text",
+                                    "value": "PROXYURL"
+                                }
+                            ],
+                            "object": "host",
+                            "templates": [
+                                "Cloud-Aws-ApiGateway"
+                            ]
+                        }
+                    },
+                    "name": "Amazon AWS API Gateway",
+                    "parameters": [
+                        {
+                            "description": "AWS Access Key",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AWSACCESSKEY",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "AWS Secret Key",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AWSSECRETKEY",
+                            "type": "password",
+                            "value": null
+                        },
+                        {
+                            "description": "Region",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "REGION",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Timeout",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "TIMEOUT",
+                            "type": "text",
+                            "value": 10
+                        },
+                        {
+                            "description": "Proxy URL",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "PROXYURL",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Extra Options",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "EXTRAOPTIONS",
+                            "type": "text",
+                            "value": null
+                        }
+                    ],
+                    "test_option": null,
+                    "type": "aws"
+                }
+            ],
+            "v2.0": [
+                {
+                    "attributes": {
+                        "description": {
+                            "type": "string"
+                        },
+                        "id": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "version": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Aws-ApiGateway-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "AWS Access Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSACCESSKEY",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "AWS Secret Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSSECRETKEY",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Amazon AWS API Gateway instances",
+                    "discovery_examples": [
+                        {
+                            "description": "Backend API for devs",
+                            "id": "12s44z21rb",
+                            "name": "Dev Back API",
+                            "type": "apigateway",
+                            "version": "3.2.1"
+                        },
+                        {
+                            "description": "Backend API for devs",
+                            "id": "12s44z21rb",
+                            "name": "Dev Back API",
+                            "type": "apigateway",
+                            "version": "3.2.1"
+                        },
+                        {
+                            "description": "Backend API for devs",
+                            "id": "12s44z21rb",
+                            "name": "Dev Back API",
+                            "type": "apigateway",
+                            "version": "3.2.1"
+                        },
+                        {
+                            "description": "Backend API for devs",
+                            "id": "12s44z21rb",
+                            "name": "Dev Back API",
+                            "type": "apigateway",
+                            "version": "3.2.1"
+                        },
+                        {
+                            "description": "Backend API for devs",
+                            "id": "12s44z21rb",
+                            "name": "Dev Back API",
+                            "type": "apigateway",
+                            "version": "3.2.1"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSACCESSKEY",
+                                "is_password": false,
+                                "source": "discovery.credentials.AWSACCESSKEY"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSSECRETKEY",
+                                "is_password": true,
+                                "source": "discovery.credentials.AWSSECRETKEY"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSREGION",
+                                "is_password": false,
+                                "source": "discovery.parameters.REGION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.APINAME",
+                                "is_password": false,
+                                "source": "discovery.results.name"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Aws-ApiGateway-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Amazon AWS API Gateway",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Region",
+                                "group": "AWS",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "REGION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "amazon-api-gateway",
+                    "type": "aws",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "description": {
+                            "type": "string"
+                        },
+                        "id": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "version": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Aws-ApiGateway-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "AWS Access Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSACCESSKEY",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "AWS Secret Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSSECRETKEY",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Amazon AWS API Gateway instances",
+                    "discovery_examples": [
+                        {
+                            "description": "Backend API for devs",
+                            "id": "12s44z21rb",
+                            "name": "Dev Back API",
+                            "type": "apigateway",
+                            "version": "3.2.1"
+                        },
+                        {
+                            "description": "Backend API for devs",
+                            "id": "12s44z21rb",
+                            "name": "Dev Back API",
+                            "type": "apigateway",
+                            "version": "3.2.1"
+                        },
+                        {
+                            "description": "Backend API for devs",
+                            "id": "12s44z21rb",
+                            "name": "Dev Back API",
+                            "type": "apigateway",
+                            "version": "3.2.1"
+                        },
+                        {
+                            "description": "Backend API for devs",
+                            "id": "12s44z21rb",
+                            "name": "Dev Back API",
+                            "type": "apigateway",
+                            "version": "3.2.1"
+                        },
+                        {
+                            "description": "Backend API for devs",
+                            "id": "12s44z21rb",
+                            "name": "Dev Back API",
+                            "type": "apigateway",
+                            "version": "3.2.1"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSACCESSKEY",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSACCESSKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSSECRETKEY",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSSECRETKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSREGION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.REGION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.APINAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Aws-ApiGateway-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Amazon AWS API Gateway",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Region",
+                                "group": "AWS",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "REGION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "amazon-api-gateway",
+                    "type": "aws",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "description": {
+                            "type": "string"
+                        },
+                        "id": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "types": {
+                            "properties": null,
+                            "type": "array"
+                        },
+                        "version": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Aws-ApiGateway-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "AWS Access Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSACCESSKEY",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "AWS Secret Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSSECRETKEY",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Amazon AWS API Gateway instances",
+                    "discovery_examples": [
+                        {
+                            "description": "Backend API for devs",
+                            "id": "12s44z21rb",
+                            "name": "Dev Back API",
+                            "type": "apigateway",
+                            "version": "3.2.1"
+                        },
+                        {
+                            "description": "Backend API for devs",
+                            "id": "12s44z21rb",
+                            "name": "Dev Back API",
+                            "type": "apigateway",
+                            "version": "3.2.1"
+                        },
+                        {
+                            "description": "Backend API for devs",
+                            "id": "12s44z21rb",
+                            "name": "Dev Back API",
+                            "type": "apigateway",
+                            "version": "3.2.1"
+                        },
+                        {
+                            "description": "Backend API for devs",
+                            "id": "12s44z21rb",
+                            "name": "Dev Back API",
+                            "type": "apigateway",
+                            "version": "3.2.1"
+                        },
+                        {
+                            "description": "Backend API for devs",
+                            "id": "12s44z21rb",
+                            "name": "Dev Back API",
+                            "type": "apigateway",
+                            "version": "3.2.1"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSACCESSKEY",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSACCESSKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSSECRETKEY",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSSECRETKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSREGION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.REGION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.APINAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Aws-ApiGateway-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Amazon AWS API Gateway",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Region",
+                                "group": "AWS",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "REGION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "amazon-api-gateway",
+                    "type": "aws",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_apigateway_api.pl --plugin=cloud::aws::apigateway::plugin --plugin=cloud::aws::apigateway::plugin --mode=requests --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --api-name=\\'$_HOSTAPINAME$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-requests-errors-5xx=\\'$_SERVICEWARNINGREQUESTSERRORS5XX$\\' --critical-requests-errors-5xx=\\'$_SERVICECRITICALREQUESTSERRORS5XX$\\' --warning-requests-errors-4xx=\\'$_SERVICEWARNINGREQUESTSERRORS4XX$\\' --critical-requests-errors-4xx=\\'$_SERVICECRITICALREQUESTSERRORS4XX$\\' --warning-requests-client=\\'$_SERVICEWARNINGREQUESTSCLIENT$\\' --critical-requests-client=\\'$_SERVICECRITICALREQUESTSCLIENT$\\'\\\"",
+            "name": "Cloud-Aws-ApiGateway-Api-Requests",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_apigateway_api.pl --plugin=cloud::aws::apigateway::plugin --plugin=cloud::aws::apigateway::plugin --mode=latency --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --api-name=\\'$_HOSTAPINAME$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\'  --warning-client-latency=\\'$_SERVICEWARNINGCLIENTLATENCY$\\' --critical-client-latency=\\'$_SERVICECRITICALCLIENTLATENCY$\\' --warning-backend-latency=\\'$_SERVICEWARNINGBACKENDLATENCY$\\' --critical-backend-latency=\\'$_SERVICECRITICALBACKENDLATENCY$\\'\\\"",
+            "name": "Cloud-Aws-ApiGateway-Api-Latency",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_aws_apigateway_api.pl --plugin=cloud::aws::apigateway::plugin --custommode='awscli' --mode=discovery --aws-access-key='$_AWSACCESSKEY$' --aws-secret-key='$_AWSSECRETKEY$' --proxyurl='$_PROXYURL$' --timeout='$_TIMEOUT$' --region='$_REGION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Aws-ApiGateway-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Amazon Api Gateway via l'API}\r\n{EN: Template to check Amazon Api Gateway metrics using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Amazon Api Gateway metrics using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "aws-apigateway-icon.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSSECRETKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSACCESSKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSCUSTOMMODE$",
+                    "value": "awscli"
+                },
+                {
+                    "key": "$_HOSTAWSREGION$",
+                    "value": "us-east-1"
+                },
+                {
+                    "key": "$_HOSTAPINAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-ApiGateway",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Aws-ApiGateway-Requests-Api",
+                "Cloud-Aws-ApiGateway-Latency-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "aws-apigateway-icon.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ add HostDisco v3.1 provider",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Amazon API Gateway service.**\r\n\r\nAvailable host templates and related services:\r\n\r\n|Cloud-Aws-ApiGateway|\r\n|---|\r\n|Latency|\r\n|Requests|\r\n\r\nThis pack provides a host discovery rule."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour monitorer le service Amazon API Gateway.**\r\n\r\nMod\u00e8le d\\'h\u00f4te et services associ\u00e9s :\r\n\r\n|Cloud-Aws-ApiGateway|\r\n|---|\r\n|Latency|\r\n|Requests|\r\n\r\nCe pack fournit une r\u00e8gle de d\u00e9couverte d\\'h\u00f4te."
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n\r\n## Prerequisites\r\n\r\n### Centreon Plugin\r\n\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Cloud-Aws-ApiGateway-Api\r\n\r\nTo use it, you can either install 'awscli' (AWS Command Line Interface) or 'paws' (Perl AWS SDK).\r\n\r\n### Install awscli\r\n\r\nOn CentOS, install with following commands:\r\n\r\n    # yum install awscli\r\n\r\n## Centreon Configuration\r\n\r\n### Create a host using the appropriate template\r\n\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Field</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>Name</p></td>\r\n            <td align=\"left\"><p><em>Name of the host</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Alias</p></td>\r\n            <td align=\"left\"><p><em>Description</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>IP Address / DNS</p></td>\r\n            <td align=\"left\"><p><em>Can be localhost</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Monitored from</p></td>\r\n            <td align=\"left\"><p><em>Poller used to monitor</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Templates</p></td>\r\n            <td align=\"left\"><p>Cloud-Aws-Lambda-custom</p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nThe following host macros should be set as shown:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Macro</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSACCESSKEY</p></td>\r\n            <td align=\"left\"><p><em>AWS access key</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSSECRETKEY</p></td>\r\n            <td align=\"left\"><p><em>AWS secret key</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSCUSTOMMODE</p></td>\r\n            <td align=\"left\"><p><em>Plugin custom mode: awscli or paws</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSREGION</p></td>\r\n            <td align=\"left\"><p><em>AWS region</em></p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nCheck the *Create Services linked to the Template too* box and click on the *Save* button.\r\n\r\nThe following service will be created:\r\n\r\n* Streams\r\n* Records-Statistics\r\n\r\nThe following service macros should be set as shown:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Macro</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>APINAME</p></td>\r\n            <td align=\"left\"><p><em>Name of you AWS API</em></p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n",
+        "name": "Amazon API Gateway",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_aws_apigateway_api.pl",
+                "package_name": "centreon-plugin-Cloud-Aws-Apigateway-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-aws-apigateway",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Cloud",
+            "Gateway",
+            "APIGateway",
+            "AWS",
+            "HostDisco"
+        ],
+        "update_date": "1635279511",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "Api-Requests",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-ApiGateway-Api-Requests",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-ApiGateway-Requests-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "Api-Latency",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-ApiGateway-Api-Latency",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-ApiGateway-Latency-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

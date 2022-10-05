@@ -1,0 +1,188 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nginx_plus_restapi.pl --plugin=apps::nginx::nginxplus::restapi::plugin --mode=ssl --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --api-username=\\'$_HOSTAPIUSERNAME$\\' --api-password=\\'$_HOSTAPIPASSWORD$\\' --api-path=\\'$_HOSTAPIPATH$\\' $_HOSTAPIEXTRAOPTIONS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --warning-handshakes-succeeded=\\'$_SERVICEWARNINGHANDSHAKESSUCCEEDED$\\' --critical-handshakes-succeeded=\\'$_SERVICECRITICALHANDSHAKESSUCCEEDED$\\' --warning-handshakes-failed=\\'$_SERVICEWARNINGHANDSHAKESFAILED$\\' --critical-handshakes-failed=\\'$_SERVICECRITICALHANDSHAKESFAILED$\\' --warning-sessions-reuses=\\'$_SERVICEWARNINGSESSIONSREUSES$\\' --critical-sessions-reuses=\\'$_SERVICECRITICALSESSIONSREUSES$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Nginx-Plus-Restapi-Ssl",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nginx_plus_restapi.pl --plugin=apps::nginx::nginxplus::restapi::plugin --mode=http-zones --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --api-username=\\'$_HOSTAPIUSERNAME$\\' --api-password=\\'$_HOSTAPIPASSWORD$\\' --api-path=\\'$_HOSTAPIPATH$\\' $_HOSTAPIEXTRAOPTIONS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --filter-server-name=\\'$_SERVICEFILTERSERVERNAME$\\' --filter-location-name=\\'$_SERVICEFILTERLOCATIONNAME$\\' --warning-serverzone-requests=\\'$_SERVICEWARNINGSERVERZONERESQUESTS$\\' --critical-serverzone-requests=\\'$_SERVICECRITICALSERVERZONERESQUESTS$\\' --warning-serverzone-requests-discarded=\\'$_SERVICEWARNINGSERVERZONERESQUESTSDISCARDED$\\' --critical-serverzone-requests-discarded=\\'$_SERVICECRITICALSERVERZONERESQUESTSDISCARDED$\\' --warning-serverzone-traffic-in=\\'$_SERVICEWARNINGSERVERZONETRAFFICIN$\\' --critical-serverzone-traffic-in=\\'$_SERVICECRITICALSERVERZONETRAFFICIN$\\' --warning-serverzone-traffic-out=\\'$_SERVICEWARNINGSERVERZONETRAFFICOUT$\\' --critical-serverzone-traffic-out=\\'$_SERVICECRITICALSERVERZONETRAFFICOUT$\\' --warning-serverzone-responses-total=\\'$_SERVICEWARNINGSERVERZONERESPONSESTOTAL$\\' --critical-serverzone-responses-total=\\'$_SERVICECRITICALSERVERZONERESPONSESTOTAL$\\' --warning-serverzone-responses-1xx=\\'$_SERVICEWARNINGSERVERZONERESPONSES1XX$\\' --critical-serverzone-responses-1xx=\\'$_SERVICECRITICALSERVERZONERESPONSES1XX$\\' --warning-serverzone-responses-2xx=\\'$_SERVICEWARNINGSERVERZONERESPONSES2XX$\\' --critical-serverzone-responses-2xx=\\'$_SERVICECRITICALSERVERZONERESPONSES2XX$\\' --warning-serverzone-responses-3xx=\\'$_SERVICEWARNINGSERVERZONERESPONSES3XX$\\' --critical-serverzone-responses-3xx=\\'$_SERVICECRITICALSERVERZONERESPONSES3XX$\\' --warning-serverzone-responses-4xx=\\'$_SERVICEWARNINGSERVERZONERESPONSES4XX$\\' --critical-serverzone-responses-4xx=\\'$_SERVICECRITICALSERVERZONERESPONSES4XX$\\' --warning-serverzone-responses-5xx=\\'$_SERVICEWARNINGSERVERZONERESPONSES5XX$\\' --critical-serverzone-responses-5xx=\\'$_SERVICECRITICALSERVERZONERESPONSES5XX$\\' --warning-locationzone-requests=\\'$_SERVICEWARNINGLOCATIONZONERESQUESTS$\\' --critical-locationzone-requests=\\'$_SERVICECRITICALLOCATIONZONERESQUESTS$\\' --warning-locationzone-requests-discarded=\\'$_SERVICEWARNINGLOCATIONZONERESQUESTSDISCARDED$\\' --critical-locationzone-requests-discarded=\\'$_SERVICECRITICALLOCATIONZONERESQUESTSDISCARDED$\\' --warning-locationzone-traffic-in=\\'$_SERVICEWARNINGLOCATIONZONETRAFFICIN$\\' --critical-locationzone-traffic-in=\\'$_SERVICECRITICALLOCATIONZONETRAFFICIN$\\' --warning-locationzone-traffic-out=\\'$_SERVICEWARNINGLOCATIONZONETRAFFICOUT$\\' --critical-locationzone-traffic-out=\\'$_SERVICECRITICALLOCATIONZONETRAFFICOUT$\\' --warning-locationzone-responses-total=\\'$_SERVICEWARNINGLOCATIONZONERESPONSESTOTAL$\\' --critical-locationzone-responses-total=\\'$_SERVICECRITICALLOCATIONZONERESPONSESTOTAL$\\' --warning-locationzone-responses-1xx=\\'$_SERVICEWARNINGLOCATIONZONERESPONSES1XX$\\' --critical-locationzone-responses-1xx=\\'$_SERVICECRITICALLOCATIONZONERESPONSES1XX$\\' --warning-locationzone-responses-2xx=\\'$_SERVICEWARNINGLOCATIONZONERESPONSES2XX$\\' --critical-locationzone-responses-2xx=\\'$_SERVICECRITICALLOCATIONZONERESPONSES2XX$\\' --warning-locationzone-responses-3xx=\\'$_SERVICEWARNINGLOCATIONZONERESPONSES3XX$\\' --critical-locationzone-responses-3xx=\\'$_SERVICECRITICALLOCATIONZONERESPONSES3XX$\\' --warning-locationzone-responses-4xx=\\'$_SERVICEWARNINGLOCATIONZONERESPONSES4XX$\\' --critical-locationzone-responses-4xx=\\'$_SERVICECRITICALLOCATIONZONERESPONSES4XX$\\' --warning-locationzone-responses-5xx=\\'$_SERVICEWARNINGLOCATIONZONERESPONSES5XX$\\' --critical-locationzone-responses-5xx=\\'$_SERVICECRITICALLOCATIONZONERESPONSES5XX$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Nginx-Plus-Restapi-Http-Zones",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nginx_plus_restapi.pl --plugin=apps::nginx::nginxplus::restapi::plugin --mode=connections  --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --api-username=\\'$_HOSTAPIUSERNAME$\\' --api-password=\\'$_HOSTAPIPASSWORD$\\' --api-path=\\'$_HOSTAPIPATH$\\' $_HOSTAPIEXTRAOPTIONS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --warning-active=\\'$_SERVICEWARNINGACTIVE$\\' --critical-active=\\'$_SERVICECRITICALACTIVE$\\' --warning-idle=\\'$_SERVICEWARNINGIDLE$\\' --critical-idle=\\'$_SERVICECRITICALIDLE$\\' --warning-accepted=\\'$_SERVICEWARNINGACCEPTED$\\' --critical-accepted=\\'$_SERVICECRITICALACCEPTED$\\' --warning-dropped=\\'$_SERVICEWARNINGDROPPED$\\' --critical-dropped=\\'$_SERVICECRITICALDROPPED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Nginx-Plus-Restapi-Connections",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Nginx Plus using Rest API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "nginx-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAPIPORT$",
+                    "value": "443"
+                },
+                {
+                    "key": "$_HOSTAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTAPIUSERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAPIPASSWORD$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAPIPATH$",
+                    "value": "/api/6"
+                },
+                {
+                    "key": "$_HOSTAPIEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Nginx-Plus-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Nginx-Plus-Ssl-Restapi",
+                "App-Nginx-Plus-Http-Zones-Restapi",
+                "App-Nginx-Plus-Connections-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAADXBJREFUeJztnXt0VNW9xz97MglJSJHIUwSKtmIBtRYMmYi3BaHtoqvoKlSkLmyX0Ht7IU+8PBQI5FKRNyEhw8OmVqt0dV0tSBeXh1iNhWYICEiLiGIjDyl4TXgGSDIzZ98/Qu6NFJjHeew5Z+bzZ3L23t/JfDJzfmefvQ8kiGuE6gDK8GZ1R7qfRMoU3Kxj0q6jqiOpIP4EKBmQQqeMSQgxD+hw9ad+YDWaLKag5oLCdJYTXwJ4PaOQYgXIO29wRB1SPke33hWMfS1oaTZFxIcAXk8/pCwF8f0wW+xDyEJya3aamisGcLYAy3NuJUXOBXKBpCh62ASuPPKqjxmcLGZwpgAlQ910vjIBxHygs87eLgMrEanPkVvVYEC6mMJ5AlTkDEfKFQjuMbjnzxBiFpN9ryCQBvetDOcIUJZ9F24xH8ljJo+0G00WUlCzy+RxLMH+AniHZqA1TkXwDNDOolE1EOsIaNMoqvncojFNwb4ClOCiS854pFwMdFOU4hKSpcjMBRRsaVKUQRf2FKDCkw2UAdmqowAgOIImZpHve011lEixlwDl2T1xuZ4HOZ7YzP4nklxFTKo+qDpIuMTiH/GfWTsoHX9yPjAbyFAdJwQBEC+S3DyLX+ytUx0mFLEvgNczCkk50Ed1lAg5g5TzqE/zUlIVUB3mRsSuABWegbR8zz+kOopODiPEFHJ9W1UHuR6xJ8DaQZ3xJxcT/eXbWGUTrmAhk/fUqg7SltgRYO2gZJrdk6+ZpnUazcCaWJp2jg0Byj0jcFEO9FMdxRKkOIXQSqirqaQETWUUtQKsGnI3WnA58AOlOdSxFyGLVE47qxFg1UOZaIEZwBQgRUmG2EEieB3pmqZi2tlaAf7/8u1SoIulY8c+l5EswS8W8bTvilWDWifAysEPI1ylwH2WjWlPLJ12Nl+Asod6kxR8DuSTpo/lJCTv4nIVkVv9vpnDmCfAkvvak5o+DcEMINW0cZyN6dPOxgsgEazKeRIpFwHdDe8/PmlAssyMaWdjBfA+mIUMloHIMbTfBC2YMO1sjAArh/RAaAtjeJrWWQjewuWaYsS0s743a3lOGimyAJgFfEVvmAQR4QfxG73TztEL0DJNWwbcEXUfCYygZdo5ytVMkQtQnvMtXNoKEN+OuG0CM/kQKaaQ79sWSaPwBagY3AmSngc5EWdN0zqNP5AkCpnkOxnOweEJ0LLEai8W3ZWTkZxGVtf+dE3PJNnl5vjF0xw+e4z/uXLWiuF1IxDc0aEHd3S4jVtSMjje8DkH6/9OY7DZqggnQfsmebvrQx3oDqu7dto4pOijM1RIHujaj5KsiQzvmUW7pOQv/U4iOVhfy/raKl4+vJmjF0+ZHSdiBIKJ/Ucx9f4n6Nux95d+d765gRc/3ETJ7kou+i+bHeV2hHgcWBXqwPA+AVbmzEPIYr2pboTblUTpkEIm3TMal3CFPD6gBfH+7XXm7qnkQvMls2JFREpSMutGlDDma8NuelzthZOM2FhgvsBS/JJ835xQh4X+a1uA99tTyb33x2G9+dAiTOE3H2fXmEq+fktPk9OFx5KcvJBvPsCdHW5n66hS0t2xcXVcuQDf65XNv/Z/NKq238j8KjtHr+Xuaz5urab/rXeQe++YsI/v27E3MwaONzFR+CgX4On7x+lq3zUtkzcfKaNHe72rwKPnZ3f/IOxPr1b+fcBokiJsYwZKE6QkJfOdHgN199MroxsbRi4izW3V2tAv82D3eyNu0yWtIwNuvdFONdahVICuaZn/dLYfLVld+/HrYTMRCqYiuqZlRtUus536q+dKBUhNMvZ2wHF3fZfirKcM7TMckpPCq6ZjEfVfQgYzN2si4+76ruoYtsFxAggEvx42k8Hd+quOYgscJwBAmrsdG0YupGdGV9VRYh5HCgBwW3pn3hi5KGYuuMQqjhUAYGCXu3l5eLGSysAuOFoAgDFfG0bxA9ZXBnbB8QIAzB08kZ8kKoPrEhcCCASVicrgusSFAJCoDG5E3AgAicrgesSVAJCoDK4l7gSAlspgTtYE1TFiAlsKcL65gd99/KauPuZkTWDs14cblMi+2FIAgJ+/8zy7Tke/MkogeGl4cdxXBrYVoDHYzOitz3KiIfpV06lJKXFfGdhWAIDTl+t5dPN0Lvmj31HltvTObBy5mPbJaQYmsw+2FgDg/boj/PRP89Bk9LutfatLX156eHZcVga2FwBgQ+27zN1TqauPeK0MHCEAwPPvvcyrH+nbjndO1gSe6Ps9gxLZA8cIIJH8W9VCfDorg8phM8nuNsDAZLGNYwSA1srgGY5f1FcZrB+5gF4Zqp5CYy2OEgDg88tneHTLdBp0VgZvjFwUF5WB4wQAOFB3hHFvFhPUWRm8PLw44hU/dsOxr27zsWrm7H5BVx+j7xzKnAecXRk4VgCABXt/S+WhP+rqozjrKUdXBo4WACBvxzLe/cf+qNs7vTJwvADNQT+PbZ1F7YWwtsy5Lq1zBk6sDBwvAEBd4zke2Tyd883RP/y7e3onR1YGcSEAwKEzn/LE9rmJyuAanPNKwmDLMR+zatbo6sNplUFcCQCweN+r/OrQRl19OKkyiDsBAPL+vIyqk/uibt9aGXi63WNgKjXEpQB+LcBj22bx9/P6KgMnzBnEpQAA9Y3n+dGWGbo2beye3on1IxcYts2NCuJWAICDZ2p5fNtsXZXBoC7f4LZ0dTuU6SWuBQDYenwXz+5arTqGMuJeAICl+9fxwgdvqI6hhIQAV8nfsZx3Tu5VHcNyEgJcxa8FGLttNp+c/0x1FEtJCNCG+sbzPLJ5Gueaop8zsBsJAa7h8Nlj/GR7MQEt4sfv2JKEANdh2/EaZvi8qmNYQkKAG1B64PesObhBdQzTSQhwEwp3lvL2Z++pjmEqCQFugl8LMPbN2Rw5d0J1FNNICBCCM40XeHTLdMdWBrYUQEprx3NyZaBUgGifo3e26YLBSUKz7XgNU6tXGtrnOR33KBqFUgFOX66Paibuw7NHjQ8TBuV//S/d6wzacvSC+mcfKhUgoAXZ98VHEbd749M/m5AmPPJ2LGP7id26+9l56oCuu5SNQvk5wKJ9r0R0/NGLp3jloy0mpQlNc9DPmK3PUvP5B7r6Wfr+7wxKpA/lAqyvrWJtmFOxzUE/47eX0BT0m5zq5jT4r/DwxjxeOvzfUbVfun8df/x0h8GpokO5ANBywWX1wfU3Paau8RwjNz1N9em/WZTq5lwJNDHh7fk8snkaf63/JKw2jcFmCneWMsMX8pG+lhHeY+B/2PN+4PtmhQhKjc3Hqqk6uY/UpBQyUzvQIaU9Qalx+OxR1nywgfHbS5Sd/N2Mj8+d4IVDG3n3H/u5FLhCalI7Orb7Cm5Xy5/WrwU4UHeEFz/cxFNvP2fI+UOY/IEtn4UcLLxtsVbn3E5QHgA66U0VLunuVK4EmpBYXPQbgEu4uCWlPQDnmhpUvIYvCMh7KaoJuVVKeF8Bk3wnEcKD4C3d0cLkcqDRlm8+gCY1zjZd5GzTRRWv4R2Cckg4bz6E+wnQlnLPCFyUA/0ibpvATE4gxGxyfb+NpFF0OyOuHZRMs3syQvwncEtUfSQwistIlpCRupCnqhojbaxva8yKwZ3ANQfIJdwTygRGIRG8TsA9lcKdx6PtxJi9USs8AxFiBVL+iyH9JQiBeA8pi8jf9RfdPRkR5//wekYhKQf6GNpvghakOIXQSqirqaSE6JcztcH43ZGX56SRIguAWYD656M7g2ZgDZospqDG0KlQ87bHXp1zO0EWgBxv6jjOZxOuYCGT99Sa0bn5b4z3wSxksAxEjuljOYvDCDGFXJ++HbBDYM1/pkRQkfNjhFwG9LJkTPtyBinnUZ/mpaQqYPZg1n40L7mvPanp0xDMABIP7/syARAvorlnU7DjC6sGVfPd7M3qhXTPB/mkkvFjDvE2kiLyfZZPdao9OfNmD0OKFcB9SnOo4xOkmEm+7zVVAdSfnZfgokvOeKRcAsTL47suIVmKzFxAwZYmlUHUC9BK6dCOJDc+A0wBUlTHMQkJ4lVEYDq5e06rDgOxJEArFYP7gmsZ8EPVUQxmD7gKyav2qQ7SltgToJVyzwhcYgVIu2/TfRIhZjLZ9woi9m5wiF0BoM20MyUgOqqOEyFXgHLSkuYz8S8XVYe5EbEtQCvLc24lRc7FPtPOm5BaAfm7P1UdJBT2EKAVr6cfUpaCMO0GVV0I9iNdReRVq1u5EiH2EqAVr2dUy/UDeafqKFepR8pf0q13BWNfs9UKUnsKAFAyIIVOGZMQYh7QQVEKP7CaZP8cfrH3vKIMurCvAK2sHNIDoc0F+XOsXOgieAsZLCJvj741YoqxvwCtrMoehCbKgCEmj/QxiP8gz7fJ5HEswTkCQNtp5yXAVw3u/ByIhWiZK1RfvjUSZwnQytpB6TQnT0cwHdD7lCcNxDoC2rRwF1vYCWcK0MpqTx80FiN5LMoeqtC0Igp2HzA0VwzhbAFaqfBkA2VAdpgtolplY0fiQwBoO+28GLjRc15apmmjXGVjR+JHgFa8QzPQGqcieAZod/WnMTdNaxXxJ0Arqz19CPI4kIwm11NQc0h1pAQJLOd/AS47Jw7V6loxAAAAAElFTkSuQmCC",
+            "name": "nginx-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix(pack) : Update slug-name",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Nginx Plus:\r\n* Connections\r\n* Http-Zone\r\n* Ssl"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser une application Nginx Plus :\r\n* Connections\r\n* Http-zone\r\n* Ssl"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "",
+        "name": "Nginx Plus",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_nginx_plus_restapi.pl",
+                "package_name": "centreon-plugin-Applications-Nginx-Plus-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-nginx-plus-restapi",
+        "status": "stable",
+        "status_message": "fix(pack) : Update slug-name",
+        "tags": [
+            "HTTP",
+            "HTTPS",
+            "Nginx",
+            "Web",
+            "Web server",
+            "Loadbalancer",
+            "Security Controls"
+        ],
+        "update_date": "1622022631",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "Nginx-Plus-Ssl=Restapi",
+            "check_timeperiod": "",
+            "command_name": "App-Nginx-Plus-Restapi-Ssl",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Nginx-Plus-Ssl-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "Nginx-Http-Zones-Restapi",
+            "check_timeperiod": "",
+            "command_name": "App-Nginx-Plus-Restapi-Http-Zones",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Nginx-Plus-Http-Zones-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "Nginx-Plus-Connections-Restapi",
+            "check_timeperiod": "",
+            "command_name": "App-Nginx-Plus-Restapi-Connections",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Nginx-Plus-Connections-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

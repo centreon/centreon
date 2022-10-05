@@ -1,0 +1,320 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [],
+    "host_templates": [
+        {
+            "_comment": "",
+            "active_checks_enabled": 2,
+            "alias": "App-Monitoring-Centreon-HA-Cluster-Node",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "centreon-128-2.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSSHEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Centreon-HA-Cluster-Node",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Monitoring-Centreon-HA-Process-pcsd",
+                "App-Monitoring-Centreon-HA-Process-pacemakerd",
+                "App-Monitoring-Centreon-HA-Process-corosync",
+                "App-Monitoring-Centreon-HA-PCS-Status",
+                "App-Monitoring-Centreon-HA-PCS-Constraint-php7",
+                "App-Monitoring-Centreon-HA-PCS-Constraint-ms_mysql-master",
+                "App-Monitoring-Centreon-HA-PCS-Constraint-centreon",
+                "App-Monitoring-Centreon-HA-PCS-Constraint-cbd_rrd"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "centreon-128-2.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Removing --command and --command-option from _SERVICEEXTRAOPTIONS",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            },
+            {
+                "name": "applications-pacemaker-ssh",
+                "version": "22.05.0"
+            },
+            {
+                "name": "operatingsystems-linux-snmp",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin-Pack to monitor a Centreon-HA cluster using the SNMP and SSH protocols.**\r\n\r\nAvailable host template is App-Monitoring-Centreon-HA-Cluster-Node and related services:\r\n\r\n* PCS-Status\r\n* PCS-Constraint-cbd_rrd\r\n* PCS-Constraint-centreon\r\n* PCS-Constraint-ms_mysql-master\r\n* PCS-Constraint-php7\r\n* proc-corosync\r\n* proc-pacemakerd\r\n* proc-pcsd\r\n* proc-corosync-qnetd (not linked to the host template since it is designed to be attached to the server hosting the QDevice)"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin-Pack permettant de superviser un cluster Centreon-HA en s\\'appuyant sur les protocoles SNMP et SSH.**\r\n\r\nCe Plugin-Pack embarque le mod\u00e8le d\\'h\u00f4te App-Monitoring-Centreon-HA-Cluster-Node et les mod\u00e8les de services suivants :\r\n\r\n* PCS-Status\r\n* PCS-Constraint-cbd_rrd\r\n* PCS-Constraint-centreon\r\n* PCS-Constraint-ms_mysql-master\r\n* PCS-Constraint-php7\r\n* proc-corosync\r\n* proc-pacemakerd\r\n* proc-pcsd\r\n* proc-corosync-qnetd (non li\u00e9 au mod\u00e8le car destin\u00e9 \u00e0 \u00eatre rattach\u00e9 au serveur fournissant le QDevice)"
+            }
+        ],
+        "discovery_category": "centreon",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Centreon-HA",
+        "plugins_requirements": [],
+        "requirement": [],
+        "slug": "applications-monitoring-centreon-ha",
+        "status": "stable",
+        "status_message": "Removing --command et --command-option from _SERVICEEXTRAOPTIONS",
+        "tags": [
+            "SNMP",
+            "SSH",
+            "Clustering",
+            "Cluster",
+            "Pacemaker",
+            "Centreon"
+        ],
+        "update_date": "1599652962",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "proc-pcsd",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSNAME$",
+                    "password": false,
+                    "value": "pcsd"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Centreon-HA-Process-pcsd",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Linux-Process-Generic-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "proc-pacemakerd",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSNAME$",
+                    "password": false,
+                    "value": "pacemakerd"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Centreon-HA-Process-pacemakerd",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Linux-Process-Generic-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "proc-corosync",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSNAME$",
+                    "password": false,
+                    "value": "corosync"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Centreon-HA-Process-corosync",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Linux-Process-Generic-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "PCS-Status",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--command='pcs' --command-options='status --full' --verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Centreon-HA-PCS-Status",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "App-Pacemaker-CRM-SSH",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "PCS-Constraint-php7",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICERESOURCENAME$",
+                    "password": false,
+                    "value": "php7"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Centreon-HA-PCS-Constraint-php7",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "App-Pacemaker-Constraints-SSH",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "PCS-Constraint-ms_mysql-master",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICERESOURCENAME$",
+                    "password": false,
+                    "value": "ms_mysql-master"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Centreon-HA-PCS-Constraint-ms_mysql-master",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "App-Pacemaker-Constraints-SSH",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "PCS-Constraint-centreon",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICERESOURCENAME$",
+                    "password": false,
+                    "value": "centreon"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Centreon-HA-PCS-Constraint-centreon",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "App-Pacemaker-Constraints-SSH",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "PCS-Constraint-cbd_rrd",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICERESOURCENAME$",
+                    "password": false,
+                    "value": "cbd_rrd"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Centreon-HA-PCS-Constraint-cbd_rrd",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "App-Pacemaker-Constraints-SSH",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "proc-corosync-qnetd",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSNAME$",
+                    "password": false,
+                    "value": "corosync-qnetd"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Centreon-HA-Process-corosync-qnetd",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Linux-Process-Generic-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

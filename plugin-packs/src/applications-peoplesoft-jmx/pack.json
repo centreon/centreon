@@ -1,0 +1,196 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_peoplesoft_jmx.pl --plugin=apps::java::peoplesoft::jmx::plugin --mode=sessions --custommode=jolokia --url=\\'$_HOSTJOLOKIAURL$\\' --username=\\'$_HOSTJOLOKIAUSERNAME$\\' --password=\\'$_HOSTJOLOKIAPASSWORD$\\' $_HOSTJOLOKIAEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Peoplesoft-Sessions-JMX",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_peoplesoft_jmx.pl --plugin=apps::java::peoplesoft::jmx::plugin --mode=queue-length --custommode=jolokia --url=\\'$_HOSTJOLOKIAURL$\\' --username=\\'$_HOSTJOLOKIAUSERNAME$\\' --password=\\'$_HOSTJOLOKIAPASSWORD$\\' $_HOSTJOLOKIAEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Peoplesoft-Queue-Length-JMX",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check PeopleSoft using JMX",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "App-Java-JMX.png",
+            "macros": [
+                {
+                    "key": "$_HOSTJOLOKIAEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTJOLOKIAPASSWORD$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTJOLOKIAURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTJOLOKIAUSERNAME$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Peoplesoft-JMX",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Peoplesoft-Sessions-JMX",
+                "App-Peoplesoft-Queue-Length-JMX"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "App-Java-JMX.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Compatibility with Centreon Plugin Packs Manager v2.2.0",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor a Peoplesoft server:\r\n* Peoplesoft-Queue-Length\r\n* Peoplesoft-Sessions"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser un serveur Peoplesoft :\r\n* Peoplesoft-Queue-Length\r\n* Peoplesoft-Sessions"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Peoplesoft-Jmx\r\n\r\nPlease install jolokia agent on your java application server\r\n[Jolikia download page](https://jolokia.org/download.html). Ask to\r\nyour admin to deploy it and give you the URL.\r\n\r\n# Centreon Configuration\r\n## Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Peoplesoft-JMX-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Peoplesoft",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_peoplesoft_jmx.pl",
+                "package_name": "centreon-plugin-Applications-Peoplesoft-Jmx",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Applications-Peoplesoft-Jmx",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "applications-peoplesoft-jmx",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "CRM",
+            "EPM",
+            "FMS",
+            "HRMS",
+            "Java",
+            "JMX",
+            "Peoplesoft",
+            "SCM"
+        ],
+        "update_date": "1486389225",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les sessions courantes ouvertes.}\r\n\r\n{EN: Check current open sessions.}",
+            "active_checks_enabled": 2,
+            "alias": "Peoplesoft-Sessions",
+            "check_timeperiod": "",
+            "command_name": "App-Peoplesoft-Sessions-JMX",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Peoplesoft-Sessions-JMX",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier la longueur de la file d'attente.}\r\n\r\n{EN: Check queue length.}",
+            "active_checks_enabled": 2,
+            "alias": "Peoplesoft-Queue-Length",
+            "check_timeperiod": "",
+            "command_name": "App-Peoplesoft-Queue-Length-JMX",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Peoplesoft-Queue-Length-JMX",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

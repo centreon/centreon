@@ -1,0 +1,258 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Allied-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Allied-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Allied-SNMP"
+                ],
+                "macros": [],
+                "name": "Net-Allied-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Allied-Interfaces-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_allied_snmp.pl --plugin=network::allied::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Allied-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_allied_snmp.pl --plugin=network::allied::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Allied-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_allied_snmp.pl --plugin=network::allied::snmp::plugin --mode=memory --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Allied-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_allied_snmp.pl --plugin=network::allied::snmp::plugin --mode=hardware --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Allied-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_allied_snmp.pl --plugin=network::allied::snmp::plugin --mode=cpu --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-average-1m=\\'$_SERVICEWARNINGAVERAGE1M$\\' --critical-average-1m=\\'$_SERVICECRITICALAVERAGE1M$\\' --warning-average-5m=\\'$_SERVICEWARNINGAVERAGE5M$\\' --critical-average-5m=\\'$_SERVICECRITICALAVERAGE5M$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Allied-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_allied_snmp.pl --plugin=network::allied::snmp::plugin --mode=interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --add-errors --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Allied-SNMP-Interfaces",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Allied Telesis en SNMP}\r\n{EN: Template to check Allied Telesis devices using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Allied Telesis devices using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "allied-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Allied-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Allied-Memory-SNMP",
+                "Net-Allied-Hardware-SNMP",
+                "Net-Allied-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "allied-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Add disco option command",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Allied Telesis network equipment via SNMP:\r\n* Cpu\r\n* Hardware\r\n* Interfaces\r\n* Memory\r\n"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller des \u00e9quipements r\u00e9seau Allied Telesis via SNMP :\r\n* Cpu\r\n* Hardware\r\n* Interfaces\r\n* Memory"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Allied-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Allied-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Allied Telesis SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_allied_snmp.pl",
+                "package_name": "centreon-plugin-Network-Allied-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-allied-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Allied",
+            "Telesis",
+            "SNMP",
+            "Network",
+            "Router"
+        ],
+        "update_date": "1584694587",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation m\u00e9moire.}\r\n\r\n{EN: Check memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Allied-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Allied-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du mat\u00e9riel.}\r\n\r\n{EN: Check hardware environment.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware",
+            "check_timeperiod": "",
+            "command_name": "Net-Allied-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Allied-Hardware-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine.}\r\n\r\n{EN: Check the rate of utilization of CPU for the machine.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Allied-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Allied-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces.}\r\n\r\n{EN: Check interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "Net-Allied-SNMP-Interfaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} !~ /up|dormant/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --no-skipped-counters"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Allied-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

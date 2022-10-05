@@ -1,0 +1,270 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Adva-Fsp3000-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Adva-Fsp3000-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Adva-Fsp3000-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "INTERFACENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Adva-Fsp3000-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Adva-Fsp3000-Interfaces-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_adva_fsp3000_snmp.pl --plugin=network::advva::fsp3000::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Adva-Fsp3000-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_adva_fsp3000_snmp.pl --plugin=network::adva::fsp3000::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Adva-Fsp3000-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_adva_fsp3000_snmp.pl --plugin=network::adva::fsp3000::snmp::plugin --mode=uptime --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-uptime=\\'$_SERVICEWARNING$\\' --critical-uptime=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Adva-Fsp3000-SNMP-Uptime",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_adva_fsp3000_snmp.pl --plugin=network::adva::fsp3000::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-swap=\\'$_SERVICEWARNINGSWAP$\\' --critical-swap=\\'$_SERVICECRITICALSWAP$\\' --warning-swap-free=\\'$_SERVICEWARNINGSWAPFREE$\\' --critical-swap-free=\\'$_SERVICECRITICALSWAPFREE$\\' --warning-swap-prct=\\'$_SERVICEWARNINGSWAPPRCT$\\' --critical-swap-prct=\\'$_SERVICECRITICALSWAPPRCT$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' --warning-buffer=\\'$_SERVICEWARNINGBUFFER$\\' --critical-buffer=\\'$_SERVICECRITICALBUFFER$\\' --warning-cached=\\'$_SERVICEWARNINGCACHED$\\' --critical-cached=\\'$_SERVICECRITICALCACHED$\\' --warning-shared=\\'$_SERVICEWARNINGSHARED$\\' --critical-shared=\\'$_SERVICECRITICALSHARED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Adva-Fsp3000-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_adva_fsp3000_snmp.pl --plugin=network::adva::fsp3000::snmp::plugin --mode=alarms --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Adva-Fsp3000-SNMP-Alarms",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_adva_fsp3000_snmp.pl --plugin=network::adva::fsp3000::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --add-optical --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' --warning-speed=\\'$_SERVICEWARNINGSPEED$\\' --critical-speed=\\'$_SERVICECRITICALSPEED$\\' --warning-in-volume=\\'$_SERVICEWARNINGINVOLUME$\\' --critical-in-volume=\\'$_SERVICECRITICALINVOLUME$\\' --warning-out-volume=\\'$_SERVICEWARNINGOUTVOLUME$\\' --critical-out-volume=\\'$_SERVICECRITICALOUTVOLUME$\\' --warning-laser-temp=\\'$_SERVICEWARNINGLASERTEMP$\\' --critical-laser-temp=\\'$_SERVICECRITICALLASERTEMP$\\' --warning-input-power=\\'$_SERVICEWARNINGINPUTPOWER$\\' --critical-input-power=\\'$_SERVICECRITICALINPUTPOWER$\\' --warning-output-power=\\'$_SERVICEWARNINGOUTPUTPOWER$\\' --critical-output-power=\\'$_SERVICECRITICALOUTPUTPOWER$\\' --warning-total-port=\\'$_SERVICEWARNINGTOTALPORT$\\' --critical-total-port=\\'$_SERVICECRITICALTOTALPORT$\\' --warning-global-admin-up=\\'$_SERVICEWARNINGGLOBALADMINUP$\\' --critical-global-admin-up=\\'$_SERVICECRITICALGLOBALADMINUP$\\' --warning-total-admin-down=\\'$_SERVICEWARNINGTOTALADMINDOWN$\\' --critical-total-admin-down=\\'$_SERVICECRITICALTOTALADMINDOWN$\\' --warning-total-oper-up=\\'$_SERVICEWARNINGTOTALOPERUP$\\' --critical-total-oper-up=\\'$_SERVICECRITICALTOTALOPERUP$\\' --warning-total-oper-down=\\'$_SERVICEWARNINGTOTALOPERDOWN$\\' --critical-total-oper-down=\\'$_SERVICECRITICALTOTALOPERDOWN$\\' --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Adva-Fsp3000-SNMP-Interfaces",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Adva FSP 3000 en SNMP}\r\n{EN: Template to check Adva FSP 3000 devices using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Adva FSP 3000 equipments in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "adva-optical-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Adva-Fsp3000-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Adva-Fsp3000-Uptime-SNMP",
+                "Net-Adva-Fsp3000-Memory-SNMP",
+                "Net-Adva-Fsp3000-Alarms-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "adva-optical-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix(pack)missing-icon",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Adva FSP 3000 device via SNMP:\r\n* Alarms\r\n* Memory\r\n* Interfaces\r\n* Uptime"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un \u00e9quipement Adva FSP 3000 via SNMP :\r\n* Alarms\r\n* Memory\r\n* Interfaces\r\n* Uptime"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Adva-Fsp3000-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Adva-Fsp3000-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Adva FSP 3000 SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_adva_fsp3000_snmp.pl",
+                "package_name": "centreon-plugin-Network-Adva-Fsp3000-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-adva-fsp3000-snmp",
+        "status": "stable",
+        "status_message": "fix(pack)missing-icon",
+        "tags": [
+            "Adva",
+            "Optical",
+            "FSP3000",
+            "SNMP",
+            "Network"
+        ],
+        "update_date": "1596008752",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'uptime.}\r\n\r\n{EN: Check uptime.}",
+            "active_checks_enabled": 2,
+            "alias": "Uptime",
+            "check_timeperiod": "",
+            "command_name": "Net-Adva-Fsp3000-SNMP-Uptime",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Adva-Fsp3000-Uptime-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation m\u00e9moire.}\r\n\r\n{EN: Check memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Adva-Fsp3000-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Adva-Fsp3000-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les alarmes.}\r\n\r\n{EN: Check alarms.}",
+            "active_checks_enabled": 2,
+            "alias": "Alarms",
+            "check_timeperiod": "",
+            "command_name": "Net-Adva-Fsp3000-SNMP-Alarms",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{severity} =~ /warning|minor/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{severity} =~ /critical|major/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Adva-Fsp3000-Alarms-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces.}\r\n\r\n{EN: Check interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "Net-Adva-Fsp3000-SNMP-Interfaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} !~ /up|dormant/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --no-skipped-counters"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Adva-Fsp3000-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

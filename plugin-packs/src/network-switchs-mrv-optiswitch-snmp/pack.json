@@ -1,0 +1,181 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mrv_optiswitch_snmp.pl --plugin=network::mrv::optiswitch::snmp::plugin  --mode=uptime --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-uptime=\\'$_SERVICEWARNING$\\' --critical-uptime=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Mrv-Optiswitch-SNMP-Uptime",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mrv_optiswitch_snmp.pl --plugin=network::mrv::optiswitch::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Mrv-Optiswitch-SNMP-Interfaces",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mrv_optiswitch_snmp.pl --plugin=network::mrv::optiswitch::snmp::plugin --mode=environment --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' --no-component=\\'$_SERVICENOCOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Mrv-Optiswitch-SNMP-Environment",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements MRV OptiSwitch via SNMP}\r\n{EN: Template to check MRV OptiSwitch equipments using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check MRV OptiSwitch equipments using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "mrv-ico-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Mrv-Optiswitch-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Mrv-Optiswitch-Uptime-SNMP",
+                "Net-Mrv-Optiswitch-Interfaces-SNMP",
+                "Net-Mrv-Optiswitch-Environment-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "mrv-ico-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix(pack)missing-icon",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Mrv Optiswitch equipment via SNMP:\r\n* Interfaces\r\n* Uptime\r\n* Environment"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller les \u00e9quipements r\u00e9seau Mrv Optiswitch via SNMP :\r\n* Interfaces\r\n* Uptime\r\n* Environment"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Switchs-Mrv-Optiswitch-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Mrv-Optiswitch-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Mrv Optiswitch",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_mrv_optiswitch_snmp.pl",
+                "package_name": "centreon-plugin-Network-Switchs-Mrv-Optiswitch-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-switchs-mrv-optiswitch-snmp",
+        "status": "stable",
+        "status_message": "fix(pack)missing-icon",
+        "tags": [
+            "Network",
+            "MRV",
+            "Optiswitch",
+            "Switch",
+            "SNMP"
+        ],
+        "update_date": "1596009015",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le de l'uptime du syst\u00e8me.}\n\n{EN: Check system uptime.}",
+            "active_checks_enabled": 2,
+            "alias": "Uptime",
+            "check_timeperiod": "",
+            "command_name": "Net-Mrv-Optiswitch-SNMP-Uptime",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-Mrv-Optiswitch-Uptime-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le des interfaces.}\n\n{EN: Check interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "Net-Mrv-Optiswitch-SNMP-Interfaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} ne \"up\""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Mrv-Optiswitch-Interfaces-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4ler les p\u00e9riph\u00e9riques (DEV-CFG-MIB).}\r\n\r\n{EN:Check devices (DEV-CFG-MIB).}",
+            "active_checks_enabled": 2,
+            "alias": "Environment",
+            "check_timeperiod": "",
+            "command_name": "Net-Mrv-Optiswitch-SNMP-Environment",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICENOCOMPONENT$",
+                    "password": false,
+                    "value": "critical"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Mrv-Optiswitch-Environment-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

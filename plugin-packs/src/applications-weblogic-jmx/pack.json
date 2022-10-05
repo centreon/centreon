@@ -1,0 +1,437 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_weblogic_jmx.pl --plugin=apps::java::weblogic::jmx::plugin --mode=work-manager --custommode=jolokia --url=\\'$_HOSTJOLOKIAURL$\\' --username=\\'$_HOSTJOLOKIAUSERNAME$\\' --password=\\'$_HOSTJOLOKIAPASSWORD$\\' $_HOSTJOLOKIAEXTRAOPTIONS$ --filter-application=\\'$_SERVICEFILTERAPPLICATION$\\' --filter-name=\\'$_SERVICEFILTERNAME$\\' --filter-runtime=\\'$_SERVICEFILTERRUNTIME$\\' --warning-thread-stuck=\\'$_SERVICEWARNINGTHREADSTUCK$\\' --critical-thread-stuck=\\'$_SERVICECRITICALTHREADSTUCK$\\'  --warning-request-completed=\\'$_SERVICEWARNINGREQUESTCOMPLETED$\\' --critical-request-completed=\\'$_SERVICECRITICALREQUESTCOMPLETED$\\'  --warning-request-pending=\\'$_SERVICEWARNINGREQUESTPENDING$\\' --critical-request-pending=\\'$_SERVICECRITICALREQUESTPENDING$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Weblogic-Work-Manager-JMX",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_weblogic_jmx.pl --plugin=apps::java::weblogic::jmx::plugin --mode=threads --custommode=jolokia --url=\\'$_HOSTJOLOKIAURL$\\' --username=\\'$_HOSTJOLOKIAUSERNAME$\\' --password=\\'$_HOSTJOLOKIAPASSWORD$\\' $_HOSTJOLOKIAEXTRAOPTIONS$ --warning-active=\\'$_SERVICEWARNINGACTIVE$\\' --critical-active=\\'$_SERVICECRITICALACTIVE$\\'  --warning-started=\\'$_SERVICEWARNINGSTARTED$\\' --critical-started=\\'$_SERVICECRITICALSTARTED$\\'  --warning-daemon=\\'$_SERVICEWARNINGDAEMON$\\' --critical-daemon=\\'$_SERVICECRITICALDAEMON$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Weblogic-Threads-JMX",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_weblogic_jmx.pl --plugin=apps::java::weblogic::jmx::plugin --mode=memory --custommode=jolokia --url=\\'$_HOSTJOLOKIAURL$\\' --username=\\'$_HOSTJOLOKIAUSERNAME$\\' --password=\\'$_HOSTJOLOKIAPASSWORD$\\' $_HOSTJOLOKIAEXTRAOPTIONS$ --warning-heap=\\'$_SERVICEWARNINGHEAP$\\' --critical-heap=\\'$_SERVICECRITICALHEAP$\\'  --warning-nonheap=\\'$_SERVICEWARNINGNONHEAP$\\' --critical-nonheap=\\'$_SERVICECRITICALNONHEAP$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Weblogic-Memory-JMX",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_weblogic_jmx.pl --plugin=apps::java::weblogic::jmx::plugin --mode=memory-detailed --custommode=jolokia --url=\\'$_HOSTJOLOKIAURL$\\' --username=\\'$_HOSTJOLOKIAUSERNAME$\\' --password=\\'$_HOSTJOLOKIAPASSWORD$\\' $_HOSTJOLOKIAEXTRAOPTIONS$ --warning-eden=\\'$_SERVICEWARNINGEDEN$\\' --critical-eden=\\'$_SERVICECRITICALEDEN$\\'  --warning-survivor=\\'$_SERVICEWARNINGSURVIVOR$\\' --critical-survivor=\\'$_SERVICECRITICALSURVIVOR$\\' --warning-permanent=\\'$_SERVICEWARNINGPERMANENT$\\' --critical-permanent=\\'$_SERVICECRITICALPERMANENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Weblogic-Memory-Detailed-JMX",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_weblogic_jmx.pl --plugin=apps::java::weblogic::jmx::plugin --mode=class-count --custommode=jolokia --url=\\'$_HOSTJOLOKIAURL$\\' --username=\\'$_HOSTJOLOKIAUSERNAME$\\' --password=\\'$_HOSTJOLOKIAPASSWORD$\\' $_HOSTJOLOKIAEXTRAOPTIONS$ --warning-loaded=\\'$_SERVICEWARNINGLOADED$\\' --critical-loaded=\\'$_SERVICECRITICALLOADED$\\'  --warning-loaded=\\'$_SERVICEWARNINGLOADED$\\' --critical-loaded=\\'$_SERVICECRITICALLOADED$\\'  --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\'\\\"",
+            "name": "App-Weblogic-Class-Count-JMX",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Weblogic using JMX",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "App-Java-JMX.png",
+            "macros": [
+                {
+                    "key": "$_HOSTJOLOKIAEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTJOLOKIAPASSWORD$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTJOLOKIAURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTJOLOKIAUSERNAME$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Weblogic-JMX",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Weblogic-Work-Manager-Global-JMX",
+                "App-Weblogic-Threads-JMX",
+                "App-Weblogic-Memory-JMX",
+                "App-Weblogic-Memory-Detailed-JMX",
+                "App-Weblogic-Class-Count-JMX"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuOWwzfk4AAA3ESURBVGhDzVp9cBTlGc8fB0SKiEARkaIFRKd+jF9VxkGraC0t1jpKLVq19AOKiLWj0rFqLVXQkTIMWtviBx21jmNtS/aOyyVcQkhCDEkIdwFCEnJ7e3vfe9+X+87d5ehvb9/b27vc5W4TnOlvdpL9eHf3/T3v8z7P73n3as59NYilM97RNJdIYcNONJ0hF843zg+B5Fjm9Ehivyn4dJ/73i+dVzZZFtSbLlTRtRS/YQeHy5ssd3c4Nunc7zNBfSCRGDs/lKZEIJHOaLnIJr17qdasoGgFZVQcGK68oRll/EYju+GEW+OMYKzI4yaFSRJwxtM7h3zLmi0KilEcMBR3sfpNyVx+yPxKv9cSTZFHy4RsAp5E+nf93ovVDG/yot5gq6PRJxgYnjOvnlncyMLS8+uZWsrAG56/VOouip6tZp456bHHZNOQQSCVyexjggsbWL6XxT0wzlUz93U6tw946+zh/pGEK5EOp8YwN3AXdtyJ9MDIqMoR3jHgvf+Yc4HGxPMpekidYZ6G/fOwf1TO9KiWABNJYgoW24+iL1Izjx13oWeh5BhpOg7g0OqOkYMsEJQOcdENOvfcg+PGhKJXttn6R0ZJ00qoisABW3hBo7noNYsa2B2DPkc8TRpNiM06juwVwptI7zH4rxBigOT5F2vYf7BB0mhCVCCQyZzbOeSfriwYbvjry2e8/mRVXQfwkDtaLWn8KwP42JtDvrn1poJ4QNHbTnsnuEvARARw89ZTngLbUPRd7fahUJK0qA66QPz2ow5yUB6mSPL+rkIvpegnejlMJNKiFMoSQO+39BX0vlZpfG3Ql6xkkiLgOd/r5HYP+8jxhEDjvYbgTBVCc57D4xNyKEvg5QGftPdz61mEF3KtauC1z57yrDhsDaXKTvHxaHHHFkqnHEVv7nOXs1tpAvtNI9Le43HHvAVhpBrE05mNes9FGkuPL39vIJkeq2IMB0KjSw4VcEB4JdcKUYKALpCYrcZ8IjcjNvf64+Ra1bDFUqvabei9hovgMJPJtHlj8MBjvliVLoiZdplkHC44yLS4o+SaBMUEIumx6w5bxNvgjlA75FrV6PTGFh+yLNZaurK2P+6Pr+5w/HHQL1f2dPticySm/KbW7BstDn3FBF7s9+adh6LfpgPkQtU47IrOqWevabaYo3ywwtAvarI1yreCgE8tI9PE/tTRG3VuciGHAgKQADORGklrw7oup8yQcw6dXtBgvrSBFXoP5Vx70NTsKjH01ePXercoXmaomI7C2VhA4MEujvQeE1fDcolqU5WIl/o9UGx/zY4b0tMlGmZNp1O4NGkEk+llSNW5jmFqST0xT6DbH5sOtSi0o2gYj1yQg606F0bcEOHNfzKYwHPg/cKlqeC/trDEsY2oIsgFKYFHevLmv6HFOnH+KwctF1WomFPBBPYd8RRU9HTK2FoqesgCIu/d7Taxe6s77GLnCAE2ksznP8r4L2tIOC8XeO4DXa7tgyTvZo1iQIUZLK9VqwQmkqjAp6uYvqyNAEIAWkoco+Va81QKVkj/W9ocEDbYRzZY1Mjiye8YZEezImAQbm3NDUKd4flTHuE8TwCh5hbxGkW/PugVrk0aKB6ePO4QhCQGE061u0welYV9xqA4CKjCBSfnCRgjyRnKXJxSGodD1RYT4yEOHDgoHbx2GgwlkNSKAhqkOAaKHFQNLp6epcoJe8rYG+D1AU8ApYPI7OYjNrmxH5bu8cf/Qgf3MYFBCXnBQohmwpwWAQMhqmzScXceJZ5WPb7b6cgRoHed5UeVJ/BLnYucrTO8kPOtKvGFLXLjEduqNhvMQ05JAG4oNVHjOmIpCIr/2MKGcJ4hdPI9X8oLsm+d9Ytz9cFuF87wBG4WJ4CSkauZP7OG1nQ6ljay12pN93TYH+rmEHl+3MMhJ97bYUchdmerZXW79cnjzj3D/qJKd9dZfmFG1ni3eWKKXHm4TMtXeTUQWAvq8/mLljmmAuAsyLuIOcPh0YGRBBwJz3HGU5FURpjK44FAd1OrfVu/vIDhSaRn5qbr15Q0JlKNJZacnhuU+WoG/SBt5QBO8tKADyKUHBcCFDyj/CoLOc4u6f1c7/lJr1uuPoU5oEmF3sJfMLtq9IEEv96UPbWi2SpzAhMg6S5vti3WWtd2u548zm3Vu5476X5Gz++v6XJdfcQxU2W8vdUKhYfn64NxFKufW8OTe9fKdrtIAFK/BnleJHBrm420ko9YeqzJFd191r9Z51rf41zXzT3a49is45AikQpgKiE5Qpmd8MerKcrK4QedTkKAYv5tC9WoHRGRwBSFlz2empwHysIjx3Mxk2I+Mo/UQNmJBO6aAgFTNHmxxozojqyickRaPVGMLWUPv0v7N57g/jTgdcnPXCVRTEDqQrdMyoVgdcxFTC8Eym+12KC0FPUWhTq71VunKZmFGtOPujmQITdMDd/P5zIGCbGGV+05AsubZERleyz15pD/5TPezy0hS7b+AuDnbDTZ7olBR6DHh93Rs+FkvFSoiaTGuuWvFQCYqISAksGsq7FJwuhctbHKBRyM21wNe1urjQ5DMciYkWiMnF3PRV4d8KKCxRlZ0xnjvOQQKxJAZqyBeS7R5Cp/iob2Im0nBBTBhhOuG1rt8+uZFVrz2h73Jr371TPevcOBD5jgR2zwEzP/9z0muMfgx/ktfe71XY61Hdb1PY5Xz/haPbFkJgPB9zc6ICsgcQkUScTcs5S0F4kMZ1e25SPrFzJLGXg/iiGIuYOOyCdsELofahyV8e9Pe9BvqOgPTcEDthByHFwL+cs3moaDvTXkXdfteLHfG6h6hVjAYZQ1OSmxAg6fyWqhp/o8uWVhwzN9xesWFQEL9vrjMPx7xsBeg/9tgx8K9EMcMuDjRx7YdsqNQPRot+PhTsfPepyvDXib3FHMAXK/HOwY9IorFFBcOMMT+MwSEmld12KdSpaBj0bTGSgW6CLkXegUJGmof9geII2mgO90iCHIKFR5PAHEkAtyhcJ0pfF0oXz//4E1loIkEfo5TWkUygyeALCqPceszvBSdQpx97Dvjg7H+UpP1WDvcL4YuKaZfDEhBN6m89eWNLLViMTf9CEj0ojC5PgrRiqTuVZctK2jXzlDrEwIOOPp2eKiIkXvN1Ve1ZISQC44Gx7t8sfNuc+9KIIhoYV9AIe+bMCB2RA9u3wxBGLMCiGLC20mBjKjaOJalfFsrnYlBIANJ9ziJ6oV2sqDIBJAWLy8yYaEMF/D1qqY507ztlnT6VyoYSBRse8fTaP4eErHocq5usWOdHlJg3kaRT/cwyG2lqsipID5b221Cn3D9sOu/CfDPAHMCbyeNKLo3cMVVnJEAgjt0COIM+juphMc8jqfoYxBhYoVluaPeePY/9QygqSJgBtNjyGLvTHkU6jNJZf8x+NjNv/BZRplbPfk78oTAJ7odWESC+3m1pvQD3KhFIrmAHwDMgRpS6E06YMJJpqcQdFb9Hzd/S4dgMKjc+U85h48R+uKKA6yB+yV8ybqxssac/LhwDBKcKlvFBBAjyUfFAz3ddgwduTaOIgE4GyQdKjmFqqNc1Cw1tF9wQTug1JaqjWD2ENdzutb+NUaSD1kuuuO2Beq6fkq/kcJSNLkcWWA16/v4USzzpQsKgooIADwI5sbLOxsHygbUkUCUARfbzRjXsJDIIEUKpPwjtcGfAoV0+WNLdCYXjzNr9ZgfGrVrMoRRrI76onxI1CJwDt0QNqfF7ITTIpiAijPV0qmywylEXmaXCvEszkCd3Q4b2snlRC/+qckRtIH4Pqmhzrt03KUHu9xoDYQRhVKuCKBQ1xE+skVYXS8WC4mABjCScQT8bYL1Yx0PV7E03rXtDqDM57a2ueBi/9K5/qFzr30kBlJXh/gu4swtoL/PY5xVTtZDeczkcq0rsu5tc99VbPtAvVEBBCU50m6MVttKvmtsQQBALUIbC+9GaUzuZYDguA8NR8oI+mxXcP+Db3cHkNQ+B0RWAltDjjCO4b8wqc+ALbfxwTREhUmxNJeOjhQRr0jNC9oyPcezrPfNEKuFaI0AQBKOO982dnzgeQRHd7YLDWLqEWOzys+t4bm8L+byPf+DwNlP/SXJQC8PljAAeHl6ZMeRMCR5NiyJssDXVz1v/eoEkgmCAkFvy2h8NKyn+mBiQgAO4f8+a+c2cddf9jypTeGUmiCh04OmOiIvAUmo+jnK/1gpQIB4H1TcNZByYDyUoRBAQkVQFpMGZg5vz3lkQYc4S1w44pmqkwAQMzmf5OUyyb8Vme4SG3a0ucZmMLXEADqaNtpL4KBWGcJD7+0kUXhTxpNiKoIAMjnj0FoSMc3+yYIw9UdDtSTZjm62h5LfmwegSjgrS61CzaKXnvMidqFNK2EagkIoBwRIbQXvJJ/q7FWSd/QYtuoc//dGGziIoOhURST3tE0NngIxDbqcfB8qs998xHbTOiIEg+hr9Ba/mkOyapp5REAIunMXkNgibYUDWHDeYQRyghZOlPJb/y6E04KW1FjYaOMlzawbwz5Q/LDmmwCApC89rMjt7XZ+Rg1/leYVW64kaJvOmJ71xgcmWxEniQBARhpVBHbz3i/3Zb1CmWZ37VKNzRQMrVK441HbFB4PVNbagemREAKyAcNF9k56Ptpr3vVUftVzdbLGthFDabsxl7ZZLm93Y4wABFx0BER11KnjvNGYDxQKCfT2S37aeMrwblz/wP+A13EFfavhgAAAABJRU5ErkJggg==",
+            "name": "App-Java-JMX.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Compatibility with Centreon Plugin Packs Manager v2.2.0",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor a Weblogic application server using JMX/Jolokia protocol.\r\nSeveral indicators are available but not linked to the template of host.\r\nYou have to use them manually:\r\n* Class-count\r\n* Memory and Memory-Detailed\r\n* Threads\r\n* Work-Manager-Global"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack Plugin pour surveiller les serveurs d\\'application Weblogic en utilisant le protocole JMX/Jolokia .\r\nDe nombreux indicateurs sont disponibles mais ne sont pas associ\u00e9s au mod\u00e8le d\\'h\u00f4te.\r\nIls doivent \u00eatre d\u00e9ploy\u00e9s manuellement :\r\n* Class-count\r\n* Memory and Memory-Detailed\r\n* Threads\r\n* Work-Manager-Global"
+            }
+        ],
+        "discovery_category": "",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Weblogic-Jmx\r\n\r\nPlease install jolokia agent on your java application server\r\n[Jolikia download page](https://jolokia.org/download.html). Ask to\r\nyour admin to deploy it and give you the URL.\r\n\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Weblogic-JMX-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Weblogic Server",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_weblogic_jmx.pl",
+                "package_name": "centreon-plugin-Applications-Weblogic-Jmx",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Applications-Weblogic-Jmx",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "applications-weblogic-jmx",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Application",
+            "HTTP",
+            "HTTPS",
+            "Oracle",
+            "Web server",
+            "WebLogic"
+        ],
+        "update_date": "1486389219",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les 'workManagers'.}\r\n\r\n{EN: Check Java 'workManagers'.}",
+            "active_checks_enabled": 2,
+            "alias": "Weblogic-Work-Manager-Global",
+            "check_timeperiod": "",
+            "command_name": "App-Weblogic-Work-Manager-JMX",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALREQUESTCOMPLETED$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALREQUESTPENDING$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALTHREADSTUCK$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --filter-perfdata='request_completed'"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERAPPLICATION$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERRUNTIME$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGREQUESTCOMPLETED$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGREQUESTPENDING$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGTHREADSTUCK$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Weblogic-Work-Manager-Global-JMX",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les threads.}\r\n\r\n{EN: Check threads.}",
+            "active_checks_enabled": 2,
+            "alias": "Weblogic-Threads",
+            "check_timeperiod": "",
+            "command_name": "App-Weblogic-Threads-JMX",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALACTIVE$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALDAEMON$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTARTED$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGACTIVE$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGDAEMON$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTARTED$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Weblogic-Threads-JMX",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier la m\u00e9moire Java ('NonHeap' et 'Heap').}\r\n\r\n{EN: Check Java Heap and NonHeap Memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Weblogic-Memory",
+            "check_timeperiod": "",
+            "command_name": "App-Weblogic-Memory-JMX",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALHEAP$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALNONHEAP$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGHEAP$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGNONHEAP$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Weblogic-Memory-JMX",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les pools de m\u00e9moire Java.}\r\n\r\n{EN: Check Java Memory Pools.}",
+            "active_checks_enabled": 2,
+            "alias": "Weblogic-Memory-Detailed",
+            "check_timeperiod": "",
+            "command_name": "App-Weblogic-Memory-Detailed-JMX",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALEDEN$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALPERMANENT$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSURVIVOR$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGEDEN$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGPERMANENT$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSURVIVOR$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Weblogic-Memory-Detailed-JMX",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des classes de la JVM.}\r\n\r\n{EN: Check Java Class usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Weblogic-Class-Count",
+            "check_timeperiod": "",
+            "command_name": "App-Weblogic-Class-Count-JMX",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALCURRENT$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALLOADED$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGCURRENT$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGLOADED$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Weblogic-Class-Count-JMX",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

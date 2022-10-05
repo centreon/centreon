@@ -1,0 +1,479 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::exchange::2010::local::plugin\\' \\'services\\'  \\'  --warning=\\\\\\\"$_SERVICEWARNING$\\\\\\\" --critical=\\\\\\\"$_SERVICECRITICAL$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Exchange-2010-NRPE-Services",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::exchange::2010::local::plugin\\' \\'queues\\'  \\'  --warning-status=\\\\\\\"$_SERVICEWARNING$\\\\\\\" --critical-status=\\\\\\\"$_SERVICECRITICAL$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Exchange-2010-NRPE-Queues",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::exchange::2010::local::plugin\\' \\'databases\\'  \\' --ps-database-filter=\\\\\\\"$_SERVICEFILTER$\\\\\\\" --warning-copystatus=\\\\\\\"$_SERVICEWARNINGCOPYSTATUS$\\\\\\\" --critical-copystatus=\\\\\\\"$_SERVICECRITICALCOPYSTATUS$\\\\\\\" --warning-database-space-size=\\\\\\\"$_SERVICEWARNINGDATABASESPACESIZE$\\\\\\\" --critical-database-space-size=\\\\\\\"$_SERVICECRITICALDATABASESPACESIZE$\\\\\\\" --warning-database-space-available=\\\\\\\"$_SERVICEWARNINGDATABASESPACEAVAILABLE$\\\\\\\" --critical-database-space-available=\\\\\\\"$_SERVICECRITICALDATABASESPACEAVAILABLE$\\\\\\\" --warning-mailflow=\\\\\\\"$_SERVICEWARNINGMAILFLOW$\\\\\\\" --critical-mailflow=\\\\\\\"$_SERVICECRITICALMAILFLOW$\\\\\\\" --warning-mailflow-latency=\\\\\\\"$_SERVICEWARNINGMAILFLOWLATENCY$\\\\\\\" --critical-mailflow-latency=\\\\\\\"$_SERVICECRITICALMAILFLOWLATENCY$\\\\\\\" --warning-status=\\\\\\\"$_SERVICEWARNINGSTATUS$\\\\\\\" --critical-status=\\\\\\\"$_SERVICECRITICALSTATUS$\\\\\\\" --warning-mapi=\\\\\\\"$_SERVICEWARNINGMAPI$\\\\\\\" --critical-mapi=\\\\\\\"$_SERVICECRITICALMAPI$\\\\\\\" --warning-databases-space-size=\\\\\\\"$_SERVICEWARNINGDATABASESSPACESIZE$\\\\\\\" --critical-databases-space-size=\\\\\\\"$_SERVICECRITICALDATABASESSPACESIZE$\\\\\\\" --warning-databases-space-available=\\\\\\\"$_SERVICEWARNINGDATABASESSPACEAVAILABLE$\\\\\\\" --critical-databases-space-available=\\\\\\\"$_SERVICECRITICALDATABASESSPACEAVAILABLE$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Exchange-2010-NRPE-Databases",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::exchange::2010::local::plugin\\' \\'activesync-mailbox\\'  \\' --mailbox=\\\\\\\"$_SERVICEMAILBOX$\\\\\\\" --password=\\\\\\\"$_SERVICEPASSWORD$\\\\\\\" --warning=\\\\\\\"$_SERVICEWARNING$\\\\\\\" --critical=\\\\\\\"$_SERVICECRITICAL$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Exchange-2010-NRPE-Activesync-Mailbox",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::exchange::2010::local::plugin\\' \\'imap-mailbox\\'  \\' --mailbox=\\\\\\\"$_SERVICEMAILBOX$\\\\\\\" --password=\\\\\\\"$_SERVICEPASSWORD$\\\\\\\" --warning=\\\\\\\"$_SERVICEWARNING$\\\\\\\" --critical=\\\\\\\"$_SERVICECRITICAL$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Exchange-2010-NRPE-Imap-Mailbox",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::exchange::2010::local::plugin\\' \\'mapi-mailbox\\'  \\' --mailbox=\\\\\\\"$_SERVICEMAILBOX$\\\\\\\" --warning=\\\\\\\"$_SERVICEWARNING$\\\\\\\" --critical=\\\\\\\"$_SERVICECRITICAL$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Exchange-2010-NRPE-Mapi-Mailbox",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::exchange::2010::local::plugin\\' \\'owa-mailbox\\'  \\' --url=\\\\\\\"$_SERVICEURL$\\\\\\\" --mailbox=\\\\\\\"$_SERVICEMAILBOX$\\\\\\\" --password=\\\\\\\"$_SERVICEPASSWORD$\\\\\\\" --warning=\\\\\\\"$_SERVICEWARNING$\\\\\\\" --critical=\\\\\\\"$_SERVICECRITICAL$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Exchange-2010-NRPE-Owa-Mailbox",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::exchange::2010::local::plugin\\' \\'replication-health\\'  \\'  --warning=\\\\\\\"$_SERVICEWARNING$\\\\\\\" --critical=\\\\\\\"$_SERVICECRITICAL$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Exchange-2010-NRPE-Replication-Health",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::exchange::2010::local::plugin\\' \\'outlook-webservices\\'  \\' --mailbox=\\\\\\\"$_SERVICEMAILBOX$\\\\\\\" --warning=\\\\\\\"$_SERVICEWARNING$\\\\\\\" --critical=\\\\\\\"$_SERVICECRITICAL$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Exchange-2010-NRPE-Outlook-Webservices",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser des serveurs Exchange 2010 via NRPE}\r\n{EN: Template to check Windows Exchange 2010 using NRPE protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Windows Exchange 2010 using NRPE protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "exchange-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTNRPECLIENT$",
+                    "value": "check_centreon_nrpe"
+                },
+                {
+                    "key": "$_HOSTNRPEEXTRAOPTIONS$",
+                    "value": "-u -m 8192"
+                },
+                {
+                    "key": "$_HOSTNRPEPORT$",
+                    "value": "5666"
+                },
+                {
+                    "key": "$_HOSTNRPETIMEOUT$",
+                    "value": "55"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Exchange-2010-NRPE",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Exchange-2010-Services-NRPE",
+                "App-Exchange-2010-Queues-NRPE",
+                "App-Exchange-2010-Databases-NRPE"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "exchange-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* deprecated. use pack application-exchange-nrpe",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            },
+            {
+                "name": "operatingsystems-windows-nrpe",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Microsoft Exchange server:\r\n* Activesync-Mailbox\r\n* Databases\r\n* Imap-Mailbox\r\n* Mapi-Mailbox\r\n* Outlook-Webservices\r\n* Owa-Mailbox\r\n* Queues\r\n* Replication-Health\r\n* Exchange-Services"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin packpour superviser un server Microsoft Exchange :\r\n* Activesync-Mailbox\r\n* Databases\r\n* Imap-Mailbox\r\n* Mapi-Mailbox\r\n* Outlook-Webservices\r\n* Owa-Mailbox\r\n* Queues\r\n* Replication-Health\r\n* Exchange-Services"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-nrpe-plugin\r\n\r\n### Nsclient++\r\nThis plugin pack requires the use of: \r\n* the Exchange 2010 plugin provided [here](https://forge.centreon.com/projects/centreon-plugins/repository)\r\n* NSClient++ package provided by Centreon, installed and configured on\r\nyour target server as described on http://documentation.centreon.com\r\n\r\nYou can download it [here](https://download.centreon.com/?action=product&product=agent-nsclient&version=0.51&secKey=59d646114079212e03ec09454456a938)\r\n\r\nNote: Powershell and `Microsoft.Exchange.Management.PowerShell.E2010` snap-in have to be installed on Exchange Server\r\n\r\nNote: If you use the NSClient++ installer provided by Centreon, the\r\nplugin is already included in centreon\\_plugins.exe configured in\r\nNSClient++\r\n\r\nIf you have some problems with the centreon\\_plugins.exe, you can build it using [following procedure](https://documentation.centreon.com/docs/centreon-nsclient/en/latest/windows_agent.html#build-your-own-executable)\r\n\r\nNote: You can use options `--remote-host`, `--remote-user` and\r\n`--remote-password` to execute services from another Windows Server (the\r\nWindows still need powershell and the snap-in)\r\n\r\nWarning: Set service macro `MAILBOX` with the following syntax:\r\n\r\n    DOMAIN\\username\r\n\r\nWarning: Don't use '!' character in centreon macro configuration!!!\r\n\r\nWarning: Service `Queues` works on exchange server with the good\r\nrole.\r\n\r\n##Centreon Configuration\r\n### Create a new Exchange server\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Exchange-2010-NRPE-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\nBy default, the host template checks nothing. Go to plugin-pack manager\r\nto see services available.",
+        "name": "Exchange 2010",
+        "plugins_requirements": [],
+        "requirement": [],
+        "slug": "applications-exchange-2010-nrpe",
+        "status": "deprecated",
+        "status_message": "",
+        "tags": [
+            "Email",
+            "Exchange",
+            "Microsoft",
+            "MS Exchange",
+            "Windows"
+        ],
+        "update_date": "1610098096",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'\u00e9tat des services Exchange.}\r\n\r\n{EN: Check exchange services.}",
+            "active_checks_enabled": 2,
+            "alias": "Exchange-Services",
+            "check_timeperiod": "",
+            "command_name": "App-Exchange-2010-NRPE-Services",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "%{requiredservicesrunning} =~ /True/i and %{servicesnotrunning} =~ /[a-zA-Z]/"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Exchange-2010-Services-NRPE",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'\u00e9tat des queues Exchange.}\r\n\r\n{EN: Check queue status.}",
+            "active_checks_enabled": 2,
+            "alias": "Queues",
+            "check_timeperiod": "",
+            "command_name": "App-Exchange-2010-NRPE-Queues",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "not %{status} =~ /Ready|Active/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Exchange-2010-Queues-NRPE",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'\u00e9tat des 'databases' Exchange.}\r\n\r\n{EN: Check Exchange Databases.}",
+            "active_checks_enabled": 2,
+            "alias": "Databases",
+            "check_timeperiod": "",
+            "command_name": "App-Exchange-2010-NRPE-Databases",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": "*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALCOPYSTATUS$",
+                    "password": false,
+                    "value": "not %{copystatus_indexstate} =~ /Healthy/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALMAILFLOW$",
+                    "password": false,
+                    "value": "not %{mailflow_result} =~ /Success/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{mounted} == 0"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALMAPI$",
+                    "password": false,
+                    "value": "not %{mapi_result} =~ /Success/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --no-mapi --no-mailflow"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Exchange-2010-Databases-NRPE",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier activesync sur une boite aux lettres.}\r\n\r\n{EN: Check activesync to a mailbox.}",
+            "active_checks_enabled": 2,
+            "alias": "Activesync-Mailbox",
+            "check_timeperiod": "",
+            "command_name": "App-Exchange-2010-NRPE-Activesync-Mailbox",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "not %{result} =~ /Success/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Exchange-2010-Activesync-Mailbox-NRPE",
+            "normal_check_interval": 10,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier la connexion IMAP \u00e0 une boite aux lettres.}\r\n\r\n{EN: Check IMAP to a mailbox.}",
+            "active_checks_enabled": 2,
+            "alias": "Imap-Mailbox",
+            "check_timeperiod": "",
+            "command_name": "App-Exchange-2010-NRPE-Imap-Mailbox",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "not %{result} =~ /Success/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Exchange-2010-Imap-Mailbox-NRPE",
+            "normal_check_interval": 10,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier la connexion MAPI \u00e0 une boite aux lettres.}\r\n\r\n{EN: Check MAPI to a mailbox.}",
+            "active_checks_enabled": 2,
+            "alias": "Mapi-Mailbox",
+            "check_timeperiod": "",
+            "command_name": "App-Exchange-2010-NRPE-Mapi-Mailbox",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "not %{result} =~ /Success/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Exchange-2010-Mapi-Mailbox-NRPE",
+            "normal_check_interval": 10,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier la connexion OWA \u00e0 une boite aux lettres.}\r\n\r\n{EN: Check OWA connection to a mailbox.}",
+            "active_checks_enabled": 2,
+            "alias": "Owa-Mailbox",
+            "check_timeperiod": "",
+            "command_name": "App-Exchange-2010-NRPE-Owa-Mailbox",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "not %{result} =~ /Success/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Exchange-2010-Owa-Mailbox-NRPE",
+            "normal_check_interval": 10,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'\u00e9tat de sant\u00e9 de la r\u00e9plication.}\r\n\r\n{EN: Check replication health.}",
+            "active_checks_enabled": 2,
+            "alias": "Replication-Health",
+            "check_timeperiod": "",
+            "command_name": "App-Exchange-2010-NRPE-Replication-Health",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "not %{result} =~ /Passed/i"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Exchange-2010-Replication-Health-NRPE",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'auto-d\u00e9couverte outlook.}\r\n\r\n{EN: Check outlook autodiscovery webservices.}",
+            "active_checks_enabled": 2,
+            "alias": "Outlook-Webservices",
+            "check_timeperiod": "",
+            "command_name": "App-Exchange-2010-NRPE-Outlook-Webservices",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "not %{type} =~ /Success|Information/i"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEMAILBOX$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Exchange-2010-Outlook-Webservices-NRPE",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

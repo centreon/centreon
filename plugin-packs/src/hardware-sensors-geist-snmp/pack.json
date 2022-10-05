@@ -1,0 +1,118 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sensors_geist_snmp.pl --plugin=hardware::sensors::geist::snmp::plugin --mode=sensors --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-climate-temperature=\\'$_SERVICEWARNINGCLIMATETEMPERATURE$\\' --critical-climate-temperature=\\'$_SERVICECRITICALCLIMATETEMPERATURE$\\' --warning-climate-humidity=\\'$_SERVICEWARNINGCLIMATEHUMIDITY$\\' --critical-climate-humidity=\\'$_SERVICECRITICALCLIMATEHUMIDITY$\\' --warning-climate-light=\\'$_SERVICEWARNINGCLIMATELIGHT$\\' --critical-climate-light=\\'$_SERVICECRITICALCLIMATELIGHT$\\' --warning-climate-airflow=\\'$_SERVICEWARNINGCLIMATEAIRFLOW$\\' --critical-climate-airflow=\\'$_SERVICECRITICALCLIMATEAIRFLOW$\\' --warning-climate-sound=\\'$_SERVICEWARNINGCLIMATESOUND$\\' --critical-climate-sound=\\'$_SERVICECRITICALCLIMATESOUND$\\' --warning-climate-dewpoint=\\'$_SERVICEWARNINGCLIMATEDEWPOINT$\\' --critical-climate-dewpoint=\\'$_SERVICECRITICALCLIMATEDEWPOINT$\\' --warning-internal-temperature=\\'$_SERVICEWARNINGINTERNALTEMPERATURE$\\' --critical-internal-temperature=\\'$_SERVICECRITICALINTERNALTEMPERATURE$\\' --warning-internal-humidity=\\'$_SERVICEWARNINGINTERNALHUMIDITY$\\' --critical-internal-humidity=\\'$_SERVICECRITICALINTERNALHUMIDITY$\\' --warning-internal-dewpoint=\\'$_SERVICEWARNINGINTERNALDEWPOINT$\\' --critical-internal-dewpoint=\\'$_SERVICECRITICALINTERNALDEWPOINT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Sensors-Geist-SNMP-Sensors",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Geist sensor in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "geist-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Sensor-Geist-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Sensors-Geist-Sensors-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "geist-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": " * fix typo",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Geist sensor:\r\n* Sensors"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller une sonde Geist :\r\n* Sensors"
+            }
+        ],
+        "discovery_category": "sensor",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites \r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Sensors-Geist-Snmp\r\n\r\n### SNMP\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the monitoring server\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp)\r\n\r\n## Centreon Configuration\r\n### Create a new Geist Sensor host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Sensor-Geist-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Geist Sensor SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_sensors_geist_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Sensors-Geist-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-sensors-geist-snmp",
+        "status": "stable",
+        "status_message": "fix typo",
+        "tags": [
+            "Geist",
+            "SNMP",
+            "Sensor",
+            "Hardware"
+        ],
+        "update_date": "1569574717",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'ensemble des sondes de l'\u00e9quipement.}\r\n\r\n{EN: Check all sensors of equipment.}",
+            "active_checks_enabled": 2,
+            "alias": "Sensors",
+            "check_timeperiod": "",
+            "command_name": "HW-Sensors-Geist-SNMP-Sensors",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Sensors-Geist-Sensors-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

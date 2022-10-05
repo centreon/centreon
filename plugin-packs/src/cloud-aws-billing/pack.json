@@ -1,0 +1,196 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Cloud-Aws-Billing-Api-Services-Discover",
+                "command_for_macro": "Cloud-Aws-Billing-Api-Services-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Cloud-Aws-Billing"
+                ],
+                "macros": [
+                    {
+                        "is_empty": "0",
+                        "name": "SERVICE",
+                        "value": "$servicename$"
+                    },
+                    {
+                        "is_empty": "0",
+                        "name": "CURRENCY",
+                        "value": "$currency$"
+                    }
+                ],
+                "name": "Cloud-Aws-Billing-Api-Estimated-Charges",
+                "service_display_name": "Billing-$servicename$",
+                "service_template": "Cloud-Aws-Billing-Estimated-Charges-Api"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_billing_api.pl --plugin=cloud::aws::billing::plugin --custommode=\\'paws\\' --mode=list-services --region=\\'us-east-1\\' --disco-format\\\"",
+            "name": "Cloud-Aws-Billing-Api-Services-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_billing_api.pl --plugin=cloud::aws::billing::plugin --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --mode=list-services $_HOSTEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Cloud-Aws-Billing-Api-Services-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_billing_api.pl --plugin=cloud::aws::billing::plugin --mode=estimated-charges --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --service=\\'$_SERVICESERVICE$\\' --currency=\\'$_SERVICECURRENCY$\\' --warning-billing=\\'$_SERVICEWARNINGBILLING$\\' --critical-billing=\\'$_SERVICECRITICALBILLING$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Billing-Api-Estimated-Charges",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Amazon Billing and Cost Management via l'API}\r\n{EN: Template to check Amazon Billing and Cost Management using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Amazon Billing and Cost Management using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "aws-cloudwatch-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSSECRETKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSACCESSKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSCUSTOMMODE$",
+                    "value": "paws"
+                },
+                {
+                    "key": "$_HOSTAWSREGION$",
+                    "value": "us-east-1"
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Billing",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Aws-Billing-Estimated-Charges-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "aws-cloudwatch-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* bump version",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Amazon Billing service.**\r\n\r\nAvailable host templates and related services:\r\n\r\n|Cloud-Aws-Billing|\r\n|---|\r\n|Cloud-Aws-Billing-Estimated-Charges-Api|\r\n\r\nAvailable service discovery rules:\r\n\r\n* Cloud-Aws-Billing-Api-Estimated-Charges \r\n\r\n*Since version 3.3.0, thresholds in custom macros have been aligned to new performance data format of plugin.*"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser le service Amazon Billing.**\r\n\r\nMod\u00e8les d\\'h\u00f4te disponibles et leurs services :\r\n\r\n|Cloud-Aws-Billing|\r\n|---|\r\n|Cloud-Aws-Billing-Estimated-Charges-Api|\r\n\r\nR\u00e8gles de d\u00e9couverte de services disponibles :\r\n\r\n* Cloud-Aws-Billing-Api-Estimated-Charges \r\n\r\n*Depuis la version 3.3.0, les macros personnalis\u00e9es de seuils ont \u00e9t\u00e9 modifi\u00e9es pour correspondre aux nouvelles donn\u00e9es de performance du plugin.*"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n\r\n## Prerequisites\r\n\r\n### Centreon Plugin\r\n\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Cloud-Aws-Billing-Api\r\n\r\nTo use it, you can either install 'awscli' (AWS Command Line Interface) or 'paws' (Perl AWS SDK).\r\n\r\n### Install awscli\r\n\r\nOn CentOS, install with following commands:\r\n\r\n    # yum install awscli\r\n\r\n## Centreon Configuration\r\n\r\n### Create a host using the appropriate template\r\n\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Field</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>Name</p></td>\r\n            <td align=\"left\"><p><em>Name of the host</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Alias</p></td>\r\n            <td align=\"left\"><p><em>Description</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>IP Address / DNS</p></td>\r\n            <td align=\"left\"><p><em>Can be localhost</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Monitored from</p></td>\r\n            <td align=\"left\"><p><em>Poller used to monitor</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Templates</p></td>\r\n            <td align=\"left\"><p>Cloud-Aws-Billing-custom</p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nThe following host macros should be set as shown:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Macro</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSACCESSKEY</p></td>\r\n            <td align=\"left\"><p><em>AWS access key</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSSECRETKEY</p></td>\r\n            <td align=\"left\"><p><em>AWS secret key</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSREGION</p></td>\r\n            <td align=\"left\"><p><em>AWS region</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSCUSTOMMODE</p></td>\r\n            <td align=\"left\"><p><em>Plugin custom mode: awscli or paws</em></p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nCheck the *Create Services linked to the Template too* box and click on the *Save* button.\r\n\r\nThe following service will be created:\r\n\r\n* Billing-Estimated-Charges\r\n\r\nThe following service macros should be set as shown:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Macro</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>SERVICE</p></td>\r\n            <td align=\"left\"><p><em>Name of the AWS service</em></p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nAdd as many services as needed or use the autodiscovery rule :\r\n\r\n* Cloud-Aws-Billing-Api-Estimated-Charges\r\n\r\nThis rule will add a service named *Billing-$servicename$* per AWS service.\r\n",
+        "name": "AWS Billing",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_aws_billing_api.pl",
+                "package_name": "centreon-plugin-Cloud-Aws-Billing-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-aws-billing",
+        "status": "stable",
+        "status_message": "bump version",
+        "tags": [
+            "AWS",
+            "Amazon",
+            "Cloud",
+            "Billing"
+        ],
+        "update_date": "1571155827",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'estimation des charges pour un service.}\r\n\r\n{EN: Check service estimated charges.}",
+            "active_checks_enabled": 2,
+            "alias": "Billing-Estimated-Charges",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Billing-Api-Estimated-Charges",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "86400"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "86400"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECURRENCY$",
+                    "password": false,
+                    "value": "USD"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Billing-Estimated-Charges-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

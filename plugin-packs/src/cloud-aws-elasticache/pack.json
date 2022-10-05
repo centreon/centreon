@@ -1,0 +1,832 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_elasticache_api.pl --plugin=cloud::aws::elasticache::plugin --mode=network --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --node-id=\\'$_HOSTAWSNODEID$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-networkbytesin-average=\\'$_SERVICEWARNINGNETWORKBYTESINAVERAGE$\\' --critical-networkbytesin-average=\\'$_SERVICECRITICALNETWORKBYTESINAVERAGE$\\' --warning-networkbytesout-average=\\'$_SERVICEWARNINGNETWORKBYTESOUTAVERAGE$\\' --critical-networkbytesout-average=\\'$_SERVICECRITICALNETWORKBYTESOUTAVERAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-ElastiCache-Api-Network",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_elasticache_api.pl --plugin=cloud::aws::elasticache::plugin --mode=items --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --node-id=\\'$_HOSTAWSNODEID$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-curritems-average=\\'$_SERVICEWARNINGCURRITEMSAVERAGE$\\' --critical-curritems-average=\\'$_SERVICECRITICALCURRITEMSAVERAGE$\\' --warning-newitems-average=\\'$_SERVICEWARNINGNEWITEMSAVERAGE$\\' --critical-newitems-average=\\'$_SERVICECRITICALNEWITEMSAVERAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-ElastiCache-Api-Items",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_elasticache_api.pl --plugin=cloud::aws::elasticache::plugin --mode=evictions --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --node-id=\\'$_HOSTAWSNODEID$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-evictions-average=\\'$_SERVICEWARNINGEVICTIONSAVERAGE$\\' --critical-evictions-average=\\'$_SERVICECRITICALEVICTIONSAVERAGE$\\' --warning-reclaimed-average=\\'$_SERVICEWARNINGRECLAIMEDAVERAGE$\\' --critical-reclaimed-average=\\'$_SERVICECRITICALRECLAIMEDAVERAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-ElastiCache-Api-Evictions",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_elasticache_api.pl --plugin=cloud::aws::elasticache::plugin --mode=cpu --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --node-id=\\'$_HOSTAWSNODEID$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-cpuutilization-average=\\'$_SERVICEWARNINGCPUUTILIZATIONAVERAGE$\\' --critical-cpuutilization-average=\\'$_SERVICECRITICALCPUUTILIZATIONAVERAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-ElastiCache-Api-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_elasticache_api.pl --plugin=cloud::aws::elasticache::plugin --mode=connections --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --node-id=\\'$_HOSTAWSNODEID$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-currconnections-average=\\'$_SERVICEWARNINGCURRCONNECTIONSAVERAGE$\\' --critical-currconnections-average=\\'$_SERVICECRITICALCURRCONNECTIONSAVERAGE$\\' --warning-newconnections-average=\\'$_SERVICEWARNINGNEWCONNECTIONSAVERAGE$\\' --critical-newconnections-average=\\'$_SERVICECRITICALNEWCONNECTIONSAVERAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-ElastiCache-Api-Connections",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_elasticache_api.pl --plugin=cloud::aws::elasticache::plugin --mode=usage-memcached --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --node-id=\\'$_HOSTAWSNODEID$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-bytesusedforcacheitems-average=\\'$_SERVICEWARNINGBYTESUSEDFORCACHEITEMSAVERAGE$\\' --critical-bytesusedforcacheitems-average=\\'$_SERVICECRITICALBYTESUSEDFORCACHEITEMSAVERAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-ElastiCache-Api-Usage-Memcached",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_elasticache_api.pl --plugin=cloud::aws::elasticache::plugin --mode=requests-memcached --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --node-id=\\'$_HOSTAWSNODEID$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-cashits-average=\\'$_SERVICEWARNINGCASHITSAVERAGE$\\' --critical-cashits-average=\\'$_SERVICECRITICCASHITSALAVERAGE$\\' --warning-casmisses-average=\\'$_SERVICEWARNINGCASMISSESAVERAGE$\\' --critical-casmisses-average=\\'$_SERVICECRITICALCASMISSESAVERAGE$\\' --warning-decrhits-average=\\'$_SERVICEWARNINGDECRHITSAVERAGE$\\' --critical-decrhits-average=\\'$_SERVICECRITICALDECRHITSAVERAGE$\\' --warning-decrmisses-average=\\'$_SERVICEWARNINGDECRMISSESAVERAGE$\\' --critical-decrmisses-average=\\'$_SERVICECRITICALDECRMISSESAVERAGE$\\' --warning-deletehits-average=\\'$_SERVICEWARNINGDELETEHITSAVERAGE$\\' --critical-deletehits-average=\\'$_SERVICECRITICALDELETEHITSAVERAGE$\\' --warning-deletemisses-average=\\'$_SERVICEWARNINGDELETEMISSESAVERAGE$\\' --critical-deletemisses-average=\\'$_SERVICECRITICALDELETEMISSESAVERAGE$\\' --warning-gethits-average=\\'$_SERVICEWARNINGGETHITSAVERAGE$\\' --critical-gethits-average=\\'$_SERVICECRITICALGETHITSAVERAGE$\\' --warning-getmisses-average=\\'$_SERVICEWARNINGGETMISSESAVERAGE$\\' --critical-getmisses-average=\\'$_SERVICECRITICALGETMISSESAVERAGE$\\' --warning-incrhits-average=\\'$_SERVICEWARNINGINCRHITSAVERAGE$\\' --critical-incrhits-average=\\'$_SERVICECRITICALINCRHITSAVERAGE$\\' --warning-incrmisses-average=\\'$_SERVICEWARNINGINCRMISSESAVERAGE$\\' --critical-incrmisses-average=\\'$_SERVICECRITICALINCRMISSESAVERAGE$\\' --warning-touchhits-average=\\'$_SERVICEWARNINGTOUCHHITSAVERAGE$\\' --critical-touchhits-average=\\'$_SERVICECRITICALTOUCHHITSAVERAGE$\\' --warning-touchmisses-average=\\'$_SERVICEWARNINGTOUCHMISSESAVERAGE$\\' --critical-touchmisses-average=\\'$_SERVICECRITICALTOUCHMISSESAVERAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-ElastiCache-Api-Requests-Memcached",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_elasticache_api.pl --plugin=cloud::aws::elasticache::plugin --mode=commands-memcached --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --node-id=\\'$_HOSTAWSNODEID$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-cmdflush-average=\\'$_SERVICEWARNINGCMDFLUSHAVERAGE$\\' --critical-cmdflush-average=\\'$_SERVICECRITICALCMDFLUSHAVERAGE$\\' --warning-cmdget-average=\\'$_SERVICEWARNINGCMDGETAVERAGE$\\' --critical-cmdget-average=\\'$_SERVICECRITICALCMDGETAVERAGE$\\' --warning-cmdset-average=\\'$_SERVICEWARNINGCMDSETAVERAGE$\\' --critical-cmdset-average=\\'$_SERVICECRITICALCMDSETAVERAGE$\\' --warning-cmdconfigget-average=\\'$_SERVICEWARNINGCMDCONFIGGETAVERAGE$\\' --critical-cmdconfigget-average=\\'$_SERVICECRITICALCMDCONFIGGETAVERAGE$\\' --warning-cmdconfigset-average=\\'$_SERVICEWARNINGCMDCONFIGSETAVERAGE$\\' --critical-cmdconfigset-average=\\'$_SERVICECRITICALCMDCONFIGSETAVERAGE$\\' --warning-cmdtouch-average=\\'$_SERVICEWARNINGCMDTOUCHAVERAGE$\\' --critical-cmdtouch-average=\\'$_SERVICECRITICALCMDTOUCHAVERAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-ElastiCache-Api-Commands-Memcached",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_elasticache_api.pl --plugin=cloud::aws::elasticache::plugin --mode=usage-redis --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --node-id=\\'$_HOSTAWSNODEID$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-bytesusedforcache-average=\\'$_SERVICEWARNINGBYTESUSEDFORCACHEAVERAGE$\\' --critical-bytesusedforcache-average=\\'$_SERVICECRITICALBYTESUSEDFORCACHEAVERAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-ElastiCache-Api-Usage-Redis",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_elasticache_api.pl --plugin=cloud::aws::elasticache::plugin --mode=requests-redis --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --node-id=\\'$_HOSTAWSNODEID$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-cachehits-average=\\'$_SERVICEWARNINGCACHEHITSAVERAGE$\\' --critical-cachehits-average=\\'$_SERVICECRITICALCACHEHITSAVERAGE$\\' --warning-cachemisses-average=\\'$_SERVICEWARNINGCACHEMISSESAVERAGE$\\' --critical-cachemisses-average=\\'$_SERVICECRITICALCACHEMISSESAVERAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-ElastiCache-Api-Requests-Redis",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_elasticache_api.pl --plugin=cloud::aws::elasticache::plugin --mode=replication --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --node-id=\\'$_HOSTAWSNODEID$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-replicationbytes-average=\\'$_SERVICEWARNINGREPLICATIONBYTESAVERAGE$\\' --critical-replicationbytes-average=\\'$_SERVICECRITICALREPLICATIONBYTESAVERAGE$\\' --warning-replicationlag-average=\\'$_SERVICEWARNINGREPLICATIONLAGAVERAGE$\\' --critical-replicationlag-average=\\'$_SERVICECRITICALREPLICATIONLAGAVERAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-ElastiCache-Api-Replication",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_elasticache_api.pl --plugin=cloud::aws::elasticache::plugin --mode=commands-redis --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --node-id=\\'$_HOSTAWSNODEID$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-gettypecmds-average=\\'$_SERVICEWARNINGGETTYPECMDSAVERAGE$\\' --critical-gettypecmds-average=\\'$_SERVICECRITICALGETTYPECMDSAVERAGE$\\' --warning-hashbasedcmds-average=\\'$_SERVICEWARNINGHASHBASEDCMDSAVERAGE$\\' --critical-hashbasedcmds-average=\\'$_SERVICECRITICALHASHBASEDCMDSAVERAGE$\\' --warning-keybasedcmds-average=\\'$_SERVICEWARNINGKEYBASEDCMDSAVERAGE$\\' --critical-keybasedcmds-average=\\'$_SERVICECRITICALKEYBASEDCMDSAVERAGE$\\' --warning-listbasedcmds-average=\\'$_SERVICEWARNINGLISTBASEDCMDSAVERAGE$\\' --critical-listbasedcmds-average=\\'$_SERVICECRITICALLISTBASEDCMDSAVERAGE$\\' --warning-setbasedcmds-average=\\'$_SERVICEWARNINGSETBASEDCMDSAVERAGE$\\' --critical-setbasedcmds-average=\\'$_SERVICECRITICALSETBASEDCMDSAVERAGE$\\' --warning-settypecmds-average=\\'$_SERVICEWARNINGSETTYPECMDSAVERAGE$\\' --critical-settypecmds-average=\\'$_SERVICECRITICALSETTYPECMDSAVERAGE$\\' --warning-sortedsetbasedcmds-average=\\'$_SERVICEWARNINGSORTEDSETBASEDCMDSAVERAGE$\\' --critical-sortedsetbasedcmds-average=\\'$_SERVICECRITICALSORTEDSETBASEDCMDSAVERAGE$\\' --warning-stringbasedcmds-average=\\'$_SERVICEWARNINGSTRINGBASEDCMDSAVERAGE$\\' --critical-stringbasedcmds-average=\\'$_SERVICECRITICALSTRINGBASEDCMDSAVERAGE$\\' --warning-hyperloglogbasedcmds-average=\\'$_SERVICEWARNINGHYPERLOGLOGBASEDCMDSAVERAGE$\\' --critical-hyperloglogbasedcmds-average=\\'$_SERVICECRITICALHYPERLOGLOGBASEDCMDSAVERAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-ElastiCache-Api-Commands-Redis",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Amazon ElastiCache via l'API}\r\n{EN: Template to check Amazon ElastiCache using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Amazon ElastiCache using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "aws-elasticache-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSACCESSKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSSECRETKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-ElastiCache",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Aws-ElastiCache-Network-Api",
+                "Cloud-Aws-ElastiCache-Items-Api",
+                "Cloud-Aws-ElastiCache-Evictions-Api",
+                "Cloud-Aws-ElastiCache-Cpu-Api",
+                "Cloud-Aws-ElastiCache-Connections-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Amazon ElastiCache avec backend Memcached via l'API}\r\n{EN: Template to check Amazon ElastiCache with Memcached backend using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Amazon ElastiCache with Memcached backend using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "aws-elasticache-memcached-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSACCESSKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSSECRETKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSCUSTOMMODE$",
+                    "value": "paws"
+                },
+                {
+                    "key": "$_HOSTAWSREGION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSINSTANCENAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-ElastiCache-Memcached",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Aws-ElastiCache-Usage-Memcached-Api",
+                "Cloud-Aws-ElastiCache-Requests-Memcached-Api",
+                "Cloud-Aws-ElastiCache-Network-Api",
+                "Cloud-Aws-ElastiCache-Items-Api",
+                "Cloud-Aws-ElastiCache-Evictions-Api",
+                "Cloud-Aws-ElastiCache-Cpu-Api",
+                "Cloud-Aws-ElastiCache-Connections-Api",
+                "Cloud-Aws-ElastiCache-Commands-Memcached-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Amazon ElastiCache avec backend Redis via l'API}\r\n{EN: Template to check Amazon ElastiCache with Redis backend using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Amazon ElastiCache with Redis backend using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "aws-elasticache-redis-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSACCESSKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSSECRETKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSCUSTOMMODE$",
+                    "value": "paws"
+                },
+                {
+                    "key": "$_HOSTAWSREGION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSINSTANCENAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-ElastiCache-Redis",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Aws-ElastiCache-Usage-Redis-Api",
+                "Cloud-Aws-ElastiCache-Requests-Redis-Api",
+                "Cloud-Aws-ElastiCache-Replication-Api",
+                "Cloud-Aws-ElastiCache-Network-Api",
+                "Cloud-Aws-ElastiCache-Items-Api",
+                "Cloud-Aws-ElastiCache-Evictions-Api",
+                "Cloud-Aws-ElastiCache-Cpu-Api",
+                "Cloud-Aws-ElastiCache-Connections-Api",
+                "Cloud-Aws-ElastiCache-Commands-Redis-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "aws-elasticache-128.png"
+        },
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAH4AAAB+CAYAAADiI6WIAAAE5UlEQVR42u3dz4tNYRzH8buw8wfMjB81KEmurY1CYcZIkoWaGhuJwgwz+ZUaFpIFi8mClQWahQVZMCQSihSZzRRKFswURiEidN3Pycmdm3ue5zlzH3Oec9/f+qZZPPee+b7O+d7nPM+5o1AgCIIgCIIgGjMW7B5qLfYOdRT3XOsv/zu4uO96iZz6lMUfkw4Z1Q28uOdqsdg3NEyRAzkRylYymxT64t6hAYoZaJbtUl/pFDDwqz/NlV9uGWMUL/i2P+Y8kaNw+UinCV+5RXRStNy0+04mdUzyDFc89+m5us+3v+IpWK4SeOCBBx544IEHnoIBTwLvIa89GS2Zov3oHecx+y8MTxijn32M0bFUjtGxuo4BHnjggQce+ElmU9e56cA3ILz11izwwAMPPPDAAw888NmHn7t5YCnwwPuDt4Eh7KIeJwnwwAMPPPDAAw888MADDzzwwCflsUsj0QHb5LuP3xoOU7+zbX1Uy4ZdueMqBh544IEHHvh8z+r3nX/qdBw/fv5K/V7jn787vZeOjdu5jMA/efkh9XsN3nsFfKjwk8HYeOI+8KHCK798++G9zQOfQfi7I2+9t3ngMwi/9cwj720e+AzCu7b756OfUr0H8BmEV+u2jdM3XgCftU2atPBq3bax4sht7/Bs0jh2h7TwSs3UfbV5V3iWbP8jvE27T9vmgc8wvFq4rzYPfIbhlWrlPto88Bmd1cepVu6jzTOrzwB80uJLUrtPavM2HwHATzH81cdvnHfsTG3ephsAP8Xwr8e/Jl71xy+POLV5Xe16TeADgDdtslQ/oJHUynVSAB8IvNbmbdu9qc1r4Qf4QOAV2pWzQUpq8/FSL/ABwWsf3mbHLqnNx3v5wAewSRPD63Pc9ICGqc3HJ0e94dmk8bByF8MrNINPekAjqc1XQtYbniVbz/CmKzqpzVdOAIEPDD7txovGVN7yAW+Zy/pvRX/2yyYfPHvvFT7NGnz1mn694fU729ZHtWRWnwI+zaPS1bt4zOoDhHd9avZfj2kBHyi8aePG9KQO8IHCm5ZwTY9iAx8ovGkJ1/TlC+ADhtd9edpv1wIfMLxpCTfp+/TABwxvWsL91wMawGdkk0YzbhU4KZO+OCHAWuOSThi9pul9Xb6mxSYNfwOHtXrggQeeTZp8Bps0BLdzBPAE8ATwwAMPPPDAAw987jZptODhOubZm08TxuhnH2OqN1xsFqTYpOF/k2atHnjggQceeOCBBx544IEHHvha2dy+vRV44IEHfgrhN596GBU4KZccvOk8pvpk0c8+xuhYKsfoWF3HNCQ8CTzpKZtWd00HvgGzYBsUC3gSeDL38Iu6r1CwnKQsreHnbzlL0XKSsrSGn9N5kqLlJGVpDT97w2GKlpOUpTX8jLV7KVpOUpbW8C3tPSU+5/Px+S5Le/i2nsGWNb0lZvdhz+ZlKEt7+NU9AzpTZq0/VFq44yKFDCxlJjsZytIavqmtpzMaFOXuUuum46UF2y5Q1IynjGQls9hPltbw2sb7Cz8xZ647EL14nPO6TkWfJeT/S9W80kAmtbyst2T/4neP1XoxMoyUYcE1mlbuLFK8sFOGhTQRT/LIANNlUlfryi+3jGGKGUx7H059pdea8DWv6u5obtvVH93nU+RsZNlCJpGN60TOayxfPi06aUjrVM18kvwGWITq0zFZ1Z0AAAAASUVORK5CYII=",
+            "name": "aws-elasticache-memcached-128.png"
+        },
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAH4AAAB+CAYAAADiI6WIAAAE8UlEQVR42u3dz4tNYRzH8buw8wfM+FWD0iR3tjYKhRkjSRZqamYjkR8zjPxKDQvJgsUkUcoCzcKCLBgSCUVCZjOFkgWm/CpEhI77Obm5pmbOc86c57nnPOf9rW+amufcc7+v+5zznOd5xi2VCIIgCIIgiGJG87bBpnLvYHt5+5W+yr8DLTuuBmT9UxZ/TdpllBp4efvlcnnH4BBFzskHoWIlswmht/QO9lPMnGbFLnFPp4A57/1Jen7lkjFC8XJ/2R+JPZCjcH5krAFf5RLRQdG8udx3MKhjkBfR43lO9+o537zHUzCvEnjggQceeOCBB56CAU8CbyG7jt0Pdp8bGjfn770eu03bwVv/tdHPNtroXGrb6Fzjtikk/JXHb4KoGA1i0kYFrm2jn2200bmM/rDEbQM88MADn142dJ6ZDHwB4Y2XZoEHHnjggQceeOCBzz78rK7+BcADbw/eZEq1mk9ff44s1PGrz2O3UXFr25h8WJK00bnUttG5xm1je3rXGbxJwQizSOPqADzwwAMPPPDAAw888MADDzzw4+XCvhvhDJZJ3nv6vnCYes+m9VEtCztlSy8GPozHLz4Gu84+sZKXH70O89WHb8HX7z+BzxK8YFyd38Cdl8HPX7+Br8ciTT3hlYsP3AyvMmkFizQJwzV8NdPE53EuR/Dq+R++/AC+aPDK9ScfpH7PBz4H8K4v+cDHhNfjmGmoBz978zl8nDN5fyeuPQfeB/jauD38NvLYa47cBd43eIVJz7c1uQN8HeFNev1Ejs8iTcJFGtvwamvz+CzSWJyytQ3PlK2H8BrhA19AeC3MjHdsDf6Az+giTVJ4jdZtD+xYpMnYqF5tNCVrs7fzOGcZXrNr1U0VUanfjQKvxzw98BmYq9fKnKtJG+AzAC9wvZ7rng58neE1i5f3jZnAJ0wtyujZHviC3uNd774BPiMbMRjV52CRRvdmPZdHpX5Px9Pl3NU9n0WaDE3ZqiebHFe9Pgu9GPiUp1UPXxyOPPZE7/XAZxBePd/2ZksWaTK4SGOy9UqvzyKNh1uvoo7vcqGGx7kM7cABvqDwbK/2FN5kgAe8h/CKqOO7msED3jG85ubZV19A+KhHOlfLtcA7ho+awXP1h5Ms0jiGj3oN3QpYpPFsX71C8/G2pm6Zq08IL9SonbNpbIyMeg3g+Q8OgVceujAcvjmTfPfpe+Hg9Z5N66NaMqovYPA4BzzwwAMPPPDAAw888MADD3zeFmk2nXoYu42+3Le2jcmX/SZpM3rBRefKIg1fI85cPfDAAw888MADDzzwwAOfQja2bWwCHnjggQceeNfwJPCkpWxY1jkZ+AJmyTQoFvAk8KT38PO6L1EwT1KWxvBz1p2maJ6kLI3hZ3YcpWiepCyN4Wes3k/RPElZGsNPXbGTonmSsjSGn9LWE3Cf9+P+Lktz+NaegSnLewNG9/kezctQlubwy3r69UmZvmpfMHfzeQqZs5SZ7GQoS2P4htaejrBRmNuCprWHg+YN5yhqxlNGspJZ1U+WxvBaxvsH/39OW7knPHg1Z3ceC+8lpLtUzWsNZDKWl/GS7D/87pGxDkbmI2VYihsNS7aUKV6+U4alJFEd5JE5zDiDurF6fuWSMUQxc3N5H0rc08ca8DUu7W5vbN3aFz7nU+RsZMVCJqFN3IGc1Vi0aFL4oSGNUzWzSfIH8E4DJ758wa8AAAAASUVORK5CYII=",
+            "name": "aws-elasticache-redis-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* bump version",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Amazon ElastiCache.**\r\n\r\nAvailable host templates and related services:\r\n\r\n|Cloud-Aws-ElastiCache|\r\n|---|\r\n|ElastiCache-Cpu|\r\n|ElastiCache-Connections|\r\n|ElastiCache-Evictions|\r\n|ElastiCache-Items|\r\n|ElastiCache-Network|\r\n\r\n|Cloud-Aws-ElastiCache-Memcached|\r\n|---|\r\n|ElastiCache-Cpu|\r\n|ElastiCache-Connections|\r\n|ElastiCache-Evictions|\r\n|ElastiCache-Items|\r\n|ElastiCache-Network|\r\n|ElastiCache-Usage|\r\n|ElastiCache-Requests|\r\n|ElastiCache-Commands|\r\n\r\n|Cloud-Aws-ElastiCache-Redis|\r\n|---|\r\n|ElastiCache-Cpu|\r\n|ElastiCache-Connections|\r\n|ElastiCache-Evictions|\r\n|ElastiCache-Items|\r\n|ElastiCache-Network|\r\n|ElastiCache-Replication|\r\n|ElastiCache-Usage|\r\n|ElastiCache-Requests|\r\n|ElastiCache-Commands|"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser le service Amazon ElastiCache.**\r\n\r\nMod\u00e8les d\\'h\u00f4te disponibles et leurs services :\r\n\r\n|Cloud-Aws-ElastiCache|\r\n|---|\r\n|ElastiCache-Cpu|\r\n|ElastiCache-Connections|\r\n|ElastiCache-Evictions|\r\n|ElastiCache-Items|\r\n|ElastiCache-Network|\r\n\r\n|Cloud-Aws-ElastiCache-Memcached|\r\n|---|\r\n|ElastiCache-Cpu|\r\n|ElastiCache-Connections|\r\n|ElastiCache-Evictions|\r\n|ElastiCache-Items|\r\n|ElastiCache-Network|\r\n|ElastiCache-Usage|\r\n|ElastiCache-Requests|\r\n|ElastiCache-Commands|\r\n\r\n|Cloud-Aws-ElastiCache-Redis|\r\n|---|\r\n|ElastiCache-Cpu|\r\n|ElastiCache-Connections|\r\n|ElastiCache-Evictions|\r\n|ElastiCache-Items|\r\n|ElastiCache-Network|\r\n|ElastiCache-Replication|\r\n|ElastiCache-Usage|\r\n|ElastiCache-Requests|\r\n|ElastiCache-Commands|"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Cloud-Aws-Elasticache-Api\r\n\r\nTo use it, you can either install 'awscli' (AWS Command Line Interface) or 'paws' (Perl AWS SDK).\r\n\r\n### Install awscli\r\nOn CentOS, install with following commands:\r\n\r\n    # yum install awscli\r\n\r\n## Centreon Configuration\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Cloud-Aws-ElastiCache-<Memcached/Redis>-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Host Macro Configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"23%\" />\r\n<col width=\"53%\" />\r\n<col width=\"24%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AWSCUSTOMMODE</p></td>\r\n<td align=\"left\"><p>Mode used by plugin (awscli or paws)</p></td>\r\n<td align=\"left\"><p>awscli</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>AWSSECRETKEY</p></td>\r\n<td align=\"left\"><p>CloudWatch secret key</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AWSACCESSKEY</p></td>\r\n<td align=\"left\"><p>CloudWatch access key</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>AWSREGION</p></td>\r\n<td align=\"left\"><p>Monitoring region</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AWSINSTANCENAME</p></td>\r\n<td align=\"left\"><p>Name of your Cache instance</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Amazon ElastiCache",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_aws_elasticache_api.pl",
+                "package_name": "centreon-plugin-Cloud-Aws-Elasticache-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-aws-elasticache",
+        "status": "stable",
+        "status_message": "bump version",
+        "tags": [
+            "Amazon",
+            "AWS",
+            "ElastiCache",
+            "Cache",
+            "Memcached",
+            "Redis",
+            "Cloud"
+        ],
+        "update_date": "1571156512",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du r\u00e9seau.}\r\n\r\n{EN: Check network usage.}",
+            "active_checks_enabled": 2,
+            "alias": "ElastiCache-Network",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-ElastiCache-Api-Network",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--per-sec --verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-ElastiCache-Network-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre d'items.}\r\n\r\n{EN: Check items number.}",
+            "active_checks_enabled": 2,
+            "alias": "ElastiCache-Items",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-ElastiCache-Api-Items",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--per-sec --verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-ElastiCache-Items-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre d'\u00e9victions.}\r\n\r\n{EN: Check evictions number.}",
+            "active_checks_enabled": 2,
+            "alias": "ElastiCache-Evictions",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-ElastiCache-Api-Evictions",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--per-sec --verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-ElastiCache-Evictions-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation CPU.}\r\n\r\n{EN: Check CPU utilization.}",
+            "active_checks_enabled": 2,
+            "alias": "ElastiCache-Cpu",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-ElastiCache-Api-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGCPUUTILIZATIONAVERAGE$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALCPUUTILIZATIONAVERAGE$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-ElastiCache-Cpu-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de connexion.}\r\n\r\n{EN: Check connections number.}",
+            "active_checks_enabled": 2,
+            "alias": "ElastiCache-Connections",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-ElastiCache-Api-Connections",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--per-sec --verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-ElastiCache-Connections-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'espace utilis\u00e9 par le cache Memcached.}\r\n\r\n{EN: Check Memcached space usage.}",
+            "active_checks_enabled": 2,
+            "alias": "ElastiCache-Usage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-ElastiCache-Api-Usage-Memcached",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-ElastiCache-Usage-Memcached-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les performances du cache Memcached.}\r\n\r\n{EN: Check Memcached performances.}",
+            "active_checks_enabled": 2,
+            "alias": "ElastiCache-Requests",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-ElastiCache-Api-Requests-Memcached",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--per-sec --verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-ElastiCache-Requests-Memcached-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les performances du cache Memcached.}\r\n\r\n{EN: Check Memcached performances.}",
+            "active_checks_enabled": 2,
+            "alias": "ElastiCache-Commands",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-ElastiCache-Api-Commands-Memcached",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--per-sec --verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-ElastiCache-Commands-Memcached-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'espace utilis\u00e9 par le cache Redis.}\r\n\r\n{EN: Check Redis space usage.}",
+            "active_checks_enabled": 2,
+            "alias": "ElastiCache-Usage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-ElastiCache-Api-Usage-Redis",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-ElastiCache-Usage-Redis-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les performances du cache Redis.}\r\n\r\n{EN: Check Redis performances.}",
+            "active_checks_enabled": 2,
+            "alias": "ElastiCache-Requests",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-ElastiCache-Api-Requests-Redis",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--per-sec --verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-ElastiCache-Requests-Redis-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les performances de la r\u00e9plication.}\r\n\r\n{EN: Check replication performances.}",
+            "active_checks_enabled": 2,
+            "alias": "ElastiCache-Replication",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-ElastiCache-Api-Replication",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--per-sec --verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-ElastiCache-Replication-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les performances du cache Redis.}\r\n\r\n{EN: Check Redis performances.}",
+            "active_checks_enabled": 2,
+            "alias": "ElastiCache-Commands",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-ElastiCache-Api-Commands-Redis",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--per-sec --verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-ElastiCache-Commands-Redis-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,522 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Juniper-SSG-VPN-Discover",
+                "command_for_macro": "Net-Juniper-SSG-Vpn-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Juniper-SSG"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Juniper-SSG-Vpn-Name",
+                "service_display_name": "Vpn-$name$",
+                "service_template": "Net-JuniperSSG-Vpn-Status"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_ssg.pl --plugin=network::juniper::ssg::snmp::plugin --mode=list-vpn --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Juniper-SSG-Vpn-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_ssg.pl --plugin=network::juniper::ssg::snmp::plugin --mode=list-vpn --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Juniper-SSG-VPN-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_ssg_snmp.pl --plugin=network::juniper::ssg::snmp::plugin --mode=sessions --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --warning-failed=\\'$_SERVICEWARNINGFAILED$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --critical-failed=\\'$_SERVICECRITICALFAILED$\\'\\\"",
+            "name": "Net-JuniperSSG-SNMP-Sessions",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_ssg_snmp.pl --plugin=network::juniper::ssg::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\'\\\"",
+            "name": "Net-JuniperSSG-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_ssg_snmp.pl --plugin=network::juniper::ssg::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\'\\\"",
+            "name": "Net-JuniperSSG-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_ssg_snmp.pl --plugin=network::juniper::ssg::snmp::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\'\\\"",
+            "name": "Net-JuniperSSG-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_ssg_snmp.pl --plugin=network::juniper::ssg::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACEID$\\' --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-JuniperSSG-SNMP-Traffic-ID",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_ssg_snmp.pl --plugin=network::juniper::ssg::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$$$\\' --name --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-JuniperSSG-SNMP-Traffic-NAME",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_ssg_snmp.pl --plugin=network::juniper::ssg::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-JuniperSSG-SNMP-Traffic-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_ssg_snmp.pl --plugin=network::juniper::ssg::snmp::plugin --mode=vpn-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-update-time=\\'$_SERVICEWARNINGUPDATETIME$\\' --critical-update-time=\\'$_SERVICECRITICALUPDATETIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-JuniperSSG-SNMP-Vpn-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_ssg_snmp.pl --plugin=network::juniper::ssg::snmp::plugin --mode=vpn-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-JuniperSSG-SNMP-Vpn-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Juniper SSG en SNMP}\r\n{EN: Template to check Juniper SSG using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Juniper SSG using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "juniper-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Juniper-SSG",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-JuniperSSG-Sessions",
+                "Net-JuniperSSG-Memory",
+                "Net-JuniperSSG-Hardware",
+                "Net-JuniperSSG-Cpu"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "juniper-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ tag / doc update",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Juniper Secure Services Gateway Series via SNMP:\r\n* Cpu\r\n* Hardware\r\n* Memory\r\n* Sessions\r\n* Traffic (by interface name, ID or all interfaces)\r\n* VPN status\r\n* VPN usage"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller les \u00e9quipements Juniper Secure Services Gateway Series via SNMP :\r\n* Cpu\r\n* Mat\u00e9riel\r\n* M\u00e9moire\r\n* Sessions\r\n* Trafic (par nom ou ID d\\'interface, ou toutes les interfaces)\r\n* Status des VPN\r\n* Utilisation des VPN"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAA3+SURBVHic7dx7dBzVfcDx7+/OSn6/wNjFkbWrXSFKwqMlfYRin0JdCGkJEKid5oFt+YF5nEPahhQwdrPENlDchASKi209XAoBbEIoFFKIAy6vkAbaAjEBs1qtZKOAscGWX7J25/76x65kyc/VA5DD73POnp29c+c3d2auZubeuSMwxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYs48UPh/Jio4oFouNdp55AK408v1UKrUXoGpC1dhcpH32/uk9FY9Gv4ZKmeDXNjQ3v3yofJWx2J8CZ6vqmSCfAkYBo4F2YLvANhXexPO8Rtx/ptPpDYeKVVFRMd6FOkMd7elM5vtdZgXx8tg1xZZdYA/INq80ZjX70qZNm/YUuyxAYmLiZA3C80U5DzQBMhYYXJjdDjSivCgqD6U2Nj4GhMXErSor+1QYiZyvqpME+YzCaMnvqyHAHhXmpzOZu4qqAJUTJybUBSkAKYmMSqVSrR2Fx4WvAYTCmEwms60nG98hEY0+CzIJ5RsNzZnb959fUVHxR+L1doE/7kFYDzwQCn+XyWTeOWCbotHTFXlZYVe6KTO8M72ycpBmc2292Q5gL8r9Af47G5qb04fLmChLVEokXKbKOQeZ3ca+StDVq97JpY2Nja8eKm5ZWdmQQZHILSjzgEGHLIBybUNz5tbI4Qo5EFRGo2eo1yeAEYAK+piq/FREfymwrR22OedKgVEB/A6qZ6pyEXAq8JVA+eyJEyee/ebGjS09X7s8hujuw2bxjERkLOgpwCCEGSHuwkQ0enFDU9PTh9im31fCp1QZDXiEB8XLozmnz7W3t29uaWnZDQSJROJYcrmTReWLXpgrcKrz+lxlNHpWqqnpfw6IW1k5yLfnHkY5t5DUgPAjVX0mEHk7C9tEZI/LuhFhJNwJMNArQKBILfmD/7Z6d1HDxvRLh8n/KvAkkEzEYjNQVgBVORd8F/hKT1eugVyZTjc2F5N3woQJQ4eWlMxU5GZgtCAPVpWVnbph06a3u+aLx+PlGvonyJ+OXxf101JNzesPEjJsaGjYDDwFPBWLxX4QUR5WOE1V7q+srDxl/0uutoeXieQPvgg3Dho27Kb169e3HyT2ux0TrpiN+7jEo9HPAyeR/8u/IH34g9+VNmQyqwT928LvL1dUVEQ/nFLmtbS07E41NS0T9Gxgt8IxYSTyrf3zSehvAY4D3twb5ianmg968A+QyWQyPnAXAK0IJ/hc7uL986jkt1egLpXJJA9x8LsZ0BVA4CwAEdYe7JR3JIOGD18JvAeIeD+ln4t3UPly6jIAlGld51WWl38a+GvyFbp606ZN7/ckdjqdblaoBRBletd58Xi8XKACICcsLTbmgK4A4D5dmHihN0uvX7++HeHn+V9ycj8V6oi8c2sKk8fH4/HyjnSV4BJAQJ9PNTX9vDex1cuPARQm0+X4ifeFfaVbMpnMG8XGG9gVQHQcgHrpxQ1cgaclH4oJ/VSqIwqCYN8ByDJ+3xw9L/8la/ZfplhZzb4EqMCweFk80WVWfj0iv+lJvAFdAUQZAYDTXvUvAKhI/i5eZPgRsvabVCq1q/OHdGuKfQbAB/Jib2MX+hnyzW3HvvsalRGFqR41YQd0BVAlKEz2ugIIfjeAiJb2S6GKkEgkju2YduQ+gHzHE/mOK8IwfKuPq3gvH1tHdySoalCY6NG+GtjNQMlXUPGS63UIkVAVVOWjq+y53GcLnazZ3blcI0AQhmPzRdBcRCOJRHm59mENbQBe/MiOBOdwqgA921cDuwIctWRu/lt/UejUIQyCYc4rIBFx/pf9cfIVdcGRcx2eVYB+Fo/FrkD5EgAid3akSyiliAJkQQ7ZldsTKn5rX2NYBeg7qaioGCeh/KE4PxflgkL64w2ZzAOduZS9hUdvOxuaGv/gYyjnQVkFOAwJfVMiGjtyRq8gCvuu6j+ODB40gy4pgnQ8JRzWv6Xsmz5VAJGs18K1bHA22+vrkSIlAohoUY86BybdAvKsOLkr1dj45AGzS9lM/vastKys7Jie9gJ+WPpUAbyPZCXwAOQYMqS3cRwMVkDVZftSnv6m6PmiesCj5G55fKS1nfatRzqgDQ0NmxPRWCswcnAkUgX0ui+gP/WpAoRBuDNSuLD5QX5ob+No4dm3Ot3Rl/L0uyB4rSGdLuppYJHWA2eoymQGSAXoU1ukqalpM2gOwHnf265WAY4HENV3j5D3KCc/yX/rAU/yPi59bYyGiPy6MH1WbwKcEIudBowENBR5vY/lGdBEwx+RH6n0uUQ0+oWPuzxQbAUQ6ezPbmtr63adVpWf5r+5ompC1dieFsArf1+Y/PXBhm79Nkk1N78ucH/+l9zV2zEK8fL4+RMmTOj1JberYitA5/i08ePHd+9qDOQH5Lsmx4Ul7U/E4/GqYkKWlZUNSUSjSymM1BHktiLLfFTTSHAd0AKUO6/rKisqzj3SMh3i8XhVIhZbLeIfHVpS+s/FLFNZWXlcZTR6+okTJx70El3UTaCqDkEEYMfLL7/c7QyQTqeb47HYlaLUAKdLGK5PRGOPoLLOK//ncB/4iN/hsq5ERcfgwnIRmYzqJSBlAAiPlGUaV6WKKcxRrqGhYWNlefk5Ku5pIKZen0jEYs/i+Q9xPOOda2lra9syNgxl57Bhx5JlvIg/A5FzCf15QKCwS5VXyN8/HfaZgvP+NO/dUA2kCnhg//zFtQKcO6Gw2EGfNaczmfrK8ootKvqPICcBFyN6sROAEOeBICy0F6RQBEFhl1PuGDR82LfXQa8f+BxtUs3Nr8disdMC1VtBvooyGWGyKkjoGVJSyq6S/PS+c7QC7AatIwiWpotsnYSheMTHsmH4xlkQrNtvPxfbDPwLAIFDjslLNTc+CjxWGYudo6qTwJ0BfjwwGmR4obWwTVTeR/iVCs+qyE9SjY2HvvMXlqpntA94rchyHsB7txb8HnHa1DU9J9ISqC4QXLdxc6lUKhcvj10H4Jzr1TD3YhTud6afOHHidaFzX1JkElAOjBUYW+hX3AJsFXgFlafaCX/W3Nz8wcHi+dA9h/jrcHSrGN75hsDrNudLW9cd5I/siO8FVEysmOycfwokoujX001N9/Zmg83AdMibwLMgEo/FrnBOHwWJABvKm5oeOFR+c3SKACQSiXFk/UUII4ExKnrKRmWSKGMK+X7jnVyw7rfoOj1n0cqKUOTy+gVzru1Im7mo5iIlfC0SBh9owJ1d84tjiar8Oard3k5S8CVhODcbBPPqF865DWBqcnXpiMj2b9ctmHtDR75ZS1Z+s+6Gud+9LLl8bC4IrlEnCZQsqv+188SRNWumTQtnLak9G9UrADzaDu71obm225clr9o5a0ntt+pumL0UYHay5piwhLmr5s++deaNq8ZLxF+P6jH5grK2fsGcfy12PziAMAzjiC4HXQo6X5QvAmOANoTbQ+H0xsbGN3u4jwe00AVjgAtnLa69vCNNHCeJyjGCDlVhZ2RcOL3jUzt/9vodVSPuiIwLp4twG6LpyLhwejTcNGNFct5uFaYkk8kIwIiSHVMUmVV9U91xADNvWv676mXMlck7h2eD4BEV/0j9DbOn7syNmKlCMHxD6woAj1Z4+Le6BXOm7aoaNQP1b7QFgxbkS6d/AnBZcvlQH2GZD8L7EFGJhIvUu5r6hXMuLRkXzsK7okcEQ+EM4JzbivdrUN0ObAP3rqq86J1/KZPJ9PY9uaPBPYp+bvqSlS/cfcPc/QZpiF8xb96+Ju+8eazJv5gZVi+py6G+23yBZ5pLJk4Gnlb0QhG5VtVfCNSIuktw7qE9UjoF+GH9gsteAFiTnNYOLKteXPP41OTqUmjtXN2aadPCryXvWVsaaet8t+Cy5ctL2t9zK3Bh8u7r5jUX1qsayY0GKJTnFz3ZARGAdDr9FnR/ieGTQnPB3wSR8N6p31v9V+xp7TpnSvWilfvueSS4pn7BrI2HiuMCHlLvr566evUzumH78OEjdz+wa/vQVUANyOn186tvmrm4drI6fnXAwsKGkYNay0MPiHx+1pKVxwOo3zNFVe4DUHC594I7BSaEfnDnQ7OcK7k+4rPzq5fUXIOnVdH7Vi2c+3ix2z+gRwV/FFYlq7cJcvPw3Ttu6T5Hfla/cO6XOz+HOfgAtdfPSalK5bC3tv+ZqDx7x9VX71W0feaSFb8HNCGiTmSLUz2wu9xzXNvewZsBRPUdfJBGZZLgalctnPMwAMo4VB4MVGdHyHb2mt49f8bWugVzvll/w5wL90bar0b46qzv1J5W7PZ/4isAQN2C2c+p8L54/rIvcUT1v8XLjRoG/15IelRwdzklfxBzPA0yfWayvrNrffbNNZUqjLo3+fVWAIVX6hbOWtsWtH9DxV+OqgCI8E7dwtlP1iyc26iqT89aVDsb4NLkv4zriPXD66/8wIl7RcV3Dks/kk/skLCQMBcROv+Zw64TRiwevqH1zEBdziMedFL1oprOPg+n/FPtP8z5XwAl553IAS9e5hwPOeXsVcnqdwBKQv94uwS3tlaNfB6gLjm7ZeaimjuIhA9WL1q5VZBSn1MXiFyVX4fs9apZyB/M6kU1T8xcXPOFVfC4V+182aR+wZy7qhfX3jPz1vrHpD28qnpxbULxux1S6qF114mjvvch7TbTX6auXh3Qj/8GJplM2tncGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxpijyv8D89uaLi2tK+EAAAAASUVORK5CYII=",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Juniper SSG",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_juniper_ssg_snmp.pl",
+                "package_name": "centreon-plugin-Network-Firewalls-Juniper-Ssg-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Network-Firewalls-Juniper-Ssg-Snmp",
+                "version": "20180427-1"
+            }
+        ],
+        "slug": "network-firewalls-juniper-ssg-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Hardware",
+            "Juniper",
+            "Network",
+            "Secure Services Gateway",
+            "SNMP",
+            "Security"
+        ],
+        "update_date": "1628799685",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les sessions actives.}\n\n{EN: Check current active sessions.}",
+            "active_checks_enabled": 2,
+            "alias": "Sessions",
+            "check_timeperiod": "",
+            "command_name": "Net-JuniperSSG-SNMP-Sessions",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-JuniperSSG-Sessions",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation m\u00e9moire du mat\u00e9riel}\n\n{EN: Check machine memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-JuniperSSG-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-JuniperSSG-Memory",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du mat\u00e9riel.}\r\n\r\n{EN: Check hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware",
+            "check_timeperiod": "",
+            "command_name": "Net-JuniperSSG-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-JuniperSSG-Hardware",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine. Ce contr\u00f4le pourra remonter la moyenne du taux d'utilisation des CPU.}\r\n\r\n{EN: Check the rate of utilization of CPU for the machine. This check can give the average utilization rate of CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-JuniperSSG-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90,85,80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80,75,70"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-JuniperSSG-Cpu",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante de l'interface. Pour chaque contr\u00f4le appara\u00eetra le nom de l'interface (\u00ab label \u00bb raccourci d\u00e9crivant l'interface).}\n\n{EN: Check the bandwidth of the interface. For each checks the name of the interface will appear (\u00ab label \u00bb shortcut describing the interface).}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Id",
+            "check_timeperiod": "",
+            "command_name": "Net-JuniperSSG-SNMP-Traffic-ID",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEINTERFACEID$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-JuniperSSG-Traffic-Generic-Id",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante de l'interface. Pour chaque contr\u00f4le appara\u00eetra le nom de l'interface (\u00ab label \u00bb raccourci d\u00e9crivant l'interface).}\n\n{EN: Check the bandwidth of the interface. For each checks the name of the interface will appear (\u00ab label \u00bb shortcut describing the interface).}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-JuniperSSG-SNMP-Traffic-NAME",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEINTERFACENAME$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-JuniperSSG-Traffic-Generic-Name",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante d'un ensemble d'interfaces. Pour chaque contr\u00f4le appara\u00eetra le nom de l'interface (\u00ab label \u00bb raccourci d\u00e9crivant l'interface).}\r\n\r\n{EN: Check the bandwidth of  interfaces. For each checks the name of the interface will appear (\u00ab label \u00bb shortcut describing the interface).}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-JuniperSSG-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-JuniperSSG-Traffic-Global",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des tunnels VPN.}\r\n\r\n{EN: Check VPN tunnels status.}",
+            "active_checks_enabled": 2,
+            "alias": "Vpn-Status",
+            "check_timeperiod": "",
+            "command_name": "Net-JuniperSSG-SNMP-Vpn-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{p1state} eq \"inactive\" || %{p2state} eq \"inactive\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-JuniperSSG-Vpn-Status",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le trafic entrant et sortant des tunnels VPN.}\r\n\r\n{EN: Check VPN tunnels inbound and outbound traffic.}",
+            "active_checks_enabled": 2,
+            "alias": "Vpn-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-JuniperSSG-SNMP-Vpn-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-JuniperSSG-Vpn-Usage",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

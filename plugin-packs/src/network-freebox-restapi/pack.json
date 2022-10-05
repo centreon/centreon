@@ -1,0 +1,179 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_freebox_restapi.pl --plugin=network::freebox::restapi::plugin --mode=system --hostname=\\'$HOSTADDRESS$\\' --freebox-app-id=\\'$_HOSTFREEBOXAPPID$\\' --freebox-app-token=\\'$_HOSTFREEBOXAPPTOKEN$\\' $_HOSTFREEBOXEXTRAOPTIONS$ --warning-wifi-status=\\'$_SERVICEWARNINGWIFISTATUS$\\' --critical-wifi-status=\\'$_SERVICECRITICALWIFISTATUS$\\' --warning-disk-status=\\'$_SERVICEWARNINGDISKSTATUS$\\' --critical-disk-status=\\'$_SERVICECRITICALDISKSTATUS$\\' --warning-temperature-cpum=\\'$_SERVICEWARNINGTEMPERATURECPUM$\\' --critical-temperature-cpum=\\'$_SERVICECRITICALTEMPERATURECPUM$\\' --warning-temperature-cpub=\\'$_SERVICEWARNINGTEMPERATURECPUB$\\' --critical-temperature-cpub=\\'$_SERVICECRITICALTEMPERATURECPUB$\\' --warning-temperature-switch=\\'$_SERVICEWARNINGTEMPERATURESWITCH$\\' --critical-temperature-switch=\\'$_SERVICECRITICALTEMPERATURESWITCH$\\' --warning-fan-speed=\\'$_SERVICEWARNINGFANSPEED$\\' --critical-fan-speed=\\'$_SERVICECRITICALFANSPEED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Freebox-RESTAPI-System",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_freebox_restapi.pl --plugin=network::freebox::restapi::plugin --mode=net-usage --hostname=\\'$HOSTADDRESS$\\' --freebox-app-id=\\'$_HOSTFREEBOXAPPID$\\' --freebox-app-token=\\'$_HOSTFREEBOXAPPTOKEN$\\' $_HOSTFREEBOXEXTRAOPTIONS$ --warning-rate-up=\\'$_SERVICEWARNINGRATEUP$\\' --critical-rate-up=\\'$_SERVICECRITICALRATEUP$\\' --warning-rate-down=\\'$_SERVICEWARNINGRATEDOWN$\\' --critical-rate-down=\\'$_SERVICECRITICALRATEDOWN$\\' --warning-bw-up=\\'$_SERVICEWARNINGBWUP$\\' --critical-bw-up=\\'$_SERVICECRITICALBWUP$\\' --warning-bw-down=\\'$_SERVICEWARNINGBWDOWN$\\' --critical-bw-down=\\'$_SERVICECRITICALBWDOWN$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Freebox-RESTAPI-Net-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_freebox_restapi.pl --plugin=network::freebox::restapi::plugin --mode=dsl-usage --hostname=\\'$HOSTADDRESS$\\' --freebox-app-id=\\'$_HOSTFREEBOXAPPID$\\' --freebox-app-token=\\'$_HOSTFREEBOXAPPTOKEN$\\' $_HOSTFREEBOXEXTRAOPTIONS$ --warning-rate-up=\\'$_SERVICEWARNINGRATEUP$\\' --critical-rate-up=\\'$_SERVICECRITICALRATEUP$\\' --warning-rate-down=\\'$_SERVICEWARNINGRATEDOWN$\\' --critical-rate-down=\\'$_SERVICECRITICALRATEDOWN$\\' --warning-snr-up=\\'$_SERVICEWARNINGSNRUP$\\' --critical-snr-up=\\'$_SERVICECRITICALSNRUP$\\' --warning-snr-down=\\'$_SERVICEWARNINGSNRDOWN$\\' --critical-snr-down=\\'$_SERVICECRITICALSNRDOWN$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Freebox-RESTAPI-Dsl-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to monitor Freebox by Rest API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "net-freebox-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Freebox-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Freebox-System-RESTAPI",
+                "Net-Freebox-Net-Usage-RESTAPI",
+                "Net-Freebox-Dsl-Usage-RESTAPI"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIEAAAAZCAYAAAAWlU1+AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAABCgAAAQoBFqS8ywAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAuhSURBVGiB7Zl/eJTVlcc/3zsTEn7/JvMOAVOqVoEWXVgzE+hWrO12/UEXttK1tVrFbalbu3R3UaxUqrUWV7f6rLWtv9Z2a1tN292t+GCfujbtApkJRFtWAmpRVJKZCSAgiCQkc8/+MTPJJIEk9hHzlIfvf+e+5577vec97z3n3FecRC+sJ/o+B3OFRXFMxKgQTDMISkwz55DaM9gc30mE3ylDDYwdfZDRbfN5pfWdsjlYGAJveZhk4nKM0wAMMLF6jp1YAQCgP3ZiHRWTRXaxiYWCPwOGA5j4YbVPX/6OMRxEJBSsA+blxX0dVvLeD/LavsHkdDzwtk+C9USnhhy3mGXnmPEgZvcYrlyO6ZhVOm+PHg+i7zaSlMesKwCQcfOJGADwNoLAwCWJ3oTsekFNiaXPngPtnQr+uPAbNHiFVgoriDv2Mvx7g8nneGJA6aCWiSNKFX5E8HFgxz4bfuYFbG87ztwGDXWUv19ym8n7R6ZLY6ROiBPuaHD9KRi4MpX8JB8AYHbLiRwAAHJuBV0fyKYqUo8NJp/jjX7TQZJgBdhFOUkvtZJ+ZCCGa6ksG0b78CqaXz/a8xoIBUwd1VeeNXD1RM7waApoPFAmbL/Hv9hMy7bFkB0Il3rK35MlPE3YBLBRhu0PoR2vM/y5ngG9ifJpHcbigiyz60VXXgDYSGRGB8wWvAfHUHkOeVwqhBqqaN7cH58GKDlC+RmO0AyDU3A2EixsuCN43xLCtoUIJeeQeqsvOxuJTsliF+KsMschVBen+dc9+XZfOzqsA3+u4d4LFhahJ/pMB5son9Yh1wiUAZhpSTWpfz+Wfi2Ey4gsQroGmEsuyJqz1n7mPPYcBEhScZq57CqMRcBQiZ/EfPpTXTYqx5TRdomJTwimINXK+0Zwh01+IejinKZtx+yyOC31vXlUlg2l9SKTLgVmmqiXVwP4N+QUN+PzedXdmH0xTqamMDfhovdidk1eXBu39IWQTxHOXSljthevgl6Rt/04K8e0GKjMz3kya+2fLOy3u2+if4PsEuCjQD2mNZCt97iMp+RACD/e4WeY41OYXQysdcbqKtIN3W1NHFHmwt/CuAIYUvzM4BdDLH1Jt3oNSDK5AudXmnEZ+U4up690tyCoI7Icp1MLsow55Nq/vL5931CncXmej5O+CyBBsMjEHYJhua/WSvJaL8UsddpWZpQcYO91iBvJB1VuDVseI3PnBsonybmvKPeC9mO2opXMj+ZDR/FGTH5nJ2HxjbhPryyImykffpjQtSZbDpRi+nor7ffOZ/ebRU5SUsEeYFx+ZE3cMgty9ieVm0I7gKFA1syfbbixkq5zsgPe291xMpt6fmkNRCe0y17Lz8PE6mqfvqHIr5dLugU4BfScmb+6msxG+kCCyGeRHgayGF+Lk741x3HcKFNpLagdsxrBmyY+Biws8sutcZ/+KuRO3KlElpncV8H/FtNGAy/xJSCM6YbOIMgdvcFCjxXqhEpJ/1LscPPW7agT2lJC+/52he9Danbe3VVF84t1RJdI9iCAGUsh9ATK/rfQQZn/mYfdgmEOvVxFel0d0askuxsYaejXmLukmqa9vRzjIqsxXZ9f/aWQMf8cUjtzjp78Ycn/AJgseAELXRyj6Q+9nRt8GvFIjj/7Mf9XMVqSAEkX3GbGDXl/rBPsBipCZledQ6bxWC/MwCUV3Qs2Oj+yJm6ZBXVUDJU6HgUtyKv+ttU6LioOyr6QUNAITM/50a6oJvMfSaJXgq+oInNrcTAmXfRmM7spLx4x0yzhW5F+KDjkTcuqST1f0G9gQnCQEfvm80rrMdNBwkW/g9kX8uKWmKVn6SiNYAMTgnZKxsRJbysi/3NgkeAFMy1B9j2ZVsZI/aKX81z0Icw+C7mLptF+3NUzaDxSrLeB8plO7mZgEfCWiQc6vH3jL8jshtwJJmk1uUJ3g1loQc8g2kh0Stb55ZiuAZCokXdfq6L5xdw+xo5u19BXu14kSLrjsE99pfg0OhqSRD9isl917kv6etynViUVPAFckB/OOHMzj1UjHQ0FP+bFZ+OWnn0s3RoITVGwCTg7P7QFGCPTTTFSD/e1zlGDYCMTI1mFXyZ/vGFaECe1ZiDEk5THTK4OkIn7ZXaejI/HyGztqZtwwXcxlhaWLbH0vFYmlIUoqRDM9k4xmZ0DhJE24/2T4sgvY+w90GmDyBeQvgO5/GaWPUuUHCyhPWjHzcKpWmZ/bjBBsi14PS2yj8fY1dKdd3SFyb7ZOWD8YyHV9YW1nFo6ToeSBmflh15rtdJZQ2n7sImfddnTP8RJ/dtAfNi5NwXP0vVSd8YtPbVPfaLnI3uqIMt0VX8BAMcIgoSL3onZP+VV6mOWivdVcRaQz7fryBWFCPZ703nVpH7XUzd/fP9PFxPVCNtn6E15nwbX7PDPHSLzwrG+xA0EpzixFRiWZ/C0pO3AYe/ZBdbsUONhShv7+qdRS2VZmdp2AJEcF7sn7jNfGsh+613wfTMK1+T7ZP6CGC3JhAvux/i7gq43Xz6Xll392Sygnsmne/nnKbwj2WNxn/nb/ufYxqLTbMtOS5/VXxfVq0Wso2Iclv1c54D5FQMJAIAEkU8oHwCAmdnnq0n3CgAA5JcWSTvjPvXJgazRzQR2BWhY13rhxXHrXUv0h1LarqAQANBU4t2K/ubUQCjpgvvIB4DBy2GzBefQ0pjjhu9ymt54OwEA4OVX0/WRHnI+dNOxdA2UJLLUy18r05dNPACEgJlTCZZA+v6+1up9WeT8MmBkXlobJ/ObgZBuZMYQids6B2R3FLdePSE4o0jcPZA1aqkckyB6XYLodQByel/R47Ymmt7oz8ZaTi2tI3pVnQvursk5ConPFJ6b9Gh//XkdFZOnKPglxhKgA+lfh5v/QHHxaN3+odioWirHDGSPAPn9Far9A2Z2YRXNL9ZSWdYAJcW6myifllSwFrkLzELzYqQeNvFQ1364eT0TRhbPSTJuVMIFD9Qz+XToEQRJxo2S2RcL8820kgHiAHv/Hjrby22tvmxVnxPE+iLprCTBZXaUoKxn8vg6goVJF/y4VG2PC16IkboDAG/FNsoqXHTVWk4t7WmjlokjEkTPT7jgu2N1aB1YyRCfXt51TGpUFy3rM23UESyTsv8HzMvVPKHpcZ/651m0HCrWjZP5DcaN5E5RldLab3qpZeKIhIvcg+z2/NCTWdP7m8isT7jI7WVqe73dBbdvoHxSkmB2wgXfyso9g/GrmKU6i+Gw71gFFOqmSEgl/7mByfEkFR9IEnzOVLoBb08ViuJuNUG34kj8OO7Tn+6POMA6po4Nq307ud7bzDSvmlRdfxsuc6EH8xctBR67gUZgn2C8QQAMQVorbw/FSD9TbCPXXUS+ibkvd91L8KbB7wR7QGMMmyQYL1GL18NVpJ7u2eUkiX4U2WMGY3J1DJc2kX5qMWTXM2FkmCGzzPHXmC029AeZ/bQd+3mhO+kLCSLnIncT2LmIH8nrvsMMaSjUKLmLrbYZhi5GthQoQVrjvH27cElUR/RsyZ7tYdoj+6n3/sa57Hqp57pJgs+Y+AG9675nvLmr59L8+8JAp0ItlWWlOvKysADUbuamV9O0vb9N5khGPiTpLoPRiDXVPr1sIPOgcKUbOk/OphkaLWy/efYIpT2WnEv61f5s/C+RiWHc+TjOFH6McK143wLaBfZMFZlt/dU1DYwd3UHpR8zpg4KJGENNZIAjeF51sKkM/2zPL36gWM+UaJiO83BMN5gKai8K3NfNs9XhNx+mpeFohXCS6JXm/F8CyLvfG/7ROJlX+lqzjsiH5NyVmK9Arkme/6oi9fgxfZEgem1CgSUUWMJF7/1jNnoSf5pwkPuhgQotIYfNu9v6mHMSJxgcwBGilwOnAEjcXU1T86CyOol3Fa4GQpLlWi7Y733ozsEmdRLvLlwF0cXA6QBmWn20HzcncWIj7GRLPTQ4sTVs3DPYhE7i3cf/A9zH7/1/RPFRAAAAAElFTkSuQmCC",
+            "name": "net-freebox-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "- Init pack",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Freebox using Rest API:\r\n* System\r\n* Network interface\r\n* DSL interface"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller une Freebox via Rest API :\r\n* System\r\n* Network interface\r\n* DSL interface"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIEAAAAZCAYAAAAWlU1+AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAABCgAAAQoBFqS8ywAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAuhSURBVGiB7Zl/eJTVlcc/3zsTEn7/JvMOAVOqVoEWXVgzE+hWrO12/UEXttK1tVrFbalbu3R3UaxUqrUWV7f6rLWtv9Z2a1tN292t+GCfujbtApkJRFtWAmpRVJKZCSAgiCQkc8/+MTPJJIEk9hHzlIfvf+e+5577vec97z3n3FecRC+sJ/o+B3OFRXFMxKgQTDMISkwz55DaM9gc30mE3ylDDYwdfZDRbfN5pfWdsjlYGAJveZhk4nKM0wAMMLF6jp1YAQCgP3ZiHRWTRXaxiYWCPwOGA5j4YbVPX/6OMRxEJBSsA+blxX0dVvLeD/LavsHkdDzwtk+C9USnhhy3mGXnmPEgZvcYrlyO6ZhVOm+PHg+i7zaSlMesKwCQcfOJGADwNoLAwCWJ3oTsekFNiaXPngPtnQr+uPAbNHiFVgoriDv2Mvx7g8nneGJA6aCWiSNKFX5E8HFgxz4bfuYFbG87ztwGDXWUv19ym8n7R6ZLY6ROiBPuaHD9KRi4MpX8JB8AYHbLiRwAAHJuBV0fyKYqUo8NJp/jjX7TQZJgBdhFOUkvtZJ+ZCCGa6ksG0b78CqaXz/a8xoIBUwd1VeeNXD1RM7waApoPFAmbL/Hv9hMy7bFkB0Il3rK35MlPE3YBLBRhu0PoR2vM/y5ngG9ifJpHcbigiyz60VXXgDYSGRGB8wWvAfHUHkOeVwqhBqqaN7cH58GKDlC+RmO0AyDU3A2EixsuCN43xLCtoUIJeeQeqsvOxuJTsliF+KsMschVBen+dc9+XZfOzqsA3+u4d4LFhahJ/pMB5son9Yh1wiUAZhpSTWpfz+Wfi2Ey4gsQroGmEsuyJqz1n7mPPYcBEhScZq57CqMRcBQiZ/EfPpTXTYqx5TRdomJTwimINXK+0Zwh01+IejinKZtx+yyOC31vXlUlg2l9SKTLgVmmqiXVwP4N+QUN+PzedXdmH0xTqamMDfhovdidk1eXBu39IWQTxHOXSljthevgl6Rt/04K8e0GKjMz3kya+2fLOy3u2+if4PsEuCjQD2mNZCt97iMp+RACD/e4WeY41OYXQysdcbqKtIN3W1NHFHmwt/CuAIYUvzM4BdDLH1Jt3oNSDK5AudXmnEZ+U4up690tyCoI7Icp1MLsow55Nq/vL5931CncXmej5O+CyBBsMjEHYJhua/WSvJaL8UsddpWZpQcYO91iBvJB1VuDVseI3PnBsonybmvKPeC9mO2opXMj+ZDR/FGTH5nJ2HxjbhPryyImykffpjQtSZbDpRi+nor7ffOZ/ebRU5SUsEeYFx+ZE3cMgty9ieVm0I7gKFA1syfbbixkq5zsgPe291xMpt6fmkNRCe0y17Lz8PE6mqfvqHIr5dLugU4BfScmb+6msxG+kCCyGeRHgayGF+Lk741x3HcKFNpLagdsxrBmyY+Biws8sutcZ/+KuRO3KlElpncV8H/FtNGAy/xJSCM6YbOIMgdvcFCjxXqhEpJ/1LscPPW7agT2lJC+/52he9Danbe3VVF84t1RJdI9iCAGUsh9ATK/rfQQZn/mYfdgmEOvVxFel0d0askuxsYaejXmLukmqa9vRzjIqsxXZ9f/aWQMf8cUjtzjp78Ycn/AJgseAELXRyj6Q+9nRt8GvFIjj/7Mf9XMVqSAEkX3GbGDXl/rBPsBipCZledQ6bxWC/MwCUV3Qs2Oj+yJm6ZBXVUDJU6HgUtyKv+ttU6LioOyr6QUNAITM/50a6oJvMfSaJXgq+oInNrcTAmXfRmM7spLx4x0yzhW5F+KDjkTcuqST1f0G9gQnCQEfvm80rrMdNBwkW/g9kX8uKWmKVn6SiNYAMTgnZKxsRJbysi/3NgkeAFMy1B9j2ZVsZI/aKX81z0Icw+C7mLptF+3NUzaDxSrLeB8plO7mZgEfCWiQc6vH3jL8jshtwJJmk1uUJ3g1loQc8g2kh0Stb55ZiuAZCokXdfq6L5xdw+xo5u19BXu14kSLrjsE99pfg0OhqSRD9isl917kv6etynViUVPAFckB/OOHMzj1UjHQ0FP+bFZ+OWnn0s3RoITVGwCTg7P7QFGCPTTTFSD/e1zlGDYCMTI1mFXyZ/vGFaECe1ZiDEk5THTK4OkIn7ZXaejI/HyGztqZtwwXcxlhaWLbH0vFYmlIUoqRDM9k4xmZ0DhJE24/2T4sgvY+w90GmDyBeQvgO5/GaWPUuUHCyhPWjHzcKpWmZ/bjBBsi14PS2yj8fY1dKdd3SFyb7ZOWD8YyHV9YW1nFo6ToeSBmflh15rtdJZQ2n7sImfddnTP8RJ/dtAfNi5NwXP0vVSd8YtPbVPfaLnI3uqIMt0VX8BAMcIgoSL3onZP+VV6mOWivdVcRaQz7fryBWFCPZ703nVpH7XUzd/fP9PFxPVCNtn6E15nwbX7PDPHSLzwrG+xA0EpzixFRiWZ/C0pO3AYe/ZBdbsUONhShv7+qdRS2VZmdp2AJEcF7sn7jNfGsh+613wfTMK1+T7ZP6CGC3JhAvux/i7gq43Xz6Xll392Sygnsmne/nnKbwj2WNxn/nb/ufYxqLTbMtOS5/VXxfVq0Wso2Iclv1c54D5FQMJAIAEkU8oHwCAmdnnq0n3CgAA5JcWSTvjPvXJgazRzQR2BWhY13rhxXHrXUv0h1LarqAQANBU4t2K/ubUQCjpgvvIB4DBy2GzBefQ0pjjhu9ymt54OwEA4OVX0/WRHnI+dNOxdA2UJLLUy18r05dNPACEgJlTCZZA+v6+1up9WeT8MmBkXlobJ/ObgZBuZMYQids6B2R3FLdePSE4o0jcPZA1aqkckyB6XYLodQByel/R47Ymmt7oz8ZaTi2tI3pVnQvursk5ConPFJ6b9Gh//XkdFZOnKPglxhKgA+lfh5v/QHHxaN3+odioWirHDGSPAPn9Far9A2Z2YRXNL9ZSWdYAJcW6myifllSwFrkLzELzYqQeNvFQ1364eT0TRhbPSTJuVMIFD9Qz+XToEQRJxo2S2RcL8820kgHiAHv/Hjrby22tvmxVnxPE+iLprCTBZXaUoKxn8vg6goVJF/y4VG2PC16IkboDAG/FNsoqXHTVWk4t7WmjlokjEkTPT7jgu2N1aB1YyRCfXt51TGpUFy3rM23UESyTsv8HzMvVPKHpcZ/651m0HCrWjZP5DcaN5E5RldLab3qpZeKIhIvcg+z2/NCTWdP7m8isT7jI7WVqe73dBbdvoHxSkmB2wgXfyso9g/GrmKU6i+Gw71gFFOqmSEgl/7mByfEkFR9IEnzOVLoBb08ViuJuNUG34kj8OO7Tn+6POMA6po4Nq307ud7bzDSvmlRdfxsuc6EH8xctBR67gUZgn2C8QQAMQVorbw/FSD9TbCPXXUS+ibkvd91L8KbB7wR7QGMMmyQYL1GL18NVpJ7u2eUkiX4U2WMGY3J1DJc2kX5qMWTXM2FkmCGzzPHXmC029AeZ/bQd+3mhO+kLCSLnIncT2LmIH8nrvsMMaSjUKLmLrbYZhi5GthQoQVrjvH27cElUR/RsyZ7tYdoj+6n3/sa57Hqp57pJgs+Y+AG9675nvLmr59L8+8JAp0ItlWWlOvKysADUbuamV9O0vb9N5khGPiTpLoPRiDXVPr1sIPOgcKUbOk/OphkaLWy/efYIpT2WnEv61f5s/C+RiWHc+TjOFH6McK143wLaBfZMFZlt/dU1DYwd3UHpR8zpg4KJGENNZIAjeF51sKkM/2zPL36gWM+UaJiO83BMN5gKai8K3NfNs9XhNx+mpeFohXCS6JXm/F8CyLvfG/7ROJlX+lqzjsiH5NyVmK9Arkme/6oi9fgxfZEgem1CgSUUWMJF7/1jNnoSf5pwkPuhgQotIYfNu9v6mHMSJxgcwBGilwOnAEjcXU1T86CyOol3Fa4GQpLlWi7Y733ozsEmdRLvLlwF0cXA6QBmWn20HzcncWIj7GRLPTQ4sTVs3DPYhE7i3cf/A9zH7/1/RPFRAAAAAElFTkSuQmCC",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Freebox-Restapi\r\n\r\n### Rest API\r\nThe plugin need an AppID and a AppToken. To create a token, you can use that command (you'll need to be near your freebox because you have to validate the token on the freebox screen):\r\n\r\n   $ curl http://mafreebox.free.fr/api/v4/login/authorize/ -H \"Content-type: application/json\" -d '{ \"app_id\": \"centreon\", \"app_name\": \"Test Centreon\", \"app_version\": \"1.0.0\", \"device_name\": \"centreon monitoring server\" }'\r\n   {\"success\":true,\"result\":{\"app_token\":\"uU2avKR3BM6Gf\\/VeV5lSy\\/rKsLg8CCX8K4jviMCokQdDeYfn\\/IGhqa9\\/brszrhXU\",\"track_id\":0}}\r\n\r\nYou have to remove backslash characters and you have your AppToken. You can check if your AppToken is valid with the following command:\r\n\r\n   $ curl http://mafreebox.free.fr/api/v4/login/authorize/0\r\n   {\"success\":true,\"result\":{\"status\":\"granted\",\"challenge\":\"cfMfSY6HufMVspzod9uh8ikGNyVhRe1M\",\"password_salt\":\"3MQ+O16Q8zY7eSUdLfndcSkc6jitkGoP\"}}\r\n\r\nIf the status is 'granted', that's ok!\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Freebox-Restapi-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Freebox",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_freebox_restapi.pl",
+                "package_name": "centreon-plugin-Network-Freebox-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-freebox-restapi",
+        "status": "dev",
+        "status_message": "",
+        "tags": [
+            "Network",
+            "Freebox"
+        ],
+        "update_date": "1511345982",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation syst\u00e8me.}\r\n{EN: Check system usage.}",
+            "active_checks_enabled": 2,
+            "alias": "System",
+            "check_timeperiod": "",
+            "command_name": "Net-Freebox-RESTAPI-System",
+            "discovery_list_mode": "N",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGWIFISTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /bad_param/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALWIFISTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /failed/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALDISKSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /error/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Freebox-System-RESTAPI",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation r\u00e9seau.}\r\n{EN: Check network usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Net-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Freebox-RESTAPI-Net-Usage",
+            "discovery_list_mode": "N",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Freebox-Net-Usage-RESTAPI",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation DSL.}\r\n{EN: Check DSL usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Dsl-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Freebox-RESTAPI-Dsl-Usage",
+            "discovery_list_mode": "N",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Freebox-Dsl-Usage-RESTAPI",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

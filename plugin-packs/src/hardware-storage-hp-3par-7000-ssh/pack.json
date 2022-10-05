@@ -1,0 +1,623 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hp_3par_7000.pl --plugin=storage::hp::3par::7000::plugin --mode=volume --hostname $HOSTADDRESS$ --ssh-option=\\'-l=$_HOSTSSHUSERNAME$\\' --regexp --name --volume=\\'$_SERVICEVOLUMENAME$\\' --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_HOSTSSHEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-HP-3par-7000-SSH-Volume-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hp_3par_7000.pl --plugin=storage::hp::3par::7000::plugin --mode=temperature --hostname $HOSTADDRESS$ --ssh-option=\\'-l=$_HOSTSSHUSERNAME$\\' $_HOSTSSHEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-HP-3par-7000-SSH-Temperature",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hp_3par_7000.pl --plugin=storage::hp::3par::7000::plugin --mode=psu --hostname $HOSTADDRESS$ --ssh-option=\\'-l=$_HOSTSSHUSERNAME$\\' $_HOSTSSHEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-HP-3par-7000-SSH-Psu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hp_3par_7000.pl --plugin=storage::hp::3par::7000::plugin --mode=physicaldisk --hostname $HOSTADDRESS$ --ssh-option=\\'-l=$_HOSTSSHUSERNAME$\\' $_HOSTSSHEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-HP-3par-7000-SSH-Physical-Disk",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hp_3par_7000.pl --plugin=storage::hp::3par::7000::plugin --mode=node --hostname $HOSTADDRESS$ --ssh-option=\\'-l=$_HOSTSSHUSERNAME$\\' $_HOSTSSHEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-HP-3par-7000-SSH-Node",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hp_3par_7000.pl --plugin=storage::hp::3par::7000::plugin --mode=storage --hostname $HOSTADDRESS$ --ssh-option=\\'-l=$_HOSTSSHUSERNAME$\\' --regexp --disk=\\'$_SERVICEDISKID$\\' --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' --filter-type=\\'$_SERVICEDISKTYPE$\\' $_HOSTSSHEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-HP-3par-7000-SSH-Disk-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hp_3par_7000.pl --plugin=storage::hp::3par::7000::plugin --mode=battery --hostname $HOSTADDRESS$ --ssh-option=\\'-l=$_HOSTSSHUSERNAME$\\' $_HOSTSSHEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-HP-3par-7000-SSH-Battery",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hp_3par_7000.pl --plugin=storage::hp::3par::7000::plugin --mode=cim --hostname $HOSTADDRESS$ --ssh-option=\\'-l=$_HOSTSSHUSERNAME$\\' $_HOSTSSHEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-HP-3par-7000-SSH-CIM",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hp_3par_7000.pl --plugin=storage::hp::3par::7000::plugin --mode=wsapi --hostname $HOSTADDRESS$ --ssh-option=\\'-l=$_HOSTSSHUSERNAME$\\' $_HOSTSSHEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-HP-3par-7000-SSH-WSAPI",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hp_3par_7000.pl --plugin=storage::hp::3par::7000::plugin --mode=storage --hostname $HOSTADDRESS$ --ssh-option=\\'-l=$_HOSTSSHUSERNAME$\\' --disk=\\'$_SERVICEDISKID$\\' --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' --filter-type=\\'$_SERVICEDISKTYPE$\\' $_HOSTSSHEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-HP-3par-7000-SSH-Disk-Id",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hp_3par_7000.pl --plugin=storage::hp::3par::7000::plugin --mode=volume --hostname $HOSTADDRESS$ --ssh-option=\\'-l=$_HOSTSSHUSERNAME$\\' --name --volume=\\'$_SERVICEVOLUMENAME$\\' --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_HOSTSSHEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-HP-3par-7000-SSH-Volume-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hp_3par_7000.pl --plugin=storage::hp::3par::7000::plugin --mode=volume --hostname $HOSTADDRESS$ --ssh-option=\\'-l=$_HOSTSSHUSERNAME$\\' --volume=\\'$_SERVICEVOLUMEID$\\' --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_HOSTSSHEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-HP-3par-7000-SSH-Volume-Id",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hp_3par_7000.pl --plugin=storage::hp::3par::7000::plugin --mode=iscsi --hostname $HOSTADDRESS$ --ssh-option=\\'-l=$_HOSTSSHUSERNAME$\\' $_HOSTSSHEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-HP-3par-7000-SSH-ISCSI",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check HP 3par 7000 series using SSH protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "hp-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSSHEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTSSHUSERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTSENSORMETRIXEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTSENSORMETRIXURLPATHCONTACT$",
+                    "value": "/index.htm?eL"
+                },
+                {
+                    "key": "$_HOSTSENSORMETRIXURLPATHFLOOD$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTSENSORMETRIXURLPATHHIL$",
+                    "value": "/index.htm?em"
+                },
+                {
+                    "key": "$_HOSTSENSORMETRIXURLPATHTHERMISTOR$",
+                    "value": "/index.htm?eR"
+                },
+                {
+                    "key": "$_HOSTSENSORMETRIXURLPATHVOLTAGE$",
+                    "value": "/index.htm?ev"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-HP-3par-7000-SSH",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Storage-HP-3par-7000-Volume-Global-SSH",
+                "HW-Storage-HP-3par-7000-Temperature-SSH",
+                "HW-Storage-HP-3par-7000-Psu-SSH",
+                "HW-Storage-HP-3par-7000-Physical-Disk-SSH",
+                "HW-Storage-HP-3par-7000-Node-SSH",
+                "HW-Storage-HP-3par-7000-Disk-Global-SSH",
+                "HW-Storage-HP-3par-7000-Battery-SSH"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAH4AAAB+CAYAAADiI6WIAAAIJElEQVR42u1dOwplRRAdd+EqXIUrMDN1AYI70A2YaChmImYmExgqRmKigTDRGAmKgYIo+OHJGbxyubzbt0/3qeqqfl3Q0Qwz9/Wp/6nufvJkyZIlS5YsWbJkyZIlk8rtAeTp189vr7/72d31zidf3T76/Nnt2+9/vj3/8df0v3VK4H/65fcXILHyylsf31567f3q9erbn97ee/rN7cvvfrj99sefC3hv+evvf15s/psffHF7+Y0P/weFEVgyA/q9BcWBZ4DiLeAdwL4HAv6MEQDWC/xRCeANoipBOuDhUgHSZtlnC4rByNW/16sErCIu4P8TJFRn1n1c+Hvebr5mQbmQe7BK+ZDAw1Uiq2Y2GECOdPM1CoAwMFIBwgK/ufSWTWVzBU/Qo3iAkMCjnm6NuVAWRhB7RwG/zwFYLzUV8HDrKMN6NpFtrtTmDR4L3+Jl/WGAh5UrLIcNJ1FA37t/D+sfDjw0XGV1SJi8lc1qsb8lFfBw7WybtLTYtmlvWLFe+D4r1z8MeCRVyqYJ26KN6ObPwpdF928I8BaZNNw2I3ClGYC3ivvuwFs1S1g3rwwxXkvZ9nUF3gp0tkUL15kNdDX4bsBbtkVHM3EZwXcB3nqjIzFxWcA3B966Jcq2aL2YOI+EryfbNwXeY5OjM3FRwTcDHh9k7VIzMXHRmjwmwONDPLpiGZm4CFWNGfBejBfr5iIxcerFThXLgfciPmZg4kYaghR4bK5XqTQTE6c0htp4LwWenY1bTNw4g5AB75k4zcrEebp8CfBwL57dsJmZOMWC53UB3ntjH4GJs27pdgPv7UYfiYmzrHq6gfdugbLkxKO5+dq96gJ+RNLEticf0c3XWH0X8N7WHvVMXEarbwbeO5N/dCZOXfo2A+/dCWOZuC2xw8ma0oJFQEF6QgJbXtaQXPtv6927e6eLmoH3jp0sE9c6P9DixayvQWk5MXy1d03AjyiRvC4cYg951DRLVNJaoUCZj0lxE/DeJRLLxPUKU6143nQB8Fo97fE7m4D3Tuqsz5H1lIHeZ9tbK5VjRUQDP6JEGnGBUI1Xa5l88fRGJSWlgfcukVg3jx+HaZR7i8kTahScLS/x9+99FxsuFDU9Dbx3Ns+WSthIhee4opnZ8rKUEDOhrMfi99k9BfyIFq2KiWM9x5VnY8vLUuhgFLKnf7LfAwp47/iuvJ2SHUa8mthhy0uVQvYOjG6GRAHvXcYpz8QxnuNq/p4Fq+TmmVCmOBew7SkFvPfcmupMHOs5ruI7W16qFFIx3rZ9OwV8ViaOTRCv2qNsealSSMW5gK3TWA28d2LHuvnSpjCe4+p3KvMObze/r0aqgUcy48nEMWCVNoX1HFdZM+s9Sm6e+Y3KKWb8v9XAe9KwyjNxrOe4ymPYJPHMzbMKqTz+BSOuBr7UGBk9cHG2KaznuHLzLBOnUkh1mKWA9zpwyHbESpvCeo4r5VblHaxCqr0tfmc18F7Ho5Rn4ljPcdWOVuUdrEKqy+iQwLOl0tmmKHvpLTG55OYZhbSopsIBrzz6zHqOq64k6z1UCmmRVFPAe7BySrBYz1H6fcq8g/2NFvtOAT8zE3dFPrExuWSljEJazTaGAp7tiKn47RoKdhQTZ0WKUcBbEzTKo8+s5yjNECqZOJYatgqvoZI7FVijmTiVQlq2yMMAP5KJu2pMqZJEViEtZxvDAB914GIUE3cVfhRhtRp4Sw1kO2Iq4uPKzY9i4qxH3EKQNEqwFhNnALyVFqqYOPXAxSgmzuO+3eGDGMpLiNUDF6MmgDyujRs+c6fsiM3CxFm7+S1hpYBXNxTYjlhUJk6lkB5zjU1TtkptVDJxylMtszFxkrl65YexHbFSVaF08yMngDzOLWwNKQp4ZYKn6oiNZuJU1LDX+Pom9GnZxcTZKKTHMOu+RKWBV8R5JROnOtXSAlbJA0YYuCjtOw28os5UMXFqN8+Chb2AFe0XPAqsl/mNXpdJ7b+JBr43FrEdschMnEo8TiEfw2vT5Uc92ecsTJxKvG4IPXqzJuB7yjpVR0w9cKG+nbJWRo2tNwHfSiQoO2LKXrrH7ZSjXPxZLtR8pWkLP48POCZDpVVygbB45t+KcjvlZjieh1DvGUkz8J7HpjM8y13ToMH/4/3o4dk5va776md5BGDmZ8jPStQu4Gd4q1U9rhVtneUu3W/SZLd65QRQpmfIuoHPbPWzP0NeqlQk785lfb5z5mfIr36bBPisGb5qAiiiJ7vqS8jels328M/Mz5DXnNGTAT/iVaooV65kVGjpM+KZ3mhXXpyQMXxJgc9S7igngLJ6MTnwGVz+jM+Qs8osB75m0iVyfZuxRYvvY0OXCfBew4OjJ4Cydh9NgY9a4ikngLKUbu7AI95Ha3qozuJn7Dy6AR8N/JmYuN4ZQXPgt3IoguXMwsQB9N4XLl2AjwD+LEycAnRX4EeDrzyLnx10d+A3smNEzM/OxCHsKB8wdgd+RMKXnYnryd5DAb+B71UjK8/iR28vhwfeM5ZmZOKQC7HhKRXw2wSP1WZnZOLQVlbG87DAb67fggXLxsR5neELA/yeFFFafxYmDlbueX4vHPCb9SsSrAxMHBSthV2bEvh9WdWT+Udm4gA4lNs6lqcEvlcBIjJxowFPBfxRAWoAisbEIW9B4jYa8JTA760Tm1jq/kVh4vDvehzDfgjgj14AJdheCUYzcfiWSNY9JfBHJYB1sbVwb/cQbhwhCP93ZLCnBb5VGMJou4IFCRrCyYi7cxbwIgGI9xZaydvKYsly4JcsWbJkyZIlqeVfP71bR0eSDlEAAAAASUVORK5CYII=",
+            "name": "hp-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* deprecated",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor HP 3PAR 7000 storage via SSH:\r\n* Battery\r\n* CIM\r\n* Disk (Global or via Id)\r\n* ISCSI\r\n* Node\r\n* Physical-disck\r\n* Psu\r\n* Temperature\r\n* Volume (by Name, ID or all volumes)\r\n* WSAPI\r\n\r\n*The Pack HP 3PAR SSH must be used instead of this one*"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller les stockage HP 3PAR 7000 via SSH :\r\n* Battery\r\n* CIM\r\n* Disk (Global or via Id)\r\n* ISCSI\r\n* Node\r\n* Physical-disck\r\n* Psu\r\n* Temperature\r\n* Volume (by Name, ID or all volumes)\r\n* WSAPI\r\n\r\n*LePack HP 3PAR SSH doit \u00eatre utilis\u00e9 en lieu et place de celui-ci*"
+            }
+        ],
+        "discovery_category": "storage",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\nThis chapter describes the prerequisites installation needed by plugins\r\nto run.\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Storage-Hp-3par-7000-Ssh\r\n\r\n### Configure SSH connection\r\nOn each needed poller follow this steps:\r\n\r\na. Login with 'centreon-engine' user:\r\n\r\n    # su - centreon-engine\r\n\r\nb. If SSH doesn't exist, generate SSH key using following command (press ENTER for each question):\r\n\r\n    $ ssh-keygen\r\n\r\nc. Get generated SSH public key\r\n\r\n    $ vi ~/.ssh/id_rsa.pub\r\n\r\nd. Connect to your HP 3PAR equipment using SSH with administrator account and copy centreon-engine public key:\r\n\r\n    3PAR01 cli% setsshkey\r\n    Please enter the SSH public key below.\u00a0 When finished, press enter twice.\r\n    The key is usually long.\u00a0 It's better to copy it from inside an editor\r\n    and paste it here.\u00a0 (Please make sure there are no extra blanks.)\r\n    The maximum number of characters used to represent the SSH key\r\n    (including the \"from\" option, key type, and additional comments) is 4095.\r\n\r\n    ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAydSr8dvdf+N5apCrij3eom6a6gMZUibiBp6GUurADktPtm1jBdbZ2GVhnwiaeUqiwgxsBSjiGCKRlpIN/zBzM59li4k+fbhyO7SzXfB3IV3ueSVKlrVljyHQL6GqUjj9opxCg8jyKerCx6iTyqUvIJ4zmhaJXQAzxQFE7YLiuaaNN9ylH1z9ebuMZZKUh0gpXNT3ID4Ea+In5CAoPopwF50EdAIZ4QkS1EibhI9Lar8GqXMyHTNR/ZapvZ/KpI3lhduLT5OJ2QMbBzVrQFKXiLbYnU2AASYyFsQQC+7YASFwIEQ6D3sp0Wg8G1Dw/jmM01CsqthTm7j1Mw070OuJSw== centreon-engine@myserver\r\n    \r\n    SSH public key successfully set.\r\n    \r\n    3PAR01 cli%\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n| Field                   | Value                              |\r\n|-------------------------|------------------------------------|\r\n| Host name               | Name of the host                   |\r\n| Alias                   | Host description                   |\r\n| IP                      | Host IP Address                    |\r\n| Monitored from          | Monitoring Poller to use           |\r\n| Host Multiple Templates | HW-Storage-HP-3par-7000-SSH-custom |\r\n\r\nNotice: In macro \"SSHUSERNAME\" define the administrator account used to copy public SSH key of centreon-engine user.\r\n\r\nClick on the *Save* button.",
+        "name": "HP 3PAR 7000",
+        "plugins_requirements": [],
+        "requirement": [
+            {
+                "name": "ces-plugins-Hardware-Storage-Hp-3par-7000-Ssh",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "hardware-storage-hp-3par-7000-ssh",
+        "status": "deprecated",
+        "status_message": "deprecated",
+        "tags": [
+            "3PAR",
+            "HP",
+            "SAN",
+            "Storage",
+            "7000"
+        ],
+        "update_date": "1570005825",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'espace utilis\u00e9 sur les volumes.}\r\n\r\n{EN: Check used space on volumes.}",
+            "active_checks_enabled": 2,
+            "alias": "Volume-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-HP-3par-7000-SSH-Volume-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEVOLUMENAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-HP-3par-7000-Volume-Global-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la temp\u00e9rature de divers sondes.}\r\n\r\n{EN: Check temperature on several sensors.}",
+            "active_checks_enabled": 2,
+            "alias": "Temperature",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-HP-3par-7000-SSH-Temperature",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-HP-3par-7000-Temperature-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des sources d'alimentation.}\r\n\r\n{EN: Check power supplies state.}",
+            "active_checks_enabled": 2,
+            "alias": "Psu",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-HP-3par-7000-SSH-Psu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-HP-3par-7000-Psu-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des disques physiques.}\r\n\r\n{EN: Check physical disks state.}",
+            "active_checks_enabled": 2,
+            "alias": "Physical-Disk",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-HP-3par-7000-SSH-Physical-Disk",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-HP-3par-7000-Physical-Disk-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des noeuds.}\r\n\r\n{EN: Check nodes state.}",
+            "active_checks_enabled": 2,
+            "alias": "Node",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-HP-3par-7000-SSH-Node",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-HP-3par-7000-Node-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'espace utilis\u00e9 sur les disques physiques.}\r\n\r\n{EN: Check used space on physical disks.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-HP-3par-7000-SSH-Disk-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEDISKID$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEDISKTYPE$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-HP-3par-7000-Disk-Global-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de la batterie.}\r\n\r\n{EN: Check battery status.}",
+            "active_checks_enabled": 2,
+            "alias": "Battery",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-HP-3par-7000-SSH-Battery",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-HP-3par-7000-Battery-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut du service CIM.}\r\n\r\n{EN: Check CIM service status.}",
+            "active_checks_enabled": 2,
+            "alias": "CIM",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-HP-3par-7000-SSH-CIM",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-HP-3par-7000-CIM-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut du service WSAPI.}\r\n\r\n{EN: Check WSAPI service status.}",
+            "active_checks_enabled": 2,
+            "alias": "WSAPI",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-HP-3par-7000-SSH-WSAPI",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-HP-3par-7000-WSAPI-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'espace utilis\u00e9 sur un disque physique.}\r\n\r\n{EN: Check used space on physical disk.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Id",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-HP-3par-7000-SSH-Disk-Id",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEDISKID$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEDISKTYPE$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-HP-3par-7000-Disk-Id-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'espace utilis\u00e9 sur un volume.}\r\n\r\n{EN: Check used space on a volume.}",
+            "active_checks_enabled": 2,
+            "alias": "Volume-Name",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-HP-3par-7000-SSH-Volume-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEVOLUMENAME$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-HP-3par-7000-Volume-Name-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'espace utilis\u00e9 sur un volume.}\r\n\r\n{EN: Check used space on a volume.}",
+            "active_checks_enabled": 2,
+            "alias": "Volume-Id",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-HP-3par-7000-SSH-Volume-Id",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEVOLUMEID$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-HP-3par-7000-Volume-Id-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des points de montage ISCSI.}\r\n\r\n{EN: Check ISCSI mount points.}",
+            "active_checks_enabled": 2,
+            "alias": "ISCSI",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-HP-3par-7000-SSH-ISCSI",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-HP-3par-7000-ISCSI-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

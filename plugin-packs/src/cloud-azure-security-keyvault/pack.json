@@ -1,0 +1,1161 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Security-KeyVault-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Security Key Vault resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.KeyVault/vaults/KEY123456ABCD78",
+                            "location": "westeurope",
+                            "name": "KEY123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.KeyVault/vaults"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.KeyVault/vaults/KEY789012EFGH34",
+                            "location": "westus",
+                            "name": "KEY789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.KeyVault/vaults"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": "discovery.results.id"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Security-KeyVault-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Key Vault",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-security-keyvault",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Security-KeyVault-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Security Key Vault resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.KeyVault/vaults/KEY123456ABCD78",
+                            "location": "westeurope",
+                            "name": "KEY123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.KeyVault/vaults"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.KeyVault/vaults/KEY789012EFGH34",
+                            "location": "westus",
+                            "name": "KEY789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.KeyVault/vaults"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Security-KeyVault-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Key Vault",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-security-keyvault",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Security-KeyVault-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Security Key Vault resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.KeyVault/vaults/KEY123456ABCD78",
+                            "location": "westeurope",
+                            "name": "KEY123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.KeyVault/vaults"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.KeyVault/vaults/KEY789012EFGH34",
+                            "location": "westus",
+                            "name": "KEY789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.KeyVault/vaults"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Security-KeyVault-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Key Vault",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-security-keyvault",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_security_keyvault_api.pl --plugin=cloud::azure::security::keyvault::plugin --mode=vault-capacity --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-vault-saturation-percentage=\\'$_SERVICEWARNINGVAULTSATURATIONPERCENTAGE$\\' --critical-vault-saturation-percentage=\\'$_SERVICECRITICALVAULTSATURATIONPERCENTAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Security-KeyVault-Api-Vault-Capacity",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_security_keyvault_api.pl --plugin=cloud::azure::security::keyvault::plugin --mode=vault-availability --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-vault-availability-percentage=\\'$_SERVICEWARNINGVAULTAVAILABILITYPERCENTAGE$\\' --critical-vault-availability-percentage=\\'$_SERVICECRITICALVAULTAVAILABILITYPERCENTAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Security-KeyVault-Api-Vault-Availability",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_security_keyvault_api.pl --plugin=cloud::azure::security::keyvault::plugin --mode=service-api --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-serviceapi-latency=\\'$_SERVICEWARNINGSERVICEAPILATENCY$\\' --critical-serviceapi-latency=\\'$_SERVICECRITICALSERVICEAPILATENCY$\\' --warning-serviceapi-results=\\'$_SERVICEWARNINGSERVICEAPIRESULTS$\\' --critical-serviceapi-results=\\'$_SERVICECRITICALSERVICEAPIRESULTS$\\' --warning-serviceapi-hits=\\'$_SERVICEWARNINGSERVICEAPIHITS$\\' --critical-serviceapi-hits=\\'$_SERVICECRITICALSERVICEAPIHITS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Security-KeyVault-Api-ServiceApi",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_security_keyvault_api.pl --statefile-suffix='autodiscovery' --plugin=cloud::azure::security::keyvault::plugin --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Security-KeyVault-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les instances Azure Key Vault via l'API}\r\n{EN: Template to check Azure Key Vault resources service using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Security Key Vault service using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-security-keyvault-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Security-KeyVault",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Security-KeyVault-Vault-Capacity-Api",
+                "Cloud-Azure-Security-KeyVault-Vault-Availability-Api",
+                "Cloud-Azure-Security-KeyVault-ServiceApi-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-security-keyvault-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ add proper tags management",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Azure Key Vault service using RestAPI or AZCLI.**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|Cloud-Azure-Security-KeyVault-custom|\r\n|---|\r\n|Service-Api|\r\n|Vault-Availability|\r\n|Vault-Capacity|\r\n\r\nThis Plugin-Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin-Pack pour superviser les resources Azure Key Vault via RestAPI ou AZCLI.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponibles et services associ\u00e9s:\r\n\r\n|Cloud-Azure-Security-KeyVault-custom|\r\n|---|\r\n|Service-Api|\r\n|Vault-Availability|\r\n|Vault-Capacity|\r\n\r\nCe Plugin-Pack fournit un *provider* Host Discovery pour le module d\\'auto-d\u00e9couverte d\\'H\u00f4tes"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure Key Vault",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_security_keyvault_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Security-KeyVault-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-security-keyvault",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Cloud",
+            "Azure",
+            "Microsoft",
+            "Security",
+            "HostDisco",
+            "API",
+            "Restapi"
+        ],
+        "update_date": "1636825463",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le la capacit\u00e9 des Vaults Azure Key Vault.}\r\n\r\n{EN: Check Azure Key Vault capacity.}",
+            "active_checks_enabled": 2,
+            "alias": "Vault-Capacity",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Security-KeyVault-Api-Vault-Capacity",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Security-KeyVault-Vault-Capacity-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la disponibilit\u00e9 des Vaults Azure Key Vault.}\r\n\r\n{EN: Check Azure Key Vault availability.}",
+            "active_checks_enabled": 2,
+            "alias": "Vault-Availability",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Security-KeyVault-Api-Vault-Availability",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Security-KeyVault-Vault-Availability-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques de la ServiceAPI des Vaults Azure Key Vault.}\r\n\r\n{EN: Check Azure Key Vault ServiceAPI capacity.}",
+            "active_checks_enabled": 2,
+            "alias": "Service-Api",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Security-KeyVault-Api-ServiceApi",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Security-KeyVault-ServiceApi-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

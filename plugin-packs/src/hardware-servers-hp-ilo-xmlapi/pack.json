@@ -1,0 +1,129 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hp_ilo_xmlapi.pl --plugin=hardware::server::hp::ilo::xmlapi::plugin --mode=hardware --hostname=\\'$HOSTADDRESS$\\' --username=\\'$_HOSTILOUSERNAME$\\' --password=\\'$_HOSTILOPASSWORD$\\' $_HOSTILOEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Hp-Ilo-Xmlapi-Hardware",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les serveurs HP via l'api XML des cartes ILO}\r\n{EN: Template to check HP servers using XML API of ILO cards}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check HP server using ILO and XML API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "hardware-hp.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Server-Hp-Ilo-Xmlapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Hp-Ilo-Hardware-Global-Xmlapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "hardware-hp.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ logo update",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor HP Ilo server via XML API:\r\n* Hardware-Global"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un serveur HP Ilo via XML API :\r\n* Hardware-Global"
+            }
+        ],
+        "discovery_category": "hardware-server",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "HP Ilo XMLAPI",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_hp_ilo_xmlapi.pl",
+                "package_name": "centreon-plugin-Hardware-Servers-Hp-Ilo-Xmlapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "centreon-plugin-Hardware-Servers-Hp-Ilo-Xmlapi",
+                "version": "20161212-1"
+            }
+        ],
+        "slug": "hardware-servers-hp-ilo-xmlapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "HP",
+            "Ilo",
+            "Hardware"
+        ],
+        "update_date": "1628778945",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les composants.}\r\n\r\n{EN: Check components.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Hp-Ilo-Xmlapi-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Hp-Ilo-Hardware-Global-Xmlapi",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

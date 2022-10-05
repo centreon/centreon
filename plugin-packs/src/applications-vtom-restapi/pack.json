@@ -1,0 +1,216 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-Vtom-Restapi-Jobs-Discover",
+                "command_for_macro": "App-Vtom-Restapi-Jobs-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-Vtom-Restapi"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    },
+                    {
+                        "is_empty": null,
+                        "name": "FILTERENVIRONMENT",
+                        "value": "^$environment$$"
+                    },
+                    {
+                        "is_empty": null,
+                        "name": "FILTERAPPLICATION",
+                        "value": "^$application$$"
+                    }
+                ],
+                "name": "App-Vtom-Restapi-Job-Name",
+                "service_display_name": "Job-$environment$-$application$-$name$",
+                "service_template": "App-Vtom-Jobs-Restapi"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_vtom_restapi.pl --plugin=apps::vtom::restapi::plugin  --mode=list-jobs --custommode=api --hostname=none --api-username=none --api-password=none --disco-format\\\"",
+            "name": "App-Vtom-Restapi-Jobs-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_vtom_restapi.pl --plugin=apps::vtom::restapi::plugin --mode=list-jobs --custommode=\\'$_HOSTVTOMCUSTOMMODE$\\' --hostname=\\'$HOSTADDRESS$\\' --token=\\'$_HOSTVTOMAPITOKEN$\\' --api-username=\\'$_HOSTVTOMAPIUSERNAME$\\' --api-password=\\'$_HOSTVTOMAPIPASSWORD$\\'  --port=\\'$_HOSTVTOMAPIPORT$\\' --proto=\\'$_HOSTVTOMAPIPROTO$\\' $_HOSTVTOMAPIEXTRAOPTIONS$ --statefile-suffix=\\'-autodiscovery\\' --disco-show\\\"",
+            "name": "App-Vtom-Restapi-Jobs-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_vtom_restapi.pl --plugin=apps::vtom::restapi::plugin --mode=jobs --custommode=\\'$_HOSTVTOMCUSTOMMODE$\\' --hostname=\\'$HOSTADDRESS$\\' --token=\\'$_HOSTVTOMAPITOKEN$\\' --api-username=\\'$_HOSTVTOMAPIUSERNAME$\\' --api-password=\\'$_HOSTVTOMAPIPASSWORD$\\'  --port=\\'$_HOSTVTOMAPIPORT$\\' --proto=\\'$_HOSTVTOMAPIPROTO$\\' $_HOSTVTOMAPIEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --filter-environment=\\'$_SERVICEFILTERENVIRONMENT$\\' --filter-application=\\'$_SERVICEFILTERAPPLICATION$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-long=\\'$_SERVICEWARNINGLONG$\\' --critical-long=\\'$_SERVICECRITICALLONG$\\' --warning-success-prct=\\'$_SERVICEWARNINGSUCCESSPRCT$\\' --critical-success-prct=\\'$_SERVICECRITICALSUCCESSPRCT$\\' --warning-running=\\'$_SERVICEWARNINGRUNNING$\\' --critical-running=\\'$_SERVICECRITICALRUNNING$\\' --warning-errors=\\'$_SERVICEWARNINGERRORS$\\' --critical-errors=\\'$_SERVICECRITICALERRORS$\\' --warning-waiting=\\'$_SERVICEWARNINGWAITING$\\' --critical-waiting=\\'$_SERVICECRITICALWAITING$\\' --warning-finished=\\'$_SERVICEWARNINGFINISHED$\\' --critical-finished=\\'$_SERVICECRITICALFINISHED$\\' --warning-notscheduled=\\'$_SERVICEWARNINGNOTSCHEDULED$\\' --critical-notscheduled=\\'$_SERVICECRITICALNOTSCHEDULED$\\' --warning-descheduled=\\'$_SERVICEWARNINGDESCHEDULED$\\' --critical-descheduled=\\'$_SERVICECRITICALDESCHEDULED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Vtom-Restapi-Jobs",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_vtom_restapi.pl --plugin=apps::vtom::restapi::plugin --mode=cache --custommode=\\'$_HOSTVTOMCUSTOMMODE$\\' --hostname=\\'$HOSTADDRESS$\\' --token=\\'$_HOSTVTOMAPITOKEN$\\' --api-username=\\'$_HOSTVTOMAPIUSERNAME$\\' --api-password=\\'$_HOSTVTOMAPIPASSWORD$\\'  --port=\\'$_HOSTVTOMAPIPORT$\\' --proto=\\'$_HOSTVTOMAPIPROTO$\\' $_HOSTVTOMAPIEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Vtom-Restapi-Cache",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser des serveurs VTOM via Rest API}\r\n{EN: Template to check VTOM using REST API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check VTOM using Restapi",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "Apps-VTOM-64.jpeg",
+            "macros": [
+                {
+                    "key": "$_HOSTVTOMAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTVTOMAPIPORT$",
+                    "value": "30002"
+                },
+                {
+                    "key": "$_HOSTVTOMAPIEXTRAOPTIONS$",
+                    "value": "--http-backend=curl --insecure"
+                },
+                {
+                    "key": "$_HOSTVTOMCUSTOMMODE$",
+                    "value": "api"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Vtom-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Vtom-Jobs-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "Apps-VTOM-64.jpeg"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* break: use official api",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Visual Tom application using REST API.**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|App-Vtom-Restapi-custom|\r\n|---|\r\n|Jobs|\r\n"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour surveiller une application Visual Tom via REST AP**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponibles et services associ\u00e9s :\r\n\r\n|App-Vtom-Restapi-custom|\r\n|---|\r\n|Jobs|\r\n"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "VTOM Rest API",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_vtom_restapi.pl",
+                "package_name": "centreon-plugin-Applications-Vtom-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "centreon-plugin-Applications-Vtom-Restapi",
+                "version": "20161212-1"
+            }
+        ],
+        "slug": "applications-vtom-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "VTOM",
+            "Visual TOM",
+            "Jobs",
+            "Absyss",
+            "Scheduler"
+        ],
+        "update_date": "1642671715",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'\u00e9tat des jobs.}\r\n\r\n{EN: Check jobs.}",
+            "active_checks_enabled": 2,
+            "alias": "Jobs",
+            "check_timeperiod": "",
+            "command_name": "App-Vtom-Restapi-Jobs",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /Error/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Vtom-Jobs-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Service permettant de g\u00e9n\u00e9rer les fichiers de cache.}\r\n\r\n{EN: Generate cache files.}",
+            "active_checks_enabled": 2,
+            "alias": "Cache",
+            "check_timeperiod": "",
+            "command_name": "App-Vtom-Restapi-Cache",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Vtom-Cache-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

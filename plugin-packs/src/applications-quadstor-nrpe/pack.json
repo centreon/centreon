@@ -1,0 +1,205 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::backup::quadstor::local::plugin\\' \\'vtl-job-status\\'  \\' --warning-status=\\\\\\\"$_SERVICEWARNINGSTATUS$\\\\\\\" --critical-status=\\\\\\\"$_SERVICECRITICALSTATUS$\\\\\\\" --warning-long=\\\\\\\"$_SERVICEWARNINGLONG$\\\\\\\" --critical-long=\\\\\\\"$_SERVICECRITICALLONG$\\\\\\\" --warning-frozen=\\\\\\\"$_SERVICEWARNINGFROZEN$\\\\\\\" --critical-frozen=\\\\\\\"$_SERVICECRITICALFROZEN$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Quadstor-NRPE-Vtl-Job-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::backup::quadstor::local::plugin\\' \\'vtl-disk-usage\\'  \\' --filter-name=\\\\\\\"$_SERVICEFILTERNAME$\\\\\\\" --warning-status=\\\\\\\"$_SERVICEWARNINGSTATUS$\\\\\\\" --critical-status=\\\\\\\"$_SERVICECRITICALSTATUS$\\\\\\\" --warning-usage=\\\\\\\"$_SERVICEWARNINGUSAGE$\\\\\\\" --critical-usage=\\\\\\\"$_SERVICECRITICALUSAGE$\\\\\\\" --units=\\\\\\\"$_SERVICEUNITS$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Quadstor-NRPE-Vtl-Disk-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::backup::quadstor::local::plugin\\' \\'vtl-tape-usage\\'  \\'  --vtl-name=\\\\\\\"$_SERVICEVTLNAME$\\\\\\\" --filter-name=\\\\\\\"$_SERVICEFILTERNAME$\\\\\\\" --warning-status=\\\\\\\"$_SERVICEWARNINGSTATUS$\\\\\\\" --critical-status=\\\\\\\"$_SERVICECRITICALSTATUS$\\\\\\\" --warning-usage=\\\\\\\"$_SERVICEWARNINGUSAGE$\\\\\\\" --critical-usage=\\\\\\\"$_SERVICECRITICALUSAGE$\\\\\\\" --units=\\\\\\\"$_SERVICEUNITS$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Quadstor-NRPE-Vtl-Tape-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Quadstor VTL using NRPE protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "app-quadstor-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTNRPECLIENT$",
+                    "value": "check_centreon_nrpe"
+                },
+                {
+                    "key": "$_HOSTNRPEEXTRAOPTIONS$",
+                    "value": "-u -m 8192"
+                },
+                {
+                    "key": "$_HOSTNRPEPORT$",
+                    "value": "5666"
+                },
+                {
+                    "key": "$_HOSTNRPETIMEOUT$",
+                    "value": "55"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Quadstor-Vtl-NRPE",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Quadstor-Vtl-Job-Status-NRPE",
+                "App-Quadstor-Vtl-Disk-Usage-NRPE"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAAApCAYAAAD9LSHtAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAHFgAABxYB45pq/gAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAUdSURBVHic7ZpNaFxVFMd/507mTdokjWmbKg3YWhE1onQpEmREJ0kpLgpOoS5sGhRcVBARFxbBRXWhVZCiIJUW/KjUWfhBXGSaxaD9UJG6UIva1n5oIW1M0rRJ2nHee8fFJIK1mdyZzCSZ5P5gFsM995z/zPzf3HvPe+BwOBwOh8PhcDgcjkWEWEUlqaeJSIW1lIer+HzA2FzLqBbsDNDFR8D6ykopE8K3rOFJXiacaynVQI1l3FqgtYI6yofSP9cSqglbA0xFAPSjaDnEFIWwCvBmve4CY6YGuABsQLhWDjFF8gnVsizNY2ZqAJ8xTpLialnUFEPXnJhuwWHmWoBjbnEGWOQ4AyxynAEWOTPdBM5PztJCF4+i+Chf8j7nreZt4wGU9cAADXzBbrJ000bIfSVrMfzAXo7SRQK4o6QcwiA+PZXocC5MAwh3oryNcBXDSbA0QMgmhOeBYwzSB2QJ2Qw8A1xG+Qoha6liA7CUgF3AUZRtCFuAQYTDKDmLHDVAB0otEV4AXresbc3CNEBl+APhKcYYsIqu4zSw9AYjvzLKE6QYmTZHNw2E/AbcQliZ5doZwJ5W4E/qrOPLdfPM7n5NiczUAC3UcYKtc9AKhlWzXO80IduBS1bRhs+YqcYsQnR+GyACtFRW4gwQoijP0sVmyxn3F8g1ToTv2We5BGzl7ym+l9up4026rPYAUaDBql6J2BpgkHzffzZoBGoLjI8BowXGh8lxigg7SvhfOkf+HkM/3kR7W+lB6EcZwCtiFy68BjRg+AYAwwGUn4pWBDsRLgKfljB3Wuyu3W4auDYL+4UlCCHvoWyaMkbZRY5XpxyvxWcvVyohbyFi96PO3hcqbOUwUsCYhmPsZxggmUz+f6OVA5J2G7BUKhVM5jl+/HjJm7bm5uYwk8n4U2oqgklNgEkmkyUvrqlUSmH6h2Lm3+odp4bmgkeegBTBxo0bm3K5XBpYXkoZEfGDIEj09fWdSyQSz4nI9tIEg6p+fPDgwR3xeLzW87yfZ5Bn0BjzeG9v78n29vYdQHepuYB96XR653RB8+8YmMG3CRsbG4t4nrcGaAbeFZG9xZQREY1GoxcAYrHYgVwud+j6mDAMV4rIHmA18JKIpG+UyxhzESCbzYrneesAVPUtY8x+SzmPqOorIlJvjJl8yGUFsA4YEZF2myTGmCVBEOwh33FcYTNn/hmgNG4LwzBezAQRCUXkFJDt6ek5zw26hYlEYjXkO3+qeiqdTn9XRIlzvb29VvEdHR1rCwxHbT9bGIYxEam3iZ2kag1QU1OTAw4BNwFREem0nLoSuBfIhWH4OTBUIYnlwjPGPKaqN5PvK1x/QgpEZFhV/yJ/Wvtl4nXCJnnVGqCpqWl0ZGTkRYr8DCISV9XdAMaYSjawVrW3t99lE6iqLQWGLwdBkABWRCKRlaq6TkRaVbVVVW8VkeWq6pG/CDxV7QdOiMiPNrWr1gDDw8P1xpg3gKZi5qlqDDgD+JFIpGAzRkR8VT0rIoGIFOo9ABCLxXQiNyKyAXjQRpOI1KrqGWDQ9/1JTUMTuS719fWNACPA78C/y0o8Hq/3PK9ZRJrDMFwjIner6j3Aw8Bl4OvpaletAdra2q4cOXLkaWNMSccuY4yOj48XvEvY2Ng4ODAwsMUYE6mrqxueLmcmk8l2dnY+VIoeESEMw2BoaKh/4v07IvKh7/tTHuUymcwo+abYaf5rjNply5ZFS9HhcDgcDofD4XA4HA6HY+HyDyYxkib9pBZgAAAAAElFTkSuQmCC",
+            "name": "app-quadstor-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Quadstor application using NRPE protocol:\r\n* Vtl-Disk-Usage\r\n* Vtl-Job-Status\r\n* Vtl-Tape-Usage"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack Plugin pour surveiller l\\'application Quadstor en utilisant le protocole NRPE:\r\n* Vtl-Disk-Usage\r\n* Vtl-Job-Status\r\n* Vtl-Tape-Usage"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAAApCAYAAAD9LSHtAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAHFgAABxYB45pq/gAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAUdSURBVHic7ZpNaFxVFMd/507mTdokjWmbKg3YWhE1onQpEmREJ0kpLgpOoS5sGhRcVBARFxbBRXWhVZCiIJUW/KjUWfhBXGSaxaD9UJG6UIva1n5oIW1M0rRJ2nHee8fFJIK1mdyZzCSZ5P5gFsM995z/zPzf3HvPe+BwOBwOh8PhcDgcjkWEWEUlqaeJSIW1lIer+HzA2FzLqBbsDNDFR8D6ykopE8K3rOFJXiacaynVQI1l3FqgtYI6yofSP9cSqglbA0xFAPSjaDnEFIWwCvBmve4CY6YGuABsQLhWDjFF8gnVsizNY2ZqAJ8xTpLialnUFEPXnJhuwWHmWoBjbnEGWOQ4AyxynAEWOTPdBM5PztJCF4+i+Chf8j7nreZt4wGU9cAADXzBbrJ000bIfSVrMfzAXo7SRQK4o6QcwiA+PZXocC5MAwh3oryNcBXDSbA0QMgmhOeBYwzSB2QJ2Qw8A1xG+Qoha6liA7CUgF3AUZRtCFuAQYTDKDmLHDVAB0otEV4AXresbc3CNEBl+APhKcYYsIqu4zSw9AYjvzLKE6QYmTZHNw2E/AbcQliZ5doZwJ5W4E/qrOPLdfPM7n5NiczUAC3UcYKtc9AKhlWzXO80IduBS1bRhs+YqcYsQnR+GyACtFRW4gwQoijP0sVmyxn3F8g1ToTv2We5BGzl7ym+l9up4026rPYAUaDBql6J2BpgkHzffzZoBGoLjI8BowXGh8lxigg7SvhfOkf+HkM/3kR7W+lB6EcZwCtiFy68BjRg+AYAwwGUn4pWBDsRLgKfljB3Wuyu3W4auDYL+4UlCCHvoWyaMkbZRY5XpxyvxWcvVyohbyFi96PO3hcqbOUwUsCYhmPsZxggmUz+f6OVA5J2G7BUKhVM5jl+/HjJm7bm5uYwk8n4U2oqgklNgEkmkyUvrqlUSmH6h2Lm3+odp4bmgkeegBTBxo0bm3K5XBpYXkoZEfGDIEj09fWdSyQSz4nI9tIEg6p+fPDgwR3xeLzW87yfZ5Bn0BjzeG9v78n29vYdQHepuYB96XR653RB8+8YmMG3CRsbG4t4nrcGaAbeFZG9xZQREY1GoxcAYrHYgVwud+j6mDAMV4rIHmA18JKIpG+UyxhzESCbzYrneesAVPUtY8x+SzmPqOorIlJvjJl8yGUFsA4YEZF2myTGmCVBEOwh33FcYTNn/hmgNG4LwzBezAQRCUXkFJDt6ek5zw26hYlEYjXkO3+qeiqdTn9XRIlzvb29VvEdHR1rCwxHbT9bGIYxEam3iZ2kag1QU1OTAw4BNwFREem0nLoSuBfIhWH4OTBUIYnlwjPGPKaqN5PvK1x/QgpEZFhV/yJ/Wvtl4nXCJnnVGqCpqWl0ZGTkRYr8DCISV9XdAMaYSjawVrW3t99lE6iqLQWGLwdBkABWRCKRlaq6TkRaVbVVVW8VkeWq6pG/CDxV7QdOiMiPNrWr1gDDw8P1xpg3gKZi5qlqDDgD+JFIpGAzRkR8VT0rIoGIFOo9ABCLxXQiNyKyAXjQRpOI1KrqGWDQ9/1JTUMTuS719fWNACPA78C/y0o8Hq/3PK9ZRJrDMFwjIner6j3Aw8Bl4OvpaletAdra2q4cOXLkaWNMSccuY4yOj48XvEvY2Ng4ODAwsMUYE6mrqxueLmcmk8l2dnY+VIoeESEMw2BoaKh/4v07IvKh7/tTHuUymcwo+abYaf5rjNply5ZFS9HhcDgcDofD4XA4HA6HY+HyDyYxkib9pBZgAAAAAElFTkSuQmCC",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\nThis chapter describes the prerequisites installation needed by plugins\r\nto run.\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-nrpe-plugin\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Quadstor-Vtl-NRPE-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Quadstor",
+        "plugins_requirements": [],
+        "requirement": [],
+        "slug": "applications-quadstor-nrpe",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Application",
+            "VTL",
+            "NRPE",
+            "Quadstor"
+        ],
+        "update_date": "1502294175",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'\u00e9tat de des jobs de sauvegarde.}\r\n\r\n{EN: Check job status.}",
+            "active_checks_enabled": 2,
+            "alias": "Vtl-Job-Status",
+            "check_timeperiod": "",
+            "command_name": "App-Quadstor-NRPE-Vtl-Job-Status",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /error/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Quadstor-Vtl-Job-Status-NRPE",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des disques.}\r\n\r\n{EN: Check disk usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Vtl-Disk-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-Quadstor-NRPE-Vtl-Disk-Usage",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "not %{status} =~ /active/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNITS$",
+                    "password": false,
+                    "value": "%"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Quadstor-Vtl-Disk-Usage-NRPE",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des bandes.}\r\n\r\n{EN: Check tape usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Vtl-Tape-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-Quadstor-NRPE-Vtl-Tape-Usage",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "not %{status} =~ /active|vaulted/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNITS$",
+                    "password": false,
+                    "value": "%"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Quadstor-Vtl-Tape-Usage-NRPE",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

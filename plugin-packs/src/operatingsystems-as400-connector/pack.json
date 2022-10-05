@@ -1,0 +1,449 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "OS-AS400-Connector-SubSystems-Discover",
+                "command_for_macro": "OS-AS400-Connector-SubSystems-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "OS-AS400-Connector"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    },
+                    {
+                        "is_empty": null,
+                        "name": "FILTERLIBRARY",
+                        "value": "^$library$$"
+                    }
+                ],
+                "name": "OS-AS400-Connector-SubSystem-Name",
+                "service_display_name": "SubSystem-$library$-$name$",
+                "service_template": "OS-AS400-SubSystem-Connector"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "OS-AS400-Connector-Disks-Discover",
+                "command_for_macro": "OS-AS400-Connector-Disks-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "^(noAccess|otherDiskSubFailed|failed|notOperational|noUnitControl)$",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "OS-AS400-Connector"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "DISKNAME",
+                        "value": "$name$"
+                    }
+                ],
+                "name": "OS-AS400-Connector-Disk-Name",
+                "service_display_name": "Disk-$name$",
+                "service_template": "OS-AS400-Disks-Connector"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_as400_connector_client.pl --plugin=os::as400::connector::plugin --mode=list-subsystems --connector-hostname=\\'localhost\\' --as400-hostname=localhost --as400-username=\\'username\\' --as400-password=\\'password\\' --disco-format\\\"",
+            "name": "OS-AS400-Connector-SubSystems-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_as400_connector_client.pl --plugin=os::as400::connector::plugin --mode=list-subsystems --connector-hostname=\\'$_HOSTCENTREONCONNECTORHOST$\\' --connector-port=\\'$_HOSTCENTREONCONNECTORPORT$\\' --connector-proto=\\'$_HOSTCENTREONCONNECTORPROTO$\\' --as400-hostname=$HOSTADDRESS$ --as400-username=\\'$_HOSTAS400USERNAME$\\' --as400-password=\\'$_HOSTAS400PASSWORD$\\' $_HOSTEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "OS-AS400-Connector-SubSystems-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_as400_connector_client.pl --plugin=os::as400::connector::plugin --mode=list-disks --connector-hostname=\\'localhost\\' --as400-hostname=localhost --as400-username=\\'username\\' --as400-password=\\'password\\' --disco-format\\\"",
+            "name": "OS-AS400-Connector-Disks-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_as400_connector_client.pl --plugin=os::as400::connector::plugin --mode=list-disks --connector-hostname=\\'$_HOSTCENTREONCONNECTORHOST$\\' --connector-port=\\'$_HOSTCENTREONCONNECTORPORT$\\' --connector-proto=\\'$_HOSTCENTREONCONNECTORPROTO$\\' --as400-hostname=$HOSTADDRESS$ --as400-username=\\'$_HOSTAS400USERNAME$\\' --as400-password=\\'$_HOSTAS400PASSWORD$\\' $_HOSTEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "OS-AS400-Connector-Disks-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_as400_connector_client.pl --plugin=os::as400::connector::plugin --mode=system --connector-hostname=\\'$_HOSTCENTREONCONNECTORHOST$\\' --connector-port=\\'$_HOSTCENTREONCONNECTORPORT$\\' --connector-proto=\\'$_HOSTCENTREONCONNECTORPROTO$\\' --as400-hostname=$HOSTADDRESS$ --as400-username=\\'$_HOSTAS400USERNAME$\\' --as400-password=\\'$_HOSTAS400PASSWORD$\\' $_HOSTEXTRAOPTIONS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --warning-processing-units-usage=\\'$_SERVICEWARNINGPROCESSUNITUSAGE$\\' --warning-storage-pool-space-usage=\\'$_SERVICEWARNINGSTORAGEPOOLSPACE$\\' --critical-processing-units-usage=\\'$_SERVICECRITICALPROCESSUNITUSAGE$\\' --critical-storage-pool-space-usage=\\'$_SERVICECRITICALSTORAGEPOOLSPACE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-AS400-Connector-System",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_as400_connector_client.pl --plugin=os::as400::connector::plugin --mode=page-faults --connector-hostname=\\'$_HOSTCENTREONCONNECTORHOST$\\' --connector-port=\\'$_HOSTCENTREONCONNECTORPORT$\\' --connector-proto=\\'$_HOSTCENTREONCONNECTORPROTO$\\' --as400-hostname=$HOSTADDRESS$ --as400-username=\\'$_HOSTAS400USERNAME$\\' --as400-password=\\'$_HOSTAS400PASSWORD$\\' $_HOSTEXTRAOPTIONS$ --warning-pagefaults-database=\\'$_SERVICEWARNINGPAGEFAULTSDATABASE$\\' --warning-pagefaults-nondatabase=\\'$_SERVICEWARNINGPAGEFAULTSNONDATABASE$\\' --critical-pagefaults-database=\\'$_SERVICECRITICALPAGEFAULTSDATABASE$\\' --critical-pagefaults-nondatabase=\\'$_SERVICECRITICALPAGEFAULTSNONDATABASE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-AS400-Connector-Page-Faults",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_as400_connector_client.pl --plugin=os::as400::connector::plugin --mode=jobs --connector-hostname=\\'$_HOSTCENTREONCONNECTORHOST$\\' --connector-port=\\'$_HOSTCENTREONCONNECTORPORT$\\' --connector-proto=\\'$_HOSTCENTREONCONNECTORPROTO$\\' --as400-hostname=$HOSTADDRESS$ --as400-username=\\'$_HOSTAS400USERNAME$\\' --as400-password=\\'$_HOSTAS400PASSWORD$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --filter-subsystem=\\'$_SERVICEFILTERSUBSYSTEM$\\' --warning-jobs-total=\\'$_SERVICEWARNINGTOTAL$\\' --critical-jobs-total=\\'$_SERVICECRITICALTOTAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-AS400-Connector-Jobs",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_as400_connector_client.pl --plugin=os::as400::connector::plugin --mode=subsystems --connector-hostname=\\'$_HOSTCENTREONCONNECTORHOST$\\' --connector-port=\\'$_HOSTCENTREONCONNECTORPORT$\\' --connector-proto=\\'$_HOSTCENTREONCONNECTORPROTO$\\' --as400-hostname=$HOSTADDRESS$ --as400-username=\\'$_HOSTAS400USERNAME$\\' --as400-password=\\'$_HOSTAS400PASSWORD$\\' $_HOSTEXTRAOPTIONS$ --filter-subsystem-name=\\'$_SERVICEFILTERNAME$\\' --filter-subsystem-library=\\'$_SERVICEFILTERLIBRARY$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-subsystems-total=\\'$_SERVICEWARNINGTOTAL$\\' --warning-subsystems-active=\\'$_SERVICEWARNINGACTIVE$\\' --warning-subsystems-ending=\\'$_SERVICEWARNINGENDING$\\' --warning-subsystems-inactive=\\'$_SERVICEWARNINGINACTIVE$\\' --warning-subsystems-restricted=\\'$_SERVICEWARNINGRESTRICTED$\\' --warning-subsystems-starting=\\'$_SERVICEWARNINGSTARTING$\\' --warning-jobs-active=\\'$_SERVICEWARNINGJOBSACTIVE$\\' --critical-subsystems-total=\\'$_SERVICECRITICALTOTAL$\\' --critical-subsystems-active=\\'$_SERVICECRITICALACTIVE$\\' --critical-subsystems-ending=\\'$_SERVICECRITICALENDING$\\' --critical-subsystems-inactive=\\'$_SERVICECRITICALINACTIVE$\\' --critical-subsystems-restricted=\\'$_SERVICECRITICALRESTRICTED$\\' --critical-subsystems-starting=\\'$_SERVICECRITICALSTARTING$\\' --critical-jobs-active=\\'$_SERVICECRITICALJOBSACTIVE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-AS400-Connector-Subsystems",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_as400_connector_client.pl --plugin=os::as400::connector::plugin --mode=message-queue --connector-hostname=\\'$_HOSTCENTREONCONNECTORHOST$\\' --connector-port=\\'$_HOSTCENTREONCONNECTORPORT$\\' --connector-proto=\\'$_HOSTCENTREONCONNECTORPROTO$\\' --as400-hostname=$HOSTADDRESS$ --as400-username=\\'$_HOSTAS400USERNAME$\\' --as400-password=\\'$_HOSTAS400PASSWORD$\\' $_HOSTEXTRAOPTIONS$ --message-queue-path=\\'$_SERVICEMESSAGEQUEUEPATH$\\' --filter-message-id=\\'$_SERVICEFILTERMESSAGEID$\\' --min-severity=\\'$_SERVICEMINSEVERITY$\\' --max-severity=\\'$_SERVICEMAXSEVERITY$\\' --warning-total=\\'$_SERVICEWARNINGTOTAL$\\' --critical-total=\\'$_SERVICECRITICALTOTAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-AS400-Connector-Message-Queue",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_as400_connector_client.pl --plugin=os::as400::connector::plugin --mode=job-queues --connector-hostname=\\'$_HOSTCENTREONCONNECTORHOST$\\' --connector-port=\\'$_HOSTCENTREONCONNECTORPORT$\\' --connector-proto=\\'$_HOSTCENTREONCONNECTORPROTO$\\' --as400-hostname=$HOSTADDRESS$ --as400-username=\\'$_HOSTAS400USERNAME$\\' --as400-password=\\'$_HOSTAS400PASSWORD$\\' $_HOSTEXTRAOPTIONS$ --jobq=\\'$_SERVICEJOBQUEUES$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-jobqueues-total=\\'$_SERVICEWARNINGJOBSTOTAL$\\' --warning-jobqueue-jobs-active=\\'$_SERVICEWARNINGJOBSACTIVE$\\' --warning-jobqueue-jobs-scheduled=\\'$_SERVICEWARNINGJOBSSCHEDULED$\\' --warning-jobqueue-jobs-held=\\'$_SERVICEWARNINGJOBSHELD$\\' --critical-jobqueues-total=\\'$_SERVICECRITICALJOBSTOTAL$\\' --critical-jobqueue-jobs-active=\\'$_SERVICECRITICALJOBSACTIVE$\\' --critical-jobqueue-jobs-scheduled=\\'$_SERVICECRITICALJOBSSCHEDULED$\\' --critical-jobqueue-jobs-held=\\'$_SERVICECRITICALJOBSHELD$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-AS400-Connector-Job-Queues",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_as400_connector_client.pl --plugin=os::as400::connector::plugin --mode=disks --connector-hostname=\\'$_HOSTCENTREONCONNECTORHOST$\\' --connector-port=\\'$_HOSTCENTREONCONNECTORPORT$\\' --connector-proto=\\'$_HOSTCENTREONCONNECTORPROTO$\\' --as400-hostname=$HOSTADDRESS$ --as400-username=\\'$_HOSTAS400USERNAME$\\' --as400-password=\\'$_HOSTAS400PASSWORD$\\' $_HOSTEXTRAOPTIONS$ --filter-disk-name=\\'$_SERVICEDISKNAME$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-space-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-space-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-AS400-Connector-Disks",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_as400_connector_client.pl --plugin=os::as400::connector::plugin --mode=command --connector-hostname=\\'$_HOSTCENTREONCONNECTORHOST$\\' --connector-port=\\'$_HOSTCENTREONCONNECTORPORT$\\' --connector-proto=\\'$_HOSTCENTREONCONNECTORPROTO$\\' --as400-hostname=$HOSTADDRESS$ --as400-username=\\'$_HOSTAS400USERNAME$\\' --as400-password=\\'$_HOSTAS400PASSWORD$\\' $_HOSTEXTRAOPTIONS$ --command-name=\\'$_SERVICECOMMANDNAME$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning--status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\'  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-AS400-Connector-Command",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les serveurs AS/400 via le Centreon-Connector-as400}\r\n{EN: Template to check AS/400 server using Centreon-Connector-as400}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check AS/400 server using Centreon AS400 Connector",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [
+                {
+                    "key": "$_HOSTCENTREONCONNECOTRHOST$",
+                    "value": "localhost"
+                },
+                {
+                    "key": "$_HOSTCENTREONCONNECTORPORT$",
+                    "value": "8091"
+                },
+                {
+                    "key": "$_HOSTCENTREONCONNECTORPROTO$",
+                    "value": "http"
+                },
+                {
+                    "key": "$_HOSTAS400USERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAS400PASSWORD$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-AS400-Connector",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "OS-AS400-System-Connector",
+                "OS-AS400-Page-Faults-Connector",
+                "OS-AS400-Jobs-Connector"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* remove custommode from discovery commands",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor IBM AS400 operating system:\r\n* System\r\n* Page-Faults\r\n* Jobs\r\n* Disks\r\n* SubSystem\r\n* Job-Queues\r\n* Messsage-Queue\r\n* Command"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller les syst\u00e8me d\\'exploitation IBM AS400 :\r\n* System\r\n* Page-Faults\r\n* Jobs\r\n* Disks\r\n* SubSystem\r\n* Job-Queues\r\n* Messsage-Queue\r\n* Command"
+            }
+        ],
+        "discovery_category": "operating-system",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    $ yum install centreon-plugin-Operatingsystems-AS400-Connector",
+        "name": "IBM AS400 Connector",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_as400_connector_client.pl",
+                "package_name": "centreon-plugin-Operatingsystems-AS400-Connector",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "operatingsystems-as400-connector",
+        "status": "stable",
+        "status_message": "Fix discovery commands",
+        "tags": [
+            "AS400",
+            "IBM",
+            "Operating System",
+            "System",
+            "Connector"
+        ],
+        "update_date": "1635889401",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du syst\u00e8me.}\r\n{EN: Check system usage.}",
+            "active_checks_enabled": 2,
+            "alias": "System",
+            "check_timeperiod": "",
+            "command_name": "OS-AS400-Connector-System",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-AS400-System-Connector",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le des page faults.}\r\n{EN: Check page faults.}",
+            "active_checks_enabled": 2,
+            "alias": "Page-Faults",
+            "check_timeperiod": "",
+            "command_name": "OS-AS400-Connector-Page-Faults",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "OS-AS400-Page-Faults-Connector",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le des jobs.}\r\n{EN: Check jobs.}",
+            "active_checks_enabled": 2,
+            "alias": "Jobs",
+            "check_timeperiod": "",
+            "command_name": "OS-AS400-Connector-Jobs",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "OS-AS400-Jobs-Connector",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le des sous-syst\u00e8mes.}\r\n{EN: Check subsystems.}",
+            "active_checks_enabled": 2,
+            "alias": "SubSystem",
+            "check_timeperiod": "",
+            "command_name": "OS-AS400-Connector-Subsystems",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~  /ending|restricted|starting/i"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-AS400-SubSystem-Connector",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le message queue.}\r\n{EN: Check message queue.}",
+            "active_checks_enabled": 2,
+            "alias": "Message-Queue",
+            "check_timeperiod": "",
+            "command_name": "OS-AS400-Connector-Message-Queue",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--display-messages --memory --verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-AS400-Message-Queue-Connector",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le job queues.}\r\n{EN: Check job queues.}",
+            "active_checks_enabled": 2,
+            "alias": "Job-Queues",
+            "check_timeperiod": "",
+            "command_name": "OS-AS400-Connector-Job-Queues",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /HELD/i"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-AS400-Job-Queues-Connector",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des disques.}\r\n{EN: Check disks usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Disks",
+            "check_timeperiod": "",
+            "command_name": "OS-AS400-Connector-Disks",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /unknown/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /noReady|busy|hwFailureOk|hwFailurePerf|Protected|rebuilding/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^(noAccess|otherDiskSubFailed|failed|notOperational|noUnitControl)$/i"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-AS400-Disks-Connector",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Ex\u00e9cute une commande et v\u00e9rifie le r\u00e9sultat.}\r\n{EN: Execute command and check result.}",
+            "active_checks_enabled": 2,
+            "alias": "Command",
+            "check_timeperiod": "",
+            "command_name": "OS-AS400-Connector-Command",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /failed/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-AS400-Command-Connector",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

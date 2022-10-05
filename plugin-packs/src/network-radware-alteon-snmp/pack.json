@@ -1,0 +1,252 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Radware-Alteon-SNMP-Vservers-Discover",
+                "command_for_macro": "Net-Radware-Alteon-SNMP-Vservers-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Radware-Alteon-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Radware-Alteon-SNMP-Vserver-Name",
+                "service_display_name": "Vserver-$name$",
+                "service_template": "Net-Radware-Alteon-Vserver-Status-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_radware_alteon_snmp.pl --plugin=network::radware::alteon::snmp::plugin --mode=list-vservers --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Radware-Alteon-SNMP-Vservers-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_radware_alteon_snmp.pl --plugin=network::radware::alteon::snmp::plugin --mode=list-vservers --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Radware-Alteon-SNMP-Vservers-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_radware_alteon_snmp.pl --plugin=network::radware::alteon::snmp::plugin --mode=memory --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\'  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Radware-Alteon-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_radware_alteon_snmp.pl --plugin=network::radware::alteon::snmp::plugin --mode=hardware --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Radware-Alteon-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_radware_alteon_snmp.pl --plugin=network::radware::alteon::snmp::plugin --mode=cpu --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-mp-1s=\\'$_SERVICEWARNINGMP1S$\\' --critical-mp-1s=\\'$_SERVICECRITICALMP1S$\\' --warning-mp-4s=\\'$_SERVICEWARNINGMP4S$\\' --critical-mp-4s=\\'$_SERVICECRITICALMP4S$\\' --warning-mp-64s=\\'$_SERVICEWARNINGMP64S$\\' --critical-mp-64s=\\'$_SERVICECRITICALMP64S$\\' --warning-sp-ga-1s=\\'$_SERVICEWARNINGSPGA1S$\\' --critical-sp-ga-1s=\\'$_SERVICECRITICALSPGA1S$\\' --warning-sp-ga-4s=\\'$_SERVICEWARNINGSPGA4S$\\' --critical-sp-ga-4s=\\'$_SERVICECRITICALSPGA4S$\\' --warning-sp-ga-64s=\\'$_SERVICEWARNINGSPGA64S$\\' --critical-sp-ga-64s=\\'$_SERVICECRITICALSPGA64S$\\' --warning-sp-ga-avg-1s=\\'$_SERVICEWARNINGSPGAAVG1S$\\' --critical-sp-ga-avg-1s=\\'$_SERVICECRITICALSPGAAVG1S$\\' --warning-sp-ga-avg-4s=\\'$_SERVICEWARNINGSPGAAVG4S$\\' --critical-sp-ga-avg-4s=\\'$_SERVICECRITICALSPGAAVG4S$\\' --warning-sp-ga-avg-64s=\\'$_SERVICEWARNINGSPGAAVG64S$\\' --critical-sp-ga-avg-64s=\\'$_SERVICECRITICALSPGAAVG64S$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Radware-Alteon-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_radware_alteon_snmp.pl --plugin=network::radware::alteon::snmp::plugin --mode=vserver-status --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-traffic=\\'$_SERVICEWARNINGTRAFFIC$\\' --critical-traffic=\\'$_SERVICECRITICALTRAFFIC$\\' --warning-total-sessions=\\'$_SERVICEWARNINGTOTALSESSIONS$\\' --critical-total-sessions=\\'$_SERVICECRITICALTOTALSESSION$\\' --warning-current-sessions=\\'$_SERVICEWARNINGCURRENTSESSIONS$\\' --critical-current-sessions=\\'$_SERVICECRITICALCURRENTSESSIONS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Radware-Alteon-SNMP-Vserver-Status",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Radware Alteon en SNMP}\r\n{EN: Template to check Radware Alteon using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Radware Alteon using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "network-radware-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Radware-Alteon-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Radware-Alteon-Memory-SNMP",
+                "Net-Radware-Alteon-Hardware-Global-SNMP",
+                "Net-Radware-Alteon-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "network-radware-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "fix: new thresholds for cpu mode",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Radware Alteon via SNMP:\r\n* Cpu\r\n* Hardware\r\n* Memory\r\n* Vserver-Status"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un \u00e9quipement Radware Alteon via SNMP :\r\n* Cpu\r\n* Hardware\r\n* Memory\r\n* Vserver-Status"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Radware-Alteon-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Radware-Alteon-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Radware Alteon",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_radware_alteon_snmp.pl",
+                "package_name": "centreon-plugin-Network-Radware-Alteon-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-radware-alteon-snmp",
+        "status": "stable",
+        "status_message": "fix: new thresholds for cpu mode",
+        "tags": [
+            "Loadbalancer",
+            "Network",
+            "SNMP",
+            "Radware",
+            "Alteon"
+        ],
+        "update_date": "1586983898",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation m\u00e9moire du mat\u00e9riel}\r\n\r\n{EN: Check machine memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Radware-Alteon-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Radware-Alteon-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du mat\u00e9riel.}\r\n\r\n{EN: Check hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Radware-Alteon-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Radware-Alteon-Hardware-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine.}\r\n\r\n{EN: Check the rate of utilization of CPU for the machine.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Radware-Alteon-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGMP64S$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALMP64S$",
+                    "password": false,
+                    "value": "95"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Radware-Alteon-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut et l'utilisation des 'vservers'.}\r\n\r\n{EN: Check vservers status and usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Vserver-Status",
+            "check_timeperiod": "",
+            "command_name": "Net-Radware-Alteon-SNMP-Vserver-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Radware-Alteon-Vserver-Status-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

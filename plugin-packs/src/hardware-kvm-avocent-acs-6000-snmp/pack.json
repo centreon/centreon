@@ -1,0 +1,237 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kvm_avocent.pl --plugin=hardware::kvm::avocent::acs::6000::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Kvm-Avocent-Acs-6000-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kvm_avocent.pl --plugin=hardware::kvm::avocent::acs::6000::snmp::plugin --mode=cpu-detailed --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-idle=\\'$_SERVICEWARNINGIDLE$\\' --critical-idle=\\'$_SERVICECRITICALIDLE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Kvm-Avocent-Acs-6000-SNMP-Cpu-Detailed",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kvm_avocent.pl --plugin=hardware::kvm::avocent::acs::6000::snmp::plugin --mode=load --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Kvm-Avocent-Acs-6000-SNMP-Load",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kvm_avocent.pl --plugin=hardware::kvm::avocent::acs::6000::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Kvm-Avocent-Acs-6000-SNMP-Memory",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Host template to check Avocent ACS 6000 series in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Kvm-Avocent-Acs-6000-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Kvm-Avocent-Acs-6000-Hardware-Global-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* change memory mode thresholds",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Avocent ACS 6000 series appliances:\r\n* Cpu-Detailed\r\n* Hardware\r\n* Load\r\n* Memory"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les appliances Avocent ACS 6000 series :\r\n* Cpu-Detailed\r\n* Hardware\r\n* Load\r\n* Memory"
+            }
+        ],
+        "discovery_category": "hardware-server",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites \r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Kvm-Avocent-Acs-6000-Snmp\r\n\r\n### SNMP\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the monitoring server\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp)\r\n\r\n## Centreon Configuration\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Kvm-Avocent-Acs-6000-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Avocent ACS 6000",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_kvm_avocent.pl",
+                "package_name": "centreon-plugin-Hardware-Kvm-Avocent-Acs-6000-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "centreon-plugin-Hardware-Kvm-Avocent-Acs-6000-Snmp",
+                "version": "20170329-1"
+            }
+        ],
+        "slug": "hardware-kvm-avocent-acs-6000-snmp",
+        "status": "stable",
+        "status_message": "change memory mode thresholds",
+        "tags": [
+            "Hardware",
+            "SNMP",
+            "Virtualization"
+        ],
+        "update_date": "1555074299",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le mat\u00e9riel.}\r\n\r\n{EN: Check  hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Kvm-Avocent-Acs-6000-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Kvm-Avocent-Acs-6000-Hardware-Global-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation d\u00e9taill\u00e9 CPU de la machine.}\r\n\r\n{EN: Check the detailed rate of utilization of CPU for the machine.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu-Detailed",
+            "check_timeperiod": "",
+            "command_name": "HW-Kvm-Avocent-Acs-6000-SNMP-Cpu-Detailed",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIDLE$",
+                    "password": false,
+                    "value": "20:"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIDLE$",
+                    "password": false,
+                    "value": "10:"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Kvm-Avocent-Acs-6000-Cpu-Detailed-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la charge serveur.}\r\n\r\n{EN: Check the server load average.}",
+            "active_checks_enabled": 2,
+            "alias": "Load",
+            "check_timeperiod": "",
+            "command_name": "HW-Kvm-Avocent-Acs-6000-SNMP-Load",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "4,3,2"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "6,5,4"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Kvm-Avocent-Acs-6000-Load-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire vive (RAM)..}\r\n\r\n{EN: Check the rate of the utilization of memory (RAM).}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "HW-Kvm-Avocent-Acs-6000-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Kvm-Avocent-Acs-6000-Memory-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

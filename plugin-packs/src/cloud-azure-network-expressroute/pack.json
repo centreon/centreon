@@ -1,0 +1,1378 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v1.0": [
+                {
+                    "command": "Cloud-Azure-Network-ExpressRoute-Api-HostDiscovery",
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Express Route circuits",
+                    "mapping": {
+                        "azure_circuit": {
+                            "association": {
+                                "description": [
+                                    "${name}"
+                                ],
+                                "hostname": [
+                                    "${name}"
+                                ],
+                                "ip": [
+                                    "${name}"
+                                ]
+                            },
+                            "attributes": {
+                                "id": {
+                                    "type": "string"
+                                },
+                                "location": {
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "resourceGroup": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                }
+                            },
+                            "filters": {
+                                "type": "Microsoft.Network/expressRouteCircuits"
+                            },
+                            "macros": [
+                                {
+                                    "from": "parameters",
+                                    "name": "AZURESUBSCRIPTION",
+                                    "type": "text",
+                                    "value": "AZURESUBSCRIPTION"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AZURETENANT",
+                                    "type": "text",
+                                    "value": "AZURETENANT"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AZURECLIENTID",
+                                    "type": "text",
+                                    "value": "AZURECLIENTID"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AZURECLIENTSECRET",
+                                    "type": "password",
+                                    "value": "AZURECLIENTSECRET"
+                                },
+                                {
+                                    "from": "results",
+                                    "name": "AZURECIRCUITNAME",
+                                    "type": "text",
+                                    "value": "name"
+                                },
+                                {
+                                    "from": "results",
+                                    "name": "AZURERESOURCEGROUP",
+                                    "type": "text",
+                                    "value": "resourceGroup"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "PROXYURL",
+                                    "type": "text",
+                                    "value": "PROXYURL"
+                                }
+                            ],
+                            "object": "host",
+                            "templates": [
+                                "Cloud-Azure-Network-ExpressRoute"
+                            ]
+                        }
+                    },
+                    "name": "Microsoft Azure Express Route",
+                    "parameters": [
+                        {
+                            "description": "Azure Subscription ID",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AZURESUBSCRIPTION",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Azure Tenant ID",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AZURETENANT",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Azure Client ID",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AZURECLIENTID",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Azure Client Secret",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AZURECLIENTSECRET",
+                            "type": "password",
+                            "value": null
+                        },
+                        {
+                            "description": "Resource Group Name",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "RESOURCEGROUP",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Location",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "LOCATION",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Timeout",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "TIMEOUT",
+                            "type": "text",
+                            "value": 10
+                        },
+                        {
+                            "description": "Proxy URL",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "PROXYURL",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Extra Options",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "EXTRAOPTIONS",
+                            "type": "text",
+                            "value": null
+                        }
+                    ],
+                    "test_option": "--test-login",
+                    "type": "azure"
+                }
+            ],
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-ExpressRoute-Api-HostDiscovery-v2",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Express Route circuits",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RBEXRTCORE/providers/Microsoft.Network/expressRouteCircuits/EXRTCOREEUR01",
+                            "location": "northeurope",
+                            "name": "EXRTCOREEUR01",
+                            "resourceGroup": "RBEXRTCORE",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/expressRouteCircuits"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RBEXRTCORE/providers/Microsoft.Network/expressRouteCircuits/EXRTCOREEUR01",
+                            "location": "northeurope",
+                            "name": "EXRTCOREEUR01",
+                            "resourceGroup": "RBEXRTCORE",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/expressRouteCircuits"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RBEXRTCORE/providers/Microsoft.Network/expressRouteCircuits/EXRTCOREEUR01",
+                            "location": "northeurope",
+                            "name": "EXRTCOREEUR01",
+                            "resourceGroup": "RBEXRTCORE",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/expressRouteCircuits"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RBEXRTCORE/providers/Microsoft.Network/expressRouteCircuits/EXRTCOREEUR01",
+                            "location": "northeurope",
+                            "name": "EXRTCOREEUR01",
+                            "resourceGroup": "RBEXRTCORE",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/expressRouteCircuits"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RBEXRTCORE/providers/Microsoft.Network/expressRouteCircuits/EXRTCOREEUR01",
+                            "location": "northeurope",
+                            "name": "EXRTCOREEUR01",
+                            "resourceGroup": "RBEXRTCORE",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/expressRouteCircuits"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECIRCUITNAME",
+                                "is_password": false,
+                                "source": "discovery.results.name"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-ExpressRoute-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Express Route",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-expressroute",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-ExpressRoute-Api-HostDiscovery-v2",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Express Route circuits",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RBEXRTCORE/providers/Microsoft.Network/expressRouteCircuits/EXRTCOREEUR01",
+                            "location": "northeurope",
+                            "name": "EXRTCOREEUR01",
+                            "resourceGroup": "RBEXRTCORE",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/expressRouteCircuits"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RBEXRTCORE/providers/Microsoft.Network/expressRouteCircuits/EXRTCOREEUR01",
+                            "location": "northeurope",
+                            "name": "EXRTCOREEUR01",
+                            "resourceGroup": "RBEXRTCORE",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/expressRouteCircuits"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RBEXRTCORE/providers/Microsoft.Network/expressRouteCircuits/EXRTCOREEUR01",
+                            "location": "northeurope",
+                            "name": "EXRTCOREEUR01",
+                            "resourceGroup": "RBEXRTCORE",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/expressRouteCircuits"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RBEXRTCORE/providers/Microsoft.Network/expressRouteCircuits/EXRTCOREEUR01",
+                            "location": "northeurope",
+                            "name": "EXRTCOREEUR01",
+                            "resourceGroup": "RBEXRTCORE",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/expressRouteCircuits"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RBEXRTCORE/providers/Microsoft.Network/expressRouteCircuits/EXRTCOREEUR01",
+                            "location": "northeurope",
+                            "name": "EXRTCOREEUR01",
+                            "resourceGroup": "RBEXRTCORE",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/expressRouteCircuits"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECIRCUITNAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-ExpressRoute-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Express Route",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-expressroute",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-ExpressRoute-Api-HostDiscovery-v2",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Express Route circuits",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RBEXRTCORE/providers/Microsoft.Network/expressRouteCircuits/EXRTCOREEUR01",
+                            "location": "northeurope",
+                            "name": "EXRTCOREEUR01",
+                            "resourceGroup": "RBEXRTCORE",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/expressRouteCircuits"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RBEXRTCORE/providers/Microsoft.Network/expressRouteCircuits/EXRTCOREEUR01",
+                            "location": "northeurope",
+                            "name": "EXRTCOREEUR01",
+                            "resourceGroup": "RBEXRTCORE",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/expressRouteCircuits"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RBEXRTCORE/providers/Microsoft.Network/expressRouteCircuits/EXRTCOREEUR01",
+                            "location": "northeurope",
+                            "name": "EXRTCOREEUR01",
+                            "resourceGroup": "RBEXRTCORE",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/expressRouteCircuits"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RBEXRTCORE/providers/Microsoft.Network/expressRouteCircuits/EXRTCOREEUR01",
+                            "location": "northeurope",
+                            "name": "EXRTCOREEUR01",
+                            "resourceGroup": "RBEXRTCORE",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/expressRouteCircuits"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RBEXRTCORE/providers/Microsoft.Network/expressRouteCircuits/EXRTCOREEUR01",
+                            "location": "northeurope",
+                            "name": "EXRTCOREEUR01",
+                            "resourceGroup": "RBEXRTCORE",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/expressRouteCircuits"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECIRCUITNAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-ExpressRoute-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Express Route",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-expressroute",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_expressroute_api.pl --plugin=cloud::azure::network::expressroute::plugin --mode=health --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURECIRCUITNAME$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --ok-status=\\'$_HOSTSTATUSOK$\\' --warning-status=\\'$_HOSTSTATUSWARNING$\\' --critical-status=\\'$_HOSTSTATUSCRITICAL$\\' --unknown-status=\\'$_HOSTSTATUSUNKNOWN$\\' $_HOSTEXTRAOPTIONS$ --api-version=2017-07-01\\\"",
+            "name": "Cloud-Azure-Network-ExpressRoute-Api-Health",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_expressroute_api.pl --plugin=cloud::azure::network::expressroute::plugin --mode=traffic --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURECIRCUITNAME$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-bitsinpersecond-average=\\'$_SERVICEWARNINGBITSINPERSECONDAVERAGE$\\' --critical-bitsoutpersecond-average=\\'$_SERVICECRITICALBITSOUTPERSECONDAVERAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-ExpressRoute-Api-Traffic",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_expressroute_api.pl --plugin=cloud::azure::network::expressroute::plugin --mode=circuit-status --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\'  --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --location=\\'$_HOSTAZURELOCATION$\\' --filter-name=\\'$_HOSTAZURECIRCUITNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-ExpressRoute-Api-Circuit-Status",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_network_expressroute_api.pl --plugin=cloud::azure::network::expressroute::plugin --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Network-ExpressRoute-Api-HostDiscovery",
+            "type": "4"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_network_expressroute_api.pl --plugin=cloud::azure::network::expressroute::plugin --statefile-suffix='autodiscovery' --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Network-ExpressRoute-Api-HostDiscovery-v2",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Azure ExpressRoute via l'API}\r\n{EN: Template to check Azure ExpressRoute service using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure ExpressRoute service using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": "Cloud-Azure-Network-ExpressRoute-Api-Health",
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-network-expressroute-color-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURECIRCUITNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTSTATUSOK$",
+                    "value": "%{status} =~ /^Available$/"
+                },
+                {
+                    "key": "$_HOSTSTATUSCRITICAL$",
+                    "value": "%{status} =~ /^Unavailable$/"
+                },
+                {
+                    "key": "$_HOSTSTATUSUNKNOWN$",
+                    "value": "%{status} =~ /^Unknown$/"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-ExpressRoute",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "Generic-Active-Cloud-Host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Network-ExpressRoute-Traffic-Api",
+                "Cloud-Azure-Network-ExpressRoute-Health-Api",
+                "Cloud-Azure-Network-ExpressRoute-Circuit-Status-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-network-expressroute-color-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ add proper tags management",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Microsoft Azure ExpressRoute using Azure CLI or RestAPI.**\r\n\r\nAvailable host templates and related services:\r\n\r\n|Cloud-Azure-Network-ExpressRoute|\r\n|---|\r\n|Circuit-Status|\r\n|Traffic|\r\n|Health|\r\n\r\nThis pack provides a host discovery rule."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser Microsoft Azure ExpressRoute via la CLI ou la RestAPI Azure.**\r\n\r\nMod\u00e8les d\\'h\u00f4te disponibles et leurs services :\r\n\r\n|Cloud-Azure-Network-ExpressRoute|\r\n|---|\r\n|Circuit-Status|\r\n|Traffic|\r\n|Health|\r\n\r\nCe pack fournit une r\u00e8gle de d\u00e9couverte d\\'h\u00f4te."
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAH4AAAB+CAYAAADiI6WIAAAD2ElEQVR42u2dwZHUMBAA/eDHmz8JEAEf3oRADPADdl/k4CQ2iXuQAZQp2AuBMBaPdHsc5iyPZMknebqrVMVR7OFSW9Jo1h51HQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABjiw7cX3Zuvz+iIPfNxeN4dfrzqPt++747nU3e8vTxow9j67vDrXXf8/pKbYS98Or/tDuffE9mhNrjZABoe5f+Pbn2TGQBaG+U/X0eO8pl2vmH0t4Ks06uFT+RD5Uhg5oO1S9bGtF85LmrPLP3amPKtTPGPTPls9WoUvyKC1zYJGqG6tf0StVeXdftw+yXycz2dXdv2TStcloTpTeOydpogb9wiQkVoxUkWb3apUO4GoLFoXkZrKDiTm0I1a0xmDKg+sOvzxAmIb2/EZ4kTEN/gGh/Yjmm3g9BiVD/KfWyd1yZ/iOob38fL/l0ezPAB3RD1OagtwBuDt9KZO7lZoCLkC5Qs378z4pGOfKQjH+nINy0d+YalI78B6TGfSfr9yC+cpDnfJEuRm+b+TZr79Oxw9+feZf/k/0i+uZBfn/TNZhbktysd+YalI9+wdOQblo58w9KRb1g68g1LR75h6cg3LB35hqUj37B05BuWjnzD0pFvWDryDUtHvmHpyDcsHfmGpe9avpMqb5neNaSXlS99LO/uuaJN1zb+XLz+noj0ryP3C0+o+gcXkb5evu/rXvFZX8Urex0+ufASpUIt7Wc3eR8gZ9FlbbUJpFcif6G6l26UJ0zXSK9DvrwvkATS25cfXXWb6X0/8tVrvg/kkL6fgO9UyRSfuvbsFNmLP3mwl1LzPfaOlX//TxLCeIsv2jT4ql0x/b50vIq6nuskYeATNqdq3lnfZRv7d1p1yyfUMhRf1tRvDxX526LkmMUWKsCsXSqCQZ5mfZd3zHMuFbT1wbBm1AdP19BchBzkt/YiaHFtqc81RZxnB6w7mRHxVbals3B0R6z066SFpvotcgBWA7s5tAM2mMXTBGeh4C7+cB+aus3UyVeftReqs69O1Y534MPpx2WgkL5B+1ukKWYrJy34XX1sVO6SCBt8mUNb24blp2yqyR0bytdX8d2IPnuXd60yna8vuEwunb41SeScnu7OM4hE5qVm2qjDFUpciPy+pRyAZfSnZRY+EjXnhYh0juHevs+Tn7r1Uf6A9Nbkz5y2FYU/4alPXtOZ3lMfzhiSBtmqJ2xnL0a5Z0d4ztE/qNfz4n0uS4DcWW4bIg8IyBMhkvUb/55pvVB/jzeB6+Nr2XXp9/HnayYPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACb8AaM0fyZH1kyaAAAAAElFTkSuQmCC",
+        "monitoring_procedure": "# Monitoring procedure\r\n\r\n## Prerequisites\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Cloud-Azure-Network-ExpressRoute-Api\r\n\r\n### Perl dependencies (for 'api' custom mode)\r\nBy installing the plugin, some perl depencies will be installed :\r\n\r\n    JSON::XS\r\n    DateTime\r\n    Digest::MD5\r\n    Digest::SHA\r\n    LWP::UserAgent\r\n    LWP::Protocol::https\r\n    IO::Socket::SSL\r\n    URI\r\n    HTTP::ProxyPAC\r\n\r\nThe login and access token handling will be made by the plugin itself.\r\n\r\n### Azure CLI 2.0 (for 'azcli' custom mode)\r\nThe CLI needs at least Python version 2.7 (https://github.com/Azure/azure-cli/blob/dev/doc/install_linux_prerequisites.md).\r\n\r\nOn CentOS/RedHat, install with following commands:\r\n\r\n    (As root)\r\n    # rpm --import https://packages.microsoft.com/keys/microsoft.asc\r\n    # echo -e \"[azure-cli]\\nname=Azure CLI\\nbaseurl=https://packages.microsoft.com/yumrepos/azure-cli\\nenabled=1\\ngpgcheck=1\\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc\" > /etc/yum.repos.d/azure-cli.repo\r\n    # yum install azure-cli\r\n    (As centreon-engine)\r\n    # az login\r\n\r\nThe shell should prompt:\r\n\r\n    To sign in, use a web browser to open the page https://microsoft.com/devicelogin and enter the code CWT4WQZAD to authenticate.\r\n\r\nGo to https://microsoft.com/devicelogin and enter the given code.\r\n\r\nLog in with your account credentials. You should use a service account. Application is not yet supported.\r\n\r\nThe command line should now show:\r\n\r\n    [\r\n      {\r\n        \"cloudName\": \"AzureCloud\",\r\n        \"id\": \"0ef83f3a-d83e-2039-d930-309df93acd93d\",\r\n        \"isDefault\": true,\r\n        \"name\": \"N/A(tenant level account)\",\r\n        \"state\": \"Enabled\",\r\n        \"tenantId\": \"0ef83f3a-03cd-2039-d930-90fd39ecd048\",\r\n        \"user\": {\r\n          \"name\": \"email@mycompany.onmicrosoft.com\",\r\n          \"type\": \"user\"\r\n        }\r\n      }\r\n    ]\r\n\r\nYou now have a hidden azure directory where your token is stored in an accessTokens.json file.\r\n\r\n## Centreon Configuration\r\n\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Cloud-Azure-Network-ExpressRoute-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Set host macros\r\nThe following macros must be configured on host.\r\n\r\n#### Common macros\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AZURECIRCUITNAME</p></td>\r\n<td align=\"left\"><p>Circuit name</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>AZURERESOURCEGROUP</p></td>\r\n<td align=\"left\"><p>Resource group</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\n#### 'api' custom mode macros\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AZURECUSTOMMODE</p></td>\r\n<td align=\"left\"><p>Custom mode 'api'</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>AZURESUBSCRIPTION</p></td>\r\n<td align=\"left\"><p>Subscription ID</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AZURETENANT</p></td>\r\n<td align=\"left\"><p>Tenant ID</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>AZURECLIENTID</p></td>\r\n<td align=\"left\"><p>Client ID</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AZURECLIENTSECRET</p></td>\r\n<td align=\"left\"><p>Client secret</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\n#### 'azcli' custom mode macros\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AZURECUSTOMMODE</p></td>\r\n<td align=\"left\"><p>Custom mode 'azcli'</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>AZURESUBSCRIPTION</p></td>\r\n<td align=\"left\"><p>Subscription ID</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n## Available metrics\r\nGo to https://docs.microsoft.com/en-us/azure/monitoring-and-diagnostics/monitoring-supported-metrics?toc=/azure/azure-monitor/toc.json#microsoftnetworknetworkinterfaces to see the description of return metrics for this Azure service.",
+        "name": "Azure ExpressRoute",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_network_expressroute_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Network-ExpressRoute-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-network-expressroute",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Azure",
+            "Network",
+            "ExpressRoute",
+            "Cloud",
+            "Microsoft",
+            "HostDisco"
+        ],
+        "update_date": "1636824680",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic entrant et sortant du circuit.}\r\n\r\n{EN: Check circuit inbound and outbound traffic.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-ExpressRoute-Api-Traffic",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-ExpressRoute-Traffic-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut du circuit.}\r\n\r\n{EN: Check circuit state.}",
+            "active_checks_enabled": 2,
+            "alias": "Health",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-ExpressRoute-Api-Health",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-ExpressRoute-Health-Api",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du circuit.}\r\n\r\n{EN: Check circuit status.}",
+            "active_checks_enabled": 2,
+            "alias": "Circuit-Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-ExpressRoute-Api-Circuit-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{circuit_status} ne \"Enabled\" || %{provider_status} ne \"Provisioned\""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-ExpressRoute-Circuit-Status-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

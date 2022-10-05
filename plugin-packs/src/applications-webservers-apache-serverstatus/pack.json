@@ -1,0 +1,328 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_apache_serverstatus.pl --plugin=apps::apache::serverstatus::plugin --mode=slotstates --hostname=$HOSTADDRESS$ --proto=$_HOSTAPACHEPROTOCOL$ --port=$_HOSTAPACHEPORT$ $_HOSTAPACHEEXTRAOPTIONS$ --warning-free=$_SERVICEWARNING$ --critical-free=$_SERVICECRITICAL$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Webserver-Apache-SlotStates",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_apache_serverstatus.pl --plugin=apps::apache::serverstatus::plugin --mode=responsetime --hostname=$HOSTADDRESS$ --proto=$_HOSTAPACHEPROTOCOL$ --port=$_HOSTAPACHEPORT$ $_HOSTAPACHEEXTRAOPTIONS$ --warning=$_SERVICEWARNING$ --critical=$_SERVICECRITICAL$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Webserver-Apache-ResponseTime",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_apache_serverstatus.pl --plugin=apps::apache::serverstatus::plugin --mode=requests --hostname=$HOSTADDRESS$ --proto=$_HOSTAPACHEPROTOCOL$ --port=$_HOSTAPACHEPORT$ $_HOSTAPACHEEXTRAOPTIONS$ --warning=$_SERVICEWARNING$ --critical=$_SERVICECRITICAL$   --warning-bytes=$_SERVICEWARNINGBYTES$ --critical-bytes=$_SERVICECRITICALBYTES$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Webserver-Apache-Requests",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_apache_serverstatus.pl --plugin=apps::apache::serverstatus::plugin --mode=cpuload --hostname=$HOSTADDRESS$ --proto=$_HOSTAPACHEPROTOCOL$ --port=$_HOSTAPACHEPORT$ $_HOSTAPACHEEXTRAOPTIONS$ --warning=$_SERVICEWARNING$ --critical=$_SERVICECRITICAL$  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Webserver-Apache-Cpuload",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_apache_serverstatus.pl --plugin=apps::apache::serverstatus::plugin --mode=workers --hostname=$HOSTADDRESS$ --proto=$_HOSTAPACHEPROTOCOL$ --port=$_HOSTAPACHEPORT$ $_HOSTAPACHEEXTRAOPTIONS$ --warning=$_SERVICEWARNING$ --critical=$_SERVICECRITICAL$  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Webserver-Apache-Workers",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Apache Server using Server Status webpage",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "Web-Apache-64.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAPACHEEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAPACHEPORT$",
+                    "value": "80"
+                },
+                {
+                    "key": "$_HOSTAPACHEPROTOCOL$",
+                    "value": "http"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Webserver-Apache-ServerStatus",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Webserver-Apache-SlotStates",
+                "App-Webserver-Apache-ResponseTime",
+                "App-Webserver-Apache-Requests"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "Web-Apache-64.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Compatibility with Centreon Plugin Packs Manager v2.2.0",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Apache Web Server:\r\n* Cpuload\r\n* Workers\r\n* Requests\r\n* ResponseTime\r\n* SlotStates"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser un serveur web Apache :\r\n* Cpuload\r\n* Workers\r\n* Requests\r\n* ResponseTime\r\n* SlotStates"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAABpCAIAAAB9F7zWAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAALEgAACxIB0t1+/AAAAAd0SU1FB9sKGgY6Ob8Yw9UAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuOWwzfk4AACynSURBVHhe7Zx3VFRZuvZnrZvDH3dmbo+EiqSCIiNqd09HFck5B0WyRAUUBbONbWi1tc2trW0WFbMiKogBQQERBQkqwQwqmFq7+074njpvud2cKsC+91vLf/wt5p1nP++7D6f2rr33OThrfvf397xT3k/AO+b9BLxj3k/AO+b9BLxj3k/AO+b9BLxj3k/AO+b9BLxj3k/AO+b9BLxjtBPwt7/9jQRgmhd9aSZIkwCkhaT+LO/rQj6LJBiiJoP5uvW8Q5o5ohSDmuT3DyvTFQCamiQIaiK+7QSQANC6vkiwpoi+fF34Sui370iI6vVegTkkdCMv+gdlDK3FwXw+Mn6n64oqgMhhTQjSvCOKPH05/VfqZvuCVYq6oClyAHNI8JGh26sv+qlEirIskiB6rQA+igRpEkCv1jURmckciiR0HV6wSIJ3+CahKdLnAz4FSDNHSGpgpqg5ILr1TAAhKUabE60AFvkmLwjeJy1yAG8ydP3+KwloUYGoyWC+br3IAcwhoRt50T8oo0pWzwQQkm+yrEn0twXxon8tcoDI5AXfFDkM3hGqtGW8IIQSLayp65OjG0VNFvnmgFA9obU4mM8iCeJttyASBO+T5h1R7J++angfuq8yEaxMt74fh4Ru5EX/oIwq9dYzU2+NnqcgBt9TVzMhQq9JiFL9VBJUwJcxh0G+CJGvt5I5ulk+RaJ/hAu8Qeu+RuSIan7zYyjov6CvXkDX6Qu9FxyQ3/Sr9RaT1pvqB5RRpd56kSlq6t+C+CZzAK91oSyLDCEp9pnJwxxeEKzJRxLMYVCTRULIvIE5lAXMpEiCOUwImV5QlkEOpQCZBGtSCvyGCSANeJ8iwTsskmCaR9dkDi8I1uQjCV1YAWsyzdCbZYLgU/3AynghZDSQSbAmpYCeCWCwpqYH1xkw/5dfftm+fQdpigRzmMkciiREDoP3NUU6BXphZaJ64QJvHNLM4ZssikT/6JbxTZYlQVAKvJkAcPfu3fPnz//6669kMvgOgIo7Ojp6enoarjUdLT6BJnr99a9/haACFvuhnwI+Bd1PpV5E9XqvwBwSfGTo9tILyvqpZFk+Mnq9B/zP//zP+LR0d1e3khMnoJmPSIJpfPF/3H2osaml6FT5nv0Ha2pq1q5dRxMASHQ/e/Li1UsI6kN92RVEgkVC5Os2CTSZT4I0EwRr6ka+SfAaCCV64FNUydC6r2Emi4SQ1NmCMLLZE7LkRhIPF9f9+/c/e/ZMKNZWk0B8/vz5+v2n9h8rOXTy7LbCw18tWV127jxSP//8c/naHSfHTN6eM7fKKvjUn0eX5C0+Mzy2cuVmdHn0oLPn8WN2EVHk4R1o3QK9sDJRvXCBXhdkUdRkkW8OiG49E0BIarMMSoFeE4BtpKur66effirYscPKXCU1lAxzHrp+3TpsNXwfaFSu3nZgecGJTTt2z/u+YOWu4jNnziJ1YsWWSknkQXnQCalvkyx0r8S1zSj4jlFw2aBRR+0Dbpr51A8LKJi/tKX6cmdXp+ZGQO/bJXhHb1bXBMzUzQ7oUJOPbw/q++koMkXNXhMAXr582dbW/uDBgxs3bkSGRygkMoWxzN7adsnixbdv32abDL7p8xctW1JQkvXV0tyFaxb+eGDP/sMvfnqx7eO0k6qUr008qs3iNyp8Limj65Sjj8i8Lhv73TUKvGnoddBwxM0/ed/5vUeZwr1wfE55ZmblxJQL6767c/v2i2fPsO/R9XWhm2RC1GSgKXJE6NZrVd8pEohMiCIPcyAIaoogH1G8BQEM7q1bt27ebMM0FBcXfzhkqNxYKjeWqUwt0pNT6+rqMA3gzLnz47KmzttUlD13xfTl27buOXz7RvtaqwnrrFLWWkTvsIjZYxFXapG8xyzquDLsqiLymiy0QOZxXR5xQxqySTKi2sC129jrqbXv7c99iwe7nLLwvPbn4HOxE+pqax896cH12f0Qwm32uk+9sLK+oCyr4YtFHXWvw/dlkYQulALadm/IR9RMAFkENfH5Ozs7MQetra1YChOzs5UyhYnmR46ZCA0JxSmNR6bm5pbc+SvTZn6bkjd/484DDZfql9hOn6Yet9F68lzLuJ3qiTutMpabh52xGFduGltoEnLOLPai6dhv5CMbJAEdRoH3DP0vGLqVGbvfNwy4b+jbMshjj/Hn1VLXRufA8nE5TRdrsBni20A3BvR+GN3713W0SoCazOSzokoG68KEKIoYsICBbH9/jn716hW2HUwAnjiPHi0aMXyEzEiilCqwL0EMdR4ye+bsU6fPJmdPj8+cvnXX/pqK2hz7xYnWyXPtZ8y0nbjMbsZsddI2deZey4yjqpRlFpFFqrSlZoFnlJHYl67JI0plvmWKEIhmaehlaUCpxOOuYcA9A78uA59zcpfDnq5XJ8dfmjvhzN5t97s6f/71F9EdErom0xAEa+pGEgQzqckjFGrgNYNqRGhzfWQBZQf4czTo7ulpa2vDNOBs2LZt+5dfDMcEYBpMZEoIU6Wpp4dvVPiY/QcO1lVfTXT8bozd5Fi73BynRbMdF6RYx6+ym77eNm+RVeJy68w16oxl5qHYl86YxZeajt5sHnHWPKHCLLbKJHqLwvuaIrJJFtYsDdknGXlP7dXzRUC7r9+Bj1zOy0c1WfqeHhFetG1LU03FvfZW0bLQReTrrWQOCT4ydHv1hehqPHDI1E2BAf5BhgSeee7du485wI6EaTh6pCg6eqwppsBIimlQSmUKqfzjDz+eM2PuaLs5MY5fh9lNTh6yOs5xQYJdzgzH+Qsd8mPVMYsc5k60it2unlhgmXFAlfaNKmqvVeYBy/QiVepas9CT5nHnNRtUzCaZ221D/weDfK8YuB2WuN02CsYGVS4ddd7dszM97Obk0CPeHscjkiqXrXhw5w7ujd0nIXJ0tSiS4GEOL5gG1OTRJnqjzfXO8k3Kip+CeHgTGg/yWAotLddv3LiJTeny5Sszpk+3t7FVSuWYBmEm5EqJ7M/mo/xskpOdV4XbTUkYvDjFeXmy47xo+7zxToun2GYts5+xxmbqUnXaYrvcNbZTN1rnbLHOmmsRvt9yPDao1eYhlfLgFlnYNeOAAoXvVUUUlsVhifstpeeTIX41wz3LJe7dBn6dBt4XLVxXebpd3Lbi0vHCGzeuP33+HMviL71fxRlo8g5p5vBNvam3pK9i+JRikQShZwKY1hV4Llq6Ys2kmfOzpuanTZqZnJXn7eUfETn2y8++tLa0UghLQTMNUpmdYvBHZiND7XKSBi8Pt5ucNHhZjOPcCY4L8hwXfu3wdZJNxgzHhXMd8hfZz55snbzUZuIPNrnr1RNWmvpfMI2tUY750SSwzGLcOfOEHQq/ZiO/uwb+1YaupyV+bZLQM8aeJUNcO2OCn06Iqhjtc26o23lT15ZPQy8Ex52Yk193qarzwb2nz5+9fPXq17/8hW4b8B+Q0P10QLfsbUAv6qi3uyhLkfFWKwCCaG1r31iwf+76vfnr9sZlTo/PmhGfPSsmI6/28pWN89bEq1NHmruqZBaYABOZCZ6acEiYyyw+NhsR5zg/yn5G0uAV45xXJjrOj3Gcl+y8Mn3w8klOS0PUUfkO879xzJ9oNeagZcYxVep289EbrDL2WE340WLsWUVIsyysURK00yS4ymTsbrlvo4Fnt8Snzta9wNylwygI53azoedJu1Fn4/ybF4w+lRV00NujxCugbmxEZVpCSX7egW1bOpqu3bneeOfWrRsNl+92tPF/ZWGfjjTBp0gwdB2g6c+hdV8jckQ14vcAinpFTe2VVTuPrC84vGr9psRJc+auLZixYtvstXs27yisu1y3zT55iTpxg0P+DPsp6XYTR5m7q6SWwnGt+TGRytVym+EWAcG22SG2mSnOa7BHYTLGOMyJtM9NHbwi3XHBDPW4H6wnb1dn56njV9jNWGmTs848otwsvtpk7GoT/2OqtK1mEZUSn9tGQWVGrpvlPvWK0Y2KyGMytyufeDwdHXrU37NE6Xr3A59uA59HMu/Ltu7nhrpeHOHeGuhXH+NfHO7ekBX+5OvotoUxxd/Pu9/R8bCzE1sWPp3uJyV0fRKiSEIXSgFtuzfkIw5wCCOSuH///uoft9fVXSk4ULRg7bZtJy6uKSyZv373si3729vbS5f+UGcSs80stNQqbaVV9C67KSvtp82wnzrJYbqrytdKrhLWhNxUZqKQSM1kJk4mH/tYJ8Q7LfRSx6RoZgIHxsQ5DvnfOMyZYTNhouOCWQ7zJ1jF7rOacESVtsV8zErrzHXqCXuUwVeUUTWyoAVmPmXmiWfN47fIve4aeGPEN5p+flEWcEMS0m4cVGnsUWTkcmuQ9yMDn8fGPudVrlWOrs88g+6GBB72cD9p5tos9ej4wnefn+fXkaEXNnxbeWBj2/Wmv/wF06E9Qnj4QdDNEizFCyGjgUyCOSTAwI+hpGtqLt27d2/zlm2bthXsO12zaW/RwYOHdpbWFB448qCz66xbyk1pyEm53zXF6A0m/hXmSbss4wvVGTvtpn7rkDPT6aschymuFn6DlUNMJAq5RCosCxzdcmuF3XCVf6BNur9NUrrzismDl461z8V8xDjk59uMX2+Tu9UmJ9MqdpFD/lzLsafMx5WbJ8wy9dlhnb3XasIGM7xABN+ShBwwdjlgGlFtGnNREblR7lYuD2yVhLYJk1FsNLLFwPuxgc9RqcsupVezcchdo6Dzhi4HJV/c/ND7ZXT43cyI6tzQ4knBFaumVe1YdLa4sL2t7eWrl2w42AiI4H1hnN5ADqUAb/JQ9m0PYYATuKurq7yqtvDo8cbGpnPlFbuLSuvr65++eF6nDmoz8Lps5HXPKKhA4tIiCz+mCLxoMrbcImmvZfy3g2ctd16Q4TQ71/m7DMc5kTYpQ00+MscrhGZZ4PFJgdNbKZGrFdZDTT/Dmoh2zI+0m/iV48IFDvmTbFITHeelOn69Sp26yypzs2XCDJusFXbTl1pn7VeGXFKOvqAIW2sx5qgqrdgiaYGpT4VZ3AXTmGrlmFpFxCaFZ7NMMxNL5C5HzDXPuJcVkeukIy4Z+3Ya+N0x9Dz04YhrQX7PkiNf5kRfyQrfMDJ0u2XEYfMxhxxHb54y88KB7+uqSl78/PPLX36hP430AxsrXWj0SLDI0KwAQmtwFeQTP/3001OBY8dPlpaduXmzram5Zc3GLY8fP/7p1avLTmG3/uRRP8i1x8D3oOHwe4YBZyWeLZKgZnnEOUXoGqfp252/znSamen09WTnb6cPWZXumJ/rvCzOftIIC09bhb2p1EQzB8KaoGNDJbP8yPRzP8uIkSqfeKcl8XYTV9jPXmc7dYo6Oddx0SzHBdMsx5ZYpJw1T1phEbXRZspW60kzVaH7LNOxZR23SD5sHrPKxBcPVJXKqLlmflutJhxSpR01j1mq9MQc3JCGVRh7HTX8slvq/djK5+FHvhs+C51vm7PROneXVdYOq7hjYQE9S+OuLYwucveucIi84BxVnruo8949GgoaHECaTAZzhBINrEmCoCbiwGcANWl/xEb57NkzvAe8ENi9p5C2zuIly+5+4X3J0q3byKts0MjHBt6XDdxuGHrfM/RvNPbb5TTlxJC5k5y+ynKaO2XIsmlDVqU6zp46ZMX0oatnDF0zfvC8HOfFMfbZw0w/UcmtcEi8frHQPNEiYteyV9i5m3tk2KRG2GWPG7w8afDSb9VpO6wyt1gm5tpPXejw1RTr5BW2eXiW3Wyds9Zq3AKL8MOqtEMW8cmWUYsd56y1yVunzphrHnTKYhyWyD6F/2mJFw7zu4b+twZ5TjCPTh+8YprDgkUOc+ZbJ9V5+jyPDz/g5VusHF2rjG6Sh2OXe/CB73nLwIa6+pevfsE4YFhE48PDUgSZekH2rbYgnp6eHnzrkfrll1/u3LkLB7q1tb1k586DsWOeRYRe+NjjkaV3u8SjxmDUQwOfOwaexwZPrhr21XLb9KV22Yscp33rOH+qw7QFTvmLnBfNd/4212nW5CFLZwxbM84hb+aw1emOs/ytoj41HWGjsDWVKl+vDIVSpj08LGQW1gr7QHO3LFV4tHrM+MFLs5wWJttNyhdeuafhDcMmdaNt3nfq1DE2qRMGL5/huGCO3aQZ6sTt1jmHLDO2mkcVK0PqlaMxsnXSwPGq2CTNU8AKPIlNUmc0Grp3K703OfjvsBx/VJV62jyxyCy8aJhXRVRAQ05EY350/cqM0nX5544eaSgrbThTeuvalWfPnnd3P37YdQ9fTRoiEaJhFDV7bUEs8oIHJsYd33poRJoJcPv27Zs3b1aeL786ffTNyREdiSFPI0IODx7xxMqny8Dz7ODUjo/mHDALO202tsA0/JRl8l7LpO9tMrfb5W2xm/6dbda3DtOXOS3Msc1e45C/zDF/nk3qVoc5M20zJw5eNNYu6zOzUU5KZzOpqUwilWs2KM36wEzIhbkxl5nhJB9q8oWPOsZfHTPePi/XflaWTfpo++kpzqvxsBttPzXDDqskf7Xt1Hmq6H0W8afwBGUWV2ESHa+KQIHwdrIqyTqz3tjvvlHgKrn/AvvZa3D+qyeuMPFqdvZ46h3UExn6fFxkU2rI3uGuNVLXTkvPZ94BtxOCC5O8jiyI7jiS3X0253JJTm1Nzb3b7Y8fd2NMMFYEDZEI8hE1K4AsoCl/jdbi4E2qYc9t9E8Ira1tFRXni9fM2z0l5tWShIq0oHsJoc9DQs75xj2JmXfKOvCOcfA+qTu24AZZ6CbzyGPqjGLrjN3qlCLz2FJ12nrV2ELbSXvspqwxj6q0SNxtHjVr8Px852U5jrNnD1mW5TBtrl32ePVYF5NP/6xwtpapsDVp/jSref2WYX1gMnB+YJWgqVbYDzX94ktVwKfm7gE2aWPtZ2biR53wg3VmgVX2fssJRyzTMy1Ck5xX4ruP0R9nl3dGHtwgj/hB4Z/otGiS4+JZ9rNWKDwfDPLtwluFsXenhXeho1uxwq9dEnrHKLDNwLvUYVR5cuCzbxNerUt+vjmlaWNCxa6EmpK0yhNJRTuSzp3Y0Hq9Hl9WGi5daADB254B/YAaKuvu7hH+aNpxtaGxaPXkljXJu3LG/LQ04UJm1E9LFpYMD+v+k/fZQSMfDPLuMvDdK3WvMYuvNIsrM4+9IPW/Lg09Iw88qoovs0zdbBbWKgm5Jg1ebhmHV4pNttlLrJO/t5u0QZ22xzZ3uU3yNtu8bXZTx9tmpjrNCbWKjLHwczP91EZurZLSrMhlEmNhrWh+MB+avQvv5FKltVzlLLMeoRjmq/x0lFV4iG1WtONXY22yDlrE4NF5s2l4rNOiZOfVic4rFpmFt0pDW42D8bLdYOj9nUlgiSq5wjSmVjl6j9S13NmtJzDoSXTo85TI6pSg4u+i2iqyz+5LbL6Y+eL+jNa6iWV7404VxpUfn9/UcIlGSQSNGKL+N2HB6yVIkwB6NRZEZ2en8G842JDaGhpbrlxtOLkmr3FNXMWC1EtfJz/8wv/+UJ8qlWuPqc9VmUeFIuSqPKJOGVVh4NZp6IsH2QPKoFrTmCKT8JsGHl2G/gVyzwrVuHOq5O/NQ8tUKWvNw05ZpR6wTNhllVhsPf47y5it9jOW2U/eaZNxyHbKVJuU/CHLc52XjFaPnW41dpyF32emH39p7oaz3UZhbSdXW8nMcKjgnVyzVjAxEolcYqyQSsykcmup2UdyGwelw0dmI1yswjwtAn5QeB9SBp+Th5yWBeRbJWy1zdtrlbnNfMwWmesdAx+cbVgW9U5eRVlBraXZlw6l1Z5K+6Vr5uPWvJMF8c0lE55cndp8asLVkvSywvjysn09jx/REDE0wyqg5xDWhe8j0rygiLPhyZOnWAqYBHDjRmtV1YWTxccPbZhTkOH/8+L48glBD7IjX6RHHR7m1mEc0iYNKzF367Hze2LiUygbdV0W3iAPq5C7PZR41Ri71spDm+SRh+R+DYqo3Qr/GtPYatPY7aYhF80TDplGnTEbW2mRsNYs5Iwq+ZAqbq1l4i7b3M1202dZRe1XZ+yxTk+2jp87dHWe87c51jiZJy+0Sgq1zQy3m+Jvk+ZuFTXC3NXfbOSnyqHDFA54ADOTmmGhKKVSqcTYWGKMaIL3dqnSVqH+SDF4lPKjcbIh30uHH5K4njJ2L4z07TiR2XNu8ukdCU+uTX3VMr2+OO3i7uSXVXlXD6SdL0h6Upv3y7Xpjy7l1h1NPvpDXGnRbjzKa8ZOQBg2Db/hRYwJwJu8JgFevnyJI7q7u/v1NNzE1lRdU3N005wbezMPL4jo2ZPesS7hgszjvmHAaZX7k1kxLyaNuTw6oMUooMM4+Li924ukiJ64sGPWHncNA68b+VUYezcb+ZXIfJrkEXvl3vWKyKuKyIMyjw5JSKUs4KQyvNYkZqvSv9pkzAWzOBwha0z8yywSjlvEzbWM2G2Xu95u6mJV5DFV6haL2FiHOeM0u//KOMe5a9TphersfersKZZjE/DC4bRorGXwPKvEDIsgD6sxXuoxIy0D/qz8yE358ZdKZ7XMwlJuqZSa4Py3UCiszcwGq1WRXsOyxw6flez6w1dBFdsSL+9OObM14Xll7vPzuTUFyZd2Jd8rm3jlQGr59vg9q9K67mv+DQPjIwybBv1ngCbTW+hqEkCvCaj56tWr+/fv02MSpgEHdX3Dteqa6sOFq9qrJ9UeTKyQuHT+0bMsN/TVyewXByac/MgDr6mNgzwq5ka+2pLaOG9MyyAPLPlSgxGPB/mWGLp0GAc1GgcUSkZ1SEIrpH71Bu6PB/nsN3a5IQtrlIdvlI68YxTUbhx0QxK6QeZ2GfubMmqLSUCVWdwp85idJsG1JmP3KoNTHeZMclw0xXHRROvUM2axZ01jz5vGzjIPn+kwP8cub5NF9EmLlKnmIfMcvlrkMPdru6krVGOLLcfvVsXnqZOW2E372iZ7YVh47ZHUnUsjN84L/v6r4NxEl0jvYTFBH7t/6jBiqJ3Lh3aBo5zHBX46b4Ln6lkB1UczqvYkn94eV7xvNQ0OwPiAt10BJAjeJ807fJMBB2uis7NLWA9tNBMXLlafKNpcWLD1eFjWSRv/YztTe65PbbmQWWnh3j3Ip8zK7V7VpFfXpp1OCXps7N1i5FFjOKrLwOuQ4fAHBv7FRi6XjTzvGwaWSl0e2Hl3WHodkrvdNg5qlgTuNP4cE4anF5wrmyTDr8tCa2XBZyRe7ZKQKmlAidSrTRJ6RObzre2kNbZT19nmrTTT/MVb8yMNmW8WvNlm8kKLMRWK8KuKqMWmATuss3eqszaq0/Yqg+oUUVWKcNTvsco4oBr/wyfR9cUZF06ktZZl/1I//WJhclPFhBd3ZpzfmfSieur9szkntscd35+wZIbvyoWB40Z/sXdF5LHtmXhi1A6KQH8TwICjt4D3SfCRoSl67eDJDFvTgwcP2traNFPR1o5D+2ZHR/PNm42NzefOlpSV7Dq4b+uRmIlVKv81n7hcKJ3Q1Tb5ZIJfj3fA4S9dbwz36XIJKLYc+ehPvmWGI28YeD0y9DthO+puTlRjSnCZYlTXID+8gW+Xfdbp5Nuj8r0v9yqQDr9nFFRt5FVu6IK1Um/oXmno2m3ge1TiXmiRWKRKPWSRtE/q+dDAFw+deDFeZxJ41iJ5i8L3lqF/m6H/jzL3U6Zx58ziT5iNPihxf2Dof3+Q72GJ+3FlZLVJbKky4vC08LqK8bVHU3++Pv1Kcdr548kPbuSe3zvup7ppj6qmlO5OuFaVWVmcfL0uu+Z40qnjhfxogAEmQCjWwjeZFqreaBKAtJDUn/31118xDe3t7R0dHa+Xhfbkxn/h1fp6R8e15parDU0njx8uOrptz9JvaieNXR/hcSImsDVr9PqR7rWmfqWDRlQOcun+wKvSzK12blTLxoSzTh6df/LqGuR9wHrEtZSgZ5lRnXGhh+1GdQ7y1Qy9ctQTc99rMrfKD92eugUe+8yj1CTksnL0eXlYqd2obpeAHteAZlefg+ZeeCc4IHV5bOPz1M6vyMH1nMK/RRbWJA05ZOrS7uH/zD+4xt/nhIU79ro2w6CDn3hcOZ1+bn/i45bcm9XZpXsSOtvzzh5Kqj6c0l6RfelI+s41sTs3zdy/d+edO3fYCFB8MwHU5mEOZQGvCb6Az5IWkvq7EHhyBViVT58+ffL06d27d4Up0R4YNCtYItiv8NPU0nL50qWrDQ2X6+quNTY2tDSdLyop2rG7eOUPJwPSTzuEbfQP2P9j2s7s8CNyl9YP3Or/MLLU0+PG0uiHGxJOurg//MCr1cDz5OfuD1LDb8eFnon1ezZj7NXM8BK1e/sHvq0GfiVfetyfPebVgviWmRFllm6dg/xOfOjanTvmxZTo1uywYh/PEtWoiwajShUuu8N8mxbEti+NLgx2Kzca0SP3arHyPJUfdv7IuMrixKvl6ScK4wo3J1WWTN9bsPJS7eVrTU3t7bew3O9xf9Gj2OsQJpjWFQCa90mLHCAyecGagDkisFPRH50ePXqEJYJJ0exUGmhKNNsXNP5z/bpm3bR33Lre3n6jo6O1raOx6XpdQ/2FyovHNu84vnxDwfJ1R/b+cKJg7tKI6Eap16MPPM9KRu7ICG1Yklg4KbhmaUzX7rSzuWFFg10vOfkXfuKxIyfsyqb0Mz8krxke2DQ88Mcg/8ur0x5sSbm7Ja1sZXpR8bG6BqzM63jZPF126sypE5VVVUfXrC2ZlHVsbn55RUXJiV3Fx49XVlVf19zgm9vWNDo6RP8aCt72DNAqAdbkBWk+MoSkHr8f+EporBJsWVgiXV1dNCvdPT14xr17997t23ewaGi54D8Q9AOEdaNZPXgCxk9rW3t1VU3JD9vKtu5pbGrBMF6urb1w8eLZ0qJzJUeqL1241tx8ram5qamlufkGIg6oK/X1jc0tTS3X8diGZ+iW65qr4RdhzjXTrv1fDmp+EUa3rR17Kf1GDLqmBveAe3v48CG+TKI/S2g/m2gFsMg3mUOwpkho6rhKXZM5FEmIHAbvCFUaSItMAh/v+fPnz549e/HiBT4t5gmLnZYO0B71r5+D8UOjQ8PExlRw3szfa6PXcOOy9CXAsN65cxd7Oh6ycX0UYJ7pl5KJt1G8eeGrQ3fIbl7U/L8+huoVovr/BfwVoH/rBakeUThi/oqXc8wQnoMxdngjARgdmieA8YLT2dlJmx7WGYDGXKIptJ7ieQEFcPg7YRrXxzGGNQqHTJYCIpMi47edARAE39QVgLSmqHeWRb2CwTt8mV7N4LMkCKFWXMygFF+g6/QPKhlai4P5LJIgeq0APuoVBO+T5h1R7AcU9FXD+7ploiaD+br1Igcwh0+R1pvqB5RRpd56UZYiQzMBQoEWcgnmMKFr9gUVE8xhgmC6L8EiCaZ5yOwrRbAmCUBaSOoxqckQqsTwPpUxtO5rtK4OlNW/AvoXfcEXkEZkJu8A5hC8SYI0CUA+QU1dkzkk+CbvsMgLwGsgqkFkQtfk4VOATII1KQUGmABNTqePrs8LUSTBNI+uz5q8IFiTjyR4R7eJSAgZDaSZIyQ1MJMiCV6zKEKo0mYZlALatgBrUgr8XyeACdK6kYTIIURNwBxeEKwpijyiMgaaIgcwh7KANwnm9w8rY8VMACGphTUpBXpNAMFrQuiip4D5vBBFEkzz8AUkGLyj6dxvdwZz3iYlEiwSQkbbJN0PumV8k7IEa1IKvO2/B5Ag+ikgwUcCGtAjOfPJJAFfL+hCBXxkvggqwOs+nvpFoAsVUHdAxWSSAJTFxTV1fd8VQFbb5/VlSZDDI8pSZGgmgAcWRRJ6HcA3eZ9BplClzeKlxs/Pb8SIEVevXmUmgL5w4cKXX345XAeY/v7+27dvZyOC4kOHDn3++ecxMTEYVnIoArx5zps375NPPrEXcHBwoAhwtU2bNmHgcKnZs2cHBwejmHqx7hAwfXx8Zs6cibKWlha9dwVcXFyampqoF0BHhtbiYD4JBmX1nwGCp6eDVvWh+zA1ES+K+Mx/+MMf1Gq1mZkZ+6ssQGVRUdE//uM/pqenf/fdd8t64+3tjdTZs2fpOtXV1f/1X//l5OT0r//6r5MnT8aA8r89MTHxP//zP6dNm7Z79y76KSgoQNy5c2dGRsY///M/79+/HyMbFRWlUCieP3+OLqw78ezZs0GDBuFWUXbp0qXf/e53ycnJuA3cGH9vK1asePjwIXUH2s4CzCEByBdBPqKeM4DBTFFW1+cLdIux8WRlZeHzHzhw4Pr16x988MEXX3zx8qXwfyMhgAn4p3/6p5KSEmryNDY2YhQ2btwI3dXVZWFhgSl89OhRfn4+JoZ8gEthjiUSSUhICDS7MoEmhhvTtmHDBmhMgFKpZCuAB6ZoAvbu3avN9Q37daLfS+jejFYJaCYAFu+SJnNAWBfSJACvt2zZgtGfNWsWPhWaxcXF//Zv/zZu3Dj62yygCVi8eDEEDz58XFwcBvr06dP4bn766aeGhobNzc24CC4VHx//H//xH2VlZcIv0eweRkZGo0ePpt8C6B4oMpDFBPzLv/zLkCFDhg4dOmzYMEQGTNwJPwEqlYpSrBLC19eXfYHosgzN53n9ewnyRZCPOMBfQ//XoDvAxzh37ty///u/u7m5NTQ0YOwI7MIY1oULF1Ixxvof/uEfPvzwQ+y/BHYeEmFhYdhGMFUpKSn0lddeorm5trbW0tIS3/qOjg5chCZgzJgx0Hpvvr6+vr29nSYAE4lJraioqKysRGTA/OMf/8hPwDfffEMpVglRU1PDn8N0fRGUAtq2PpDt7zGUF6RJAF2tqdMxb9y4YWxs/N///d9yAZlMRhFg4LAOjhw5gjJMAL53paWlQlcxGAssDow+fxECW/nvf/977C3d3d2YJHxbsUrw3UQXEZgeDHpsbCw0OwOg6fqMp0+firYgHCG/6gMd6SMTwp1q0LY5mM8iCeJtn4J4AXjdFz09Pc7OzrRpYAMRgaynpydOVJyrmAaM7/Hjx9FL84tf34Nwmb8VFhbiyE1LS9P27A1WGDaigIAAPBStX78elY6OjoEcQUFByOJBCAsRexpGNjw8HLOIvvxvAdAwcUShHmX4mmMC0HHUqFGuArzA9FAX0RX4SAgZPVB2gPcA5pDQNfsCBRj3HTt2IDKHBAMPpthesInfv38flYgwNb9DqKSIlY7p2bNnD77Cmj76wLaA5xw8lmDU8Oy4devWtRzff/894rZt23D+U315efnBgwfxLWa/iwET840LQmNVCQ9ResD94ImAugPqy9C6r2Emi4SQHOgMQOQdQtfXKzQVnAC8Zry9CchnWQimCVGT0ZcPhGto0LYF+m8SzNR0FjSLJAhqitDm9J4BDGaKsn35DPKF/yWW5v+VCZr+XUlI/v3WrVtYFniRAfjWw0ENTgtmYneiSmTJwZdX9L9nItDxyZMn1wTa2tqwAgTvb3jPQC9cEJdlpyUK4ICbN2/iwNDUCf83ebgy6QcPHmAfQyW6YCXRrxbuUNP91atX6MtM1GvuoDdvY4qab3sIkyAGLCDw2c6cOSMMyt9pfFEGMGSYmF27duFxHichmdiOMEBY/jDZEx7eDHAR7C2YM+FdrBdUgw0KBbjm+fPnaTrB0aNH8Ss0/3bf3U03APAWQibeLfDuTd0x0DiEoDEl+/btoyfjFy9eHD58GJWA/TMkLo5nJDJPnjzJ3uMACqiGogiRKWoOvAVRsx9EXQhojB0+0pUrV/D8hyccfFTyAT4nXkqpKZRrwGDhY5NDEb3wrcTcYAIwl3yKdcQRcvHiRfwWfK/pxRjgsQrO1atXMeuYAKo/dOgQpgpXg09HKEAXbOjY+ltbW6uqqlAGE4MOE7eNSgw3mZgAfAnQHc6JEyf4fx/WXIiDHEoBMkWQj9hrBbCoVwBe6yKqxARgBPHdxOaD4Xj7CSATEd3r6uowENhhaAuiSgYGF7sNHl0wKBg+DLfQWzMBuBp+L1thMLECMEkYaHx/6WbIxyhji8P9YOUJvTUrAFcQds2n9BcngAnAcxqWKfqimDYuqqcCBnP0ZglKgQGegpjoX/MOi5gAfGVIY2jY6MDBBOCJEIKyFLH1Yz8RSrQOJoANChDKxaALthRcHC/YWChUeezYMTIxsuwMwL5EOwxtJmQiYii3b99Ot0rgiQtDjIHGFVAMB5VYi3gwhQC4Md0tiEEOpYDI5CMY4AwgzUT/mjkAGp8WBxeZ0PzLCwTb6KmJiK8z1TMHTbaDE6wLII3L4okQmzuWGvkAF8deATCptAUB9htxM+wvqQACI05zQyYirkZXoMdfmJhI1gtzpntjBGuSAMwnQVAKvO0KYIJgTZEAQl7TFJl8JME71GTwjqb6NVqrN8znBdMEOYBp8hl8ioel+oEqgbbdG1GKNDM1E0DwOVYxIKjUW0wmn2UC6Pq8w8NMVsAcQrfJHBKsSYhMPqu3HjCfCVHk0RRx9YB8EeQj9loBBNO6AkDr+kwQ1BSZPP2kCL6Aab0mj95KYkCHmnzkRf+gjKG1OESmqPn/eQJI8FEvopRuJe/0cx0RrLKvC+q9LJ8SlTHRPygjtO3eMJ+EqExzCGu69s6RA3jdF6ym/458Ga9JANJCUtwXMJ+PughV+lNAN8uafIqEqMmEbiREDgRBTRHkI745AwjWQbcn7+hmRVABIqvUFQQ1RSYQ+XrL0BQ5gDmUBdQk+KYoS5p3CKFKCzVFUS8DFgBkB3gR0+S4S/CawUwSLDKEpNhnJg9zeEEwTYJvModBTRYJIfMG5lAWMJMiL4AoxQOThxxKATIJ1qQU6O89gBDqNejVQskbTQKQFpK9suQQffmA93WzekEZqxQJIaNBZLImr3mHCYaoSZDJp0SamiQISoE3ZwAgiwlAPsE3+SzvM8gUqsRlZALW5E2C9/vP8k2Cad0Ug6VYlmnmMCjVD7pl1GSRFwxNHZ0BlOMj3+QdXjMhMkWRhMghRE3AHF4QrMmbgHwR5LOsUCiuFGUBMymSYJoQNQkqY5BDKUAmwZqUAvonQJPpLUiTAHp9JgBpTVHvrKjJBCIP7whVvQrIAaypK5gGrKkbSRDMpCYhlAyAtlSAOSQA80kQlAIDnwG6sALdSnIGvMJv4n9xNVEXNHUvwhw+pVv2lvTTUe8vYuh/ChI8jeDhHb1a10RkJu8AMgFpZvKCRRIM5lMTCCUaWJMJBjmANHOEpAZm8k0SemEpVsY7JICQFKPNsQl4z7vi/QS8Y95PwDvm/QS8Y95PwDvm/QS8Y95PwDvm/QS8Y95PwDvm/QS8Y95PwDvl73//f1dD2X36o3qHAAAAAElFTkSuQmCC",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Webservers-Apache-Serverstatus\r\n\r\n## mod\\_status and extendedstatus\r\nWarning: The following procedure is an example. Cannot be applied on all context.\r\n\r\nThe module *mod\\_status* allows the generation of a live Apache report,\r\navailable on a dedicated web page. This report is used to generate\r\nstatistics in Centreon. To activate this module, you have to open your\r\nhttpd configuration file:\r\n\r\n    $ vi /etc/httpd/conf/httpd.conf\r\n\r\nand check that:\r\n\r\n* The module is loaded by Apache:\r\n\r\n\r\n        LoadModule status_module modules/mod_status.so\r\n\r\n* If not already configured, add the followings lines:\r\n\r\n```\r\n        <Location /server-status>\r\n            SetHandler server-status \r\n            Order Deny,Allow\r\n            Allow from <centreon-poller_@IP>\r\n            Deny from All\r\n        </Location>\r\n```\r\n\r\n* And finally, check that `ExtendedStatus` is activated (Mandatory if\r\n    you wants precise statistics on query processed by the WebServer):\r\n\r\n\r\n        ExtendedStatus On\r\n\r\nApache must be reloaded to take this modification into account:\r\n\r\n    $ /etc/init.d/httpd reload\r\n\r\n## Centreon configuration\r\n### Create an Apache server\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"44%\" />\r\n<col width=\"55%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Polle to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p><em>App-Webserver-Apache-ServerStatus-custom</em></p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick the *Save* button.",
+        "name": "Apache Server",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_apache_serverstatus.pl",
+                "package_name": "centreon-plugin-Applications-Webservers-Apache-Serverstatus",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Applications-Webservers-Apache-Serverstatus",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "applications-webservers-apache-serverstatus",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Apache",
+            "HTTP",
+            "HTTPS",
+            "Web",
+            "Web server"
+        ],
+        "update_date": "1487867633",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'\u00e9tat des slots.}\r\n\r\n{EN: Check slot informations.}",
+            "active_checks_enabled": 2,
+            "alias": "Apache-SlotStates",
+            "check_timeperiod": "",
+            "command_name": "App-Webserver-Apache-SlotStates",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Webserver-Apache-SlotStates",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le temps de r\u00e9ponse de la page du 'mod_status'.}\r\n\r\n{EN: Check response time of 'mod_status' page.}",
+            "active_checks_enabled": 2,
+            "alias": "Apache-ResponseTime",
+            "check_timeperiod": "",
+            "command_name": "App-Webserver-Apache-ResponseTime",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "2"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "1"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Webserver-Apache-ResponseTime",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les requ\u00eates.}\r\n\r\n{EN: Check request informations.}",
+            "active_checks_enabled": 2,
+            "alias": "Apache-Requests",
+            "check_timeperiod": "",
+            "command_name": "App-Webserver-Apache-Requests",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALBYTES$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGBYTES$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Webserver-Apache-Requests",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation CPU d'Apache.}\r\n\r\n{EN: Check Apache Cpuload.}",
+            "active_checks_enabled": 2,
+            "alias": "Apache-Cpuload",
+            "check_timeperiod": "",
+            "command_name": "App-Webserver-Apache-Cpuload",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Webserver-Apache-Cpuload",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les processus apache en ex\u00e9cution.}\r\n\r\n{EN: Check Apache busy processes.}",
+            "active_checks_enabled": 2,
+            "alias": "Apache-Workers",
+            "check_timeperiod": "",
+            "command_name": "App-Webserver-Apache-Workers",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Webserver-Apache-Workers",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

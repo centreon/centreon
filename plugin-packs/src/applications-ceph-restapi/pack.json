@@ -1,0 +1,221 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-Ceph-Restapi-Pools-Discover",
+                "command_for_macro": "App-Ceph-Restapi-Pools-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-Ceph-Restapi"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "App-Ceph-Restapi-Pool-Name",
+                "service_display_name": "Pool-$name$",
+                "service_template": "App-Ceph-Restapi-Pools"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ceph_restapi.pl --plugin=apps::ceph::restapi::plugin --mode=list-pools --hostname=127.0.0.1 --api-username=none --api-password=none --statefile-suffix=\\'-autodiscovery\\' --disco-format\\\"",
+            "name": "App-Ceph-Restapi-Pools-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ceph_restapi.pl --plugin=apps::ceph::restapi::plugin --mode=list-pools --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTCEPHAPIPORT$\\' --proto=\\'$_HOSTCEPHAPIPROTOCOL$\\' --api-username=\\'$_HOSTCEPHAPIUSERNAME$\\' --api-password=\\'$_HOSTCEPHAPIPASSWORD$\\' $_HOSTCEPHAPIEXTRAOPTIONS$ --statefile-suffix=\\'-autodiscovery\\' --disco-show\\\"",
+            "name": "App-Ceph-Restapi-Pools-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ceph_restapi.pl --plugin=apps::ceph::restapi::plugin --mode=osd --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTCEPHAPIPORT$\\' --proto=\\'$_HOSTCEPHAPIPROTOCOL$\\' --api-username=\\'$_HOSTCEPHAPIUSERNAME$\\' --api-password=\\'$_HOSTCEPHAPIPASSWORD$\\' $_HOSTCEPHAPIEXTRAOPTIONS$ --warning-osd-detected=\\'$_SERVICEWARNINGOSDDETECTED$\\' --critical-osd-detected=\\'$_SERVICECRITICALOSDDETECTED$\\' --warning-osd-online=\\'$_SERVICEWARNINGOSDONLINE$\\' --critical-osd-online=\\'$_SERVICECRITICALOSDONLINE$\\' --warning-osd-online-prct=\\'$_SERVICEWARNINGOSDONLINEPRCT$\\' --critical-osd-online-prct=\\'$_SERVICECRITICALOSDONLINEPRCT$\\' --warning-osd-participating=\\'$_SERVICEWARNINGOSDPARTICIPATING$\\' --critical-osd-participating=\\'$_SERVICECRITICALOSDPARTICIPATING$\\' --warning-osd-participating-prct=\\'$_SERVICEWARNINGOSDPARTICIPATINGPRCT$\\' --critical-osd-participating-prct=\\'$_SERVICECRITICALOSDPARTICIPATINGPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Ceph-Restapi-Osd",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ceph_restapi.pl --plugin=apps::ceph::restapi::plugin --mode=health --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTCEPHAPIPORT$\\' --proto=\\'$_HOSTCEPHAPIPROTOCOL$\\' --api-username=\\'$_HOSTCEPHAPIUSERNAME$\\' --api-password=\\'$_HOSTCEPHAPIPASSWORD$\\' $_HOSTCEPHAPIEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Ceph-Restapi-Health",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ceph_restapi.pl --plugin=apps::ceph::restapi::plugin --mode=pools --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTCEPHAPIPORT$\\' --proto=\\'$_HOSTCEPHAPIPROTOCOL$\\' --api-username=\\'$_HOSTCEPHAPIUSERNAME$\\' --api-password=\\'$_HOSTCEPHAPIPASSWORD$\\' $_HOSTCEPHAPIEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-pool-space-usage=\\'$_SERVICEWARNINGPOOLSPACEUSAGE$\\' --critical-pool-space-usage=\\'$_SERVICECRITICALPOOLSPACEUSAGE$\\' --warning-pool-space-usage-free=\\'$_SERVICEWARNINGPOOLSPACEUSAGEFREE$\\' --critical-pool-space-usage-free=\\'$_SERVICECRITICALPOOLSPACEUSAGEFREE$\\' --warning-pool-space-usage-prct=\\'$_SERVICEWARNINGPOOLSPACEUSAGEPRCT$\\' --critical-pool-space-usage-prct=\\'$_SERVICECRITICALPOOLSPACEUSAGEPRCT$\\' --warning-pool-read=\\'$_SERVICEWARNINGPOOLREAD$\\' --critical-pool-read=\\'$_SERVICECRITICALPOOLREAD$\\' --warning-pool-write=\\'$_SERVICEWARNINGPOOLWRITE$\\' --critical-pool-write=\\'$_SERVICECRITICALPOOLWRITE$\\' --warning-pools-detected=\\'$_SERVICEWARNINGPOOLSDETECTED$\\' --critical-pools-detected=\\'$_SERVICECRITICALPOOLSDETECTED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Ceph-Restapi-Pools",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Ceph via la Rest API}\r\n{EN: Template to monitor Ceph using Rest API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to monitor Ceph using Rest API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "icon": "ceph-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTCEPHAPIPORT$",
+                    "value": "8443"
+                },
+                {
+                    "key": "$_HOSTCEPHAPIPROTOCOL$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTCEPHAPIEXTRAOPTIONS$",
+                    "value": "--insecure"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Ceph-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Ceph-Restapi-Osd",
+                "App-Ceph-Restapi-Health"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "ceph-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin-Pack to monitor Ceph using Rest API:\r\n* Health\r\n* Osd\r\n* Pools"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin-Pack pour superviser Ceph via la Rest API :\r\n* Health\r\n* Osd\r\n* Pools\r\n"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' \r\n",
+        "name": "Ceph RestAPI",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_ceph_restapi.pl",
+                "package_name": "centreon-plugin-Applications-Ceph-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-ceph-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Ceph",
+            "Application",
+            "API"
+        ],
+        "update_date": "1654072257",
+        "version": "22.06.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des object storage daemons.}\r\n\r\n{EN: Check object storage daemons.}",
+            "active_checks_enabled": 2,
+            "alias": "Osd",
+            "check_timeperiod": "",
+            "command_name": "App-Ceph-Restapi-Osd",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Ceph-Restapi-Osd",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut global du cluster.}\r\n\r\n{EN: Check overall cluster status.}",
+            "active_checks_enabled": 2,
+            "alias": "Health",
+            "check_timeperiod": "",
+            "command_name": "App-Ceph-Restapi-Health",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /warn/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /error/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Ceph-Restapi-Health",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des pools.}\r\n\r\n{EN: Check pools.}",
+            "active_checks_enabled": 2,
+            "alias": "Pools",
+            "check_timeperiod": "",
+            "command_name": "App-Ceph-Restapi-Pools",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Ceph-Restapi-Pools",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

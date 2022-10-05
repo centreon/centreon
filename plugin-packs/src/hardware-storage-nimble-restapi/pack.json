@@ -1,0 +1,227 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nimble_restapi.pl --plugin=storage::nimble::restapi::plugin.pm  --mode=volumes --hostname=$HOSTADDRESS$ --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --api-username=\\'$_HOSTAPIUSERNAME$\\' --api-password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTAPIEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-space-usage=\\'$_SERVICEWARNINGSPACEUSAGE$\\' --critical-space-usage=\\'$_SERVICECRITICALSPACEUSAGE$\\' --warning-read=\\'$_SERVICEWARNINGREAD$\\' --critical-read=\\'$_SERVICECRITICALREAD$\\' --warning-read-iops=\\'$_SERVICEWARNINGREADIOPS$\\' --critical-read-iops=\\'$_SERVICECRITICALREADIOPS$\\' --warning-write=\\'$_SERVICEWARNINGWRITE$\\' --critical-write=\\'$_SERVICECRITICALWRITE$\\' --warning-write-iops=\\'$_SERVICEWARNINGWRITEIOPS$\\' --critical-write-iops=\\'$_SERVICECRITICALWRITE$\\' --warning-read-latency=\\'$_SERVICEWARNINGREADLATENCY$\\' --critical-read-latency=\\'$_SERVICECRITICALREADLATENCY$\\' --warning-write-latency=\\'$_SERVICEWARNINGWRITELATENCY$\\' --critical-write-latency=\\'$_SERVICECRITICALWRITELATENCY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Nimble-Restapi-Volumes",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nimble_restapi.pl --plugin=storage::nimble::restapi::plugin.pm  --mode=hardware --hostname=$HOSTADDRESS$ --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --api-username=\\'$_HOSTAPIUSERNAME$\\' --api-password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTAPIEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Nimble-Restapi-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nimble_restapi.pl --plugin=storage::nimble::restapi::plugin.pm  --mode=arrays --hostname=$HOSTADDRESS$ --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --api-username=\\'$_HOSTAPIUSERNAME$\\' --api-password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTAPIEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --filter-counters=\\'$_SERVICEFILTERCOUNTER$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-space-usage=\\'$_SERVICEWARNINGSPACEUSAGE$\\' --critical-space-usage=\\'$_SERVICECRITICALSPACEUSAGE$\\' --warning-space-usage-free=\\'$_SERVICEWARNINGSPACEUSAGEFREE$\\' --critical-space-usage-free=\\'$_SERVICECRITICALSPACEUSAGEFREE$\\' --warning-space-usage-prct=\\'$_SERVICEWARNINGSPACEUSAGEPRCT$\\' --critical-space-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' --warning-snapshots-compression-rate=\\'$_SERVICEWARNINGSNAPSHOTSCOMPRESSIONRATE$\\' --critical-snapshots-compression-rate=\\'$_SERVICECRITICALSNAPSHOTSCOMPRESSIONRATE$\\' --warning-snapshots-space-reduction-rate=\\'$_SERVICEWARNINGSNAPSHOTSPACEREDUCTIONRATE$\\' --critical-snapshots-space-reduction-rate=\\'$_SERVICECRITICALSNAPSHOTSSPACEREDUCTIONRATE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Nimble-Restapi-Arrays",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser le stockage Nimble via Restapi}\r\n{EN: Template to check Nimble Storage using Restapi protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Nimble Storage using Rest API protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "nimble-logo-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAPIPORT$",
+                    "value": "5392"
+                },
+                {
+                    "key": "$_HOSTAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTAPIUSERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAPIPASSWORD$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAPIEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Nimble-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Storage-Nimble-Volumes-Restapi",
+                "HW-Storage-Nimble-Hardware-Restapi",
+                "HW-Storage-Nimble-Arrays-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "nimble-logo-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ fix volume command-line typo",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Nimble Storage via Rest API:\r\n* Array\r\n* Hardware\r\n* Volume"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller les stockage Nimble via Rest API: \r\n* Arrays\r\n* Hardware\r\n* Volume"
+            }
+        ],
+        "discovery_category": "storage",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "",
+        "name": "Nimble Storage Rest API",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_nimble_restapi.pl",
+                "package_name": "centreon-plugin-Hardware-Storage-Nimble-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-storage-nimble-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Hardware",
+            "Nimble",
+            "SAN",
+            "Restapi",
+            "Storage"
+        ],
+        "update_date": "1596633810",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les volumes.}\r\n\r\n{EN: Check volumes.}",
+            "active_checks_enabled": 2,
+            "alias": "Volumes",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Nimble-Restapi-Volumes",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{space_usage_level} =~ /warning/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{state} !~ /online/i || %{space_usage_level} =~ /critical/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Nimble-Volumes-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le materiel.}\r\n\r\n{EN: Check hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Nimble-Restapi-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Nimble-Hardware-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les baies.}\r\n\r\n\r\n{EN: Check arrays.}",
+            "active_checks_enabled": 2,
+            "alias": "Arrays",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Nimble-Restapi-Arrays",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /unreachable/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Nimble-Arrays-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

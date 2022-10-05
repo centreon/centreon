@@ -1,0 +1,414 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kaspersky_snmp.pl --plugin=apps::antivirus::kaspersky::snmp::plugin --mode=updates --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-last-server-update=\\'$_SERVICEWARNINGLASTSERVERUPDATE$\\' --critical-last-server-update=\\'$_SERVICECRITICALLASTSERVERUPDATE$\\' --warning-not-updated=\\'$_SERVICEWARNINGNOTUPDATED$\\' --critical-not-updated=\\'$_SERVICECRITICALNOTUPDATED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Antivirus-Kaspersky-SNMP-Updates",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kaspersky_snmp.pl --plugin=apps::antivirus::kaspersky::snmp::plugin --mode=protection --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-no-antivirus=\\'$_SERVICEWARNINGNOANTIVIRUS$\\' --critical-no-antivirus=\\'$_SERVICECRITICALNOANTIVIRUS$\\' --warning-no-real-time=\\'$_SERVICEWARNINGNOREALTIME$\\' --critical-no-real-time=\\'$_SERVICECRITICALNOREALTIME$\\' --warning-not-acceptable-level=\\'$_SERVICEWARNINGNOTACCEPTABLELEVEL$\\' --critical-not-acceptable-level=\\'$_SERVICECRITICALNOTACCEPTABLELEVEL$\\' --warning-not-cured-objects=\\'$_SERVICEWARNINGNOTCUREDOBJECTS$\\' --critical-not-cured-objects=\\'$_SERVICECRITICALNOTCUREDOBJECTS$\\' --warning-too-many-threats=\\'$_SERVICEWARNINGTOOMANYTHREATS$\\' --critical-too-many-threats=\\'$_SERVICECRITICALTOOMANYTHREATS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Antivirus-Kaspersky-SNMP-Protection",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kaspersky_snmp.pl --plugin=apps::antivirus::kaspersky::snmp::plugin --mode=logical-network --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-new-hosts=\\'$_SERVICEWARNINGNEWHOSTS$\\' --critical-new-hosts=\\'$_SERVICECRITICALNEWHOSTS$\\' --warning-groups=\\'$_SERVICEWARNINGGROUPS$\\' --critical-groups=\\'$_SERVICECRITICALGROUPS$\\' --warning-not-connected-long-time=\\'$_SERVICEWARNINGNOTCONNECTEDLONGTIME$\\' --critical-not-connected-long-time=\\'$_SERVICECRITICALNOTCONNECTEDLONGTIME$\\' --warning-not-controlled=\\'$_SERVICEWARNINGNOTCONTROLLED$\\' --critical-not-controlled=\\'$_SERVICECRITICALNOTCONTROLLED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Antivirus-Kaspersky-SNMP-Logical-Network",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kaspersky_snmp.pl --plugin=apps::antivirus::kaspersky::snmp::plugin --mode=full-scan --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-not-scanned=\\'$_SERVICEWARNINGNOTSCANNED$\\' --critical-not-scanned=\\'$_SERVICECRITICALNOTSCANNED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Antivirus-Kaspersky-SNMP-Full-Scan",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kaspersky_snmp.pl --plugin=apps::antivirus::kaspersky::snmp::plugin --mode=events --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-events=\\'$_SERVICEWARNINGEVENTS$\\' --critical-events=\\'$_SERVICECRITICALEVENTS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Antivirus-Kaspersky-SNMP-Events",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kaspersky_snmp.pl --plugin=apps::antivirus::kaspersky::snmp::plugin --mode=deployment --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-progress=\\'$_SERVICEWARNINGPROGRESS$\\' --critical-progress=\\'$_SERVICECRITICALPROGRESS$\\' --warning-failed=\\'$_SERVICEWARNINGFAILED$\\' --critical-failed=\\'$_SERVICECRITICALFAILED$\\' --warning-expiring=\\'$_SERVICEWARNINGEXPIRING$\\' --critical-expiring=\\'$_SERVICECRITICEXPIRING$\\' --warning-expired=\\'$_SERVICEWARNINGEXPIRED$\\' --critical-expired=\\'$_SERVICECRITICALEXPIRED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Antivirus-Kaspersky-SNMP-Deployment",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Kaspersky Security Center in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "app-kaspersky-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Antivirus-Kaspersky-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Antivirus-Kaspersky-Updates-SNMP",
+                "App-Antivirus-Kaspersky-Protection-SNMP",
+                "App-Antivirus-Kaspersky-Logical-Network-SNMP",
+                "App-Antivirus-Kaspersky-Full-Scan-SNMP",
+                "App-Antivirus-Kaspersky-Events-SNMP",
+                "App-Antivirus-Kaspersky-Deployment-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAbFBMVEUAAADlOTXlOTXlOTXlOTXlOTXlOTXlOTXlOTXlOTXlOTXlOTUmMjgmMjgmMjjlOTXlOTUmMjgmMjjlOTUmMjjlOTXlOTUnMjkmMjgnMzgmMjgmMjgmMjjlOTXmOjUmMjgmMjjlOTUmMjgAAACEpZ9XAAAAIXRSTlMAOapYpyNVXfz8Xq1+gTlZXoDxXH9aVQKrBJyruVIFR1US7vaMAAAAAWJLR0QAiAUdSAAAAAd0SU1FB+EMEAcIO/i4rbAAAAI3SURBVHja7djZUgJBEERRQMV9X3Fn/v8jFRSBYaYrsyoLNaLznbhHn6ZrMKirq6urq/t7G456Nyz+cGcEbHfPBIynvRuXfrd/MLV3eGT/B5wAWd8J0PV9AGHfBVD2PQBp3wHQ9nmAuE8D1H0WIO+TAH2fAyT0KUBGnwGk9AlATh8HJPVhQFYfBaT1QUBeHwMk9iFAZh8BpPYBQG7fBiT3TUB23wKk9w1Afr8M2EK/CNhGvwQ43ka/BEAW7gcB8X4MIOiHAIp+BCDpBwCavh8g6rsBqr4XIOs7Abq+DyDsuwDKvgew7J+c/gZgpd80cQENWOsLBCyg1Y8LSMBGPyzgAB39qIACdPaDAgbQ048JCEBvPyTAAYV+RAADiv2AAAUYfb8ABJh9twADAP0uwRkAOIf6F0C/aS7b/SsAcK36+2e7afUbDQDurws++xoA0V8VzPoI4FbaXwrmfQRwp+0vBF99AWDZv3/AAHPBdz8OWP3+neCCRT8MWP/+hgWPi34U0P7+hwWNBrD5/qAFIUDX+4cVRADd7y9SEAD0vf84gR/Q//6kBG5A6f07ecoHlN/fxP/ACbDe/7jAB7DvD7DABUDuH6jAA8DuL6DAAUDvP5iAB+D3J0hAA5j7FyJgAdz9DRCQAPb+Zws4AH9/NAUUwHP/tAQMwHd/nTyrAM7778/3bxSQ08cBSX0YkNVHAWl9EJDXxwCJfQiQ2UcAL5l9BPCa2UcAvr29Y0sD1NXV1dXV1dX9230A9BLeF2d2ZqMAAAAuelRYdGRhdGU6Y3JlYXRlAAB42jMyMDTXNTTSNTQLMTC3MrCwMrXQNjCwMjAAAEIbBRj0G5BUAAAALnpUWHRkYXRlOm1vZGlmeQAAeNozMjA01zU00jU0CzEwtzKwsDK10DYwsDIwAABCGwUY3SQ43AAAAABJRU5ErkJggg==",
+            "name": "app-kaspersky-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "- Stable version",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Kaspersky Security Center application using SNMP:\r\n* Deployment\r\n* Events\r\n* Full-Scan\r\n* Logical-Network\r\n* Protection\r\n* Updates"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller l\\'application Kaspersky Security Center via SNMP:\r\n* Deployment\r\n* Events\r\n* Full-Scan\r\n* Logical-Network\r\n* Protection\r\n* Updates"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Antivirus-Kaspersky-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Kaspersky-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Kaspersky",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_kaspersky_snmp.pl",
+                "package_name": "centreon-plugin-Applications-Antivirus-Kaspersky-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "centreon-plugin-Applications-Antivirus-Kaspersky-Snmp",
+                "version": "2018xxxx-1"
+            }
+        ],
+        "slug": "applications-antivirus-kaspersky-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Kaspersky",
+            "Antivirus",
+            "SNMP",
+            "Application",
+            "Security"
+        ],
+        "update_date": "1523263503",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le temps depuis la derni\u00e8re mise \u00e0 jour du serveur et le nombre de client non \u00e0 jour.}\r\n\r\n{EN: Check delay since last server update and number of not up to date hosts.}",
+            "active_checks_enabled": 2,
+            "alias": "Updates",
+            "check_timeperiod": "",
+            "command_name": "App-Antivirus-Kaspersky-SNMP-Updates",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /Warning/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /Critical/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGLASTSERVERUPDATE$",
+                    "password": false,
+                    "value": "120"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALLASTSERVERUPDATE$",
+                    "password": false,
+                    "value": "240"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGNOTUPDATED$",
+                    "password": false,
+                    "value": "0"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Antivirus-Kaspersky-Updates-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut de la protection.}\r\n\r\n{EN: Check protection status.}",
+            "active_checks_enabled": 2,
+            "alias": "Protection",
+            "check_timeperiod": "",
+            "command_name": "App-Antivirus-Kaspersky-SNMP-Protection",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /Warning/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /Critical/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGNOANTIVIRUS$",
+                    "password": false,
+                    "value": "0"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGNOREALTIME$",
+                    "password": false,
+                    "value": "0"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGNOTACCEPTABLELEVEL$",
+                    "password": false,
+                    "value": "0"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGNOTCUREDOBJECTS$",
+                    "password": false,
+                    "value": "0"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGTOOMANYTHREATS$",
+                    "password": false,
+                    "value": "0"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Antivirus-Kaspersky-Protection-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut de la d\u00e9couverte r\u00e9seau.}\r\n\r\n{EN: Check logical network status.}",
+            "active_checks_enabled": 2,
+            "alias": "Logical-Network",
+            "check_timeperiod": "",
+            "command_name": "App-Antivirus-Kaspersky-SNMP-Logical-Network",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /Warning/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /Critical/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGNOTCONNECTEDLONGTIME$",
+                    "password": false,
+                    "value": "0"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGNOTCONTROLLED$",
+                    "password": false,
+                    "value": "0"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Antivirus-Kaspersky-Logical-Network-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des scans.}\r\n\r\n{EN: Check full scan status.}",
+            "active_checks_enabled": 2,
+            "alias": "Full-Scan",
+            "check_timeperiod": "",
+            "command_name": "App-Antivirus-Kaspersky-SNMP-Full-Scan",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /Warning/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /Critical/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGNOTSCANNED$",
+                    "password": false,
+                    "value": "0"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Antivirus-Kaspersky-Full-Scan-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des \u00e9v\u00e8nements.}\r\n\r\n{EN: Check events status.}",
+            "active_checks_enabled": 2,
+            "alias": "Events",
+            "check_timeperiod": "",
+            "command_name": "App-Antivirus-Kaspersky-SNMP-Events",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /Warning/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /Critical/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGEVENTS$",
+                    "password": false,
+                    "value": "0"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Antivirus-Kaspersky-Events-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut du d\u00e9ploiement.}\r\n\r\n{EN: Check deployment status.}",
+            "active_checks_enabled": 2,
+            "alias": "Deployment",
+            "check_timeperiod": "",
+            "command_name": "App-Antivirus-Kaspersky-SNMP-Deployment",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /Warning/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /Critical/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGPROGRESS$",
+                    "password": false,
+                    "value": "100:"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALPROGRESS$",
+                    "password": false,
+                    "value": "95:"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGFAILED$",
+                    "password": false,
+                    "value": "0"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGEXPIRING$",
+                    "password": false,
+                    "value": "0"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGEXPIRED$",
+                    "password": false,
+                    "value": "0"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Antivirus-Kaspersky-Deployment-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

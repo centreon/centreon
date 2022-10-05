@@ -1,0 +1,420 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::microsoft::hyperv::2012::local::plugin\\' \\'scvmm-vm-status\\'  \\'  --scvmm-hostname=\\\\\\\"$_HOSTSCVMMHOSTNAME$\\\\\\\" --scvmm-username=\\\\\\\"$_HOSTSCVMMUSERNAME$\\\\\\\" --scvmm-password=\\\\\\\"$_HOSTSCVMMPASSWORD$\\\\\\\" --scvmm-port=\\\\\\\"$_HOSTSCVMMPORT$\\\\\\\" --filter-vm=\\\\\\\"$_SERVICEFILTERVM$\\\\\\\"  --filter-description=\\\\\\\"$_SERVICEFILTERDESCRIPTION$\\\\\\\" --filter-hostgroup=\\\\\\\"$_SERVICEFILTERHOSTGROUP$\\\\\\\" --warning-status=\\\\\\\"$_SERVICEWARNINGSTATUS$\\\\\\\" --critical-status=\\\\\\\"$_SERVICECRITICALSTATUS$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "Virt-Hyperv-2012-NRPE-Scvmm-Vm-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::microsoft::hyperv::2012::local::plugin\\' \\'scvmm-snapshot\\'  \\'  --scvmm-hostname=\\\\\\\"$_HOSTSCVMMHOSTNAME$\\\\\\\" --scvmm-username=\\\\\\\"$_HOSTSCVMMUSERNAME$\\\\\\\" --scvmm-password=\\\\\\\"$_HOSTSCVMMPASSWORD$\\\\\\\" --scvmm-port=\\\\\\\"$_HOSTSCVMMPORT$\\\\\\\" --filter-vm=\\\\\\\"$_SERVICEFILTERVM$\\\\\\\"  --filter-description=\\\\\\\"$_SERVICEFILTERDESCRIPTION$\\\\\\\" --filter-hostgroup=\\\\\\\"$_SERVICEFILTERHOSTGROUP$\\\\\\\" --filter-status=\\\\\\\"$_SERVICEFILTERSTATUS$\\\\\\\" --warning-snapshot=\\\\\\\"$_SERVICEWARNINGSNAPSHOT$\\\\\\\" --critical-snapshot=\\\\\\\"$_SERVICECRITICALSNAPSHOT$\\\\\\\"  $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "Virt-Hyperv-2012-NRPE-Scvmm-Snapshot",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::microsoft::hyperv::2012::local::plugin\\' \\'scvmm-integration-service\\'  \\'  --scvmm-hostname=\\\\\\\"$_HOSTSCVMMHOSTNAME$\\\\\\\" --scvmm-username=\\\\\\\"$_HOSTSCVMMUSERNAME$\\\\\\\" --scvmm-password=\\\\\\\"$_HOSTSCVMMPASSWORD$\\\\\\\" --scvmm-port=\\\\\\\"$_HOSTSCVMMPORT$\\\\\\\" --filter-vm=\\\\\\\"$_SERVICEFILTERVM$\\\\\\\" --filter-description=\\\\\\\"$_SERVICEFILTERDESCRIPTION$\\\\\\\" --filter-hostgroup=\\\\\\\"$_SERVICEFILTERHOSTGROUP$\\\\\\\" --filter-status=\\\\\\\"$_SERVICEFILTERSTATUS$\\\\\\\" --warning-status=\\\\\\\"$_SERVICEWARNINGSTATUS$\\\\\\\" --critical-status=\\\\\\\"$_SERVICECRITICALSTATUS$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "Virt-Hyperv-2012-NRPE-Scvmm-Integration-Service",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::microsoft::hyperv::2012::local::plugin\\' \\'node-vm-status\\'  \\' --filter-vm=\\\\\\\"$_SERVICEFILTERVM$\\\\\\\" --filter-note=\\\\\\\"$_SERVICEFILTERNOTE$\\\\\\\" --warning-status=\\\\\\\"$_SERVICEWARNINGSTATUS$\\\\\\\" --critical-status=\\\\\\\"$_SERVICECRITICALSTATUS$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "Virt-Hyperv-2012-NRPE-Node-Vm-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::microsoft::hyperv::2012::local::plugin\\' \\'node-snapshot\\'  \\' --filter-vm=\\\\\\\"$_SERVICEFILTERVM$\\\\\\\" --filter-note=\\\\\\\"$_SERVICEFILTERNOTE$\\\\\\\" --filter-status=\\\\\\\"$_SERVICEFILTERSTATUS$\\\\\\\" --warning-snapshot=\\\\\\\"$_SERVICEWARNINGSNAPSHOT$\\\\\\\" --critical-snapshot=\\\\\\\"$_SERVICECRITICALSNAPSHOT$\\\\\\\" --warning-backing=\\\\\\\"$_SERVICEWARNINGBACKING$\\\\\\\" --critical-backing=\\\\\\\"$_SERVICECRITICALBACKING$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "Virt-Hyperv-2012-NRPE-Node-Snapshot",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::microsoft::hyperv::2012::local::plugin\\' \\'node-replication\\'  \\' --filter-vm=\\\\\\\"$_SERVICEFILTERVM$\\\\\\\" --warning-status=\\\\\\\"$_SERVICEWARNINGSTATUS$\\\\\\\" --critical-status=\\\\\\\"$_SERVICECRITICALSTATUS$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "Virt-Hyperv-2012-NRPE-Node-Replication",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::microsoft::hyperv::2012::local::plugin\\' \\'node-integration-service\\'  \\' --filter-vm=\\\\\\\"$_SERVICEFILTERVM$\\\\\\\" --filter-note=\\\\\\\"$_SERVICEFILTERNOTE$\\\\\\\" --filter-status=\\\\\\\"$_SERVICEFILTERSTATUS$\\\\\\\" --warning-global-status=\\\\\\\"$_SERVICEWARNINGGLOBALSTATUS$\\\\\\\" --critical-global-status=\\\\\\\"$_SERVICECRITICALGLOBALSTATUS$\\\\\\\" --warning-service-status=\\\\\\\"$_SERVICEWARNINGSERVICESTATUS$\\\\\\\" --critical-service-status=\\\\\\\"$_SERVICECRITICALSERVICESTATUS$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "Virt-Hyperv-2012-NRPE-Node-Integration-Service",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser des serveurs Hyper-v 2012 SCVMM via NRPE}\r\n{EN: Template to check Hyper-v 2012 SCVMM using NRPE protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Hyper-v 2012 SCVMM using NRPE protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "virt-hyperv-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTNRPECLIENT$",
+                    "value": "check_centreon_nrpe"
+                },
+                {
+                    "key": "$_HOSTNRPEEXTRAOPTIONS$",
+                    "value": "-u -m 8192"
+                },
+                {
+                    "key": "$_HOSTNRPEPORT$",
+                    "value": "5666"
+                },
+                {
+                    "key": "$_HOSTNRPETIMEOUT$",
+                    "value": "55"
+                },
+                {
+                    "key": "$_HOSTSCVMMPORT$",
+                    "value": "8100"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Hyperv-2012-Scvmm-NRPE",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Virt-Hyperv-2012-Scvmm-Vm-Status-NRPE",
+                "Virt-Hyperv-2012-Scvmm-Snapshot-NRPE",
+                "Virt-Hyperv-2012-Scvmm-Integration-Service-NRPE"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser des serveurs Hyper-v 2012 nodes via NRPE}\r\n{EN: Template to check Hyper-v 2012 nodes using NRPE protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Hyper-v 2012 Node using NRPE protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "virt-hyperv-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTNRPECLIENT$",
+                    "value": "check_centreon_nrpe"
+                },
+                {
+                    "key": "$_HOSTNRPEEXTRAOPTIONS$",
+                    "value": "-u -m 8192"
+                },
+                {
+                    "key": "$_HOSTNRPEPORT$",
+                    "value": "5666"
+                },
+                {
+                    "key": "$_HOSTNRPETIMEOUT$",
+                    "value": "55"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Hyperv-2012-Node-NRPE",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Virt-Hyperv-2012-Node-Vm-Status-NRPE",
+                "Virt-Hyperv-2012-Node-Snapshot-NRPE",
+                "Virt-Hyperv-2012-Node-Replication-NRPE",
+                "Virt-Hyperv-2012-Node-Integration-Service-NRPE"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "virt-hyperv-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* change plugin path",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Hyper-V using NRPE protocol:\r\n* Node-Integration-Service\r\n* Node-Replication\r\n* Node-Snapshot\r\n* Scvmm-Integration-Service\r\n* Scvmm-Snapshot\r\n* Scvmm-Vm-Status"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack Plugin pour surveiller Hyper-V 2012 en utilisant le protocole NRPE:\r\n* Node-Integration-Service\r\n* Node-Replication\r\n* Node-Snapshot\r\n* Scvmm-Integration-Service\r\n* Scvmm-Snapshot\r\n* Scvmm-Vm-Status"
+            }
+        ],
+        "discovery_category": "virtualization",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\nThis chapter describes the prerequisites installation needed by plugins\r\nto run.\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-nrpe-plugin\r\n\r\n### Nsclient++\r\nThis plugin pack requires the use of:\r\n* NSClient++ package provided by Centreon, installed and configured on your target server as described on [documentation](http://documentation.centreon.com)\r\n\r\nYou can download it [here](https://download.centreon.com/?action=product&product=agent-nsclient&version=0.51&secKey=59d646114079212e03ec09454456a938)\r\n\r\nNote: If you use the NSClient++ installer provided by Centreon, the plugin is already included in centreon\\_plugins.exe configured in NSClient++ \r\n\r\nIf you have some problems with the centreon\\_plugins.exe, you can build it using [following procedure](https://documentation.centreon.com/docs/centreon-nsclient/en/latest/windows_agent.html#build-your-own-executable)\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>*Virt-Hyperv-2012-Node-NRPE-custom* or *Virt-Hyperv-2012-Scvmm-NRPE-custom*</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Hyper-V 2012",
+        "plugins_requirements": [],
+        "requirement": [],
+        "slug": "virtualization-hyperv-2012-nrpe",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Virtualization",
+            "Hyper-V",
+            "Microsoft"
+        ],
+        "update_date": "1540832083",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'\u00e9tat des machines virtuelles.}\r\n\r\n{EN: Check virtual machine status.}",
+            "active_checks_enabled": 2,
+            "alias": "Scvmm-Vm-Status",
+            "check_timeperiod": "",
+            "command_name": "Virt-Hyperv-2012-NRPE-Scvmm-Vm-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "not %{status} =~ /Running|Stopped/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Hyperv-2012-Scvmm-Vm-Status-NRPE",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les snapshots.}\r\n\r\n{EN: Check virtual machine snapshots.}",
+            "active_checks_enabled": 2,
+            "alias": "Scvmm-Snapshot",
+            "check_timeperiod": "",
+            "command_name": "Virt-Hyperv-2012-NRPE-Scvmm-Snapshot",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERSTATUS$",
+                    "password": false,
+                    "value": "running"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Hyperv-2012-Scvmm-Snapshot-NRPE",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les services d'int\u00e9gration.}\r\n\r\n{EN: Check virtual machine integration services.}",
+            "active_checks_enabled": 2,
+            "alias": "Scvmm-Integration-Service",
+            "check_timeperiod": "",
+            "command_name": "Virt-Hyperv-2012-NRPE-Scvmm-Integration-Service",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERSTATUS$",
+                    "password": false,
+                    "value": "running"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{vmaddition} =~ /not detected/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Hyperv-2012-Scvmm-Integration-Service-NRPE",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le statut des machines virtuelles.}\r\n\r\n{EN: Check virtual machine status.}",
+            "active_checks_enabled": 2,
+            "alias": "Node-Vm-Status",
+            "check_timeperiod": "",
+            "command_name": "Virt-Hyperv-2012-NRPE-Node-Vm-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "not %{status} =~ /Operating normally/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Hyperv-2012-Node-Vm-Status-NRPE",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les snapshots des machines virtuelles.}\r\n\r\n{EN: Check virtual machine snapshots.}",
+            "active_checks_enabled": 2,
+            "alias": "Node-Snapshot",
+            "check_timeperiod": "",
+            "command_name": "Virt-Hyperv-2012-NRPE-Node-Snapshot",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERSTATUS$",
+                    "password": false,
+                    "value": "running"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Hyperv-2012-Node-Snapshot-NRPE",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier la r\u00e9plication des machines virtuelles.}\r\n\r\n{EN: Check virtual machine replication status.}",
+            "active_checks_enabled": 2,
+            "alias": "Node-Replication",
+            "check_timeperiod": "",
+            "command_name": "Virt-Hyperv-2012-NRPE-Node-Replication",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{health} =~ /Warning/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{health} =~ /Critical/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Hyperv-2012-Node-Replication-NRPE",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le statut des services d'int\u00e9gration.}\r\n\r\n{EN: Check virtual machine integration services.}",
+            "active_checks_enabled": 2,
+            "alias": "Node-Integration-Service",
+            "check_timeperiod": "",
+            "command_name": "Virt-Hyperv-2012-NRPE-Node-Integration-Service",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGGLOBALSTATUS$",
+                    "password": false,
+                    "value": "%{integration_service_state} =~ /Update required/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSERVICESTATUS$",
+                    "password": false,
+                    "value": "not %{primary_status} =~ /Ok/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Hyperv-2012-Node-Integration-Service-NRPE",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

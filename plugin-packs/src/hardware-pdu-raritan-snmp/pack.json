@@ -1,0 +1,223 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_pdu_raritan_snmp.pl --plugin=hardware::pdu::raritan::snmp::plugin --mode=outlet-sensors --hostname $HOSTADDRESS$ --snmp-version $_HOSTSNMPVERSION$ --snmp-community $_HOSTSNMPCOMMUNITY$ $_HOSTSNMPEXTRAOPTS$ --component $_SERVICECOMPONENT$ --warning $_SERVICEWARNING$  $_SERVICEEXTRAOPTIONS$ --critical $_SERVICECRITICAL$\\\"",
+            "name": "HW-Pdu-Raritan-OutletSensors-SNMP",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_pdu_raritan_snmp.pl --plugin=hardware::pdu::raritan::snmp::plugin --mode=ocprot-sensors --hostname $HOSTADDRESS$ --snmp-version $_HOSTSNMPVERSION$ --snmp-community $_HOSTSNMPCOMMUNITY$ $_HOSTSNMPEXTRAOPTS$ --component $_SERVICECOMPONENT$ --warning $_SERVICEWARNING$  $_SERVICEEXTRAOPTIONS$ --critical $_SERVICECRITICAL$\\\"",
+            "name": "HW-Pdu-Raritan-OcprotSensors-SNMP",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_pdu_raritan_snmp.pl --plugin=hardware::pdu::raritan::snmp::plugin --mode=inlet-sensors --hostname $HOSTADDRESS$ --snmp-version $_HOSTSNMPVERSION$ --snmp-community $_HOSTSNMPCOMMUNITY$ $_HOSTSNMPEXTRAOPTS$ --component $_SERVICECOMPONENT$ --warning $_SERVICEWARNING$  $_SERVICEEXTRAOPTIONS$ --critical $_SERVICECRITICAL$\\\"",
+            "name": "HW-Pdu-Raritan-InletSensors-SNMP",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser un PDU Raritan}\r\n{EN: Template to check a Raritan PDU}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Raritan PDU through SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Pdu-Raritan-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Pdu-Raritan-OutletSensors-SNMP",
+                "HW-Pdu-Raritan-Ocprt-Sensors-SNMP",
+                "HW-Pdu-Raritan-InletSensors-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* add service inlet-sensors",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Raritan PDU:\r\n* Inlet-Sensors\r\n* Outlet-Sensors\r\n* Ocprt-Sensors"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller les PDU Raritan :\r\n* Inlet-Sensors\r\n* Outlet-Sensors\r\n* Ocprt-Sensors"
+            }
+        ],
+        "discovery_category": "ups-pdu",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Raritan PDU",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_pdu_raritan_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Pdu-Raritan-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Hardware-Pdu-Raritan-Snmp",
+                "version": "20160220-1"
+            }
+        ],
+        "slug": "hardware-pdu-raritan-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "PDU",
+            "Raritan",
+            "SNMP",
+            "UPS"
+        ],
+        "update_date": "1643278145",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les sorties PDU.}\r\n\r\n{EN: Check PDU outlets.}",
+            "active_checks_enabled": 2,
+            "alias": "Outlet-Sensors",
+            "check_timeperiod": "",
+            "command_name": "HW-Pdu-Raritan-OutletSensors-SNMP",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Pdu-Raritan-OutletSensors-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les sondes OCPRT du PDU.}\r\n\r\n{EN: Check PDU OCPRT sensors.}",
+            "active_checks_enabled": 2,
+            "alias": "Ocprt-Sensors",
+            "check_timeperiod": "",
+            "command_name": "HW-Pdu-Raritan-OcprotSensors-SNMP",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Pdu-Raritan-Ocprt-Sensors-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00c3\u00b4le les sondes en entr\u00c3\u00a9es sur le PDU.}\n\n{EN: Check PDU inlets sensors.}",
+            "active_checks_enabled": 2,
+            "alias": "Inlet-Sensors",
+            "check_timeperiod": "",
+            "command_name": "HW-Pdu-Raritan-InletSensors-SNMP",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Pdu-Raritan-InletSensors-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

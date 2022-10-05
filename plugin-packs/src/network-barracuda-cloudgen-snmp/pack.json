@@ -1,0 +1,434 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_barracuda_cloudgen_snmp.pl --plugin=network::barracuda::cloudgen::snmp::plugin --mode=vpn-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Barracuda-Cloudgen-SNMP-Vpn-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_barracuda_cloudgen_snmp.pl --plugin=network::barracuda::cloudgen::snmp::plugin --mode=server-service --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEIFLTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Barracuda-Cloudgen-SNMP-Server-Service",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_barracuda_cloudgen_snmp.pl  --plugin=network::barracuda::cloudgen::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-swap=\\'$_SERVICEWARNINGSWAP$\\' --critical-swap=\\'$_SERVICECRITICALSWAP$\\' --warning-swap-free=\\'$_SERVICEWARNINGSWAPFREE$\\' --critical-swap-free=\\'$_SERVICECRITICALSWAPFREE$\\' --warning-swap-prct=\\'$_SERVICEWARNINGSWAPPRCT$\\' --critical-swap-prct=\\'$_SERVICECRITICALSWAPPRCT$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' --warning-buffer=\\'$_SERVICEWARNINGBUFFER$\\' --critical-buffer=\\'$_SERVICECRITICALBUFFER$\\' --warning-cached=\\'$_SERVICEWARNINGCACHED$\\' --critical-cached=\\'$_SERVICECRITICALCACHED$\\' --warning-shared=\\'$_SERVICEWARNINGSHARED$\\' --critical-shared=\\'$_SERVICECRITICALSHARED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Barracuda-Cloudgen-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_barracuda_cloudgen_snmp.pl --plugin=network::barracuda::cloudgen::snmp::plugin --mode=load --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Barracuda-Cloudgen-SNMP-Load",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_barracuda_cloudgen_snmp.pl --plugin=network::barracuda::cloudgen::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Barracuda-Cloudgen-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_barracuda_cloudgen_snmp.pl --plugin=network::barracuda::cloudgen::snmp::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-core=\\'$_SERVICEWARNINGCORE$\\' --critical-core=\\'$_SERVICECRITICALCORE$\\' --warning-average=\\'$_SERVICEWARNINGAVERAGE$\\' --critical-average=\\'$_SERVICECRITICALAVERAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Barracuda-Cloudgen-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_barracuda_cloudgen_snmp.pl --plugin=network::barracuda::cloudgen::snmp::plugin --mode=box-service --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEIFLTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Barracuda-Cloudgen-SNMP-Box-Service",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_barracuda_cloudgen_snmp.pl --plugin=network::barracuda::cloudgen::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --add-errors --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' --warning-in-ucast=\\'$_SERVICEWARNINGINUCAST$\\' --critical-in-ucast=\\'$_SERVICECRITICALINUCAST$\\' --warning-in-bcast=\\'$_SERVICEWARNINGINBCAST$\\' --critical-in-bcast=\\'$_SERVICECRITICALINBCAST$\\' --warning-in-mcast=\\'$_SERVICEWARNINGINMCAST$\\' --critical-in-mcast=\\'$_SERVICECRITICALINMCAST$\\' --warning-out-ucast=\\'$_SERVICEWARNINGOUTUCAST$\\' --critical-out-ucast=\\'$_SERVICECRITICALOUTUCAST$\\' --warning-out-bcast=\\'$_SERVICEWARNINGOUTBCAST$\\' --critical-out-bcast=\\'$_SERVICECRITICALOUTBCAST$\\' --warning-out-mcast=\\'$_SERVICEWARNINGOUTMCAST$\\' --critical-out-mcast=\\'$_SERVICECRITICALOUTMCAST$\\' --warning-speed=\\'$_SERVICEWARNINGSPEED$\\' --critical-speed=\\'$_SERVICECRITICALSPEED$\\' --warning-in-volume=\\'$_SERVICEWARNINGINVOLUME$\\' --critical-in-volume=\\'$_SERVICECRITICALINVOLUME$\\' --warning-out-volume=\\'$_SERVICEWARNINGOUTVOLUME$\\' --critical-out-volume=\\'$_SERVICECRITICALOUTVOLUME$\\' --warning-total-port=\\'$_SERVICEWARNINGTOTALPORT$\\' --critical-total-port=\\'$_SERVICECRITICALTOTALPORT$\\' --warning-global-admin-up=\\'$_SERVICEWARNINGGLOBALADMINUP$\\' --critical-global-admin-up=\\'$_SERVICECRITICALGLOBALADMINUP$\\' --warning-total-admin-down=\\'$_SERVICEWARNINGTOTALADMINDOWN$\\' --critical-total-admin-down=\\'$_SERVICECRITICALTOTALADMINDOWN$\\' --warning-total-oper-up=\\'$_SERVICEWARNINGTOTALOPERUP$\\' --critical-total-oper-up=\\'$_SERVICECRITICALTOTALOPERUP$\\' --warning-total-oper-down=\\'$_SERVICEWARNINGTOTALOPERDOWN$\\' --critical-total-oper-down=\\'$_SERVICECRITICALTOTALOPERDOWN$\\' --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Barracuda-Cloudgen-SNMP-Interfaces",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_barracuda_cloudgen_snmp.pl --plugin=network::barracuda::cloudgen::snmp::plugin --mode=uptime --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-uptime=\\'$_SERVICEWARNING$\\' --critical-uptime=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Barracuda-Cloudgen-SNMP-Uptime",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_barracuda_cloudgen_snmp.pl --plugin=network::barracuda::cloudgen::snmp::plugin --mode=cpu-detailed --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-user=\\'$_SERVICEWARNINGUSER$\\' --critical-user=\\'$_SERVICECRITICALUSER$\\' --warning-nice=\\'$_SERVICEWARNINGNICE$\\' --critical-nice=\\'$_SERVICECRITICALNICE$\\' --warning-system=\\'$_SERVICEWARNINGSYSTEM$\\' --critical-system=\\'$_SERVICECRITICALSYSTEM$\\' --warning-idle=\\'$_SERVICEWARNINGIDLE$\\' --critical-idle=\\'$_SERVICECRITICALIDLE$\\' --warning-wait=\\'$_SERVICEWARNINGWAIT$\\' --critical-wait=\\'$_SERVICECRITICALWAIT$\\' --warning-kernel=\\'$_SERVICEWARNINGKERNEL$\\' --critical-kernel=\\'$_SERVICECRITICALKERNEL$\\' --warning-interrupt=\\'$_SERVICEWARNINGINTERRUPT$\\' --critical-interrupt=\\'$_SERVICECRITICALINTERRUPT$\\' --warning-softirq=\\'$_SERVICEWARNINGSOFTIRQ$\\' --critical-softirq=\\'$_SERVICECRITICALSOFTIRQ$\\' --warning-steal=\\'$_SERVICEWARNINGSTEAL$\\' --critical-steal=\\'$_SERVICECRITICALSTEAL$\\' --warning-guest=\\'$_SERVICEWARNINGGUEST$\\' --critical-guest=\\'$_SERVICECRITICALGUEST$\\' --warning-guestnice=\\'$_SERVICEWARNINGGUESTNICE$\\' --critical-guestnice=\\'$_SERVICECRITICALGUESTNICE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Barracuda-Cloudgen-SNMP-Cpu-Detailed",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_barracuda_cloudgen_snmp.pl --plugin=network::barracuda::cloudgen::snmp::plugin --mode=storage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --storage=\\'$_SERVICEFILTERNAME$\\' --name --regexp --display-transform-src=\\'$_SERVICETRANSFORMSRC$\\' --display-transform-dst=\\'$_SERVICETRANSFORMDST$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-access=\\'$_SERVICEWARNINGACCESS$\\' --critical-access=\\'$_SERVICECRITICALACCESS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Barracuda-Cloudgen-SNMP-Storage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les firewalls Barracuda Cloudgen en SNMP}\r\n{EN: Template to check Barracuda Cloudgen firewalls using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Barracuda Cloudgen firewalls in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "barracuda-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Barracuda-Cloudgen-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Barracuda-Cloudgen-Vpn-Status-SNMP",
+                "Net-Barracuda-Cloudgen-Server-Service-SNMP",
+                "Net-Barracuda-Cloudgen-Memory-SNMP",
+                "Net-Barracuda-Cloudgen-Load-SNMP",
+                "Net-Barracuda-Cloudgen-Hardware-Global-SNMP",
+                "Net-Barracuda-Cloudgen-Cpu-SNMP",
+                "Net-Barracuda-Cloudgen-Box-Service-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "barracuda-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ tag / dep / doc update",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Barracuda Cloudgen firewalls via SNMP:\r\n* Box-Service\r\n* Cpu\r\n* Cpu-Detailed\r\n* Hardware\r\n* Interfaces\r\n* Load\r\n* Memory\r\n* Server-Service\r\n* Storage\r\n* Uptime\r\n* Vpn-Status"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un firewall Barracuda Cloudgen via SNMP :\r\n* Box-Service\r\n* Cpu\r\n* Cpu-Detailed\r\n* Hardware\r\n* Interfaces\r\n* Load\r\n* Memory\r\n* Server-Service\r\n* Storage\r\n* Uptime\r\n* Vpn-Status"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Barracuda Cloudgen SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_barracuda_cloudgen_snmp.pl",
+                "package_name": "centreon-plugin-Network-Barracuda-Cloudgen-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-barracuda-cloudgen-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Barracuda",
+            "Cloudgen",
+            "SNMP",
+            "Network",
+            "Firewall",
+            "Security"
+        ],
+        "update_date": "1628800310",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des VPNs.}\r\n\r\n{EN: Check vpn status.}",
+            "active_checks_enabled": 2,
+            "alias": "Vpn-Status",
+            "check_timeperiod": "",
+            "command_name": "Net-Barracuda-Cloudgen-SNMP-Vpn-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^down$/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Barracuda-Cloudgen-Vpn-Status-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les services du serveur.}\r\n\r\n{EN: Check server services status.}",
+            "active_checks_enabled": 2,
+            "alias": "Server-Service",
+            "check_timeperiod": "",
+            "command_name": "Net-Barracuda-Cloudgen-SNMP-Server-Service",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /^started$/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Barracuda-Cloudgen-Server-Service-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation m\u00e9moire.}\r\n\r\n{EN: Check memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Barracuda-Cloudgen-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Barracuda-Cloudgen-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la charge serveur.}\r\n\r\n{EN: Check the server load average.}",
+            "active_checks_enabled": 2,
+            "alias": "Load",
+            "check_timeperiod": "",
+            "command_name": "Net-Barracuda-Cloudgen-SNMP-Load",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Barracuda-Cloudgen-Load-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'ensemble du mat\u00e9riel.}\r\n\r\n{EN: Check all hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Barracuda-Cloudgen-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Barracuda-Cloudgen-Hardware-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des CPUs.}\r\n\r\n{EN: Check CPU usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Barracuda-Cloudgen-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Barracuda-Cloudgen-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les services du bo\u00eetier.}\r\n\r\n{EN: Check box services status.}",
+            "active_checks_enabled": 2,
+            "alias": "Box-Service",
+            "check_timeperiod": "",
+            "command_name": "Net-Barracuda-Cloudgen-SNMP-Box-Service",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /^started$/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Barracuda-Cloudgen-Box-Service-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces.}\r\n\r\n{EN: Check interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "Net-Barracuda-Cloudgen-SNMP-Interfaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} !~ /up|dormant/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --no-skipped-counters"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Barracuda-Cloudgen-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'uptime.}\r\n\r\n{EN: Check uptime.}",
+            "active_checks_enabled": 2,
+            "alias": "Uptime",
+            "check_timeperiod": "",
+            "command_name": "Net-Barracuda-Cloudgen-SNMP-Uptime",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Barracuda-Cloudgen-Uptime-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des CPUs d\u00e9taill\u00e9s.}\r\n\r\n{EN: Check CPU detailed (idle, system,...) usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu-Detailed",
+            "check_timeperiod": "",
+            "command_name": "Net-Barracuda-Cloudgen-SNMP-Cpu-Detailed",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Barracuda-Cloudgen-Cpu-Detailed-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'espace libre disponible des disques. Pour chaque contr\u00f4le appara\u00eetra le point de montage des disques (\u00ab label \u00bb). Les seuils pourront \u00eatre en pourcentage, en espace libre restant.}\r\n\r\n{EN: Check the rate of free space on disks. For each checks the mount point of disks will appear (\u00ab label \u00bb). Thresholds can be in percentage or in free space remaining.}",
+            "active_checks_enabled": 2,
+            "alias": "Storage",
+            "check_timeperiod": "",
+            "command_name": "Net-Barracuda-Cloudgen-SNMP-Storage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Barracuda-Cloudgen-Storage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

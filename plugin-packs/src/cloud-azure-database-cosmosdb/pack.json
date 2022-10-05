@@ -1,0 +1,1382 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Database-CosmosDb-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Web Cosmos DB Account resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.DocumentDB/databaseAccounts/DB123456ABCD78",
+                            "location": "westeurope",
+                            "name": "DB123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.DocumentDB/databaseAccounts"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.DocumentDB/databaseAccounts/DB789012EFGH34",
+                            "location": "westus",
+                            "name": "DB789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.DocumentDB/databaseAccounts"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": "discovery.results.id"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Database-CosmosDb-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Cosmos DB Account",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-database-cosmosdb",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Database-CosmosDb-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Web Cosmos DB Account resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.DocumentDB/databaseAccounts/DB123456ABCD78",
+                            "location": "westeurope",
+                            "name": "DB123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.DocumentDB/databaseAccounts"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.DocumentDB/databaseAccounts/DB789012EFGH34",
+                            "location": "westus",
+                            "name": "DB789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.DocumentDB/databaseAccounts"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Database-CosmosDb-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Cosmos DB Account",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-database-cosmosdb",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Database-CosmosDb-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Web Cosmos DB Account resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.DocumentDB/databaseAccounts/DB123456ABCD78",
+                            "location": "westeurope",
+                            "name": "DB123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.DocumentDB/databaseAccounts"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.DocumentDB/databaseAccounts/DB789012EFGH34",
+                            "location": "westus",
+                            "name": "DB789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.DocumentDB/databaseAccounts"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Database-CosmosDb-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Cosmos DB Account",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-database-cosmosdb",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_cosmosdb_api.pl --plugin=cloud::azure::database::cosmosdb::plugin --mode=usage --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-index-usage=\\'$_SERVICEWARNINGINDEXUSAGE$\\' --critical-index-usage=\\'$_SERVICECRITICALINDEXUSAGE$\\' --warning-data-usage=\\'$_SERVICEWARNINGDATAUSAGE$\\' --critical-data-usage=\\'$_SERVICECRITICALDATAUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-CosmosDb-Api-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_cosmosdb_api.pl --plugin=cloud::azure::database::cosmosdb::plugin --mode=units --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-total-request-units=\\'$_SERVICEWARNINGTOTALREQUESTUNITS$\\' --critical-total-request-units=\\'$_SERVICECRITICALTOTALREQUESTUNITS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-CosmosDb-Api-Units",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_cosmosdb_api.pl --plugin=cloud::azure::database::cosmosdb::plugin --mode=throughput --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-provisioned-throughput=\\'$_SERVICEWARNINGPROVISIONEDTHROUGHPUT$\\' --critical-provisioned-throughput=\\'$_SERVICECRITICALPROVISIONEDTHROUGHPUT$\\' --warning-autoscale-max-throughput=\\'$_SERVICEWARNINGAUTOSCALEMAXTHROUGHPUT$\\' --critical-autoscale-max-throughput=\\'$_SERVICECRITICALAUTOSCALEMAXTHROUGHPUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-CosmosDb-Api-Throughput",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_cosmosdb_api.pl --plugin=cloud::azure::database::cosmosdb::plugin --mode=latency --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-serverside-latency=\\'$_SERVICEWARNINGSERVERSIDELATENCY$\\' --critical-serverside-latency=\\'$_SERVICECRITICALSERVERSIDELATENCY$\\' --warning-replication-latency=\\'$_SERVICEWARNINGREPLICATIONLATENCY$\\' --critical-replication-latency=\\'$_SERVICECRITICALREPLICATIONLATENCY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-CosmosDb-Api-Latency",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_cosmosdb_api.pl --plugin=cloud::azure::database::cosmosdb::plugin --mode=health --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --ok-status=\\'$_SERVICEOKSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-CosmosDb-Api-Health",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_cosmosdb_api.pl --plugin=cloud::azure::database::cosmosdb::plugin --mode=document --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-document-quota=\\'$_SERVICEWARNINGDOCUMENTQUOTA$\\' --critical-document-quota=\\'$_SERVICECRITICALDOCUMENTQUOTA$\\' --warning-document-count=\\'$_SERVICEWARNINGDOCUMENTCOUNT$\\' --critical-document-count=\\'$_SERVICECRITICALDOCUMENTCOUNT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-CosmosDb-Api-Document",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_cosmosdb_api.pl --plugin=cloud::azure::database::cosmosdb::plugin --mode=cache --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-cache-hitrate-percentage=\\'$_SERVICEWARNINGCACHEHITRATEPERCENTAGE$\\' --critical-cache-hitrate-percentage=\\'$_SERVICECRITICALCACHEHITRATEPERCENTAGE$\\' --warning-cache-size=\\'$_SERVICEWARNINGCACHESIZE$\\' --critical-cache-size=\\'$_SERVICECRITICALCACHESIZE$\\' --warning-cache-ttl-expiration=\\'$_SERVICEWARNINGCACHETTLEXPIRATION$\\' --critical-cache-ttl-expiration=\\'$_SERVICECRITICALCACHETTLEXPIRATION$\\' --warning-cache-evicted-size=\\'$_SERVICEWARNINGCACHEEVICTEDSIZE$\\' --critical-cache-evicted-size=\\'$_SERVICECRITICALCACHEEVICTEDSIZE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-CosmosDb-Api-Cache",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_cosmosdb_api.pl --plugin=cloud::azure::database::cosmosdb::plugin --mode=availability --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-service-availability-percentage=\\'$_SERVICEWARNINGSERVICEAVAILABILITYPERCENTAGE$\\' --critical-service-availability-percentage=\\'$_SERVICECRITICALSERVICEAVAILABILITYPERCENTAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-CosmosDb-Api-Availability",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_database_cosmosdb_api.pl --statefile-suffix='autodiscovery' --plugin=cloud::azure::database::cosmosdb::plugin --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Database-CosmosDb-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les instances Azure Cosmos DB Account via l'API}\r\n{EN: Template to check Azure Cosmos DB Account resources service using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Cosmos DB Account service using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-database-cosmosdb-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-CosmosDb",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Database-CosmosDb-Usage-Api",
+                "Cloud-Azure-Database-CosmosDb-Units-Api",
+                "Cloud-Azure-Database-CosmosDb-Throughput-Api",
+                "Cloud-Azure-Database-CosmosDb-Latency-Api",
+                "Cloud-Azure-Database-CosmosDb-Health-Api",
+                "Cloud-Azure-Database-CosmosDb-Document-Api",
+                "Cloud-Azure-Database-CosmosDb-Cache-Api",
+                "Cloud-Azure-Database-CosmosDb-Availability-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAABhWlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AYht+mlopUOthBxCFDdbIgKtJRqlgEC6Wt0KqDyaV/0KQhSXFxFFwLDv4sVh1cnHV1cBUEwR8QNzcnRRcp8buk0CLGO457eO97X+6+A4RWjalm3ySgapaRSSbEfGFVDL4iQDOMIOISM/VUdjEHz/F1Dx/f72I8y7vuzzGoFE0G+ETiOaYbFvEG8eympXPeJ46wiqQQnxNPGHRB4keuyy6/cS47LPDMiJHLzBNHiMVyD8s9zCqGSjxDHFVUjfKFvMsK5y3Oaq3BOvfkLwwVtZUs12mNIoklpJCGCBkNVFGDhRjtGikmMnSe8PCPOP40uWRyVcHIsYA6VEiOH/wPfvfWLE1PuUmhBBB4se2PMSC4C7Sbtv19bNvtE8D/DFxpXX+9BcQ/SW92tegREN4GLq67mrwHXO4Aw0+6ZEiO5KcllErA+xl9UwEYugUG1ty+dc5x+gDkqFfLN8DBITBepux1j3f39/bt35pO/34AaD9yo1r9wksAAAAGYktHRAD/AP8A/6C9p5MAAAAJcEhZcwAADdcAAA3XAUIom3gAAAAHdElNRQflBQUPCDXgVVbFAAAgAElEQVR42u2deZxcZZX3v+dWVVf1ns7aSxYChITsgAIiKpEdTdJBwsyr4PAZR3DGUceRnVeNMwgRcHRmfN+P6PiKijOjUdMJAZcBZJMgBiRkgZCELL2mu5P0mu6u5Z73j67l3lu3tu6qTgf65NOpW/feustzfmd9zvM8MEETNEETNEETlB+6ok1Lr2jT0omWODXIyOfF1rTp9BKTgyUmh1Yd0RkTzfsuA4Aq5wFTgSlek/dMNO+7DwB1lu3aieZ9lwFAxAIAmQDAu08DmLzXbXuCxi9JPr3/YpNOgUB015DpY9rmadI70czvAg1QqlxjYT6AX4JcM9HE7wIArFM1VLnLxSe4Z62qZ6KZ3+EA2N7GjcA5LoeWhNu4YaKZ38E+wOpmnSXCn4BUiZ/2CLz3sVo5PNHc7zANsLZRi0X4ZRrmA0z3wOaJ9PA7DAD1B3RSyEMDZBXuLStRNn3kkFZNNPk7wASsadKz1GAzMD/Hn75lKqs218meiaY/BQGwtl3LgiE+K8I9QPkI7xlU+K4M8dWGudI1wYJxDoC1qp6hVt7vgXqFGxnu7MkHHQUeNYVN/mqe2yASebc0+s2qvtZWanzKLIVZalAnMA1AFR9QFj31BHBUocOADhWaJg3y+iNzZbBgAFjZqosMk781DGZFO3TOAAptu7uAt1FaEBrNCN/dPEteP9UZfYmqt7yN+V6TJaawTGApsBiYOQr/KwTsEtim8KzpY9Nosq1JAKhv0d8AV57ktnuyoVYuH/VV7ny9CsNYjslyYAEwQ2AqyFREp6Gx95cToEMK3UAjyEHgMKpvEYn8kYeWtWdzu1WNeqbHwwrgYoUlwCKgqMBtdQJoQHh0eTW/XSdijg4ArXoT8HWUGvLYV5ADtaJ8uaFOfpDzL+96dRqm70oM+Ygo70OYI9FXyOVF1LKlCqgcUNGXQJ/D8GzivoWtACtbdLZXWIHyYYUVwKyTas+F1024a1ONPDFqH+BmVV9nMzNMmC8GH1GoB+bm+ZkPCDSoyeMG7Jlax5HviYRyusJtu6oxuEnEXC0i54MYkmgQywtKYltSc12T/gdV67aaKmxd9qGaptOWTP6QCNXjzvYoPw+F+czjc+R4XqOA1c16mQgPAstH+Yi7RVi3sUY2jPgKd+y62BD9PEI9iE9sDBcb88Xxxsk6QRNSr3YtoNH/1HJOHBCCWTe/ctvii2d4/MXe88YZDN5WYeWmGtmd1zzAOlVjext/q8q/jMC+BVX44jnVfDdXWxVteuGu3R8T1X8SkbOtTJco02MvNbwtdhBk+baaBAKNgiD6FwNEfJ9SNaNkz7mX1x0rqyq68CSZTjfqMCNcls6hHvGDXtus7zczp4HtYZ9wXUONPDMyh273ZSLm/YK8J8ZgIyrOCSCIhfkWbWB5U8moPYkzGzeptzLeohlUwUSZXFu6+/xrZg76i73njpJ5QwKdOtzFXgIUj/A6TWaYCzbPlpa8AgBgdasuFGUrUJHh1G4VLsqkjlzpnh2zJCIPi8jVAhiSkPZhZgsZ1b/YPIB0LoDd+SMh9TiYHZP8BBjsQJizaPIfl62oniMiTh+hV2CbCXuARoHDCocMkx7DR6+p9EU8DNhCO1Wpb2MOynKFawRWA9NziqpquAIRzSsAAFa36JUCjwOp+v1NMVi9sVq25C71u9Yaog8LUhWTeHfGW/ZHj8VNgav0SwbfP9kUxBiMi+QrimkFgoIJeHzSe+HK2S9PqSt9C+HlCPzpvGreGJn5S9DVe9UfKOMvVbkHmJdlhHDTxhr5Ud4BALCmWR9U4dYURuaBhhq5I6cL3rp9uvg8PxbkypjEGw7Gp9IEOPwCxP6SklX4ZzcFMdYnSbuL5Kvat00UNbWBiHlLtvmEXIDgL+N2lK8A3gynH5xew1nOKCsvAKg/oJPwsw+Y4jh03BfhzA2z5Fj23v3OZYZBgyCnGTLMWCMLxjs1AS7aIN2Lq8u2m/NHOsmH4e/x7cQ+U2mGyGrWL30l357eqhb9oAEbMpkFgY9trJVfWfflpSKoYa50qfKgizf9jdyYv+N6w5AXDZHTDBGG/4h/ehz7PCJ4ovsT25ZjRux31vOj+x1/sWNG9DrW+1mvb6R4BsP2W0n8EX+GOsF4ljt3rMk3ADbXynMqrACOZHBwP+Hcl7ei0IjJoy6C9J/Z2/uddxiG8d+GUBJrNGsD2sHgzgzrMSvzbEw1rIBxgCIKFjsYYtd3Z7iRdF4ycC2fpSLyC+7acWu+QbCpRnaLwccznHbpJareggBgyyxpBqzqbdumOmnMLoW783aPyHpDkFRS78lBEyT/NvppWI9h0RgxcEiS1BsOwBgObWJ7VuzP6nEDAWII8iB37rgn3yDYWC1Pi5CuE61ySitnWnd48/kAIjylOjwmUISns5V8D7Je4hI//Gn9LiK4OYOGWxQQ8wksWT+xeIIZ8wDizANIwgcQRdXyHUWQYV8gel5sL6qoCMU+OHOyj5pyD15D6A9GONAVYc/R4L2RO3Yo31hyXz55YCpPRHsd3TX1cKfYmwUBgJo0xVpYTZqysPlfiEp+nKExSREnGEiAIskZjIHDEvNbw0IszmA6EKgjMaxxpsbCPjvzTcv3xO8EnwdWLSjh2oUB3lNbhM+TfMfuIZOn3x78+q4PHJrzwEfn3JJHIdyDpnUEphRMA6jQbAnFWtJL/o4rDDEeEklIuNXei/O7Cxis+6zp4KRcgCMzaAVCUgIo+vD2RFAy8zWaWjItesBEWDk/wB0fKKO6LP1wiEq/wZqzS1g1v/jmqU82Nt9+2ax/ygcPDOjIkGQoLhgAGEafAoSF1HV/d72+wMD4mSF442rf4ewJVjtvUf9WsxAzARa178wMOnMB6fMAYtMGrmYg+t20mABTFb/P4GuXVrByvj+nJvMYwseXVazr+XXjtnuvnvXEqE2ASUXalxSCBXECY56owtUoVz1WI7vce5N2lRl4HjOESYZD7dtDJ2ckkMq7Tjh8w05cstOWHBEk/xnObcPixBmSJgqBEp/w8OpJOTM/RhV+kbULSzfe81RjXR7YMCWtjBp2zZxfDQBsqpXfplVRQf2mIGfGbHayl2wxCRbT4O4UJm+n0gS51gOoRSO4SX7MBCiw/opy3lvnG1W7za3yFp03xf8Uw07aaCh9t3SYtwqmATLS7TsuF5VPx9V6zH7H7bi4Mj9FTJ2QRNwk2xouWvMAkjEP4NQGzvtZ91+3uJhLz/DnpXkunRuY/8DTLXeP0g+7MB37p9VxIO+p4Kxo3Z8nGUNFOw2hzqZCSa3WUzmF4tAMdmcwuWPIrSYgVSrY2QEU2zYdNQCmKqU+YeMNk6jw568ZW/vM8I/f6D3t65fOas65Y254mN6hNHx9o6FWFhbUBKRU/UO+LxtQZ0RVv8T+Zct8l7DQ7hRa+wucuQCx5QUypEsTZiAaDQwHd8nO38cW+/PKfICaMsO7rMr/OCOouhLhhnRCLfCbgqWC09L/3j5XkM/GY3ZHetVuBqzxfTLzE06dmzlITsl60ub2XRxBwy3V6+78XX2WvyDNdelc/7Kv/aZpxQh+mjYVHBEec+4bEw1gRLz3i+BPMNTusMW0QkLqHcx1cRZTh4UxDWEPAcVRCyiuPYGxFFBy2KfWmF9hWrnB3KrCTH3g8wjn1Bb9ADg96x7ZJr2U4TEHqai7upoXxl4D3L37XIHrrcyOb8ezfg5pt5oBlzBRcHbCpOgrSMrjS1L+37D1CYjNcXQLNWPbZ08rrOx8cE5g7n3/03ht1urf4J4MXcGb3CquC64BDFO/KAYiDmYnM94OjlT+gZCsHayhYNbOYMo0cHLq17RsV/jBaxjUVRZWdgyBpdWBbwG/ynTutW16oWmyIkN08H9SAKOg0l/jUT1oCEXu0prcY5ayW5UUXa0uOQKx5BOEFFXC4mC+WhmfqP45c4pw8Wk+ltcYzJpk4DXGLnAKRpTvvNy9ZN2Vs3em5qxKfSu/Bz6U5lLPN9TKB90OFFQDGGp+RkSK7BJvjf/tuQCbQxi1T3Yz4J4jEBcwuFUKW4tG3SMAjSd/5k42+OR5PpZUn7wpjoo8wpzKom+SZqhefSs3ZGA+wL+mMQ2FivvVMIZ2N3mEGsOlL91IU0njyVQA4jAD7mFhcoYQkkcL2UYBRbXAqkVerl/qw2tw0qmpJxL++d5JxetWSNh5bFWHlhsh9gA1aYz/Pl81C1KNvi7cKw7tfr9AjU0CbZLvrgkMF61gWCWZ5AyiWzIpdfmWpADd8N9fv7eIjy8fH8wHmFnh8ZZJ6+dceRvk/rTMB0S5I93Qe6Nw6p+P2Zhrde7A9t1wPebYb2Nw6lSxW47A41Im5rZ93VIvV5w1/ma1qys3kuL7Nc16uQh/l+GnzziLQMcIACoIa+xetwsIstQEzoRRct4gRc8hyZogqUA0emz+NIPVi7yMR1o0zW+r8Kk/oJNU+EEGE24CGWsPCwOAu3cvE5idkdE2TUAKLeGiFZLMRIL5kqJ20GOpCfS4FJHeeK4XQ8Yl/zltkqfon3/b9OGY1y9+vk/moeg/bKiVV04OANR8n0S55qzLd9MKpNEKRgatYDg8fSOFCTCSJD9WIQxLqg3mVI1T7kdpRrn3FoD6Fr6qcF2GpE+zL8Lt2Vy3IDrPULnQWYWTtfrPQhM4E0bp8gbpwsLYw73vtPE/m+20EuOcNa26VodHAaUVPxU+ne14jAIZPbnAznxJJF9SaIWUTqJrziCNViB9calblfD8aeOe/4TKi2aq8kim0F2V/7upVn6d7XXzD4B1eytkKHgWVknLgunxY7FzxV7MmUkTGK7hZnLCyNl6lQFhUvH4Vv+NQeFRoyxgZM7b7B3wkNM4zLwD4MaV0z5zeXhQUg/aFHqHlM4TJoe7wrx4OERv0ML0jI5geq1gCxMdkYIblQfGt+Qfjwj3dPkxSjyZmN9vKn/xu2rpP2kAqG/RGxgM3Vg/NXvfMmwqLzWG+O7LA7zVGU5KUabWCmIzMa4aQtIzfzjdOn6ZP4DwpY4iKMtYb2gCN2yukz/n7K/l62FXNesq4IcVkUhOoPIawsVzivjJ2kq+vKKMgFfsgzlszmSa0NFFE4jYB4S4Ue+gjkvmBxX+sc1HuCyLWXiUuxpqpWFEDnteJL9VLxHhZ4C3AnNEU5kIsHKBn4frK5hSajgGc7iP8bdqhXSaIB11DwoRc3wxPwLcdsRHf5k/G+Y/0lAnD4w4Yhvtw17boueibIotFxMwzVGZlflTPTx4VRkBL5CUK4jZg2RT4JprkMzOXTCiHDim44v5rT6Ol2XlnDzr62JUw8pGBYBVR3SGwmYscwQV6egb86ypHr54cYmr9Fp56q4d7ADJhna2jQ8AhBVua/PRmZ1nuiMUYs2GRRI8KQC4RNVrRPiZgm00i0fy08V85bwiFs3wJDE7nQnJZp8bvXhAGQyffObf3l5EZ3aSv9/n5YpsJoIsGAAmtfIg7oUIefGrBfjkuQGLqctkCkdOJ0Lw9N6T5wgMKXyhrYjOUn82DdMSMbh8w3Rpy8e9RwSA+mb9X8A/uCJ52Izlhc6t8VIZkJSc1lRA0NxB8ds3lUPHx5753RH4+yN+esszMz8SNodEuPKxajmQr/vnDIDVbboE4fspwyqTvM1l7zHg/Jkex7wzapnAIb7HwnBLTV8OCIgo/L+XIxw/MXb+QHPI4POdAYayCPVCQxFe/V3TzzdWy858PkNOALh6r/rF5D+BlAtA9RlGMJ8PONNSfZs0f686p3W1g0FzNAxH++Ffnzc52l945r/WC3d2B9DSzINKQ8EIL206TPP+3lfz/Rw5AcBfynrSDz7ghMebVwBMj060oBml3TJHn+W7maNAd/bDfU9F2HqocJqg4Qg8FCpFApndpdBghJd+dYjjRwYAPXzSALCmTT8MfD7Daf3Tu09syecDekUTDAbHiB237dj0LbH9Sq6R6WAYfrwtwr1PRni5UQlF8geGhw7CL4vLMIoyN31wIMIfGw7R3TkYVXlZTrqVo7OdkdYe08rQIK8Ds9NeTPnUopcbn7390kn78v2gxweUt4+ZvNoc5oWDYXoG3Sp/3CuKrUPJMifWohM86vCnqeD1KPOnC9XlQmVA8Hs1xXzBztlDE8CMIDwZKKFvWnaJ0sG+EK9saaL76CCmKhFVNCw1PLiobcwBsLpFvyfw6Qwtt6WhTlYC7GntCtWUGgUrsAtGlCf3Rfiv14IMhHAfTEKKsYQpxgW4zfZpkgDB8OfwdsRlO2I5J7YdOyYBD9UfnEpganaDSfuPDfHqlkZO9IWIKERMxVRt1/WLZ4y5CVjTpMsE/jrDaR0+XwIgB4+HOgvpQBV5hGvme/n2ygBnTjHizLD5AlgZR5wxkShjEkxUV4Y6fxvftpgbM6UZSmwHqgPMvLo6a+b3HBnglc2NDPaF7U6u6ouFaMuMAFCDhzIld0zlb6yJibbe8FtjEUZNKTH42uV+Fld74qrbxjisTMXBcKKAiILDVNt5EQeArOreFXDObVEqF1dSvWI63uLscmNHD/bx58caCQ5EHJNUARh/HHMA1LdoPXBZBpv5/c11stm6r71PN45VLO33Crd/yE91+fDkDSZu0uuUfPt3KxCSpV6j2iSx38psk2StYJR4mH7pdKqWVGTdJ9G8o4td/9NCJKyu0Q5ivjSmAFir6gEeyMD8tqIAtyUlcIojD/cM6ZhlVIp98PcXFbmq/SQVnrCpCY1gapKJcIInSbNgnx5eo8cCs0qovmpG1ipfTWXvs0fYv7Ud03SJcoav30egbGwBEGxjDZkWIxDu2DBZup27//GiWQPb24aaGUM6a6rBhbO9w0yCJEm3bydUfoL5ydIf0dRmxXkufoOqiyYz5aLJWYV4AMETYXZuaeLIWz3RxJbGE1zx74Aij7Nu7uCYAkCUL2SQ/j9squYnqY4f7Ar/dqzz6h9d4E1S38nOnUXtm8SlPr7fVNs+WyQQWx9A7bkJ/6xipl41g+JZ2dfC9HcMsbOhiZ4jg44chzOnAaj5q0K1mWuotqpF3wNcnBY5Jre5rUETo9bO8P0DIfNTxb6xG2V51jSDySXCsRNmfBJnI7plLSsb/tSkMNC2IBSJUFAdYWHMEaTYQ8XyCgIzcyuCat/dzcE/dhKJZIgihu87iPp+Xag2c+WOBz6X4XdPbpwpW9OdcO+a2ftfag7uH0sNIAxP6BDJ4PyZNgdQbbG80zl0MwcqEJhfxpQrp+fE/EjQZP9TbRzc2okZUUcE4RJRDKv/X/DAgt4xA8DNqj6FVWkbWrg3m4u/0R58cKzNQE25kZSYiYPBtDPfHQi4OI6J63im+Ki8bCplSyuiy1VmRyc6h3hzcxPHDvXHJdy0SLuZQhNg8u+FFhq7+m/VFYamnev/tYZaOSfbG7xy8OiJeZN9xWMFgJ+/HuRHrw5lXEPALRNoXR8otkxczARIsUHJ4goCc3J7FVVo39lFy6vHiUTMFJGFU9vE8xRbWb/ookK2V5IPYGh66Ud4NJcbbD089NN5k31/M1YAGAgPN17M7kvUB4ihXTT1bJHWmUHjC0Ua4D+jhNJFuUk8QLA3xOEXOuhtG7T4DonFpGKdVWbSdjwT8O+Fbi83J/CKdGbMDPFfudygs+34Z/cfC9x4xmSvfywA0N5nElE78xPl4WJz/sQh/VgbX8E3w0/pOZV4y705S/3RXd20/vk44bCZiCawLzdnunRdW7bfINCxYUwBcLOqr72Vs9KcvyPVEqSpaN31i4KTnm399hmTvXeMBQDe6IgMd8DYmG/3/OOxi+BaPuap9FG6uBx/be7jxoI9IZpe6KCvfcgi6VbGJjPerV8BMW5l3YrwmALgaCtnkG64mDKiDol/+FDNnefvO/p3i6f7ygv5Moe7Td4+Fo7afIsWUE0aaJLEdUBKPJQtLKdkbmnO02eZEaVzZzedO7oIhzWRLVSXNLIjdWw6somm8gzrFz4xFgJjY3ZYmZcud62wbaQ3eubgwOcWTPU+Ush59jbvHnS1/0kDSxxAMIo9lJ1dTskZJcgInq+v6QQtLx9jqDcUXy3UdEi71QxYnT9NNgFhDONLY+Uz2QAgBjMzlNGNuJv37stm/mj2y223rFpQ8r5C2f5f7h6KAoD4cg7OIejWhWG85V7K55dTcvrIGB/sDXPkT8foaeq3qfWkOgLUZgasDLf1KwwL2f3ct/DVkwIAlLTlqYZBz2hutq/Td9Xbx8Ltp+fZITQV/vn3fQyE0jh/qvEQsGiSj4pFFZTOKhnRTIkajqr7Xd1EwmY0VEx0G9tUPk7b76grsALC1NcolnsZQ/I6VPxg2vYwmTSam627ZkpP0ZNNt9x8XvkjRZ78mYJ/+UM/WxtDlvmColKuxP0BBMrqiqmYV05xzcgnBeg51M+RbccZ6gslLRptWtYMNh3705mB6PYQHuNG1i0MnjQASCYVb6SNELI2BRXPtVz8yeVlo84NhE3loef7+dnOwbjCt9t/8AYMKs8so3JeGb7SkVepDR0P0rbtGL2tA7baP+vi0c6+AtMW7rmVmGHRBvJ57lu4kzEmmxiuatSlhoftac5+qqFGLsvHjTe82r79yjMDS0f6+93tYb76dC9vdoSTVxT3COU1xVSeXkbFnJHZ9xiF+sO0v9ZF1/7epJXC7VJvWU08BRgSlUTOrmXzm6xfcisngWwi4e/hzVAVJ4CSFGHAh1e26qKUS8LlQLu6+y+Y1mK0nFtbVJW1tx1Unjs4xMbdA7xwKBRneEzyS6b6mXx6OVVzS7Muw0qpXQYjdLzexdE9vahpCd+scbsmLyMfZ7oLGFIw/wn2v3EHJ4mSRGN1s24R4SNpfvOnSUN88JG5MuoChbt/c7BmV5s+2Rc0FyYmeB5+JMOy0kd/UDk+YNLcY0aPJSaEKp8WoOq0UqrmlBGo9I26QSJBk87d3XTs7iESNMExfby6JXewVhRbSsXcwGBjPlsJFF3Funk94wkAHxfhpxl+9Isw/NVjtXJi1E+wbm+FDA39zkAuyGb2b4/HYFJtMVNOK2PynFKKSvJTfR4aiNCxa1jiIyHT3jGUVPufbAJsziCWuB57EsjiAL5IwH/1yWS+KwCu3qt+fxlvo9Rm+OEuNbmhYaa8NuqnuGNbpRiB3xnI+UkLSXuESdOLqaorYXJdCZUzijG8+YsgBntCtO/o4ti+PkzTUoer9qXkkgeBqA0QTmcw4SBaUr8J5j+P6f1IIfv5RwwAgPoWvRl4OKt+D+UJ4NvdtTzzjMjIc9e3bi8Vj+fHgRLvtVXVxVTNKKZyejGTa0vwFuW/qqinZYCON7vpOtRvGzpm7Ra2qn9wZ3yyCXCUjyeBQTYSDt/IQ8v6GQckKdgq9a08SoZlyJxtKvAUwlZT2WcY7A0O0WwGOfHreTIUO2ltu5YNhgl4YZoqsyD6Z7AA5T3AGYV62UjQpGNvD0fe6GGwO2jvDbQgIGkAqq1MLDtNYFX50U9V5QECi+5mnYx6Nor6Vv0qiqehVr6SfwDETEEpT5KhNjAXgGCZS2gsqadtgPa3eujc34tGlFQlIW6TSyQ0QApn0MUExAFAPD3cp3AT6xf/Mh/vs3aXFoWqGAAkAmWj8cVSelC/nidD9Qd0JX42Ax/Iw3OPKfNPHA/Svq+H9n29DPWGsC8erW78t0m9nfl2H4A0jHdxBp8nYnyKBxfuzZsmq6KGaDmfx0MNsD/vAABomCtdNx3QK7r8/BS4lnFOAz1BOt7u48i+Xvo6B+PLxg6rOruhd1840in9bs5g1pqgV1Vu4xsLv+eOuFHkKGBOzCsyTWYXDAAAj8yVQVSvq2/l08C3UiaJThL1HRuibX8vHQf76O0YtE8wrQKirpNMuue5MjuDqcLCBOOJKPoTPPoVvr64sRDv7IErNaHMrgB+n3cfwI1Wtuoiw+Q/JP0S5QWl4GBksP1gX6CzqZ/Oxj6G+sO2Id9uE1S7v6ykZL/rSuIWbZAs+aDDtAnDuIf7F+0uWAMMO+i7gLOje/Y01HB2ujEaeQNAjNa06UfVZB1w3hjwvAnlRRF+j8nTG2fKW9y9YymmfE5EPiFQbF0X0LZesOUt3WYUJaUZUMfcQ3am23IDyoCiPwPzO6xf+kqhG2N1q14niq1WUITrN9bIhjEDgFUjeOFGU/krgeo8vF+3wk7gFUN4Qby88Ktp0pry7C/tmYov9ClR/lIMluNYDcS2LI1k98JqCwdTOIPDQNiF6vcR/THrl47JBHNrG7U45OE1cPTKCvt8YZZumCUDYwqAeDZX1djeynwVLgDORakVmKZQihBE6RfoUhgABlTpFmFQhTZDOGzCIRmgsWGudI34Ie58/XRErhWVeoTzBfFZXzCXqWOTpV9BCSr6HCKPo7KF9Yv2Mca0ukUfFfhEqvT8xhquz9UUjO+lMkZKX3yxmEDFuSAXoHqhwHxgFkJVRhOgADKgar4BbAe2I2wnYGxj3aK+k/E661SNP7ewXiR5KL6Dmd9aVsOt6yT7RNM7EwApW3JXGUPMRs3p4IlGQBEDoYiIp5Oi0BG83o6TxegUan9y2MsPNdOAnQSAt4hy08aZcnQCAKcw1R/QSRRxM8JdkHMpXpfAN3SI72YyqxMAGA+KSdXY3sKlCrMZrsx+P3AJMNoChxDwLMofVGgS5fDyWp60mogJAIwDWt2sfyHCf4/R7W5sqJX4+E7vRPOPC3pR4BcKcxDqMtVijIBagRbgkAHPT5iAcU4r23Sux2S1wi0CC0Z4mbcEHjY8NPxyhrw94QOcgnSJqreylU8JfAOozPJnPQh3Tq/mP74nEpqIAt4B9LFGnRf2sDkLbfB2RFiVS9X2BABOEVp1RGcYEV4mxYTdAs2RMOfnOnzfmGjaU4M2z5AjDPsFbuX4QxGoz5X5EwA4xahhprwmwr8lHVC+s7lWRjR0fwIApxiFgqwHrLOz9oly/0ivNwGAU4wenyPHFeKrsqiwJdu8/wQA3oejwL4AAABSSURBVCFkCJviX0weG9W1JprzFCQlMYzcw44JALzLaNBPfCZ2I0zLRIu8C6m+Rd+qb9H9qI4qlzPRGXSKki/CskEPMtJq4AmaoAmaoAl619P/BzPsAr5LUf1QAAAAAElFTkSuQmCC",
+            "name": "az-database-cosmosdb-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ add proper tags management",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin Pack to monitor Azure Cosmos DB Account service using RestAPI or AZCLI.**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|Cloud-Azure-Database-CosmosDb-custom|\r\n|---|\r\n|Availability|\r\n|Cache|\r\n|Document|\r\n|Health|\r\n|Latency|\r\n|Throughput|\r\n|Units|\r\n|Usage|\r\n\r\nThis Plugin-Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin Pack pour superviser les ressources Azure Cosmos DB Account via RestAPI ou AZCLI.**\r\n\r\nMod\u00e8le d\\'H\u00f4te disponible et Services associ\u00e9s:\r\n\r\n|Cloud-Azure-Database-CosmosDb-custom|\r\n|---|\r\n|Availability|\r\n|Cache|\r\n|Document|\r\n|Health|\r\n|Latency|\r\n|Throughput|\r\n|Units|\r\n|Usage|\r\n\r\nCe Plugin-Pack fournit un *provider* Host Discovery pour le module d\\'auto-d\u00e9couverte d\\'H\u00f4tes"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module >= 19.10.1\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure Cosmos DB",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_database_cosmosdb_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Database-CosmosDb-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-database-cosmosdb",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Cloud",
+            "Azure",
+            "Microsoft",
+            "Restapi",
+            "API",
+            "Database",
+            "Cosmos",
+            "NoSQL",
+            "SQL",
+            "Cassandra",
+            "Gremlin",
+            "MongoDB",
+            "HostDisco"
+        ],
+        "update_date": "1636822967",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques d'utilisation de l'instance Azure Cosmos DB Account.}\r\n\r\n{EN: Check Azure Cosmos DB Account request usage statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Usage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-CosmosDb-Api-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-CosmosDb-Usage-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques d'unit\u00e9s de requ\u00eates de l'instance Azure Cosmos DB Account.}\r\n\r\n{EN: Check Azure Cosmos DB Account request units statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Units",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-CosmosDb-Api-Units",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-CosmosDb-Units-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques de donn\u00e9es de l'instance Azure Cosmos DB Account.}\r\n\r\n{EN: Check Azure Cosmos DB Account throughput statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Throughput",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-CosmosDb-Api-Throughput",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Maximum"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-CosmosDb-Throughput-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques de latence de l'instance Azure Cosmos DB Account.}\r\n\r\n{EN: Check Azure Cosmos DB Account latency statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Latency",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-CosmosDb-Api-Latency",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT1M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-CosmosDb-Latency-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la sant\u00e9 des ressources Azure Cosmos DB Account.}\r\n\r\n{EN: Check Azure Cosmos DB Account health.}",
+            "active_checks_enabled": 2,
+            "alias": "Health",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-CosmosDb-Api-Health",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEOKSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^Available$/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^Unavailable$/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^Unknown$/"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-CosmosDb-Health-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques de document de l'instance Azure Cosmos DB Account.}\r\n\r\n{EN: Check Azure Cosmos DB Account document statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Document",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-CosmosDb-Api-Document",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-CosmosDb-Document-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques de cache de l'instance Azure Cosmos DB Account.}\r\n\r\n{EN: Check Azure Cosmos DB Account cache statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Cache",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-CosmosDb-Api-Cache",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-CosmosDb-Cache-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques de disponibilit\u00e9 de l'instance Azure Cosmos DB Account.}\r\n\r\n{EN: Check Azure Cosmos DB Account availability statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Availability",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-CosmosDb-Api-Availability",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "3600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT1H"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-CosmosDb-Availability-Api",
+            "normal_check_interval": 60,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

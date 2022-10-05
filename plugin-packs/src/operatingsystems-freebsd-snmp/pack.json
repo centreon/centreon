@@ -1,0 +1,905 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "OS-FreeBSD-SNMP-Interfaces-Discover",
+                "command_for_macro": "OS-FreeBSD-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "OS-FreeBSD-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "OS-FreeBSD-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "OS-FreeBSD-Traffic-Global-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "OS-FreeBSD-SNMP-Storages-Discover",
+                "command_for_macro": "OS-FreeBSD-SNMP-Storages-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$name$",
+                        "order": 0,
+                        "pattern": "(/dev.*|/run.*|/sys.*|/boot)",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "OS-FreeBSD-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "OS-FreeBSD-SNMP-Disk-Name",
+                "service_display_name": "Disk-$name$",
+                "service_template": "OS-FreeBSD-Disk-Global-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "OS-FreeBSD-SNMP-Diskspath-Discover",
+                "command_for_macro": "OS-FreeBSD-SNMP-Diskspath-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$name$",
+                        "order": 0,
+                        "pattern": "(/dev.*|/run.*|/sys.*|/boot)",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "OS-FreeBSD-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "OS-FreeBSD-SNMP-Disk-Path",
+                "service_display_name": "Disk-$name$",
+                "service_template": "OS-FreeBSD-Disk-Global-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_freebsd_snmp.pl --plugin=os::freebsd::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "OS-FreeBSD-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_freebsd_snmp.pl --plugin=os::freebsd::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "OS-FreeBSD-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_freebsd_snmp.pl --plugin=os::freebsd::snmp::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "OS-FreeBSD-SNMP-Storages-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_freebsd_snmp.pl --plugin=os::freebsd::snmp::plugin --mode=list-storages --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "OS-FreeBSD-SNMP-Storages-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_freebsd_snmp.pl --plugin=os::freebsd::snmp::plugin --mode=list-diskspath --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "OS-FreeBSD-SNMP-Diskspath-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_freebsd_snmp.pl --plugin=os::freebsd::snmp::plugin --mode=list-diskspath --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "OS-FreeBSD-SNMP-Diskspath-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_freebsd_snmp.pl --plugin=os::freebsd::snmp::plugin --mode=swap --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage-prct=\\'$_SERVICEWARNING$\\' --critical-usage-prct=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-FreeBSD-SNMP-swap",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_freebsd_snmp.pl --plugin=os::freebsd::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-FreeBSD-SNMP-memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_freebsd_snmp.pl --plugin=os::freebsd::snmp::plugin --mode=load --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-FreeBSD-SNMP-load",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_freebsd_snmp.pl --plugin=os::freebsd::snmp::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-average=\\'$_SERVICEWARNING$\\'  --critical-average=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-FreeBSD-SNMP-cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_freebsd_snmp.pl --plugin=os::freebsd::snmp::plugin --mode=storage --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --storage \\'$_SERVICEDISKID$\\' --display-transform-src=\\'$_SERVICETRANSFORMSRC$\\' --display-transform-dst=\\'$_SERVICETRANSFORMDST$\\' --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-FreeBSD-SNMP-Disk-ID",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_freebsd_snmp.pl --plugin=os::freebsd::snmp::plugin --mode=storage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --storage \\'$_SERVICEDISKNAME$\\' --name --display-transform-src=\\'$_SERVICETRANSFORMSRC$\\' --display-transform-dst=\\'$_SERVICETRANSFORMDST$\\' --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-FreeBSD-SNMP-Disk-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_freebsd_snmp.pl --plugin=os::freebsd::snmp::plugin --mode=storage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --storage=\\'$_SERVICEFILTER$\\' --name --regexp --display-transform-src=\\'$_SERVICETRANSFORMSRC$\\' --display-transform-dst=\\'$_SERVICETRANSFORMDST$\\' --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-FreeBSD-SNMP-Disk-global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_freebsd_snmp.pl --plugin=os::freebsd::snmp::plugin --mode=diskio --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --device \\'$_SERVICEDISKNAME$\\' --name --warning-read=\\'$_SERVICEWARNINGREAD$\\' --critical-read=\\'$_SERVICECRITICALREAD$\\' --warning-write=\\'$_SERVICEWARNINGWRITE$\\' --critical-write=\\'$_SERVICECRITICALWRITE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-FreeBSD-SNMP-Disk-IO",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_freebsd_snmp.pl --plugin=os::freebsd::snmp::plugin --mode=processcount --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --process-name=\\'$_SERVICEPROCESSNAME$\\' --process-path=\\'$_SERVICEPROCESSPATH$\\' --process-args=\\'$_SERVICEPROCESSARGS$\\' --regexp-name --regexp-path --regexp-args --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-FreeBSD-SNMP-process-generic",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_freebsd_snmp.pl --plugin=os::freebsd::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACEID$\\' --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-FreeBSD-SNMP-Traffic-ID",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_freebsd_snmp.pl --plugin=os::freebsd::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$$$\\' --name --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-FreeBSD-SNMP-Traffic-NAME",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_freebsd_snmp.pl --plugin=os::freebsd::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-FreeBSD-SNMP-Traffic-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_freebsd_snmp.pl --plugin=os::freebsd::snmp::plugin --mode=uptime --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-uptime=\\'$_SERVICEWARNING$\\' --critical-uptime=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-FreeBSD-SNMP-uptime",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_freebsd_snmp.pl --plugin=os::freebsd::snmp::plugin --mode=inodes --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --diskpath=\\'$_SERVICEFILTER$\\' --name --regexp --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' --filter-device=\\'$_SERVICEFILTERDEVICE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Freebsd-SNMP-Inodes-Global",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les serveurs FreeBSD via SNMP}\r\n{EN: Template to check FreeBSD server using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check FreeBSD server using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "OS-FreeBSD-64.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-FreeBSD-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "OS-FreeBSD-Swap-SNMP",
+                "OS-FreeBSD-Memory-SNMP",
+                "OS-FreeBSD-Load-SNMP",
+                "OS-FreeBSD-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuOWwzfk4AAAf6SURBVGhD1Vp5cBRVGp8/piEBwfJaD3bF0iqKpcBrdVWsnWEmBwaSCqeCSCKgmHCYZRWUFVgVd1FMucuKVSAohZTsGi0WU3ggskKEQo6IGxAQEp2e7k7PlZnMPT19zH49/TLHmyMzmSQz+dWvUpl+3/ve93v93vfe625VKBQSvW5/61Hvkf/4z50U7OaQKMDFwoUoSAGfxPmVX6ogdYWac4dBS8jUqMmy0UzNPd27Xw+Sl3NUIgk8tAS9I/m9UpALSRIq6BNEl9134gvrpqfp+RONVTcbq39jeelRwWFVWV9bZJgyLJFkyQh2eYm3pVkKBpCP9BBFwWHxn21x7n3LunFxZ52GXjCJmnWrsep6asZN9GPjmCUPmldX27e+6Dm4l+s4L/k8qGJ6iAL301nbpqXGyhvlLo4P0rJuvop58nfYVYx0zd2erz9KKUOS4B46//VWZ72GLLvKMAVvIwm18He4sfoWy4b5nq+boGuRKwyi4G/9r2lVhUFXhHvoIT1vvIpZdD92FaeWMD8/jTcbkd8IBN57/DO5Acw+K2oJcuo1ts3LhG4rcitDCrQdZ1fqE7scI1N7r8qy4THsaizJ8tHuA7uw4SvxQe+RfczCiQZNBv2dgvSCCabnKuj5400Npf4z30Sa4Dt/gTvTa+gKzX+apnI2vZ3qvlNzxnI/fa/4jYC79D1bPznDBpKzpNjVvBNuoOxOjhuFLnpcjvdfhSyC26emffs6Fdd+PukgY2ru5llSca0AUopj51/IUhjouHFW7HzmITy/SZL/zGH68fEZTaEItUTg3AkVjAf60XFYGb3wTt7CIO9hgBi2XpNdAylo3fQUchoGZHT7Oy8Y9CMws14J2R9uo7yQOd57Ja5g1hie6VC8Kwj8eJKaNTbWJhfa3lyO/AJEUR7xCTaZ0L5tHTiQBQTpDrJ0pHKVLB0VuHAq7BvB3/oNOfXqSLXcaV47A7mGpg0XYfXEDDIh+cg1go0FD7IAGILmF2bJBVrCtf9d+UoP5OjLs5hVmRDyD4xbxT/X3tY3AdaNTyoewgJgkJw7YdANM6+ujM2YgbZj/dv3CiENRFYV0ecmy0ZhBr2SnDqap9sVD0hASBBMq6uDxivoJ8xaup2qHoPV7B9qCecnW1EzISn9QpSU1r89FenoHgHQGc4u9B949XvYuslYtX5k5zOTI5k0cPGMQV+MGaQhWX51bI6JCoiFY+f6fsmYKakvDpw/iRqTJOtfk28ok5Ho2vJHVDGMJAK4yz/kvlr1SnZlCeRQpUXRaWeemIgZJCXsSWELrdRSkCBA4NkVWqzagFBXBEco1Cjk018uUDN+jdtghCT5aVySBOACvMcO4NUGjHBaiO1O7tIpamY6DewybeIZK16AKHYuvg+rNpAkTKvKJS560uCZn5nau5JOP7Li2iB5CWzA3v3lh4o9IE6A7/Shvi0rOZCwbloCh08UAcTnc9sal8GiFGemK3Lt36EYuD/fTc0eC2bKzxgBsB6vnR1XbZBI2DbXyYfmGMAx0vpqrbHyBsOUYlI/0r7tJSXxi14XNWMMTAb3F3sUy6gA3kyT2W8J+4lw6KsUrHH7XwCo4llDeM+Dli3eTCkDzPRsmSIpKgDuUbzTwaax6iZYoaGPUUBJIQrUnNvBGKaE4LDAhR4BkmR6bnqsu/xQS1Bz73B+/E+hK9rrsYCshfZOWsJz+GO4ggSI7m7jtOvjfOWVZPko859nu/Zv5y61CjaT6HWKTpv/f9+y9Q9HcpTl5YVRAXAGiFQuJMrP2gx/gL9E+G9chqTnTYCBgwS49r0TWzYkCGNJ7LYhAV2NDVjxEKBGHbjQigSYX8zLCpAbtWrv0U+RAHZFCV5c+NSq3Qd2IQHMkgE8vgwY1c6mv4cFSBKz6PcJxUOA3XsbFQEiUzuYm9B+Y4+AkMQsfgArGwoknP9GAkKddYNyCutfatWu5veQAMv6BXhx4VOj9p1pQQK6d23EiwufumFBuh0JkI/CuTzyzwfJab+CAwMSwDMdBl0WT5cKgezShyFyJACk0PN+i1kUOO1b10QFAGyNyzGLgqZ2mPJsLyrA993B8AvQoUFq7u3Ky/qoACngo2beitkVLG1v1ClhRwUAHDs2RA5shUyyZATXcU6JOU6A/NBCl68nK1mQbSiLPBiOEwCwvVmHWRceh/tPH0bhJgrgWTKrV82DT1NDaewjXlwAwLFjPVangKgrwj4eSCJA9DjpJybgNQuChLJ4xSKJAID/h2Phb2ew+nkmUzNJCnhRiD1ILgDQved1rH5+SVZcx7W3oeBikFJASOAtL8MhoSCWBbKk2HO4CQUWj9QCwmsz26DPvwZ9sWvfNhRTAtIJAMCEZp/NqwZdsfOjfyivApKiFwEA0GBeU4n7HRzqi5xNb6eJHtC7AADs+2yNKwy64XgDA0mYte6DH0LjKIgUyEiADEl0f/6BseI6rJmBIcHUTuJ+/hE1nRYZCwgDNhqmhvIBPTaQ+iL79nWRD3N7RXYCZIii56u94e/b8LZzpa7I9Pz0pMk+DbIXEIbk97iadzI1d+FB9Ilk6UjzmqpA23EYqKiBjNFHAQoknvOdOmReO9dYdXP2T2UIyAr0vHFdW1YFqSt9CF1BTgIiEL0u33df2jbXM7X3kY+EXxZq1AZtAjVq6Gxq5m2mlSWOXa9xl9si3571Gf0jIApJgvkXNF7xtbZ4DjXF0tvSHLh4VrCZ+tzZSRAK/R/IkfMzQjM20AAAAABJRU5ErkJggg==",
+            "name": "OS-FreeBSD-64.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Fix Host Template Macros",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor FreeBSD operating system via SNMP:\r\n* Cpu\r\n* Disk (by name, ID or global)\r\n* Disk-IO\r\n* Inodes-Global\r\n* Load\r\n* Memory\r\n* Process-Generic\r\n* Swap\r\n* Traffic (by interface name, ID or all interfaces)\r\n* Uptime"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller les syst\u00e8mes d\\'exploitation FreeBSD via SNMP :\r\n* Cpu\r\n* Disk (by name, ID or global)\r\n* Disk-IO\r\n* Inodes-Global\r\n* Load\r\n* Memory\r\n* Process-Generic\r\n* Swap\r\n* Traffic (by interface name, ID or all interfaces)\r\n* Uptime"
+            }
+        ],
+        "discovery_category": "operating-system",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Operatingsystems-Freebsd-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp)\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>OS-FreeBSD-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "FreeBSD SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_freebsd_snmp.pl",
+                "package_name": "centreon-plugin-Operatingsystems-Freebsd-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Operatingsystems-Freebsd-Snmp",
+                "version": "20160324-2"
+            }
+        ],
+        "slug": "operatingsystems-freebsd-snmp",
+        "status": "stable",
+        "status_message": "Fix Host Template Macros",
+        "tags": [
+            "FreeBSD",
+            "Operating System",
+            "OS",
+            "Server",
+            "System",
+            "Unix"
+        ],
+        "update_date": "1596636941",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire virtuelle (SWAP)}\r\n\r\n{EN: Check virtual memory usage (SWAP)}",
+            "active_checks_enabled": 2,
+            "alias": "Swap",
+            "check_timeperiod": "",
+            "command_name": "OS-FreeBSD-SNMP-swap",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "30"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "10"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-FreeBSD-Swap-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire vive (RAM)..}\r\n\r\n{EN: Check the rate of the utilization of memory (RAM).}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "OS-FreeBSD-SNMP-memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-FreeBSD-Memory-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la charge serveur.}\r\n\r\n{EN: Check the server load average.}",
+            "active_checks_enabled": 2,
+            "alias": "Load",
+            "check_timeperiod": "",
+            "command_name": "OS-FreeBSD-SNMP-load",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "6,5,4"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "4,3,2"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-FreeBSD-Load-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine. Ce contr\u00f4le pourra remonter la moyenne du taux d'utilisation des CPU ainsi que le taux par CPU pour les CPU multi-coeur.}\r\n\r\n{EN: Check the rate of utilization of CPU for the machine. This check can give the average CPU utilization rate and the rate per CPU for multi-core CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "OS-FreeBSD-SNMP-cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-FreeBSD-Cpu-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'espace libre disponible du disque. Pour chaque contr\u00f4le appara\u00eetra le nom du disque (\u00ab\u00a0label\u00a0\u00bb) plut\u00f4t que la lettre attribu\u00e9e. Les seuils pourront \u00eatre en pourcentage, en espace libre restant.}\r\n\r\n{EN: Check the rate of free space on the disk. For each checks the name of the disk will appear (\u00ab label \u00bb) rather than the letter assigned. Thresholds can be in percentage or in free space remaining.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Generic-Id",
+            "check_timeperiod": "",
+            "command_name": "OS-FreeBSD-SNMP-Disk-ID",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--filter-perfdata='storage.space|used|free'"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-FreeBSD-Disk-Generic-Id-SNMP",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'espace libre disponible du disque. Pour chaque contr\u00f4le appara\u00eetra le point de montage du disque (\u00ab\u00a0label\u00a0\u00bb). Les seuils pourront \u00eatre en pourcentage, en espace libre restant.}\r\n\r\n{EN: Check the rate of free space on the disk. For each checks the mount pont of the disk will appear (\u00ab label \u00bb). Thresholds can be in percentage or in free space remaining.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "OS-FreeBSD-SNMP-Disk-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--filter-perfdata='storage.space|used|free'"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-FreeBSD-Disk-Generic-Name-SNMP",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'espace libre disponible des disques. Pour chaque contr\u00f4le appara\u00eetra le point de montage des disques (\u00ab\u00a0label\u00a0\u00bb). Les seuils pourront \u00eatre en pourcentage, en espace libre restant.}\r\n\r\n{EN: Check the rate of free space on disks. For each checks the mount point of disks will appear (\u00ab label \u00bb). Thresholds can be in percentage or in free space remaining.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Global",
+            "check_timeperiod": "",
+            "command_name": "OS-FreeBSD-SNMP-Disk-global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --filter-perfdata='storage.space|used|free'"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-FreeBSD-Disk-Global-SNMP",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les acc\u00e8s disques du disque. Pour chaque contr\u00f4le appara\u00eetra le nom du disque (\u00ab\u00a0label\u00a0\u00bb) plut\u00f4t que la lettre attribu\u00e9e.}\r\n\r\n{EN: Check access disk of the disk. For each check the name of the disk will appear \"label\" rather than the letter assigned.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-IO",
+            "check_timeperiod": "",
+            "command_name": "OS-FreeBSD-SNMP-Disk-IO",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALREAD$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALWRITE$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEDISKNAME$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGREAD$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGWRITE$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-FreeBSD-Disk-IO-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le fonctionnement d'un processus/service Unix.}\r\n\r\n{EN: Check Unix process/service is working.}",
+            "active_checks_enabled": 2,
+            "alias": "Process-Generic",
+            "check_timeperiod": "",
+            "command_name": "OS-FreeBSD-SNMP-process-generic",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEPROCESSARGS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEPROCESSNAME$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEPROCESSPATH$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-FreeBSD-Process-Generic-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante de l'interface. Pour chaque contr\u00f4le appara\u00eetra le nom de l'interface (\u00ab\u00a0label\u00a0\u00bb raccourci d\u00e9crivant l'interface).}\r\n\r\n{EN: Check the bandwidth of the interface. For each checks the name of the interface will appear (\u00ab label \u00bb shortcut describing the interface).}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Id",
+            "check_timeperiod": "",
+            "command_name": "OS-FreeBSD-SNMP-Traffic-ID",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEINTERFACEID$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-FreeBSD-Traffic-Generic-Id-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante de l'interface. Pour chaque contr\u00f4le appara\u00eetra le nom de l'interface (\u00ab\u00a0label\u00a0\u00bb raccourci d\u00e9crivant l'interface).}\r\n\r\n{EN: Check the bandwidth of the interface. For each checks the name of the interface will appear (\u00ab label \u00bb shortcut describing the interface).}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "OS-FreeBSD-SNMP-Traffic-NAME",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEINTERFACENAME$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-FreeBSD-Traffic-Generic-Name-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante des interfaces. Pour chaque contr\u00f4le appara\u00eetra le nom de l'interface (\u00ab\u00a0label\u00a0\u00bb raccourci d\u00e9crivant l'interface).}\r\n\r\n{EN: Check the bandwidth of interfaces. For each checks the name of the interface will appear (\u00ab label \u00bb shortcut describing the interface).}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "OS-FreeBSD-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-FreeBSD-Traffic-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Dur\u00e9e depuis laquelle le serveur tourne sans interruption.}\r\n\r\n{EN: Time since the server has been working and available.}",
+            "active_checks_enabled": 2,
+            "alias": "Uptime",
+            "check_timeperiod": "",
+            "command_name": "OS-FreeBSD-SNMP-uptime",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "OS-FreeBSD-Uptime-SNMP",
+            "normal_check_interval": 60,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des inodes}\r\n\r\n{EN: Check Inodes space usage on partitions.}",
+            "active_checks_enabled": 2,
+            "alias": "Inodes-Global",
+            "check_timeperiod": "",
+            "command_name": "OS-Freebsd-SNMP-Inodes-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERDEVICE$",
+                    "password": false,
+                    "value": "^(?!(tmpfs|devpts|none|proc|sysfs|sunrpc|\\/\\/.*)$)"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Freebsd-Inodes-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

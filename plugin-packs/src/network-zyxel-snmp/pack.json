@@ -1,0 +1,346 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Zyxel-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Zyxel-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Zyxel-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Zyxel-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Zyxel-Traffic-Global-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_zyxel_snmp.pl --plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Zyxel-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_zyxel_snmp.pl --plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=$_HOSTSNMPCOMMUNITY$ $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Zyxel-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_zyxel_snmp.pl --plugin=network::zyxel::snmp::plugin --mode=sessions --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Zyxel-SNMP-Sessions",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_zyxel_snmp.pl --plugin=network::zyxel::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-mem-usage=\\'$_SERVICEWARNINGMEMUSAGE$\\' --critical-mem-usage=\\'$_SERVICECRITICALMEMUSAGE$\\' --warning-flash-usage=\\'$_SERVICEWARNINGFLASHUSAGE$\\' --critical-flash-usage=\\'$_SERVICECRITICALFLASHUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Zyxel-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_zyxel_snmp.pl --plugin=network::zyxel::snmp::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-1m=\\'$_SERVICEWARNINGUSAGE1M$\\' --critical-1m=\\'$_SERVICECRITICALUSAGE1M$\\' --warning-5m=\\'$_SERVICEWARNINGUSAGE5M$\\' --critical-5m=\\'$_SERVICECRITICALUSAGE5M$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Zyxel-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_zyxel_snmp.pl --plugin=network::zyxel::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$$$\\' --name --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Zyxel-SNMP-Traffic-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_zyxel_snmp.pl --plugin=network::zyxel::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Zyxel-SNMP-Traffic-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_zyxel_snmp.pl --plugin=network::zyxel::snmp::plugin --mode=vpn-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Zyxel-SNMP-Vpn-Status",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Zyxel equipments using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "net-zyxel-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Zyxel-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Zyxel-Sessions-SNMP",
+                "Net-Zyxel-Memory-SNMP",
+                "Net-Zyxel-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "net-zyxel-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ autodisco filters",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Zyxel equipments via SNMP:\r\n* Cpu\r\n* Memory\r\n* Sessions\r\n* Traffic (by interface name or global)\r\n* Vpn Status"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller des \u00e9quipments Zyxel via SNMP :\r\n* Cpu\r\n* Memory\r\n* Sessions\r\n* Traffic (by interface name or global)\r\n* Vpn Status"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Zyxel-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Zyxel-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Zyxel",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_zyxel_snmp.pl",
+                "package_name": "centreon-plugin-Network-Zyxel-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-zyxel-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Network",
+            "Router",
+            "Switch",
+            "Zyxel",
+            "SNMP"
+        ],
+        "update_date": "1556831660",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de sessions.}\r\n\r\n{EN: Check sessions.}",
+            "active_checks_enabled": 2,
+            "alias": "Sessions",
+            "check_timeperiod": "",
+            "command_name": "Net-Zyxel-SNMP-Sessions",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Zyxel-Sessions-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation des m\u00e9moires.}\r\n\r\n{EN: Check the rate of the utilization of memories.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Zyxel-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Zyxel-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine.}\r\n\r\n{EN: Check the rate of utilization of CPU for the machine.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Zyxel-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Zyxel-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau d'une interface r\u00e9seau.}\r\n\r\n{EN: Check traffic of an network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-Zyxel-SNMP-Traffic-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Zyxel-Traffic-Generic-Name-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau de plusieurs interfaces r\u00e9seau.}\r\n\r\n{EN: Check traffic of multiple network interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Zyxel-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Zyxel-Traffic-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des vpns.}\r\n\r\n{EN: Check vpn status.}",
+            "active_checks_enabled": 2,
+            "alias": "Vpn-Status",
+            "check_timeperiod": "",
+            "command_name": "Net-Zyxel-SNMP-Vpn-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{connectstatus} eq \"disconnected\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Zyxel-Vpn-Status-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

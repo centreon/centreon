@@ -1,0 +1,125 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_pdu_schleifenbauer_gateway_snmp.pl  --plugin=hardware::pdu::schleifenbauer::gateway::snmp::plugin --mode=sensors --hostname=$HOSTADDRESS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\'  --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Pdu-Schleifenbauer-Gateway-SNMP-Sensors",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Schleifenbauwer gateway using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "schleifenbauer-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Pdu-Schleifenbauer-Gateway-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Pdu-Schleifenbauer-Gateway-Sensors-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "schleifenbauer-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Schleifenbauwer gateway using SNMP:\r\n* sensors"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un \u00e9quipement Schleifenbauwer gateway via SNMP :\r\n* sensors"
+            }
+        ],
+        "discovery_category": "ups-pdu",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n\r\n## Prerequisites\r\n\r\n### Centreon Plugin\r\n\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Pdu-Schleifenbauwer-Gateway-Snmp\r\n\r\n## SNMP\r\n\r\nConnect to your Schleifenbauwer gateway and configure SNMP.\r\n\r\n## Centreon Configuration\r\n\r\n### Create a new host\r\n\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Pdu-Schleifenbauwer-Gateway-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Schleifenbauer Gateway SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_pdu_schleifenbauer_gateway_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Pdu-Schleifenbauer-Gateway-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-pdu-schleifenbauer-gateway-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Schleifenbauer",
+            "Gateway",
+            "PDU",
+            "SNMP",
+            "Hardware"
+        ],
+        "update_date": "1562591010",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les sondes.}\r\n\r\n{EN: Check sensors.}",
+            "active_checks_enabled": 2,
+            "alias": "Sensors",
+            "check_timeperiod": "",
+            "command_name": "HW-Pdu-Schleifenbauer-Gateway-SNMP-Sensors",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Pdu-Schleifenbauer-Gateway-Sensors-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,290 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_polycom_hdx_snmp.pl --plugin=hardware::devices::polycom::hdx::snmp::plugin --mode=viewstation-stats --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-h323-packet-loss=\\'$_SERVICEWARNINGH323PACKETLOSS$\\' --critical-h323-packet-loss=\\'$_SERVICECRITICALH323PACKETLOSS$\\' --warning-h323-jitter=\\'$_SERVICEWARNINGH323JITTER$\\' --critical-h323-jitter=\\'$_SERVICECRITICALH323JITTER$\\' --warning-h323-latency=\\'$_SERVICEWARNINGH323LATENCY$\\' --critical-h323-latency=\\'$_SERVICECRITICALH323LATENCY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Polycom-Hdx-SNMP-VS-Stats",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_polycom_hdx_snmp.pl --plugin=hardware::devices::polycom::hdx::snmp::plugin --mode=uptime --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-uptime=\\'$_SERVICEWARNING$\\' --critical-uptime=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Polycom-Hdx-SNMP-Uptime",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_polycom_hdx_snmp.pl --plugin=hardware::devices::polycom::hdx::snmp::plugin --mode=memory --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Polycom-Hdx-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_polycom_hdx_snmp.pl --plugin=hardware::devices::polycom::hdx::snmp::plugin --mode=load --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Polycom-Hdx-Hdx-SNMP-Load",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_polycom_hdx_snmp.pl --plugin=hardware::devices::polycom::hdx::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Polycom-Hdx-SNMP-Interfaces",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_polycom_hdx_snmp.pl --plugin=hardware::devices::polycom::hdx::snmp::plugin --mode=cpu-detailed --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-idle=\\'$_SERVICEWARNINGIDLE$\\'  --critical-idle=\\'$_SERVICECRITICALIDLE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Polycom-Hdx-SNMP-Cpu-Detailed",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Polycom HDXvia SNMP}\r\n{EN: Template to check Polycom HDX using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Polycom HDX using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "polycom-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Polycom-Hdx-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Device-Polycom-Hdx-VS-Statistics-SNMP",
+                "HW-Device-Polycom-Hdx-Uptime-SNMP",
+                "HW-Device-Polycom-Hdx-Memory-SNMP",
+                "HW-Device-Polycom-Hdx-Load-SNMP",
+                "HW-Device-Polycom-Hdx-Interfaces-SNMP",
+                "HW-Device-Polycom-Hdx-Cpu-Detailed-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "polycom-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "misc fixes",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin-Pack to monitor Polycom HDX equipment in SNMP:\r\n* Cpu-detailed\r\n* Load\r\n* Memory\r\n* ViewStation-Statistics\r\n* Uptime"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin-Pack pour superviser les \u00e9quipements Polycom HDX en SNMP:\r\n* Cpu-detailed\r\n* Load\r\n* Memory\r\n* ViewStation-Statistics\r\n* Uptime"
+            }
+        ],
+        "discovery_category": "toip-voip",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Polycom HDX SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_polycom_hdx_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Devices-Polycom-Hdx-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-devices-polycom-hdx-snmp",
+        "status": "stable",
+        "status_message": "misc fixes",
+        "tags": [
+            "Polycom",
+            "HDX",
+            "Unified Communications",
+            "ViewStation"
+        ],
+        "update_date": "1597313487",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques d'un \u00e9quipement HDX VS lors des visioconferences}\r\n\r\n{EN: Check calls and visio performance statistics managed by HDX VS device }",
+            "active_checks_enabled": 2,
+            "alias": "ViewStation-Statistics",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Polycom-Hdx-SNMP-VS-Stats",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Polycom-Hdx-VS-Statistics-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'uptime du HDX}\r\n\r\n{EN: Check the HDX Uptime}",
+            "active_checks_enabled": 2,
+            "alias": "Uptime",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Polycom-Hdx-SNMP-Uptime",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Polycom-Hdx-Uptime-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire RAM.}\r\n\r\n{EN: Check the RAM utilization.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Polycom-Hdx-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Polycom-Hdx-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la charge serveur.}\r\n\r\n{EN: Check the server load average.}",
+            "active_checks_enabled": 2,
+            "alias": "Load",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Polycom-Hdx-Hdx-SNMP-Load",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Polycom-Hdx-Load-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces r\u00e9seau du HDX.}\r\n\r\n{EN: Check the HDX interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Polycom-Hdx-SNMP-Interfaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} ne \"up\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Polycom-Hdx-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation d\u00e9taill\u00e9 CPU de la machine.}\r\n\r\n{EN: Check the detailed rate of utilization of CPU for the machine.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu-Detailed",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Polycom-Hdx-SNMP-Cpu-Detailed",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIDLE$",
+                    "password": false,
+                    "value": "20:"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIDLE$",
+                    "password": false,
+                    "value": "10:"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Polycom-Hdx-Cpu-Detailed-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

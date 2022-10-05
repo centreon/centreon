@@ -1,0 +1,401 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-mitel-3300icp-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Mitel-3300icp-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$name$",
+                        "order": 0,
+                        "pattern": "^[Ll]o",
+                        "type": "exclusion"
+                    },
+                    {
+                        "object": "$status$",
+                        "order": 1,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Mitel-3300icp-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "INTERFACENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Mitel-3300icp-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Mitel-3300icp-Traffic-Generic-Name-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mitel_3300icp_snmp.pl --plugin network::mitel::3300icp::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Mitel-3300icp-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mitel_3300icp_snmp.pl --plugin network::mitel::3300icp::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-mitel-3300icp-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mitel_3300icp_snmp.pl --plugin network::mitel::3300icp::snmp::plugin --mode zap-calls --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-rejection-ratio=\\'$_SERVICEWARNINGRATIO$\\' --critical-rejection-ratio=\\'$_SERVICECRITICALRATIO$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Mitel-3300icp-SNMP-Zap-Calls",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mitel_3300icp_snmp.pl --plugin network::mitel::3300icp::snmp::plugin --mode zap-bandwidth --hostname=\\'$HOSTADDRESS$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Mitel-3300icp-SNMP-Zap-Bandwidth",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mitel_3300icp_snmp.pl --plugin=network::mitel::3300icp::snmp::plugin --mode=uptime --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-uptime=\\'$_SERVICEWARNING$\\' --critical-uptime=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Mitel-3300icp-SNMP-Uptime",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mitel_3300icp_snmp.pl --plugin network::mitel::3300icp::snmp::plugin --mode licenses --hostname=\\'$HOSTADDRESS$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-user=\\'$_SERVICEWARNINGUSER$\\' --critical-user=\\'$_SERVICECRITICALUSER$\\' --warning-device=\\'$_SERVICEWARNINGDEVICE$\\' --critical-device=\\'$_SERVICECRITICALDEVICE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Mitel-3300icp-SNMP-Licenses",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mitel_3300icp_snmp.pl --plugin=network::mitel::3300icp::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACEID$\\' --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Mitel-3300icp-SNMP-Traffic-Id",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mitel_3300icp_snmp.pl --plugin=network::mitel::3300icp::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$$$\\' --name --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Mitel-3300icp-SNMP-Traffic-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mitel_3300icp_snmp.pl --plugin=network::mitel::3300icp::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Mitel-3300icp-SNMP-Traffic-Global",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Mitel 3300icp using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "network-mitel-64.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Mitel-3300icp-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Mitel-3300icp-Zap-Calls-SNMP",
+                "Net-Mitel-3300icp-Zap-Bandwidth-SNMP",
+                "Net-Mitel-3300icp-Uptime-SNMP",
+                "Net-Mitel-3300icp-Licenses-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "network-mitel-64.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix(pack)missing-icon",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Mitel 3300 icp equipment via SNMP:\r\n* Zap-Bandwidht\r\n* Zap-Calls\r\n* Licenses\r\n* Traffic (by interface name, ID or global)\r\n* Uptime"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller les \u00e9quipements r\u00e9seau Mitel 3300 icp via SNMP :\r\n* Zap-Bandwidht\r\n* Zap-Calls\r\n* Licenses\r\n* Traffic (by interface name, ID or global)\r\n* Uptime"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Mitel-3300icp-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Mitel-3300icp-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Mitel 3300ICP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_mitel_3300icp_snmp.pl",
+                "package_name": "centreon-plugin-Network-Mitel-3300icp-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-mitel-3300icp-snmp",
+        "status": "stable",
+        "status_message": "fix(pack)missing-icon",
+        "tags": [
+            "Network",
+            "Mitel",
+            "Telephony"
+        ],
+        "update_date": "1596008899",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: V\u00e9rifie les appels d'une zone de points d'acc\u00e8s.}\r\n\r\n{EN:  Check zone access points calls.}",
+            "active_checks_enabled": 2,
+            "alias": "Zap-Calls",
+            "check_timeperiod": "",
+            "command_name": "Net-Mitel-3300icp-SNMP-Zap-Calls",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Mitel-3300icp-Zap-Calls-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: V\u00e9rifie la bande passante des zones de points d'acc\u00e8s.}\r\n\r\n{EN:  Check zone access points bandwidth usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Zap-Bandwidth",
+            "check_timeperiod": "",
+            "command_name": "Net-Mitel-3300icp-SNMP-Zap-Bandwidth",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Mitel-3300icp-Zap-Bandwidth-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Dur\u00e9e depuis laquelle le serveur tourne sans interruption.}\r\n\r\n{EN: Time since the server has been working and available.}",
+            "active_checks_enabled": 2,
+            "alias": "Uptime",
+            "check_timeperiod": "",
+            "command_name": "Net-Mitel-3300icp-SNMP-Uptime",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-Mitel-3300icp-Uptime-SNMP",
+            "normal_check_interval": 60,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Compare le nombre de licences utilis\u00e9es par rapport aux licences achet\u00e9es .}\r\n\r\n{EN: Check call server licenses used versus purchased.}",
+            "active_checks_enabled": 2,
+            "alias": "Licences",
+            "check_timeperiod": "",
+            "command_name": "Net-Mitel-3300icp-SNMP-Licenses",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-Mitel-3300icp-Licenses-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau d'une interface r\u00e9seau.}\r\n\r\n{EN: Check traffic of an network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Id",
+            "check_timeperiod": "",
+            "command_name": "Net-Mitel-3300icp-SNMP-Traffic-Id",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Mitel-3300icp-Traffic-Generic-Id-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau d'une interface r\u00e9seau.}\r\n\r\n{EN: Check traffic of an network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-Mitel-3300icp-SNMP-Traffic-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Mitel-3300icp-Traffic-Generic-Name-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau d'une interface r\u00e9seau.}\r\n\r\n{EN: Check traffic of an network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Mitel-3300icp-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Mitel-3300icp-Traffic-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

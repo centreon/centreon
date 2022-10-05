@@ -1,0 +1,1349 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v1.0": [
+                {
+                    "command": "Cloud-Azure-Database-SqlServer-Api-HostDiscovery",
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure SQL Server resources",
+                    "mapping": {
+                        "azure_sqlserver": {
+                            "association": {
+                                "description": [
+                                    "${name}"
+                                ],
+                                "hostname": [
+                                    "${name}"
+                                ],
+                                "ip": [
+                                    "${name}"
+                                ]
+                            },
+                            "attributes": {
+                                "id": {
+                                    "type": "string"
+                                },
+                                "kind": {
+                                    "type": "string"
+                                },
+                                "location": {
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "resourceGroup": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                }
+                            },
+                            "filters": {
+                                "type": "Microsoft.Sql/servers"
+                            },
+                            "macros": [
+                                {
+                                    "from": "parameters",
+                                    "name": "AZURESUBSCRIPTION",
+                                    "type": "text",
+                                    "value": "AZURESUBSCRIPTION"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AZURETENANT",
+                                    "type": "text",
+                                    "value": "AZURETENANT"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AZURECLIENTID",
+                                    "type": "text",
+                                    "value": "AZURECLIENTID"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AZURECLIENTSECRET",
+                                    "type": "password",
+                                    "value": "AZURECLIENTSECRET"
+                                },
+                                {
+                                    "from": "results",
+                                    "name": "AZURESQLSERVERNAME",
+                                    "type": "text",
+                                    "value": "name"
+                                },
+                                {
+                                    "from": "results",
+                                    "name": "AZURERESOURCEGROUP",
+                                    "type": "text",
+                                    "value": "resourceGroup"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "PROXYURL",
+                                    "type": "text",
+                                    "value": "PROXYURL"
+                                }
+                            ],
+                            "object": "host",
+                            "templates": [
+                                "Cloud-Azure-Database-SqlServer"
+                            ]
+                        }
+                    },
+                    "name": "Microsoft Azure SQL Server",
+                    "parameters": [
+                        {
+                            "description": "Azure Subscription ID",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AZURESUBSCRIPTION",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Azure Tenant ID",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AZURETENANT",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Azure Client ID",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AZURECLIENTID",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Azure Client Secret",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AZURECLIENTSECRET",
+                            "type": "password",
+                            "value": null
+                        },
+                        {
+                            "description": "Resource Group Name",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "RESOURCEGROUP",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Location",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "LOCATION",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Timeout",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "TIMEOUT",
+                            "type": "text",
+                            "value": 10
+                        },
+                        {
+                            "description": "Proxy URL",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "PROXYURL",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Extra Options",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "EXTRAOPTIONS",
+                            "type": "text",
+                            "value": null
+                        }
+                    ],
+                    "test_option": "--test-login",
+                    "type": "azure"
+                }
+            ],
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Database-SqlServer-Api-HostDiscovery-v2",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure SQL Server resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGDEV01/providers/Microsoft.Sql/servers/sqldev003",
+                            "kind": "v12.0",
+                            "location": "northeurope",
+                            "name": "sqldev003",
+                            "resourceGroup": "RGDEV01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Dev"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGDEV01/providers/Microsoft.Sql/servers/sqldev003",
+                            "kind": "v12.0",
+                            "location": "northeurope",
+                            "name": "sqldev003",
+                            "resourceGroup": "RGDEV01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Dev"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGDEV01/providers/Microsoft.Sql/servers/sqldev003",
+                            "kind": "v12.0",
+                            "location": "northeurope",
+                            "name": "sqldev003",
+                            "resourceGroup": "RGDEV01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Dev"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGDEV01/providers/Microsoft.Sql/servers/sqldev003",
+                            "kind": "v12.0",
+                            "location": "northeurope",
+                            "name": "sqldev003",
+                            "resourceGroup": "RGDEV01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Dev"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGDEV01/providers/Microsoft.Sql/servers/sqldev003",
+                            "kind": "v12.0",
+                            "location": "northeurope",
+                            "name": "sqldev003",
+                            "resourceGroup": "RGDEV01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Dev"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESQLSERVERNAME",
+                                "is_password": false,
+                                "source": "discovery.results.name"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Database-SqlServer-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure SQL Server",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": "--api-version=\"2020-01-01\""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-sql-server",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Database-SqlServer-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure SQL Server resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGDEV01/providers/Microsoft.Sql/servers/sqldev003",
+                            "kind": "v12.0",
+                            "location": "northeurope",
+                            "name": "sqldev003",
+                            "resourceGroup": "RGDEV01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Dev"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGDEV01/providers/Microsoft.Sql/servers/sqldev003",
+                            "kind": "v12.0",
+                            "location": "northeurope",
+                            "name": "sqldev003",
+                            "resourceGroup": "RGDEV01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Dev"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGDEV01/providers/Microsoft.Sql/servers/sqldev003",
+                            "kind": "v12.0",
+                            "location": "northeurope",
+                            "name": "sqldev003",
+                            "resourceGroup": "RGDEV01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Dev"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGDEV01/providers/Microsoft.Sql/servers/sqldev003",
+                            "kind": "v12.0",
+                            "location": "northeurope",
+                            "name": "sqldev003",
+                            "resourceGroup": "RGDEV01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Dev"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGDEV01/providers/Microsoft.Sql/servers/sqldev003",
+                            "kind": "v12.0",
+                            "location": "northeurope",
+                            "name": "sqldev003",
+                            "resourceGroup": "RGDEV01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Dev"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESQLSERVERNAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Database-SqlServer-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure SQL Server",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": "--api-version=\"2020-01-01\""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-sql-server",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Database-SqlServer-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure SQL Server resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGDEV01/providers/Microsoft.Sql/servers/sqldev003",
+                            "kind": "v12.0",
+                            "location": "northeurope",
+                            "name": "sqldev003",
+                            "resourceGroup": "RGDEV01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Dev"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGDEV01/providers/Microsoft.Sql/servers/sqldev003",
+                            "kind": "v12.0",
+                            "location": "northeurope",
+                            "name": "sqldev003",
+                            "resourceGroup": "RGDEV01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Dev"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGDEV01/providers/Microsoft.Sql/servers/sqldev003",
+                            "kind": "v12.0",
+                            "location": "northeurope",
+                            "name": "sqldev003",
+                            "resourceGroup": "RGDEV01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Dev"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGDEV01/providers/Microsoft.Sql/servers/sqldev003",
+                            "kind": "v12.0",
+                            "location": "northeurope",
+                            "name": "sqldev003",
+                            "resourceGroup": "RGDEV01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Dev"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGDEV01/providers/Microsoft.Sql/servers/sqldev003",
+                            "kind": "v12.0",
+                            "location": "northeurope",
+                            "name": "sqldev003",
+                            "resourceGroup": "RGDEV01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Dev"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESQLSERVERNAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Database-SqlServer-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure SQL Server",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": "--api-version=\"2020-01-01\""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-sql-server",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_sqlserver_api.pl --plugin=cloud::azure::database::sqlserver::plugin --mode=server-status --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --location=\\'$_HOSTAZURELOCATION$\\' --filter-name=\\'$_HOSTAZURESQLSERVERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-SqlServer-Api-Server-Status",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_database_sqlserver_api.pl --statefile-suffix='autodiscovery' --plugin=cloud::azure::database::sqlserver::plugin --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Database-SqlServer-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Azure SQL Server via l'API}\r\n{EN: Template to check Azure SQL Server service using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure SQL Server service using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-database-sql-classic-color-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURESQLSERVERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-SqlServer",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Database-SqlServer-Server-Status-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-database-sql-classic-color-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ rollback sqlserver after Plugin rework",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Microsoft Azure SQL Server using Azure CLI or RestAPI.**\r\n\r\nAvailable host templates and related services:\r\n\r\n|Cloud-Azure-Database-SqlServer|\r\n|---|\r\n|Server-Status|\r\n\r\nThis pack provides a host discovery rule."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser Microsoft Azure SQL Server via la CLI ou la RestAPI Azure.**\r\n\r\nMod\u00e8les d\\'h\u00f4te disponibles et leurs services :\r\n\r\n|Cloud-Azure-Database-SqlServer|\r\n|---|\r\n|Server-Status|\r\n\r\nCe pack fournit une r\u00e8gle de d\u00e9couverte d\\'h\u00f4te."
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module >= 19.10.1\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure SQL Server",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_database_sqlserver_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Database-SqlServer-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-database-sqlserver",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Azure",
+            "Cloud",
+            "Microsoft",
+            "Database",
+            "SQL",
+            "HostDisco"
+        ],
+        "update_date": "1641996585",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du serveur SQL.}\r\n\r\n{EN: Check SQL server status.}",
+            "active_checks_enabled": 2,
+            "alias": "Server-Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-SqlServer-Api-Server-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{state} ne \"Ready\""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-SqlServer-Server-Status-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

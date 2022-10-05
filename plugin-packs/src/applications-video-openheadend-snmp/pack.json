@@ -1,0 +1,157 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_openheadend_snmp.pl --plugin=apps::video::openheadend::snmp::plugin --mode=operation-status --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-id=\\'$_SERVICEFILTERID$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Video-Openheadend-SNMP-Operation-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_openheadend_snmp.pl --plugin=apps::video::openheadend::snmp::plugin --mode=node-usage --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-bitrate=\\'$_SERVICEWARNINGBITRATE$\\' --critical-bitrate=\\'$_SERVICECRITICALBITRATE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Video-Openheadend-SNMP-Node-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check OpenHeadend Server in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "app-openheadend-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Video-Openheadend-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Video-Openheadend-Operation-Status-SNMP",
+                "App-Video-Openheadend-Node-Usage-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "app-openheadend-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ fix hardcoded snmp community and version",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor OpenHeadend application using SNMP:\r\n* Node Usage\r\n* Operation Status"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller une application OpenHeadend via SNMP :\r\n* Node Usage\r\n* Operation Status"
+            }
+        ],
+        "discovery_category": "",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Video-Openheadend-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Video-Openheadend-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "OpenHeadend",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_openheadend_snmp.pl",
+                "package_name": "centreon-plugin-Applications-Video-Openheadend-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-video-openheadend-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "OpenHeadend",
+            "SNMP",
+            "Video"
+        ],
+        "update_date": "1502454950",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "",
+            "active_checks_enabled": 2,
+            "alias": "Operation-Status",
+            "check_timeperiod": "",
+            "command_name": "App-Video-Openheadend-SNMP-Operation-Status",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{dep_status} =~ /false/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Video-Openheadend-Operation-Status-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "",
+            "active_checks_enabled": 2,
+            "alias": "Node-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-Video-Openheadend-SNMP-Node-Usage",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{dep_status} =~ /false/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Video-Openheadend-Node-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

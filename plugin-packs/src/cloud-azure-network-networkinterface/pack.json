@@ -1,0 +1,1366 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v1.0": [
+                {
+                    "command": "Cloud-Azure-Network-NetworkInterface-Api-HostDiscovery",
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Network Interface resources",
+                    "mapping": {
+                        "azure_networkinterface": {
+                            "association": {
+                                "description": [
+                                    "${name}"
+                                ],
+                                "hostname": [
+                                    "${name}"
+                                ],
+                                "ip": [
+                                    "${name}"
+                                ]
+                            },
+                            "attributes": {
+                                "id": {
+                                    "type": "string"
+                                },
+                                "location": {
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "resourceGroup": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                }
+                            },
+                            "filters": {
+                                "type": "Microsoft.Network/networkInterfaces"
+                            },
+                            "macros": [
+                                {
+                                    "from": "parameters",
+                                    "name": "AZURESUBSCRIPTION",
+                                    "type": "text",
+                                    "value": "AZURESUBSCRIPTION"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AZURETENANT",
+                                    "type": "text",
+                                    "value": "AZURETENANT"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AZURECLIENTID",
+                                    "type": "text",
+                                    "value": "AZURECLIENTID"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AZURECLIENTSECRET",
+                                    "type": "password",
+                                    "value": "AZURECLIENTSECRET"
+                                },
+                                {
+                                    "from": "results",
+                                    "name": "AZURERESOURCE",
+                                    "type": "text",
+                                    "value": "name"
+                                },
+                                {
+                                    "from": "results",
+                                    "name": "AZURERESOURCEGROUP",
+                                    "type": "text",
+                                    "value": "resourceGroup"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "PROXYURL",
+                                    "type": "text",
+                                    "value": "PROXYURL"
+                                }
+                            ],
+                            "object": "host",
+                            "templates": [
+                                "Cloud-Azure-Network-NetworkInterface"
+                            ]
+                        }
+                    },
+                    "name": "Microsoft Azure Network Interface",
+                    "parameters": [
+                        {
+                            "description": "Azure Subscription ID",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AZURESUBSCRIPTION",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Azure Tenant ID",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AZURETENANT",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Azure Client ID",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AZURECLIENTID",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Azure Client Secret",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AZURECLIENTSECRET",
+                            "type": "password",
+                            "value": null
+                        },
+                        {
+                            "description": "Resource Group Name",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "RESOURCEGROUP",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Location",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "LOCATION",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Timeout",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "TIMEOUT",
+                            "type": "text",
+                            "value": 10
+                        },
+                        {
+                            "description": "Proxy URL",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "PROXYURL",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Extra Options",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "EXTRAOPTIONS",
+                            "type": "text",
+                            "value": null
+                        }
+                    ],
+                    "test_option": "--test-login",
+                    "type": "azure"
+                }
+            ],
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-NetworkInterface-Api-HostDiscovery-v2",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Network Interface resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/prodeurofront0018/providers/Microsoft.Network/networkInterfaces/netprodeur002",
+                            "location": "northeurope",
+                            "name": "netprodeur002",
+                            "resourceGroup": "prodeurofront001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/networkInterfaces"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/prodeurofront0018/providers/Microsoft.Network/networkInterfaces/netprodeur002",
+                            "location": "northeurope",
+                            "name": "netprodeur002",
+                            "resourceGroup": "prodeurofront001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/networkInterfaces"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/prodeurofront0018/providers/Microsoft.Network/networkInterfaces/netprodeur002",
+                            "location": "northeurope",
+                            "name": "netprodeur002",
+                            "resourceGroup": "prodeurofront001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/networkInterfaces"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/prodeurofront0018/providers/Microsoft.Network/networkInterfaces/netprodeur002",
+                            "location": "northeurope",
+                            "name": "netprodeur002",
+                            "resourceGroup": "prodeurofront001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/networkInterfaces"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/prodeurofront0018/providers/Microsoft.Network/networkInterfaces/netprodeur002",
+                            "location": "northeurope",
+                            "name": "netprodeur002",
+                            "resourceGroup": "prodeurofront001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/networkInterfaces"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": "discovery.results.name"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-NetworkInterface-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Network Interface",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-networkinterface",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-NetworkInterface-Api-HostDiscovery-v2",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Network Interface resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/prodeurofront0018/providers/Microsoft.Network/networkInterfaces/netprodeur002",
+                            "location": "northeurope",
+                            "name": "netprodeur002",
+                            "resourceGroup": "prodeurofront001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/networkInterfaces"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/prodeurofront0018/providers/Microsoft.Network/networkInterfaces/netprodeur002",
+                            "location": "northeurope",
+                            "name": "netprodeur002",
+                            "resourceGroup": "prodeurofront001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/networkInterfaces"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/prodeurofront0018/providers/Microsoft.Network/networkInterfaces/netprodeur002",
+                            "location": "northeurope",
+                            "name": "netprodeur002",
+                            "resourceGroup": "prodeurofront001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/networkInterfaces"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/prodeurofront0018/providers/Microsoft.Network/networkInterfaces/netprodeur002",
+                            "location": "northeurope",
+                            "name": "netprodeur002",
+                            "resourceGroup": "prodeurofront001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/networkInterfaces"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/prodeurofront0018/providers/Microsoft.Network/networkInterfaces/netprodeur002",
+                            "location": "northeurope",
+                            "name": "netprodeur002",
+                            "resourceGroup": "prodeurofront001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/networkInterfaces"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-NetworkInterface-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Network Interface",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-networkinterface",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-NetworkInterface-Api-HostDiscovery-v2",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Network Interface resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/prodeurofront0018/providers/Microsoft.Network/networkInterfaces/netprodeur002",
+                            "location": "northeurope",
+                            "name": "netprodeur002",
+                            "resourceGroup": "prodeurofront001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/networkInterfaces"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/prodeurofront0018/providers/Microsoft.Network/networkInterfaces/netprodeur002",
+                            "location": "northeurope",
+                            "name": "netprodeur002",
+                            "resourceGroup": "prodeurofront001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/networkInterfaces"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/prodeurofront0018/providers/Microsoft.Network/networkInterfaces/netprodeur002",
+                            "location": "northeurope",
+                            "name": "netprodeur002",
+                            "resourceGroup": "prodeurofront001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/networkInterfaces"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/prodeurofront0018/providers/Microsoft.Network/networkInterfaces/netprodeur002",
+                            "location": "northeurope",
+                            "name": "netprodeur002",
+                            "resourceGroup": "prodeurofront001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/networkInterfaces"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/prodeurofront0018/providers/Microsoft.Network/networkInterfaces/netprodeur002",
+                            "location": "northeurope",
+                            "name": "netprodeur002",
+                            "resourceGroup": "prodeurofront001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.Network/networkInterfaces"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-NetworkInterface-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Network Interface",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-networkinterface",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_networkinterface_api.pl --plugin=cloud::azure::network::networkinterface::plugin --mode=traffic --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-bytesreceivedrate-total=\\'$_SERVICEWARNINGBYTESRECEIVEDRATETOTAL$\\' --critical-bytesreceivedrate-total=\\'$_SERVICECRITICALBYTESRECEIVEDRATETOTAL$\\' --warning-bytessentrate-total=\\'$_SERVICEWARNINGBYTESSENTRATETOTAL$\\' --critical-bytessentrate-total=\\'$_SERVICECRITICALBYTESSENTRATETOTAL$\\' --warning-packetssentrate-total=\\'$_SERVICEWARNINGPACKETSSENDRATETOTAL$\\' --critical-packetssentrate-total=\\'$_SERVICECRITICALPACKETSSENDRATETOTAL$\\' --warning-packetsreceivedrate-total=\\'$_SERVICEWARNINGPACKETSRECEIVEDRATETOTAL$\\' --critical-packetsreceivedrate-total=\\'$_SERVICECRITICALPACKETSRECEIVEDRATETOTAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-NetworkInterface-Api-Traffic",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_networkinterface_api.pl --plugin=cloud::azure::network::networkinterface::plugin --mode=health --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --ok-status=\\'$_HOSTSTATUSOK$\\' --warning-status=\\'$_HOSTSTATUSWARNING$\\' --critical-status=\\'$_HOSTSTATUSCRITICAL$\\' --unknown-status=\\'$_HOSTSTATUSUNKNOWN$\\' $_HOSTEXTRAOPTIONS$ --api-version=2017-07-01\\\"",
+            "name": "Cloud-Azure-Network-NetworkInterface-Api-Health",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_network_networkinterface_api.pl --plugin=cloud::azure::network::networkinterface::plugin --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Network-NetworkInterface-Api-HostDiscovery",
+            "type": "4"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_network_networkinterface_api.pl --plugin=cloud::azure::network::networkinterface::plugin --statefile-suffix='autodiscovery' --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Network-NetworkInterface-Api-HostDiscovery-v2",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Azure Network network interface via l'API}\r\n{EN: Template to check Azure Network network interface using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Network network interface using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-network-networkinterface-color-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-NetworkInterface",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Network-NetworkInterface-Traffic-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAH4AAAB+CAYAAADiI6WIAAAD2UlEQVR42u3d20sUUQDH8aGQUBQi0KceAl9CCEKCghCyohLMesoudKFSd5fMwjQjJdPo+lAJZqZUdrdU7CHCVTPU1LSl1VbX7KKZvvUfGJycpPK2O7Pb3mbm+4PfgzIzDHx28cyZ8YwkEUIIIYQQQgghhBD95oxVEtS/TdgjmYAHHnjggQceeOCBBx544IEHHnhttPBa2PV8c0SKUteslJYBr6O+7Yz68bM3Rig1Pz3CDDzwxoHPeSaJuITQb+IB4H3aYw8kMXlKId/YVcADDzzwwAMPPPAahs+rl8Txh/7voRLgQwr+RLUk0kv9393FwAMPPPDAAw98sOFzayWR/8K3zbwLfMjDn3rO5RzwwAMPvAHh+RtvUHhG9fO3603U4ERvtGIL0sJ3Aq8jeM0+bAk88MADrwx/tIq7c4aE9/SST6+Xc8ADDzzwwAMPvE4ncDoj+yfsMQ6lns4ITzUkfG6NJOKTAtvla2d2xXrlfTabmLL1KXwwmlE285yzn/C/c8ADDzzwwAMPPPDAAw888MADDzzwwAM/t1dalopam0k09BUJ64dz4lF3qihuigBez/C1tnQxOjYsxsfHZ/TTN7soa18NvB7hS1rj5oBP79CITRQ1LgJeb/BtA+Vu4eX2DD0VZxvDFI+VeUcSlkp1nX3OwAcQ/urrWPF9bFQRXm5lR6Li8czl3j/pC3wA4WtsaarQ5crbAq8T+KquZNXwj7t3Aa8XeHnQNt9ofr6WtsV7DC8P4I7cVlf5KSDgAzm4c/pucDcbXgZl9eoQhb/4Klo4hztcorc7K0ShdaGqYwGvsQmcC81LRJPjshgeHfwL/nGkR9TZzJPoC1QfB3iNztXLyOebF//+IHizP/AGvUkDPPDAAw888MADDzzwwAMPPPDAAw888MB7Ai//nHXfdQteqt8+pwZ4zcBvz3G/xIi8FMr07VOyXW8rr0wBPPD/Dd86cEP0fbG6bbuzEni9wfd+blB8EMTxtQV44IEHHnjggQfeuPAypLzvnyZZgDfkO2nW7QUeeOCBBx544LUIL//OXZOzgDfkK0aDdTlnuTV1N89d3w8Brzt4NX3XDzzwPobv6oh0TNij7UotMIXvAF5H8Lp/Jw3wwAcVPq9eEifrPKt9CHhV8KabU98sT7rxcGDgvak/L+d0Be9NNxwEHnjggQc+ROFza9UvF+aum9KB1xS8rxqoUT3wwAMPPPDAAw/8v4WUt4rqnv1ue69rG/DeVH4xwBaz686eBrZUuN5236XQf9ER8AYv8MADDzzwwAMPPPDAAw888MADDzzwwBNCCCGEEEI0mV8AdJeUpVJw+QAAAABJRU5ErkJggg==",
+            "name": "az-network-networkinterface-color-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ add proper tags management",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Microsoft Azure Network Interface using Azure CLI or RestAPI.**\r\n\r\nAvailable host templates and related services:\r\n\r\n|Cloud-Azure-Network-NetworkInterface|\r\n|---|\r\n|Traffic|\r\n\r\nThis pack provides a host discovery rule."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser Microsoft Azure Network Interface via la CLI ou la RestAPI Azure.**\r\n\r\nMod\u00e8les d\\'h\u00f4te disponibles et leurs services :\r\n\r\n|Cloud-Azure-Network-NetworkInterface|\r\n|---|\r\n|Traffic|\r\n\r\nCe pack fournit une r\u00e8gle de d\u00e9couverte d\\'h\u00f4te."
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAH4AAAB+CAYAAADiI6WIAAAFG0lEQVR42u2dv5HUMBSHHZARk9MAFZAQUwI1QMaxF9GDm9gmCOgAxgzclkAZoCdjZvfOtqRdWf7J/r4ZJTc7c7t+ev+f5KYBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAID6+Ng9b+6/v/TrzddnPJAtCvju5+vmcPrc3D98ae5PfybX4eG3+8yxOfx61xx+vOLh1YgJ24Q4J+jQso3gN4yzCiCO11bT3BsEPrpsE7EB9PD++tTlF/iT1RITyGi5mePFBf7IBRADrIdpXihgW3LdPbxFCKX58O1Fki+/iNjdGlI5W6a99rdPp/fJG8msDZTU9Fh/7gRpEX6KX7ZNZZsgdmMhfCnz3noB3pwWOnMeswHMYsCS0bsTaGkh+CpfTE2AdG/BokzIjy/48E37Q/+fVC8zpnXzJrcr8tCnUsf+u7VofelcPYc/T/0uQ0m35P/enbar5dOWAsZYmPMu4Pmyv0Pogc0GdK1UbcHHASnNIZehWOqYmnJuJkXrA7c2qd6uEEz52MOZ+3yNodY/i237bWcuY9Izxdw5bIky9AO2VhvwD+3GXrmtNfxkdE6fbXXbsAC+Hp7pgRSvI0RW8WgHP/LjOTtptoHKfvfjal3AUgWqRaLd3EMSpXLntVu/o+lrDaY/tZPmXYHI9Gvvz7WEXo3wox6c+4xa9Su134/wEwM5xZRF0bxX0xHs89y6tDy2L6C0zCpJlX9no2AndFVCrV/JpfI8Q9ququnh1q+wv1cY/JwrZSqXIWsy8XJ9iz59q8/Eh1q/dZj843qp8KyPFK461aztMbWRxd3rlJk3U4S2r706vwkWyQKmonnl2fPQEOUWl8kjqzuoMahTaMCsFRCaXLJsgNr8+2wwupfl4oCbhD/rK0UFX2XBZiHtvykAVBa87erhgKQ/QFlpsWZJ4V/d+FHsJJklSjkEuft1jZJO9d5LTsxclGC3mp+rNX4mI+TCVTt/0xUaXi7gm+vBl2gfej+upOXuAfq5++FChsSzA+uuhMMq/XzdOqdeVAYohvx4bqN7N2TnCtQHPlL8/ZyJXerSIJ2pmfQx6N4S6DZ+sjQ8lmofKlTfbslcvKVU1f5YrQ83PfKa/HyHNJYT+nAINBifKAakKYF5yHzt4c6Y4RKlJ5psAd/E7+/PE+ppfXRgHrV7hQcui/T3J37/kocxi4x2xe7erWl/iusZK5ZImvzUOkx8r7srMymi2PQZiZwVK47JQfk1P2K4ibK6lSk4lBwOuaaGrxB5q0/EXPj50IGUmtJVet9p5/3lNuctsVhfqDgi6JGVUgGtTvCXEX+HwCeiZsmRsJTybcwG6IO/Dh8v7uOzCv6xGxhGo/63MKuL6rssgZNi44YbukNTP6m+eUSTFKt3CD7GcsW+5GCkcqd6apf38ORKXZ2mjzU/ZLMebuaOb1QNb7kcNHioSE4VQ5SPc61+z55i4BMzRRxqbWpfzCBwWbRkqvPPdF+rFT6bEZ4KlrlhS7n0mtJhlJsKVjXz8gHQmemf2wBmtXp/XkPhSuedABWdae/6c3pOq695oaHCkpqR4HjzOqXkeubaWNu5PFE+ut+K4JVLtEz2VNaJy+nrORUrdjVKMV8veghhl1eikN4hdKL8Ssx71WcaEH7ZHoNcL5yAb6cvNVzizVdbq8ht+sXG/SQMG+C84bKr154PLy3epwto9/m26tGhh5pHuGeWv8jR/S6f3gq8uw8AAAAAAAAAAAAAAAAAAAAAAAAAAABg2/wFuOf2mcii2XIAAAAASUVORK5CYII=",
+        "monitoring_procedure": "# Monitoring procedure\r\n\r\n## Prerequisites\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Cloud-Azure-Network-NetworkInterface-Api\r\n\r\n### Perl dependencies (for 'api' custom mode)\r\nBy installing the plugin, some perl depencies will be installed :\r\n\r\n    JSON::XS\r\n    DateTime\r\n    Digest::MD5\r\n    Digest::SHA\r\n    LWP::UserAgent\r\n    LWP::Protocol::https\r\n    IO::Socket::SSL\r\n    URI\r\n    HTTP::ProxyPAC\r\n\r\nThe login and access token handling will be made by the plugin itself.\r\n\r\n### Azure CLI 2.0 (for 'azcli' custom mode)\r\nThe CLI needs at least Python version 2.7 (https://github.com/Azure/azure-cli/blob/dev/doc/install_linux_prerequisites.md).\r\n\r\nOn CentOS/RedHat, install with following commands:\r\n\r\n    (As root)\r\n    # rpm --import https://packages.microsoft.com/keys/microsoft.asc\r\n    # echo -e \"[azure-cli]\\nname=Azure CLI\\nbaseurl=https://packages.microsoft.com/yumrepos/azure-cli\\nenabled=1\\ngpgcheck=1\\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc\" > /etc/yum.repos.d/azure-cli.repo\r\n    # yum install azure-cli\r\n    (As centreon-engine)\r\n    # az login\r\n\r\nThe shell should prompt:\r\n\r\n    To sign in, use a web browser to open the page https://microsoft.com/devicelogin and enter the code CWT4WQZAD to authenticate.\r\n\r\nGo to https://microsoft.com/devicelogin and enter the given code.\r\n\r\nLog in with your account credentials. You should use a service account. Application is not yet supported.\r\n\r\nThe command line should now show:\r\n\r\n    [\r\n      {\r\n        \"cloudName\": \"AzureCloud\",\r\n        \"id\": \"0ef83f3a-d83e-2039-d930-309df93acd93d\",\r\n        \"isDefault\": true,\r\n        \"name\": \"N/A(tenant level account)\",\r\n        \"state\": \"Enabled\",\r\n        \"tenantId\": \"0ef83f3a-03cd-2039-d930-90fd39ecd048\",\r\n        \"user\": {\r\n          \"name\": \"email@mycompany.onmicrosoft.com\",\r\n          \"type\": \"user\"\r\n        }\r\n      }\r\n    ]\r\n\r\nYou now have a hidden azure directory where your token is stored in an accessTokens.json file.\r\n\r\n## Centreon Configuration\r\n\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Cloud-Azure-Network-NetworkInterface-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Set host macros\r\nThe following macros must be configured on host.\r\n\r\n#### Common macros\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AZURERESOURCE</p></td>\r\n<td align=\"left\"><p>Resource name or id</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>AZURERESOURCEGROUP</p></td>\r\n<td align=\"left\"><p>Resource group (Required if resource's name is used)</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AZURERESOURCENAMESPACE</p></td>\r\n<td align=\"left\"><p>Resource namespace (Required if resource's name is used)</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\n#### 'api' custom mode macros\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AZURECUSTOMMODE</p></td>\r\n<td align=\"left\"><p>Custom mode 'api'</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>AZURESUBSCRIPTION</p></td>\r\n<td align=\"left\"><p>Subscription ID</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AZURETENANT</p></td>\r\n<td align=\"left\"><p>Tenant ID</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>AZURECLIENTID</p></td>\r\n<td align=\"left\"><p>Client ID</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AZURECLIENTSECRET</p></td>\r\n<td align=\"left\"><p>Client secret</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\n#### 'azcli' custom mode macros\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AZURECUSTOMMODE</p></td>\r\n<td align=\"left\"><p>Custom mode 'azcli'</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>AZURESUBSCRIPTION</p></td>\r\n<td align=\"left\"><p>Subscription ID</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n## Available metrics\r\nGo to https://docs.microsoft.com/en-us/azure/monitoring-and-diagnostics/monitoring-supported-metrics?toc=/azure/azure-monitor/toc.json#microsoftnetworknetworkinterfaces to see the description of return metrics for this Azure service.",
+        "name": "Azure Network Interface",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_network_networkinterface_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Network-NetworkInterface-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-network-networkinterface",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Azure",
+            "Network",
+            "Cloud",
+            "Interface"
+        ],
+        "update_date": "1636825003",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation r\u00e9seau.}\r\n\r\n{EN: Check network usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-NetworkInterface-Api-Traffic",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT1M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "total"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--per-sec --verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-NetworkInterface-Traffic-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status de l'interface r\u00e9seau.}\r\n\r\n{EN: Check network interface state.}",
+            "active_checks_enabled": 2,
+            "alias": "Health",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-NetworkInterface-Api-Health",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-NetworkInterface-Health-Api",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

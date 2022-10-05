@@ -1,0 +1,161 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "HW-Device-Hms-Ewon-SNMP-Tags-Discover",
+                "command_for_macro": "HW-Device-Hms-Ewon-SNMP-Tags-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "HW-Device-Hms-Ewon-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERTAGINDEX",
+                        "value": "^$index$$"
+                    }
+                ],
+                "name": "HW-Device-Hms-Ewon-SNMP-Tag-Name",
+                "service_display_name": "Tag-$name$",
+                "service_template": "HW-Device-Hms-Ewon-Tags-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hms_ewon_snmp.pl --plugin=hardware::devices::hms::ewon::snmp::plugin --mode=list-tags --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "HW-Device-Hms-Ewon-SNMP-Tags-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hms_ewon_snmp.pl --plugin=hardware::devices::hms::ewon::snmp::plugin --mode=list-tags --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "HW-Device-Hms-Ewon-SNMP-Tags-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hms_ewon_snmp.pl --plugin=hardware::devices::hms::ewon::snmp::plugin --mode=tags --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-tag-index=\\'$_SERVICEFILTERTAGINDEX$\\' --filter-tag-name=\\'$_SERVICEFILTERTAGNAME$\\' --tag-output-value=\\'$_SERVICETAGOUTPUTVALUE$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --tag-threshold-warning=\\'$_SERVICETAGTHRESHOLDWARNING$\\' --tag-threshold-critical=\\'$_SERVICETAGTHRESHOLDCRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Hms-Ewon-SNMP-Tags",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser HMS Ewon via SNMP}\r\n{EN: Template to check HMS Ewon using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check HMS Ewon using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Hms-Ewon-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Device-Hms-Ewon-Tags-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix discovery command",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor HMS Ewon using SNMP:\r\n* Tags"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser HMS Ewon via SNMP :\r\n* Tags"
+            }
+        ],
+        "discovery_category": "hardware-server",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "HMS Ewon SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_hms_ewon_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Devices-Hms-Ewon-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-devices-hms-ewon-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Hardware",
+            "HMS",
+            "Ewon",
+            "SNMP"
+        ],
+        "update_date": "1608714242",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le statut et les valeurs des tags.}\r\n\r\n{EN: Check tags status and value.}",
+            "active_checks_enabled": 2,
+            "alias": "Tags",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Hms-Ewon-SNMP-Tags",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETAGOUTPUTVALUE$",
+                    "password": false,
+                    "value": "value: %s"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /alarm/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Hms-Ewon-Tags-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

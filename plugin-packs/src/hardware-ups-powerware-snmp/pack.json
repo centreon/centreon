@@ -1,0 +1,264 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_powerware_snmp.pl --plugin=hardware::ups::powerware::snmp::plugin --mode=output-source --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Powerware-SNMP-Output-Source",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_powerware_snmp.pl --plugin=hardware::ups::powerware::snmp::plugin --mode=output-lines --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-load=\\'$_SERVICEWARNINGLOAD$\\' --critical-load=\\'$_SERVICECRITICALLOAD$\\'  --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\'  --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\'  --warning-power=\\'$_SERVICEWARNINGPOWER$\\' --critical-power=\\'$_SERVICECRITICALPOWER$\\' --warning-frequence=\\'$_SERVICEWARNINGFREQUENCE$\\' --critical-frequence=\\'$_SERVICECRITICALFREQUENNCE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Powerware-SNMP-Output-Lines",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_powerware_snmp.pl --plugin=hardware::ups::powerware::snmp::plugin --mode=input-lines --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\'  --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\'  --warning-power=\\'$_SERVICEWARNINGPOWER$\\' --critical-power=\\'$_SERVICECRITICALPOWER$\\'  --warning-frequence=\\'$_SERVICEWARNINGFREQUENCE$\\' --critical-frequence=\\'$_SERVICECRITICALFREQUENCE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Powerware-SNMP-Input-Lines",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_powerware_snmp.pl --plugin=hardware::ups::powerware::snmp::plugin --mode=environment --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-internal-temperature=\\'$_SERVICEWARNINGINTERNALTEMPERATURE$\\' --critical-internal-temperature=\\'$_SERVICECRITICALINTERNALTEMPERATURE$\\' --warning-internal-humidity=\\'$_SERVICEWARNINGINTERNALHUMIDITY$\\' --critical-internal-humidity=\\'$_SERVICECRITICALINTERNALHUMIDITY$\\' --warning-remote-temperature=\\'$_SERVICEWARNINGREMOTETEMPERATURE$\\' --critical-remote-temperature=\\'$_SERVICECRITICALREMOTETEMPERATURE$\\' --warning-remote-humidity=\\'$_SERVICEWARNINGREMOTEHUMIDITY$\\' --critical-remote-humidity=\\'$_SERVICECRITICALREMOTEHUMIDITY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Powerware-SNMP-Environment",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_powerware_snmp.pl --plugin=hardware::ups::powerware::snmp::plugin --mode=battery-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-charge-remaining=\\'$_SERVICEWARNINGCHARGEREMAINING$\\' --critical-charge-remaining=\\'$_SERVICECRITICALCHARGEREMAINING$\\' --warning-charge-remaining-minutes=\\'$_SERVICEWARNINGCHARGEREMAININGMINUTES$\\' --critical-charge-remaining-minutes=\\'$_SERVICECRITICALCHARGEREMAININGMINUTES$\\' --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\' --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Powerware-SNMP-Battery-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_powerware_snmp.pl --plugin=hardware::ups::powerware::snmp::plugin --mode=alarms --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Powerware-SNMP-Alarms",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les onduleurs Powerware (Eaton) via SNMP}\r\n{EN: Template to check Powerware UPS (Eaton) using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check UPS Powerware using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-UPS-Powerware-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-UPS-Powerware-Output-Source-SNMP",
+                "HW-UPS-Powerware-Output-Lines-SNMP",
+                "HW-UPS-Powerware-Input-Lines-SNMP",
+                "HW-UPS-Powerware-Environment-SNMP",
+                "HW-UPS-Powerware-Battery-Status-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* update battery-status and environment services",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Eaton-Powerware UPS via SNMP:\r\n* Alarms\r\n* Battery\r\n* Environment\r\n* Input-Lines\r\n* Output-Lines\r\n* Output-Source"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un onduleur Eanton-Powerware via SNMP :\r\n* Alarms\r\n* Battery\r\n* Environment\r\n* Input-Lines\r\n* Output-Lines\r\n* Output-Source"
+            }
+        ],
+        "discovery_category": "ups-pdu",
+        "email": "imp@centreon.com",
+        "icon": "/9j/4AAQSkZJRgABAQEAYABgAAD/4QD2RXhpZgAATU0AKgAAAAgACAEaAAUAAAABAAAAbgEbAAUAAAABAAAAdgEoAAMAAAABAAIAAAExAAIAAAAQAAAAflEAAAQAAAABAAAAB1EBAAMAAAABAAEAAFECAAEAAABgAAAAjlEDAAEAAAABAAAAAAAAAAAAAABgAAAAAQAAAGAAAAABcGFpbnQubmV0IDQuMC45ACIiIt3d3WZmZgAmk5mZmUFns7u7u0RERO/y+RBBn4iIiGiHwqm73ZSq1DMzMyFHo8XQ6FVVVe3t7f///3d3d3uWyszMzFZ3u6mpqQAzmSdTqbXD4dnf74igz5ms1s/Z7P/bAEMAAgEBAgEBAgICAgICAgIDBQMDAwMDBgQEAwUHBgcHBwYHBwgJCwkICAoIBwcKDQoKCwwMDAwHCQ4PDQwOCwwMDP/bAEMBAgICAwMDBgMDBgwIBwgMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDP/AABEIAEAAgAMBIgACEQEDEQH/xAAfAAABBQEBAQEBAQAAAAAAAAAAAQIDBAUGBwgJCgv/xAC1EAACAQMDAgQDBQUEBAAAAX0BAgMABBEFEiExQQYTUWEHInEUMoGRoQgjQrHBFVLR8CQzYnKCCQoWFxgZGiUmJygpKjQ1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4eLj5OXm5+jp6vHy8/T19vf4+fr/xAAfAQADAQEBAQEBAQEBAAAAAAAAAQIDBAUGBwgJCgv/xAC1EQACAQIEBAMEBwUEBAABAncAAQIDEQQFITEGEkFRB2FxEyIygQgUQpGhscEJIzNS8BVictEKFiQ04SXxFxgZGiYnKCkqNTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqCg4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2dri4+Tl5ufo6ery8/T19vf4+fr/2gAMAwEAAhEDEQA/APTP+IunVv8Aog+n/wDhXP8A/IdH/EXTq3/RB9P/APCuf/5Dr8b6+iP2Lv8Agln8Y/2/fCus618M9E0zVNP0G6SzvHutUgs2SVk3gASMCfl7iv6sxnAfCeEpOviqMYQXVzmlr5uR+PYfiLOa8/Z0ZuT7KMX+h+hH/EXTq3/RB9P/APCuf/5Dr6E/4Jjf8F8vEf8AwUc/aosfh3b/AAfsfDtibG51LUdVXxG10bKGJOCI/sybi0rRpjcMbye2K/Nz/iG2/au/6FDw7/4Udp/8XX6S/wDBv5/wSg8cfsATfEHxN8TtL0/T/FPiAW2m6bHbXsd2IrNN0kp3Rkgb5DGMHn90PWviOKMBwXhsrrVcv5JVbWio1JSd27XtzvbfXTQ9/KcRn1XFwhieZQvreKWi1te3XY/SquD/AGpPjQ/7OX7OHjjx9Hpy6tJ4P0S61dbJpvJF0YYmfyy+1tucYztOPQ12mrarb6HpV1fXUiw2tnE880jdERQWYn6AE18heCfjxd/8FYP+CTHjrVPCVranX/Gmk65oNvYmYRLDcB5oYY3ZuFLRmFiTx8+a/HcuwTqSjXqr91GcIyeyXM3v8ovXofcYqvyp04P33GTS9Lfq0fCn/EXTq3/RB9P/APCuf/5Do/4i6dW/6IPp/wD4Vz//ACHXzB/xDbftXf8AQoeHf/CjtP8A4uviz4pfDbVvg38S/EHhHXoY7fXPDGo3GlahFHKsqR3EEjRyKHXIYBlIyDg1/SGX8IcF46Thg4QqNatRqSdvumfluJzrPsOlKvKUU+8Yr/20/XS3/wCDuHWru4jih+AljLLIwRETxY7M7HgAAWfJPpX6T/sS/tC/HD9o3wzZ+IviB8H9D+FWi30Ylt7W68Ry3mryIRkM1v8AZUWIH0dw/qor8xP+DZL/AIJsaX8SNR1D4+eM9Nh1C00G9OneFLa4QNGbtADNeFTwTHuVEJ6PvPVFI/cKvybj7+w8FipZblWGSlH4puU3Z9opytp1bvrpbQ+y4c/tCvRWKxlV2e0bRWnd6X9ArzP9sr9oOT9lL9lvxx8RotKTXJPB+lyaitg9x9nW6K4+QybW25z12n6VuXv7Q/gHTviJH4RuPG/hGDxXIwVNGk1e3W/YnoBCX35PpivHf+Cwn/KMT42f9ixcfzWvicrwfPjqFGvF8s5RVndXTkl+PdHv4uty4epOm9Yp/JpH5w/8RdOrf9EH0/8A8K5//kOtXwJ/wdqSa7430ex1n4L2ek6ReXsMF7exeKGnezgZwskoj+yrvKqS23cM4xkV+LVFf1DLw04baaWGt/29P/5I/JI8VZonf2v4R/yP6uv+Cl37dbfsAfskXnxRsfD9v4wW3vbS1jsjf/ZI5lnbaHEoSToOR8vPrX5r2/8AwdyatPPGn/CidPG9guf+EufjP/bpWp+2P+0d/wANP/8ABsn4R8QTSeZqem3WlaFqPOW+0WcxgLH3dUR/+B1+L9h/x/Q/9dF/nXxnA/AeV4jB1lmVHnqU6k4X5pL4bdFJI93iDiLGUq8HhZ2jKMZbJ737pkNbXhb4k+IvA0E0Wia/rWjxXDB5Usb6W3WQjgFgjDJ+tYtfUn7Av7VvwF/Z78Ga9ZfFz4Ep8WtU1C9SaxvG1L7L9hhCYMeMHOW5zX7BmNadKg5wpOq9PdXLd/8AgTS033PiMLTU6nLKah5u/wCibPC0/aA8fyOFXxt4wZmOABrFzkn/AL7r+p7/AIJr/BXVP2fv2F/hn4Z124vbrX7fRYrvVZLuZppvtdxmeVWdiSdjyFOvRR2r8tf2Bf2g/wBkf9tb9q7wp8PPDn7INjo+patNJONQn1czxWKQRtM0rIF+YDZjHQkiv28VQihVGAOAB2r+ffFLPZ11RwEsO6LV5tS5bvpH4W/725+lcI5fGm54lVVU+yrX06vdLyPH/wBvz4d+Ovi/+x18QPCXw3bTY/GHijSpNJtJb+4NvDEk+I5mLhWIIhaTGB1xXzX/AMEIf2Cfi9/wTy+F/jjwh8Sj4dk0vVtSh1XSG0rUWuvLkMZjnDhkXbkJCRjOcGup/wCCg3/Bb34Wf8E5/jHY+B/FmjeLtc1q80yPVH/saC3kjto3d0VXMkqHcfLLYAIwRzzXmHwU/wCDmj4IfG34v+GfB1r4X+Iml3fijU7fSoLu+tbRbaCSaQRo0hW4Zgu5hkgHHpXzeBy3iB5LPD0MNehVam5W193Zp3207dX3PWxGKy5Y6NWpVtUj7tr6a91b+tD9Gq/km/4KN/8AKQL43f8AY961/wCl01f1s1/JN/wUb/5SBfG7/se9a/8AS6avrfBf/fcT/gX5ni8df7vS9X+R/R9/wRq+H9n8N/8AgmF8GbGyRFW78PRanKyj78tyzXDk++6Qj8KxP+C3v7VXiL9kD/gnX4w8TeEppLPxFqEtvollfRnD6ebmTY86ns6xh9p7MVPauL/4N2f2krP48f8ABNbwxo/2mOTWfh3NL4fv4t37xEDmS3YjrtMTqoPcxt6GvqD9r39lvw3+2h+zr4m+G3ipZhpHiS3EZnhx51nKjCSKePPG5JFVhng4weCRXwmNcMHxNOWYx5oxrNyXdc19ut1rbqj6DD81fKorDOzcEl5O1vzP5E7/AFu81TWJdQury6uNQnlM8lzLKzzSSE5Llyclieck5zX7gfs5/tW+J/2rP+Dbr4u3Pi+7uNU1rwfpt/4eOo3DmSa/hiSCSJ5GPLOqyhCTyQgJ5JrwG/8A+DUj4zR/EZ7K28c+AZfDHn4TVJHuEuPJz9424jPz4/hEhGf4u9foF+03+xn4Z/YK/wCCGPxQ+G/hdprq10zwxdz3d9MoWbUrqQqZZ3A4BJwAOdqqo5xX69xhxRkuYfU6GDmqlT2tNqyfuq6vd20vorf5HxWSZTj8N7epXi4x5JJ36u39an82Ne2/t4fs5H9nP4neGY4LdodK8Y+DNC8UWJx8ri6sIWmx9LhZx+FeJV+sn/Bcr9nD+1v+CaP7KPxWs4f3ujeE9L8OaiyryYptPimgJPorxyjnvKK/Qs0zT6pmOEoyfu1XOPzsmvxVvmfM4PB+2wtaa3gov5Xs/wA7/I+Svgb+0W1z/wAEmvjd8KLu6Ui18Q6N4o02Fm+YBphb3O32yLY47ZJ718rWH/H9D/10X+dNiuZIEkWOSRFmXZIFYgOuQcH1GQDg9wKdYf8AH9D/ANdF/nXqYXAww8qsof8ALyXM/Xlin99r/M5K2IlVUFL7Kt+Lf6n13/w4h/aa/wChJ0j/AMKfTP8A4/R/w4h/aa/6EnSP/Cn0z/4/X2zoH/BT74Zav8IG+JDf8E9PCr/DW0uhaXviK103TJrW1beqMCfsIG4FlGCQCSBkZr9GvhL+zz+zH8Zvgz4Z8eaT8JPg/H4d8V2EGoWM114R02E7JVDKrZiwHGcEZPIPWv53/wCIx51/z7p/dL/5M/Tf9R8D/NP71/kfC/8Awb4f8Ex/Fv7F/wAZvG3jv4safo2g6o2lx6ToSf2vaXRZZZN9w48p22kCKJckg4dh61+sP/Ca6P8A9BbTP/ApP8a82X9gT4DsMj4K/CMg8gjwhp/P/kGl/wCGA/gR/wBEU+En/hH6f/8AGa/P8/z3E5vjJY7FW5mkrK9kkraXb9d92fS5bl9LBUFh6N7K+++p+Kn/AAU0/wCCZf7TH7aH7cfxB+IFt4R0u40fU9RNvo5PiTTk/wBAgAhtztM+VLRoGIOPmc14Zp//AAQw/ag0q/gurbwfpcFxbSLLFInijTQ0bqchgfP6ggGv6F9R/YW/Z/0i2867+DnwdtYchd83hPTUXJ6DJixzUyfsDfAeRFZfgr8I2VhkEeENOwR/35r7bB+LGa4bDww1KlT5YJRXuy2SsvtHz9bg3B1akqs5zvJtvVbv5HSfBj4iTap8IfC9x4rudN03xRNpNq+r2v26GT7PdmJfOTcrFTiTcMgkGvwF/bT/AOCMf7Qfxa/bA+KXinQfCek3uh+JPFep6np9x/wkenR+fbzXUkkbbWmDLlWBwQCK/dYfsC/AdicfBX4RnacH/ikNP4/8g0v/AAwH8CP+iKfCT/wj9P8A/jNfM8OcXYvJK9Svg4RvNWaabSV76Wa/U9bNMlo4+nGlWb93ta/z0Z+OX/BLf9kb9rz/AIJq/tCx+JtP8Cabq3hfWEWz8RaMPFWmKL+3DZDoTPhZoySyN7spwGNfubpPxC0nUtLt7iS+s7OS4iWRree6i8yAkAlG2sV3DocEjI4J615xqP7DH7P2kQiS7+DvwdtY2YKGm8J6aiknoMmLrUy/sC/Ad1DL8FfhGysMgjwhp/P/AJBrn4k4krZ1XWKxFOEZ2s3FNX7Xu3t33tp0RpleVwwFP2VKUnHs7O3pZI9J/wCE10f/AKC2mf8AgUn+NeJf8FIfC03x8/YU+KPg3wrc6XqXiLxFoU1nYWpv4YvPlbGF3OwUdOpIFdBdfsH/AACsbeSab4M/B+GGIZd38JacqoPcmLAp1t+wb8A723SaH4MfCGaKQbldPCOnMrD1BEVeLhMTLD14YiG8GpK+107noVqSq05U5bSTX3n873/DiH9pr/oSdI/8KfTP/j9ftb+0H+yn/wAL8/4I1WvwbvpNH/4TOx8C6ZbWtq2oQfudVsreFkQSbtgzLEULA4wx5xXu/wDwwH8CP+iKfCT/AMI/T/8A4zR/wwH8CP8Aoinwk/8ACP0//wCM19lnfiFmWZzoVK0YRdGXNHlTWum95PTQ8LL+GsLhI1IwbamrO9tvuR/O3/w4h/aa/wChJ0j/AMKfTP8A4/Utn/wQk/aYju4mbwXpCqrgk/8ACTabwM/9d6/of/4YD+BH/RFPhJ/4R+n/APxmj/hgP4Ef9EU+En/hH6f/APGa9/8A4jFnX/Pun90v/kzzv9R8D/NL71/kfjN/wTx/Z4/al/bK/wCCZt18KvAMfwy0n4O+JtemTUdY1O4mXVkdJYpZU2ruHl7kTomSMjIzkez6b+wr4U+LP/BU/wAI/sx+P7rWPFPw9+EPwktxZ2q3stnHc3h2NJdbY3G1meYng/wRg7gvP6D/APBMb9hV/wDgnd+zDF8On8SL4qaPVLnUfty2f2XPnbfk2b36beuec15n+2r/AME0/iH8Sv2udP8Ajl8EvihY/Dbx8uhHw5qQv9KS+tr22ySHGQ21xlRyp+4hBUg5/Jj7I/LPwF4r8Qp+wn+z340utU1C8j+Evx4l8O2881yxaKzcWl0kZP8AdDROMdADjGK1tf8A2ntY8P8Air9uTV5Ly4XRfivo2o3eiOZDiRIPEC6apTtwk8g46Ac+36HQf8EOLG0/4Jjn4Bw+OGTXrnxDF4qufEzadvX+0BIpZkh3g7fLXyxl8/xH0rhPjN/wbsL8UPgT8MfB9p8VJNJufBWnX+m6zfrom/8At+O71AX5JXzh5ZWXd1LZyDxgggHx18ffClxP+1F+z58LfFHw/wDHXxk8K+Gvg9pt0PBHh29ltp5b2a3kkmuwFZTkO25ieSEUdAQcv4ueHfip8Mv+CI1j4b8eaf4o8NXulfFyCLQ7fWC6zW1m9k7Ki7if3ayb8KOAc8V+nf7aH/BLnxX8S/2kPCvxk+CvxEt/hr8QvDeh/wDCNMb7TRfWV1ZbZFHBztkVZCudrAgL90rk+eX3/BA6O5/4J+aR8Go/iNJHra+Lk8Zavr0umGaO7uRE0Rijh8xSsYUqASxPBPfAAPEP2+P2RW/4J7eH/wBlTxNa+LPEvi26074rxajrms6pIDLdXF81rLMTtAwjfZHIDFiATljXzVf/ALUOtaX4T/be1K6uJIdN+MWnSa9ojNKfnij8THTvkz2CzSjjtGK/ZT/go7+wev7fP7L8Pw+TxF/wjF7p+qWWrWOqGz+1fZ5bfcM+XvXqruM54z3r5U+LP/Bu1D8R/hH8K/C9r8UJNLPgbSZ9I1m4GiCQ6/HLqP8AaBOPOBjImLd26g+oIB88/tOfAn4d6f4w+D/hDxRaeP8A43ePk+FWm2OkfDDRzJZWOhyC1Vn1K6vBMBEC/muwKnjBc7QufFtU8eeJfFH/AAQd+FYOvX7XunfGZtP0y4kmZzYxi1d40UnJ2K7swBz1x0r9Pf2of+CUXjT4g/txQ/GT4W/FaP4cXGseH18La/A+jx30n2HaqN9m3/IHZEQDcBtZAwY5K1wdj/wQLuLP9hfw58F/+FmQ48O+PT40j1QaIf3qmHyvs5i87gjrvDe2KAPmj/gpx+zYf2S/Fv7N/wAES3xG+NXhfWtX1TxJr+iR3xj1TxfeySRGRcx7e+8rnLKHf5yTmvpb/g3++HXjr4Va78d9I1rwL40+HPgGbWbO/wDCGgeInd5NNil+1iWJWYncVVLcMR1OCck5r3r/AIKNf8E8dY/a/wDEvw98ceB/G3/CA/Ez4W3kt5oWpTWS3lrJ5mwtHLGe2Yxg4YYLAqc8Sf8ABNX/AIJ86v8AsVj4heI/GPjT/hO/iJ8VNVXVvEGoxWv2W1DoZWVIo88DdNKScKPmACgCgD6iooooAKKKKAP/2Q==",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Ups-Powerware-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-UPS-Powerware-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Powerware UPS",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_ups_powerware_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Ups-Powerware-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Hardware-Ups-Powerware-Snmp",
+                "version": "20160220-1"
+            }
+        ],
+        "slug": "hardware-ups-powerware-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Eaton",
+            "Powerware",
+            "Psu",
+            "SNMP",
+            "Supply",
+            "UPS"
+        ],
+        "update_date": "1540832080",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de la source d'alimentation.}\r\n\r\n{EN: Check output source status.}",
+            "active_checks_enabled": 2,
+            "alias": "Output-Source",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Powerware-SNMP-Output-Source",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "HW-UPS-Powerware-Output-Source-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les m\u00e9triques de la source d'alimentation.}\r\n\r\n{EN: Check output lines metrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Output-Lines",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Powerware-SNMP-Output-Lines",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGLOAD$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALLOAD$",
+                    "password": false,
+                    "value": "95"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-UPS-Powerware-Output-Lines-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les m\u00e9triques de l'alimentation.}\r\n\r\n{EN: Check input lines metrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Input-Lines",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Powerware-SNMP-Input-Lines",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "HW-UPS-Powerware-Input-Lines-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le taux d'humidit\u00e9 et la t\u00e9mperature.}\r\n\r\n{EN: Check humidity and temperature.}",
+            "active_checks_enabled": 2,
+            "alias": "Environment",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Powerware-SNMP-Environment",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-UPS-Powerware-Environment-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de la batterie et la charge restante.}\r\n\r\n{EN: Check battery status and battery charge remaining.}",
+            "active_checks_enabled": 2,
+            "alias": "Battery-Status",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Powerware-SNMP-Battery-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /unknown/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /batteryDischarging/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-UPS-Powerware-Battery-Status-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la pr\u00e9sence d'alarmes.}\r\n\r\n{EN: Check if alarms present.}",
+            "active_checks_enabled": 2,
+            "alias": "Alarms",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Powerware-SNMP-Alarms",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "HW-UPS-Powerware-Alarms-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

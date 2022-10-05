@@ -1,0 +1,457 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Dell-6200-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Dell-6200-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Dell-6200-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Dell-6200-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Dell-6200-Traffic-Global-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dell_6200.pl --plugin=network::dell::6200::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Dell-6200-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dell_6200.pl --plugin=network::dell::6200::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Dell-6200-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dell_6200.pl --plugin=network::dell::6200::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Dell-6200-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dell_6200.pl --plugin=network::dell::6200::snmp::plugin --mode=environment --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' --warning=\\'$_SERVICEWARNINGTEMPERATURE$\\' --critical=\\'$_SERVICECRITICALTEMPERATURE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Dell-6200-SNMP-Environment",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dell_6200.pl --plugin=network::dell::6200::snmp::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Dell-6200-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dell_6200.pl --plugin=network::dell::6200::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --add-traffic --interface=\\'$_SERVICEINTERFACEID$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Dell-6200-SNMP-Traffic-Generic-Id",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dell_6200.pl --plugin=network::dell::6200::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --add-traffic --interface=\\'^$_SERVICEINTERFACENAME$\\' --name --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Dell-6200-SNMP-Traffic-Generic-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dell_6200.pl --plugin=network::dell::6200::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --add-traffic --interface=\\'$_SERVICEFILTER$\\' --name --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Dell-6200-SNMP-Traffic-Generic-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dell_6200.pl --plugin=network::dell::6200::snmp::plugin --mode=global-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Dell-6200-SNMP-Global-Status",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les Dell 6200 series en SNMP}\r\n{EN: Template to check Dell 6200 series using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Dell 6200 series using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "dell-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Dell-6200-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Dell-6200-Memory-SNMP",
+                "Net-Dell-6200-Environment-Global-SNMP",
+                "Net-Dell-6200-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "dell-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* add discovery capabilities",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Dell 6200 switches via SNMP:\r\n* Cpu\r\n* Fan\r\n* Global\r\n* Memory\r\n* Psu\r\n* Temperature\r\n* Traffic (by interface name, ID or global)"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un switch Dell 6200 via SNMP :\r\n* Cpu\r\n* Fan\r\n* Global\r\n* Memory\r\n* Psu\r\n* Temperature\r\n* Traffic (by interface name, ID or global)"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Dell-6200\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your equipment\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Dell-6200-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Dell 6200 SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_dell_6200.pl",
+                "package_name": "centreon-plugin-Network-Dell-6200",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Network-Dell-6200",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "network-dell-6200-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Dell",
+            "Hardware",
+            "Network",
+            "Switch",
+            "6200",
+            "SNMP"
+        ],
+        "update_date": "1584622998",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation m\u00e9moire du mat\u00e9riel}\r\n\r\n{EN: Check equipment memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Dell-6200-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Dell-6200-Memory-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'ensemble du mat\u00e9riel ('ventilateur', 'temperature', 'alimentations') de l'\u00e9quipement.}\r\n\r\n{EN: Check hardware status ('fan', 'temperature', 'power supply').}",
+            "active_checks_enabled": 2,
+            "alias": "Environment-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Dell-6200-SNMP-Environment",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Dell-6200-Environment-Global-SNMP",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine. Ce contr\u00f4le pourra remonter la moyenne du taux d'utilisation des CPU.}\r\n\r\n{EN: Check the rate of utilization of CPU for the machine. This check can give the average utilization rate of CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Dell-6200-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "90,88,86"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "96,94,92"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Dell-6200-Cpu-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau d'une interface r\u00e9seau.}\r\n\r\n{EN: Check traffic of an network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Id",
+            "check_timeperiod": "",
+            "command_name": "Net-Dell-6200-SNMP-Traffic-Generic-Id",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Dell-6200-Traffic-Generic-Id-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau d'une interface r\u00e9seau.}\r\n\r\n{EN: Check traffic of an network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-Dell-6200-SNMP-Traffic-Generic-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Dell-6200-Traffic-Generic-Name-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau de plusieurs interfaces r\u00e9seau.}\r\n\r\n{EN: Check traffic of multiple network interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Dell-6200-SNMP-Traffic-Generic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Dell-6200-Traffic-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat global et indique les informations g\u00e9n\u00e9riques de l'\u00e9quipement.}\r\n\r\n{EN: Check global status and indicate generic information of the equipment.}",
+            "active_checks_enabled": 2,
+            "alias": "Global-Status",
+            "check_timeperiod": "",
+            "command_name": "Net-Dell-6200-SNMP-Global-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Dell-6200-Global-Status-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

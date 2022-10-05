@@ -1,0 +1,308 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Cloud-Azure-Management-InsightsMetrics-Api-VirtualMachine-Logical-Disks-Discover",
+                "command_for_macro": "Cloud-Azure-Management-InsightsMetrics-Api-VirtualMachine-Logical-Disks-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Cloud-Azure-Management-InsightsMetrics-VirtualMachine"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERDISK",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Cloud-Azure-Management-InsightsMetrics-Api-VirtualMachine-Logical-Disks-Name",
+                "service_display_name": "Disk-$name$",
+                "service_template": "Cloud-Azure-Management-InsightsMetrics-VirtualMachine-Logical-Disks-Global-Api"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_management_insightsmetrics_api.pl --plugin=cloud::azure::management::insightsmetrics::plugin --mode=list-logical-disks --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --management-endpoint=\\'$_HOSTAZURELOGANALYTICSENDPOINT$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --workspace-id=\\'$_HOSTAZUREWORKSPACEID$\\' --resource=\\'127.0.0.1\\' $_HOSTEXTRAOPTIONS$ --disco-format\\\"",
+            "name": "Cloud-Azure-Management-InsightsMetrics-Api-VirtualMachine-Logical-Disks-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_management_insightsmetrics_api.pl --plugin=cloud::azure::management::insightsmetrics::plugin --mode=list-logical-disks --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --management-endpoint=\\'$_HOSTAZURELOGANALYTICSENDPOINT$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --workspace-id=\\'$_HOSTAZUREWORKSPACEID$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Cloud-Azure-Management-InsightsMetrics-Api-VirtualMachine-Logical-Disks-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_management_insightsmetrics_api.pl --plugin=cloud::azure::management::insightsmetrics::plugin --mode=memory --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --management-endpoint=\\'$_HOSTAZURELOGANALYTICSENDPOINT$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --workspace-id=\\'$_HOSTAZUREWORKSPACEID$\\' --filter-resourceid=\\'$_HOSTAZURERESOURCE$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-percentage=\\'$_SERVICEWARNINGUSAGEPERCENTAGE$\\' --critical-usage-percentage=\\'$_SERVICECRITICALUSAGEPERCENTAGE$\\' --warning-available-percentage=\\'$_SERVICEWARNINGAVAILABLEPERCENTAGE$\\' --critical-available-percentage=\\'$_SERVICECRITICALAVAILABLEPERCENTAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Management-InsightsMetrics-Api-VirtualMachine-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_management_insightsmetrics_api.pl --plugin=cloud::azure::management::insightsmetrics::plugin --mode=cpu --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --management-endpoint=\\'$_HOSTAZURELOGANALYTICSENDPOINT$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --workspace-id=\\'$_HOSTAZUREWORKSPACEID$\\' --filter-resourceid=\\'$_HOSTAZURERESOURCE$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-cpu=\\'$_SERVICEFILTERCPUID$\\' --warning-core-utilization-percentage=\\'$_SERVICEWARNINGCOREUTILIZATIONPERCENTAGE$\\' --critical-core-utilization-percentage=\\'$_SERVICECRITICALCOREUTILIZATIONPERCENTAGE$\\' --warning-average-utilization-percentage=\\'$_SERVICEWARNINGAVERAGEUTILIZATIONPERCENTAGE$\\' --critical-average-utilization-percentage=\\'$_SERVICECRITICALAVERAGEUTILIZATIONPERCENTAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Management-InsightsMetrics-Api-VirtualMachine-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_management_insightsmetrics_api.pl --plugin=cloud::azure::management::insightsmetrics::plugin --mode=logical-disks --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --management-endpoint=\\'$_HOSTAZURELOGANALYTICSENDPOINT$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --workspace-id=\\'$_HOSTAZUREWORKSPACEID$\\' --filter-resourceid=\\'$_HOSTAZURERESOURCE$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-disk=\\'$_SERVICEFILTERDISK$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-percentage=\\'$_SERVICEWARNINGUSAGEPERCENTAGE$\\' --critical-usage-percentage=\\'$_SERVICECRITICALUSAGEPERCENTAGE$\\' --warning-free-percentage=\\'$_SERVICEWARNINGFREEPERCENTAGE$\\' --critical-free-percentage=\\'$_SERVICECRITICALFREEPERCENTAGE$\\' --warning-reads-persecond=\\'$_SERVICEWARNINGREADSPERSECOND$\\' --critical-reads-persecond=\\'$_SERVICECRITICALREADSPERSECOND$\\' --warning-read-bytes-persecond=\\'$_SERVICEWARNINGREADBYTESPERSECOND$\\' --critical-read-bytes-persecond=\\'$_SERVICECRITICALREADBYTESPERSECOND$\\' --warning-writes-persecond=\\'$_SERVICEWARNINGWRITESPERSECOND$\\' --critical-writes-persecond=\\'$_SERVICECRITICALWRITESPERSECOND$\\' --warning-write-bytes-persecond=\\'$_SERVICEWARNINGWRITEBYTESPERSECOND$\\' --critical-write-bytes-persecond=\\'$_SERVICECRITICALWRITEBYTESPERSECOND$\\' --warning-transfers-persecond=\\'$_SERVICEWARNINGTRANSFERSPERSECOND$\\' --critical-transfers-persecond=\\'$_SERVICECRITICALTRANSFERSPERSECOND$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Management-InsightsMetrics-Api-VirtualMachine-Logical-Disks",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les indicateurs syst\u00e8me Azure Virtual machine via InsightsMetrics (API Log Analytics)}\r\n{EN: Template to check Azure Virutal Machine system indicators using InsightsMetrics (Log Analytics API)}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Virtual Machine systems using InsightsMetrics (Log Analytics API)",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-compute-vm-color-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURELOGANALYTICSENDPOINT$",
+                    "value": "https://api.loganalytics.io"
+                },
+                {
+                    "key": "$_HOSTAZUREWORKSPACEID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Management-InsightsMetrics-VirtualMachine",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Management-InsightsMetrics-VirtualMachine-Memory-Api",
+                "Cloud-Azure-Management-InsightsMetrics-VirtualMachine-Cpu-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-compute-vm-color-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Initial experimental version",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin Pack to monitor Azure Resources using InsightsMetrics (Log Analytics API).**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|Cloud-Azure-Management-InsightsMetrics-VirtualMachine-custom|\r\n|---|\r\n|Cpu|\r\n|Logical-Disks|\r\n|Memory|\r\n\r\nThis Plugin Pack provides a Service Discovery rule to automatically discover and add the logical disks attached to an Azure Virtual Machine."
+            },
+            {
+                "lang": "fr",
+                "value": "*Plugin Pack pour superviser les indicateurs des ressources Azure via InsightsMetrics (API Log Analytics).**\r\n\r\nMod\u00e8le d\\'H\u00f4te disponible et services associ\u00e9s:\r\n\r\n|Cloud-Azure-Management-InsightsMetrics-VirtualMachine-custom|\r\n|---|\r\n|Cpu|\r\n|Logical-Disks|\r\n|Memory|\r\n\r\nCe Plugin Pack contient une r\u00e8gle de d\u00e9couverte de Services pour automatiquement d\u00e9couvrir et ajouter les disques logiques des Virtual Machines Azure."
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires the version 19.10.1 or later of the Plugin Pack Manager module\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure InsightsMetrics",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_management_insightsmetrics_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Management-InsightsMetrics-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-management-insightsmetrics",
+        "status": "experimental",
+        "status_message": "Initial experimental version",
+        "tags": [
+            "Cloud",
+            "Azure",
+            "Microsoft",
+            "API",
+            "Restapi",
+            "Virtual Machine",
+            "Log Analytics",
+            "ServiceDisco"
+        ],
+        "update_date": "1634287005",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le la m\u00e9moire des VM Azure via InsightsMetrics.}\r\n\r\n{EN: Check Azure VM memory via InsightsMetrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Management-InsightsMetrics-Api-VirtualMachine-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGUSAGEPERCENTAGE$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALUSAGEPERCENTAGE$",
+                    "password": false,
+                    "value": "95"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Management-InsightsMetrics-VirtualMachine-Memory-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le CPU des VM Azure via InsightsMetrics.}\r\n\r\n{EN: Check Azure VM CPU via InsightsMetrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Management-InsightsMetrics-Api-VirtualMachine-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGAVERAGEUTILIZATIONPERCENTAGE$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALAVERAGEUTILIZATIONPERCENTAGE$",
+                    "password": false,
+                    "value": "95"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Management-InsightsMetrics-VirtualMachine-Cpu-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les disques logiques des VM Azure via InsightsMetrics.}\r\n\r\n{EN: Check Azure VM logical disks via InsightsMetrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Logical-Disks-Global",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Management-InsightsMetrics-Api-VirtualMachine-Logical-Disks",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERDISK$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} eq \"NOT OK\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGUSAGEPERCENTAGE$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALUSAGEPERCENTAGE$",
+                    "password": false,
+                    "value": "95"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Management-InsightsMetrics-VirtualMachine-Logical-Disks-Global-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

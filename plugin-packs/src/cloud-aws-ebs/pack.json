@@ -1,0 +1,729 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v3.0": [
+                {
+                    "attributes": {
+                        "encrypted": {
+                            "type": "string"
+                        },
+                        "id": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "snapshotid": {
+                            "type": "string"
+                        },
+                        "state": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Aws-Ebs-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "AWS Access Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSACCESSKEY",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "AWS Secret Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSSECRETKEY",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Amazon AWS Elastic Block Store",
+                    "discovery_examples": [
+                        {
+                            "encrypted": "true",
+                            "id": "i-ef73a49c",
+                            "name": "front-prod-03-u",
+                            "snapshotid": "ef73a49c",
+                            "state": "running",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "prod"
+                                }
+                            ],
+                            "type": "ebs"
+                        },
+                        {
+                            "encrypted": "true",
+                            "id": "i-ef83d76c",
+                            "name": "front-prod-02-u",
+                            "snapshotid": "ed53a52c",
+                            "state": "running",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "prod"
+                                }
+                            ],
+                            "type": "ebs"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSACCESSKEY",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSACCESSKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSSECRETKEY",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSSECRETKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSREGION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.REGION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSVOLUMEID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "notequal",
+                                        "source": "discovery.results.state",
+                                        "value": "running"
+                                    },
+                                    {
+                                        "operator": "notequal",
+                                        "source": "discovery.results.state",
+                                        "value": "pending"
+                                    }
+                                ]
+                            },
+                            "type": "exclusion"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Aws-Ebs-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Amazon AWS EBS",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Region",
+                                "group": "AWS",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "REGION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "amazon-ebs",
+                    "type": "aws",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "encrypted": {
+                            "type": "string"
+                        },
+                        "id": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "snapshotid": {
+                            "type": "string"
+                        },
+                        "state": {
+                            "type": "string"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Aws-Ebs-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "AWS Access Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSACCESSKEY",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "AWS Secret Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSSECRETKEY",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Amazon AWS Elastic Block Store",
+                    "discovery_examples": [
+                        {
+                            "encrypted": "true",
+                            "id": "i-ef73a49c",
+                            "name": "front-prod-03-u",
+                            "snapshotid": "ef73a49c",
+                            "state": "running",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "prod"
+                                }
+                            ],
+                            "type": "ebs"
+                        },
+                        {
+                            "encrypted": "true",
+                            "id": "i-ef83d76c",
+                            "name": "front-prod-02-u",
+                            "snapshotid": "ed53a52c",
+                            "state": "running",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "prod"
+                                }
+                            ],
+                            "type": "ebs"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSACCESSKEY",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSACCESSKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSSECRETKEY",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSSECRETKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSREGION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.REGION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSVOLUMEID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "notequal",
+                                        "source": "discovery.results.state",
+                                        "value": "running"
+                                    },
+                                    {
+                                        "operator": "notequal",
+                                        "source": "discovery.results.state",
+                                        "value": "pending"
+                                    }
+                                ]
+                            },
+                            "type": "exclusion"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Aws-Ebs-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Amazon AWS EBS",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Region",
+                                "group": "AWS",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "REGION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "amazon-ebs",
+                    "type": "aws",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_ebs_api.pl --plugin=cloud::aws::ebs::plugin --mode=volumetime --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --volume-id=\\'$_HOSTAWSVOLUMEID$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --warning-total-read-time=\\'$_SERVICEWARNINGTOTALREADTIME$\\' --critical-total-read-time=\\'$_SERVICECRITICALTOTALREADTIME$\\' --warning-idle-time=\\'$_SERVICEWARNINGIDLETIME$\\' --critical-idle-time=\\'$_SERVICECRITICALIDLETIME$\\' --warning-total-write-time=\\'$_SERVICEWARNINGTOTALWRITETIME$\\' --critical-total-write-time=\\'$_SERVICECRITICALTOTALWRITETIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Ebs-Api-Time",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_ebs_api.pl --plugin=cloud::aws::ebs::plugin --mode=volumeiops --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --volume-id=\\'$_HOSTAWSVOLUMEID$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --warning-iops-queue-length=\\'$_SERVICEWARNINGIOPSQUEUELENGTH$\\' --critical-iops-queue-length=\\'$_SERVICECRITICALIOPSQUEUELENGTH$\\' --warning-iops-read=\\'$_SERVICEWARNINGIOPSREAD$\\' --critical-iops-read=\\'$_SERVICECRITICALIOPSREAD$\\' --warning-iops-consumed=\\'$_SERVICEWARNINGIOPSCONSUMED$\\' --critical-iops-consumed=\\'$_SERVICECRITICALIOPSCONSUMED$\\' --warning-iops-write=\\'$_SERVICEWARNINGIOPSWRITE$\\' --critical-iops-write=\\'$_SERVICECRITICALIOPSWRITE$\\' --warning-iops-throughput=\\'$_SERVICEWARNINGIOPSTHROUGHPUT$\\' --critical-iops-throughput=\\'$_SERVICECRITICALIOPSTHROUGHPUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Ebs-Api-Iops",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_ebs_api.pl --plugin=cloud::aws::ebs::plugin --mode=volumeio --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --volume-id=\\'$_HOSTAWSVOLUMEID$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --warning-volume-read-bytes=\\'$_SERVICEWARNINGVOLUMEREADBYTES$\\' --critical-volume-read-bytes=\\'$_SERVICECRITICALVOLUMEREADBYTES$\\' --warning-volume-write-bytes=\\'$_SERVICEWARNINGVOLUMEWRITEBYTES$\\' --critical-volume-write-bytes=\\'$_SERVICECRITICALVOLUMEWRITEBYTES$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Ebs-Api-Volumeio",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_ebs_api.pl --plugin=cloud::aws::ebs::plugin --custommode=\\'awscli\\' --mode=discovery --aws-access-key=\\'$_AWSACCESSKEY$\\' --aws-secret-key=\\'$_AWSSECRETKEY$\\' --proxyurl=\\'$_PROXYURL$\\' --timeout=\\'$_TIMEOUT$\\' --region=\\'$_REGION$\\' $_EXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Ebs-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les volumes Amazon Elastic Block Store (Amazon EBS) via l&#39;API}\r\n{EN: Template to check Amazon Elastic Block Store (Amazon EBS) volumes using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Amazon EBS using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "icon": "aws-ebs-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAWSCUSTOMMODE$",
+                    "value": "awscli"
+                },
+                {
+                    "key": "$_HOSTAWSACCESSKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSSECRETKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSREGION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSVOLUMEID$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Ebs",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Aws-Ebs-Volume-Time-Api",
+                "Cloud-Aws-Ebs-Volume-Iops-Api",
+                "Cloud-Aws-Ebs-Volume-Io-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAALiMAAC4jAXilP3YAAAKdSURBVHhe7d2/axNhHMfxSwNKsJ0ERw3EUdA6FcUlsRShiwH/BP8AIfo3OAQc/QcEty7xxyAFEXEQtAVHDY2b4E9oRZdwfi7PjW4l3Pfu837Bw/M8N11y7+Yu7dAMAAAAAAAAAAAAAAAAAAAA9dcq51qYDQdnNZ1Lu7C+dHd2P5br8GoTgC7+hqYnGqcXB+L6rbGtCF6mbWwr5RyaLv6mphca0S9+4ZTGROd8LW1jCx+A3shbmiYaq4sD9VCc61Od+9W0jSt0AHoDb2t6rHFycaBe1jSe6TUUt66wQj4DHAz7OrHWPS3va9TqQfU/fmls6ZngbdrGEu7N/Tzst/KsVVz4IoCm+KmxqQjepW0coQKY3Ry0dUYPtSw++pvmu8Z1RbCftjGECeD11saJM53Oo5WsVTz0NVT+7e983r8wefWhPFC5MAGM13sXNYX66ViS8WhverdcV64WvwfA8hCAuTi3gEu94rt+N+0a7cdof/q1XAMAUJUwzwCz4eC5pk7aNd6f7s7ujXJdqUgBHGqq01/8juNIARR/LKocXwPNhQkgz/J2uWy8SK81zidAHud2tHSBXiu3AHMEYI4AzBGAOQIwRwDmCMAcAZgjAHMEYI4AzBGAOQIwRwDmCMAcAZgjAHMEYI4AzBGAOQIwRwDmCMAcAZgjAHMEYI4AzBGAOQIwRwDmCMAcAZgjAHMEYI4AzBGAOQIwRwDmCMAcAZgjAHMEYI4AzBGAOQIwRwDmCMAcAZgjAHMEYI4AzBGAOQIwRwDmCMAcAZgjAHMEYI4AzBGAOQIwF+a/WD+4fP5Q02raNd7Rnfef1sp1pcJ8Aszz3GpEwS3AXJhbwHi9d0VTO+0abz7am74p1wAAAAAAAAAAAAAAAAAAAMBxZNk/CKUOav7a1rMAAAAASUVORK5CYII=",
+            "name": "aws-ebs-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "fix discovery provider and htpl macro name",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin-Pack to monitor Amazon EBS (Elastic Block Store) volumes.**\r\n\r\nAvailable host template and related services:\r\n\r\n|Cloud-Aws-Ebs-Custom|\r\n|---|\r\n|Ebs-Volume-IO|\r\n|Ebs-Iops|\r\n|Ebs-Time|\r\n\r\n\r\nThis pack provides a host discovery rule."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin-Pack pour superviser les volumes Amazon EBS (Elastic Block Store).**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponible et services associ\u00e9s:\r\n\r\n|Cloud-Aws-Ebs-Custom|\r\n|---|\r\n|Ebs-Volume-IO|\r\n|Ebs-Iops|\r\n|Ebs-Time|\r\n\r\nCe pack fournit une r\u00e8gle de d\u00e9couverte d\\'h\u00f4te."
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAALiMAAC4jAXilP3YAAAKdSURBVHhe7d2/axNhHMfxSwNKsJ0ERw3EUdA6FcUlsRShiwH/BP8AIfo3OAQc/QcEty7xxyAFEXEQtAVHDY2b4E9oRZdwfi7PjW4l3Pfu837Bw/M8N11y7+Yu7dAMAAAAAAAAAAAAAAAAAAAA9dcq51qYDQdnNZ1Lu7C+dHd2P5br8GoTgC7+hqYnGqcXB+L6rbGtCF6mbWwr5RyaLv6mphca0S9+4ZTGROd8LW1jCx+A3shbmiYaq4sD9VCc61Od+9W0jSt0AHoDb2t6rHFycaBe1jSe6TUUt66wQj4DHAz7OrHWPS3va9TqQfU/fmls6ZngbdrGEu7N/Tzst/KsVVz4IoCm+KmxqQjepW0coQKY3Ry0dUYPtSw++pvmu8Z1RbCftjGECeD11saJM53Oo5WsVTz0NVT+7e983r8wefWhPFC5MAGM13sXNYX66ViS8WhverdcV64WvwfA8hCAuTi3gEu94rt+N+0a7cdof/q1XAMAUJUwzwCz4eC5pk7aNd6f7s7ujXJdqUgBHGqq01/8juNIARR/LKocXwPNhQkgz/J2uWy8SK81zidAHud2tHSBXiu3AHMEYI4AzBGAOQIwRwDmCMAcAZgjAHMEYI4AzBGAOQIwRwDmCMAcAZgjAHMEYI4AzBGAOQIwRwDmCMAcAZgjAHMEYI4AzBGAOQIwRwDmCMAcAZgjAHMEYI4AzBGAOQIwRwDmCMAcAZgjAHMEYI4AzBGAOQIwRwDmCMAcAZgjAHMEYI4AzBGAOQIwRwDmCMAcAZgjAHMEYI4AzBGAOQIwF+a/WD+4fP5Q02raNd7Rnfef1sp1pcJ8Aszz3GpEwS3AXJhbwHi9d0VTO+0abz7am74p1wAAAAAAAAAAAAAAAAAAAMBxZNk/CKUOav7a1rMAAAAASUVORK5CYII=",
+        "monitoring_procedure": "# Monitoring procedure\r\n\r\n## Prerequisites\r\n\r\n### Centreon Plugin\r\n\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Cloud-Aws-Ebs-Api\r\n\r\nTo use it, you can either install 'awscli' (AWS Command Line Interface) or 'paws' (Perl AWS SDK).\r\n\r\n### Install awscli\r\n\r\nOn CentOS, install with following commands:\r\n\r\n    # yum install awscli\r\n\r\n## Centreon Configuration\r\n\r\n### Create a host using the appropriate template\r\n\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Field</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>Name</p></td>\r\n            <td align=\"left\"><p><em>Name of the host</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Alias</p></td>\r\n            <td align=\"left\"><p><em>Description</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>IP Address / DNS</p></td>\r\n            <td align=\"left\"><p><em>Can be localhost</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Monitored from</p></td>\r\n            <td align=\"left\"><p><em>Poller used to monitor</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Templates</p></td>\r\n            <td align=\"left\"><p>Cloud-Aws-Ebs-custom</p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nThe following host macros should be set as shown:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Macro</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSACCESSKEY</p></td>\r\n            <td align=\"left\"><p><em>AWS access key</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSSECRETKEY</p></td>\r\n            <td align=\"left\"><p><em>AWS secret key</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSREGION</p></td>\r\n            <td align=\"left\"><p><em>AWS region</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSCUSTOMMODE</p></td>\r\n            <td align=\"left\"><p><em>Plugin custom mode: awscli or paws</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSVOLUMEID</p></td>\r\n            <td align=\"left\"><p><em>Id of the EBS volume to monitor (required)</em></p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nCheck the *Create Services linked to the Template too* box and click on the *Save* button.\r\n\r\nThe following services will be created:\r\n\r\n* Ebs-Volume-IO\r\n* Ebs-Iops\r\n* Ebs-Time\r\n",
+        "name": "Amazon EBS",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_aws_ebs_api.pl",
+                "package_name": "centreon-plugin-Cloud-Aws-Ebs-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-aws-ebs",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Amazon",
+            "AWS",
+            "Cloud",
+            "Block",
+            "EC2",
+            "API",
+            "HostDisco"
+        ],
+        "update_date": "1653493326",
+        "version": "22.06.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le temps de lecture/\u00e9criture du volume.}\r\n\r\n{EN: Check read/write time.}",
+            "active_checks_enabled": 2,
+            "alias": "Ebs-Time",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Ebs-Api-Time",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Ebs-Volume-Time-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les IOPS du volume.}\r\n\r\n{EN: Check volume IOPS.}",
+            "active_checks_enabled": 2,
+            "alias": "Ebs-Iops",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Ebs-Api-Iops",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Ebs-Volume-Iops-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des \u00e9critures/lectures du volume.}\r\n\r\n{EN: Check volume I/O utilization.}",
+            "active_checks_enabled": 2,
+            "alias": "Ebs-Volume-IO",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Ebs-Api-Volumeio",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Ebs-Volume-Io-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

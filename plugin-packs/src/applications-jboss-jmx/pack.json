@@ -1,0 +1,204 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_jboss_jmx.pl --plugin=apps::java::jboss::jmx::plugin --mode=threads --custommode=jolokia --url=\\'$_HOSTJOLOKIAURL$\\' --username=\\'$_HOSTJOLOKIAUSERNAME$\\' --password=\\'$_HOSTJOLOKIAPASSWORD$\\' --target-url=\\'$_HOSTJOLOKIATARGETURL$\\' --target-username=\\'$_HOSTJOLOKIATARGETUSERNAME$\\' --target-password=\\'$_HOSTJOLOKIATARGETPASSWORD$\\' $_HOSTJOLOKIAEXTRAOPTIONS$ --warning-active=\\'$_SERVICEWARNINGACTIVE$\\' --critical-active=\\'$_SERVICECRITICALACTIVE$\\'  --warning-started=\\'$_SERVICEWARNINGSTARTED$\\' --critical-started=\\'$_SERVICECRITICALSTARTED$\\'  --warning-daemon=\\'$_SERVICEWARNINGDAEMON$\\' --critical-daemon=\\'$_SERVICECRITICALDAEMON$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Jboss-JMX-Threads",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_jboss_jmx.pl --plugin=apps::java::jboss::jmx::plugin --mode=memory --custommode=jolokia --url=\\'$_HOSTJOLOKIAURL$\\' --username=\\'$_HOSTJOLOKIAUSERNAME$\\' --password=\\'$_HOSTJOLOKIAPASSWORD$\\' --target-url=\\'$_HOSTJOLOKIATARGETURL$\\' --target-username=\\'$_HOSTJOLOKIATARGETUSERNAME$\\' --target-password=\\'$_HOSTJOLOKIATARGETPASSWORD$\\' $_HOSTJOLOKIAEXTRAOPTIONS$ --warning-heap=\\'$_SERVICEWARNINGHEAP$\\' --critical-heap=\\'$_SERVICECRITICALHEAP$\\'  --warning-nonheap=\\'$_SERVICEWARNINGNONHEAP$\\' --critical-nonheap=\\'$_SERVICECRITICALNONHEAP$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Jboss-JMX-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_jboss_jmx.pl --plugin=apps::java::jboss::jmx::plugin --mode=memory-detailed --custommode=jolokia --url=\\'$_HOSTJOLOKIAURL$\\' --username=\\'$_HOSTJOLOKIAUSERNAME$\\' --password=\\'$_HOSTJOLOKIAPASSWORD$\\' --target-url=\\'$_HOSTJOLOKIATARGETURL$\\' --target-username=\\'$_HOSTJOLOKIATARGETUSERNAME$\\' --target-password=\\'$_HOSTJOLOKIATARGETPASSWORD$\\' $_HOSTJOLOKIAEXTRAOPTIONS$ --warning-eden=\\'$_SERVICEWARNINGEDEN$\\' --critical-eden=\\'$_SERVICECRITICALEDEN$\\'  --warning-survivor=\\'$_SERVICEWARNINGSURVIVOR$\\' --critical-survivor=\\'$_SERVICECRITICALSURVIVOR$\\' --warning-permanent=\\'$_SERVICEWARNINGPERMANENT$\\' --critical-permanent=\\'$_SERVICECRITICALPERMANENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Jboss-JMX-Memory-Detailed",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_jboss_jmx.pl --plugin=apps::java::jboss::jmx::plugin --mode=class-count --custommode=jolokia --url=\\'$_HOSTJOLOKIAURL$\\' --username=\\'$_HOSTJOLOKIAUSERNAME$\\' --password=\\'$_HOSTJOLOKIAPASSWORD$\\' --target-url=\\'$_HOSTJOLOKIATARGETURL$\\' --target-username=\\'$_HOSTJOLOKIATARGETUSERNAME$\\' --target-password=\\'$_HOSTJOLOKIATARGETPASSWORD$\\' $_HOSTJOLOKIAEXTRAOPTIONS$ --warning-loaded=\\'$_SERVICEWARNINGLOADED$\\' --critical-loaded=\\'$_SERVICECRITICALLOADED$\\'  --warning-loaded=\\'$_SERVICEWARNINGLOADED$\\' --critical-loaded=\\'$_SERVICECRITICALLOADED$\\'  --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\'\\\"",
+            "name": "App-Jboss-JMX-Class-Count",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_jboss_jmx.pl --plugin=apps::java::jboss::jmx::plugin --mode=datasource-usage --custommode=jolokia --url=\\'$_HOSTJOLOKIAURL$\\' --username=\\'$_HOSTJOLOKIAUSERNAME$\\' --password=\\'$_HOSTJOLOKIAPASSWORD$\\' --target-url=\\'$_HOSTJOLOKIATARGETURL$\\' --target-username=\\'$_HOSTJOLOKIATARGETUSERNAME$\\' --target-password=\\'$_HOSTJOLOKIATARGETPASSWORD$\\' $_HOSTJOLOKIAEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-active-con=\\'$_SERVICEWARNINGACTIVECON$\\' --critical-active-con=\\'$_SERVICECRITICALACTIVECON$\\' --warning-available-con=\\'$_SERVICEWARNINGAVAILABLECON$\\' --critical-available-con=\\'$_SERVICECRITICALAVAILABLECON$\\' --warning-created-con=\\'$_SERVICEWARNINGCREATEDCON$\\' --critical-created-con=\\'$_SERVICECRITICALCREATEDCON$\\' --warning-in-use-con=\\'$_SERVICEWARNINGINUSECON$\\' --critical-in-use-con=\\'$_SERVICECRITICALINUSECON$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Jboss-JMX-Datasource-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Jboss using JMX",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "app-jboss-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Jboss-JMX",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Jboss-Threads-JMX",
+                "App-Jboss-Memory-JMX",
+                "App-Jboss-Memory-Detailed-JMX",
+                "App-Jboss-Class-Count-JMX"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "app-jboss-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor a JBoss application server using JMX/Jolokia protocol.\r\nSeveral indicators are available but not linked to the template of host.\r\nYou have to use them manually:\r\n* Class-count\r\n* Memory and Memory-Detailed\r\n* Threads\r\n* Datasources"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack Plugin pour surveiller les serveurs d\\'application JBoss en utilisant le protocole JMX/Jolokia .\r\nDe nombreux indicateurs sont disponibles mais ne sont pas associ\u00e9s au mod\u00e8le d\\'h\u00f4te.\r\nIls doivent \u00eatre d\u00e9ploy\u00e9s manuellement :\r\n* Class-count\r\n* Memory and Memory-Detailed\r\n* Threads\r\n* * Datasources"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Jboss-Jmx\r\n\r\nPlease install jolokia agent on your java application server\r\n[Jolikia download page](https://jolokia.org/download.html). Ask to\r\nyour admin to deploy it and give you the URL.\r\n\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Jboss-JMX-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "JBoss Server",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_jboss_jmx.pl",
+                "package_name": "centreon-plugin-Applications-Jboss-Jmx",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-jboss-jmx",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "JBoss",
+            "Wildfly",
+            "Web server",
+            "HTTPS",
+            "Application"
+        ],
+        "update_date": "1512469798",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les threads.}\r\n\r\n{EN: Check threads.}",
+            "active_checks_enabled": 2,
+            "alias": "Jboss-Threads",
+            "check_timeperiod": "",
+            "command_name": "App-Jboss-JMX-Threads",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Jboss-Threads-JMX",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier la m\u00e9moire Java ('NonHeap' et 'Heap').}\r\n\r\n{EN: Check Java Heap and NonHeap Memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Jboss-Memory",
+            "check_timeperiod": "",
+            "command_name": "App-Jboss-JMX-Memory",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Jboss-Memory-JMX",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les pools de m\u00e9moire Java.}\r\n\r\n{EN: Check Java Memory Pools.}",
+            "active_checks_enabled": 2,
+            "alias": "Jboss-Memory-Detailed",
+            "check_timeperiod": "",
+            "command_name": "App-Jboss-JMX-Memory-Detailed",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Jboss-Memory-Detailed-JMX",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des classes de la JVM.}\r\n\r\n{EN: Check Java Class usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Jboss-Class-Count",
+            "check_timeperiod": "",
+            "command_name": "App-Jboss-JMX-Class-Count",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Jboss-Class-Count-JMX",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des datasources.}\r\n\r\n{EN: Check datasources usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Datasource-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-Jboss-JMX-Datasource-Usage",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Jboss-Datasource-Usage-JMX",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,161 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_atto_fibrebridge_snmp.pl --plugin=network::atto::fibrebridge::snmp::plugin --mode=hardware --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Atto-Fibrebridge-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_atto_fibrebridge_snmp.pl --plugin=network::atto::fibrebridge::snmp::plugin --mode=fcport-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' --warning-invalid-crc=\\'$_SERVICEWARNINGINVALIDCRC$\\' --critical-invalid-crc=\\'$_SERVICECRITICALINVALIDCRC$\\' --warning-signal-loss=\\'$_SERVICEWARNINGSIGNALLOSS$\\' --critical-signal-loss=\\'$_SERVICECRITICALSIGNALLOSS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Atto-Fibrebridge-SNMP-Fcport-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Atto FibreBridge (6500, 7500,...) using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "atto-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Atto-Fibrebridge-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Atto-Fibrebridge-Hardware-Global-SNMP",
+                "Net-Atto-Fibrebridge-Fcport-Usage-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "atto-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Atto FibreBridge equipments :\r\n* Fcport\r\n* Hardware"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les \u00e9quipements Atto FibreBridge :\r\n* Fcport\r\n* Hardware"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites \r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Atto-Fibrebridge-Snmp\r\n\r\n### SNMP\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the monitoring server\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp)\r\n\r\n## Centreon Configuration\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Atto-Fibrebridge-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Atto Fibrebridge SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_atto_fibrebridge_snmp.pl",
+                "package_name": "centreon-plugin-Network-Atto-Fibrebridge-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-atto-fibrebridge-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Network",
+            "Atto",
+            "Fibrebridge",
+            "SNMP"
+        ],
+        "update_date": "1562568936",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du mat\u00e9riel.}\r\n\r\n{EN: Check hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Atto-Fibrebridge-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Atto-Fibrebridge-Hardware-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des ports fiber channel.}\r\n\r\n{EN: Check fc port usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Fcport-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Atto-Fibrebridge-SNMP-Fcport-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admin} =~ /enabled/ and %{status} !~ /online/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Atto-Fibrebridge-Fcport-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

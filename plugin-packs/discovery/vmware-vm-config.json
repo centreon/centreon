@@ -1,0 +1,197 @@
+{
+    "name": "VMware Virtual Machine",
+    "description": "Discover VMware Virtual Machines from vCenter Server and standalone ESX",
+    "command": {
+        "name": "Virt-VMWare2-Resources-Discovery",
+        "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_vmware_connector_client.pl --plugin=apps::vmware::connector::plugin --mode=discovery --custommode='connector' --connector-hostname='$_VMWARECONNECTORHOSTNAME$' --connector-port='$_VMWARECONNECTORPORT$' --container='$_VMWARECONNECTORCONTAINER$' --resource-type='$_RESOURCETYPE$' --timeout='$_TIMEOUT$' $_DISCOVERYEXTRAOPTIONS$\\\"",
+        "parameters": [
+            {
+                "name": "VMWARECONNECTORHOSTNAME",
+                "description": "Centreon VMWare Connector server hostname or IP address",
+                "mandatory": true,
+                "type": "text",
+                "value": "localhost",
+                "locked": false,
+                "hidden": false
+            },
+            {
+                "name": "VMWARECONNECTORPORT",
+                "description": "Centreon VMWare Connector server port",
+                "mandatory": true,
+                "type": "text",
+                "value": "5700",
+                "locked": false,
+                "hidden": false
+            },
+            {
+                "name": "VMWARECONNECTORCONTAINER",
+                "description": "Centreon VMWare Connector container",
+                "mandatory": true,
+                "type": "text",
+                "value": "default",
+                "locked": false,
+                "hidden": false
+            },
+            {
+                "name": "RESOURCETYPE",
+                "description": "Resource Type",
+                "mandatory": true,
+                "type": "text",
+                "value": "vm",
+                "locked": true,
+                "hidden": true
+            },
+            {
+                "name": "TIMEOUT",
+                "description": "Timeout",
+                "mandatory": true,
+                "type": "text",
+                "value": 10,
+                "locked": false,
+                "hidden": false
+            },
+            {
+                "name": "DISCOVERYEXTRAOPTIONS",
+                "description": "Extra Options",
+                "mandatory": false,
+                "type": "text",
+                "value": null,
+                "locked": false,
+                "hidden": false
+            }
+        ]
+    },
+    "mapping": {
+        "key": "type",
+        "entries": {
+            "vm": {
+                "name": "vm",
+                "pretty_name": "Virtual Machine",
+                "attributs": {
+                    "hostname": {
+                        "default": {
+                            "key": "name",
+                            "ref": "string"
+                        },
+                        "others": [
+                            {
+                                "key": "guest_name",
+                                "ref": "string"
+                            }
+                        ]
+                    },
+                    "description": {
+                        "default": {
+                            "key": "name",
+                            "ref": "string"
+                        },
+                        "others": [
+                            {
+                                "key": "guest_name",
+                                "ref": "string"
+                            },
+                            {
+                                "key": "annotation",
+                                "ref": "string"
+                            }
+                        ]
+                    },
+                    "ip": {
+                        "default": {
+                            "key": "guest_ip",
+                            "ref": "string"
+                        },
+                        "others": [
+                            {
+                                "key": "name",
+                                "ref": "string"
+                            },                        
+                            {
+                                "key": "guest_name",
+                                "ref": "string"
+                            }
+                        ]
+                    }
+                },
+                "templates": [
+                    {
+                        "name": "Virt-VMWare2-VM-custom",
+                        "is_in_pp": true,
+                        "order": 0,
+                        "is_default": true,
+                        "macros": [
+                            {
+                                "name": "CENTREONVMWAREHOST",
+                                "type": "text",
+                                "from": "parameters",
+                                "value": "VMWARECONNECTORHOSTNAME"
+                            },
+                            {
+                                "name": "CENTREONVMWAREPORT",
+                                "type": "text",
+                                "from": "parameters",
+                                "value": "VMWARECONNECTORPORT"
+                            },
+                            {
+                                "name": "CENTREONVMWARECONTAINER",
+                                "type": "text",
+                                "from": "parameters",
+                                "value": "VMWARECONNECTORCONTAINER"
+                            },
+                            {
+                                "name": "VMNAME",
+                                "type": "text",
+                                "from": "results",
+                                "value": "name"
+                            },
+                            {
+                                "name": "VMUUID",
+                                "type": "text",
+                                "from": "results",
+                                "value": "uuid"
+                            }
+                        ]
+                    },
+                    {
+                        "name": "OS-Linux-SNMP-custom",
+                        "is_in_pp": false,
+                        "order": 1,
+                        "is_default": false
+                    },
+                    {
+                        "name": "OS-Windows-SNMP-custom",
+                        "is_in_pp": false,
+                        "order": 1,
+                        "is_default": false
+                    }
+                ],
+                "extra_attributs": {
+                    "hostgroups": [
+                        {
+                            "key": "cluster",
+                            "ref": "string"
+                        },
+                        {
+                            "key": "datacenter",
+                            "ref": "string"
+                        },
+                        {
+                            "key": "esx",
+                            "ref": "string"
+                        }
+                    ],
+                    "categories": [
+                        {
+                            "key": "cluster",
+                            "ref": "string"
+                        },
+                        {
+                            "key": "datacenter",
+                            "ref": "string"
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

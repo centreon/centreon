@@ -1,0 +1,1358 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v1.0": [
+                {
+                    "command": "Cloud-Azure-Management-Recovery-Api-HostDiscovery",
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Recovery Backup vaults",
+                    "mapping": {
+                        "azure_vault": {
+                            "association": {
+                                "description": [
+                                    "${name}"
+                                ],
+                                "hostname": [
+                                    "${name}"
+                                ],
+                                "ip": [
+                                    "${name}"
+                                ]
+                            },
+                            "attributes": {
+                                "id": {
+                                    "type": "string"
+                                },
+                                "location": {
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "resourceGroup": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                }
+                            },
+                            "filters": {
+                                "type": "Microsoft.RecoveryServices/vaults"
+                            },
+                            "macros": [
+                                {
+                                    "from": "parameters",
+                                    "name": "AZURESUBSCRIPTION",
+                                    "type": "text",
+                                    "value": "AZURESUBSCRIPTION"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AZURETENANT",
+                                    "type": "text",
+                                    "value": "AZURETENANT"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AZURECLIENTID",
+                                    "type": "text",
+                                    "value": "AZURECLIENTID"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AZURECLIENTSECRET",
+                                    "type": "password",
+                                    "value": "AZURECLIENTSECRET"
+                                },
+                                {
+                                    "from": "results",
+                                    "name": "AZUREVAULTNAME",
+                                    "type": "text",
+                                    "value": "name"
+                                },
+                                {
+                                    "from": "results",
+                                    "name": "AZURERESOURCEGROUP",
+                                    "type": "text",
+                                    "value": "resourceGroup"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "PROXYURL",
+                                    "type": "text",
+                                    "value": "PROXYURL"
+                                }
+                            ],
+                            "object": "host",
+                            "templates": [
+                                "Cloud-Azure-Management-Recovery-Backup"
+                            ]
+                        }
+                    },
+                    "name": "Microsoft Azure Recovery Vaults",
+                    "parameters": [
+                        {
+                            "description": "Azure Subscription ID",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AZURESUBSCRIPTION",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Azure Tenant ID",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AZURETENANT",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Azure Client ID",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AZURECLIENTID",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Azure Client Secret",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AZURECLIENTSECRET",
+                            "type": "password",
+                            "value": null
+                        },
+                        {
+                            "description": "Resource Group Name",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "RESOURCEGROUP",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Location",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "LOCATION",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Timeout",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "TIMEOUT",
+                            "type": "text",
+                            "value": 10
+                        },
+                        {
+                            "description": "Proxy URL",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "PROXYURL",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Extra Options",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "EXTRAOPTIONS",
+                            "type": "text",
+                            "value": null
+                        }
+                    ],
+                    "test_option": "--test-login",
+                    "type": "azure"
+                }
+            ],
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Management-Recovery-Api-HostDiscovery-v2",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Recovery Backup vaults",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGPROD01/providers/Microsoft.RecoveryServices/vaults/vault12",
+                            "location": "northeurope",
+                            "name": "vault12",
+                            "resourceGroup": "RGPROD01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.RecoveryServices/vaults"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGPROD01/providers/Microsoft.RecoveryServices/vaults/vault12",
+                            "location": "northeurope",
+                            "name": "vault12",
+                            "resourceGroup": "RGPROD01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.RecoveryServices/vaults"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGPROD01/providers/Microsoft.RecoveryServices/vaults/vault12",
+                            "location": "northeurope",
+                            "name": "vault12",
+                            "resourceGroup": "RGPROD01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.RecoveryServices/vaults"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGPROD01/providers/Microsoft.RecoveryServices/vaults/vault12",
+                            "location": "northeurope",
+                            "name": "vault12",
+                            "resourceGroup": "RGPROD01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.RecoveryServices/vaults"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGPROD01/providers/Microsoft.RecoveryServices/vaults/vault12",
+                            "location": "northeurope",
+                            "name": "vault12",
+                            "resourceGroup": "RGPROD01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.RecoveryServices/vaults"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZUREVAULTNAME",
+                                "is_password": false,
+                                "source": "discovery.results.name"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Management-Recovery-Backup-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Recovery Vaults",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": "--api-version=\"2020-01-01\""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-recovery-vaults",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Management-Recovery-Api-HostDiscovery-v2",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Recovery Backup vaults",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGPROD01/providers/Microsoft.RecoveryServices/vaults/vault12",
+                            "location": "northeurope",
+                            "name": "vault12",
+                            "resourceGroup": "RGPROD01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.RecoveryServices/vaults"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGPROD01/providers/Microsoft.RecoveryServices/vaults/vault12",
+                            "location": "northeurope",
+                            "name": "vault12",
+                            "resourceGroup": "RGPROD01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.RecoveryServices/vaults"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGPROD01/providers/Microsoft.RecoveryServices/vaults/vault12",
+                            "location": "northeurope",
+                            "name": "vault12",
+                            "resourceGroup": "RGPROD01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.RecoveryServices/vaults"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGPROD01/providers/Microsoft.RecoveryServices/vaults/vault12",
+                            "location": "northeurope",
+                            "name": "vault12",
+                            "resourceGroup": "RGPROD01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.RecoveryServices/vaults"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGPROD01/providers/Microsoft.RecoveryServices/vaults/vault12",
+                            "location": "northeurope",
+                            "name": "vault12",
+                            "resourceGroup": "RGPROD01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.RecoveryServices/vaults"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZUREVAULTNAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Management-Recovery-Backup-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Recovery Vaults",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": "--api-version=\"2020-01-01\""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-recovery-vaults",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Management-Recovery-Api-HostDiscovery-v2",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Recovery Backup vaults",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGPROD01/providers/Microsoft.RecoveryServices/vaults/vault12",
+                            "location": "northeurope",
+                            "name": "vault12",
+                            "resourceGroup": "RGPROD01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.RecoveryServices/vaults"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGPROD01/providers/Microsoft.RecoveryServices/vaults/vault12",
+                            "location": "northeurope",
+                            "name": "vault12",
+                            "resourceGroup": "RGPROD01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.RecoveryServices/vaults"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGPROD01/providers/Microsoft.RecoveryServices/vaults/vault12",
+                            "location": "northeurope",
+                            "name": "vault12",
+                            "resourceGroup": "RGPROD01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.RecoveryServices/vaults"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGPROD01/providers/Microsoft.RecoveryServices/vaults/vault12",
+                            "location": "northeurope",
+                            "name": "vault12",
+                            "resourceGroup": "RGPROD01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.RecoveryServices/vaults"
+                        },
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGPROD01/providers/Microsoft.RecoveryServices/vaults/vault12",
+                            "location": "northeurope",
+                            "name": "vault12",
+                            "resourceGroup": "RGPROD01",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Production"
+                                }
+                            ],
+                            "type": "Microsoft.RecoveryServices/vaults"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZUREVAULTNAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Management-Recovery-Backup-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Recovery Vaults",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": "--api-version=\"2020-01-01\""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-recovery-vaults",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_management_recovery_api.pl --plugin=cloud::azure::management::recovery::plugin --mode=backup-jobs-status --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --vault-name=\\'$_HOSTAZUREVAULTNAME$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-total-completed=\\'$_SERVICEWARNINGTOTALCOMPLETED$\\' --critical-total-completed=\\'$_SERVICECRITICALTOTALCOMPLETED$\\' --warning-total-failed=\\'$_SERVICEWARNINGTOTALFAILED$\\' --critical-total-failed=\\'$_SERVICECRITICALTOTALFAILED$\\' --warning-total-inprogress=\\'$_SERVICEWARNINGTOTALINPROGRESS$\\' --critical-total-inprogress=\\'$_SERVICECRITICALTOTALINPROGRESS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Management-Recovery-Api-Backup-Jobs-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_management_recovery_api.pl --plugin=cloud::azure::management::recovery::plugin --mode=backup-items-status --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --vault-name=\\'$_HOSTAZUREVAULTNAME$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-total-completed=\\'$_SERVICEWARNINGTOTALCOMPLETED$\\' --critical-total-completed=\\'$_SERVICECRITICALTOTALCOMPLETED$\\' --warning-total-failed=\\'$_SERVICEWARNINGTOTALFAILED$\\' --critical-total-failed=\\'$_SERVICECRITICALTOTALFAILED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Management-Recovery-Api-Backup-Items-Status",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_management_recovery_api.pl --plugin=cloud::azure::management::recovery::plugin --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Management-Recovery-Api-HostDiscovery",
+            "type": "4"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_management_recovery_api.pl --plugin=cloud::azure::management::recovery::plugin --statefile-suffix='autodiscovery' --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Management-Recovery-Api-HostDiscovery-v2",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Azure Recovery (Backup) via l'API}\r\n{EN: Template to check Azure Recovery services (Backup) using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Recovery services (Backup) using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-management-recovery-backup-color-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZUREVAULTNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Management-Recovery-Backup",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Management-Recovery-Backup-Jobs-Status-Api",
+                "Cloud-Azure-Management-Recovery-Backup-Items-Status-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-management-recovery-backup-color-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ add proper tags management",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack pour superviser Microsoft Azure Recovery via la CLI ou la RestAPI Azure.**\r\n\r\nMod\u00e8les d\\'h\u00f4te disponibles et leurs services :\r\n\r\n|Cloud-Azure-Management-Recovery-Backup|\r\n|---|\r\n|Backup-Items-Status|\r\n|Backup-Jobs-Status|\r\n\r\nThis pack provides a host discovery rule."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser Microsoft Azure Recovery via la CLI ou la RestAPI Azure.**\r\n\r\nMod\u00e8les d\\'h\u00f4te disponibles et leurs services :\r\n\r\n|Cloud-Azure-Management-Recovery-Backup|\r\n|---|\r\n|Backup-Items-Status|\r\n|Backup-Jobs-Status|\r\n\r\nCe pack fournit une r\u00e8gle de d\u00e9couverte d\\'h\u00f4te."
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n\r\n## Prerequisites\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Cloud-Azure-Management-Recovery-Api\r\n\r\n### Perl dependencies (for 'api' custom mode)\r\nBy installing the plugin, some perl depencies will be installed :\r\n\r\n    JSON::XS\r\n    DateTime\r\n    Digest::MD5\r\n    Digest::SHA\r\n    LWP::UserAgent\r\n    LWP::Protocol::https\r\n    IO::Socket::SSL\r\n    URI\r\n    HTTP::ProxyPAC\r\n\r\nThe login and access token handling will be made by the plugin itself.\r\n\r\n### Azure CLI 2.0 (for 'azcli' custom mode)\r\nThe CLI needs at least Python version 2.7 (https://github.com/Azure/azure-cli/blob/dev/doc/install_linux_prerequisites.md).\r\n\r\nOn CentOS/RedHat, install with following commands:\r\n\r\n    (As root)\r\n    # rpm --import https://packages.microsoft.com/keys/microsoft.asc\r\n    # echo -e \"[azure-cli]\\nname=Azure CLI\\nbaseurl=https://packages.microsoft.com/yumrepos/azure-cli\\nenabled=1\\ngpgcheck=1\\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc\" > /etc/yum.repos.d/azure-cli.repo\r\n    # yum install azure-cli\r\n    (As centreon-engine)\r\n    # az login\r\n\r\nThe shell should prompt:\r\n\r\n    To sign in, use a web browser to open the page https://microsoft.com/devicelogin and enter the code CWT4WQZAD to authenticate.\r\n\r\nGo to https://microsoft.com/devicelogin and enter the given code.\r\n\r\nLog in with your account credentials. You should use a service account. Application is not yet supported.\r\n\r\nThe command line should now show:\r\n\r\n    [\r\n      {\r\n        \"cloudName\": \"AzureCloud\",\r\n        \"id\": \"0ef83f3a-d83e-2039-d930-309df93acd93d\",\r\n        \"isDefault\": true,\r\n        \"name\": \"N/A(tenant level account)\",\r\n        \"state\": \"Enabled\",\r\n        \"tenantId\": \"0ef83f3a-03cd-2039-d930-90fd39ecd048\",\r\n        \"user\": {\r\n          \"name\": \"email@mycompany.onmicrosoft.com\",\r\n          \"type\": \"user\"\r\n        }\r\n      }\r\n    ]\r\n\r\nYou now have a hidden azure directory where your token is stored in an accessTokens.json file.\r\n\r\n## Centreon Configuration\r\n\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Cloud-Azure-Management-Recovery-Backup-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Set host macros\r\nThe following macros must be configured on host.\r\n\r\n#### Common macros\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AZUREVAULTNAME</p></td>\r\n<td align=\"left\"><p>Vault name</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>AZURERESOURCEGROUP</p></td>\r\n<td align=\"left\"><p>Resource group</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\n#### 'api' custom mode macros\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AZURECUSTOMMODE</p></td>\r\n<td align=\"left\"><p>Custom mode 'api'</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>AZURESUBSCRIPTION</p></td>\r\n<td align=\"left\"><p>Subscription ID</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AZURETENANT</p></td>\r\n<td align=\"left\"><p>Tenant ID</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>AZURECLIENTID</p></td>\r\n<td align=\"left\"><p>Client ID</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AZURECLIENTSECRET</p></td>\r\n<td align=\"left\"><p>Client secret</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\n#### 'azcli' custom mode macros\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AZURECUSTOMMODE</p></td>\r\n<td align=\"left\"><p>Custom mode 'azcli'</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>AZURESUBSCRIPTION</p></td>\r\n<td align=\"left\"><p>Subscription ID</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n## Available metrics\r\nGo to https://docs.microsoft.com/en-us/azure/monitoring-and-diagnostics/monitoring-supported-metrics?toc=/azure/azure-monitor/toc.json#microsoftnetworknetworkinterfaces to see the description of return metrics for this Azure service.",
+        "name": "Azure Recovery",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_management_recovery_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Management-Recovery-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-management-recovery",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Azure",
+            "Cloud",
+            "Microsoft",
+            "Recovery",
+            "Backup",
+            "HostDisco"
+        ],
+        "update_date": "1636824388",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des travaux de sauvegarde d'un coffre.}\r\n\r\n{EN: Check backup jobs state of a defined vault.}",
+            "active_checks_enabled": 2,
+            "alias": "Backup-Jobs-Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Management-Recovery-Api-Backup-Jobs-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} eq \"Failed\""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Management-Recovery-Backup-Jobs-Status-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de sauvegarde des \u00e9l\u00e9ments d'un coffre.}\r\n\r\n{EN: Check items backup state of a defined vault.}",
+            "active_checks_enabled": 2,
+            "alias": "Backup-Items-Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Management-Recovery-Api-Backup-Items-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{precheck_status} ne \"Passed\" || %{last_backup_status} eq \"Failed\""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Management-Recovery-Backup-Items-Status-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

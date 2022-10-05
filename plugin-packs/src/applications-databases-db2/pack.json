@@ -1,0 +1,278 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-DB-Db2-Tablespaces-Discover",
+                "command_for_macro": "App-DB-Db2-Tablespaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-DB-Db2"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "App-DB-Db2-Tablespace-Name",
+                "service_display_name": "Tablespace-$name$",
+                "service_template": "App-DB-Db2-Tablespaces"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_database_db2.pl --plugin=database::db2::plugin --mode=list-tablespaces --server=127.0.0.1 --username=none --password=none --port=50000 --disco-format\\\"",
+            "name": "App-DB-Db2-Tablespaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_database_db2.pl --plugin=database::db2::plugin --server=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTDB2PORT$\\' --database=\\'$_HOSTDB2DATABASE$\\' --username=\\'$_HOSTDB2USERNAME$\\' --password=\\'$_HOSTDB2PASSWORD$\\' $_HOSTDB2EXTRAOPTIONS$ --mode=\\'list-tablespaces\\' --disco-show\\\"",
+            "name": "App-DB-Db2-Tablespaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_database_db2.pl --plugin=database::db2::plugin --server=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTDB2PORT$\\' --database=\\'$_HOSTDB2DATABASE$\\' --username=\\'$_HOSTDB2USERNAME$\\' --password=\\'$_HOSTDB2PASSWORD$\\' $_HOSTDB2EXTRAOPTIONS$  --mode=\\'tablespaces\\' --filter-name=\\'$_SERVICEFILTERNAME$\\' --filter-type=\\'$_SERVICEFILTERTYPE$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-space-usage=\\'$_SERVICEWARNINGSPACEUSAGE$\\' --critical-space-usage=\\'$_SERVICECRITICALSPACEUSAGE$\\' --warning-space-usage-free=\\'$_SERVICEWARNINGSPACEUSAGEFREE$\\' --critical-space-usage-free=\\'$_SERVICECRITICALSPACEUSAGEFREE$\\' --warning-space-usage-prct=\\'$_SERVICEWARNINGSPACEUSAGEPRCT$\\' --critical-space-usage-prct=\\'$_SERVICECRITICALSPACEUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Db2-Tablespaces",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_database_db2.pl --plugin=database::db2::plugin --server=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTDB2PORT$\\' --database=\\'$_HOSTDB2DATABASE$\\' --username=\\'$_HOSTDB2USERNAME$\\' --password=\\'$_HOSTDB2PASSWORD$\\' $_HOSTDB2EXTRAOPTIONS$  --mode=\\'database-usage\\' --warning-space-usage=\\'$_SERVICEWARNINGSPACEUSAGE$\\' --critical-space-usage=\\'$_SERVICECRITICALSPACEUSAGE$\\' --warning-space-usage-free=\\'$_SERVICEWARNINGSPACEUSAGEFREE$\\' --critical-space-usage-free=\\'$_SERVICECRITICALSPACEUSAGEFREE$\\' --warning-space-usage-prct=\\'$_SERVICEWARNINGSPACEUSAGEPRCT$\\' --critical-space-usage-prct=\\'$_SERVICECRITICALSPACEUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Db2-Database-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_database_db2.pl --plugin=database::db2::plugin --server=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTDB2PORT$\\' --database=\\'$_HOSTDB2DATABASE$\\' --username=\\'$_HOSTDB2USERNAME$\\' --password=\\'$_HOSTDB2PASSWORD$\\' $_HOSTDB2EXTRAOPTIONS$  --mode=\\'database-logs\\' --warning-log-usage=\\'$_SERVICEWARNINGLOGUSAGE$\\' --critical-log-usage=\\'$_SERVICECRITICALLOGUSAGE$\\' --warning-log-usage-free=\\'$_SERVICEWARNINGLOGUSAGEFREE$\\' --critical-log-usage-free=\\'$_SERVICECRITICALLOGUSAGEFREE$\\' --warning-log-usage-prct=\\'$_SERVICEWARNINGLOGUSAGEPRCT$\\' --critical-log-usage-prct=\\'$_SERVICECRITICALLOGUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Db2-Database-Logs",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_database_db2.pl --plugin=database::db2::plugin --server=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTDB2PORT$\\' --database=\\'$_HOSTDB2DATABASE$\\' --username=\\'$_HOSTDB2USERNAME$\\' --password=\\'$_HOSTDB2PASSWORD$\\' $_HOSTDB2EXTRAOPTIONS$ --mode=\\'connection-time\\' --warning=\\'$_SERVICEWARNINGTIME$\\' --critical=\\'$_SERVICECRITICALTIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Db2-Connection-Time",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_database_db2.pl --plugin=database::db2::plugin --server=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTDB2PORT$\\' --database=\\'$_HOSTDB2DATABASE$\\' --username=\\'$_HOSTDB2USERNAME$\\' --password=\\'$_HOSTDB2PASSWORD$\\' $_HOSTDB2EXTRAOPTIONS$ --mode=\\'connected-users\\' --filter-appl-name=\\'$_SERVICEFILTERAPPLNAME$\\' --warning-connected=\\'$_SERVICEWARNINGCONNECTED$\\' --critical-connected=\\'$_SERVICECRITICALCONNECTED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Db2-Connected-Users",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser une base de donn\u00e9es DB2}\r\n{EN: Template to check DB2 database}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check DB2 database",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "ibm-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTDB2PORT$",
+                    "value": "50000"
+                },
+                {
+                    "key": "$_HOSTDB2EXTRAOPTIONS$",
+                    "value": "--timeout=10"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Db2",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-DB-Db2-Tablespaces",
+                "App-DB-Db2-Database-Usage",
+                "App-DB-Db2-Database-Logs",
+                "App-DB-Db2-Connection-Time",
+                "App-DB-Db2-Connected-Users"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAAsSAAALEgHS3X78AAAE50lEQVR42u2cX2gcVRSHy1prt6IhsbaNttmkFlGDJdUQ8SH0QYKClYoggT4UbS2RFpvd1CjFaksfVaLFh4IiCq1iVUREpBCk7qTVIt2XUmMRg9AW/0AeNBVUEOu9OOh02dk9d+bcccl+H/wgD/eec+beX5Izs3dnwQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaDIKxfJezxqvyndvBjmjKhltMOpwXJerPdRyY8q9ulm5nhEb9JJn/VR1ERMZ5KylP42OGt3fs+tTyWIv81DDnpQGOKBcT6WVDBDVlFHv/2CAszc9eSLh5gdX2rXEAHr6zWhLxgawGkj427/BQy0VmiAAgJa+DfzIsw5V5dti9GET6l2jtkidbR5z7Xbco1c91THRyk1gLe3KoAm0+tlosXDzb/FYRwUDXK4TGRnAaqPQAM/5NsApz5qsuqBSBjmT6vPuYvmKsM52z7meFRrgkMcaDtMEAQBAzP+fY0bnBTqrlG+TMJ/VJuEz9E6HmFYPCGs97Ri3ls4ZLY+JP6gQ3+pYmg2ZFnaTc0oG2ObQwW4TGmClY2d8t7DWWaVOvBgT/3Wl+NMYQB7zd6MlGRvgVI3YeaNfmsEA+41eE+gVJQMMCvNZDQoN0O4Qc7dDrS85xG2ktqrYvYqx99PMAEACuktBh9H1Ai1VyrdYmM+HFjrWulQ5fz6Mm1eO25F4Q5q8CdTUN93F8lWOtc4q13A4jPumctxpDFBfF436EtQ66xD/L8G4X+0zAbuWwuNsf2CA9LK3WusT1io1wIzRceHYo8Jx7wiNktoAw0aPC7RVyQC3CvNpqTdFrY8Ic9inmwPKddt12iocO0w3CwDJn8zdJ9CQUr5Vwnxa6kxR6z3CHOv/Gf9ZXqnmJWH+IeH4wTQbMt+bwAtGt/luAu34rp1TOfPzdynr/b5Q+vfE0hx3ATr6wajbtwEin62kqXUiEgsDKOrLnvAsoGcDrBE+E4hTf9YGWGt0l0D9SgZYJsznQ3nHWu8Uxu2rmndHwvoGVj89GY3TL5y3lm4WAJL9SR4xekagcaV864T5rNbJYgbXOsTc7FDrmDDmjhpzNzrUZPVQjRjjwrkj87UJ9HEk7GJhtLzIVxMYmbvZsfl7rEaMOc4E6hvgkrShTWmAa8JP/6QvsmjDANkZ4GHfBgjnvyWcfyRmvn8DdJWmFkqlY4CpnDSfHSuJuXr0uNN1FMbKOd21qX3SqGssEF3rqmKQa4a9AYD5eqv3otEHfhVcF8n3qP98ifVe1+h/j4TDc/VpYx6ss/adDeb21Jn7tsY120AV/8/ag5WRwpv5BRGVqkU+rxBzJm4Te/d9ZXOciZlnvzeYq2OAOY1rxgCXa2+WBghzPBUz74UG89QMcCT8pqtHBcurnmCdbkLZN2asqFrkSYW4nzTYyBti5vU1mHdS47ppggAAWvo28OPwrJpHBSsi+fb4zyfSTL2XRYe1fqGQpyzchwPh+PeF489orEOr3gV8a0/1ChbZ+11AJNeD4fidwvHcBibQ10bbC8IvgmZsgEVGP9pjcVkbYJ/RG34VtEcKHw7ff5OVXg43/fY1T5x0/fc4oXD9zzvkG3IYe1Bjb2iCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJqNvwHNnenmiznmwAAAAABJRU5ErkJggg==",
+            "name": "ibm-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Pack to monitor DB2 database:\r\n* Connected users\r\n* Connection time\r\n* Database logs\r\n* Database usage\r\n* Tabespaces"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack pour surveiller une base de donn\u00e9es DB2 :\r\n* Connected users\r\n* Connection time\r\n* Database logs\r\n* Database usage\r\n* Tabespaces"
+            }
+        ],
+        "discovery_category": "database",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAAsSAAALEgHS3X78AAAE50lEQVR42u2cX2gcVRSHy1prt6IhsbaNttmkFlGDJdUQ8SH0QYKClYoggT4UbS2RFpvd1CjFaksfVaLFh4IiCq1iVUREpBCk7qTVIt2XUmMRg9AW/0AeNBVUEOu9OOh02dk9d+bcccl+H/wgD/eec+beX5Izs3dnwQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaDIKxfJezxqvyndvBjmjKhltMOpwXJerPdRyY8q9ulm5nhEb9JJn/VR1ERMZ5KylP42OGt3fs+tTyWIv81DDnpQGOKBcT6WVDBDVlFHv/2CAszc9eSLh5gdX2rXEAHr6zWhLxgawGkj427/BQy0VmiAAgJa+DfzIsw5V5dti9GET6l2jtkidbR5z7Xbco1c91THRyk1gLe3KoAm0+tlosXDzb/FYRwUDXK4TGRnAaqPQAM/5NsApz5qsuqBSBjmT6vPuYvmKsM52z7meFRrgkMcaDtMEAQBAzP+fY0bnBTqrlG+TMJ/VJuEz9E6HmFYPCGs97Ri3ls4ZLY+JP6gQ3+pYmg2ZFnaTc0oG2ObQwW4TGmClY2d8t7DWWaVOvBgT/3Wl+NMYQB7zd6MlGRvgVI3YeaNfmsEA+41eE+gVJQMMCvNZDQoN0O4Qc7dDrS85xG2ktqrYvYqx99PMAEACuktBh9H1Ai1VyrdYmM+HFjrWulQ5fz6Mm1eO25F4Q5q8CdTUN93F8lWOtc4q13A4jPumctxpDFBfF436EtQ66xD/L8G4X+0zAbuWwuNsf2CA9LK3WusT1io1wIzRceHYo8Jx7wiNktoAw0aPC7RVyQC3CvNpqTdFrY8Ic9inmwPKddt12iocO0w3CwDJn8zdJ9CQUr5Vwnxa6kxR6z3CHOv/Gf9ZXqnmJWH+IeH4wTQbMt+bwAtGt/luAu34rp1TOfPzdynr/b5Q+vfE0hx3ATr6wajbtwEin62kqXUiEgsDKOrLnvAsoGcDrBE+E4hTf9YGWGt0l0D9SgZYJsznQ3nHWu8Uxu2rmndHwvoGVj89GY3TL5y3lm4WAJL9SR4xekagcaV864T5rNbJYgbXOsTc7FDrmDDmjhpzNzrUZPVQjRjjwrkj87UJ9HEk7GJhtLzIVxMYmbvZsfl7rEaMOc4E6hvgkrShTWmAa8JP/6QvsmjDANkZ4GHfBgjnvyWcfyRmvn8DdJWmFkqlY4CpnDSfHSuJuXr0uNN1FMbKOd21qX3SqGssEF3rqmKQa4a9AYD5eqv3otEHfhVcF8n3qP98ifVe1+h/j4TDc/VpYx6ss/adDeb21Jn7tsY120AV/8/ag5WRwpv5BRGVqkU+rxBzJm4Te/d9ZXOciZlnvzeYq2OAOY1rxgCXa2+WBghzPBUz74UG89QMcCT8pqtHBcurnmCdbkLZN2asqFrkSYW4nzTYyBti5vU1mHdS47ppggAAWvo28OPwrJpHBSsi+fb4zyfSTL2XRYe1fqGQpyzchwPh+PeF489orEOr3gV8a0/1ChbZ+11AJNeD4fidwvHcBibQ10bbC8IvgmZsgEVGP9pjcVkbYJ/RG34VtEcKHw7ff5OVXg43/fY1T5x0/fc4oXD9zzvkG3IYe1Bjb2iCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJqNvwHNnenmiznmwAAAAABJRU5ErkJggg==",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "DB2 Database",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_database_db2.pl",
+                "package_name": "centreon-plugin-Applications-Databases-Db2",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-databases-db2",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "IBM",
+            "DB2",
+            "Database"
+        ],
+        "update_date": "1636116383",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les tablespaces.}\r\n\r\n{EN: Check tablespaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Tablespaces",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Db2-Tablespaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{state} !~ /normal/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Db2-Tablespaces",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'espace utilis\u00e9 par la base de donn\u00e9es.}\r\n\r\n{EN: Check database space usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Database-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Db2-Database-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Db2-Database-Usage",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des logs.}\r\n\r\n{EN: Check database logs utilization.}",
+            "active_checks_enabled": 2,
+            "alias": "Database-Logs",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Db2-Database-Logs",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Db2-Database-Logs",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier la dur\u00e9e de connexion au serveur.}\r\n{EN: Check the connection time to the server.}",
+            "active_checks_enabled": 2,
+            "alias": "Connection-Time",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Db2-Connection-Time",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--use-new-perfdata"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Db2-Connection-Time",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les utilisateurs connect\u00e9s.}\r\n\r\n{EN: Check connected users.}",
+            "active_checks_enabled": 2,
+            "alias": "Connected-Users",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Db2-Connected-Users",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Db2-Connected-Users",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

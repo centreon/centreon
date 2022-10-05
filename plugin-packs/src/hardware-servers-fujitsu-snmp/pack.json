@@ -1,0 +1,124 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_fujitsu_snmp.pl --plugin=hardware::server::fujitsu::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Server-Fujitsu-SNMP-Hardware",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Fujitsu server using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "fujitsu-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Server-Fujitsu-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Fujitsu-Hardware-Global"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAxPSURBVHic7d19cBx3ecDx77N3smz5Tbcny6eTHZs4HkgDnUI6aUNIaRleQgkkDSQNJaVDoAS3TMcNg0taIAm0CTDDhAQKTXkzhFAYQ4YhKQ2OC3Fqj2GK45BgyAuNk0i3J9nSneR3vew+/eNO8mlv73Sy70465/nMeM7+7bO/e3b3d/vy29+uwRhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGNMC5D5TqAZ+nHXOHC1IucJrFA066A7j5LfsRHG5ju/+XRWN4DnWZloI3YHcB0QiwjpB/1Imvy9TU5twThrG0CWzvWK8zCwDvAVdgrsUwgEzgPeACwrhn8uTe7v5ytX0wAeib0ermZw92Rxfyc8vZ/lyQzu1z1cLf7ZPB95mgbxcPs8Ej85wPrF1eIyJL5QbABHDtHV06z8FgpnvhNooOEYbe98Cc+drBYUsPTDQAZYNo7/7uaktnC0fAPwSHcM0r1aQyd5Cnet5uDgbPOvpf8E8F0AQV7foDQXrJZsAAdYv9jDvdHD3Q8nj/lMDmRxj3q4D3gkXgNwnNxczuyfLH6uqX+2C1vLNYCDrEq1M7ob+CxQenK3GHgLyCNZ3I/P8fq+o/Chx+uWaItoqQagEJ/E/yHIq4AJ0NtBzhfGuwXndQJ7AFG41SN50xyq/qPCh/ObBqRt6iWDe33xjD3wcN8Unq7geLh3l8S8b7Y6B0i8wsOdKMyTvKoxmZu68HC3Fzfu1koxCjEPd1sxbtIj8ReVYjO4az3cp4ux+7TF9oj10GoL/NLCh+6oFCDgHyN3ncJPgBjItzzcrR5dr9Jiz+cAq7s93M0CjwIbgVGBdwkETViGBaXVGsAkgCKLqgWdB5PKxDXA9yhs9L+CYG+W5AkP93DAxCBwB9AF9IHz+h5yv2508gtRizUAfRxAoOqxeoDEjcqixWlyVytyJbAb8EHbgeXFsOcVbm2Hl6cZ+kVj8zZ1kSF5xVTffZbEpqgYj8S7PNzJftwZ1/R9rHA9ui70SLxmkJXnNifjha/l7gZ6JH4AckXxn99X9BtCzFP8jQLXFqcFcWK93RwamM9cW0HLNYABVi8NmLgH+LMKIcdBb0iT/1Yz82pVLdcApmRIvFXgvSAXUTiuvwA8CMFdaUaen+f0jGkN03uAQbpXw9jSM6lsjLaTDmNjbTgrq8V1M/q8gB8uP0BnZwfqVpt3iNH+Djo7aolbBLKClb3V4tpwhhPkjxxk5fpqcbWaIDa+hlx/aZmCk6XrlaCXCMHGAOmWwro/DoxSuCJ5Ik3upwKTCrGDrFxX7Xt8gsNpjgyFyxVkgM51DlrlCq/92NSd0vhU0TiLDseZ+KgiH5zTEpdoI9iT4shrsyRvAP2XiJBnQS6P2vgA6xk5ksW9Bvg3yg9Pg+BcfgE8q4z4s8S95QJ4FiBLPKnoA0B3KM5X9C+7yX/XI3GxILvmvMARHOReCmMQixvefV8W2QLBhkKZRB53Bcji3gG5GwX8ftriDsEDFDqqwrE35xn9VNT3C2gGx1fkPtBXlk/Xz5+kY8upfIvW0n8iRf5GCoMjTksAIjCRZvg2YG9Ech9JM1zxhouAnyb378CDEYl/Yup6vSTuxxXipr+7h+H/BW6L+K5tveT/QyBwcN5W6zLORtH7AYZxV2RJ7ADuBt1Q4+zTYxrWMPS0Ih+OiPllitwnL4DxSpX0kusL0L+NmJRJkf9Q6SCZeOlUgQkPngB6Z5bLZwCt9IUKK0DDgyn2AheWFjj4ZY2igr3Am0M5PBrxzXtBList8ZF94SgheExDfV6K/rLk728V9LcB/NjBORr6jjcr/O7MeeWLDhwpmT9FoXOqfQn6oEIsC98B+ZNQKrsUvqYE+9qJD55EnTiyUQmuAN4fsXxlyyzwqFTZFlNOkHt0KWVHyScEJkoL4uEIRSYlVH+K4Ztm6ydXaMvifqwkVT+cp49E7voj6vLDu0mNmLeQ60yx6Liy3LW4PH2s2gj+gyny/xBeOQAebpJQAwjgtl6GMzPjkp8Wgk+55EeLnVQzGrDCJ9LkbonYeBng4SzuVwj1cPo4fjy02rXYHT6b82AyGypTpGzeunUFF1bexF31qq+Zesh9KGrjz0Wa4d8ExLYoiCJbSqcJ7Kmw8Utz2H+U3GfOJIfTUdd7AVFnpQvdWg49U8sutZQikfG9DD01UBiCvn5mPN+r5Tvm4ymlFrsZtPAFOBEnfHKo+ZnUppENoGV7Gc+EQ9BeXqq/1/xMamN7gDpT5FcRxZs8ki9rejI1sAZQZ4V+jrLLtyWgOz2SlW5gzZuyy8Ao/azaMMh4lUu4U12LBgKcLQ66nZk/sG7Q+zzc/1H0pl7yu0+z+roeWmvaA8Twn/aJ/V/lP5P/Ws+kWt0ahv8b5KMVJl8qyK4MyfsHSLyiWj2CNvw8yg4BDZJm+HZgMxU6bgS9PEAe80jek6VzfVOTK1HTIaBSV3CxC/hPo+dqfOtd6NLk7szQ+YjgfJlQt3iRA3qd4lzl4X6sh9ydlW6UNUpNDSDF8D9WSswj3QFj9mx9Bb2M7FO4aAD37YrcXuHGUAfw2SyJS58hf20zO4TO+BCQxjseMH53PZI5WwkEPeS2HWP4AmBz5Y4huXIp7uebmVutDaBqN+YajgzXIZe6kAXcAbURxtLk7mxDNijcChyNCPvrAZKva1ZOdhI4D1YxdKSX3C1aeLr55+HpPjTtfUVNbQAL+dc5H3rJ9Tm0vQ3Il5YL+lqtvK6a3w9wOgQZCZdN0lbjVYe2lc/rlNV3NkgxeBC4L1S8HIi1EY9Y5vJ1E+U51pfFCZTV17AGEEB/uMwhWF/LvIKEn9wJoL2svrNI+IcxJDCZYvAYob0DOFUHi05ZzOGIq42gL1zSwEOAPFRWgl4921w5EisVLgsV7y6+y2fB2w9VH1wNO8iqZSChvhSdHqCqEFqP+urwY29RFP48XCbEyrZJwxpAL0NPAeGRtu8ZIPkH1eY7iXwa6CwtE+SrdU6vYZIk3pghcUktsQri498FumrmFJm+rBYIL3ubA3dWOUegeOdxxomkoL9NMfRIOLahJ4F+YWRq6VCrtgD9zwzuG8KxfaxZ4uF+DrghNGlXiuF7GplnPZ1AdwmyI4v71X46K44D6GPVxizuAwrvKS0X9IdpctOjotPktgPbQrNflSWx9RBdy0Pl9ONeDPoQp96CCqABzqaozryIkzLtCpcMsCwJR+c8qmUt+cc9kteCfgeYOilJCmz3SDwMzkMCo4pugOPXEBqNDPw6RvwdZ/7iBqervCtDypYzmnaFf2yL8JOAFxX9EkZGPNydCtc7ONd7uC8o/EyQxwQdD5BzBf198C+KmH23suSd4cN+nNj1k/gp4NKS/N89QXBZhsQ2cJ6EoEMKo5DfxMyEVdAPpslFvlRjxpJ5dF0Iwc8JvXNP4OM95D4ZVUEtMiQuEeQrwBwGReg9Pv7mtRzOVa7XvUXg5tIyB/nDFMPT19bFhzN+RGHFlOpfjL7cJT9aqf5BVp7rE/sVsGTmFPlSmuG/qTSfh/t+YC69o+PAF8ZY8U+VXmxZ6HI/+c/A3xH94usoGUU39ZK/v1LAdAPwSJwDziaiH7lShW+mye2Z6wDKKfthUSeJtzvIexVeTdlKBSAr8F+K88XShzsqma0BPAPtHSSuEuSPK1Tx5AT+1nWM5sMTDtHVM05wg0Dk62MF/UGK/Pao3eog3at9Jn8KnF8l/Ulgr8CPFN2aJv9CldhpGbpeKgQfAK4kNPi0aELgF4p+I0783m4ORfU2lizHPFBo6ydxfpxYMsBfJpB3CDIpRg/MpZ4s7s0Kt5SWOXBxitzP6prwaepneVKInQOxpEOwSJFACE4ExAdGGDpQ7emeWrxAV9ohWBdHkz4ypgSHlGVPzeWKqaaOmXorjMHPP36m9RQfRQvRY2dab70U75E07D7JOQx5lJ2LzK2/rNXvBZRtf2XC3goyBy3dABxYGyp6tuc0rlZezFq6AShcHCr69rwk0sJa9u5c4apFnuPUMgwFTLxsIY1NaAWtvAf4AKc2/oTgXG0b/0WiH3eNV/j/AdTDPbwQH7gwDbIfFnm4uwovi3R3eCSrdbaYWbTUOUDhHYHjXwLHEfwv9zCyc75zMk00wOqlL8ZXuhtjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjXkz+H3JJEP77swEUAAAAAElFTkSuQmCC",
+            "name": "fujitsu-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Fujitsu servers using SNMP:\r\n* Hardware"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les serveurs Fujitsu en utilisant le protocole SNMP :\r\n* Hardware"
+            }
+        ],
+        "discovery_category": "hardware-server",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\nThis chapter describes the prerequisites installation needed by plugins to run.\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Servers-Fujitsu-Snmp\r\n\r\n\r\n### SNMP\r\nIt's necessary to install Fujitsu Agent and enable SNMP on server\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"56%\" />\r\n<col width=\"43%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Server-Fujitsu-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Fujitsu Server SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_fujitsu_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Servers-Fujitsu-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-servers-fujitsu-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Hardware",
+            "SNMP",
+            "Fujitsu",
+            "Servers"
+        ],
+        "update_date": "1570169839",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le mat\u00e9riel.}\r\n\r\n{EN: Check hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Server-Fujitsu-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Fujitsu-Hardware-Global",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

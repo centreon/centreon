@@ -1,0 +1,153 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::microsoft::activedirectory::local::plugin\\' \\'dcdiag\\'  \\' --config=\\\\\\\"$_SERVICECONFIGFILE$\\\\\\\" --language=\\\\\\\"$_SERVICELANGUAGE$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "Infra-ActiveDirectory-NRPE-Dcdiag",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::microsoft::activedirectory::local::plugin\\' \\'dfsr-backlog\\'  \\' --sending-member=\\\\\\\"$_SERVICESENDINGMEMBER$\\\\\\\" --replication-group=\\\\\\\"$_SERVICEREPLICATIONGROUP$\\\\\\\" --replicated-folder=\\\\\\\"$_SERVICEREPLICATEDFOLDER$\\\\\\\" --warning-backlog=\\\\\\\"$_SERVICEWARNINGBACKLOG$\\\\\\\" --critical-backlog=\\\\\\\"$_SERVICECRITICALBACKLOG$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "Infra-ActiveDirectory-NRPE-Dfsr-Backlog",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Active Directory via NRPE}\r\n{EN: Template to check Windows Active Directory Domain Controller using NRPE protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Windows Active Directory Domain Controller using NRPE protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [
+                {
+                    "key": "$_HOSTNRPECLIENT$",
+                    "value": "check_centreon_nrpe"
+                },
+                {
+                    "key": "$_HOSTNRPEEXTRAOPTIONS$",
+                    "value": "-u -m 8192"
+                },
+                {
+                    "key": "$_HOSTNRPEPORT$",
+                    "value": "5666"
+                },
+                {
+                    "key": "$_HOSTNRPETIMEOUT$",
+                    "value": "30"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Infra-ActiveDirectory-NRPE",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Infra-ActiveDirectory-Domain-Controller-NRPE"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* change plugin path",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Microsoft Active Directory server via NRPE"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un serveur Microsoft Active Directory"
+            }
+        ],
+        "discovery_category": "",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAABZCAIAAAB5bbt7AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuOWwzfk4AABGESURBVHhe7VwJnBTllZ9FENSo8djVNYkJkhiXH1FJoiJEF91lyapRo+KtqBDXzW6IBsEjHqiABDACcx8wzD0wDMww98EczMncB3P0fVd3V3V1V9/3TP7V1TQ9PYNL4miRtf6/9xuqvv7qO97/vfe91wdxkwJ4hUAAzxAI4BkCATxDIIBnCATwDIEAniEQwDMEAniGQADPEAjgGQIBPEMggGcIBPAMgQCe8Y0gwBeccPiCEou3i3DJGV+49cLA/xMCJkJadgcm7L6g1RvU2n1DlKdEak/qN29pMf6uSvdauXZ1ofIfUiXvt5PoFn7sAsDfGQHQnD844QkpmnQFZIyvx+hp0LmOyux7ByybWsmnK3UPHlPflSO/JU0SlyyOSxTFxYvi9o6zsm88bs/4W81GgYDzBXQNRVOuAGH3Kxmf2R2g3IEiqX1LD/2Hk8aXavWrSzS35Cguh66jtcxJgmgG2SsQ8IWAaRMO/4jJc4pw1cjtBcOWP3VQbzUZf1Wpe7RMe0LtRGBZVaKZmyJmNQ7ZF/oLiVH0uUQgIAZOf3DM4qtRO9OHLTu7TJsb9GsrdbcVqRYXKhcdlN2YLr02RfztJDaSXJksPiK19RncdxWpYtV6/iIQEAHtCfzuhB5a/l6a9Po0ydUpkiuSxZclihaE1M3KVN1dmSQQMKsgXf7HjqrPGayniUDALEMggINAAM8QCOAZAgE8QyCAZwgE8AyBAJ7BOwHTdHQO4QjoFwiYLYQJiBc8gCfwFYI2CwRwYAk4pmbf80kWc3Jxsnj+VFmQFLpIFF+SJL4yVXJUahswuu8tVl+SzLZE5LLkWPl2yjkkSfxui/CBTAg2XzB50PxqC/lqW1g2tVObp8o7nSbu4t1Tptc7qUHKrbP5koctfzxlish7p0wfd9MxsquH3tU7s9RrnL6gQMDkJJRAuwMm1/kK7QrAcqE7xhPE9ReL2R3+O10c/mB4BRcGeCPA4gl80EauLNWuLJtJKnQry89cV+ogD1Xp2gmXxOzd3EY9Xk3EyJO1+mfqDRF59sxfTl5uMKwLCa6zRxmv4AFA+AyID731/8WSJIZcmSwpDh3Cy4tUcxNEc5PEZyVBNC9BdPG5ZX6iaEFIcL1JOIQ5CFkQh28cAUIdEIZAAAeBAJ4hEMAz/t4IMAoEzBIED+AgEMAzBAJ4Bt8ECJ8HhP/92iF4AAfeCLB4Am81Gm49KPtxpuzG/dJ/SpVcnSy+PFE0j/tSP6cv7pvPoS8/fyMI8AfZ93u5a1x4AhNOf/Cvfffc6gma3YHzeQidTO7AmNlbr3bmjzHp/ebt7dQrDYZfVujuPaK+M19xW5bsBxmSG1IlcSmSs9+OPqz6K76PHiMXOAFK2tOlcXLKGyTdjWqnzOKl3QHu1fOBwxeskNsHSI/O7sc+VYxPY/Od/35BOeUKyK2+06S7m3A1KOx5I0x8L72xg/pDs7HL4B41eZ6o0C1Il7JegvDFyfnzcYET0KVy/LZODxX4JiZ2dJkS+s0jtFfn8HcY3PtPW/ROf43a0aB1Dps8OWPMuNlLewIF49ZuvcsbnCiR2mpVjg7C9UaTsUBk3dRCZo8xqcOWQ+NWq/dv/AwEigIlNm/QEvroxuWfsPmCoOGI3J4+wuzsNr3eaHiwRPP9LHlcihjKjfs89COZyO9kYrQPucAJGDK69w2Ya1QO6HpjszF3lCmW2KDNvFHmtMkjsXhfOaFv0bk+6zc3aZwFY8yuHlP2KGN0+fPGmBKpHQSkDVl29dLQ0fZuE/qcUDrqNE7P7H0AgoEwGHzUG2B/+IhYp7X7RRbvIO09oXZmjlo/6TK9Ukv8ulR7T558cZb8sgwp+4EzVM9Rsmd8Y9MFTEC/0d2qcSYPmrd0UKUKR+G4FQa+t5eGHt3+Ca3Dv7vHpLD5dvbRRmcABt6oYX/ZkjNu/bTbpLL7+0h32mlLwqBZbPHGD5plVh+iz9f28RPmwVysl3iDjCdIONj1lMjsiQPmD1qMG2p0jxar7s6Rf9RBXbgEjFCeQdKjtPneaDbArEDAMamtUuFIGbYcGLaM0t59fTTCTvKw5fM+Gtw0qR1ga28fXS23w/APDlvKJDb4jcrmAwFHRxn316X9GTExEXKXiQkkFw5/UO/wn6Y8Goc//PKFgSkEsJlPEMuetPuCWLQLWZAvCGcn3QHEH9yiHa+aPQGF1QdbQ8IjtfjQjmexMUQDPI7ECQ2MJ8B4A7Noaqwqg6wqIbjA7fSxoWteGf9bMIWACKBTmPBHnVQP5Qk3/V/A5sEWtMPdQvuJg5aM0xbu9ksCox6X2nf30p90Uh+3k7u6TPA/nEZIEDAv1wcxJ6GHblTB1meTBNgZwu9XR+vMBIho75x06bdSJG+fMp1nHTBGe/7cSysYL3c7YvLcWahcVqTibr8k4HkrcuS3Z8tfbzK+d9L47AnDL4+qf1agfKFc23zmez5NWud9uYrtbSRckHtqVvDnfnOVzA4awvezjZkJ+KjTtDRXvqpEs6ZKp7ad13+uUKVw/DRX0at3cbeww1adq8/o5m6/JEDAv+Yp3qzXo3DDAYuUVGnxloity/KV9x5SIXlDH6SqLVonQuWsOsDktZmyT9vJr5uA76ZK3mk0ZJ5mVhYqG1SO6C3BGyVm744e+sl6/fP1hqwxq8UTKJPZX6rV35Ah3XjS+FkfrbL7cE7kjDKHJTbE61bChW5IbcNDTE4iUUFh0al3sSeNfwIJ6+/bqEdqiE97abkl7EPR4Ah4q9GAaBBuCgU9VHzzk8VvtpAWD/uDehQH7Tond/CA/iqFfZjyvNFJHRHbPKEHlVbfzh56TYNhRx9b4kQHK+xi/wjzYoPhV3V6pHk4seHESf3mi1IkK4rV27rpSoUdiS964m+RxLauybimTp80ZDE4wmtC8VSrdh6X26WMd1sPfURiGzR59g6aUSdFpsHGuwjXeNTUMxAgY3wX7R49OsbAflcUqbZ1mfBY+DVsTOtaflQDu1tfpVtXod1UR2CtKb2m+wsV16SInzymXlumQdGATHThYdUdxWrEB+jlpjxFqdIRHmJyEjn7onRJldQGze7pN/+iWP0/9fo/njQ+XKxadkwtomMPnggB0y0RhdjKYjVCH/R11wHZZx0kl/t+1EauOKZ+olz701z5/kEzqMaZsfiw6oUyzeZmw/3H1I+XaU+T4RJFZfU9W0UsyZY/fVyztly7rpoAPbC89TVEXJL4O1myJ0s08X00rAqJxmsnDDcclL9aqf1tLXF/ofLlamKMZt0OY33SRt5drF5fr781R468cYjy3HJA9ptKHdgNLXayXetcdVB+eMSK1IZrmYGALZ3UnFSJyOyFTb1URTxXptXZw8YLK36kWAV99RrcKIIQEODyIBMTJAyYsQEYHTYDOwXJi/IUPzmkwjwwgbvzFLt76Ij6nq/RLylQSi3eGoVjSaESVRsiNyyrW+/Gln7fQnLdIpjRAzjs6KSW5SrGKM8Q6f6X/dKdnSYQgE7b2si5SeIXagkU58j8kZXdmC1/qkKnZHwOb7BD6/xFkerdNhK2ZfUEXm8wXJcqLZPbYc64hQmyFbgvaHQFLsmQbm4ygF1oA4N80EZ+K15UJLIiDCLoFY0xt2bJP2wx2r1BEPBpaNL7SjRtOheehfH9e6n2sv1SWD2WivojY9D83Sx5i94d2UYsAaDywVz5i5U6bAKdPuihlxcq23VcqjlZOm69KlFcKLZG0oLIQAVi2+1Z8m6dk2sZN3t/lKe47RB7CCNXeaqaeKRMi/oAt1D0/H2iDxv1GPS9NnJNqQachR5is52trcbVRaqYN6C+wAPS+ug7suTDBjdLwAHpzjNZA3RxUwarU87GUbEvSJWcVIeXh4N7Rwe19JAK1SWscn6KZP0JPdcTiJ7j0gzp1jaSezdllPJ8L0/xn6XaSGKC0PdwNXFLgXLM7EXRs6OdvGLfOPSD17ke5WLrJXvGU3pMuAZn8K0N9XoqKhrHElCrclyaKH68Uvd5Lw1ZW6e/ar80cdAM04Pi3m82/HO6FIYf7h2FArF9KUtA+BCOJgAukjZghgYb1E5kdJlj1rnxojqVg3QFXqzRL85WvFqv/+864rVaVn6Sr1yRr4T/ceNwiCIgNsPZ1EquKFBKTCEPmErAPQVK5ZmsbHOzcV6SGDkFN8vaGmJhnmJugginwoF+es7u0Q6dk+sZA44AeAOu6yS2f0wQIQOOMIRIkjxgvi5D2qBxwp5AwHXJEowZfhnpuCewtEi9KF9JuwL9Rve9h1Xpp5nos2cKAdDOtlbyimTx+krtc8dZeaZUs3C/FA5BIET4g/9br78hUxaJaNHgCOgJ+RoQTQDQZXD//JBy6ykTnn2sRP1gkQq+j4D2TCVxd65iS5PhTy1GTna2GnMHzTEcn8sDsP+l+cqHKnR6u386AfeyBIR1saGWmJci2dJowPjhiVqMn5+iUEtmDphBQPeZlccgmoBKmf3aBNGhcSaagNRhy/UZUuQRCBIsAWnSaAJwMucNW+bsEzWpndkS22ocPJQneg9TCMCTqwqVz1UT2D8OHO7M2dRC/ihL3kmwb3nuOUVdnSxp1s5gLCwBOfJIGhpDAKzjxWoC5xsSkkvTJPkiKxoZb/C1esPjx7Woq8F9RKbXzzN6AMjIHrVenijOHDRDEWcJCD0fQ8C2TuriUAiKngiCriVi25w94zu72SgxHdEEdGqc16VL10UFKyzsjZPkTbmKAZOHC0ExBABIGpfkK56rIT7upDY0GHCWhF8I4SwBGPTYOHNNqqT1TKAEMG2z2vHDTNmHbRQ22aN3/SxX8USZdsjkwdyIpFpb2J8qFI6bM6SlYhvCJVpiCAAKxbblBcqf5yuW5CBnYfeDblkjzJ15ip1dJlQbGA2CuATiuUci4AjYWKdHGEUfnBBIYTe0kN8/IFtXrydCR8s5CAiHoH7SjcMQ5xDiADcRhoIXggE54111VP2DTHm1yoEiAy8Rdn+E6e9ky3GS45RCX8oZeL6GuCZNikMY24Tkimw35SjAAUwWhzBLQGosAfDIxB76qgzpqiOqQ2Nn8x8OZwlAAflynf6pCm2M+2PuX5frFmbJoQWc44Vj1vsKlHceVj1QoYP8Vw2BnaCbnPHdmqO4PV/xdJ1eavWBgMWFqmgCkGAgJbgoUbSnj46c4Qanf2sHhYxoZYnm5UbjC/X6h8p1xyS28MtngKmX58gXHZCtriIeqCb+47h2aZHq/mL1222k5kyGxhKQKZsSgg6pIh6Atj1DlnsKlXccVj1Wr3+qTr+qTFuOPQVYP2jVOh8+qv5xrmJ1uQ7jP1pF9J/JUN/poK45KPu3Ek2WyIaMf5h0v1KpW5ireKBKt6aaWHFY+Zt6/QjNdg4TMM0DACS1N2fKlh1RjZliM+yzBMCjUc0OkUjAplCE6IEMOnXIwv22BEdxi8aZ3E/Hd5sgpRIb554wEJyrCb106qDZ6PQj1iPaoCoJjcECHRq1LtRfGvvZ9WEmuGSF0pHYa0rto1FPZI4wo9NWCeKLxqzxXVR8jwmCKZB0DZBuJCHhHqEcI3+UrV04xeECREZXMDDtU3pXfD+9tZ3c3kElDphx1HPmCM4QmhP66C0tRgQr+CUyN04LKCoT+untrSTKAiwDysH6M05bkOZuaycLRxkFw+W97F5OEa7cUYZTSDSQcN+cI3+/lYwxf+AsAXgF65jWgQWiTDQtKG5RWLr9QQgeibSjG5IlCFSARkzGGWME6IDGqW0s2PFDo0HQYfoauNG4DhAsBiPHjIN1hJ4Nt+ICtzEjYWQsjwtB2EL0CLiOvBS9SAzBtYfVHFoMFhDpGT0Ht8GoBhawPHjG9Uli7i2TGEw5hAXMOgyuwJtNhvnxog/bqemWBwgEfLX4YaFy3p7xt+sJhO5w01QIBHy1OC6yNsls59I+IBDAMwQCeIZAAM8QCOAZAgE8QyCAZwgE8AyBAJ4hEMAzBAJ4hkAAzxAI4BkCATxDIIBnCATwisnJvwBYJucDepCFpQAAAABJRU5ErkJggg==",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-nrpe-plugin\r\n\r\n### Nsclient++\r\nThis plugin pack requires the use of:\r\n* NSClient++ package provided by Merethis, installed and configured on your target server as described on [documentation](http://documentation.centreon.com)\r\n\r\nYou can download it [here](https://download.centreon.com/?action=product&product=agent-nsclient&version=0.51&secKey=59d646114079212e03ec09454456a938)\r\n\r\nNote: If you use the NSClient++ installer provided by Centreon, the plugin is already included in centreon\\_plugins.exe configured in NSClient++ \r\n\r\nIf you have some problems with the centreon\\_plugins.exe, you can build it using [following procedure](https://documentation.centreon.com/docs/centreon-nsclient/en/latest/windows_agent.html#build-your-own-executable)\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Infra-ActiveDirectory-NRPE-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Active Directory",
+        "plugins_requirements": [],
+        "requirement": [],
+        "slug": "infrastructure-active-directory-nrpe",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Active Directory",
+            "AD",
+            "Authentication",
+            "LDAP",
+            "LDAPS",
+            "Microsoft",
+            "Security",
+            "Server",
+            "Windows"
+        ],
+        "update_date": "1608132933",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de diagnostiquer le contr\u00f4leur de domaine. Ex\u00e9cute la commande \"dcdiag\".}\r\n\r\n{EN: This check makes to diagnose the domain controller. It executes the command \"dcdiag\" .}",
+            "active_checks_enabled": 2,
+            "alias": "Ad-Domain-Controller",
+            "check_timeperiod": "",
+            "command_name": "Infra-ActiveDirectory-NRPE-Dcdiag",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICELANGUAGE$",
+                    "password": false,
+                    "value": "en"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Infra-ActiveDirectory-Domain-Controller-NRPE",
+            "normal_check_interval": 10,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant le backlog dfsr.}\r\n\r\n{EN: Check dfsr backlog.}",
+            "active_checks_enabled": 2,
+            "alias": "Dfsr-Backlog",
+            "check_timeperiod": "",
+            "command_name": "Infra-ActiveDirectory-NRPE-Dfsr-Backlog",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Infra-ActiveDirectory-Dfsr-Backlog-NRPE",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

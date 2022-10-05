@@ -1,0 +1,241 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_vernemq_restapi.pl --plugin=apps::mq::vernemq::restapi::plugin --mode=\\'sessions\\' --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --api-key=\\'$_HOSTAPIKEY$\\' $_HOSTAPIEXTRAOPTIONS$ --warning-total=\\'$_SERVICEWARNINGTOTAL$\\' --critical-total=\\'$_SERVICECRTICALTOTAL$\\' --warning-online=\\'$_SERVICEWARNINGONLINE$\\' --critical-online=\\'$_SERVICECRITICALONLINE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Vernemq-Restapi-Sessions",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_vernemq_restapi.pl --plugin=apps::mq::vernemq::restapi::plugin --mode=\\'plugins\\' --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --api-key=\\'$_HOSTAPIKEY$\\' $_HOSTAPIEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-total=\\'$_SERVICEWARNINGTOTAL$\\' --critical-total=\\'$_SERVICECRITICALTOTAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Vernemq-Restapi-Plugins",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_vernemq_restapi.pl --plugin=apps::mq::vernemq::restapi::plugin --mode=\\'listeners\\' --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --api-key=\\'$_HOSTAPIKEY$\\' $_HOSTAPIEXTRAOPTIONS$ --filter-type=\\'$_SERVICEFILTERTYPE$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\'  --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-running=\\'$_SERVICEWARNINGRUNNING$\\' --critical-running=\\'$_SERVICECRITICALRUNNING$\\' --warning-notrunning=\\'$_SERVICEWARNINGNOTRUNNING$\\' --critical-notrunning=\\'$_SERVICECRITICALNOTRUNNING$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Vernemq-Restapi-Listeners",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_vernemq_restapi.pl --plugin=apps::mq::vernemq::restapi::plugin --mode=\\'clusters\\' --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --api-key=\\'$_HOSTAPIKEY$\\' $_HOSTAPIEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\'  --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-running=\\'$_SERVICEWARNINGRUNNING$\\' --critical-running=\\'$_SERVICECRITICALRUNNING$\\' --warning-notrunning=\\'$_SERVICEWARNINGNOTRUNNING$\\' --critical-notrunning=\\'$_SERVICECRITICALNOTRUNNING$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Vernemq-Restapi-Clusters",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser VerneMQ via l'API}\r\n{EN: Template to check VerneMQ using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check VerneMQ using RestAPI",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "vernemq-simple-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAPIPORT$",
+                    "value": "8888"
+                },
+                {
+                    "key": "$_HOSTAPIPROTO$",
+                    "value": "http"
+                },
+                {
+                    "key": "$_HOSTAPIKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAPIEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Vernemq-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Vernemq-Sessions-Restapi",
+                "App-Vernemq-Plugins-Restapi",
+                "App-Vernemq-Listeners-Restapi",
+                "App-Vernemq-Clusters-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "vernemq-simple-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix(pack) Host Template icon",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor VerneMQ via RestAPI: :\r\n* Clusters\r\n* Listeners\r\n* Plugins\r\n* Sessions\r\n"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un  via Restapi :\r\n* Clusters\r\n* Listeners\r\n* Plugins\r\n* Sessions"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Verne MQ RestAPI",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_vernemq_restapi.pl",
+                "package_name": "centreon-plugin-Applications-Vernemq-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-vernemq-restapi",
+        "status": "stable",
+        "status_message": "fix(pack) Host Template icon",
+        "tags": [
+            "MQ",
+            "VerneMQ",
+            "Restapi",
+            "Application"
+        ],
+        "update_date": "1602082288",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les sessions.}\r\n\r\n{EN: Check sessions.}",
+            "active_checks_enabled": 2,
+            "alias": "Sessions",
+            "check_timeperiod": "",
+            "command_name": "App-Vernemq-Restapi-Sessions",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Vernemq-Sessions-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les sondes.}\r\n\r\n{EN: Check plugins.}",
+            "active_checks_enabled": 2,
+            "alias": "Plugins",
+            "check_timeperiod": "",
+            "command_name": "App-Vernemq-Restapi-Plugins",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Vernemq-Plugins-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les listeners.}\r\n\r\n{EN: Check listeners.}",
+            "active_checks_enabled": 2,
+            "alias": "Listeners",
+            "check_timeperiod": "",
+            "command_name": "App-Vernemq-Restapi-Listeners",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} ne \"running\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Vernemq-Listeners-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les clusters.}\r\n\r\n{EN: Check clusters.}",
+            "active_checks_enabled": 2,
+            "alias": "Clusters",
+            "check_timeperiod": "",
+            "command_name": "App-Vernemq-Restapi-Clusters",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} eq \"notRunning\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Vernemq-Clusters-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,295 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Digi-Sarian-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Digi-Sarian-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Digi-Sarian-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Digi-Sarian-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Digi-Sarian-Traffic-Global-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_digi_sarian_snmp.pl --plugin=network::digi::sarian::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Digi-Sarian-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_digi_sarian_snmp.pl --plugin=network::digi::sarian::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Digi-Sarian-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_digi_sarian_snmp.pl --plugin=network::digi::sarian::snmp::plugin --mode=temperature --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-device=\\'$_SERVICEWARNINGDEVICE$\\' --critical-device=\\'$_SERVICECRITICALDEVICE$\\' --warning-modem=\\'$_SERVICEWARNINGMODEM$\\' --critical-modem=\\'$_SERVICECRITICALMODEM$\\' --warning-processor=\\'$_SERVICEWARNINGPROCESSOR$\\' --critical-processor=\\'$_SERVICECRITICALPROCESSOR$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Digi-Sarian-SNMP-Temperature",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_digi_sarian_snmp.pl --plugin=network::digi::sarian::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Digi-Sarian-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_digi_sarian_snmp.pl --plugin=network::digi::sarian::snmp::plugin --mode=gprs --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-technology=\\'$_SERVICEWARNINGTECHNOLOGY$\\' --critical-technology=\\'$_SERVICECRITICALTECHNOLOGY$\\' --warning-signal=\\'$_SERVICEWARNINGSIGNAL$\\' --critical-signal=\\'$_SERVICECRITICALSIGNAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Digi-Sarian-SNMP-Gprs",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_digi_sarian_snmp.pl --plugin=network::digi::sarian::snmp::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Digi-Sarian-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_digi_sarian_snmp.pl --plugin=network::digi::sarian::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Digi-Sarian-SNMP-Traffic-Global",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Digi Sarian en SNMP}\r\n{EN: Template to check Digi Sarian equipments using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Digi Sarian equipments using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Digi-Sarian-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Digi-Sarian-Temperature-SNMP",
+                "Net-Digi-Sarian-Memory-SNMP",
+                "Net-Digi-Sarian-Gprs-SNMP",
+                "Net-Digi-Sarian-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* add discovery capabilities",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Digi Sarian equipment via SNMP:\r\n* Cpu\r\n* Gprs\r\n* Memory\r\n* Temperature\r\n* Traffic-Global"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les boitiers Digi Sarian via SNMP :\r\n* Cpu\r\n* Gprs\r\n* Memory\r\n* Temperature\r\n* Traffic-Global"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Digi-Sarian-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your equipment\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Digi-Sarian-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Digi Sarian",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_digi_sarian_snmp.pl",
+                "package_name": "centreon-plugin-Network-Digi-Sarian-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-digi-sarian-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Network",
+            "SNMP",
+            "Digi",
+            "Sarian",
+            "Mobility"
+        ],
+        "update_date": "1584622244",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les temp\u00e9ratures.}\r\n\r\n{EN: Check temperatures.}",
+            "active_checks_enabled": 2,
+            "alias": "Temperature",
+            "check_timeperiod": "",
+            "command_name": "Net-Digi-Sarian-SNMP-Temperature",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Digi-Sarian-Temperature-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation m\u00e9moire.}\r\n\r\n{EN: Check the rate of the utilization of memory.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Digi-Sarian-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Digi-Sarian-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut GPRS.}\r\n\r\n{EN: Check GPRS status.}",
+            "active_checks_enabled": 2,
+            "alias": "Gprs",
+            "check_timeperiod": "",
+            "command_name": "Net-Digi-Sarian-SNMP-Gprs",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{attachement} eq \"attached\" and %{registered} !~ /registeredHostNetwork|registeredRoaming/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALTECHNOLOGY$",
+                    "password": false,
+                    "value": "%{technology} !~ /2G|3G|4G/"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Digi-Sarian-Gprs-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine.}\r\n\r\n{EN: Check the rate of utilization of CPU for the machine.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Digi-Sarian-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Digi-Sarian-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau de plusieurs interfaces r\u00e9seau.}\r\n\r\n{EN: Check traffic of multiple network interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Digi-Sarian-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Digi-Sarian-Traffic-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

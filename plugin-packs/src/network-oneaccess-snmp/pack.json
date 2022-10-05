@@ -1,0 +1,258 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Oneaccess-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Oneaccess-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Oneaccess-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "INTERFACENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Oneaccess-SNMP-Interface-Name",
+                "service_display_name": "Interface-$name$",
+                "service_template": "Net-Oneaccess-Interfaces-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oneaccess.pl --plugin=network::oneaccess::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Oneaccess-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oneaccess.pl --plugin=network::oneaccess::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Oneaccess-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oneaccess.pl --plugin=network::oneaccess::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Oneaccess-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oneaccess.pl --plugin=network::oneaccess::snmp::plugin --mode=cpu --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\'  --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Oneaccess-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oneaccess.pl --plugin=network::oneaccess::snmp::plugin --mode=cells-radio --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-module-cellradio-rsrp=\\'$_SERVICEWARNINGMODULECELLRADIORSRP$\\' --critical-module-cellradio-rsrp=\\'$_SERVICECRITICALMODULECELLRADIORSRP$\\' --warning-module-cellradio-rssi=\\'$_SERVICEWARNINGMODULECELLRADIORSSI$\\' --critical-module-cellradio-rssi=\\'$_SERVICECRITICALMODULECELLRADIORSSI$\\' --warning-module-cellradio-snr=\\'$_SERVICEWARNINGMODULECELLRADIOSNR$\\' --critical-module-cellradio-snr=\\'$_SERVICECRITICALMODULECELLRADIOSNR$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-modules-cellradio-detected=\\'$_SERVICEWARNINGMODULESCELLRADIODETECTED$\\' --critical-modules-cellradio-detected=\\'$_SERVICECRITICALMODULESCELLRADIODETECTED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Oneaccess-SNMP-Cells-Radio",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oneaccess.pl --plugin=network::oneaccess::snmp::plugin --mode=interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --add-errors --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Oneaccess-SNMP-Interfaces",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements OneAccess en SNMP}\r\n{EN: Template to check OneAccess devices using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check OneAccess devices using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Oneaccess-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Oneaccess-Memory-SNMP",
+                "Net-Oneaccess-Cpu-SNMP",
+                "Net-Oneaccess-Cells-Radio-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix interfaces command options",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin Pack to monitor OneAccess network equipment via SNMP:\r\n* Cells-radio\r\n* Cpu\r\n* Interfaces\r\n* Memory\r\n"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un \u00e9quipement r\u00e9seau OneAccess via SNMP :\r\n* Cells-radio\r\n* Cpu\r\n* Interfaces\r\n* Memory\r\n"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "OneAccess SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_oneaccess.pl",
+                "package_name": "centreon-plugin-Network-Oneaccess-Snmp",
+                "package_version": "20220616"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-oneaccess-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Hardware",
+            "Network",
+            "OneAccess",
+            "SNMP"
+        ],
+        "update_date": "1653984745",
+        "version": "22.06.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire vive (RAM)..}\r\n\r\n{EN: Check the rate of the utilization of memory (RAM).}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Oneaccess-SNMP-Memory",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Oneaccess-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine.}\r\n\r\n{EN: Check the rate of utilization of CPU for the machine.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Oneaccess-SNMP-Cpu",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Oneaccess-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les modules radio cellulaires.}\r\n\r\n{EN: Check cellular radio modules.}",
+            "active_checks_enabled": 2,
+            "alias": "Cells-Radio",
+            "check_timeperiod": "",
+            "command_name": "Net-Oneaccess-SNMP-Cells-Radio",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{signalQuality} =~ /poor/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{simStatus} eq \"notPresent\" || %{signalQuality} =~ /none/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Oneaccess-Cells-Radio-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces.}\r\n\r\n{EN: Check interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "Net-Oneaccess-SNMP-Interfaces",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} !~ /up|dormant/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Oneaccess-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

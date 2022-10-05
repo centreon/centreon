@@ -1,0 +1,448 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Watchguard-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Watchguard-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Watchguard-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Watchguard-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Watchguard-Traffic-Global-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Watchguard-SNMP-Storages-Discover",
+                "command_for_macro": "Net-Watchguard-SNMP-Storages-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$name$",
+                        "order": 0,
+                        "pattern": "(/dev.*|/run.*|/sys.*|/boot)",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Watchguard-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Watchguard-SNMP-Storages-Name",
+                "service_display_name": "Disk-$name$",
+                "service_template": "Net-Watchguard-Disk-Global-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_watchguard_snmp.pl --plugin=network::watchguard::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Watchguard-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_watchguard_snmp.pl --plugin=network::watchguard::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Watchguard-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_watchguard_snmp.pl --plugin=network::watchguard::snmp::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Watchguard-SNMP-Storages-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_watchguard_snmp.pl --plugin=network::watchguard::snmp::plugin --mode=list-storages --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Watchguard-SNMP-Storages-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_watchguard_snmp.pl --plugin=network::watchguard::snmp::plugin --mode=system --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' --warning-connections=\\'$_SERVICEWARNINGCONNECTIONS$\\' --critical-connections=\\'$_SERVICECRITICALCONNECTIONS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Watchguard-SNMP-System",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_watchguard_snmp.pl --plugin=network::watchguard::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Watchguard-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_watchguard_snmp.pl --plugin=network::watchguard::snmp::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-1min=\\'$_SERVICEWARNING1MIN$\\' --critical-1min=\\'$_SERVICECRITICAL1MIN$\\' --warning-5min=\\'$_SERVICEWARNING5MIN$\\' --critical-5min=\\'$_SERVICECRITICAL5MIN$\\' --warning-15min=\\'$_SERVICEWARNING15MIN$\\' --critical-15min=\\'$_SERVICECRITICAL15MIN$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Watchguard-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_watchguard_snmp.pl --plugin=network::watchguard::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Watchguard-SNMP-Traffic-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_watchguard_snmp.pl --plugin=network::watchguard::snmp::plugin --mode=storage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --storage=\\'$_SERVICEFILTER$\\' --name --regexp --display-transform-src=\\'$_SERVICETRANSFORMSRC$\\' --display-transform-dst=\\'$_SERVICETRANSFORMDST$\\' --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Watchguard-SNMP-Disk-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_watchguard_snmp.pl --plugin=network::watchguard::snmp::plugin --mode=policy-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-total-connections=\\'$_SERVICEWARNINGTOTALCONNECTIONS$\\' --critical-total-connections=\\'$_SERVICECRITICALTOTALCONNECTIONS$\\' --warning-current-connections=\\'$_SERVICEWARNINGCURRENTCONNECTIONS$\\' --critical-current-connections=\\'$_SERVICECRITICALCURRENTCONNECTIONS$\\' --warning-l3-traffic=\\'$_SERVICEWARNINGL3TRAFFIC$\\' --critical-l3-traffic=\\'$_SERVICECRITICALL3TRAFFIC$\\' --warning-l2-traffic=\\'$_SERVICEWARNINGL2TRAFFIC$\\' --critical-l2-traffic=\\'$_SERVICECRITICALL2TRAFFIC$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Watchguard-SNMP-Policy-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_watchguard_snmp.pl --plugin=network::watchguard::snmp::plugin --mode=ipsec-tunnel --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-tunnel-traffic-in=\\'$_SERVICEWARNINGTUNNELTRAFFICIN$\\' --critical-tunnel-traffic-in=\\'$_SERVICECRITICALTUNNELTRAFFICIN$\\' --warning-tunnel-traffic-out=\\'$_SERVICEWARNINGTUNNELTRAFFICOUT$\\' --critical-tunnel-traffic-out=\\'$_SERVICECRITICALTUNNELTRAFFICOUT$\\' --warning-tunnels-total=\\'$_SERVICEWARNINGTUNNELSTOTAL$\\' --critical-tunnels-total=\\'$_SERVICECRITICALTUNNELSTOTAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Watchguard-SNMP-Ipsec-Tunnel",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_watchguard_snmp.pl --plugin=network::watchguard::snmp::plugin --mode=cluster --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-cluster-status=\\'$_SERVICEWARNINGCLUSTERSTATUS$\\' --critical-cluster-status=\\'$_SERVICECRITICALCLUSTERSTATUS$\\' --warning-members-detected=\\'$_SERVICEWARNINGMEMBERSDETECTED$\\' --critical-members-detected=\\'$_SERVICECRITICALMEMBERSDETECTED$\\' --warning-member-status=\\'$_SERVICEWARNINGMEMBERSTATUS$\\' --critical-member-status=\\'$_SERVICECRITICALMEMBERSTATUS$\\' --warning-member-health-hardware=\\'$_SERVICEWARNINGMEMBERHEALTHHARDWARE$\\' --critical-member-health-hardware=\\'$_SERVICECRITICALMEMBERHEALTHHARDWARE$\\' --warning-member-health-system=\\'$_SERVICEWARNINGMEMBERHEALTHSYSTEM$\\' --critical-member-health-system=\\'$_SERVICECRITICALMEMBERHEALTHSYSTEM$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Watchguard-SNMP-Cluster",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Watchguard en SNMP}\r\n{EN: Template to check Watchguard devices using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check watchguard devices using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "watchguard-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Watchguard-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Watchguard-System-SNMP",
+                "Net-Watchguard-Hardware-SNMP",
+                "Net-Watchguard-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "watchguard-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* add cluster service",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Watchguard firewall via SNMP:\r\n* Cluster\r\n* Cpu\r\n* Disks\r\n* Hardware\r\n* Ipsec tunnel\r\n* Policy\r\n* System\r\n* Traffic (by interface name)"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un pare-feu Watchguard via SNMP :\r\n* Cluster\r\n* Cpu\r\n* Disks\r\n* Hardware\r\n* Ipsec tunnel\r\n* Policy\r\n* System\r\n* Traffic (by interface name)"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Watchguard",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_watchguard_snmp.pl",
+                "package_name": "centreon-plugin-Network-Watchguard-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-watchguard-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Network",
+            "Watchguard",
+            "Hardware",
+            "Firewall",
+            "SNMP"
+        ],
+        "update_date": "1643112553",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques syst\u00e8mes.}\r\n\r\n{EN: Check system statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "System",
+            "check_timeperiod": "",
+            "command_name": "Net-Watchguard-SNMP-System",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Watchguard-System-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du mat\u00e9riel.}\r\n\r\n{EN: Check hardware environment.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware",
+            "check_timeperiod": "",
+            "command_name": "Net-Watchguard-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Watchguard-Hardware-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine.}\r\n\r\n{EN: Check the rate of utilization of CPU for the machine.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Watchguard-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Watchguard-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau de plusieurs interfaces r\u00e9seau.}\r\n\r\n{EN: Check traffic of multiple network interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Watchguard-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Watchguard-Traffic-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'espace libre disponible des disques. Pour chaque contr\u00f4le appara\u00eetra le point de montage des disques (\u00ab\u00a0label\u00a0\u00bb). Les seuils pourront \u00eatre en pourcentage, en espace libre restant.}\r\n\r\n{EN: Check the rate of free space on disks. For each checks the mount point of disks will appear (\u00ab label \u00bb). Thresholds can be in percentage or in free space remaining.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Watchguard-SNMP-Disk-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Watchguard-Disk-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les 'policy'.}\r\n\r\n{EN: Check policy usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Policy-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Watchguard-SNMP-Policy-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Watchguard-Policy-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les tunnels ipsec.}\r\n\r\n{EN: Check ipsec tunnels.}",
+            "active_checks_enabled": 2,
+            "alias": "Ipsec-Tunnel",
+            "check_timeperiod": "",
+            "command_name": "Net-Watchguard-SNMP-Ipsec-Tunnel",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Watchguard-Ipsec-Tunnel-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du cluster.}\r\n\r\n{EN: Check cluster.}",
+            "active_checks_enabled": 2,
+            "alias": "Cluster",
+            "check_timeperiod": "",
+            "command_name": "Net-Watchguard-SNMP-Cluster",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Watchguard-Cluster-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

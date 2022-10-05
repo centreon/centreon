@@ -1,0 +1,214 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_rabbitmq_restapi.pl --plugin=apps::mq::rabbitmq::restapi::plugin --mode=vhost-usage --hostname=\\'$HOSTADDRESS$\\' --username=\\'$_HOSTRABBITMQAPIUSERNAME$\\' --password=\\'$_HOSTRABBITMQAPIPASSWORD$\\' --port=\\'$_HOSTRABBITMQAPIPORT$\\' --proto=\\'$_HOSTRABBITMQAPIPROTO$\\' --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-queue-msg-ready=\\'$_SERVICEWARNINGQUEUEMSGREADY$\\' --critical-queue-msg-ready=\\'$_SERVICECRITICALQUEUEMSGREADY$\\' --warning-queue-msg=\\'$_SERVICEWARNINGQUEUEMSG$\\' --critical-queue-msg=\\'$_SERVICECRITICALQUEUEMSG$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Rabbitmq-Restapi-Vhost-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_rabbitmq_restapi.pl --plugin=apps::mq::rabbitmq::restapi::plugin --mode=system-usage --hostname=\\'$HOSTADDRESS$\\' --username=\\'$_HOSTRABBITMQAPIUSERNAME$\\' --password=\\'$_HOSTRABBITMQAPIPASSWORD$\\' --port=\\'$_HOSTRABBITMQAPIPORT$\\' --proto=\\'$_HOSTRABBITMQAPIPROTO$\\' --warning-queue-msg-ready=\\'$_SERVICEWARNINGQUEUEMSGREADY$\\' --critical-queue-msg-ready=\\'$_SERVICECRITICALQUEUEMSGREADY$\\' --warning-queue-msg=\\'$_SERVICEWARNINGQUEUEMSG$\\' --critical-queue-msg=\\'$_SERVICECRITICALQUEUEMSG$\\' --warning-disk-write-iops=\\'$_SERVICEWARNINGDISKWRITEIOPS$\\' --critical-disk-write-iops=\\'$_SERVICECRITICALDISKWRITEIOPS$\\' --warning-disk-read-iops=\\'$_SERVICEWARNINGDISKREADIOPS$\\' --critical-disk-read-iops=\\'$_SERVICECRITICALDISKREADIOPS$\\' --warning-db-event-queue=\\'$_SERVICEWARNINGDBEVENTQUEUE$\\' --critical-db-event-queue=\\'$_SERVICECRITICALDBEVENTQUEUE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Rabbitmq-Restapi-System-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_rabbitmq_restapi.pl --plugin=apps::mq::rabbitmq::restapi::plugin --mode=queue-usage --hostname=\\'$HOSTADDRESS$\\' --username=\\'$_HOSTRABBITMQAPIUSERNAME$\\' --password=\\'$_HOSTRABBITMQAPIPASSWORD$\\' --port=\\'$_HOSTRABBITMQAPIPORT$\\' --proto=\\'$_HOSTRABBITMQAPIPROTO$\\' --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-queue-msg-ready=\\'$_SERVICEWARNINGQUEUEMSGREADY$\\' --critical-queue-msg-ready=\\'$_SERVICECRITICALQUEUEMSGREADY$\\' --warning-queue-msg=\\'$_SERVICEWARNINGQUEUEMSG$\\' --critical-queue-msg=\\'$_SERVICECRITICALQUEUEMSG$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Rabbitmq-Restapi-Queue-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_rabbitmq_restapi.pl --plugin=apps::mq::rabbitmq::restapi::plugin --mode=node-usage --hostname=\\'$HOSTADDRESS$\\' --username=\\'$_HOSTRABBITMQAPIUSERNAME$\\' --password=\\'$_HOSTRABBITMQAPIPASSWORD$\\' --port=\\'$_HOSTRABBITMQAPIPORT$\\' --proto=\\'$_HOSTRABBITMQAPIPROTO$\\' --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-read=\\'$_SERVICEWARNINGREAD$\\' --critical-read=\\'$_SERVICECRITICALREAD$\\' --warning-write=\\'$_SERVICEWARNINGWRITE$\\' --critical-write=\\'$_SERVICECRITICALWRITE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Rabbitmq-Restapi-Node-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser RabbitMQ via l'API}\r\n{EN: Template to check RabbitMQ using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check RabbitMQ using RestAPI",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "rabbitmq-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTRABBITMQAPIPORT$",
+                    "value": "15672"
+                },
+                {
+                    "key": "$_HOSTRABBITMQAPIPROTO$",
+                    "value": "http"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Rabbitmq-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Rabbitmq-Vhost-Usage-Restapi",
+                "App-Rabbitmq-System-Usage-Restapi",
+                "App-Rabbitmq-Queue-Usage-Restapi",
+                "App-Rabbitmq-Node-Usage-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAOmSURBVHic7dw/aJxlHMDx73NJTVuHtgr+oYODiFUoujkoDs6iiziaQPVNWyexg6iVtE4dipvVHLXBzbbg2kmog+AmBARHXVQoNCI21cZ7HKrgEN7cve/dk3vv9/2svd/9njRf+gYuT0GSJEmSJEmSJEmSJEmSJEmS1GGp9MK8xEHmOUpiofaFPf5gP9+lj9hsvfMt9nGLpxlwb/0L+ZMt1tMaG213dkWxADIkKk4BZ4G9Q47dAE6mVa403vsGr5L4GLh/yJHbZE7T53yC3HRvV5QLoGIZ+KTB6IDMC6nP9ZF3HudZBlwH5kbemqlSn/7Icx3TK7Ek3w3tTMPxHj0+aDQ54EOafPMBEmfzLjwiSysSAMc4BDzYeD7zZMPJI413wkOc4GCL+U4oE8Ae5lu+Q9P5dnsze1rNd0CZADS1DCA4AwjOAIIzgOAMIDgDCM4AgjOA4AwgOAMIzgCCM4DgDCA4AwjOAIIzgOAMIDgDCM4AgjOA4AwgOAMIrisBNL2h0/Zmj/cCpsR9+fXRbhbliocZ/kLo9rZ4vNV8B3QlgERieaSJzEna/guQONFqvgO6EgAk3ssVizu9LEPKFW+SeGcMO1/JFSuzfEm0yBeWj/MAA34d09t9D3wDDLb5swXgOeDRMe36z08kviLz15jf9/9ukfmWw1xOK9t+bRPRxQBm3dds8WL6jN9LLOvOIyCO55nnXKllBjCdlvJK6yv1QzGA6bSPHzlUYpEBTKuFMj+fGUBwBhCcAQRnAMEZQHAGEJwBBGcAwRlAcAYQXJEPHDovcZnMVTI3a1/XY57MEeAUcLjI2VoygJ0kFtOnfD7CxLW8xBr3cA14ZlLHGhcfAfW+GPGbD0BaY4M5FoG/J3CmsTKAOomrjUcv8AOwPsbTTIQB1Kt/5u/sxlhOMUEGEJwBBGcAwRlAcAYQnAEEZwDBGUC9A62mU5nf7W/DAOpkXmo8eoxHyDw1zuNMggHUey0v8/KoQ7liP3NcogMftk39AXdZIvNlruiTuTLkx8FPAO8CjxU5YUsGsLMEVCSqoS5rdey/kvAREJwBBGcAwRlAcAYQnAEEZwDBGUBwBhCcAQRnAMGVCeAOW0X2zJLEnRJrygRwkZvAL0V2zYafucBGiUVFAkiQgdMlds2EzPv//p1NXLmfAVa5yN1r05vFdnbPJom36XOp1MLin17nigPAUTJ7S++eaonbwHpa5bfdPookSZIkSZIkSZIkSZIkSZIkqTP+ASyPllGQosBsAAAAAElFTkSuQmCC",
+            "name": "rabbitmq-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "fix System-Usage mode",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor RabbitMQ using RestAPI :\r\n* Nodes\r\n* Queues\r\n* System\r\n* Vhosts"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser RabbitMQ via l\\'API Rest :\r\n* Nodes\r\n* Queues\r\n* System\r\n* Vhosts"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAOmSURBVHic7dw/aJxlHMDx73NJTVuHtgr+oYODiFUoujkoDs6iiziaQPVNWyexg6iVtE4dipvVHLXBzbbg2kmog+AmBARHXVQoNCI21cZ7HKrgEN7cve/dk3vv9/2svd/9njRf+gYuT0GSJEmSJEmSJEmSJEmSJEmS1GGp9MK8xEHmOUpiofaFPf5gP9+lj9hsvfMt9nGLpxlwb/0L+ZMt1tMaG213dkWxADIkKk4BZ4G9Q47dAE6mVa403vsGr5L4GLh/yJHbZE7T53yC3HRvV5QLoGIZ+KTB6IDMC6nP9ZF3HudZBlwH5kbemqlSn/7Icx3TK7Ek3w3tTMPxHj0+aDQ54EOafPMBEmfzLjwiSysSAMc4BDzYeD7zZMPJI413wkOc4GCL+U4oE8Ae5lu+Q9P5dnsze1rNd0CZADS1DCA4AwjOAIIzgOAMIDgDCM4AgjOA4AwgOAMIzgCCM4DgDCA4AwjOAIIzgOAMIDgDCM4AgjOA4AwgOAMIrisBNL2h0/Zmj/cCpsR9+fXRbhbliocZ/kLo9rZ4vNV8B3QlgERieaSJzEna/guQONFqvgO6EgAk3ssVizu9LEPKFW+SeGcMO1/JFSuzfEm0yBeWj/MAA34d09t9D3wDDLb5swXgOeDRMe36z08kviLz15jf9/9ukfmWw1xOK9t+bRPRxQBm3dds8WL6jN9LLOvOIyCO55nnXKllBjCdlvJK6yv1QzGA6bSPHzlUYpEBTKuFMj+fGUBwBhCcAQRnAMEZQHAGEJwBBGcAwRlAcAYQXJEPHDovcZnMVTI3a1/XY57MEeAUcLjI2VoygJ0kFtOnfD7CxLW8xBr3cA14ZlLHGhcfAfW+GPGbD0BaY4M5FoG/J3CmsTKAOomrjUcv8AOwPsbTTIQB1Kt/5u/sxlhOMUEGEJwBBGcAwRlAcAYQnAEEZwDBGUC9A62mU5nf7W/DAOpkXmo8eoxHyDw1zuNMggHUey0v8/KoQ7liP3NcogMftk39AXdZIvNlruiTuTLkx8FPAO8CjxU5YUsGsLMEVCSqoS5rdey/kvAREJwBBGcAwRlAcAYQnAEEZwDBGUBwBhCcAQRnAMGVCeAOW0X2zJLEnRJrygRwkZvAL0V2zYafucBGiUVFAkiQgdMlds2EzPv//p1NXLmfAVa5yN1r05vFdnbPJom36XOp1MLin17nigPAUTJ7S++eaonbwHpa5bfdPookSZIkSZIkSZIkSZIkSZIkqTP+ASyPllGQosBsAAAAAElFTkSuQmCC",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Rabbitmq-Restapi\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Rabbitmq-Restapi-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Host Macro Configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"23%\" />\r\n<col width=\"53%\" />\r\n<col width=\"24%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>RABBITMQAPIPORT</p></td>\r\n<td align=\"left\"><p>Port of the RabbitMQ API instance</p></td>\r\n<td align=\"left\"><p>15672</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>RABBITMQAPIPROTO</p></td>\r\n<td align=\"left\"><p>Protocol used by the RabbitMQ API</p></td>\r\n<td align=\"left\"><p>http</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>RABBITMQAPIUSERNAME</p></td>\r\n<td align=\"left\"><p>Username to access RabbitMQ API</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>RABBITMQAPIPASSWORD</p></td>\r\n<td align=\"left\"><p>Password to access RabbitMQ API</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "RabbitMQ RestAPI",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_rabbitmq_restapi.pl",
+                "package_name": "centreon-plugin-Applications-Rabbitmq-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-rabbitmq-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "MQ",
+            "RabbitMQ",
+            "Restapi",
+            "Application"
+        ],
+        "update_date": "1560521795",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les vhosts.}\r\n\r\n{EN: Check vhost usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Vhost-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-Rabbitmq-Restapi-Vhost-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Rabbitmq-Vhost-Usage-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le globalement le syst\u00e8me.}\r\n\r\n{EN: Check system usage.}",
+            "active_checks_enabled": 2,
+            "alias": "System-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-Rabbitmq-Restapi-System-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Rabbitmq-System-Usage-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les queues.}\r\n\r\n{EN: Check queue usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Queue-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-Rabbitmq-Restapi-Queue-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Rabbitmq-Queue-Usage-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les noeuds.}\r\n\r\n{EN: Check node usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Node-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-Rabbitmq-Restapi-Node-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Rabbitmq-Node-Usage-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

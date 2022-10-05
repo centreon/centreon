@@ -1,0 +1,196 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_smartermail_api.pl --plugin=apps::smartermail::restapi::plugin --mode=spools --hostname=$HOSTADDRESS$ --url-path=\\'$_HOSTSMARTERMAILAPIURL$\\' --port=\\'$_HOSTSMARTERMAILAPIPORT$\\' --proto=\\'$_HOSTSMARTERMAILAPIPROTO$\\' --api-username=\\'$_HOSTSMARTERMAILAPIUSERNAME$\\' --api-password=\\'$_HOSTSMARTERMAILAPIPASSWORD$\\' $_HOSTSMARTERMAILEXTRAOPTIONS$--warning-spool-messages=\\'$_SERVICEWARNINGSPOOLMESSAGES$\\' --critical-spool-messages=\\'$_SERVICECRITICALSPOOLMESSAGES$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Smartermail-Api-Spools",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_smartermail_api.pl --plugin=apps::smartermail::restapi::plugin --mode=services --hostname=$HOSTADDRESS$ --url-path=\\'$_HOSTSMARTERMAILAPIURL$\\' --port=\\'$_HOSTSMARTERMAILAPIPORT$\\' --proto=\\'$_HOSTSMARTERMAILAPIPROTO$\\' --api-username=\\'$_HOSTSMARTERMAILAPIUSERNAME$\\' --api-password=\\'$_HOSTSMARTERMAILAPIPASSWORD$\\' $_HOSTSMARTERMAILEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Smartermail-Api-Services",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_smartermail_api.pl --plugin=apps::smartermail::restapi::plugin --mode=licenses --hostname=$HOSTADDRESS$ --url-path=\\'$_HOSTSMARTERMAILAPIURL$\\' --port=\\'$_HOSTSMARTERMAILAPIPORT$\\' --proto=\\'$_HOSTSMARTERMAILAPIPROTO$\\' --api-username=\\'$_HOSTSMARTERMAILAPIUSERNAME$\\' --api-password=\\'$_HOSTSMARTERMAILAPIPASSWORD$\\' $_HOSTSMARTERMAILEXTRAOPTIONS$ --warning-upgrade-protection-status=\\'$_SERVICEWARNINGUPGRADEPROTECTIONSTATUS$\\' --critical-upgrade-protection-status=\\'$_SERVICECRITICALUPGRADEPROTECTIONSTATUS$\\' --warning-upgrade-protection-expires-days=\\'$_SERVICEWARNINGUPGRADEPROTECTIONEXPIRESDAYS$\\' --critical-upgrade-protection-expires-days=\\'$_SERVICECRITICALUPGRADEPROTECTIONEXPIRESDAYS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Smartermail-Api-Licenses",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les serveurs Smartermail via l'API.}\r\n{EN: Template to check Smartermail Server througt API.}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Smartermail throught API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "smartertools-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSMARTERMAILAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTSMARTERMAILAPIPORT$",
+                    "value": "443"
+                },
+                {
+                    "key": "$_HOSTSMARTERMAILAPIURLPATH$",
+                    "value": "/api/v1"
+                },
+                {
+                    "key": "$_HOSTSMARTERMAILAPIUSERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTSMARTERMAILAPIPASSWORD$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Smartermail-Api",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Smartermail-Spools-Api",
+                "App-Smartermail-Services-Api",
+                "App-Smartermail-Licenses-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "smartertools-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ fix logo",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Smartermail Servers using RestAPI.**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|Apps-Smartermail-Api-custom|\r\n|---|\r\n|Licenses|\r\n|Services|\r\n|Spools|"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin-Pack pour superviser les serveurs Smarter Mail via RestAPI.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponibles et services associ\u00e9s:\r\n\r\n|Apps-Smartermail-Api-custom|\r\n|---|\r\n|Licenses|\r\n|Services|\r\n|Spools|\r\n"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "SmarterMail Server",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_smartermail_api.pl",
+                "package_name": "centreon-plugin-Applications-Smartermail-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-smartermail-api",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Email Security",
+            "Security",
+            "SmarterTools",
+            "API",
+            "SmarterMail"
+        ],
+        "update_date": "1614946961",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les spools de message.}\r\n\r\n{EN: Check message spools.}",
+            "active_checks_enabled": 2,
+            "alias": "Spools",
+            "check_timeperiod": "",
+            "command_name": "App-Smartermail-Api-Spools",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Smartermail-Spools-Api",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des services.}\r\n\r\n{EN: Check services state.}",
+            "active_checks_enabled": 2,
+            "alias": "Services",
+            "check_timeperiod": "",
+            "command_name": "App-Smartermail-Api-Services",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{state} !~ /running/"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Smartermail-Services-Api",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des licences.}\r\n\r\n{EN: Check licenses state.}",
+            "active_checks_enabled": 2,
+            "alias": "Licenses",
+            "check_timeperiod": "",
+            "command_name": "App-Smartermail-Api-Licenses",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALUPGRADEPROTECTIONSTATUS$",
+                    "password": false,
+                    "value": "%{upgrade_protection_status} =~ /expired/"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Smartermail-Licenses-Api",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

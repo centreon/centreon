@@ -1,0 +1,1623 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "availability_zone": {
+                            "type": "string"
+                        },
+                        "db_name": {
+                            "type": "string"
+                        },
+                        "endpoint_address": {
+                            "type": "string"
+                        },
+                        "endpoint_host_zone_id": {
+                            "type": "string"
+                        },
+                        "endpoint_port": {
+                            "type": "string"
+                        },
+                        "engine": {
+                            "type": "string"
+                        },
+                        "engine_version": {
+                            "type": "string"
+                        },
+                        "id": {
+                            "type": "string"
+                        },
+                        "instance_class": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "status": {
+                            "type": "string"
+                        },
+                        "storage_type": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "vpc_id": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Aws-Rds-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "AWS Access Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSACCESSKEY",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "AWS Secret Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSSECRETKEY",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Amazon AWS RDS instances",
+                    "discovery_examples": [],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSACCESSKEY",
+                                "source": "discovery.credentials.AWSACCESSKEY"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSSECRETKEY",
+                                "source": "discovery.credentials.AWSSECRETKEY"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSREGION",
+                                "source": "discovery.parameters.REGION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSINSTANCENAME",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.engine",
+                                        "value": "aurora"
+                                    }
+                                ],
+                                "value": "Cloud-Aws-Rds-Instance-Aurora-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.engine",
+                                        "value": "mariadb"
+                                    }
+                                ],
+                                "value": "Cloud-Aws-Rds-Instance-MariaDB-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.engine",
+                                        "value": "mssql"
+                                    }
+                                ],
+                                "value": "Cloud-Aws-Rds-Instance-MSSQL-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.engine",
+                                        "value": "mysql"
+                                    }
+                                ],
+                                "value": "Cloud-Aws-Rds-Instance-MySQL-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.engine",
+                                        "value": "oracle"
+                                    }
+                                ],
+                                "value": "Cloud-Aws-Rds-Instance-Oracle-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.engine",
+                                        "value": "postgresql"
+                                    }
+                                ],
+                                "value": "Cloud-Aws-Rds-Instance-PostgreSQL-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Amazon AWS RDS",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Region",
+                                "group": "AWS",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "REGION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "amazon-rds",
+                    "type": "aws",
+                    "uuid_attributes": [
+                        "vpc_id",
+                        "engine",
+                        "name"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "availability_zone": {
+                            "type": "string"
+                        },
+                        "db_name": {
+                            "type": "string"
+                        },
+                        "endpoint_address": {
+                            "type": "string"
+                        },
+                        "endpoint_host_zone_id": {
+                            "type": "string"
+                        },
+                        "endpoint_port": {
+                            "type": "string"
+                        },
+                        "engine": {
+                            "type": "string"
+                        },
+                        "engine_version": {
+                            "type": "string"
+                        },
+                        "id": {
+                            "type": "string"
+                        },
+                        "instance_class": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "status": {
+                            "type": "string"
+                        },
+                        "storage_type": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "vpc_id": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Aws-Rds-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "AWS Access Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSACCESSKEY",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "AWS Secret Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSSECRETKEY",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Amazon AWS RDS instances",
+                    "discovery_examples": [],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSACCESSKEY",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSACCESSKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSSECRETKEY",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSSECRETKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSREGION",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.REGION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSINSTANCENAME",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.engine",
+                                        "value": "aurora"
+                                    }
+                                ],
+                                "value": "Cloud-Aws-Rds-Instance-Aurora-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.engine",
+                                        "value": "mariadb"
+                                    }
+                                ],
+                                "value": "Cloud-Aws-Rds-Instance-MariaDB-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.engine",
+                                        "value": "mssql"
+                                    }
+                                ],
+                                "value": "Cloud-Aws-Rds-Instance-MSSQL-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.engine",
+                                        "value": "mysql"
+                                    }
+                                ],
+                                "value": "Cloud-Aws-Rds-Instance-MySQL-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.engine",
+                                        "value": "oracle"
+                                    }
+                                ],
+                                "value": "Cloud-Aws-Rds-Instance-Oracle-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.engine",
+                                        "value": "postgresql"
+                                    }
+                                ],
+                                "value": "Cloud-Aws-Rds-Instance-PostgreSQL-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Amazon AWS RDS",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Region",
+                                "group": "AWS",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "REGION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "amazon-rds",
+                    "type": "aws",
+                    "uuid_attributes": [
+                        "vpc_id",
+                        "engine",
+                        "name"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_rds_api.pl --plugin=cloud::aws::rds::plugin --mode=volume --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --type=\\'$_HOSTAWSINSTANCETYPE$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-volumebytesused-average=\\'$_SERVICEWARNINGVOLUMEBYTESUSEDAVERAGE$\\' --critical-volumebytesused-average=\\'$_SERVICECRITICALVOLUMEBYTESUSEDAVERAGE$\\' --warning-volumereadiops-average=\\'$_SERVICEWARNINGVOLUMEREADIOPSAVERAGE$\\' --critical-volumereadiops-average=\\'$_SERVICECRITICALVOLUMEREADIOPSAVERAGE$\\' --warning-volumewriteiops-average=\\'$_SERVICEWARNINGVOLUMEWRITEIOPSAVERAGE$\\' --critical-volumewriteiops-average=\\'$_SERVICECRITICALVOLUMEWRITEIOPSAVERAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Rds-Api-Volume",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_rds_api.pl --plugin=cloud::aws::rds::plugin --mode=transactions --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --type=\\'$_HOSTAWSINSTANCETYPE$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-activetransactions-average=\\'$_SERVICEWARNINGACTIVETRANSACTIONSAVERAGE$\\' --critical-activetransactions-average=\\'$_SERVICECRITICALACTIVETRANSACTIONSAVERAGE$\\' --warning-blockedtransactions-average=\\'$_SERVICEWARNINGBLOCKEDTRANSACTIONSAVERAGE$\\' --critical-blockedtransactions-average=\\'$_SERVICECRITICALBLOCKEDTRANSACTIONSAVERAGE$\\' --warning-committhroughput-average=\\'$_SERVICEWARNINGCOMMITTHROUGHPUTAVERAGE$\\' --critical-committhroughput-average=\\'$_SERVICECRITICALCOMMITTHROUGHPUTAVERAGE$\\' --warning-commitlatency-average=\\'$_SERVICEWARNINGCOMMITLATENCYAVERAGE$\\' --critical-commitlatency-average=\\'$_SERVICECRITICALCOMMITLATENCYAVERAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Rds-Api-Transactions",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_rds_api.pl --plugin=cloud::aws::rds::plugin --mode=queries --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --type=\\'$_HOSTAWSINSTANCETYPE$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-queries-average=\\'$_SERVICEWARNINGQUERIESAVERAGE$\\' --critical-queries-average=\\'$_SERVICECRITICALQUERIESAVERAGE$\\' --warning-insertthroughput-average=\\'$_SERVICEWARNINGINSERTTHROUGHPUTAVERAGE$\\' --critical-insertthroughput-average=\\'$_SERVICECRITICALINSERTTHROUGHPUTAVERAGE$\\' --warning-deletethroughput-average=\\'$_SERVICEWARNINGDELETETHROUGHPUTAVERAGE$\\' --critical-deletethroughput-average=\\'$_SERVICECRITICALDELETETHROUGHPUTAVERAGE$\\' --warning-selectthroughput-average=\\'$_SERVICEWARNINGSELECTTHROUGHPUTAVERAGE$\\' --critical-selectthroughput-average=\\'$_SERVICECRITICALSELECTTHROUGHPUTAVERAGE$\\' --warning-updatethroughput-average=\\'$_SERVICEWARNINGUPDATETHROUGHPUTAVERAGE$\\' --critical-updatethroughput-average=\\'$_SERVICECRITICALUPDATETHROUGHPUTAVERAGE$\\' --warning-dmlthroughput-average=\\'$_SERVICEWARNINGDMLTHROUGHPUTAVERAGE$\\' --critical-dmlthroughput-average=\\'$_SERVICECRITICALDMLTHROUGHPUTAVERAGE$\\' --warning-ddlthroughput-average=\\'$_SERVICEWARNINGDDLTHROUGHPUTAVERAGE$\\' --critical-ddlthroughput-average=\\'$_SERVICECRITICALDDLTHROUGHPUTAVERAGE$\\' --warning-insertlatency-average=\\'$_SERVICEWARNINGINSERTLATENCYAVERAGE$\\' --critical-insertlatency-average=\\'$_SERVICECRITICALINSERTLATENCYAVERAGE$\\' --warning-deletelatency-average=\\'$_SERVICEWARNINGDELETELATENCYAVERAGE$\\' --critical-deletelatency-average=\\'$_SERVICECRITICALDELETELATENCYAVERAGE$\\' --warning-selectlatency-average=\\'$_SERVICEWARNINGSELECTLATENCYAVERAGE$\\' --critical-selectlatency-average=\\'$_SERVICECRITICALSELECTLATENCYAVERAGE$\\' --warning-updatelatency-average=\\'$_SERVICEWARNINGUPDATELATENCYAVERAGE$\\' --critical-updatelatency-average=\\'$_SERVICECRITICALUPDATELATENCYAVERAGE$\\' --warning-dmllatency-average=\\'$_SERVICEWARNINGDMLLATENCYAVERAGE$\\' --critical-dmllatency-average=\\'$_SERVICECRITICALDMLLATENCYAVERAGE$\\' --warning-ddllatency-average=\\'$_SERVICEWARNINGDDLLATENCYAVERAGE$\\' --critical-ddllatency-average=\\'$_SERVICECRITICALDDLLATENCYAVERAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Rds-Api-Queries",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_rds_api.pl --plugin=cloud::aws::rds::plugin --mode=network --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --type=\\'$_HOSTAWSINSTANCETYPE$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-networkreceivethroughput-average=\\'$_SERVICEWARNINGNETWORKRECEIVETHROUGHPUTAVERAGE$\\' --critical-networkreceivethroughput-average=\\'$_SERVICECRITICALNETWORKRECEIVETHROUGHPUTAVERAGE$\\' --warning-networktransmitthroughput-average=\\'$_SERVICEWARNINGNETWORKTRANSMITTHROUGHPUTAVERAGE$\\' --critical-networktransmitthroughput-average=\\'$_SERVICECRITICALNETWORKTRANSMITTHROUGHPUTAVERAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Rds-Api-Network",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_rds_api.pl --plugin=cloud::aws::rds::plugin --mode=cpu --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --type=\\'$_HOSTAWSINSTANCETYPE$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-cpucreditusage-average=\\'$_SERVICEWARNINGCPUCREDITUSAGEAVERAGE$\\' --critical-cpucreditusage-average=\\'$_SERVICECRITICALCPUCREDITUSAGEAVERAGE$\\' --warning-cpucreditbalance-average=\\'$_SERVICEWARNINGCPUCREDITBALANCEAVERAGE$\\' --critical-cpucreditbalance-average=\\'$_SERVICECRITICALCPUCREDITBALANCEAVERAGE$\\' --warning-cpuutilization-average=\\'$_SERVICEWARNINGCPUCREDITUTILIZATIONAVERAGE$\\' --critical-cpuutilization-average=\\'$_SERVICECRITICALCPUCREDITUTILIZATIONAVERAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Rds-Api-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_rds_api.pl --plugin=cloud::aws::rds::plugin --mode=connections --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --type=\\'$_HOSTAWSINSTANCETYPE$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-databaseconnections-average=\\'$_SERVICEWARNINGDATABASECONNECTIONSAVERAGE$\\' --critical-databaseconnections-average=\\'$_SERVICECRITICALDATABASECONNECTIONSAVERAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Rds-Api-Connections",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_rds_api.pl --plugin=cloud::aws::rds::plugin --mode=diskio --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --type=\\'$_HOSTAWSINSTANCETYPE$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-readthroughput-average=\\'$_SERVICEWARNINGREADTHROUGHPUTAVERAGE$\\' --critical-readthroughput-average=\\'$_SERVICECRITICREADTHROUGHPUTALAVERAGE$\\' --warning-writethroughput-average=\\'$_SERVICEWARNINGWRITETHROUGHPUTAVERAGE$\\' --critical-writethroughput-average=\\'$_SERVICECRITICWRITETHROUGHPUTALAVERAGE$\\' --warning-readiops-average=\\'$_SERVICEWARNINGREADIOPSAVERAGE$\\' --critical-readiops-average=\\'$_SERVICECRITICALREADIOPSAVERAGE$\\' --warning-writeiops-average=\\'$_SERVICEWARNINGWRITEIOPSAVERAGE$\\' --critical-writeiops-average=\\'$_SERVICECRITICALWRITEIOPSAVERAGE$\\' --warning-readlatency-average=\\'$_SERVICEWARNINGREADLATENCYAVERAGE$\\' --critical-readlatency-average=\\'$_SERVICECRITICREADLATENCYALAVERAGE$\\' --warning-writelatency-average=\\'$_SERVICEWARNINGWRITELATENCYAVERAGE$\\' --critical-writelatency-average=\\'$_SERVICECRITICWRITELATENCYALAVERAGE$\\' --warning-diskqueuedepth-average=\\'$_SERVICEWARNINGDISKQUEUEDEPTHAVERAGE$\\' --critical-diskqueuedepth-average=\\'$_SERVICECRITICDISKQUEUEDEPTHALAVERAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Rds-Api-Diskio",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_rds_api.pl --plugin=cloud::aws::rds::plugin --mode=rds-instance-status --custommode=\\'$_SERVICEAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --region=\\'$_SERVICEAWSREGION$\\' --filter-instanceid=\\'$_SERVICEFILTERINSTANCEID$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-total-available=\\'$_SERVICEWARNINGTOTALAVAILABLE$\\' --critical-total-available=\\'$_SERVICECRITICALTOTALAVAILABLE$\\' --warning-total-failed=\\'$_SERVICEWARNINGTOTALFAILED$\\' --critical-total-failed=\\'$_SERVICECRITICALTOTALFAILED$\\' --warning-total-stopped=\\'$_SERVICEWARNINGTOTALSTOPPED$\\' --critical-total-stopped=\\'$_SERVICECRITICALTOTALSTOPPED$\\' --warning-total-maintenance=\\'$_SERVICEWARNINGTOTALMAINTENANCE$\\' --critical-total-maintenance=\\'$_SERVICECRITICALTOTALMAINTENANCE$\\' --warning-total-backing-up=\\'$_SERVICEWARNINGTOTALBACKINGUP$\\' --critical-total-backing-up=\\'$_SERVICECRITICALTOTALBACKINGUP$\\' --warning-total-storage-full=\\'$_SERVICEWARNINGTOTALSTORAGEFULL$\\' --critical-total-storage-full=\\'$_SERVICECRITICALTOTALSTORAGEFULL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Rds-Api-Instance-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_rds_api.pl --plugin=cloud::aws::rds::plugin --mode=storage --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --type=\\'$_HOSTAWSINSTANCETYPE$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-memory-free=\\'$_SERVICEWARNINGMEMORYFREE$\\' --critical-memory-free=\\'$_SERVICECRITICALMEMORYFREE$\\' --warning-storage-space-free=\\'$_SERVICEWARNINGSTORAGESPACEFREE$\\' --critical-storage-space-free=\\'$_SERVICECRITICALSTORAGESPACEFREE$\\' --warning-storage-space-usage-prct=\\'$_SERVICEWARNINGSTORAGESPACEUSAGEPRCT$\\' --critical-storage-space-usage-prct=\\'$_SERVICECRITICALSTORAGESPACEUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Rds-Api-Storage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_rds_api.pl --plugin=cloud::aws::rds::plugin --custommode=\\'awscli\\' --mode=discovery --aws-access-key=\\'$_AWSACCESSKEY$\\' --aws-secret-key=\\'$_AWSSECRETKEY$\\' --proxyurl=\\'$_PROXYURL$\\' --timeout=\\'$_TIMEOUT$\\' --region=\\'$_REGION$\\' $_EXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Rds-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Amazon Relational Database Service (Amazon RDS) cluster via l'API}\r\n{EN: Template to check Amazon Relational Database Service (Amazon RDS) cluster using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Amazon Relational Database Service (Amazon RDS) cluster using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "icon": "aws-rds-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAWSCUSTOMMODE$",
+                    "value": "awscli"
+                },
+                {
+                    "key": "$_HOSTAWSINSTANCETYPE$",
+                    "value": "cluster"
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSSECRETKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSACCESSKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSREGION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSINSTANCENAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Rds-Cluster",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Aws-Rds-Volume-Usage-Api",
+                "Cloud-Aws-Rds-Volume-Iops-Api",
+                "Cloud-Aws-Rds-Transactions-Api",
+                "Cloud-Aws-Rds-Queries-Api",
+                "Cloud-Aws-Rds-Network-Api",
+                "Cloud-Aws-Rds-Cpu-Usage-Api",
+                "Cloud-Aws-Rds-Cpu-Credit-Api",
+                "Cloud-Aws-Rds-Connections-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Amazon Relational Database Service (Amazon RDS) Aurora instance via l'API}\r\n{EN: Template to check Amazon Relational Database Service (Amazon RDS) Aurora instance using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Amazon Relational Database Service (Amazon RDS) Aurora instance using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "icon": "aws-rds-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAWSCUSTOMMODE$",
+                    "value": "awscli"
+                },
+                {
+                    "key": "$_HOSTAWSINSTANCETYPE$",
+                    "value": "instance"
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSSECRETKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSACCESSKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSREGION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSINSTANCENAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Rds-Instance-Aurora",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Aws-Rds-Transactions-Api",
+                "Cloud-Aws-Rds-Queries-Api",
+                "Cloud-Aws-Rds-Network-Api",
+                "Cloud-Aws-Rds-Cpu-Usage-Api",
+                "Cloud-Aws-Rds-Cpu-Credit-Api",
+                "Cloud-Aws-Rds-Connections-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Amazon Relational Database Service (Amazon RDS) MySQL instance via l'API}\r\n{EN: Template to check Amazon Relational Database Service (Amazon RDS) MySQL instance using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Amazon Relational Database Service (Amazon RDS) MySQL instance using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "icon": "aws-rds-mysql-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAWSCUSTOMMODE$",
+                    "value": "awscli"
+                },
+                {
+                    "key": "$_HOSTAWSINSTANCETYPE$",
+                    "value": "instance"
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSSECRETKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSACCESSKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSREGION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSINSTANCENAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Rds-Instance-MySQL",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Aws-Rds-Network-Api",
+                "Cloud-Aws-Rds-Diskio-Api",
+                "Cloud-Aws-Rds-Cpu-Usage-Api",
+                "Cloud-Aws-Rds-Cpu-Credit-Api",
+                "Cloud-Aws-Rds-Connections-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Amazon Relational Database Service (Amazon RDS) MariaDB instance via l'API}\r\n{EN: Template to check Amazon Relational Database Service (Amazon RDS) MariaDB instance using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Amazon Relational Database Service (Amazon RDS) MariaDB instance using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "icon": "aws-rds-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAWSCUSTOMMODE$",
+                    "value": "awscli"
+                },
+                {
+                    "key": "$_HOSTAWSINSTANCETYPE$",
+                    "value": "instance"
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSSECRETKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSACCESSKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSREGION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSINSTANCENAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Rds-Instance-MariaDB",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Aws-Rds-Network-Api",
+                "Cloud-Aws-Rds-Diskio-Api",
+                "Cloud-Aws-Rds-Cpu-Usage-Api",
+                "Cloud-Aws-Rds-Cpu-Credit-Api",
+                "Cloud-Aws-Rds-Connections-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Amazon Relational Database Service (Amazon RDS) Oracle instance via l'API}\r\n{EN: Template to check Amazon Relational Database Service (Amazon RDS) Oracle instance using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Amazon Relational Database Service (Amazon RDS) Oracle instance using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "icon": "aws-rds-oracle-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAWSCUSTOMMODE$",
+                    "value": "awscli"
+                },
+                {
+                    "key": "$_HOSTAWSINSTANCETYPE$",
+                    "value": "instance"
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSSECRETKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSACCESSKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSREGION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSINSTANCENAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Rds-Instance-Oracle",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Aws-Rds-Network-Api",
+                "Cloud-Aws-Rds-Cpu-Usage-Api",
+                "Cloud-Aws-Rds-Cpu-Credit-Api",
+                "Cloud-Aws-Rds-Connections-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Amazon Relational Database Service (Amazon RDS) PostgreSQL instance via l'API}\r\n{EN: Template to check Amazon Relational Database Service (Amazon RDS) PostgreSQL instance using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Amazon Relational Database Service (Amazon RDS) PostgreSQL instance using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "icon": "aws-rds-postgresql-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAWSCUSTOMMODE$",
+                    "value": "awscli"
+                },
+                {
+                    "key": "$_HOSTAWSINSTANCETYPE$",
+                    "value": "instance"
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSSECRETKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSACCESSKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSREGION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSINSTANCENAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Rds-Instance-PostgreSQL",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Aws-Rds-Network-Api",
+                "Cloud-Aws-Rds-Cpu-Usage-Api",
+                "Cloud-Aws-Rds-Cpu-Credit-Api",
+                "Cloud-Aws-Rds-Connections-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Amazon Relational Database Service (Amazon RDS) MSSQL instance via l'API}\r\n{EN: Template to check Amazon Relational Database Service (Amazon RDS) MSSQL instance using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Amazon Relational Database Service (Amazon RDS) MSSQL instance using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "icon": "aws-rds-mssql-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAWSCUSTOMMODE$",
+                    "value": "awscli"
+                },
+                {
+                    "key": "$_HOSTAWSINSTANCETYPE$",
+                    "value": "instance"
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSSECRETKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSACCESSKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSREGION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSINSTANCENAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Rds-Instance-MSSQL",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Aws-Rds-Network-Api",
+                "Cloud-Aws-Rds-Cpu-Usage-Api",
+                "Cloud-Aws-Rds-Cpu-Credit-Api",
+                "Cloud-Aws-Rds-Connections-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAH4AAAB+CAYAAADiI6WIAAADpUlEQVR42u3bMUsbYRzH8RtuEDrHJmhNBoeCpOh8CLfEU7EKUpc7Cn0BJmrcQ7YUF5FUbKa+i1whg5sIKQn3FlwO3HwFaWK1tWm1MX2eu+e5fH/wmwP5/ALH/4hhEEIIIYQQEmvsqpn1Gm7Oa9y8Ofzai7sbx+3rrXrXtavnJjgSwbPe57CP3htUBfi3x99625+6/XZCBiAZXE34LgOQDa42PAOQBq4HPAMYOaOC6wX/+wBQfpA578zKuY1gVHA94X8OINisty3AxwDXG36CB/C/4MmAn6ABiAJPFnyCByAaPJnwCRrAzM7pogzwZMP/GsBa7WJJO/Tpwq41u127koWefPhuzzm6DBf2m5ZW6JnVvd6rd0c94Mdv4ePF7WdogZ9eLqYG6MCLgx90vthMKY2eXi2FwIuHzx/6oZL4w+jAi4VXE9+2zT568BAdePHwd/jB4EWWEugZp9QaRgdeDvwdfite/CfQgZcHHzt+ZmXv5DF04OXC37bsn0T/MOcUK0+hAx8B/OCXf9CsKIUOfDTwkeGnC6X1UdCBjw7+Fr/sr0s/xQKvHry00+5z0YGPHl4K/nPRgY8HXvhdH3h94F/v+znggQceeOCBBx544IEHHnjggQceeOCBBx544IEHHnjggQceeOCBBx544IEHHnjggQceeOCBBx544IEHHnjggQceeOCBBx544IEHHnjggQceeOCBBx544IEHHnjggQceeOCBBx544IEHHnjggQceeOCBBx544IEHHnjggQceeOCBBx544IEHHnjggQceeOCBBx544IEHHnjggQceeOCBB14F+PRqKQReD/j5YjMlDn65mAJeffiF/aZliM50YdcCXl14Kejj4AMfHXy+7K8bsvPS2XOBVwc+f9CsGFEl7RQrwMcPHyn6qPjAS4Yv+ydGXMk4pRbw0cPnD/2WYVfN2OAN2zYfwwdeDnz86P/AB148fB89UAP9/kl/5f2L4ese8GLh++ih0KucyOveQ3zgxcEri/43fODFwSuNPnzdA14MvNRTrAz82e3aFfDj1zm6DLVCv8/Mzulizm0EwI/TTrBWu1gydM6cd2bJGEAy4TvBZr1tGUmK6AEkCz6B4LIGkAz4CQAXPQC94ScQXNQA9IQH/I9kvYab9T6HyYTvhFv1rovyoy98quaoA9AD/ge4XT03wRU0ALXhAZc2ADXhAZc+ALXgAY9kAH34GxXgN47b14BHO4CpwX/E4m7uw5cp3b6676h+0OXi+YajAAAAAElFTkSuQmCC",
+            "name": "aws-rds-128.png"
+        },
+        {
+            "icon": "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",
+            "name": "aws-rds-mysql-128.png"
+        },
+        {
+            "icon": "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",
+            "name": "aws-rds-oracle-128.png"
+        },
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAH4AAAB+CAYAAADiI6WIAAAGf0lEQVR42u2aO4hdVRSGp7BL7xgfMIqIqBOwsohgGpORIKKNMJAg2IhKZpwQVARtRASxGCQgCBYSUlgIFmYiIogIWohgIwQbG02hjVZ21/kvLPO73Puec+6dxzn3fht+MjnPvde31tpr73OXlmg0Go1Go9Foi9nu3dxZWX3ps/VjWzvbq1s7l4+dvzpCh6sxB/HY5SI+ewr8/s0rx1fP71zH0ANwhF1O4jUzdHkTBh2gdrnNFOkYcbiaOvJJ78NP+1MVchhv+Opc8I2rdww3/Kjf5UhRR5HXIuJZp8/NOr9bxGO0uRHgAQ94wAMe8IAHPOABjwCPAI/qOvved6OXL/04ev6D70drb341evDC5xOv1/mn3vlmfI/ufeT1L/sF/soPv41K7fc//x5dvPrzuNNNg9wLyZgykvTQq1/0ArbGLdDXfv2raB+BLd0nu5Xat9f++J8tNd5o+vvQwXvr0qFp5QaQE/QBfAYo2LllkG998tNEW2b404JfPvPRkT0DH2lMUX7p61/+M+D9jvo+gg/Q+jf6pJTtGcCjXpkqB0xkDXca2XdW8J0+zTaBzwaXd0aTJ+d7NVDd02b+kgEmAW0DPt7X1Ql1T2n60LFa3wWnNnaBjKasUDqe75GDeNT3Grx3StfF8ez1ERXuyf6MPJ3o3niXvyM3jzJ3wjBSqW9+zCPNjSoouf8CWEvBGaL6o+dLfs7HWXKo0hTRe/AyYgy6NNeVUp9HTQD3v9uAl4Ey9NxK4PV872cYNc/Bfo0/xyNUz2qTZfxZbW3d+1QfHuwFj87ruNcDAdSf7cfc8DJupG9/ly+Z9G+OdH9fDXw0Xat7It173/V/qTROvbtNRqtF9KDAh8EFxI3h4ErHak5SihidKw205oA+b7rhHX4NfAblz/J31IxfqtA1lijaauDlJE22jsw4Lfi7zm4/vK/LOQ0i0rxHnxu7FMk65qm9tIZtk3ncMD5v+jRSA5/f587i53xc2fgaS20dnx2rZpvSGOM9vQSfPdsNJCM2bUTkdbAMqGOlCrsG3o/nSr2puJtmz8Kr9LyRU6o1Iii6pvpeRXyk+trypyky8jkZrFa8ZafqC/hatNYyQC3blO51x5l1jt9T8E0bJ13B+3q5tITyFcBBg6+NMRw+9uZLW8hep/i04eNrKv4GCz6vbX0Asb8f2cMj273e02ob8D7He6HWFrzP8Rl2QA5nLKVll0OO/tbuka3y0nbWdfyBgp9kWC/uBMijwudBX1L5M2pGc8A+hbgDtQVf2x10h46CzZ0kO3le6k3a7SutDLw+Ggx4L9iio75D5su8iAofqDtEbXnmK4CcVnVd3kBqC97B6Dl6h+Q2KL03Knidk+PmvtYcIvYQcqvt1asfkXmyDh183lDJEDy63UnkBA4tr3U9snN/lAHye9ps2TYVWHqmp+y8Uql9XvWWt2ZL45i0cpi0czmpWDxw8DUQpQ2T0p5+REnp2vxM74+iSQZTf6PYKgFrAp93GsMBSpsyeo/eWRqrxlX7Hp/n81KL8R8aeBmiVIS1/eoVS8Cm6zTQNj/qaNuf0rzc9UcWuk/9bzNu9Su2ftsGiO7x7Wd37uhzbFk3ac/B9125eg9Inob78oudts4wjaMuHPj84walWJ+nvbhaJM09+EkFU3wdBPwc/8o2NoTkBCqqFhX4woFHgEeABzzgAQ94wAMe8IAHPAI8AjwCPAI8AjwCPAI8AjwCPAI8AjwCPAI8AjwCPAI8AjwCPOABD3jAAx7wgAc84DEY4BHgEeAR4BHgEeAR4BHgEeAR4BHgEeAR4BHgEeAR4BHgEeAR4AEPeMADHvCABzzgAY8AjwaqW9aeWwE84AEPeMADHvCAx2hzouWTZ44AfgG11KVhMMAjwKO5B//AuU8x2hxIHDuBv+fZDzHcHEgcO4G/c/1dDDcHEsdO4O948g0MNwcSx07gbz19AcPNgcSxE/ijaxsj5vnhz+/i2A38qY3LRx/bwoADlviJYzfwJze25S23P/HaiKXd8JZw4iZ+4tgJ/PKpjfXxjWNtjqvD+174GMP2WOIjTuIV7MSxE3h9yrsB3rU5uu3xV0YrT7/9r+5+5v3xfIIORrK32188HLar0yfZG/DPXS/DR0OQ+C1N025+9MXjGHC4Er+laVsUeWhg6lrU1SKftD+c9D5TpNcKvnG1ryygdT6GPnyJwy4PcZmqkNvXduLETeoUaifZa7+R/AOpxTZxdM919AAAAABJRU5ErkJggg==",
+            "name": "aws-rds-postgresql-128.png"
+        },
+        {
+            "icon": "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",
+            "name": "aws-rds-mssql-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "add missing attributes in hostdisco rules",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Amazon RDS service.**\r\n\r\nAvailable host templates and related services:\r\n\r\n|Cloud-Aws-Rds-Instance-Aurora|\r\n|---|\r\n|Rds-Connections|\r\n|Rds-Cpu-Usage|\r\n|Rds-Cpu-Credit|\r\n|Rds-Network|\r\n|Rds-Queries|\r\n|Rds-Transactions|\r\n\r\n|Cloud-Aws-Rds-Instance-MariaDB|\r\n|---|\r\n|Rds-Connections|\r\n|Rds-Cpu-Usage|\r\n|Rds-Cpu-Credit||\r\n|Rds-Diskio|\r\n|Rds-Network|\r\n\r\n|Cloud-Aws-Rds-Instance-MSSQL|\r\n|---|\r\n|Rds-Connections|\r\n|Rds-Cpu-Usage|\r\n|Rds-Cpu-Credit|\r\n|Rds-Network|\r\n\r\n|Cloud-Aws-Rds-Instance-MySQL|\r\n|---|\r\n|Rds-Connections|\r\n|Rds-Cpu-Usage|\r\n|Rds-Cpu-Credit||\r\n|Rds-Diskio|\r\n|Rds-Network|\r\n\r\n|Cloud-Aws-Rds-Instance-Oracle|\r\n|---|\r\n|Rds-Connections|\r\n|Rds-Cpu-Usage|\r\n|Rds-Cpu-Credit|\r\n|Rds-Network|\r\n\r\n|Cloud-Aws-Rds-Instance-PostgreSQL|\r\n|---|\r\n|Rds-Connections|\r\n|Rds-Cpu-Usage|\r\n|Rds-Cpu-Credit|\r\n|Rds-Network|\r\n\r\n|Cloud-Aws-Rds-Instance-Cluster|\r\n|---|\r\n|Rds-Connections|\r\n|Rds-Cpu-Usage|\r\n|Rds-Cpu-Credit|\r\n|Rds-Network|\r\n|Rds-Queries|\r\n|Rds-Transactions|\r\n|Rds-Volume-Usage|\r\n|Rds-Volume-Iops|\r\n\r\nThis pack provides a host discovery rule."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser le service Amazon RDS.**\r\n\r\nMod\u00e8les d\\'h\u00f4te disponibles et leurs services :\r\n\r\n|Cloud-Aws-Rds-Instance-Aurora|\r\n|---|\r\n|Rds-Connections|\r\n|Rds-Cpu-Usage|\r\n|Rds-Cpu-Credit|\r\n|Rds-Network|\r\n|Rds-Queries|\r\n|Rds-Transactions|\r\n\r\n|Cloud-Aws-Rds-Instance-MariaDB|\r\n|---|\r\n|Rds-Connections|\r\n|Rds-Cpu-Usage|\r\n|Rds-Cpu-Credit||\r\n|Rds-Diskio|\r\n|Rds-Network|\r\n\r\n|Cloud-Aws-Rds-Instance-MSSQL|\r\n|---|\r\n|Rds-Connections|\r\n|Rds-Cpu-Usage|\r\n|Rds-Cpu-Credit|\r\n|Rds-Network|\r\n\r\n|Cloud-Aws-Rds-Instance-MySQL|\r\n|---|\r\n|Rds-Connections|\r\n|Rds-Cpu-Usage|\r\n|Rds-Cpu-Credit||\r\n|Rds-Diskio|\r\n|Rds-Network|\r\n\r\n|Cloud-Aws-Rds-Instance-Oracle|\r\n|---|\r\n|Rds-Connections|\r\n|Rds-Cpu-Usage|\r\n|Rds-Cpu-Credit|\r\n|Rds-Network|\r\n\r\n|Cloud-Aws-Rds-Instance-PostgreSQL|\r\n|---|\r\n|Rds-Connections|\r\n|Rds-Cpu-Usage|\r\n|Rds-Cpu-Credit|\r\n|Rds-Network|\r\n\r\n|Cloud-Aws-Rds-Instance-Cluster|\r\n|---|\r\n|Rds-Connections|\r\n|Rds-Cpu-Usage|\r\n|Rds-Cpu-Credit|\r\n|Rds-Network|\r\n|Rds-Queries|\r\n|Rds-Transactions|\r\n|Rds-Volume-Usage|\r\n|Rds-Volume-Iops|\r\n\r\nCe pack fournit une r\u00e8gle de d\u00e9couverte d\\'h\u00f4te."
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAH4AAAB+CAYAAADiI6WIAAADpUlEQVR42u3bMUsbYRzH8RtuEDrHJmhNBoeCpOh8CLfEU7EKUpc7Cn0BJmrcQ7YUF5FUbKa+i1whg5sIKQn3FlwO3HwFaWK1tWm1MX2eu+e5fH/wmwP5/ALH/4hhEEIIIYQQEmvsqpn1Gm7Oa9y8Ofzai7sbx+3rrXrXtavnJjgSwbPe57CP3htUBfi3x99625+6/XZCBiAZXE34LgOQDa42PAOQBq4HPAMYOaOC6wX/+wBQfpA578zKuY1gVHA94X8OINisty3AxwDXG36CB/C/4MmAn6ABiAJPFnyCByAaPJnwCRrAzM7pogzwZMP/GsBa7WJJO/Tpwq41u127koWefPhuzzm6DBf2m5ZW6JnVvd6rd0c94Mdv4ePF7WdogZ9eLqYG6MCLgx90vthMKY2eXi2FwIuHzx/6oZL4w+jAi4VXE9+2zT568BAdePHwd/jB4EWWEugZp9QaRgdeDvwdfite/CfQgZcHHzt+ZmXv5DF04OXC37bsn0T/MOcUK0+hAx8B/OCXf9CsKIUOfDTwkeGnC6X1UdCBjw7+Fr/sr0s/xQKvHry00+5z0YGPHl4K/nPRgY8HXvhdH3h94F/v+znggQceeOCBBx544IEHHnjggQceeOCBBx544IEHHnjggQceeOCBBx544IEHHnjggQceeOCBBx544IEHHnjggQceeOCBBx544IEHHnjggQceeOCBBx544IEHHnjggQceeOCBBx544IEHHnjggQceeOCBBx544IEHHnjggQceeOCBBx544IEHHnjggQceeOCBBx544IEHHnjggQceeOCBB14F+PRqKQReD/j5YjMlDn65mAJeffiF/aZliM50YdcCXl14Kejj4AMfHXy+7K8bsvPS2XOBVwc+f9CsGFEl7RQrwMcPHyn6qPjAS4Yv+ydGXMk4pRbw0cPnD/2WYVfN2OAN2zYfwwdeDnz86P/AB148fB89UAP9/kl/5f2L4ese8GLh++ih0KucyOveQ3zgxcEri/43fODFwSuNPnzdA14MvNRTrAz82e3aFfDj1zm6DLVCv8/Mzulizm0EwI/TTrBWu1gydM6cd2bJGEAy4TvBZr1tGUmK6AEkCz6B4LIGkAz4CQAXPQC94ScQXNQA9IQH/I9kvYab9T6HyYTvhFv1rovyoy98quaoA9AD/ge4XT03wRU0ALXhAZc2ADXhAZc+ALXgAY9kAH34GxXgN47b14BHO4CpwX/E4m7uw5cp3b6676h+0OXi+YajAAAAAElFTkSuQmCC",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Cloud-Aws-Rds-Api\r\n\r\nTo use it, you can either install 'awscli' (AWS Command Line Interface) or 'paws' (Perl AWS SDK).\r\n\r\n### Install awscli\r\nOn CentOS, install with following commands:\r\n\r\n    # yum install awscli\r\n\r\n## Centreon Configuration\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Cloud-Aws-Rds-Cluster-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Host Macro Configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"23%\" />\r\n<col width=\"53%\" />\r\n<col width=\"24%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AWSCUSTOMMODE</p></td>\r\n<td align=\"left\"><p>Mode used by plugin (awscli or paws)</p></td>\r\n<td align=\"left\"><p>awscli</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>AWSSECRETKEY</p></td>\r\n<td align=\"left\"><p>CloudWatch secret key</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AWSACCESSKEY</p></td>\r\n<td align=\"left\"><p>CloudWatch access key</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>AWSREGION</p></td>\r\n<td align=\"left\"><p>Monitoring region</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AWSINSTANCENAME</p></td>\r\n<td align=\"left\"><p>Name of your RDS instance</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Amazon RDS",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_aws_rds_api.pl",
+                "package_name": "centreon-plugin-Cloud-Aws-Rds-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-aws-rds",
+        "status": "stable",
+        "status_message": "fix host disco attributes",
+        "tags": [
+            "AWS",
+            "Amazon",
+            "RDS",
+            "Cloud"
+        ],
+        "update_date": "1653048946",
+        "version": "22.05.1",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des volumes.}\r\n\r\n{EN: Check volumes usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Rds-Volume-Usage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Rds-Api-Volume",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERMETRIC$",
+                    "password": false,
+                    "value": "VolumeBytesUsed"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--per-sec --verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Rds-Volume-Usage-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des \u00e9critures/lectures des volumes.}\r\n\r\n{EN: Check volumes IO utilization.}",
+            "active_checks_enabled": 2,
+            "alias": "Rds-Volume-Iops",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Rds-Api-Volume",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERMETRIC$",
+                    "password": false,
+                    "value": "IOPs"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--per-sec --verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Rds-Volume-Iops-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de transaction effectu\u00e9es sur l'instance.}\r\n\r\n{EN: Check transaction number made on instance.}",
+            "active_checks_enabled": 2,
+            "alias": "Rds-Transactions",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Rds-Api-Transactions",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Rds-Transactions-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de requ\u00eates effectu\u00e9es sur l'instance.}\r\n\r\n{EN: Check requests number made on instance.}",
+            "active_checks_enabled": 2,
+            "alias": "Rds-Queries",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Rds-Api-Queries",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Rds-Queries-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du r\u00e9seau.}\r\n\r\n{EN: Check network usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Rds-Network",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Rds-Api-Network",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Rds-Network-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation CPU.}\r\n\r\n{EN: Check CPU usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Rds-Cpu-Usage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Rds-Api-Cpu",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERMETRIC$",
+                    "password": false,
+                    "value": "Utilization"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGCPUCREDITUTILIZATIONAVERAGE$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALCPUCREDITUTILIZATIONAVERAGE$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Rds-Cpu-Usage-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des cr\u00e9dits CPU.}\r\n\r\n{EN: Check CPU credits usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Rds-Cpu-Credit",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Rds-Api-Cpu",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERMETRIC$",
+                    "password": false,
+                    "value": "Credit"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Rds-Cpu-Credit-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de connexion \u00e0 l'instance.}\r\n\r\n{EN: Check connection number on instance.}",
+            "active_checks_enabled": 2,
+            "alias": "Rds-Connections",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Rds-Api-Connections",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Rds-Connections-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des \u00e9critures/lectures des disques.}\r\n\r\n{EN: Check disks IO utilization.}",
+            "active_checks_enabled": 2,
+            "alias": "Rds-Diskio",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Rds-Api-Diskio",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Rds-Diskio-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le statut des instances RDS.}\r\n\r\n{EN: Check RDS instances status.}",
+            "active_checks_enabled": 2,
+            "alias": "Rds-Instance-Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Rds-Api-Instance-Status",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEAWSCUSTOMMODE$",
+                    "password": false,
+                    "value": "awscli"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Rds-Instance-Status-Api",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du stockage.}\r\n\r\n{EN: Check storage usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Rds-Storage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Rds-Api-Storage",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Rds-Storage-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,718 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "OS-Linux-NRPE-Storages-Discover",
+                "command_for_macro": "OS-Linux-NRPE-Storages-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$fs$",
+                        "order": 0,
+                        "pattern": "(tmpfs)",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "OS-Linux-NRPE3"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERMOUNTPOINT",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "OS-Linux-NRPE-Disk-Name",
+                "service_display_name": "Disk-$name$",
+                "service_template": "OS-Linux-Disks-NRPE3"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "OS-Linux-NRPE-Interfaces-Discover",
+                "command_for_macro": "OS-Linux-NRPE-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$name$",
+                        "order": 0,
+                        "pattern": "lo",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "OS-Linux-NRPE3"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERINTERFACE",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "OS-Linux-NRPE-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "OS-Linux-Traffic-NRPE3"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_linux_local.pl --plugin=os::linux::local::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "OS-Linux-NRPE-Storages-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins  -a \\'os::linux::local::plugin\\' \\'list-storages\\' \\' --disco-show\\'\\\"",
+            "name": "OS-Linux-NRPE-Storages-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_linux_local.pl --plugin=os::linux::local::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "OS-Linux-NRPE-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins  -a \\'os::linux::local::plugin\\' \\'list-interfaces\\' \\' --disco-show\\'\\\"",
+            "name": "OS-Linux-NRPE-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'os::linux::local::plugin\\' \\'uptime\\'  \\' --warning=$_SERVICEWARNING$ --critical=$_SERVICECRITICAL$  $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "OS-Linux-NRPE3-Uptime",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'os::linux::local::plugin\\' \\'swap\\'  \\' --warning-usage-prct=$_SERVICEWARNING$ --critical-usage-prct=$_SERVICECRITICAL$  $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "OS-Linux-NRPE3-Swap",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'os::linux::local::plugin\\' \\'memory\\'  \\' --warning=\\\\\\\"$_SERVICEWARNING$\\\\\\\" --critical=\\\\\\\"$_SERVICECRITICAL$\\\\\\\"  $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "OS-Linux-NRPE3-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'os::linux::local::plugin\\' \\'load\\'  \\' --warning=$_SERVICEWARNING$ --critical=$_SERVICECRITICAL$  $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "OS-Linux-NRPE3-Load",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'os::linux::local::plugin\\' \\'cpu\\'  \\'  --warning-core=\\\\\\\"$_SERVICEWARNINGCORE$\\\\\\\" --critical-core=\\\\\\\"$_SERVICECRITICALCORE$\\\\\\\" --warning-average=\\\\\\\"$_SERVICEWARNINGAVERAGE$\\\\\\\" --critical-average=\\\\\\\"$_SERVICECRITICALAVERAGE$\\\\\\\"\\\\r\\\\n  $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "OS-Linux-NRPE3-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'os::linux::local::plugin\\' \\'cmd-return\\'  \\'  --exec-command=\\\\\\\"$_SERVICECOMMAND$\\\\\\\"  --exec-command-options=\\\\\\\"$_SERVICECOMMANDOPTIONS$\\\\\\\" --manage-returns=\\\\\\\"$_SERVICETHRESHOLDS$\\\\\\\"  $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "OS-Linux-NRPE3-CmdReturn",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'os::linux::local::plugin\\' \\'connections\\'  \\' --warning=\\\\\\\"$_SERVICEWARNING$\\\\\\\" --critical=\\\\\\\"$_SERVICECRITICAL$\\\\\\\" $_SERVICEEXTRAOPTIONS$ \\'\\\"",
+            "name": "OS-Linux-NRPE3-Connections",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'os::linux::local::plugin\\' \\'cpu-detailed\\'  \\' --warning-idle=$_SERVICEWARNINGIDLE$ --critical-idle=$_SERVICECRITICALIDLE$  $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "OS-Linux-NRPE3-Cpu-Detailed",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'os::linux::local::plugin\\' \\'storage\\'  \\' --filter-mountpoint=\\\\\\\"$_SERVICEFILTERMOUNTPOINT$\\\\\\\" --warning-usage=\\\\\\\"$_SERVICEWARNING$\\\\\\\" --critical-usage=\\\\\\\"$_SERVICECRITICAL$\\\\\\\" $_SERVICEEXTRAOPTIONS$ \\'\\\"",
+            "name": "OS-Linux-NRPE3-Disks",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'os::linux::local::plugin\\' \\'diskio\\'  \\' --filter-partition-name=\\\\\\\"$_SERVICEFILTERPARTITIONAME$\\\\\\\" --warning-read-usage=\\\\\\\"$_SERVICEWARNINGREADUSAGE$\\\\\\\" --critical-read-usage=\\\\\\\"$_SERVICECRITICALREADUSAGE$\\\\\\\" --warning-write-usage=\\\\\\\"$_SERVICEWARNINGWRITEUSAGE$\\\\\\\" --critical-write-usage=\\\\\\\"$_SERVICECRITICALWRITEUSAGE$\\\\\\\" --warning-read-time=\\\\\\\"$_SERVICEWARNINGREADTIME$\\\\\\\" --critical-read-time=\\\\\\\"$_SERVICECRITICALREADTIME$\\\\\\\" --warning-write-time=\\\\\\\"$_SERVICEWARNINGWRITETIME$\\\\\\\" --critical-write-time=\\\\\\\"$_SERVICECRITICALWRITETIME$\\\\\\\" --warning-utils=\\\\\\\"$_SERVICEWARNINGUTILS$\\\\\\\" --critical-utils=\\\\\\\"$_SERVICECRITICALUTILS$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "OS-Linux-NRPE3-Diskio",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'os::linux::local::plugin\\' \\'files-date\\'  \\'  --files=\\\\\\\"$_SERVICEFILES$\\\\\\\" --warning=\\\\\\\"$_SERVICEWARNING$\\\\\\\"  --critical=\\\\\\\"$_SERVICECRITICAL$\\\\\\\" --filter-plugin=\\\\\\\"$_SERVICEFILTERPLUGIN$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "OS-Linux-NRPE3-FileDate",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'os::linux::local::plugin\\' \\'files-size\\'  \\'  --files=\\\\\\\"$_SERVICEFILES$\\\\\\\" --warning-one=\\\\\\\"$_SERVICEWARNINGONE$\\\\\\\"  --critical-one=\\\\\\\"$_SERVICECRITICALONE$\\\\\\\" --warning-total=\\\\\\\"$_SERVICEWARNINGTOTAL$\\\\\\\"  --critical-total=\\\\\\\"$_SERVICECRITICALTOTAL$\\\\\\\" --filter-plugin=\\\\\\\"$_SERVICEFILTERPLUGIN$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "OS-Linux-NRPE3-FileSize",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'os::linux::local::plugin\\' \\'inodes\\'  \\' --filter-mountpoint=\\\\\\\"$_SERVICEFILTERMOUNTPOINT$\\\\\\\" --warning-usage=\\\\\\\"$_SERVICEWARNING$\\\\\\\" --critical-usage=\\\\\\\"$_SERVICECRITICAL$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "OS-Linux-NRPE3-Inodes",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'os::linux::local::plugin\\' \\'cmd-return\\'  \\'  --exec-command=\\\\\\\"$_SERVICECOMMAND$\\\\\\\"  --exec-command-options=\\\\\\\"-f $_SERVICEFILE$\\\\\\\" --manage-returns=\\\\\\\"0,OK,File $_SERVICEFILE$ is present#1,CRITICAL,File $_SERVICEFILE$ is not present#,UNKNOWN,Command problem\\\\\\\"  $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "OS-Linux-NRPE3-IsFile",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'os::linux::local::plugin\\' \\'cmd-return\\'  \\'  --exec-command=\\\\\\\"$_SERVICECOMMAND$\\\\\\\"  --exec-command-options=\\\\\\\"-f $_SERVICEFILE$\\\\\\\" --manage-returns=\\\\\\\"0,CRITICAL,File $_SERVICEFILE$ is present#1,OK,File $_SERVICEFILE$ is not present#,UNKNOWN,Command problem\\\\\\\"  $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "OS-Linux-NRPE3-IsNotFile",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'os::linux::local::plugin\\' \\'packet-errors\\'  \\' --filter-interface=\\\\\\\"$_SERVICEFILTERINTERFACE$\\\\\\\" --warning-in-error=\\\\\\\"$_SERVICEWARNINGINERROR$\\\\\\\" --critical-in-error=\\\\\\\"$_SERVICECRITICALINERROR$\\\\\\\" --warning-out-error=\\\\\\\"$_SERVICEWARNINGOUTERROR$\\\\\\\" --critical-out-error=\\\\\\\"$_SERVICECRITICALOUTERROR$\\\\\\\" --warning-in-discard=\\\\\\\"$_SERVICEWARNINGINDISCARD$\\\\\\\" --critical-in-discard=\\\\\\\"$_SERVICECRITICALINDISCARD$\\\\\\\" --warning-out-discard=\\\\\\\"$_SERVICEWARNINGOUTDISCARD$\\\\\\\" --critical-out-discard=\\\\\\\"$_SERVICECRITICALOUTDISCARD$\\\\\\\" --filter-state=\\\\\\\"$_SERVICEFILTERSTATE$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "OS-Linux-NRPE3-Packet-Errors",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'os::linux::local::plugin\\' \\'process\\'  \\' --warning-total=$_SERVICEWARNINGTOTAL$ --critical-total=$_SERVICECRITICALTOTAL$ --warning-time=$_SERVICEWARNINGTIME$ --critical-time=$_SERVICECRITICALTIME$ --filter-command=\\\\\\\"$_SERVICEFILTERCOMMAND$\\\\\\\" --filter-arg=\\\\\\\"$_SERVICEFILTERARG$\\\\\\\" --filter-state=\\\\\\\"$_SERVICEFILTERSTATE$\\\\\\\"  $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "OS-Linux-NRPE3-Process-Generic",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'os::linux::local::plugin\\' \\'traffic\\'  \\' --filter-interface=\\\\\\\"$_SERVICEFILTERINTERFACE$\\\\\\\" --warning-in=\\\\\\\"$_SERVICEWARNINGIN$\\\\\\\" --critical-in=\\\\\\\"$_SERVICECRITICALIN$\\\\\\\" --warning-out=\\\\\\\"$_SERVICEWARNINGOUT$\\\\\\\" --critical-out=\\\\\\\"$_SERVICECRITICALOUT$\\\\\\\" --filter-state=\\\\\\\"$_SERVICEFILTERSTATE$\\\\\\\" --speed=\\\\\\\"$_SERVICESPEED$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "OS-Linux-NRPE3-Traffic",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'os::linux::local::plugin\\' \\'systemd-sc-status\\' \\' --filter-name=\\\\\\\"$_SERVICEFILTERNAME$\\\\\\\" --exclude-name=\\\\\\\"$_SERVICEEXCLUDENAME$\\\\\\\" --warning-status=\\\\\\\"$_SERVICEWARNINGSTATUS$\\\\\\\" --critical-status=\\\\\\\"$_SERVICECRITICALSTATUS$\\\\\\\" --warning-total-running=\\\\\\\"$_SERVICEWARNINGTOTALRUNNING$\\\\\\\" --critical-total-running=\\\\\\\"$_SERVICECRITICALTOTALRUNNING$\\\\\\\" --warning-total-failed=\\\\\\\"$_SERVICEWARNINGTOTALFAILED$\\\\\\\" --critical-total-failed=\\\\\\\"$_SERVICECRITICALTOTALFAILED$\\\\\\\" --warning-total-dead=\\\\\\\"$_SERVICEWARNINGTOTALDEAD$\\\\\\\" --critical-total-dead=\\\\\\\"$_SERVICECRITICALTOTALDEAD$\\\\\\\" --warning-total-exited=\\\\\\\"$_SERVICEWARNINGTOTALEXITED$\\\\\\\" --critical-total-exited=\\\\\\\"$_SERVICECRITICALTOTALEXITED$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "OS-Linux-NRPE3-Systemd-Sc-Status",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les serveurs Linux via NRPE}\r\n{EN: Template to check Linux server using NRPE protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Linux server using NRPE v3 protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "icon": "linux-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTNRPECLIENT$",
+                    "value": "check_centreon_nrpe3"
+                },
+                {
+                    "key": "$_HOSTNRPEEXTRAOPTIONS$",
+                    "value": "-u"
+                },
+                {
+                    "key": "$_HOSTNRPEPORT$",
+                    "value": "5666"
+                },
+                {
+                    "key": "$_HOSTNRPETIMEOUT$",
+                    "value": "5"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Linux-NRPE3",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "OS-Linux-Uptime-NRPE3",
+                "OS-Linux-Swap-NRPE3",
+                "OS-Linux-Memory-NRPE3",
+                "OS-Linux-Load-NRPE3",
+                "OS-Linux-Cpu-NRPE3"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "linux-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "- new Systemd-Sc-Status STPL\r\n- rework PP description",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin Pack to monitor GNU/Linux operating system using NRPE protocol**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|OS-Linux-NRPE3-custom|\r\n|---|\r\n|Connections (TCP/UDP)|\r\n|Cmd-Generic|\r\n|Cpu*|\r\n|Cpu-Detailed|\r\n|Disks|\r\n|Disk-IO|\r\n|File-Date|\r\n|File-Size|\r\n|Inodes|\r\n|Is-File|\r\n|Is-Not-File|\r\n|Load*|\r\n|Memory*|\r\n|Packet-Errors|\r\n|Process|\r\n|Swap*|\r\n|Systemd-Sc-Status|\r\n|Traffic|\r\n|Uptime*|\r\n\r\nOnly the Services with an \\'*\\' are linked & deployed out-of-the-box. The other ones are available but have to be manually linked to the host template."
+            },
+            {
+                "lang": "fr",
+                "value": "** Plugin Pack pour superviser les syst\u00e8mes d\\'exploitation GNU/Linux en utilisant le protocole NRPE**\r\n\r\nMod\u00e8le d\\'H\u00f4te disponible et services associ\u00e9s:\r\n\r\n|OS-Linux-NRPE3-custom|\r\n|---|\r\n|Connections (TCP/UDP)|\r\n|Cmd-Generic|\r\n|Cpu*|\r\n|Cpu-Detailed|\r\n|Disks|\r\n|Disk-IO|\r\n|File-Date|\r\n|File-Size|\r\n|Inodes|\r\n|Is-File|\r\n|Is-Not-File|\r\n|Load*|\r\n|Memory*|\r\n|Packet-Errors|\r\n|Process|\r\n|Swap*|\r\n|Systemd-Sc-Status|\r\n|Traffic|\r\n|Uptime*|\r\n\r\nSeuls les Services marqu\u00e9s \\'*\\' sont d\u00e9ploy\u00e9s par d\u00e9faut. Les autres Services list\u00e9s ici sont disponibles mais leurs mod\u00e8les doivent \u00eatre li\u00e9s manuellement au mod\u00e8le d\\'H\u00f4te."
+            }
+        ],
+        "discovery_category": "operating-system",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires the version 19.10.1 or later of the Plugin Pack Manager module\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Linux NRPE3",
+        "plugins_requirements": [],
+        "requirement": [],
+        "slug": "operatingsystems-linux-nrpe3",
+        "status": "stable",
+        "status_message": "set version to 22.06.0",
+        "tags": [
+            "Debian",
+            "Linux",
+            "Ubuntu",
+            "Operating System",
+            "RedHat",
+            "Server",
+            "Servers",
+            "Suse",
+            "GNU",
+            "ServiceDisco"
+        ],
+        "update_date": "1654002362",
+        "version": "22.06.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Dur\u00e9e depuis laquelle le serveur tourne sans interruption.}\r\n\r\n{EN: Time since the server has been working and available.}",
+            "active_checks_enabled": 2,
+            "alias": "Uptime",
+            "check_timeperiod": "",
+            "command_name": "OS-Linux-NRPE3-Uptime",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "OS-Linux-Uptime-NRPE3",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire virtuelle (SWAP)}\r\n\r\n{EN: Check virtual memory usage (SWAP)}",
+            "active_checks_enabled": 2,
+            "alias": "Swap",
+            "check_timeperiod": "",
+            "command_name": "OS-Linux-NRPE3-Swap",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "OS-Linux-Swap-NRPE3",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire vive (RAM)..}\r\n\r\n{EN: Check the rate of the utilization of memory (RAM).}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "OS-Linux-NRPE3-Memory",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "OS-Linux-Memory-NRPE3",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la charge serveur.}\r\n\r\n{EN: Check the server load average.}",
+            "active_checks_enabled": 2,
+            "alias": "Load",
+            "check_timeperiod": "",
+            "command_name": "OS-Linux-NRPE3-Load",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "OS-Linux-Load-NRPE3",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation CPU de la machine. Ce contr\u00f4le pourra remonter la moyenne du taux d'utilisation des CPU ainsi que le taux par CPU pour les CPU multi-coeur.}\r\n{EN: Check the rate of utilization of CPU for the machine. This check can give the average CPU utilization rate and the rate per CPU for multi-core CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "OS-Linux-NRPE3-Cpu",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--statefile-dir=/var/log/nrpe/centplugins"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Linux-Cpu-NRPE3",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Permet de v\u00e9rifier le code retour de commandes Linux.}\r\n\r\n{EN: Check exit code of linux commands.}",
+            "active_checks_enabled": 2,
+            "alias": "Cmd-Generic",
+            "check_timeperiod": "",
+            "command_name": "OS-Linux-NRPE3-CmdReturn",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "OS-Linux-Cmd-Generic-NRPE3",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les connexions tcp/udp.}\r\n\r\n{EN: Check tcp/udp connections.}",
+            "active_checks_enabled": 2,
+            "alias": "Connections-Generic",
+            "check_timeperiod": "",
+            "command_name": "OS-Linux-NRPE3-Connections",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "OS-Linux-Connections-Generic-NRPE3",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation d\u00e9taill\u00e9 du CPU de la machine. Ce contr\u00f4le pourra remonter la moyenne du taux d'utilisation des CPU ainsi que le taux par CPU pour les CPU multi-coeur.}\r\n\r\n{EN: Check the detailed rate of utilization of CPU for the machine. This check can give the average CPU utilization rate and the rate per CPU for multi-core CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu-Detailed",
+            "check_timeperiod": "",
+            "command_name": "OS-Linux-NRPE3-Cpu-Detailed",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--statefile-dir=/var/log/nrpe/centplugins"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Linux-Cpu-Detailed-NRPE3",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'espace libre disponible des disques. Pour chaque contr\u00f4le appara\u00eetra le point de montage des disques (\u00ab label \u00bb). Les seuils pourront \u00eatre en pourcentage, en espace libre restant.}\r\n\r\n{EN: Check the rate of free space on disks. For each checks the mount point of disks will appear (\u00ab label \u00bb). Thresholds can be in percentage or in free space remaining.}",
+            "active_checks_enabled": 2,
+            "alias": "Disks",
+            "check_timeperiod": "",
+            "command_name": "OS-Linux-NRPE3-Disks",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Linux-Disks-NRPE3",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les compteurs I/O des disques.}\r\n\r\n{EN: Check I/O counters of disks.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-IO",
+            "check_timeperiod": "",
+            "command_name": "OS-Linux-NRPE3-Diskio",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --skip --statefile-dir=/var/log/nrpe/centplugins"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Linux-Disk-IO-NRPE3",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Permet de v\u00e9rifier le temps de modification/cr\u00e9ation/acc\u00e8s/... de fichiers et/ou r\u00e9pertoires.}\r\n\r\n{EN: Check file or/and directory modification/creation/access times.}",
+            "active_checks_enabled": 2,
+            "alias": "File-Date-Generic",
+            "check_timeperiod": "",
+            "command_name": "OS-Linux-NRPE3-FileDate",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Linux-File-Date-Generic-NRPE3",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Permet de v\u00e9rifier la taille de fichiers et/ou r\u00e9pertoires.}\r\n\r\n{EN: Check file or/and directory sizes.}",
+            "active_checks_enabled": 2,
+            "alias": "File-Size-Generic",
+            "check_timeperiod": "",
+            "command_name": "OS-Linux-NRPE3-FileSize",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Linux-File-Size-Generic-NRPE3",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'inodes disponible des disques.}\r\n\r\n{EN: Check the rate of free inodes on disks.}",
+            "active_checks_enabled": 2,
+            "alias": "Inodes",
+            "check_timeperiod": "",
+            "command_name": "OS-Linux-NRPE3-Inodes",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Linux-Inodes-NRPE3",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Permet de v\u00e9rifier si le fichier 'xxx' est pr\u00e9sent.} \r\n\r\n{EN: Check if file 'xxx' is present.}",
+            "active_checks_enabled": 2,
+            "alias": "Is-File-Generic",
+            "check_timeperiod": "",
+            "command_name": "OS-Linux-NRPE3-IsFile",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMMAND$",
+                    "password": false,
+                    "value": "test"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Linux-Is-File-Generic-NRPE3",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Permet de v\u00e9rifier si le fichier 'xxx' n'est pas pr\u00e9sent.}\r\n\r\n{EN: Check if file 'xxx' is not present.}",
+            "active_checks_enabled": 2,
+            "alias": "Is-Not-File-Generic",
+            "check_timeperiod": "",
+            "command_name": "OS-Linux-NRPE3-IsNotFile",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMMAND$",
+                    "password": false,
+                    "value": "test"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Linux-Is-Not-File-Generic-NRPE3",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le pourcentage de paquets en erreur/\u00e9cart\u00e9 de plusieurs interfaces r\u00e9seau.}\r\n\r\n{EN: Check packets on errors/discards of multiple network interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Packet-Errors",
+            "check_timeperiod": "",
+            "command_name": "OS-Linux-NRPE3-Packet-Errors",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --statefile-dir=/var/log/nrpe/centplugins --no-loopback"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Linux-Packet-Errors-NRPE3",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier des processus Linux.}\r\n\r\n{EN: Check Linux processes.}",
+            "active_checks_enabled": 2,
+            "alias": "Process-Generic",
+            "check_timeperiod": "",
+            "command_name": "OS-Linux-NRPE3-Process-Generic",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Linux-Process-Generic-NRPE3",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante des interfaces. Pour chaque contr\u00f4le appara\u00eetra le nom de l'interface (\u00ab label \u00bb raccourci d\u00e9crivant l'interface).}\r\n\r\n{EN: Check the bandwidth of interfaces. For each checks the name of the interface will appear (\u00ab label \u00bb shortcut describing the interface).}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic",
+            "check_timeperiod": "",
+            "command_name": "OS-Linux-NRPE3-Traffic",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERSTATE$",
+                    "password": false,
+                    "value": "RU"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--statefile-dir=/var/log/nrpe/centplugins"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Linux-Traffic-NRPE3",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des services systemd.}\r\n\r\n{EN: Check systemd services status.}",
+            "active_checks_enabled": 2,
+            "alias": "Systemd-Sc-Status",
+            "check_timeperiod": "",
+            "command_name": "OS-Linux-NRPE3-Systemd-Sc-Status",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{active} =~ /failed/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--use-new-perfdata --verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Linux-Systemd-Sc-Status-NRPE3",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

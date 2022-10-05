@@ -1,0 +1,527 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_net_ibm_bladecenter_snmp.pl --plugin=network::ibm::bladecenter::snmp::plugin --mode=interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' \\'$_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "Net-IBM-Bladecenter-SNMP-Traffic-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_net_ibm_bladecenter_snmp.pl --plugin=network::ibm::bladecenter::snmp::plugin --mode=memory --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' \\'$_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "Net-IBM-Bladecenter-SNMP-Memory-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_net_ibm_bladecenter_snmp.pl --plugin=network::ibm::bladecenter::snmp::plugin --mode=environment --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' \\'$_HOSTSNMPEXTRAOPTIONS$\\' --component=\\'$_SERVICECOMPONENT$\\' --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' \\'$_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "Net-IBM-Bladecenter-SNMP-Environment",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_net_ibm_bladecenter_snmp.pl --plugin=network::ibm::bladecenter::snmp::plugin --mode=cpu --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' \\'$_HOSTSNMPEXTRAOPTIONS$\\' --warning-average-1m=\\'$_SERVICEWARNINGAVERAGE1M$\\' --critical-average-1m=\\'$_SERVICECRITICALAVERAGE1M$\\' --warning-average-5m=\\'$_SERVICEWARNINGAVERAGE5M$\\' --critical-average-5m=\\'$_SERVICECRITICALAVERAGE5M$\\' \\'$_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "Net-IBM-Bladecenter-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_net_ibm_bladecenter_snmp.pl --plugin=network::ibm::bladecenter::snmp::plugin --mode=disk --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' \\'$_HOSTSNMPEXTRAOPTIONS$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' \\'$_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "Net-IBM-Bladecenter-SNMP-Disk-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_net_ibm_bladecenter_snmp.pl --plugin=network::ibm::bladecenter::snmp::plugin --mode=time --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --ntp-port=\\'$_SERVICENTPADDR$\\' --ntp-port=\\'$_SERVICENTPPORT$\\' --timzeone=\\'$_SERVICETIMEZONE$\\' --warning-offset=\\'$_SERVICEWARNINGOFFSET$\\' --critical-offset=\\'$_SERVICECRITICALOFFSET$\\' \\'$_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "Net-IBM-Bladecenter-SNMP-Time",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_net_ibm_bladecenter_snmp.pl --plugin=network::ibm::bladecenter::snmp::plugin --mode=uptime --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' \\'$_HOSTSNMPEXTRAOPTIONS$\\' --warning-uptime=\\'$_SERVICEWARNINGUPTIME$\\' --critical-uptime=\\'$_SERVICECRITICALUPTIME$\\'  \\'$_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "Net-IBM-Bladecenter-SNMP-Uptime",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_net_ibm_bladecenter_snmp.pl --plugin=network::ibm::bladecenter::snmp::plugin --mode=interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' \\'$_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "Net-IBM-Bladecenter-SNMP-Traffic-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_net_ibm_bladecenter_snmp.pl --plugin=network::ibm::bladecenter::snmp::plugin --mode=interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACEID$\\' --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' \\'$_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "Net-IBM-Bladecenter-SNMP-Traffic-Id",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_net_ibm_bladecenter_snmp.pl --plugin=network::ibm::bladecenter::snmp::plugin --mode=interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACEID$\\' --add-status --add-errors --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' \\'$_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "Net-IBM-Bladecenter-SNMP-Packet-Errors-Id",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_net_ibm_bladecenter_snmp.pl --plugin=network::ibm::bladecenter::snmp::plugin --mode=interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$$$\\' --name --add-status --add-errors --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' \\'$_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "Net-IBM-Bladecenter-SNMP-Packet-Errors-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_net_ibm_bladecenter_snmp.pl --plugin=network::ibm::bladecenter::snmp::plugin --mode=interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-errors --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' \\'$_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "Net-IBM-Bladecenter-SNMP-Packet-Errors-Global",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00c3\u00a8le pour superviser les switchs IBM Bladecenter via SNMP}\r\n{EN: Template to check IBM Bladecenter switches using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check IBM Bladecenter switches using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "ibm-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-IBM-Bladecenter-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-IBM-Bladecenter-Traffic-Global-SNMP",
+                "Net-IBM-Bladecenter-Memory-Usage",
+                "Net-IBM-Bladecenter-Environment",
+                "Net-IBM-Bladecenter-Cpu"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAAsSAAALEgHS3X78AAAE50lEQVR42u2cX2gcVRSHy1prt6IhsbaNttmkFlGDJdUQ8SH0QYKClYoggT4UbS2RFpvd1CjFaksfVaLFh4IiCq1iVUREpBCk7qTVIt2XUmMRg9AW/0AeNBVUEOu9OOh02dk9d+bcccl+H/wgD/eec+beX5Izs3dnwQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaDIKxfJezxqvyndvBjmjKhltMOpwXJerPdRyY8q9ulm5nhEb9JJn/VR1ERMZ5KylP42OGt3fs+tTyWIv81DDnpQGOKBcT6WVDBDVlFHv/2CAszc9eSLh5gdX2rXEAHr6zWhLxgawGkj427/BQy0VmiAAgJa+DfzIsw5V5dti9GET6l2jtkidbR5z7Xbco1c91THRyk1gLe3KoAm0+tlosXDzb/FYRwUDXK4TGRnAaqPQAM/5NsApz5qsuqBSBjmT6vPuYvmKsM52z7meFRrgkMcaDtMEAQBAzP+fY0bnBTqrlG+TMJ/VJuEz9E6HmFYPCGs97Ri3ls4ZLY+JP6gQ3+pYmg2ZFnaTc0oG2ObQwW4TGmClY2d8t7DWWaVOvBgT/3Wl+NMYQB7zd6MlGRvgVI3YeaNfmsEA+41eE+gVJQMMCvNZDQoN0O4Qc7dDrS85xG2ktqrYvYqx99PMAEACuktBh9H1Ai1VyrdYmM+HFjrWulQ5fz6Mm1eO25F4Q5q8CdTUN93F8lWOtc4q13A4jPumctxpDFBfF436EtQ66xD/L8G4X+0zAbuWwuNsf2CA9LK3WusT1io1wIzRceHYo8Jx7wiNktoAw0aPC7RVyQC3CvNpqTdFrY8Ic9inmwPKddt12iocO0w3CwDJn8zdJ9CQUr5Vwnxa6kxR6z3CHOv/Gf9ZXqnmJWH+IeH4wTQbMt+bwAtGt/luAu34rp1TOfPzdynr/b5Q+vfE0hx3ATr6wajbtwEin62kqXUiEgsDKOrLnvAsoGcDrBE+E4hTf9YGWGt0l0D9SgZYJsznQ3nHWu8Uxu2rmndHwvoGVj89GY3TL5y3lm4WAJL9SR4xekagcaV864T5rNbJYgbXOsTc7FDrmDDmjhpzNzrUZPVQjRjjwrkj87UJ9HEk7GJhtLzIVxMYmbvZsfl7rEaMOc4E6hvgkrShTWmAa8JP/6QvsmjDANkZ4GHfBgjnvyWcfyRmvn8DdJWmFkqlY4CpnDSfHSuJuXr0uNN1FMbKOd21qX3SqGssEF3rqmKQa4a9AYD5eqv3otEHfhVcF8n3qP98ifVe1+h/j4TDc/VpYx6ss/adDeb21Jn7tsY120AV/8/ag5WRwpv5BRGVqkU+rxBzJm4Te/d9ZXOciZlnvzeYq2OAOY1rxgCXa2+WBghzPBUz74UG89QMcCT8pqtHBcurnmCdbkLZN2asqFrkSYW4nzTYyBti5vU1mHdS47ppggAAWvo28OPwrJpHBSsi+fb4zyfSTL2XRYe1fqGQpyzchwPh+PeF489orEOr3gV8a0/1ChbZ+11AJNeD4fidwvHcBibQ10bbC8IvgmZsgEVGP9pjcVkbYJ/RG34VtEcKHw7ff5OVXg43/fY1T5x0/fc4oXD9zzvkG3IYe1Bjb2iCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJqNvwHNnenmiznmwAAAAABJRU5ErkJggg==",
+            "name": "ibm-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Fixing the description format to match the other plugin packs descriptions",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin Pack to monitor IBM BladeCenter switches via SNMP.\r\nSeveral indicators are available but not linked to the template of host.\r\nYou have to use them manually:\r\n* CPU usage\r\n* Memory usage\r\n* Disk usage\r\n* Environment\r\n* Traffic (Bandwidth usage for all interfaces, by name, by ID)\r\n* Packet-errors (All interfaces, by name, by ID)\r\n* Time\r\n* Uptime"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les switchs IBM BladeCenter via SNMP.\r\nDe nombreux indicateurs sont disponibles mais ne sont pas associ\u00c3\u00a9s au mod\u00c3\u00a8le d\\'h\u00c3\u00b4te.\r\nIls doivent \u00c3\u00aatre d\u00c3\u00a9ploy\u00c3\u00a9s manuellement:\r\n* Utilisation CPU\r\n* Utilisation m\u00c3\u00a9moire\r\n* Utilisation des disques\r\n* Environment\r\n* Traffic (Utilisation de la bande passante pour toutes les interfaces, par nom ou par id)\r\n* Erreurs de paquets (Pour toutes les interfaces, par nom ou par id)\r\n* Time\r\n* Uptime"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "IBM BladeCenter Switch",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_net_ibm_bladecenter_snmp.pl",
+                "package_name": "centreon-plugin-Network-Ibm-Bladecenter-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-ibm-bladecenter-snmp",
+        "status": "stable",
+        "status_message": "Fixing the description format",
+        "tags": [
+            "Network",
+            "Switch",
+            "IBM",
+            "SNMP",
+            "BladeCenter"
+        ],
+        "update_date": "1607694871",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-IBM-Bladecenter-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGINTRAFFIC$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALINTRAFFIC$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUTTRAFFIC$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUTTRAFFIC$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-IBM-Bladecenter-Traffic-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "Memory Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-IBM-Bladecenter-SNMP-Memory-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGUSAGE$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALUSAGE$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-IBM-Bladecenter-Memory-Usage",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "Environment",
+            "check_timeperiod": "",
+            "command_name": "Net-IBM-Bladecenter-SNMP-Environment",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-IBM-Bladecenter-Environment",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-IBM-Bladecenter-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGAVERAGE5M$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALAVERAGE5M$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-IBM-Bladecenter-Cpu",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "Storage",
+            "check_timeperiod": "",
+            "command_name": "Net-IBM-Bladecenter-SNMP-Disk-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-IBM-Bladecenter-Disk-Usage",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "Time",
+            "check_timeperiod": "",
+            "command_name": "Net-IBM-Bladecenter-SNMP-Time",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-IBM-Bladecenter-Time",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "Uptime",
+            "check_timeperiod": "",
+            "command_name": "Net-IBM-Bladecenter-SNMP-Uptime",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-IBM-Bladecenter-Uptime",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-IBM-Bladecenter-SNMP-Traffic-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGINTRAFFIC$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALINTRAFFIC$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUTTRAFFIC$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUTTRAFFIC$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-IBM-Bladecenter-Traffic-Generic-Name-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Id",
+            "check_timeperiod": "",
+            "command_name": "Net-IBM-Bladecenter-SNMP-Traffic-Id",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGINTRAFFIC$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALINTRAFFIC$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUTTRAFFIC$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUTTRAFFIC$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-IBM-Bladecenter-Traffic-Generic-Id-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "Packet-Errors-Generic-Id",
+            "check_timeperiod": "",
+            "command_name": "Net-IBM-Bladecenter-SNMP-Packet-Errors-Id",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-IBM-Bladecenter-Packet-Errors-Generic-Id-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "Packet-Errors-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-IBM-Bladecenter-SNMP-Packet-Errors-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-IBM-Bladecenter-Packet-Errors-Generic-Name-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "Packet-Errors-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-IBM-Bladecenter-SNMP-Packet-Errors-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-IBM-Bladecenter-Packet-Errors-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,284 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_jvm_actuator.pl --plugin=apps::java::jvm::actuator::plugin --mode=threads --custommode=\\'$_HOSTACTUATORCUSTOMMODE$\\' --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTACTUATORAPIUSERNAME$\\' --api-password=\\'$_HOSTACTUATORAPIPASSWORD$\\' --port=\\'$_HOSTACTUATORAPIPORT$\\' --proto=\\'$_HOSTACTUATORAPIPROTO$\\' --url-path=\\'$_HOSTACTUATORAPIURLPATH$\\' $_HOSTACTUATORAPIEXTRAOPTIONS$ --warning-active=\\'$_SERVICEWARNINGACTIVE$\\' --critical-active=\\'$_SERVICECRITICALACTIVE$\\' --warning-daemon=\\'$_SERVICEWARNINGDAEMON$\\' --critical-daemon=\\'$_SERVICECRITICALDAEMON$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Jvm-Threads-Actuator",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_jvm_actuator.pl --plugin=apps::java::jvm::actuator::plugin --mode=memory-detailed --custommode=\\'$_HOSTACTUATORCUSTOMMODE$\\' --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTACTUATORAPIUSERNAME$\\' --api-password=\\'$_HOSTACTUATORAPIPASSWORD$\\' --port=\\'$_HOSTACTUATORAPIPORT$\\' --proto=\\'$_HOSTACTUATORAPIPROTO$\\' --url-path=\\'$_HOSTACTUATORAPIURLPATH$\\' $_HOSTACTUATORAPIEXTRAOPTIONS$ --warning-eden=\\'$_SERVICEWARNINGEDEN$\\' --critical-eden=\\'$_SERVICECRITICALEDEN$\\'  --warning-survivor=\\'$_SERVICEWARNINGSURVIVOR$\\' --critical-survivor=\\'$_SERVICECRITICALSURVIVOR$\\' --warning-permanent=\\'$_SERVICEWARNINGPERMANENT$\\' --critical-permanent=\\'$_SERVICECRITICALPERMANENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Jvm-Memory-Detailed-Actuator",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_jvm_actuator.pl --plugin=apps::java::jvm::actuator::plugin --mode=memory --custommode=\\'$_HOSTACTUATORCUSTOMMODE$\\' --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTACTUATORAPIUSERNAME$\\' --api-password=\\'$_HOSTACTUATORAPIPASSWORD$\\' --port=\\'$_HOSTACTUATORAPIPORT$\\' --proto=\\'$_HOSTACTUATORAPIPROTO$\\' --url-path=\\'$_HOSTACTUATORAPIURLPATH$\\' $_HOSTACTUATORAPIEXTRAOPTIONS$ --units=\\'$_SERVICEUNITS$\\' --warning-heap=\\'$_SERVICEWARNINGHEAP$\\' --critical-heap=\\'$_SERVICECRITICALHEAP$\\' --warning-nonheap=\\'$_SERVICEWARNINGNONHEAP$\\' --critical-nonheap=\\'$_SERVICECRITICALNONHEAP$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Jvm-Memory-Actuator",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_jvm_actuator.pl --plugin=apps::java::jvm::actuator::plugin --mode=load-average --custommode=\\'$_HOSTACTUATORCUSTOMMODE$\\' --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTACTUATORAPIUSERNAME$\\' --api-password=\\'$_HOSTACTUATORAPIPASSWORD$\\' --port=\\'$_HOSTACTUATORAPIPORT$\\' --proto=\\'$_HOSTACTUATORAPIPROTO$\\' --url-path=\\'$_HOSTACTUATORAPIURLPATH$\\' $_HOSTACTUATORAPIEXTRAOPTIONS$ --warning-load1=\\'$_SERVICEWARNINGLOAD1$\\' --critical-load1=\\'$_SERVICECRITICALLOAD1$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Jvm-Load-Average-Actuator",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_jvm_actuator.pl --plugin=apps::java::jvm::actuator::plugin --mode=fd-usage --custommode=\\'$_HOSTACTUATORCUSTOMMODE$\\' --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTACTUATORAPIUSERNAME$\\' --api-password=\\'$_HOSTACTUATORAPIPASSWORD$\\' --port=\\'$_HOSTACTUATORAPIPORT$\\' --proto=\\'$_HOSTACTUATORAPIPROTO$\\' --url-path=\\'$_HOSTACTUATORAPIURLPATH$\\' $_HOSTACTUATORAPIEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Jvm-Fd-Usage-Actuator",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_jvm_actuator.pl --plugin=apps::java::jvm::actuator::plugin --mode=cpu-load --custommode=\\'$_HOSTACTUATORCUSTOMMODE$\\' --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTACTUATORAPIUSERNAME$\\' --api-password=\\'$_HOSTACTUATORAPIPASSWORD$\\' --port=\\'$_HOSTACTUATORAPIPORT$\\' --proto=\\'$_HOSTACTUATORAPIPROTO$\\' --url-path=\\'$_HOSTACTUATORAPIURLPATH$\\' $_HOSTACTUATORAPIEXTRAOPTIONS$ --warning-system=\\'$_SERVICEWARNINGSYSTEM$\\' --critical-system=\\'$_SERVICECRITICALSYSTEM$\\' --warning-process=\\'$_SERVICEWARNINGPROCESS$\\' --critical-process=\\'$_SERVICECRITICALPROCESS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Jvm-Cpu-Load-Actuator",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_jvm_actuator.pl --plugin=apps::java::jvm::actuator::plugin --mode=class-count --custommode=\\'$_HOSTACTUATORCUSTOMMODE$\\' --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTACTUATORAPIUSERNAME$\\' --api-password=\\'$_HOSTACTUATORAPIPASSWORD$\\' --port=\\'$_HOSTACTUATORAPIPORT$\\' --proto=\\'$_HOSTACTUATORAPIPROTO$\\' --url-path=\\'$_HOSTACTUATORAPIURLPATH$\\' $_HOSTACTUATORAPIEXTRAOPTIONS$ --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\' --warning-unloaded=\\'$_SERVICEWARNINGUNLOADED$\\' --critical-unloaded=\\'$_SERVICECRITICALUNLOADED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Jvm-Class-Count-Actuator",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser une Java Virtual Machine via Actuator}\r\n{EN: Template to check Java Virtual Machine using Actuator}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Java Virtual Machine using Actuator",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "java-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTACTUATORCUSTOMMODE$",
+                    "value": "standard"
+                },
+                {
+                    "key": "$_HOSTACTUATORAPIPORT$",
+                    "value": "8080"
+                },
+                {
+                    "key": "$_HOSTACTUATORAPIPROTO$",
+                    "value": "http"
+                },
+                {
+                    "key": "$_HOSTACTUATORAPIEXTRAOPTIONS$",
+                    "value": "--http-backend=curl --insecure"
+                },
+                {
+                    "key": "$_HOSTACTUATORAPIURLPATH$",
+                    "value": "/actuator"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Jvm-Actuator",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Jvm-Threads-Actuator",
+                "App-Jvm-Memory-Detailed-Actuator",
+                "App-Jvm-Memory-Actuator",
+                "App-Jvm-Load-Average-Actuator",
+                "App-Jvm-Fd-Usage-Actuator",
+                "App-Jvm-Cpu-Load-Actuator",
+                "App-Jvm-Class-Count-Actuator"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "java-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Java Virtual Machine using Actuator.\r\n* Memory & Memory-Detailed\r\n* Threads\r\n* Load-Average\r\n* Fd-Usage\r\n* Cpuload\r\n* Class-Count"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser une Java Virtual Machine en utilisant Actuator.\r\n* Memory & Memory-Detailed\r\n* Threads\r\n* Load-Average\r\n* Fd-Usage\r\n* Cpuload\r\n* Class-Count"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "JVM Actuator",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_jvm_actuator.pl",
+                "package_name": "centreon-plugin-Applications-Jvm-Actuator",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-jvm-actuator",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Application",
+            "Java",
+            "JVM",
+            "Actuator"
+        ],
+        "update_date": "1628080039",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les threads.}\r\n\r\n{EN: Check threads.}",
+            "active_checks_enabled": 2,
+            "alias": "Threads",
+            "check_timeperiod": "",
+            "command_name": "App-Jvm-Threads-Actuator",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Jvm-Threads-Actuator",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les pools de m\u00e9moire Java.}\r\n\r\n{EN: Check Java Memory Pools.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory-Detailed",
+            "check_timeperiod": "",
+            "command_name": "App-Jvm-Memory-Detailed-Actuator",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Jvm-Memory-Detailed-Actuator",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier la m\u00e9moire Java ('NonHeap' et 'Heap').}\r\n\r\n{EN: Check Java Heap and NonHeap Memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "App-Jvm-Memory-Actuator",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNITS$",
+                    "password": false,
+                    "value": "%"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Jvm-Memory-Actuator",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier la 'load' syst\u00e8me.}\r\n\r\n{EN: Check system load average.}",
+            "active_checks_enabled": 2,
+            "alias": "Load-Average",
+            "check_timeperiod": "",
+            "command_name": "App-Jvm-Load-Average-Actuator",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Jvm-Load-Average-Actuator",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des file descriptors.}\r\n\r\n{EN: Check number/percentage of file descriptors.}",
+            "active_checks_enabled": 2,
+            "alias": "Fd-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-Jvm-Fd-Usage-Actuator",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Jvm-Fd-Usage-Actuator",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation cpu de la JVM.}\r\n\r\n{EN: Check JVM SystemCpuLoad and ProcessCpuLoad.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu-Load",
+            "check_timeperiod": "",
+            "command_name": "App-Jvm-Cpu-Load-Actuator",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Jvm-Cpu-Load-Actuator",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des classes de la JVM.}\r\n\r\n{EN: Check Java Class usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Class-Count",
+            "check_timeperiod": "",
+            "command_name": "App-Jvm-Class-Count-Actuator",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Jvm-Class-Count-Actuator",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

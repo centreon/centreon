@@ -1,0 +1,1247 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-FrontDoor-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Network Front Door resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Network/frontdoors/FRT123456ABCD78",
+                            "location": "westeurope",
+                            "name": "FRT123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/frontdoors"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Network/frontdoors/FRT789012EFGH34",
+                            "location": "westus",
+                            "name": "FRT789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/frontdoors"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": "discovery.results.id"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-FrontDoor-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Front Door",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-network-frontdoor",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-FrontDoor-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Network Front Door resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Network/frontdoors/FRT123456ABCD78",
+                            "location": "westeurope",
+                            "name": "FRT123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/frontdoors"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Network/frontdoors/FRT789012EFGH34",
+                            "location": "westus",
+                            "name": "FRT789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/frontdoors"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-FrontDoor-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Front Door",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-network-frontdoor",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-FrontDoor-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Network Front Door resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Network/frontdoors/FRT123456ABCD78",
+                            "location": "westeurope",
+                            "name": "FRT123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/frontdoors"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Network/frontdoors/FRT789012EFGH34",
+                            "location": "westus",
+                            "name": "FRT789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/frontdoors"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-FrontDoor-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Front Door",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-network-frontdoor",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_frontdoor_api.pl --plugin=cloud::azure::network::frontdoor::plugin --mode=size --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-billable-response-size=\\'$_SERVICEWARNINGBILLABLERESPONSESIZE$\\' --critical-billable-response-size=\\'$_SERVICECRITICALBILLABLERESPONSESIZE$\\' --warning-response-size=\\'$_SERVICEWARNINGRESPONSESIZE$\\' --critical-response-size=\\'$_SERVICECRITICALRESPONSESIZE$\\' --warning-requests-size=\\'$_SERVICEWARNINGREQUESTSSIZE$\\' --critical-requests-size=\\'$_SERVICECRITICALREQUESTSSIZE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-FrontDoor-Api-Size",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_frontdoor_api.pl --plugin=cloud::azure::network::frontdoor::plugin --mode=requests --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-waf-requests-count=\\'$_SERVICEWARNINGWAFREQUESTSCOUNT$\\' --critical-waf-requests-count=\\'$_SERVICECRITICALWAFREQUESTSCOUNT$\\' --warning-backend-requests-count=\\'$_SERVICEWARNINGBACKENDREQUESTSCOUNT$\\' --critical-backend-requests-count=\\'$_SERVICECRITICALBACKENDREQUESTSCOUNT$\\' --warning-total-requests-count=\\'$_SERVICEWARNINGTOTALREQUESTSCOUNT$\\' --critical-total-requests-count=\\'$_SERVICECRITICALTOTALREQUESTSCOUNT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-FrontDoor-Api-Requests",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_frontdoor_api.pl --plugin=cloud::azure::network::frontdoor::plugin --mode=latency --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-total-latency=\\'$_SERVICEWARNINGTOTALLATENCY$\\' --critical-total-latency=\\'$_SERVICECRITICALTOTALLATENCY$\\' --warning-backend-request-latency=\\'$_SERVICEWARNINGBACKENDREQUESTLATENCY$\\' --critical-backend-request-latency=\\'$_SERVICECRITICALBACKENDREQUESTLATENCY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-FrontDoor-Api-Latency",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_frontdoor_api.pl --plugin=cloud::azure::network::frontdoor::plugin --mode=health --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --ok-status=\\'$_SERVICEOKSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-FrontDoor-Api-Health",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_frontdoor_api.pl --plugin=cloud::azure::network::frontdoor::plugin --mode=backendhealth --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-backend-health-percentage=\\'$_SERVICEWARNINGBACKENDHEALTHPERCENTAGE$\\' --critical-backend-health-percentage=\\'$_SERVICECRITICALBACKENDHEALTHPERCENTAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-FrontDoor-Api-Backend-Health",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_network_frontdoor_api.pl --statefile-suffix='autodiscovery' --plugin=cloud::azure::network::frontdoor::plugin --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Network-FrontDoor-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les instances Azure Front Door via l'API}\r\n{EN: Template to check Azure Front Door resources service using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Network Front Door service using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-network-frontdoor-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-FrontDoor",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Network-FrontDoor-Size-Api",
+                "Cloud-Azure-Network-FrontDoor-Requests-Api",
+                "Cloud-Azure-Network-FrontDoor-Latency-Api",
+                "Cloud-Azure-Network-FrontDoor-Health-Api",
+                "Cloud-Azure-Network-FrontDoor-Backend-Health-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-network-frontdoor-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ add proper tags management",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Azure Front Door service using RestAPI or AZCLI.**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|Cloud-Azure-Network-FrontDoor-custom|\r\n|---|\r\n|Backend-Health|\r\n|Health|\r\n|Latency|\r\n|Requests|\r\n|Size|\r\n\r\nThis Plugin-Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin-Pack pour superviser les resources Azure Front Door via RestAPI ou AZCLI.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponibles et services associ\u00e9s:\r\n\r\n|Cloud-Azure-Network-FrontDoor-custom|\r\n|---|\r\n|Backend-Health|\r\n|Health|\r\n|Latency|\r\n|Requests|\r\n|Size|\r\n\r\nCe Plugin-Pack fournit un *provider* Host Discovery pour le module d\\'auto-d\u00e9couverte d\\'H\u00f4tes"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure Front Door",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_network_frontdoor_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Network-FrontDoor-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-network-frontdoor",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Azure",
+            "Microsoft",
+            "Network",
+            "Cloud",
+            "API",
+            "Restapi",
+            "HostDisco"
+        ],
+        "update_date": "1636824828",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le la taille des paquets Azure Front Door.}\r\n\r\n{EN: Check Azure Front Door packets size.}",
+            "active_checks_enabled": 2,
+            "alias": "Size",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-FrontDoor-Api-Size",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-FrontDoor-Size-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les requ\u00eates des ressources Azure Front Door.}\r\n\r\n{EN: Check Azure Front Door requests.}",
+            "active_checks_enabled": 2,
+            "alias": "Requests",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-FrontDoor-Api-Requests",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-FrontDoor-Requests-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la latence des ressources Azure Front Door.}\r\n\r\n{EN: Check Azure Front Door latency.}",
+            "active_checks_enabled": 2,
+            "alias": "Latency",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-FrontDoor-Api-Latency",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-FrontDoor-Latency-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la disponibilit\u00e9 des ressources Azure Front Door.}\r\n\r\n{EN: Check Azure Front Door health.}",
+            "active_checks_enabled": 2,
+            "alias": "Health",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-FrontDoor-Api-Health",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEOKSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^Available$/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^Unavailable$/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^Unknown$/"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-FrontDoor-Health-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la sant\u00e9 du backend des ressources Azure Front Door.}\r\n\r\n{EN: Check Azure Front Door backend health.}",
+            "active_checks_enabled": 2,
+            "alias": "Backend-Health",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-FrontDoor-Api-Backend-Health",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-FrontDoor-Backend-Health-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

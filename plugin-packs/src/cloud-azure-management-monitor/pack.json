@@ -1,0 +1,194 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_management_monitor_api.pl --plugin=cloud::azure::management::monitor::plugin --mode=get-metrics --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --resource-namespace=\\'$_HOSTAZURERESOURCENAMESPACE$\\' --resource-type=\\'$_HOSTAZURERESOURCETYPE$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --metric=\\'$_SERVICEMETRIC$\\' --metric-namespace=\\'$_SERVICEMETRICNAMESPACE$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-metric=\\'$_SERVICEWARNINGMETRIC$\\' --critical-metric=\\'$_SERVICECRITICALMETRIC$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Management-Monitor-Api-Get-Metrics",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_management_loganalytics_api.pl --plugin=cloud::azure::management::loganalytics::plugin --mode=kusto-query --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --management-endpoint=\\'$_HOSTAZURELOGANALYTICSENDPOINT$\\' --workspace-id=\\'$_HOSTAZUREWORKSPACEID$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --query=\\'$_SERVICEKUSTOQUERY$\\' --warning-match=\\'$_SERVICEWARNINGMATCH$\\' --critical-match=\\'$_SERVICECRITICALMATCH$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Management-Log-Analytics-Api-Kusto-Query",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Azure Management Monitor via l'API}\r\n{EN: Template to check Azure Management Monitor using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Management Monitor using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-monitor-color-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCENAMESPACE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCETYPE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Management-Monitor",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Management-Monitor-Get-Metrics-Api",
+                "Cloud-Azure-Management-Log-Analytics-Kusto-Query-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-monitor-color-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ add support for metric-namespace option",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Azure Monitor, allowing you to monitor any metrics from any resources."
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser Azure Monitor, permettant de surveiller n\\'importe quelles m\u00e9triques de n\\'importe quelles ressources."
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Cloud-Azure-Management-Monitor-Api\r\n\r\n### Perl dependencies (for 'api' custom mode)\r\nBy installing the plugin, some perl depencies will be installed :\r\n\r\n    JSON::XS\r\n    DateTime\r\n    Digest::MD5\r\n    Digest::SHA\r\n    LWP::UserAgent\r\n    LWP::Protocol::https\r\n    IO::Socket::SSL\r\n    URI\r\n    HTTP::ProxyPAC\r\n\r\nThe login and access token handling will be made by the plugin itself.\r\n\r\n### Azure CLI 2.0 (for 'azcli' custom mode)\r\nThe CLI needs at least Python version 2.7 (https://github.com/Azure/azure-cli/blob/dev/doc/install_linux_prerequisites.md).\r\n\r\nOn CentOS/RedHat, install with following commands:\r\n\r\n    (As root)\r\n    # rpm --import https://packages.microsoft.com/keys/microsoft.asc\r\n    # echo -e \"[azure-cli]\\nname=Azure CLI\\nbaseurl=https://packages.microsoft.com/yumrepos/azure-cli\\nenabled=1\\ngpgcheck=1\\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc\" > /etc/yum.repos.d/azure-cli.repo\r\n    # yum install azure-cli\r\n    (As centreon-engine)\r\n    # az login\r\n\r\nThe shell should prompt:\r\n\r\n    To sign in, use a web browser to open the page https://microsoft.com/devicelogin and enter the code CWT4WQZAD to authenticate.\r\n\r\nGo to https://microsoft.com/devicelogin and enter the given code.\r\n\r\nLog in with your account credentials. You should use a service account. Application is not yet supported.\r\n\r\nThe command line should now show:\r\n\r\n    [\r\n      {\r\n        \"cloudName\": \"AzureCloud\",\r\n        \"id\": \"0ef83f3a-d83e-2039-d930-309df93acd93d\",\r\n        \"isDefault\": true,\r\n        \"name\": \"N/A(tenant level account)\",\r\n        \"state\": \"Enabled\",\r\n        \"tenantId\": \"0ef83f3a-03cd-2039-d930-90fd39ecd048\",\r\n        \"user\": {\r\n          \"name\": \"email@mycompany.onmicrosoft.com\",\r\n          \"type\": \"user\"\r\n        }\r\n      }\r\n    ]\r\n\r\nYou now have a hidden azure directory where your token is stored in an accessTokens.json file.\r\n\r\n## Centreon Configuration\r\n\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Cloud-Azure-Management-Monitor-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Set host macros\r\nThe following macros must be configured on host.\r\n\r\n#### Common macros\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AZURERESOURCE</p></td>\r\n<td align=\"left\"><p>Resource name or id</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>AZURERESOURCEGROUP</p></td>\r\n<td align=\"left\"><p>Resource group (Required if resource's name is used)</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AZURERESOURCENAMESPACE</p></td>\r\n<td align=\"left\"><p>Resource namespace (Required if resource's name is used)</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>AZURERESOURCETYPE</p></td>\r\n<td align=\"left\"><p>Resource type (Required if resource's name is used)</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\n#### 'api' custom mode macros\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AZURECUSTOMMODE</p></td>\r\n<td align=\"left\"><p>Custom mode 'api'</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>AZURESUBSCRIPTION</p></td>\r\n<td align=\"left\"><p>Subscription ID</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AZURETENANT</p></td>\r\n<td align=\"left\"><p>Tenant ID</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>AZURECLIENTID</p></td>\r\n<td align=\"left\"><p>Client ID</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AZURECLIENTSECRET</p></td>\r\n<td align=\"left\"><p>Client secret</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\n#### 'azcli' custom mode macros\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AZURECUSTOMMODE</p></td>\r\n<td align=\"left\"><p>Custom mode 'azcli'</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>AZURESUBSCRIPTION</p></td>\r\n<td align=\"left\"><p>Subscription ID</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n## Available metrics\r\nGo to https://docs.microsoft.com/en-us/azure/monitoring-and-diagnostics/monitoring-supported-metrics to see the description of available metrics.",
+        "name": "Azure Monitor",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_management_monitor_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Management-Monitor-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-management-monitor",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Azure",
+            "Management",
+            "Monitor"
+        ],
+        "update_date": "1634203196",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le une ou plusieurs m\u00e9triques d'une ressource.}\r\n\r\n{EN: Check one or several metrics of a resource.}",
+            "active_checks_enabled": 2,
+            "alias": "Get-Metrics",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Management-Monitor-Api-Get-Metrics",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Management-Monitor-Get-Metrics-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Execute une requ\u00eate KQL/Kusto via l'API Log Analytics.}\r\n\r\n{EN: Query Log Analytics API using KQL syntax.}",
+            "active_checks_enabled": 2,
+            "alias": "Kusto-Query",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Management-Log-Analytics-Api-Kusto-Query",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Management-Log-Analytics-Kusto-Query-Api",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

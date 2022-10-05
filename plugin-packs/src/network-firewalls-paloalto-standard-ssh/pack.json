@@ -1,0 +1,285 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_paloalto_ssh.pl --plugin=network::paloalto::ssh::plugin --mode=system --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-av-update=\\'$_SERVICEWARNINGAVUPDATE$\\' --critical-av-update=\\'$_SERVICECRITICALAVUPDATE$\\' --warning-threat-update=\\'$_SERVICEWARNINGTHREATUPDATE$\\' --critical-threat-update=\\'$_SERVICECRITICALTHREATUPDATE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-PaloAlto-Standard-SSH-System",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_paloalto_ssh.pl --plugin=network::paloalto::ssh::plugin --mode=ipsec --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-ipsec-total=\\'$_SERVICEWARNINGIPSECTOTAL$\\' --critical-ipsec-total=\\'$_SERVICECRITICALIPSECTOTAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-PaloAlto-Standard-SSH-Ipsec",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_paloalto_ssh.pl --plugin=network::paloalto::ssh::plugin --mode=interfaces --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-total=\\'$_SERVICEWARNINGTOTAL$\\' --critical-total=\\'$_SERVICECRITICALTOTAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-PaloAlto-Standard-SSH-Interfaces",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_paloalto_ssh.pl --plugin=network::paloalto::ssh::plugin --mode=ha --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --unknown-link-status=\\'$_SERVICEUNKNOWNLINKSTATUS$\\' --warning-link-status=\\'$_SERVICEWARNINGLINKSTATUS$\\' --critical-link-status=\\'$_SERVICECRITICALLINKSTATUS$\\' --unknown-sync-status=\\'$_SERVICEUNKNOWNSYNCSTATUS$\\' --warning-sync-status=\\'$_SERVICEWARNINGSYNCSTATUS$\\' --critical-sync-status=\\'$_SERVICECRITICALSYNCSTATUS$\\' --unknown-member-status=\\'$_SERVICEUNKNOWNMEMBERSTATUS$\\' --warning-member-status=\\'$_SERVICEWARNINGMEMBERSTATUS$\\' --critical-member-status=\\'$_SERVICECRITICALMEMBERSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-PaloAlto-Standard-SSH-Ha",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_paloalto_ssh.pl --plugin=network::paloalto::ssh::plugin --mode=environment --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-PaloAlto-Standard-SSH-Environment",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les firewalls Palo Alto via la cli en SSH}\r\n{EN: Host Template to check Palo Alto Firewall using cli in SSH}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Palo Alto Firewall using cli in SSH",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "paloalto-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSSHBACKEND$",
+                    "value": "sshcli"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-PaloAlto-Standard-SSH",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-PaloAlto-Standard-System-SSH",
+                "Net-PaloAlto-Standard-Ipsec-SSH",
+                "Net-PaloAlto-Standard-Interfaces-SSH",
+                "Net-PaloAlto-Standard-Ha-SSH",
+                "Net-PaloAlto-Standard-Environment-SSH"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "paloalto-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ tag / doc update",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Palo Alto firewall via cli in ssh:\r\n* Environment\r\n* High-availability\r\n* Interface\r\n* IPsec\r\n* System \r\n"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un pare-feu Palo Alto via la cli en ssh : \r\n* Environment\r\n* High-availability\r\n* Interface\r\n* IPsec\r\n* System "
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAA8XSURBVHic7dt7dFXVncDx7+/cm5sEECQ8FfANvoiWFq0z5WGKj9aKPJS0Hccnyb0BHV1VtHV0zUqrzlg7S9pRSu4NL7GjS5AAOkWtjyQ+p46IKFRFVKhIFEIAgYQk957f/HHOvblJbiCBiLXr91mLlXPO3mfvfe7eZ5+99zmAMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMOaIk49FwtAeBxOBuyaEplODL3jUsLWzqlvS6W2mpw/b+fZlz446vuyhLXiM32yU4aQx7jlSerRtAydyBuM5DwGQgqxvz2YtoGXV5d/5NNYSrFvckt2ENMByVBygP3/p1FeWJSkY7QiWQjcu0qd9n5ZHI10lthaM9cJ1KYBrdW/kAvVCZRd+di7s53cOT3dgLGO7vffvrLEpAGA70ArLU4ay24arIskquWF5NYamm1dthSk+oCDijuxLuwI8JR7/7Fefxd2n5S1wlwlJVHj+rmundlW56AxjXXYkexPgjlM/fFYXc5LYIPbor3fQG0LO7Ej2IXkcoH9MJ3fYsMd9Mwa8i0T45e+rqm3J7NrvB7C6fXDJ3FK5zF6IfUJdXSl7dZahMB0YAzYiuRXQuZTOq2p0bjvZBZSaOewEqw4AAUA+sQ2U5Q7Y+QWmpe4hlKgHOwxvQ1iJaRTD+EL+/4dO20VWRFZVMVYdC4Ey87jsBbEJ5MR5gfuE4tncm61LFOeslbkNJjZ1cZUJFNTkANDNv6gWkprBLXiMvq5GZKlwMHAM0oKzFYcHU8bzYNv1ubwD/OOyt1bPGRs/atrf/WyVP3tv1AZ/rzASmogJ5dfmoXNoqXOVUVKYRjt5ELPJQ6nhx7FugTyM6GG23vDES0Z+w9ZhKrlo8kUeu3tfp8oSjd+LyK9J7S9GTgHOJB/+FSNnVREueSAYteY3c5dUsweHSDKkNR7gw6DJrWSWXXl7A/x4s+2NWE0C5L/2YwESUiQBk8SR4DWBZJedJE0+qMIDWJ4xEubKiigXxbYQLC0kkgw7/EaDyBnA6Kg8ATDr9T/VAFqKHnbRf+U3AnxBdDtT4IQL8J9PnnZKKK3o2pC78LeC/gN8Cf4TUBReQ23B3p/OPlP0YuIeW32kNsALY6O/novIHr/F5shoZBOT7u9sUFincL/AIpO76fo7w+KpVHLSH7PsxLrAUYXXa4beBpcDSeJwvAZZUMliEFbT8BlsRViK8CiR7veuzBnFXevqH3wM47oNES94nUrYWFY7t/cXRAJ/sPK7Bj3EfKs8g+jgwqIup70P0e0RL1gLeWoXoM6iMBbIJJK4EfglALPIwxbEGRE8gFrm/VSpF5d/HcZ/Dq8irQG/lYC20tNRhq/x7al/0eqIlCwGYtiRAXt19qMwCshH9JTAJYEoBm1ZUM9Z1uTse5+bCC9mdTGLlKxyViPMGcJrCcftzKQCeOVAx/Lu1cFk1EYHvAIiwaMp4fpceLyD8DP/3VWFZqCdXTxxNPcDySs5X4WkgR5WfL6/kd1MK2AXd0QMkAu/g5XqmiGqPrIbjANZ/MSIE7OLYmjspD1ejsvkQUn88VfkAsUg9kH4Hj20Vuzy8pF3lA8wrfhFY7+/154Y5eQfNeesx3wJOAkDluVTlAywtTFCX9wtgq3/kEn72QGqaNnk8n04t4Nr0ygeYNIY9CItSB4QRBy1H5031/8ZDLiXJygeYUkCVCvP83VzX4ZJk2OE2gGZ293nf384f0LN2q4j2AVi//ZTBiL7rDbpUED2ty6mLVrY71qP+FVq6tBO6kFpNakvl4PNo0ZFp26+1C19amIDUMzxIQ25nry+tHN0zn3/qTXpIsrHChokF1LaNIy6vpraVM5Pbh/II+BBoxls13JC2tj/yjAEbtwJDgMa/7hpyHCrPAlA07wSgN96z+LNO56Syrd2x2bc0EI7u9dM7qlVYUfmJOG4YlfNwtHWYppZ8O5t3ei/R7gdtdzwt/sJKcno7XIPyAxGGtSlHvy6VoxPc/RxNy82csawKtamhsZAqa1cbwAZ29s1nwPYQ8eAe4F0Arl14NDQNyx/8wUcAjfHQ5oQbGIHKOgACiZGogDCTaCTW6dxUGjsIacBrAC3vLIpjP0TcJ4AeiMLhj0Fb0hZt6CBOqpvFdUIAFc/TD+EFlLOB7ijHQbnNhJKv9UTIWFYRWmY+2jL47OojoIqlhU3Eg8kW5FVwMJ4PMDxvcxbAF/v6e6NdlXf9v96oWNw/dik30Y5WDZN3t9dArl2Yg+gioAde73QHKucSSJyc+if6cpfyJu2HdJ2+HcRpuZsd1/uBs7gH/MqHJxEmuMIIDXCyBjhZhVldLMdBaailIaqSuaxpPY/A3uR22x5gA64zgUBiLCqPAq+Q1TyZeLAIlfsQ9Spc1L+j/X3HHQkwsGftAICNdcc3AxBq2uTH/wdUmtnR7/MuXlv7brtk7hDc1LPTe0RkNX8XGOjnVU605L5254WjXV0A2pLaEh3SQZxjU1uO68XX1Px/e3wA0wrPpNXr74oqb9rWneKfsSM4kAa8BadjM8VRhyHJeY9Ky2O4bQ/wKPOKtwCb/JjzmXPjDlxns7+/zo/n3dGO693hoiMD4sZDwabjAdZ9fqr3XiEejBKOPuLP57Pou7OCSNlUOu+yDFfyo5Zt2eBvHZV2rH0jKy0NkqkxqTSntkVDrcJc501aBpuT00f5AMycMwwY4+/VMmjbJn+7t/+3rm3l+07PcAxXSZVFtP36gGhLWoq/CugrLCSB8Ja/O3RFVevZkSoiyk/SDv1fcqN1D6DynlcaZ5T3HJVUBfsxkl36SGAvc2d8AjMB8of2rvkUOBFg/bYRQ/34P2xzHZehshaoaHuBHSggHL0XmE124x7251yIasvc3HFX+Vsb0s65junzHmN+kbdYc+3CHLY23UOmO2N+UR3h6G6gDzCKovKxZDWvI2f/fmYXbyFS9hwqFwMnsK/nCkrm3sr+nI1kN55LXOZAqqIWpi0xfwCcA4yoqObqKeN4RMQbCSyv5iJVijNdqKN8klrAFCaurGRRIMiOz3LZGxlNM8qHqc93lJ8+UU1FjkNtfQ1fFhaSEFio8D0AFx5bVs3MXvt5oT7I4OXV3Amc75/98TvjqErl26oUooWEo/+E6B1AgqP2/MUPyQc+JxZJjjBHAutTiykqI2vr8/rvbOjz5subzqnavq/fMZku8hAo8K/Adhqz9yP6FC3P3Y3U91gCQHl4A6LJde4TCSTeJxzdRDj6IaGmnUDHX/p4K4wAuTjuSyQCdezr+W/+dd0Aqbn8RbjOu4SaGlCp9n8DgA3Eg6m1CRGiyU2Uh5dXs62iivcqqqhV5Vk6eBt6tLAW+NjfPSshfNiUoG7gPgoA4tt5neSYC852lA1NCeqCg7y1hLXjWIjwgh8+RJSV+7LZqwE2Atf5xxOiTC+VVM/W7hFwOfDfwFDgI2bfkhwI5ad6A687PZ1kb1BUPhTou68596jpy+8fPfu1ovMzXeAh+gXwRYbjnyB6Ras1/easq/xlafBeAh0PnILXXVajUpUxB8e9pcOwWOQjVM4H3skYLvoscD4Lpqe+4Zs8jgXAb2h5fPQHTsNruLUoczIlVVBA3BWuEPhrpvDCQhKucDWQcUGtVHDjLpOBxWSee2x2XX40paDl7ocDTwO9Cp45pxdxTkB0BQBbhgzHcbNT4wHR/A5TOFyO+ypZzWXsz5kEjEA0gega6vKebvdt4YLpW0HPo6RsPK5zDir9EN0F/JlYuIri8gkIj/mxd6bOmztzJ1BAUfl3CCROB+mBuG+nwsvDb1NaOoqawWNwnXNx3DyghkSgmnnF7RqG393fvuxlyiTORcBQhATChpxsnmpsIA/xG5TyRvq5V4xnzapVjGjMYQzCMBxCrstf2oSf2pjDGHU4ToQs3JaFpcIC9gLXLHuZXzoJLlZlCN6I/+34QF7MNCY5UAPwuvt48AJA2lW447bMCL5KD970Jd6LlE4QpYwqaN3KIQLlPH/AU+cVr4ZWL1xaeM/3l/x/nXL5WD4GyjIEfQl0uBZyySU0Qqor73J4Wt5zO1PO9AbQ9lPk6whHjyf5qVgg0brCVT7z98dleP3aMZVunwaZQ5feAF7A+yI4KQT8ILWX1Zxc809+PfsI4WgtmhanMwKJA7beb7xw9DZgDrFIPcWxc4B6HHcwMDoVJ5D9MInGa9LOagaeQmUosUglkbLRQH+iJc8QKTsD6EOoaT1NoSJcZyCO+xLRklUUx0bguFMAUGkiHnyc7MYGXGcc0ZKV/tL4BI6tWUDN4AmoXIzoZj44dS5VBXFIHwRmNy5q8865tcbsuyiO3U3L1G40dLHyVeZTNmNNl8755ikF5vsvwMbguKOAiUAticDzwOvEmxpwndXAaajkoLIG0d3ArwBQuR2Ve/3tmagEaAr9D66zhUDiD8A0imPFeF8bnean1UxW8/00hfqh8lPC0XwcdzHwCluGDMB17kFlISoDOPWD1FpKSwN48KZGlAmIlgOZvpi5DdG7OLQ3iNuAu9h1dOQQzv1mEd4DPiUSvR1RwXUUFUHlShz356jcSCyym/Lw88BHqLxDLFJJ2YxtQCPFsRF4S9rvEo5+GxhFU+gLVD6jPLyEshnrcNxbcNzkws7JwAWIjkUl+cbvbOBlXOc2YpH3yW3YhePuRfTXqMSJB1PL4q0HgbHIbiDMtCUz6F/bm+7QkKssum5XF864mUDidgAGbTti/0WqW+3sewd9dz6FqENyAKvyG4LxA38CplKB485FpQJvNfZ+4HUCiR3Acfjr78SDp+C4Nf4561BZiutchDf1BWEfrkwi4D7EtQsvoKlxAK4zm3jwz4Sap+DEi4FfQ0ezAO9d986MYV8176OP+oPG+1u2tDDBjN9fSSLQMs0TvY1EwJtZhaM3E4vUtDtPZRkqvwX+GW8WthiVO/wVy0cJx6og+gninkQ8eD2Om4/oVuYVr6Zk7qe4zgIvHTZSHq6mOPYfZDUvpylUSFbzLEJNW4D+SKD9RzPmG2DakhAlcwce8vmlpUFKS+2/AhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxnyd/h+nilaVvI8CxwAAAABJRU5ErkJggg==",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Palo Alto firewall SSH",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_paloalto_ssh.pl",
+                "package_name": "centreon-plugin-Network-Firewalls-Paloalto-Standard-Ssh",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-firewalls-paloalto-standard-ssh",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Paloalto",
+            "Network",
+            "SSH",
+            "Firewall",
+            "Security"
+        ],
+        "update_date": "1628799805",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le syst\u00e8me.}\r\n\r\n{EN: Check system.}",
+            "active_checks_enabled": 2,
+            "alias": "System",
+            "check_timeperiod": "",
+            "command_name": "Net-PaloAlto-Standard-SSH-System",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{oper_mode} !~ /normal/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-PaloAlto-Standard-System-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des tunnels IPsec.}\r\n\r\n{EN: Check IPsec tunnels.}",
+            "active_checks_enabled": 2,
+            "alias": "Ipsec",
+            "check_timeperiod": "",
+            "command_name": "Net-PaloAlto-Standard-SSH-Ipsec",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{ike_phase1_state} eq \"down\" or %{state} ne \"active\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-PaloAlto-Standard-Ipsec-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces.}\r\n\r\n{EN: Check interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "Net-PaloAlto-Standard-SSH-Interfaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{state} ne \"up\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-PaloAlto-Standard-Interfaces-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la haute disponibilit\u00e9.}\r\n\r\n{EN: Check high-availability.}",
+            "active_checks_enabled": 2,
+            "alias": "Ha",
+            "check_timeperiod": "",
+            "command_name": "Net-PaloAlto-Standard-SSH-Ha",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALLINKSTATUS$",
+                    "password": false,
+                    "value": "%{status} ne \"up\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSYNCSTATUS$",
+                    "password": false,
+                    "value": "%{enabled} eq \"yes\" and %{status} ne \"synchronized\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALMEMBERSTATUS$",
+                    "password": false,
+                    "value": "%{state} ne %{stateLast}"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-PaloAlto-Standard-Ha-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les composants mat\u00e9riels.}\r\n\r\n{EN: Check components.}",
+            "active_checks_enabled": 2,
+            "alias": "Environment",
+            "check_timeperiod": "",
+            "command_name": "Net-PaloAlto-Standard-SSH-Environment",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-PaloAlto-Standard-Environment-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

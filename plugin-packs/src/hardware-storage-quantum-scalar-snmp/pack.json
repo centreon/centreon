@@ -1,0 +1,131 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_quantum_scalar_snmp.pl --plugin=storage::quantum::scalar::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Quantum-Scalar-SNMP-Hardware",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Quantum Scalar Tape Library en SNMP}\r\n{EN: Template to check Quantum Scalar Tape Library using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Quantum Scalar Tape Library using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "quantum-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Quantum-Scalar-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Storage-Quantum-Scalar-Hardware-Global-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAi7SURBVHic7dptjFxVGcDx/3Pvvm/fVtpuaasUStndmRZK0gSMEINQIWjjS1MQNAhNWNtZVquBIH7aBomEoILtzsIChqQxBGqRkGgURCKKiG4sK3RmS1OKQIrdtbSF7e50p3MeP8wwc+/MsLPb7rb98PyS+XBe73PvPXvuuecuGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcaYaScVa2zaOYfRmoX43hxUGxB3BPGPMOjeZnt07BTEaKZR+QGwIbkE0e8hrAYin1AvBfSh+hSZ0cfoXTUyjXGaaVJ0Y1WIJX8EdAFVk+jnfUTW0t32ytSFZk6F8ADoSNyLcmdpNX0PpB8YRmlGuBSoK6qUwvMuZ2tr33QFe0boUo8De5bk0zXHjvLgigOnL6CTU/grv23gczh3R1H5EEo7zZFn6RKXz920cw5jtfcBtwbq1uHc46zTi9gumWmN+nQ68PpspGpvPp32nwG+dvoCOjmFAeB0E+AFyjKIriEefbWk1QMXHwbaiSXqgW8FSqLMG7gSeG56wjVTLTsAbt5XB6NrQiWiT9Jd5uYHed6dOHc9UB3I/TrBAXDzvjrqUzcV2rjDdEefKumrs38xx2uuLRxf9hBvfbGkjqtqQaUFWAgyE3HZR5HKEKoDZOQFeiPvl42368Uq3m8+F1+XIrI49zibCcxAOQpyCNUBqqpfZsuyoVDbjsS1OFmMpw1oqGQJG5Pt+VRP6yMgSnvibHwpXFNP99Edeb4kpo0DF4JeWjhv9w/i0ddK4h6cvxzkQpB5qDYDTYhkgLeBl4i3vpI9bl81Xv3liHcJnlsCzADvII63ce73PBxNBLvODoD6VBSoDR1UvR1lL2LQ1tb9xHb9FeSKQMOVoTqNqUZUHy4UMwCUDgCtiSLBeroNKAyAWHINGX22qBFoYBkjAlU4OhLbGPU6+WXrR/myjl3XMSTb8KkBIX8Ttag/ATLpNLHENlLepnwfTr+LcHXRzQdYGYq7i0fpQvHlgvD5yK+B0gEguhr0/kKGdxeQHQCxXStB4gyyEqgPxVgcfCy5ExLPA7cA88LXJtfGl5/SkdyOuvXEo8Pw8QAQLigJzOmbJXllSRIIDADOn1i7k5YCPgAOAQ3Aubl8D+Xb1GYWANfka6vMBGrK9PMhwnGU2YCfy6sG1lPnzgGumqb4KxNvMaqfLVMyAjIMOj+Qd3HuF3SY7GK9sGBXXYdKPbAG8s98N6v0GOnBCQWpEl4BZ6fU6XAMeBrkRvzM+cQj9cQji4hHlhOPnIfweWC4EIdczXcSy8bp7ymO6znEI7PpjpyFX90I0k54TriS25IrAFDuQlmNliz4/pbLz/66yswRU0Xk2dy5NxJva0ZkLsivSivqVkRaiEeamN/WiPBFhA8K/fBlOt+4CAozQG1J2KlZH04sqEDHAEo1XeqF3hqmQrztOcZbXHZHXiKWeBoorDeq9DPAnvIN9C16o+/kk1uWHQMeIZa4CbisUM2dB7zOQ9GdAGz8d1PRFskgPZE/TvJsToxqP1tWFN5AutsO0t7XTlXDV4HGfP5Iwx08fm4KIHcfnieW/AVoV77OcX8l0J87EyndxasZbQLKL6bCzipKH5nymx/UuaeW9FgEkcBxtQGoRbURCW5tiFfcvCJhLxocAKEF7pmnd9UIsV3vgrSOW090d+iPXPRT8PFQdnokfOGAWjefCQ0AN7doP+l/lducgPUDM6l3PyGTvgVPGsKFlT9pTJhjZCq7OzUmsO/iNBO6x5pN5P5C/N0lDTJ+ZGLH9orq6bsTajcZXS9WUef+gNJBdsFnpkh2AGSGk8BouEivq9g6tmsB6GXhTK/CJlDxVDMBQ803AIXVsEo/wq04vRKVVYUfj06671NF3Rk5r2QfAb2r0sSST4N+M1D2FWIDV5RsxoTIPWjw1UoGER6pcMwybxwVKJcGUo6MdxU9LaWPmlhiImuWKaZ+5TqAyOTP+xQILJIyDwLBZ4mA20FH4ht0aXgx1b53NrFEN7C+kKlvoVxLd9vBUN300aKZhfls2L1oUlGKpkJxeUWbVqdSXVMqnCEr6NxTGo+64vOO0t53xi0oC+8z8eX/JJa8O/SqAE0oTzCY/BmxxL9QPgIWIMeKvwamEe+3iK6jI7EOAJVR4m2b6V01wsbEXoSlubo+XmYHGxP34vsDaKYBp4txuvYTo3TyJ4Qf5FKCl3mBWHIruNdQbxSYgeeW4vQLJ/KEmZSff3qUWOK/wIJczhIy6X42Jv6C6FKGuIbt0THqxt4kXTsWmCEX4tc/wYZdcardf0BmkJFlqFs97TGPI/zNP962mVjiMMJ94amds4EvjbM6rka1M5ylh4DNucTtwPbA8S5B+A0uN+FUugA9bb8jlnwSuD6X0wK6BQQk926jMqUvA+PTx0F+GMhoQWgBgcb67Gz5wMWH6UjcDdydryWyFmEtmcBT4zSvDErfk+ORB0mzBLgH6APSJ32UnsgzoFeQ3Quv1N8R4FWEvxeyRJnfdiPoBuCNCRxxCHgBdP8JRjy+kYbNKNugzK5fU1XhlnZHfoxwA7CzbN2wg6i+jLpEhXpTqvL469xTy3FdhKZnU+XNJqMT/E8hSdPT9ueS7O+/W09qOILPXDJuFsgI4o0gmUHSde/Ru/RIxa7bd8/F14V4mXk4EXxvlIymwD/EaPX+/C5Y0PqBmdR68/LpsfRhHot+UFKvffdc/MCCrXH0APdfdLRsHBt2L8JzUVQbQA9S5fazZflbhWkpoCN5Fs5FgCayH96OoQzjc4BR/53Qh6t8LH0N+LMWFDJSh+i58FBJvc7+xRyvL8zYPcv2lcRwe38jR+ub8+mMf3BC19oYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhzkv4PYivK1883qFEAAAAASUVORK5CYII=",
+            "name": "quantum-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* update logo",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Quantum Scalar storage via SNMP:\r\n* Hardware-Global"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un stockage Quantum Scalar via SNMP :\r\n* Hardware-Global"
+            }
+        ],
+        "discovery_category": "storage",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Storage-Quantum-Scalar-Snmp\r\n\r\n## SNMP\r\nSNMP must be configured on the monitored host\r\n\r\n## Centreon Configuration\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Storage-Quantum-Scalar-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Quantum Scalar",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_quantum_scalar_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Storage-Quantum-Scalar-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "centreon-plugin-Hardware-Storage-Quantum-Scalar-Snmp",
+                "version": "20161212-1"
+            }
+        ],
+        "slug": "hardware-storage-quantum-scalar-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Quantum",
+            "Scalar",
+            "Storage",
+            "SNMP",
+            "Hardware"
+        ],
+        "update_date": "1582214551",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'ensemble du mat\u00e9riel.}\r\n\r\n{EN: Check all hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Quantum-Scalar-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Storage-Quantum-Scalar-Hardware-Global-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

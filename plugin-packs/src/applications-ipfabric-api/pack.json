@@ -1,0 +1,1021 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v3.0": [
+                {
+                    "attributes": {
+                        "family": {
+                            "type": "string"
+                        },
+                        "hostname": {
+                            "type": "string"
+                        },
+                        "id": {
+                            "type": "string"
+                        },
+                        "loginIp": {
+                            "type": "string"
+                        },
+                        "platform": {
+                            "type": "string"
+                        },
+                        "siteName": {
+                            "type": "string"
+                        },
+                        "snmp_community": {
+                            "type": "string"
+                        },
+                        "vendor": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "App-Ipfabric-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "IP Fabric API key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "APIKEY",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-active-host",
+                    "description": "Discover network devices through IP Fabric API",
+                    "discovery_examples": [
+                        {
+                            "family": "junos",
+                            "hostname": "SWPRD15",
+                            "id": "762902845",
+                            "loginIp": "10.0.0.12",
+                            "platform": "m series",
+                            "siteName": "HQ",
+                            "snmp_community": "notpublic",
+                            "vendor": "juniper"
+                        },
+                        {
+                            "family": "asa",
+                            "hostname": "RTDEV28",
+                            "id": "762902848",
+                            "loginIp": "10.15.1.25",
+                            "platform": "asa",
+                            "siteName": "PREPROD",
+                            "snmp_community": "rocisco",
+                            "vendor": "cisco"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "aws"
+                                    }
+                                ]
+                            },
+                            "type": "exclusion"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "azure"
+                                    }
+                                ]
+                            },
+                            "type": "exclusion"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "cisco"
+                                    },
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.family",
+                                        "value": "meraki"
+                                    }
+                                ]
+                            },
+                            "type": "exclusion"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "vmware"
+                                    }
+                                ]
+                            },
+                            "type": "exclusion"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.hostname"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.hostname"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.loginIp"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.SNMPCOMMUNITY",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.snmp_community"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "arista"
+                                    }
+                                ],
+                                "value": "Net-Arista-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "brocade"
+                                    }
+                                ],
+                                "value": "Net-Brocade-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "checkpoint"
+                                    }
+                                ],
+                                "value": "Net-FW-Checkpoint-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "cisco"
+                                    },
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.family",
+                                        "value": "aci"
+                                    }
+                                ],
+                                "value": "Net-Cisco-Apic-Restapi-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "cisco"
+                                    },
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.family",
+                                        "value": "asa"
+                                    }
+                                ],
+                                "value": "Net-FW-Cisco-Asa-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "cisco"
+                                    },
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.family",
+                                        "value": "ftd"
+                                    }
+                                ],
+                                "value": "Net-Cisco-Firepower-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "cisco"
+                                    },
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.family",
+                                        "value": "sg"
+                                    }
+                                ],
+                                "value": "Net-Cisco-Sb-Standard-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "cisco"
+                                    },
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.family",
+                                        "value": "viptela"
+                                    }
+                                ],
+                                "value": "Net-Viptela-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "cisco"
+                                    },
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.family",
+                                        "value": "wlc-air"
+                                    }
+                                ],
+                                "value": "Net-Cisco-Wlc-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "cisco"
+                                    },
+                                    {
+                                        "operator": "notequal",
+                                        "source": "discovery.results.family",
+                                        "value": "aci"
+                                    },
+                                    {
+                                        "operator": "notequal",
+                                        "source": "discovery.results.family",
+                                        "value": "asa"
+                                    },
+                                    {
+                                        "operator": "notequal",
+                                        "source": "discovery.results.family",
+                                        "value": "ftd"
+                                    },
+                                    {
+                                        "operator": "notequal",
+                                        "source": "discovery.results.family",
+                                        "value": "sg"
+                                    },
+                                    {
+                                        "operator": "notequal",
+                                        "source": "discovery.results.family",
+                                        "value": "viptela"
+                                    },
+                                    {
+                                        "operator": "notequal",
+                                        "source": "discovery.results.family",
+                                        "value": "wlc-air"
+                                    }
+                                ],
+                                "value": "Net-Cisco-Standard-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "dell"
+                                    },
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.family",
+                                        "value": "ftos"
+                                    }
+                                ],
+                                "value": "Net-Dell-Sseries-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "dell"
+                                    },
+                                    {
+                                        "operator": "notequal",
+                                        "source": "discovery.results.family",
+                                        "value": "ftos"
+                                    }
+                                ],
+                                "value": "generic-active-host-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "extreme"
+                                    }
+                                ],
+                                "value": "Net-Extreme-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "f5"
+                                    },
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.family",
+                                        "value": "big-ip"
+                                    }
+                                ],
+                                "value": "Net-F5-Bigip-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "fortinet"
+                                    },
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.family",
+                                        "value": "fortigate"
+                                    }
+                                ],
+                                "value": "Net-Fortinet-Fortigate-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "frr"
+                                    }
+                                ],
+                                "value": "generic-active-host-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "hp"
+                                    },
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.family",
+                                        "value": "3com"
+                                    }
+                                ],
+                                "value": "Net-3com-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "hp"
+                                    },
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.family",
+                                        "value": "aruba"
+                                    }
+                                ],
+                                "value": "Net-Aruba-Standard-Controller-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "hp"
+                                    },
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.family",
+                                        "value": "arubacx"
+                                    }
+                                ],
+                                "value": "Net-Aruba-Aoscx-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "hp"
+                                    },
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.family",
+                                        "value": "arubasw"
+                                    }
+                                ],
+                                "value": "Net-Hp-Procurve-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "hp"
+                                    },
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.family",
+                                        "value": "comware"
+                                    }
+                                ],
+                                "value": "Net-H3C-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "huawei"
+                                    }
+                                ],
+                                "value": "Net-Huawei-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "juniper"
+                                    },
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.family",
+                                        "value": "junos"
+                                    },
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.platform",
+                                        "value": "vmx"
+                                    }
+                                ],
+                                "value": "Net-Juniper-Mseries-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "juniper"
+                                    },
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.family",
+                                        "value": "junos"
+                                    },
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.platform",
+                                        "value": "vsrx"
+                                    }
+                                ],
+                                "value": "Net-Juniper-SRX-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "mikrotik"
+                                    }
+                                ],
+                                "value": "Net-Mikrotik-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "paloalto"
+                                    }
+                                ],
+                                "value": "Net-PaloAlto-Standard-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "quagga"
+                                    }
+                                ],
+                                "value": "generic-active-host-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "riverbed"
+                                    },
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.family",
+                                        "value": "steelhead"
+                                    }
+                                ],
+                                "value": "Net-Riverbed-Steelhead-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "silverpeak"
+                                    }
+                                ],
+                                "value": "Net-Silverpeak-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.vendor",
+                                        "value": "versa"
+                                    }
+                                ],
+                                "value": "Net-Versa-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "notcontain",
+                                        "source": "discovery.results.loginIp",
+                                        "value": "."
+                                    }
+                                ]
+                            },
+                            "type": "exclusion"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "IP Fabric network devices",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "API Address",
+                                "group": "Configuration",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "APIHOSTNAME",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Port",
+                                "group": "Configuration",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "PORT",
+                                "type": "text",
+                                "value": 443
+                            },
+                            {
+                                "description": "Protocol",
+                                "group": "Configuration",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "PROTO",
+                                "type": "text",
+                                "value": "https"
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Configuration",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Proxy URL",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "PROXYURL",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Configuration",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "applications-ipfabric-api",
+                    "type": "ipfabric",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ipfabric_api.pl --plugin=apps::ipfabric::plugin --mode=path-verification --custommode=\\'$_HOSTCUSTOMMODE$\\' --api-key=\\'$_HOSTAPIKEY$\\' --hostname=\\'$_HOSTAPIHOSTNAME$\\' $_HOSTEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-total-path=\\'$_SERVICEWARNINGTOTALPATH$\\' --critical-total-path=\\'$_SERVICECRITICALTOTALPATH$\\' --warning-total-mismatch=\\'$_SERVICEWARNINGTOTALMISMATCH$\\' --critical-total-mismatch=\\'$_SERVICECRITICALTOTALMISMATCH$\\' --warning-error-path=\\'$_SERVICEWARNINGERRORPATH$\\' --critical-error-path=\\'$_SERVICECRITICALERRORPATH$\\' --warning-none-path=\\'$_SERVICEWARNINGNONEPATH$\\' --critical-none-path=\\'$_SERVICECRITICALNONEPATH$\\' --warning-part-path=\\'$_SERVICEWARNINGPARTPATH$\\' --critical-part-path=\\'$_SERVICECRITICALPARTPATH$\\' --warning-all-path=\\'$_SERVICEWARNINGALLPATH$\\' --critical-all-path=\\'$_SERVICECRITICALALLPATH$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Ipfabric-Api-Path-Verification",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ipfabric_api.pl --plugin=apps::ipfabric::plugin --mode=discovery --custommode=\\'api\\' --api-key=\\'$_APIKEY$\\' --hostname=\\'$_APIHOSTNAME$\\' --port=\\'$_PORT$\\' --proto=\\'$_PROTO$\\' --timeout=\\'$_TIMEOUT$\\' --proxyurl=\\'$_PROXYURL$\\' --http-backend=curl $_EXTRAOPTIONS$\\\"",
+            "name": "App-Ipfabric-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements r\u00e9seau IP Fabric via API}\r\n{EN: Template to check IP Fabric network devices through API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check IP Fabric devices through API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 0,
+            "command_name": null,
+            "icon": "ipfabric-icon-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Ipfabric-Api",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Ipfabric-Path-Verification-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "ipfabric-icon-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Adding htpl in host disco mappers",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            },
+            {
+                "name": "network-3com-snmp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "network-cisco-standard-snmp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "network-cisco-wlc-snmp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "network-firewalls-cisco-asa-snmp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "network-riverbed-steelhead-snmp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "network-switchs-arista-snmp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "network-switchs-brocade-snmp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "network-firewalls-fortinet-fortigate-snmp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "network-firewalls-paloalto-standard-snmp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "network-firewalls-checkpoint-snmp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "network-extreme-snmp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "network-mikrotik-snmp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "network-versa-snmp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "network-viptela-snmp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "network-aruba-aoscx-snmp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "network-h3c-snmp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "network-switchs-aruba-standard-snmp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "network-switchs-hp-procurve-snmp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "network-routers-juniper-mseries-snmp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "network-firewalls-juniper-srx-snmp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "network-loadbalancers-f5-bigip-snmp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "network-silverpeak-snmp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "network-dell-sseries-snmp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "network-cisco-firepower-snmp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "network-switchs-cisco-smallbusiness-standard-snmp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "network-cisco-apic-restapi",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor network devices through IP Fabric API.**\r\n\r\nAvailable host template and related service:\r\n\r\n|App-Ipfabric-Api|\r\n|---|\r\n|Path-verification|\r\n"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack permettant de superviser des \u00e9quipements r\u00e9seaux via l\\'API IP Fabric.**\r\n\r\nMod\u00e8le d\\'h\u00f4te et de service disponible:\r\n\r\n|App-Ipfabric-Api|\r\n|---|\r\n|Path-verification|\r\n"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAIAAABMXPacAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRAD/AP8A/6C9p5MAAAAHdElNRQfmAx8IBQrQoiPFAAAAc3RFWHRSYXcgcHJvZmlsZSB0eXBlIGlwdGMACmlwdGMKICAgICAgMzgKMzg0MjQ5NGQwNDA0MDAwMDAwMDAwMDE5MWMwMjY3MDAxNDc5NTc3MTRhNDUzNDVhNTA2Zjc2NTczMzY0NTQ2ODMzMzM1NjU2CjU3MDAKM1UWAAAAEG1JREFUeNrtnWtzE1eax5/Tul+tiyUZ2ZZ8lY1vGBuTQCbxJAPJJJNJbdXCZJadMMVUtmq/x36DqdS+mNrswG7NbiCQZAecARYSgtmNwWwYExsLX2TZ2JZltyR0balvZ18oeJkElqOWZKlt/iRUXpyj9Pn/+jmn+1yeRkf+7h9gO0oUcX93y98ff9thr5FQnWXZs2fPnT17ThCEsl4nVRl7yiwR4y6f5/jRQ9Lc5zhuZOTzP/7xPM/z5b5UZQXsKbNEjLvbPe//7ZueeqeE6hzHXbgw8tFHpxmGQQiV+2q3WwTIy33YZgBk5z5sJwBydB+2DQCZug/bA4B83YdtAEDW7oPcAcjdfZA1gG3gPsj3RQxj3O3zvH9M3u6DfAHs6/P96shPGnbVSqhbPe6DHAFgDEP9vt/88g3J8zzV4z7IbgzYZu6DvABsP/dBRgC2pftQkTEAYwwAj/4FAAAEeUueZs12dR+2DADGGGPAgNUqpVaj1qhVRoNOrVJiAATAcnwqzWRzXDbHcjyPACH0f0ZtY/dhCwBgjDGAUa91u+xtzfVNjU63y263mTVqFYUoAAyARCxms+xGNL66Fl14EJpbWF1bj2WYLEIIAG1j96GsADDGFEJOh3Wgt21oT0ezx2XQaynqyaNOjcngclh7OpoEQUymmbmFlfGJmbv3Fpo9dSfefX27ug9lApDv5B12y6sH+14a6q5z2hQK0tFeoaAsZsO+Pb7+7ta1jZhBp7FaTBKuQRbuQzkAYIw1GvWBwd0/+8l+b4OLoiQ2XqlUSHvRBfm4DyUHgDF21lr+6qcHX3mxV6tRV6RJMnIfSgsAY9zq3fXe0UPdPm+lWi4v96GEADDGXe2e3/zNT5saXZVqjOzch1IBEDHuaGl4/9ibngYpk8MlkRzdh5JMRYgYu52240cPPXdfgooFgDHWazVH3n65s62xUm2Qr/tQighAwwf6Du7rqlQDZO0+FDkGiBg3Nbjeem1IparMwg7LsiMjn8vXfSgyAtRK5evDA+46u7TqPM9nszme5x+bFy1Mfr//7NlzmUxGpu5DMREgitjjdQ71dxRUC2Mci8VmZmYDgcDGBp1Opw0Gvc1ma21t8fl8NpvtaZNFT5TL5bLZrIlEolL2FS/pABQK6sDgblshEzXxePzata+uXbu2srLKMAzGGCGUXx7Q6XRut3t4+JXXXnvVYrEQ/qDT6dy/f//i4lIlLSxOiq7B1yRUwxjbrKZ33xmuMRsIqwQCgd/97p8uXrxE0xFBECiKoigKIZT/D57nY7HY5ORkILBQX++224m6NYSQVqsdH7+VzWZl2gtJHAMwxm1et8thJSw/Ozv3299+cPv2bVEU875/r0CehCiKd+7c+eCDf/T7/YS/7PE0trW15cNIjpIIQEFRu30ejVpFUpimI6dO/cv8/DxJ/05R1MLCwu9/fyocDpP8uE6n6+zslOntD9IAYIx1Om1zYx1JYVEUL1++PDk5ST66UhTl9/svXrwsiiJJ+ZaWZp1OJ9MgkBgBJqOuzmkjKRkKha5fHy30rCHGeHR0dGnpAUlht9ut1+vLbFS5JC0CoNZm1mqI+p9vv/02HA4X9HAJAAihjY2NiYkJksJGo9Fqte6oCMBmk4Hk7VcQhNnZOY7jJPw/BEGYmyOqq1KprFZLmY0qlyRFAIBBp1ESLPNms9lweF3aCIkQWl9fz2ZzzyypVCoNBsOOigAg9FQQBIZhJF8czwsYP3scVigUOp2uPP6UXeXdmogQpVQqiqiOSEhjjLfgSHuZJBFAjuVE8dkhr9GobTab5M6hpqZGpXr2UM9xXDKZlOmrgBQACCCezHAEN51arfZ6vYU+Am2qqcmr1WqfWYznhVQqVWajyiVJ1iAUjSVyLFHU9/T0mM3mQoMAY2wymXp7e0kK53LZSCS60yIgHX1INAns87UPDOyVAKC3t6ejw0dSeG0tnEwmy+9VWSQJAEKZTG5peZ2ksFqtfuutN10uF+G8AgCIouhwON555+eEzzbBYFC+azISe2eW42YXVknGYQDo6Og4duyXZrOZhIEoinq9/siRv+7qIlpn5jjO7/fvuKcgQMg/uxSLEwU+Qmh4ePjEiV87HA5RFJ/WHWGMRVG02azvvferw4cPEd7R6+sbfv99yeN8xSVxQQYhlGZy3gaXt4FoHxxFUc3Nza2trYlEMhaLsSz7OAaMsShinU63Z0/fiRMnfvSjl5RK0qW60dHRGzf+q9I2Spf0JUmW5b7+n+mh/g6dlmgTLkKot7enpaV5aurenTt3AoGFSCQiiiJCyG63NTc379mzp6+v12g0kl9DIpH4+uuveZ6XbwRIB4AQNXU/OOkPDvUTPavkZTAY9u8fGhwcYBgml/tunketVuv1eoWi4HfmaDS6tka0blO1ktgFAQBCwLJ8juX29rSpC9wXRFFU3vS8NBqNtFvYZDKZTEa//z7DyHVNWDoAAACE6GjCbjW1NrkrcvUURTU1NVksFr/fL1MGRQFAAIIgrIajvpb6gvanlFAIoaYmr3wZFBcBAAihRCoTiSZ6Opt0Wk1F2iBrBsUCyLd/nY6l0tkun7fQwaBUki+DEgAAAIzhQWiDF4T25vpKbdSVKYPSAEAIRBHPL4biiXRbc32ljueRM/guXcJj2vyFLb7m0gCARwyCy2vLIbphV621poD3qRLq/2Gw6bVarTYYDCaTyel0uFx1tbW1BoNBpVIplUpRFDe3AWwNjFJ2FwgBxnD77mx44+E7b7x4YHB3RYZliqJeffXHAHDy5KmHD+MIAcZYoVDYbLaWluaWlpaGhoZdu+qsVqtKpaIoBQCIopDLsdFodG1tLRgMzs7OLi09SCaT+Y2UZb1aVI709SLGWrVqb2/bG8ODHW2NkkdmJpvjOMFskrLpShTFL7+8dvLkKYZhfD7f/v1De/f2u1yuZy6xiaKYyWSWl1cmJiZu3boVDC6yLFs+DGUBAAAYA8bYbNL3d7cc2NfV2dpoMuoIg1oUxXgyc29mcfTmJMfxv/7FYWmZ+QRBuHnzFsdxAwN7TaaCX1PyRxnGx29fuXJ1bm5OEIRydErlArDZBoyxTqvx1Dt7Opvam+sb3LVmo16tUiqVis32YIx5XmA5Pp5ML61szMwvT94ProTobI4FQN0+6bkpSyKajly9evXixUs0TZc8FMoLIK98NACATqs2GXUOe43dWmM26Q06Tf6ARprJJZIZOhpfpx/mEwcBAKK+41NkftCSSBTFycnJjz46PTV1r7S/vBUANvXo2Q/yf/7yQgDlnzueFOfVwAAA1tfX//CHf8vvNS5Vd1Syx1ASoUe5sCiEKOov/0GP9OSKaD0SX17ZaG1yk5/JKbkMBkN3dxfHcQsLwVIx2FIAxQghtBGJB5fXG3bV1trMlboMjUbT2dmZTCYDgYWS7EaVDQB4xGB+MeSpd0rLoVUSqVSqtra2cDi8tPSg+CCQEwAAQAjF4qnAUoUZaLVar9dz//5MJBIpkoHMAEDVMKipqbFYav785wmWZYthID8AUDUMXC5XNBqdnZ3bcQAgzyCRCiyGWrx1dqvEMfmxmVApHioUCrvd/s03d9LptGQG8suevikKoZUQvboWaW+uL6giy/HLITqwGAqFIxmGRQgMem19nb2tyV3ntBV0oMHr9R48eOCzz/5DcitkDEAUsbehtrvDS15FEMX7c8tXRr+5O72QTDEcxwPK544FtUpps5j29rQdfmWAPOsaRVHDw8Ojozckj8Zy7YLy+vHBPS8MkJ7SZrLsyJWb/3r2in/uQS7HAUD+BTD/N8Y4ncnOBVen/EGdTtOwq5Zw2sdoNAaDC8FgUBoAuW4owxgb9Nr+7lbCZmdz3LmR0TPnr8fiqSfmSoB8ugSEVtYi//zvly5duy0IRNu51WpVX18fyUmeJ0q+AKDOaSOcGhIxvjL6zedfjHMc/0xgFIXSTPbc5zdu350hvJjOzk6LxSLtxVi+AHBTo8ugf/YBJgAILIYuXLmZYznCcKEQiicyn13870iU6BCKzWZ1u907C4BCQTXU1ZKkpBZF8frYtxt0nCqkj6YoNB8M3bxDlLRFr9d7PI07CADGoFGrHLUWksKRWGJiah4KHyAFQRifmMkwzz4pjhByOBzS1mpkCQAAq1RKwo0XD1bp6MMUKpwAQmh5dYOOxkkKW61WtVrKZhyZAgCKQoTZisIbsRzLScuWkGO5SIzoFJBer1MoFBJ6IbkCUCoURgPREb5UmuH5wpLlbApjIE60I3EqQq4ARIw5juhg3uOr/1UouQIQBCHNZElK2q1mtVrajAtWKCijnijOBIHfQU9BAMDzYipNlIelvs6u12okuIMBrDVGl5MoMWE8nuA40veMxyVLAAghluOiD4mGx10ue7OnTsrtifHudo/ZSLQvj6ZpaXmpZAkAAFiOXw1HSUrqdZrhA31ajbogBBhjS43x4L4uknc9lmVDoZC0hsgVAAJYfBBmCPJpAcBgX/ve3sJyiyKEhl/s7WwnysmfSqUWF5d21mwoQmhpZX0jQvSWpNdpjr79Sou3jjBfBcZ4qL/j7cMvKslOzgaDizRN7zgADxOp6VnSrNHeBuf7x97sbPM8fhzjh8p/fO7A4O4T775Ofuzw3r17krOFyHhBRhBEhUKxb0874SJirc3c7fNggEg0yWRz38OAMQZAzlrLzw698IufD5O7H41GT5/+WPKKmIyXJBFC07NLM/PLfV0thFXqnLbjRw+//ELv7YmZ+3MPwpGHHMsDAp1Ws8tp62xv3NfX3ugubFptYuLu0tKS5F3T8gaQSjOzC6vkAABApVT4WurbmtxMNsdk2UQyQ1HIbNLrtBqtRl3oTZxMJr/44stcLrcTAWAMQ/0dL7/QI6EuRSGDXmvQa4vcZjo2NjY9PV3MoQG5DsKbHxl2kq0KlEOrq6sjI3/aTDkiTbIEUOQnnkuiXC736aefBQKBIs/MyA9ANbiPMb569Yuvvrpe/E/JDEA1uA8AN2/eOn36TEm+myInAFXi/q1b4x9++GEsFivJMoNsnoKqwX1BEMbGbp48eXJtreAvIjxN8gBQDe5nMplLly5/8smn8Xi8hIdVZQCg4u5jjBcWgp988unY2FiRxzF+qGoHUKT7LMtyHKfX66W5hjGmaXp09Mbly/+5uroKZcjgUdUAinSfYZgzZz72+++/9NLBwcEBh8NBno6U47hQKDQ+fnt0dHRxcal8mTGrF0Dx7p8+feb8+Qu5XM7v91+4MNLd3d3Vtdvna7dYLFqtVqlUfi+ZDcuy2WyWpum5ufmpqal796Zpmt786F+ZmrmlJ+XJVSr3NxfKNzMFmUwmh8NRV+ey2WybycExxqlUKhqNhsNhmqZTqXS+4hbsZ6nGCCi5+/Doayg8z0ej0UgkMj09/cOK+cLfneXfqlS8VQegHO4/rq25r8lVXW/C5Xa/ClVFAHag+1A9AHam+1AlAHas+1ANAHay+1BxADvcfagsgOfuQwUBPHc/r8oAeO7+pioA4Ln7j2urATx3/3vaUgDP3f+htg7Ac/efqC0C8Nz9p2mLpqP37+048e7r0tzPZDJnzny8Ld2HLYgAjHGXz3v86CFp7guCcP78hQsXRral+wDwvx0NaxKtGvJ1AAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDIyLTAzLTMxVDA4OjA1OjEwLTA0OjAwVdOPMwAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyMi0wMy0zMVQwODowNToxMC0wNDowMCSON48AAAAASUVORK5CYII=",
+        "monitoring_procedure": "# The documentation page of this Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "IP Fabric API",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_ipfabric_api.pl",
+                "package_name": "centreon-plugin-Applications-Ipfabric-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-ipfabric-api",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Network",
+            "API"
+        ],
+        "update_date": "1652108812",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'\u00e9tat des routes.}\r\n\r\n{EN: Check paths' status.}",
+            "active_checks_enabled": 2,
+            "alias": "Path-Verification",
+            "check_timeperiod": "",
+            "command_name": "App-Ipfabric-Api-Path-Verification",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{expected_state} ne %{state}"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--http-backend=curl"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Ipfabric-Path-Verification-Api",
+            "normal_check_interval": 1440,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

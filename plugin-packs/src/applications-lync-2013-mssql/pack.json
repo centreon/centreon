@@ -1,0 +1,283 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_lync_2k13.pl --plugin=database::mssql::plugin --dyn-mode=centreon::common::microsoft::skype::mssql::mode::videoqoe --hostname=$HOSTADDRESS$ --username=\\'$_HOSTMSSQLUSERNAME$\\' --password=\\'$_HOSTMSSQLPASSWORD$\\' --port=$_HOSTMSSQLPORT$ --timeframe=\\'$_SERVICETIMEFRAME$\\' --warning-recv-frame=\\'$_SERVICEWARNRECEIVEFRAME$\\' --critical-recv-frame=\\'$_SERVICECRITRECEIVEFRAME$\\' --warning-local-frame-loss=\\'$_SERVICEWARNFRAMELOSS$\\' --critical-local-frame-loss=\\'$_SERVICECRITFRAMELOSS$\\' --warning-post-fecplr=\\'$_SERVICEWARNPOSTFECPLR$\\' --critical-post-fecplr=\\'$_SERVICECRITPOSTFECPLR$\\' --warning-packet-loss=\\'$_SERVICEWARNPCKTLOSS$\\' --critical-packet-loss=\\'$_SERVICECRITPACKETLOSS$\\' --warning-inbound-frame=\\'$_SERVICEWARNINBOUNDFRAME$\\' --critical-inbound-frame=$_SERVICECRITINBOUNDFRAME$ --warning-outbound-frame=\\'$_SERVICEWARNOUTBOUNDFRAME$\\' --critical-outbound-frame=\\'$_SERVICECRITOUTBOUNDFRAME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Lync-2013-SQL-VideoQoe",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_lync_2k13.pl --plugin=database::mssql::plugin --dyn-mode=apps::lync::2013::mssql::mode::lyncusers --hostname $HOSTADDRESS$ --username \\'$_HOSTMSSQLUSERNAME$\\' --password=\\'$_HOSTMSSQLPASSWORD$\\' --port=$_HOSTMSSQLPORT$ --warning-unique=\\'$_SERVICEWARNINGUNIQUE$\\' --critical-unique=\\'$_SERVICECRITICALUNIQUE$\\' --warning-total=\\'$_SERVICEWARNINGTOTAL$\\' --critical-total=\\'$_SERVICECRITICALTOTAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Lync-2013-SQL-User-Count",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_lync_2k13.pl --plugin=database::mssql::plugin --dyn-mode=centreon::common::microsoft::skype::mssql::mode::sessionstypes --hostname=$HOSTADDRESS$ --username=\\'$_HOSTMSSQLUSERNAME$\\' --password=\\'$_HOSTMSSQLPASSWORD$\\' --port=$_HOSTMSSQLPORT$ --timeframe=\\'$_SERVICETIMEFRAME$\\' --warning-instant-messaging=\\'$_SERVICEWARNIM$\\' --critical-instant-messaging=\\'$_SERVICECRITIM$\\' --warning-file-transfer=\\'$_SERVICEWARNFILETRANSFER$\\' --critical-file-transfer=\\'$_SERVICECRITFILETRANSFER$\\' --warning-remote-assistance=\\'$_SERVICEWARNREMOTEASSIST$\\' --critical-remote-assistance=\\'$_SERVICECRITREMOTEASSIST$\\' --warning-app-sharing=\\'$_SERVICEWARNAPPSHARING$\\' --critical-app-sharing=\\'$_SERVICECRITAPPSHARING$\\' --warning-audio=\\'$_SERVICEWARNAUDIO$\\' --critical-audio=\\'$_SERVICECRITAUDIO$\\' --warning-video=\\'$_SERVICEWARNINGVIDEO$\\' --critical-video=\\'$_SERVICECRITVIDEO$\\' --warning-app-invite=\\'$_SERVICEWARNAPPINVITE$\\' --critical-app-invite=\\'$_SERVICECRITAPPINVITE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Lync-2013-SQL-SessionsTypes",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_lync_2k13.pl --plugin=database::mssql::plugin --dyn-mode=centreon::common::microsoft::skype::mssql::mode::poorcalls --hostname=$HOSTADDRESS$ --username=\\'$_HOSTMSSQLUSERNAME$\\' --password=\\'$_HOSTMSSQLPASSWORD$\\' --port=\\'$_HOSTMSSQLPORT$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --warning-global=\\'$_SERVICEWARNINGGLOBAL$\\' --critical-global=\\'$_SERVICECRITICALGLOBAL$\\' --warning-user=\\'$_SERVICEWARNINGUSER$\\' --critical-user=\\'$_SERVICECRITICALUSER$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Lync-2013-SQL-PoorCalls",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_lync_2k13.pl --plugin=database::mssql::plugin --dyn-mode=centreon::common::microsoft::skype::mssql::mode::audioqoe --hostname=$HOSTADDRESS$ --username=\\'$_HOSTMSSQLUSERNAME$\\' --password=\\'$_HOSTMSSQLPASSWORD$\\' --port=$_HOSTMSSQLPORT$ --timeframe=\\'$_SERVICETIMEFRAME$\\' --warning-jitter-min=$_SERVICEWARNJITTERMIN$ --critical-jitter-min=$_SERVICECRITJITTERMIN$ --warning-jitter-max=$_SERVICEWARNJITTERMAX$ --critical-jitter-max=$_SERVICECRITJITTERMAX$ --warning-jitter-avg=$_SERVICEWARNJITTERAVG$ --critical-jitter-avg=$_SERVICECRITJITTERAVG$ --warning-loss-min=$_SERVICEWARNLOSSMIN$ --critical-loss-min=$_SERVICECRITLOSSMIN$ --warning-loss-max=$_SERVICEWARNLOSSMAX$ --critical-loss-max=$_SERVICECRITLOSSMAX$ --warning-loss-avg=$_SERVICEWARNLOSSAVG$ --critical-loss-avg=$_SERVICECRITLOSSAVG$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Lync-2013-SQL-AudioQoe",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_lync_2k13.pl --plugin=database::mssql::plugin --dyn-mode=centreon::common::microsoft::skype::mssql::mode::appsharingqoe --hostname=$HOSTADDRESS$ --username=\\'$_HOSTMSSQLUSERNAME$\\' --password=\\'$_HOSTMSSQLPASSWORD$\\' --port=$_HOSTMSSQLPORT$ --timeframe=\\'$_SERVICETIMEFRAME$\\' --warning-spoiled-tile-prct-total-avg=\\'$_SERVICEWARNSPOILEDPRCT$\\' --warning-rdp-tile-processing-latency-avg=\\'$_SERVICEWARNRDPPROCESSINGLATENCY$\\' --warning-relative-one-way-average=\\'$_SERVICEWARNRELATIVEONEWAY$\\' --critical-spoiled-tile-prct-total-avg=\\'$_SERVICECRITSPOILEDPRCT$\\' --critical-rdp-tile-processing-latency-avg=\\'$_SERVICECRITRDPPROCESSINGLATENCY$\\' --critical-relative-one-way-average=\\'$_SERVICECRITRELATIVEONEWAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Lync-2013-SQL-AppSharingQoe",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Microsoft Lync 2013 application using MS SQL Server",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "lync-64.png",
+            "macros": [
+                {
+                    "key": "$_HOSTMSSQLPASSWORD$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTMSSQLPORT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTMSSQLUSERNAME$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Lync-2013-Mssql",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Lync-2013-Video-Qoe-Mssql",
+                "App-Lync-2013-User-Count-Mssql",
+                "App-Lync-2013-Session-Types-Mssql",
+                "App-Lync-2013-Poor-Calls-Mssql",
+                "App-Lync-2013-Audio-Qoe-Mssql",
+                "App-Lync-2013-AppSharing-Qoe-Mssql"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "lync-64.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "- Add stpl to htpl",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Microsoft Lync 2013\r\n* Audio-Qoe\r\n* Video-Qoe\r\n* App-Sharing-Qoe\r\n* Audio-Qoe\r\n* Poor-Calls\r\n* Session-Types\r\n* User-Count"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser Lync 2013\r\n* Audio-Qoe\r\n* Video-Qoe\r\n* App-Sharing-Qoe\r\n* Audio-Qoe\r\n* Poor-Calls\r\n* Session-Types\r\n* User-Count"
+            }
+        ],
+        "discovery_category": "",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Lync-2013-Mssql\r\n\r\n## Username\r\nThe username string should not be longer than 32 chararacters. Username\r\nmust be in the following form: [Servername|Domainname]\r\nIn order for the plugin to operate correctly, a database user with specific privileges is required.\r\nThe most simple way is to assign the Nagios-user the role \u201cserveradmin\u201d. As an alternative you can use the sa-User for the database connection. Alas, this opens a serious security hole, as the (cleartext) administrator password can be found in the nagios configuration files\r\nBirk Bohne wrote the following script which allows the automated creation of a minimal, yet sufficient privileged monitoring-user.\r\n\r\n    declare @dbname varchar(255)\r\n    declare @check_mssql_health_USER varchar(255)\r\n    declare @check_mssql_health_PASS varchar(255)\r\n    declare @check_mssql_health_ROLE varchar(255)\r\n    declare @source varchar(255)\r\n    declare @options varchar(255)\r\n    declare @backslash int\r\n    \r\n    /*******************************************************************/\r\n    SET @check_mssql_health_USER = '\"[Servername|Domainname]\\Username\"'\r\n    SET @check_mssql_health_PASS = 'Password'\r\n    SET @check_mssql_health_ROLE = 'Rolename'\r\n    /******************************************************************\r\n    \r\n    PLEASE CHANGE THE ABOVE VALUES ACCORDING TO YOUR REQUIREMENTS\r\n    \r\n    - Example for Windows authentication:\r\n      SET @check_mssql_health_USER = '\"[Servername|Domainname]\\Username\"'\r\n      SET @check_mssql_health_ROLE = 'Rolename'\r\n    \r\n    - Example for SQL Server authentication:\r\n      SET @check_mssql_health_USER = 'Username'\r\n      SET @check_mssql_health_PASS = 'Password'\r\n      SET @check_mssql_health_ROLE = 'Rolename'\r\n    \r\n    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\r\n    It is strongly recommended to use Windows authentication. Otherwise\r\n    you will get no reliable results for database usage.\r\n    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\r\n    \r\n    *********** NO NEED TO CHANGE ANYTHING BELOW THIS LINE *************/\r\n    \r\n    SET @options = 'DEFAULT_DATABASE=MASTER, DEFAULT_LANGUAGE=English'\r\n    SET @backslash = (SELECT CHARINDEX('\\', @check_mssql_health_USER))\r\n    IF @backslash > 0\r\n      BEGIN\r\n        SET @source = ' FROM WINDOWS'\r\n        SET @options = ' WITH ' + @options\r\n      END\r\n    ELSE\r\n      BEGIN\r\n        SET @source = ''\r\n        SET @options = ' WITH PASSWORD=''' + @check_mssql_health_PASS + ''',' + @options\r\n      END\r\n    \r\n    PRINT 'create Nagios plugin user ' + @check_mssql_health_USER\r\n    EXEC ('CREATE LOGIN ' + @check_mssql_health_USER + @source + @options)\r\n    EXEC ('USE MASTER GRANT VIEW SERVER STATE TO ' + @check_mssql_health_USER)\r\n    EXEC ('USE MASTER GRANT ALTER trace TO ' + @check_mssql_health_USER)\r\n    EXEC ('USE MSDB GRANT SELECT ON sysjobhistory TO ' + @check_mssql_health_USER)\r\n    EXEC ('USE MSDB GRANT SELECT ON sysjobschedules TO ' + @check_mssql_health_USER)\r\n    EXEC ('USE MSDB GRANT SELECT ON sysjobs TO ' + @check_mssql_health_USER)\r\n    PRINT 'User ' + @check_mssql_health_USER + ' created.'\r\n    PRINT ''\r\n    \r\n    declare dblist cursor for\r\n      select name from sysdatabases WHERE name NOT IN ('master', 'tempdb', 'msdb') open dblist\r\n        fetch next from dblist into @dbname\r\n        while @@fetch_status = 0 begin\r\n          EXEC ('USE [' + @dbname + '] print ''Grant permissions in the db '' + ''\"'' + DB_NAME() + ''\"''')\r\n          EXEC ('USE [' + @dbname + '] CREATE ROLE ' + @check_mssql_health_ROLE)\r\n          EXEC ('USE [' + @dbname + '] GRANT EXECUTE TO ' + @check_mssql_health_ROLE)\r\n          EXEC ('USE [' + @dbname + '] GRANT VIEW DATABASE STATE TO ' + @check_mssql_health_ROLE)\r\n          EXEC ('USE [' + @dbname + '] GRANT VIEW DEFINITION TO ' + @check_mssql_health_ROLE)\r\n          EXEC ('USE [' + @dbname + '] CREATE USER ' + @check_mssql_health_USER + ' FOR LOGIN ' + @check_mssql_health_USER)\r\n          EXEC ('USE [' + @dbname + '] EXEC sp_addrolemember ' + @check_mssql_health_ROLE + ' , ' + @check_mssql_health_USER)\r\n          EXEC ('USE [' + @dbname + '] print ''Permissions in the db '' + ''\"'' + DB_NAME() + ''\" granted.''')\r\n          fetch next from dblist into @dbname\r\n        end\r\n    close dblist\r\n    deallocate dblist\r\n\r\nPlease keep in mind that check_mssql_health\u2019s functionality is limited when using SQL Server authentication. This method is strongly discouraged . Normally there is already a Nagios-(Windows-)-user which can be used for the Windows authentication method.\r\n\r\n### RPM\r\nIn order to use this template, the following RPM are needed:\r\n* freetds-0.82-6.el6.$ARCH\r\n* perl-DBD-Sybase-1.10-1.el6.rf.$ARCH\r\n* unixODBC-2.2.14-14.el6.$ARCH\r\n* unixODBC-devel-2.2.14-14.el6.$ARCH\r\n\r\n#### Configuration of freetds.conf file\r\nThe /etc/freetds.conf file have to be modified in order to encrypt the\r\npassword. To do that :\r\n\r\n    vi /etc/freetds.conf\r\nModify line tds 'version = 4.2' to 'tds version = 8.0'.\r\nThen remove comment symbol at the beginning of this line.\r\n\r\n## Centreon Configuration\r\n### Create a new Lync MSSQL instance\r\nGo to \"Configuration &gt; Hosts\" and click \"Add\". Then, fill the form as\r\nshown by the following table :\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Lync-2013-MSSQL-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick \"Save\" button.\r\n\r\n#### Host Macro Configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"25%\" />\r\n<col width=\"50%\" />\r\n<col width=\"25%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>MSSQLUSERNAME</p></td>\r\n<td align=\"left\"><p>MSSQL username</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>MSSQLPASSWORD</p></td>\r\n<td align=\"left\"><p>MSSQL password</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>MSSQLPORT</p></td>\r\n<td align=\"left\"><p>Port Of the MSSQL instance (need to check in the SQL Studio if dynamic)</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n</tbody>\r\n</table>",
+        "name": "Lync 2013",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_lync_2k13.pl",
+                "package_name": "centreon-plugin-Applications-Lync-2013-Mssql",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-lync-2013-mssql",
+        "status": "stable",
+        "status_message": "Add stpl to htpl",
+        "tags": [
+            "Call",
+            "Communication",
+            "Lync",
+            "Microsoft",
+            "Skype",
+            "Video",
+            "Voice",
+            "Windows"
+        ],
+        "update_date": "1547721877",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les metrics Qoe dans la base Lync d\u00e9di\u00e9e.} {EN: Check Lync Video Qoe Metrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Lync-Video-Qoe",
+            "check_timeperiod": "",
+            "command_name": "App-Lync-2013-SQL-VideoQoe",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Lync-2013-Video-Qoe-Mssql",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre d'utilisateur sur une serveur Lync FrontEnd.} {EN: Check number of users on a Lync frontend.}",
+            "active_checks_enabled": 2,
+            "alias": "Lync-User-Count",
+            "check_timeperiod": "",
+            "command_name": "App-Lync-2013-SQL-User-Count",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Lync-2013-User-Count-Mssql",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de sessions de chaque types durant les X derni\u00e8res minutes.} {EN: Check number of sessions of each types in the last X minutes.}",
+            "active_checks_enabled": 2,
+            "alias": "Lync-Session-Types",
+            "check_timeperiod": "",
+            "command_name": "App-Lync-2013-SQL-SessionsTypes",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Lync-2013-Session-Types-Mssql",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre d'appels de basse qualit\u00e9 durant les X derni\u00e8res minutes de mani\u00e8re globale et par utilisateur.} {EN: Check number of poor calls globally and per user in the last X minutes.}",
+            "active_checks_enabled": 2,
+            "alias": "Lync-Poor-Calls",
+            "check_timeperiod": "",
+            "command_name": "App-Lync-2013-SQL-PoorCalls",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Lync-2013-Poor-Calls-Mssql",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les metrics Audio Qoe dans la base Lync d\u00e9di\u00e9e.} {EN: Check Lync Audio Qoe Metrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Lync-Audio-Qoe",
+            "check_timeperiod": "",
+            "command_name": "App-Lync-2013-SQL-AudioQoe",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Lync-2013-Audio-Qoe-Mssql",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les metrics du partage d'application Qoe dans la base Lync d\u00e9di\u00e9e.} {EN: Check Lync App Sharing Qoe Metrics.}",
+            "active_checks_enabled": 2,
+            "alias": "AppSharing-Qoe",
+            "check_timeperiod": "",
+            "command_name": "App-Lync-2013-SQL-AppSharingQoe",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Lync-2013-AppSharing-Qoe-Mssql",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,533 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netasq.pl --plugin=network::netasq::snmp::plugin --mode=swap --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Netasq-SNMP-Swap",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netasq.pl --plugin=network::netasq::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Netasq-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netasq.pl --plugin=network::netasq::snmp::plugin --mode=load --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Netasq-SNMP-Load",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netasq.pl --plugin=network::netasq::snmp::plugin --mode=cpu-detailed --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-idle=\\'$_SERVICEWARNINGIDLE$\\'  --critical-idle=\\'$_SERVICECRITICALIDLE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Netasq-SNMP-Cpu-Detailed",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netasq.pl --plugin=network::netasq::snmp::plugin --mode=cpu --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\'  --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Netasq-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netasq.pl --plugin=network::netasq::snmp::plugin --mode=storage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --storage=\\'$_SERVICEFILTER$\\' --name --regexp --display-transform-src=\\'$_SERVICETRANSFORMSRC$\\' --display-transform-dst=\\'$_SERVICETRANSFORMDST$\\' --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Netasq-SNMP-Disk-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netasq.pl --plugin=network::netasq::snmp::plugin --mode=ha-nodes --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-health=\\'$_SERVICEWARNINGHEALTH$\\'  --critical-health=\\'$_SERVICECRITICALHEALTH$\\' --warning-dead-nodes=\\'$_SERVICEWARNINGDEADNODES$\\' --critical-dead-nodes=\\'$_SERVICECRITICALDEADNODES$\\' --warning-state=\\'$_SERVICEWARNINGSTATE$\\' --critical-state=\\'$_SERVICECRITICALSTATE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Netasq-SNMP-Ha-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netasq.pl --plugin=network::netasq::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACEID$\\' --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Netasq-SNMP-Traffic-Id",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netasq.pl --plugin=network::netasq::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$$$\\' --name --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Netasq-SNMP-Traffic-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netasq.pl --plugin=network::netasq::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Netasq-SNMP-Traffic-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netasq.pl --plugin=network::netasq::snmp::plugin --mode=vpn-status --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Netasq-SNMP-Vpn-Status",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Netasq devices using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Netasq-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Netasq-Swap-SNMP",
+                "Net-Netasq-Memory-SNMP",
+                "Net-Netasq-Load-SNMP",
+                "Net-Netasq-Cpu-Detailed-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Change to Stormshield",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor NetASQ netqork equipment via SNMP:\r\n* Cpu\r\n* Cpu-Detailed\r\n* Disk\r\n* HA-Status\r\n* Load\r\n* Memory\r\n* Swap\r\n* Traffic (by interface name, ID or all interfaces)\r\n* Vpn-Status"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller les \u00e9quipements r\u00e9seau NetASQ via SNMP :\r\n* Cpu\r\n* Cpu-Detailed\r\n* Disk\r\n* HA-Status\r\n* Load\r\n* Memory\r\n* Swap\r\n* Traffic (by interface name, ID or all interfaces)\r\n* Vpn-Status"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Netasq-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Netasq-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "NetASQ Network",
+        "plugins_requirements": [],
+        "requirement": [
+            {
+                "name": "ces-plugins-Network-Netasq-Snmp",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "network-netasq-snmp",
+        "status": "deprecated",
+        "status_message": "",
+        "tags": [
+            "Hardware",
+            "NetASQ",
+            "Network",
+            "SNMP",
+            "VPN"
+        ],
+        "update_date": "1503653892",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire virtuelle (SWAP)}\r\n\r\n{EN: Check virtual memory usage (SWAP)}",
+            "active_checks_enabled": 2,
+            "alias": "Swap",
+            "check_timeperiod": "",
+            "command_name": "Net-Netasq-SNMP-Swap",
+            "discovery_list_mode": "N",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "10"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "30"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Netasq-Swap-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire vive (RAM)..}\r\n\r\n{EN: Check the rate of the utilization of memory (RAM).}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Netasq-SNMP-Memory",
+            "discovery_list_mode": "N",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Netasq-Memory-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la charge serveur.}\r\n\r\n{EN: Check the server load average.}",
+            "active_checks_enabled": 2,
+            "alias": "Load",
+            "check_timeperiod": "",
+            "command_name": "Net-Netasq-SNMP-Load",
+            "discovery_list_mode": "N",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "4,3,2"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "6,5,4"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Netasq-Load-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation d\u00e9taill\u00e9 CPU de la machine. Ce contr\u00f4le pourra remonter la moyenne du taux d'utilisation des CPU ainsi que le taux par CPU pour les CPU multi-c?ur.}\r\n\r\n{EN: Check the detailed rate of utilization of CPU for the machine. This check can give the average CPU utilization rate and the rate per CPU for multi-core CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu-Detailed",
+            "check_timeperiod": "",
+            "command_name": "Net-Netasq-SNMP-Cpu-Detailed",
+            "discovery_list_mode": "N",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIDLE$",
+                    "password": false,
+                    "value": "20:"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIDLE$",
+                    "password": false,
+                    "value": "10:"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Netasq-Cpu-Detailed-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine. Ce contr\u00f4le pourra remonter la moyenne du taux d'utilisation des CPU ainsi que le taux par CPU pour les CPU multi-c?ur.}\r\n\r\n{EN: Check the rate of utilization of CPU for the machine. This check can give the average CPU utilization rate and the rate per CPU for multi-core CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Netasq-SNMP-Cpu",
+            "discovery_list_mode": "N",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Netasq-Cpu-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'espace libre disponible des disques. Pour chaque contr\u00f4le appara\u00eetra le point de montage des disques (\u00ab\u00a0label\u00a0\u00bb). Les seuils pourront \u00eatre en pourcentage, en espace libre restant.}\r\n\r\n{EN: Check the rate of free space on disks. For each checks the mount point of disks will appear (\u00ab label \u00bb). Thresholds can be in percentage or in free space remaining.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Netasq-SNMP-Disk-Global",
+            "discovery_list_mode": "N",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Netasq-Disk-Global-SNMP",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut de la HA.}\r\n\r\n{EN: Check HA status.}",
+            "active_checks_enabled": 2,
+            "alias": "Ha-Status",
+            "check_timeperiod": "",
+            "command_name": "Net-Netasq-SNMP-Ha-Status",
+            "discovery_list_mode": "N",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Netasq-Ha-Status-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau d'une interface r\u00e9seau.}\r\n\r\n{EN: Check traffic of an network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Id",
+            "check_timeperiod": "",
+            "command_name": "Net-Netasq-SNMP-Traffic-Id",
+            "discovery_list_mode": "N",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Netasq-Traffic-Generic-Id-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau d'une interface r\u00e9seau.}\r\n\r\n{EN: Check traffic of an network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-Netasq-SNMP-Traffic-Name",
+            "discovery_list_mode": "N",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Netasq-Traffic-Generic-Name-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau de plusieurs interfaces r\u00e9seau.}\r\n\r\n{EN: Check traffic of multiple network interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Netasq-SNMP-Traffic-Global",
+            "discovery_list_mode": "N",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Netasq-Traffic-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des VPNs.}\r\n\r\n{EN: Check VPN states.}",
+            "active_checks_enabled": 2,
+            "alias": "Vpn-Status",
+            "check_timeperiod": "",
+            "command_name": "Net-Netasq-SNMP-Vpn-Status",
+            "discovery_list_mode": "N",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Netasq-Vpn-Status-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

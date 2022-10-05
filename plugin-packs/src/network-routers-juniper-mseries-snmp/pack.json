@@ -1,0 +1,816 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Juniper-Mseries-Interfaces-Discover",
+                "command_for_macro": "Net-Juniper-Mseries-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$name$",
+                        "order": 0,
+                        "pattern": "^[Ll]o",
+                        "type": "exclusion"
+                    },
+                    {
+                        "object": "$status$",
+                        "order": 1,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Juniper-Mseries-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Juniper-Mseries-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Juniper-Mseries-Traffic-Global"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Juniper-Mseries-Storages-Discover",
+                "command_for_macro": "Net-Juniper-Mseries-Storages-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$name$",
+                        "order": 0,
+                        "pattern": "(/dev.*|/run.*|/sys.*|/boot)",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Juniper-Mseries-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Juniper-Mseries-Storage-Name",
+                "service_display_name": "Disk-$name$",
+                "service_template": "Net-Juniper-Mseries-Disk-Global"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_mseries.pl --plugin=network::juniper::mseries::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Juniper-Mseries-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_mseries.pl --plugin=network::juniper::mseries::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Juniper-Mseries-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_mseries.pl --plugin=network::juniper::mseries::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Juniper-Mseries-Storages-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_mseries.pl --plugin=network::juniper::mseries::plugin --mode=list-storages --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Juniper-Mseries-Storages-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_mseries.pl --plugin=network::juniper::mseries::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter=\\'$_SERVICEFILTER$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNING$\\' --critical-usage-prct=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Juniper-Mseries-Memory-Routing",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_mseries.pl --plugin=network::juniper::mseries::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Juniper-Mseries-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_mseries.pl --plugin=network::juniper::mseries::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter=\\'$_SERVICEFILTER$\\' --warning-utilization=\\'$_SERVICEWARNING$\\' --critical-utilization=\\'$_SERVICECRITICAL$\\' --warning-load-1m=\\'$_SERVICEWARNINGLOAD1M$\\' --critical-load-1m=\\'$_SERVICECRITICALLOAD1M$\\' --warning-load-5m=\\'$_SERVICEWARNINGLOAD5M$\\' --critical-load-5m=\\'$_SERVICECRITICALLOAD5M$\\' --warning-load-15m=\\'$_SERVICEWARNINGLOAD15M$\\' --critical-load-15m=\\'$_SERVICECRITICALLOAD15M$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Juniper-Mseries-Cpu-Routing",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_mseries.pl --plugin=network::juniper::mseries::plugin --mode=storage --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --storage=\\'$_SERVICEDISKID$\\' --display-transform-src=\\'$_SERVICETRANSFORMSRC$\\' --display-transform-dst=\\'$_SERVICETRANSFORMDST$\\' --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Juniper-Mseries-Disk-ID",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_mseries.pl --plugin=network::juniper::mseries::plugin --mode=storage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --storage=\\'$_SERVICEDISKNAME$\\' --name --display-transform-src=\\'$_SERVICETRANSFORMSRC$\\' --display-transform-dst=\\'$_SERVICETRANSFORMDST$\\' --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Juniper-Mseries-Disk-NAME",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_mseries.pl --plugin=network::juniper::mseries::plugin --mode=storage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --storage=\\'$_SERVICEFILTER$\\' --name --regexp --display-transform-src=\\'$_SERVICETRANSFORMSRC$\\' --display-transform-dst=\\'$_SERVICETRANSFORMDST$\\' --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Juniper-Mseries-Disk-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_mseries.pl --plugin=network::juniper::mseries::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACEID$\\' --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Juniper-Mseries-Traffic-ID",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_mseries.pl --plugin=network::juniper::mseries::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$$$\\' --name --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Juniper-Mseries-Traffic-NAME",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_mseries.pl --plugin=network::juniper::mseries::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Juniper-Mseries-Traffic-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_mseries.pl --plugin=network::juniper::mseries::plugin --mode=ldp-session-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-entity=\\'$_SERVICEFILTERENTITY$\\' --filter-peer=\\'$_SERVICEFILTERPEER$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-last-change=\\'$_SERVICEWARNINGLASTCHANGE$\\' --critical-last-change=\\'$_SERVICECRITICALLASTCHANGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Juniper-Mseries-Ldp-Session-Status-SNMP",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_mseries.pl --plugin=network::juniper::mseries::plugin --mode=lsp-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --filter-from=\\'$_SERVICEFILTERFROM$\\' --filter-to=\\'$_SERVICEFILTERTO$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-transition-count=\\'$_SERVICEWARNINGTRANSITIONCOUNT$\\' --critical-transition-count=\\'$_SERVICECRITICALTRANSITIONCOUNT$\\' --warning-last-transition=\\'$_SERVICEWARNINGLASTTRANSITION$\\' --critical-last-transition=\\'$_SERVICECRITICALLASTTRANSITION$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Juniper-Mseries-Lsp-Status-SNMP",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_mseries.pl --plugin=network::juniper::mseries::plugin --mode=rsvp-session-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --filter-from=\\'$_SERVICEFILTERFROM$\\' --filter-to=\\'$_SERVICEFILTERTO$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Juniper-Mseries-Rsvp-Session-Status-SNMP",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_mseries.pl --plugin=network::juniper::mseries::plugin --mode=bgp-peer-state --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-peer=\\'$_SERVICEFILTER$\\' --filter-remote-ip=\\'$_SERVICEFILTERREMOTEIP$\\' --filter-local-as=\\'$_SERVICEFILTERLOCALAS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Juniper-Mseries-Bgp-Peer-State-SNMP",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_juniper_mseries.pl --plugin=network::juniper::mseries::plugin --mode=bgp-peer-prefix-statistics --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-peer=\\'$_SERVICEFILTER$\\' --warning-prefixes-in=\\'$_SERVICEWARNINGPREFIXESIN$\\' --critical-prefixes-in=\\'$_SERVICECRITICALPREFIXESIN$\\' --warning-prefixes-in-accepted=\\'$_SERVICEWARNINGPREFIXESINACCEPTED$\\' --critical-prefixes-in-accepted=\\'$_SERVICECRITICALPREFIXESINACCEPTED$\\' --warning-prefixes-in-rejected=\\'$_SERVICEWARNINGPREFIXESINREJECTED$\\' --critical-prefixes-in-rejected=\\'$_SERVICECRITICALPREFIXESINREJECTED$\\' --warning-prefixes-in-active=\\'$_SERVICEWARNINGPREFIXESINACTIVE$\\' --critical-prefixes-in-active=\\'$_SERVICECRITICALPREFIXESINACTIVE$\\' --warning-prefixes-out=\\'$_SERVICEWARNINGPREFIXESOUT$\\' --critical-prefixes-out=\\'$_SERVICECRITICALPREFIXESOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Juniper-Mseries-Bgp-Peer-Prefix-Statistics",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Juniper M Series en SNMP}\r\n{EN: Template to check Juniper M Series using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Juniper M Series using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "juniper-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Juniper-Mseries-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Juniper-Mseries-Memory-Routing",
+                "Net-Juniper-Mseries-Hardware",
+                "Net-Juniper-Mseries-Cpu-Routing"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "juniper-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* add filter options for bgp-peer-state service",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Juniper M-Series router via SNMP:\r\n* Cpu-Routing\r\n* Disk (by name, ID or global)\r\n* Hardware\r\n* Memory-Routing\r\n* Traffic (by interface name, ID or all interfaces)\r\n* Storage\r\n* LDP sessions status\r\n* LSP status\r\n* RSVP session status\r\n* BGP peer state\r\n* BGP peer statistics"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser un routeur Juniper M-Series via sNMP :\r\n* Cpu-Routing\r\n* Disk (by name, ID or global)\r\n* Hardware\r\n* Memory-Routing\r\n* Traffic (by interface name, ID or all interfaces)\r\n* Storage\r\n* LDP sessions status\r\n* LSP status\r\n* RSVP session status\r\n* BGP peer state\r\n* BGP peer statistics"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Routers-Juniper-Mseries-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Juniper-Mseries-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Juniper M-Series",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_juniper_mseries.pl",
+                "package_name": "centreon-plugin-Network-Routers-Juniper-Mseries-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-routers-juniper-mseries-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Hardware",
+            "Juniper",
+            "M-Serires",
+            "Network",
+            "Router",
+            "SNMP"
+        ],
+        "update_date": "1606211971",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation m\u00e9moire du 'Routing Engine'.}\r\n\r\n{EN: Check Memory Usage of routing engine.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory-Routing",
+            "check_timeperiod": "",
+            "command_name": "Net-Juniper-Mseries-Memory-Routing",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": "routing"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Juniper-Mseries-Memory-Routing",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du mat\u00e9riel.}\r\n\r\n{EN: Check hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware",
+            "check_timeperiod": "",
+            "command_name": "Net-Juniper-Mseries-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Juniper-Mseries-Hardware",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation CPU du 'routing engine'.}\r\n\r\n{EN: Check CPU Usage of routing engine.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu-Routing",
+            "check_timeperiod": "",
+            "command_name": "Net-Juniper-Mseries-Cpu-Routing",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": "routing"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Juniper-Mseries-Cpu-Routing",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'espace libre disponible du disque (via l'ID). Les seuils pourront \u00eatre en pourcentage, en espace libre restant.}\r\n\r\n{EN: Check the rate of free space on the disk (use the ID). Thresholds can be in percentage or in free space remaining.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Generic-Id",
+            "check_timeperiod": "",
+            "command_name": "Net-Juniper-Mseries-Disk-ID",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEDISKID$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICETRANSFORMDST$",
+                    "password": false,
+                    "value": "$1"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICETRANSFORMSRC$",
+                    "password": false,
+                    "value": "^.*mounted on: (.*)"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Juniper-Mseries-Disk-Generic-Id",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'espace libre disponible du disque (via le nom. Difficile \u00e0 utiliser). Les seuils pourront \u00eatre en pourcentage, en espace libre restant.}\r\n\r\n{EN: Check the rate of free space on the disk (use the Name. Difficult to use: prefer 'Id' or 'Global' to filter). Thresholds can be in percentage or in free space remaining.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-Juniper-Mseries-Disk-NAME",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEDISKNAME$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICETRANSFORMDST$",
+                    "password": false,
+                    "value": "$1"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICETRANSFORMSRC$",
+                    "password": false,
+                    "value": "^.*mounted on: (.*)"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Juniper-Mseries-Disk-Generic-Name",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'espace libre disponible du disque (via le nom. Difficile \u00e0 utiliser). Les seuils pourront \u00eatre en pourcentage, en espace libre restant.}\r\n\r\n{EN: Check the rate of free space on the disk (use the Name. Difficult to use: prefer 'Id' or 'Global' to filter). Thresholds can be in percentage or in free space remaining.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Juniper-Mseries-Disk-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "95"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": "^(?!(devfs|/dev/md0))"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICETRANSFORMDST$",
+                    "password": false,
+                    "value": "$1"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICETRANSFORMSRC$",
+                    "password": false,
+                    "value": "^.*mounted on: (.*)"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Juniper-Mseries-Disk-Global",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante de l'interface. Pour chaque contr\u00f4le appara\u00eetra le nom de l'interface (\u00ab label \u00bb raccourci d\u00e9crivant l'interface).}\r\n\r\n{EN: Check the bandwidth of the interface. For each checks the name of the interface will appear (\u00ab label \u00bb shortcut describing the interface).}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Id",
+            "check_timeperiod": "",
+            "command_name": "Net-Juniper-Mseries-Traffic-ID",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEINTERFACEID$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Juniper-Mseries-Traffic-Generic-Id",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante de l'interface. Pour chaque contr\u00f4le appara\u00eetra le nom de l'interface (\u00ab label \u00bb raccourci d\u00e9crivant l'interface).}\r\n\r\n{EN: Check the bandwidth of the interface. For each checks the name of the interface will appear (\u00ab label \u00bb shortcut describing the interface).}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-Juniper-Mseries-Traffic-NAME",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEINTERFACENAME$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Juniper-Mseries-Traffic-Generic-Name",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante d'un ensemble d'interfaces. Pour chaque contr\u00f4le appara\u00eetra le nom de l'interface (\u00ab label \u00bb raccourci d\u00e9crivant l'interface).}\r\n\r\n{EN: Check the bandwidth of  interfaces. For each checks the name of the interface will appear (\u00ab label \u00bb shortcut describing the interface).}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Juniper-Mseries-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Juniper-Mseries-Traffic-Global",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des sessions LDP.}\n\n{EN: Check LDP sessions status.}",
+            "active_checks_enabled": 2,
+            "alias": "Ldp-Session-Status",
+            "check_timeperiod": "",
+            "command_name": "Net-Juniper-Mseries-Ldp-Session-Status-SNMP",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{state} !~ /operational/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Juniper-Mseries-SNMP-Ldp-Session-Status",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des LSP.}\n\n{EN: Check LSP status.}",
+            "active_checks_enabled": 2,
+            "alias": "Lsp-Status",
+            "check_timeperiod": "",
+            "command_name": "Net-Juniper-Mseries-Lsp-Status-SNMP",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{state} !~ /up/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Juniper-Mseries-SNMP-Lsp-Status",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des sessions RSVP.}\n\n{EN: Check RSVP sessions status.}",
+            "active_checks_enabled": 2,
+            "alias": "Rsvp-Session-Status",
+            "check_timeperiod": "",
+            "command_name": "Net-Juniper-Mseries-Rsvp-Session-Status-SNMP",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{state} !~ /up/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Juniper-Mseries-SNMP-Rsvp-Session-Status",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des pairs BGP.}\r\n\r\n{EN: Check BGP peers status.}",
+            "active_checks_enabled": 2,
+            "alias": "Bgp-Peer-State",
+            "check_timeperiod": "",
+            "command_name": "Net-Juniper-Mseries-Bgp-Peer-State-SNMP",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{peer_status} =~ /running/ && %{peer_state} !~ /established/"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Juniper-Mseries-SNMP-Bgp-Peer-State",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques des prefix des pairs BGP.}\r\n\r\n{EN: Check BGP peers prefix statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Bgp-Peer-Prefix-Statistics",
+            "check_timeperiod": "",
+            "command_name": "Net-Juniper-Mseries-Bgp-Peer-Prefix-Statistics",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Juniper-Mseries-SNMP-Bgp-Peer-Prefix-Statistics",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

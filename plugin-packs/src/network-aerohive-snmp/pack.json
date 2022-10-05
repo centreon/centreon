@@ -1,0 +1,215 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Aerohive-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Aerohive-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Aerohive-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Aerohive-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Aerohive-Traffic-Global-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aerohive_snmp.pl --plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Aerohive-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aerohive_snmp.pl --plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=$_HOSTSNMPCOMMUNITY$ $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Aerohive-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aerohive_snmp.pl --plugin=network::aerohive::snmp::plugin --mode=connected-users --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-ssid=\\'$_SERVICEFILTERSSID$\\' --warning-total=\\'$_SERVICEWARNINGTOTAL$\\' --critical-total=\\'$_SERVICECRITICALTOTAL$\\' --warning-ssid=\\'$_SERVICEWARNINGSSID$\\' --critical-ssid=\\'$_SERVICECRITICALSSID$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Aerohive-SNMP-Connected-Users",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aerohive_snmp.pl --plugin=network::aerohive::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Aerohive-SNMP-Traffic-Global",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Aerohive equipments using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "network-aerohive-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Aerohive-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Aerohive-Connected-Users-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "network-aerohive-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ autodisco filters",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Aerohive via SNMP:\r\n* Traffic (by interface name)\r\n* Users"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un \u00e9quipement Aerohive via SNMP :\r\n* Traffic (by interface name)\r\n* Users"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Aerohive-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Aerohive-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Aerohive",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_aerohive_snmp.pl",
+                "package_name": "centreon-plugin-Network-Aerohive-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-aerohive-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [],
+        "update_date": "1556830966",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre d'utilisateurs connect\u00e9s.}\r\n\r\n{EN: Check number of connected users.}",
+            "active_checks_enabled": 2,
+            "alias": "Connected-Users",
+            "check_timeperiod": "",
+            "command_name": "Net-Aerohive-SNMP-Connected-Users",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Aerohive-Connected-Users-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau de plusieurs interfaces r\u00e9seau.}\r\n\r\n{EN: Check traffic of multiple network interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Aerohive-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Aerohive-Traffic-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,165 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_teltonika_snmp.pl --plugin=network::teltonika::snmp::plugin --mode=system --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-signal-strength=\\'$_SERVICEWARNINGSIGNALSTRENGTH$\\' --critical-signal-strength=\\'$_SERVICECRITICALSIGNALSTRENGTH$\\' --warning-temperature=\\'$_SERVICEWARNINGTEMPERATURE$\\' --critical-temperature=\\'$_SERVICECRITICALTEMPERATURE$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' --warning-signal-receive-power=\\'$_SERVICEWARNINGSIGNALRECEIVEPOWER$\\' --critical-signal-receive-power=\\'$_SERVICECRITICALSIGNALRECEIVEPOWER$\\' --warning-signal-receive-quality=\\'$_SERVICEWARNINGSIGNALRECEIVEQUALITY$\\' --critical-signal-receive-quality=\\'$_SERVICECRITICALSIGNALRECEIVEQUALITY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Teltonika-SNMP-System",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_teltonika_snmp.pl --plugin=network::teltonika::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --add-errors --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Teltonika-SNMP-Interfaces",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Teltonika equipments in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "teltonika-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Teltonika-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Teltonika-System-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "teltonika-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Teltonika device via SNMP:\r\n* Interfaces\r\n* System"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un \u00e9quipement Teltonika via SNMP :\r\n* Interfaces\r\n* System"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Teltonika-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Teltonika-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Teltonika SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_teltonika_snmp.pl",
+                "package_name": "centreon-plugin-Network-Teltonika-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-teltonika-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Network",
+            "Teltonika",
+            "SNMP"
+        ],
+        "update_date": "1570173748",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le syst\u00e8me.}\r\n\r\n{EN: Check system.}",
+            "active_checks_enabled": 2,
+            "alias": "System",
+            "check_timeperiod": "",
+            "command_name": "Net-Teltonika-SNMP-System",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{connection_state} !~ /connected/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Teltonika-System-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces.}\r\n\r\n{EN: Check interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "Net-Teltonika-SNMP-Interfaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} !~ /up|dormant/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --no-skipped-counters"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Teltonika-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

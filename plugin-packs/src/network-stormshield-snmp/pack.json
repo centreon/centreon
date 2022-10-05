@@ -1,0 +1,730 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Stormshield-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Stormshield-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$name$",
+                        "order": 0,
+                        "pattern": "^[Ll]o",
+                        "type": "exclusion"
+                    },
+                    {
+                        "object": "$status$",
+                        "order": 1,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Stormshield-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Stormshield-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Stormshield-Traffic-Global-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stormshield_snmp.pl --plugin=network::stormshield::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Stormshield-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stormshield_snmp.pl --plugin=network::stormshield::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Stormshield-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stormshield_snmp.pl --plugin=network::stormshield::snmp::plugin --mode=swap --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage-prct=\\'$_SERVICEWARNING$\\' --critical-usage-prct=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Stormshield-SNMP-Swap",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stormshield_snmp.pl --plugin=network::stormshield::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Stormshield-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stormshield_snmp.pl --plugin=network::stormshield::snmp::plugin --mode=memory-detailed --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-total=\\'$_SERVICEWARNINGTOTAL$\\' --critical-total=\\'$_SERVICECRITICALTOTAL$\\' --warning-host=\\'$_SERVICEWARNINGHOST$\\' --critical-host=\\'$_SERVICECRITICALHOST$\\' --warning-frag=\\'$_SERVICEWARNINGFRAG$\\' --critical-frag=\\'$_SERVICECRITICALFRAG$\\' --warning-conn=\\'$_SERVICEWARNINGCONN$\\' --critical-conn=\\'$_SERVICECRITICALCONN$\\' --warning-icmp=\\'$_SERVICEWARNINGICMP$\\' --critical-icmp=\\'$_SERVICECRITICALICMP$\\' --warning-dtrack=\\'$_SERVICEWARNINGDTRACK$\\' --critical-dtrack=\\'$_SERVICECRITICALDTRACK$\\' --warning-dyn=\\'$_SERVICEWARNINGDYN$\\' --critical-dyn=\\'$_SERVICECRITICALDYN$\\' --warning-etherstate=\\'$_SERVICEWARNINGETHERSTATE$\\' --critical-etherstate=\\'$_SERVICECRITICALETHERSTATE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Stormshield-SNMP-Memory-Detailed",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stormshield_snmp.pl --plugin=network::stormshield::snmp::plugin --mode=load --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Stormshield-SNMP-Load",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stormshield_snmp.pl --plugin=network::stormshield::snmp::plugin --mode=hardware --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Stormshield-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stormshield_snmp.pl --plugin=network::stormshield::snmp::plugin --mode=cpu-detailed --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-idle=\\'$_SERVICEWARNINGIDLE$\\'  --critical-idle=\\'$_SERVICECRITICALIDLE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Stormshield-SNMP-Cpu-Detailed",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stormshield_snmp.pl --plugin=network::stormshield::snmp::plugin --mode=cpu --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-average=\\'$_SERVICEWARNING$\\'  --critical-average=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Stormshield-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stormshield_snmp.pl --plugin=network::stormshield::snmp::plugin --mode=storage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --storage=\\'$_SERVICEFILTER$\\' --name --regexp --display-transform-src=\\'$_SERVICETRANSFORMSRC$\\' --display-transform-dst=\\'$_SERVICETRANSFORMDST$\\' --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Stormshield-SNMP-Disk-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stormshield_snmp.pl --plugin=network::stormshield::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACEID$\\' --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Stormshield-SNMP-Traffic-Id",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stormshield_snmp.pl --plugin=network::stormshield::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$$$\\' --name --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Stormshield-SNMP-Traffic-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stormshield_snmp.pl --plugin=network::stormshield::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Stormshield-SNMP-Traffic-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stormshield_snmp.pl --plugin=network::stormshield::snmp::plugin --mode=ha-nodes --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-health=\\'$_SERVICEWARNINGHEALTH$\\'  --critical-health=\\'$_SERVICECRITICALHEALTH$\\' --warning-dead-nodes=\\'$_SERVICEWARNINGDEADNODES$\\' --critical-dead-nodes=\\'$_SERVICECRITICALDEADNODES$\\' --warning-state=\\'$_SERVICEWARNINGSTATE$\\' --critical-state=\\'$_SERVICECRITICALSTATE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Stormshield-SNMP-Ha-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stormshield_snmp.pl --plugin=network::stormshield::snmp::plugin --mode=vpn-status --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-id=\\'$_SERVICEFILTERID$\\' --filter-src-ip=\\'$_SERVICEFILTERSRCIP$\\' --filter-dst-ip=\\'$_SERVICEFILTERDSTIP$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-traffic=\\'$_SERVICEWARNINGTRAFFIC$\\' --critical-traffic=\\'$_SERVICECRITICALTRAFFIC$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' --warning-vpn-detected=\\'$_SERVICEWARNINGVPNDETECTED$\\' --critical-vpn-detected=\\'$_SERVICECRITICALVPNDETECTED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Stormshield-SNMP-Vpn-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stormshield_snmp.pl --plugin=network::stormshield::snmp::plugin --mode=connections --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-udp=\\'$_SERVICEWARNINGUDP$\\' --critical-udp=\\'$_SERVICECRITICALUDP$\\' --warning-tcp=\\'$_SERVICEWARNINGTCP$\\' --critical-tcp=\\'$_SERVICECRITICALTCP$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Stormshield-SNMP-Connections",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stormshield_snmp.pl --plugin=network::stormshield::snmp::plugin --mode=qos --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --speed-in=\\'$_SERVICESPEEDIN$\\' --speed-out=\\'$_SERVICESPEEDOUT$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-in-prct=\\'$_SERVICEWARNINGTRAFFICINPRCT$\\' --critical-traffic-in-prct=\\'$_SERVICECRITICALTRAFFICINPRCT$\\' --warning-traffic-in-peak=\\'$_SERVICEWARNINGTRAFFICINPEAK$\\' --critical-traffic-in-peak=\\'$_SERVICECRITICALTRAFFICINPEAK$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' --warning-traffic-out-prct=\\'$_SERVICEWARNINGTRAFFICOUTPRCT$\\' --critical-traffic-out-prct=\\'$_SERVICECRITICALTRAFFICOUTPRCT$\\' --warning-traffic-out-peak=\\'$_SERVICEWARNINGTRAFFICOUTPEAK$\\' --critical-traffic-out-peak=\\'$_SERVICECRITICALTRAFFICOUTPEAK$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Stormshield-SNMP-Qos",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stormshield_snmp.pl --plugin=network::stormshield::snmp::plugin --mode=health --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --unknown-service-status=\\'$_SERVICEUNKNOWNSERVICESTATUS$\\' --warning-service-status=\\'$_SERVICEWARNINGSERVICESTATUS$\\' --critical-service-status=\\'$_SERVICECRITICALSERVICESTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Stormshield-SNMP-Health",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Stormshield en SNMP}\r\n{EN: Template to check Stormshield devices using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Stormshield devices using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "icon": "stormeshield-snmp-icon-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Stormshield-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Stormshield-Swap-SNMP",
+                "Net-Stormshield-Memory-SNMP",
+                "Net-Stormshield-Memory-Detailed-SNMP",
+                "Net-Stormshield-Load-SNMP",
+                "Net-Stormshield-Hardware-SNMP",
+                "Net-Stormshield-Cpu-Detailed-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "stormeshield-snmp-icon-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* service vpn-status: add command options",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Stormshield network equipment via SNMP:\r\n* Connections\r\n* Cpu\r\n* Cpu-Detailed\r\n* Disk\r\n* Ha-status\r\n* Hardware\r\n* Health\r\n* Load\r\n* Memory\r\n* QoS\r\n* Swap\r\n* Traffic (by interface name, ID or all interfaces)\r\n* Vpn-Status"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller les \u00e9quipements r\u00e9seau Stormshield via SNMP :\r\n* Connections\r\n* Cpu\r\n* Cpu-Detailed\r\n* Disk\r\n* Ha-status\r\n* Hardware\r\n* Health\r\n* Load\r\n* Memory\r\n* QoS\r\n* Swap\r\n* Traffic (by interface name, ID or all interfaces)\r\n* Vpn-Status"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Stormshield SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_stormshield_snmp.pl",
+                "package_name": "centreon-plugin-Network-Stormshield-Snmp",
+                "package_version": "20220616"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-stormshield-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Network",
+            "Stormshield",
+            "NetASQ",
+            "SNMP",
+            "Security",
+            "ServiceDisco"
+        ],
+        "update_date": "1653293821",
+        "version": "22.06.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire virtuelle (SWAP)}\r\n\r\n{EN: Check virtual memory usage (SWAP)}",
+            "active_checks_enabled": 2,
+            "alias": "Swap",
+            "check_timeperiod": "",
+            "command_name": "Net-Stormshield-SNMP-Swap",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "10"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "30"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Stormshield-Swap-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire vive (RAM).}\r\n\r\n{EN: Check the rate of the utilization of memory (RAM).}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Stormshield-SNMP-Memory",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Stormshield-Memory-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation d\u00e9taill\u00e9 de la m\u00e9moire.}\r\n\r\n{EN: Check detailed memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory-Detailed",
+            "check_timeperiod": "",
+            "command_name": "Net-Stormshield-SNMP-Memory-Detailed",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Stormshield-Memory-Detailed-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la charge serveur.}\r\n\r\n{EN: Check the server load average.}",
+            "active_checks_enabled": 2,
+            "alias": "Load",
+            "check_timeperiod": "",
+            "command_name": "Net-Stormshield-SNMP-Load",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "4,3,2"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "6,5,4"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Stormshield-Load-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le mat\u00e9riel.}\r\n\r\n{EN: Check hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware",
+            "check_timeperiod": "",
+            "command_name": "Net-Stormshield-SNMP-Hardware",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Stormshield-Hardware-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation d\u00e9taill\u00e9 CPU de la machine. Ce contr\u00f4le pourra remonter la moyenne du taux d'utilisation des CPU ainsi que le taux par CPU pour les CPU multi-coeur.}\r\n\r\n{EN: Check the detailed rate of utilization of CPU for the machine. This check can give the average CPU utilization rate and the rate per CPU for multi-core CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu-Detailed",
+            "check_timeperiod": "",
+            "command_name": "Net-Stormshield-SNMP-Cpu-Detailed",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIDLE$",
+                    "password": false,
+                    "value": "20:"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIDLE$",
+                    "password": false,
+                    "value": "10:"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Stormshield-Cpu-Detailed-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine. Ce contr\u00f4le pourra remonter la moyenne du taux d'utilisation des CPU ainsi que le taux par CPU pour les CPU multi-coeur.}\r\n\r\n{EN: Check the rate of utilization of CPU for the machine. This check can give the average CPU utilization rate and the rate per CPU for multi-core CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Stormshield-SNMP-Cpu",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Stormshield-Cpu-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'espace libre disponible des disques. Pour chaque contr\u00f4le appara\u00eetra le point de montage des disques (\u00ab\u00a0label\u00a0\u00bb). Les seuils pourront \u00eatre en pourcentage, en espace libre restant.}\r\n\r\n{EN: Check the rate of free space on disks. For each checks the mount point of disks will appear (\u00ab label \u00bb). Thresholds can be in percentage or in free space remaining.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Stormshield-SNMP-Disk-Global",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Stormshield-Disk-Global-SNMP",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau d'une interface r\u00e9seau.}\r\n\r\n{EN: Check traffic of an network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Id",
+            "check_timeperiod": "",
+            "command_name": "Net-Stormshield-SNMP-Traffic-Id",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Stormshield-Traffic-Generic-Id-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau d'une interface r\u00e9seau.}\r\n\r\n{EN: Check traffic of an network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-Stormshield-SNMP-Traffic-Name",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Stormshield-Traffic-Generic-Name-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau de plusieurs interfaces r\u00e9seau.}\r\n\r\n{EN: Check traffic of multiple network interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Stormshield-SNMP-Traffic-Global",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Stormshield-Traffic-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut de la HA.}\r\n\r\n{EN: Check HA status.}",
+            "active_checks_enabled": 2,
+            "alias": "Ha-Status",
+            "check_timeperiod": "",
+            "command_name": "Net-Stormshield-SNMP-Ha-Status",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Stormshield-Ha-Status-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des VPNs.}\r\n\r\n{EN: Check VPN states.}",
+            "active_checks_enabled": 2,
+            "alias": "Vpn-Status",
+            "check_timeperiod": "",
+            "command_name": "Net-Stormshield-SNMP-Vpn-Status",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{state} eq \"dead\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Stormshield-Vpn-Status-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de connexions tcp/udp.}\r\n\r\n{EN: Check connections setup rate.}",
+            "active_checks_enabled": 2,
+            "alias": "Connections",
+            "check_timeperiod": "",
+            "command_name": "Net-Stormshield-SNMP-Connections",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Stormshield-Connections-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation QoS.}\r\n\r\n{EN: Check QoS usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Qos",
+            "check_timeperiod": "",
+            "command_name": "Net-Stormshield-SNMP-Qos",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Stormshield-Qos-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de sant\u00e9.}\r\n\r\n{EN: Check health.}",
+            "active_checks_enabled": 2,
+            "alias": "Health",
+            "check_timeperiod": "",
+            "command_name": "Net-Stormshield-SNMP-Health",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSERVICESTATUS$",
+                    "password": false,
+                    "value": "%{health} =~ /minor/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSERVICESTATUS$",
+                    "password": false,
+                    "value": "%{health} =~ /major/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Stormshield-Health-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,520 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "sync_status": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "App-Ericsson-Enm-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "ENM API Username",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "ENMAPIUSERNAME",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "ENM API Password",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "ENMAPIPASSWORD",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-active-host",
+                    "description": "Discover nodes from Ericsson ENM inventory",
+                    "discovery_examples": [
+                        {
+                            "id": "node1",
+                            "sync_status": "SYNCHRONIZED"
+                        },
+                        {
+                            "id": "node2",
+                            "sync_status": "SYNCHRONIZED"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.ENMAPIHOSTNAME"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.ERICSSONENMAPIPORT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.ENMAPIPORT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.ERICSSONENMAPIPROTO",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.ENMAPIPROTO"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.ERICSSONENMAPIUSERNAME",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.ENMAPIUSERNAME"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.ERICSSONENMAPIPASSWORD",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.ENMAPIPASSWORD"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.NODEID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "App-Ericsson-Enm-Api-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Ericsson ENM",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "ENM Hostname",
+                                "group": "ENM API",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "ENMAPIHOSTNAME",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "ENM API Port",
+                                "group": "ENM API",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "ENMAPIPORT",
+                                "type": "text",
+                                "value": "443"
+                            },
+                            {
+                                "description": "ENM API Protocol",
+                                "group": "ENM API",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "ENMAPIPROTO",
+                                "type": "text",
+                                "value": "https"
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": "--http-backend=curl --insecure"
+                            }
+                        ]
+                    },
+                    "proxy": false,
+                    "slug": "ericsson-enm",
+                    "type": "ericsson",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-Ericsson-Enm-Api-Nodes-Discover",
+                "command_for_macro": "App-Ericsson-Enm-Api-Nodes-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-Ericsson-Enm-Api"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNODEID",
+                        "value": "^$node_id$$"
+                    }
+                ],
+                "name": "App-Ericsson-Enm-Api-Node-Id",
+                "service_display_name": "Node-$node_id$",
+                "service_template": "App-Ericsson-Enm-Nodes-Api"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-Ericsson-Enm-Api-Nodes-Fru-Discover",
+                "command_for_macro": "App-Ericsson-Enm-Api-Nodes-Fru-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-Ericsson-Enm-Api"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNODEID",
+                        "value": "^$node_id$$"
+                    },
+                    {
+                        "is_empty": null,
+                        "name": "FILTERFRUID",
+                        "value": "^$fru_id$$"
+                    },
+                    {
+                        "is_empty": null,
+                        "name": "EXCLUDECELLTDDID",
+                        "value": ".*"
+                    }
+                ],
+                "name": "App-Ericsson-Enm-Api-Node-Fru-Id",
+                "service_display_name": "Node-$node_id$-Fru-$fru_id$",
+                "service_template": "App-Ericsson-Enm-Nodes-Api"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-Ericsson-Enm-Api-Nodes-Celltdd-Discover",
+                "command_for_macro": "App-Ericsson-Enm-Api-Nodes-Celltdd-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-Ericsson-Enm-Api"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNODEID",
+                        "value": "^$node_id$$"
+                    },
+                    {
+                        "is_empty": null,
+                        "name": "EXCLUDEFRUID",
+                        "value": ".*"
+                    },
+                    {
+                        "is_empty": null,
+                        "name": "FILTERCELLTDDID",
+                        "value": "^$cell_tdd_id$$"
+                    }
+                ],
+                "name": "App-Ericsson-Enm-Api-Node-Celltdd-Id",
+                "service_display_name": "Node-$node_id$-Celltdd-$cell_tdd_id$",
+                "service_template": "App-Ericsson-Enm-Nodes-Api"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ericsson_enm_api.pl --plugin=apps::ericsson::enm::api::plugin --mode=list-nodes --hostname=none --api-username=none --api-password=none --disco-format\\\"",
+            "name": "App-Ericsson-Enm-Api-Nodes-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ericsson_enm_api.pl --plugin=apps::ericsson::enm::api::plugin --mode=list-nodes --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTERICSSONENMAPIPORT$\\' --proto=\\'$_HOSTERICSSONENMAPIPROTO$\\' --api-username=\\'$_HOSTERICSSONENMAPIUSERNAME$\\' --api-password=\\'$_HOSTERICSSONENMAPIPASSWORD$\\' $_HOSTERICSSONENMEXTRAOPTIONS$ --statefile-suffix=\\'-autodiscovery\\' --disco-show\\\"",
+            "name": "App-Ericsson-Enm-Api-Nodes-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ericsson_enm_api.pl --plugin=apps::ericsson::enm::api::plugin --mode=list-nodes-fru --hostname=none --api-username=none --api-password=none --disco-format\\\"",
+            "name": "App-Ericsson-Enm-Api-Nodes-Fru-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ericsson_enm_api.pl --plugin=apps::ericsson::enm::api::plugin --mode=list-nodes-fru --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTERICSSONENMAPIPORT$\\' --proto=\\'$_HOSTERICSSONENMAPIPROTO$\\' --api-username=\\'$_HOSTERICSSONENMAPIUSERNAME$\\' --api-password=\\'$_HOSTERICSSONENMAPIPASSWORD$\\' $_HOSTERICSSONENMEXTRAOPTIONS$ --filter-node-id=\\'$_HOSTNODEID$\\' --statefile-suffix=\\'-autodiscovery\\' --disco-show\\\"",
+            "name": "App-Ericsson-Enm-Api-Nodes-Fru-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ericsson_enm_api.pl --plugin=apps::ericsson::enm::api::plugin --mode=list-nodes-celltdd --hostname=none --api-username=none --api-password=none --disco-format\\\"",
+            "name": "App-Ericsson-Enm-Api-Nodes-Celltdd-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ericsson_enm_api.pl --plugin=apps::ericsson::enm::api::plugin --mode=list-nodes-celltdd --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTERICSSONENMAPIPORT$\\' --proto=\\'$_HOSTERICSSONENMAPIPROTO$\\' --api-username=\\'$_HOSTERICSSONENMAPIUSERNAME$\\' --api-password=\\'$_HOSTERICSSONENMAPIPASSWORD$\\' $_HOSTERICSSONENMEXTRAOPTIONS$ --filter-node-id=\\'$_HOSTNODEID$\\' --statefile-suffix=\\'-autodiscovery\\' --disco-show\\\"",
+            "name": "App-Ericsson-Enm-Api-Nodes-Celltdd-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ericsson_enm_api.pl --plugin=apps::ericsson::enm::api::plugin --mode=nodes --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTERICSSONENMAPIPORT$\\' --proto=\\'$_HOSTERICSSONENMAPIPROTO$\\' --api-username=\\'$_HOSTERICSSONENMAPIUSERNAME$\\' --api-password=\\'$_HOSTERICSSONENMAPIPASSWORD$\\' $_HOSTERICSSONENMEXTRAOPTIONS$ --filter-node-id=\\'$_SERVICEFILTERNODEID$\\' --exclude-node-id=\\'$_SERVICEEXCLUDENODEID$\\' --filter-fru-id=\\'$_SERVICEFILTERFRUID$\\' --exclude-fru-id=\\'$_SERVICEEXCLUDEFRUID$\\' --filter-cell-tdd-id=\\'$_SERVICEFILTERCELLTDDID$\\' --exclude-cell-tdd-id=\\'$_SERVICEEXCLUDECELLTDDID$\\' --warning-node-sync-status=\\'$_SERVICEWARNINGNODESYNCSTATUS$\\' --critical-node-sync-status=\\'$_SERVICECRITICALNODESYNCSTATUS$\\' --warning-nodes-total=\\'$_SERVICEWARNINGNODESTOTAL$\\' --critical-nodes-total=\\'$_SERVICECRITICALNODESTOTAL$\\' --warning-cell-tdd-status=\\'$_SERVICEWARNINGCELLTDDSTATUS$\\' --critical-cell-tdd-status=\\'$_SERVICECRITICALCELLTDDSTATUS$\\' --warning-fru-status=\\'$_SERVICEWARNINGFRUSTATUS$\\' --critical-fru-status=\\'$_SERVICECRITICALFRUSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Ericsson-Enm-Api-Nodes",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ericsson_enm_api.pl --plugin=apps::ericsson::enm::api::plugin --mode=cache --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTERICSSONENMAPIPORT$\\' --proto=\\'$_HOSTERICSSONENMAPIPROTO$\\' --api-username=\\'$_HOSTERICSSONENMAPIUSERNAME$\\' --api-password=\\'$_HOSTERICSSONENMAPIPASSWORD$\\' $_HOSTERICSSONENMEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Ericsson-Enm-Api-Cache",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_ericsson_enm_api.pl --plugin=apps::ericsson::enm::api::plugin --mode=discovery --hostname='$_ENMAPIHOSTNAME$'  --port='$_ENMAPIPORT$' --proto='$_ENMAPIPROTO$'  --api-username='$_ENMAPIUSERNAME$' --api-password='$_ENMAPIPASSWORD$' --statefile-suffix='-autodiscovery' $_EXTRAOPTIONS$\"",
+            "name": "App-Ericsson-Enm-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Ericsson Network Manager via l'API.}\r\n{EN: Template to check Ericsson Network Manager using API.}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check  Ericsson Network Manager using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "ericsson-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTERICSSONENMAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTERICSSONENMAPIPORT$",
+                    "value": "443"
+                },
+                {
+                    "key": "$_HOSTERICSSONENMEXTRAOPTIONS$",
+                    "value": "--http-backend=curl --insecure"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Ericsson-Enm-Api",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Ericsson-Enm-Nodes-Api",
+                "App-Ericsson-Enm-Cache-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "ericsson-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitorEricsson Network Manager (ENM) using API:\r\n* Nodes (fru and cell tdd)"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack pour superviser Ericsson ENM via l\\'API :\r\n* Nodes (fru and cell tdd)"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Ericsson ENM API",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_ericsson_enm_api.pl",
+                "package_name": "centreon-plugin-Applications-Ericsson-Enm-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-ericsson-enm-api",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Application",
+            "Network",
+            "Ericsson",
+            "ENM",
+            "HostDisco"
+        ],
+        "update_date": "1638527758",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des noeuds.}\r\n\r\n{EN: Check nodes.}",
+            "active_checks_enabled": 2,
+            "alias": "Nodes",
+            "check_timeperiod": "",
+            "command_name": "App-Ericsson-Enm-Api-Nodes",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALNODESYNCSTATUS$",
+                    "password": false,
+                    "value": "%{sync_status} =~ /unsynchronized/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --cache-use"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Ericsson-Enm-Nodes-Api",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Cr\u00e9e les fichiers de cache.}\r\n\r\n{EN: Create cache files.}",
+            "active_checks_enabled": 2,
+            "alias": "Cache",
+            "check_timeperiod": "",
+            "command_name": "App-Ericsson-Enm-Api-Cache",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Ericsson-Enm-Cache-Api",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

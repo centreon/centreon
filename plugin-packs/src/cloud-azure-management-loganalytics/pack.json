@@ -1,0 +1,156 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_management_loganalytics_api.pl --plugin=cloud::azure::management::loganalytics::plugin --mode=kusto-query --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --management-endpoint=\\'$_HOSTAZURELOGANALYTICSENDPOINT$\\' --workspace-id=\\'$_HOSTAZUREWORKSPACEID$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --query=\\'$_SERVICEKUSTOQUERY$\\' --warning-match=\\'$_SERVICEWARNINGMATCH$\\' --critical-match=\\'$_SERVICECRITICALMATCH$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Management-Log-Analytics-Api-Kusto-Query",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Azure Management Log Analytics via l'API}\r\n{EN: Template to check Azure Management Log Analytics using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Management Log Analytics using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-management-loganalytics-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURELOGANALYTICSENDPOINT$",
+                    "value": "https://api.loganalytics.io"
+                },
+                {
+                    "key": "$_HOSTAZUREWORKSPACEID$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Management-Log-Analytics",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Management-Log-Analytics-Kusto-Query-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-management-loganalytics-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ rename Host macro about API endpoint ",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Azure Log Analytics Management endpoint, allowing you to perform any KQL query on your workspaces"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour s\\'interconnecter avec l\\'API Log Analytics d\\'Azure Management et r\u00e9aliser des requ\u00eates KQL sur les donn\u00e9es des diff\u00e9rents Workspaces"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure Log Analytics",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_management_loganalytics_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Management-Log-Analytics-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-management-loganalytics",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Azure",
+            "Cloud",
+            "Log Analytics",
+            "Management"
+        ],
+        "update_date": "1624281238",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Execute une requ\u00eate KQL/Kusto via l'API Log Analytics.}\r\n\r\n{EN: Query Log Analytics API using KQL syntax.}",
+            "active_checks_enabled": 2,
+            "alias": "Kusto-Query",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Management-Log-Analytics-Api-Kusto-Query",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Management-Log-Analytics-Kusto-Query-Api",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

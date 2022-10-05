@@ -1,0 +1,260 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_github_restapi.pl --plugin=apps::github::plugin --mode=status --hostname=\\'$_HOSTGITHUBSTATUSHOSTNAME$\\' --port=\\'$_HOSTGITHUBSTATUSPORT$\\' --proto=\\'$_HOSTGITHUBSTATUSPROTO$\\' --urlpath=\\'$_HOSTGITHUBSTATUSURLPATH$\\' $_HOSTEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Github-Restapi-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_github_restapi.pl --plugin=apps::github::plugin --mode=stats --hostname=\\'$_HOSTGITHUBAPIHOSTNAME$\\' --port=\\'$_HOSTGITHUBAPIPORT$\\' --proto=\\'$_HOSTGITHUBAPIPROTO$\\' --owner=\\'$_HOSTGITHUBOWNER$\\' --repository=\\'$_HOSTGITHUBREPOSITORY$\\' --credentials --username=\\'$_HOSTGITHUBUSERNAME$\\' --password=\\'$_HOSTGITHUBPASSWORD$\\' $_HOSTEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Github-Restapi-Repositories-Statistics",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_github_restapi.pl --plugin=apps::github::plugin --mode=pullrequests --hostname=\\'$_HOSTGITHUBAPIHOSTNAME$\\' --port=\\'$_HOSTGITHUBAPIPORT$\\' --proto=\\'$_HOSTGITHUBAPIPROTO$\\' --owner=\\'$_HOSTGITHUBOWNER$\\' --repository=\\'$_HOSTGITHUBREPOSITORY$\\' --credentials --username=\\'$_HOSTGITHUBUSERNAME$\\' --password=\\'$_HOSTGITHUBPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Github-Restapi-Repositories-Pull-Requests",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_github_restapi.pl --plugin=apps::github::plugin --mode=issues --hostname=\\'$_HOSTGITHUBAPIHOSTNAME$\\' --port=\\'$_HOSTGITHUBAPIPORT$\\' --proto=\\'$_HOSTGITHUBAPIPROTO$\\' --owner=\\'$_HOSTGITHUBOWNER$\\' --repository=\\'$_HOSTGITHUBREPOSITORY$\\' --credentials --username=\\'$_HOSTGITHUBUSERNAME$\\' --password=\\'$_HOSTGITHUBPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Github-Restapi-Repositories-Issues",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_github_restapi.pl --plugin=apps::github::plugin --mode=commits --hostname=\\'$_HOSTGITHUBAPIHOSTNAME$\\' --port=\\'$_HOSTGITHUBAPIPORT$\\' --proto=\\'$_HOSTGITHUBAPIPROTO$\\' --owner=\\'$_HOSTGITHUBOWNER$\\' --repository=\\'$_HOSTGITHUBREPOSITORY$\\' --credentials --username=\\'$_HOSTGITHUBUSERNAME$\\' --password=\\'$_HOSTGITHUBPASSWORD$\\' $_HOSTEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Github-Restapi-Repositories-Commits",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Github platform using ReST API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "github.png",
+            "macros": [
+                {
+                    "key": "$_HOSTGITHUBSTATUSHOSTNAME$",
+                    "value": "status.github.com"
+                },
+                {
+                    "key": "$_HOSTGITHUBSTATUSPORT$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTGITHUBSTATUSPROTO$",
+                    "value": "443"
+                },
+                {
+                    "key": "$_HOSTGITHUBSTATUSURLPATH$",
+                    "value": "/api/last-message.json"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Github-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Github-Status-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Github repository using ReST API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "github.png",
+            "macros": [
+                {
+                    "key": "$_HOSTGITHUBAPIHOSTNAME$",
+                    "value": "api.github.com"
+                },
+                {
+                    "key": "$_HOSTGITHUBAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTGITHUBAPIPORT$",
+                    "value": "443"
+                },
+                {
+                    "key": "$_HOSTGITHUBUSERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTGITHUBPASSWORD$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Github-Repository-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Github-Repository-Statistics-Restapi",
+                "App-Github-Repository-Pull-Resquests-Restapi",
+                "App-Github-Repository-Issues-Restapi",
+                "App-Github-Repository-Commits-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAAB9CAYAAABqMmsMAAAABHNCSVQICAgIfAhkiAAAAF96VFh0UmF3IHByb2ZpbGUgdHlwZSBBUFAxAAAImeNKT81LLcpMVigoyk/LzEnlUgADYxMuE0sTS6NEAwMDCwMIMDQwMDYEkkZAtjlUKNEABZiYm6UBoblZspkpiM8FAE+6FWgbLdiMAAAUt0lEQVR4nO2de3QkVZ3Hv99b3ZlkHgwzSXf1IzMZcGQ0wKCOqLxRYQBdXEBEFnWR9bisejziA2XXs+5LV91V96i7e5BBUVxADsgOguABOQiIojx0FxzAHYFkkq5+JAM4j8yku+53/wgZMpk8utN1u5NMPn8l1VW/76/r/vpW1a17fz9i/sHVyeRhFWu7DXlYaMwaIlwNmATAdkDtAFoBtpBYAgASdgEaBrAH4CCgQRJFK27zrH1OxjzjSU/2FovPAlBTv13EsNkO1Etn58qsLcdPAHG8ZN9A8CiSy1xoSdoh4nGCDxN80JTLD24bHMy50GoUcy4A1q5du2jPrhdPtTJnSTjLEEc00x/JPg2LOxXDnUuWLL9v69ate5vpT63MiQDYAMTzqdTpVpULCHMOyeXN9mkiZPWCaG/1LG/sK5XuBlBptk/TMasDIJvNdqJSeY+gj5Bc1Wx/asFKeQnfi0ubtpVKf2i2P5MxKwMg6/unWumTJN5G0jTbn3qQZAX+2CO/2pfP39dsf8YzqwLA9/2zDfQ5Q76+2b64QNDDqNh/zA0M3N5sX0aZFQGQSSZPA/AFGr6h2b40Agm/gvTZXLF4T7N9aWoArGpvz4Sx2JdIvK+ZfjQLa3U7PO8jQRD0NssHr0m6sazvf9Qa3kLy2Cb50HRIHgHYSw9ZsrRlVVfXL0qlUthwHxotmE53nETr/SeJoxqtPZuR7OMy+HAQlH7eSN1G9gCxrO9/DuI1JP0G6s4JSPoQLlmybMnKdTt33RMAtiG6jRDJZrOdqlRuIHFiI/TmOlb2fi8eXtTXt73ftZbzAMgkk6eB+K+FX31tSBogzcX9+fwdLnVcXgJMKpX8ZwLfIrnUoc68hORiSRcdsnhxfMfu3fe60nESAN3d3S0tnrnWgB8iOSvGGuYiJAnDk5csXfzKdTt33+biviDyxvF9f4kHexNpzora9sGMlb1nuGLPHRwc3BGl3UgDoLOzc2VYGb7NgMdHaXeBEQQ9bGHens/nS1HZjCwAMpnMKoSVu0i+KiqbCxyIpKfgxTbmcrltUdiLJAAymUw7wsrPFxq/MUjaGoInFAqFYr226n7Vmk6nF8tWfrTQ+I2D5FqPuj2RSNT9dFVXAGwA4rSVmxeu+Y2H4LExg83d3d0t9dip5zGQ8Du+beidX48DC8wckofvHtr1ip07d2/GDGcrzzgAMmn/CwbmozM9foFoMODRS5csNTt37ZrRYNGMbgJTqRVnGsV/PNena80XJFkZnRUEpbtqPbbmAOhKJFLDhr8xZKrWYxdwh4SiV6m8ttZ1CrEadWLDBjdG0fgSbiHwa1hL62kVrXk1iTeBbKvX9qxGGpLwkIx90sjrBQArvdEYnluPWRLJMO5dB+A0AFVPLKmpB8gmEp+HZz5bq3PjkVSxNJnxI1qdnZ1tYbj3JFVwvjG80NUKn0YjaQesbhB5c0tb2wM9PT17xn6eTCb9GNFPsu53M1b4p6BQ+Fy1+1cdAJ2p1MlW9t4orvtW9p6gUDptqn3a29uXtXrehRb4mDE8sl7NZiDhCQN8fa+1PyiVSjun2jfjJ39G8pT6NWVldEq1M4uqasyurq5Wq/CqqG76DHnzdPsMDg7u6C8WNwXF4npr9R7JPh2FdiOQ7NNWuChXKBzTVyhcPV3jA4Cx+mEU2iQNLTetXbt2UTX7V9Wg5eE9f0uadfW5NkZUfKCG3W1QLF6fK5SOlHCJlfJR+RE1L60GuiRXKB0ZFAo3oIbXtwLuj8oPkq/atWNHVZfqaS8B2Y6OV8ozT5Csa8RpFEk7c4XioajhRmUsXV3LDy3vbvkSDD84WY8k6XkIWyD9Tsb0kOwXwyBmTX/FmB3xeHzH0NBQefSXmUgklra1tcXL5fKymLXLKsZmKS8tKUtru0AeCaKb5IpJ9ASrTbG2tit6e3ufn8n3AhDLpJIvElw8w+PH+7Q3JnT3FovPTLXftAGQ8RO3kuYdUTg14hh+nisUTqrXTjKZPD5GXQnwVYIe8aQHrMUDnvSYqyXbq9rbMyH5OmNwUmjMiRSOlfB7xnRpLld6sF77aT/xC0NzXBS+AiNPWrlC4Z1T7TNlAGR9/y0gIl29Eob2unyp9N4obG0A4rl0Oh4Ewe4o7NVKOp1enAmC8qNAORJ7yeQPjOG7o7A1CsFT+vL5SS8vU94DWNjPR+kMANCYyK7hjwLlZjU+AARBsDuqxgcAGRSisjVKqHDKR8JJAyCbSr0tyu5onyA102vkvMcA2yO3SfPWbDL5pik0J0ZS1YMJtSBrF94fTALlZgKtBSZ9IpiwMdLpxIkk3ujCGdGLu7A7L7C21qH5qiDx9mwiccxEn00YAEb4lAtHAIDWJl3ZnuuEnnGyeIYkLfnXE312QAD4vr9G4tkuHAEAeHMr1Usj8axWu7JN4vxUKtU1fvsBAWCs/YDL9/yU1ruyPdcRcbQr2yQ9T7pk/PbxDR0jecBO0XpiOjOZzEIvMI5UKtVFMu1SQ9BfYNwssP0CIJ1OvIWGWZdOAADC8E+da8wxYmEY2WjrZJBclUkmTx27bb8AMGG0o1CTIel1jdCZS4TkaxuhY6X92nhfAGwA4iDOce2AoOcseYVrnbkGY7HLJW11rWMMz9sA7HsU3xcAQTJ5CsiVLsUl7fHEs6NY0TLfyOVyg0Y4T9Ke6feeOSTb+3x/X6KOfQEg0vlqXob2M9sKhSdc68xV+orFx2Uw4fN6lFA6Y/TvfQFgqDNdilrZX/YPDHzTpcZ8IAiKX4fsQy41DLHvx26AkaneALtdCUqSB3MZ5lmufUcI4scluTxXR6dSqQTwUgCEHpyu7aPVrX2Fwq9daswn+ovFh0j9yJV9kqS1xwOjASBzgisxAFAcX3Fpfz5iqa+6tG+MPQF4KQAIOMvRK9nHo5gudbARBAMPSPZxV/Yl8wZgJAAIyVnWTlnc4Mr2fIfkjQ7NrwcAk0qlVtPwUFcqjMdvcWV7vmPpRbJWYCJIrshms53GA5yturFSPpfLzZkFHbONIAieluBs0Mza4W5TkQ5zJUBw4dpfH5Lk7BxK9jATA9a4EiDwO1e2DxaMtMWddW+NsXI3CwXWztpiSXMFGePsBZGxWGMIJFwJiHSe7Xq+I8nZORSVMCCdBQDJaVfFLjA1IbDLlW1DdhhIEy54jAJKTVu1M1+IA85+RBJWGmCkgLILbMzNPPeDCeu5W0dBYIkhUVUigZlQqZj5ne+nIZQjWS4+EQIXGQGRrPufiBjgzPmDBSl01kMDWmTg9h39QgDUCRl32osaAu5u1BzPMTwY8CzbHZrfZazDAKDDUcaDBVm7xqH5XU57AItwjSvbBwuh2x/RbgPQYQ9g1riyfbBAj+5e1hG7DKQXXQlg5FXzQtWwmUMjuCvEIf3RAIik9sxEkOzIZDJHuLI/31nl+90ub6Rl0WOswXOuBAAgDMOFaiIzREDkOZrGQqDHeECPS5EY5XTG8XwmZOj23MXYaxjKaQAIeAdqT0u/ABAjzNtdCljoOWPj8SlTidYLwUQ6mXyzS435SGc68VbC3at6ADBlPWtyudz/SYq0HOkBQsCFLu3PR0LJ6TmT9GL/wMAfDEYyWj/mVIy4aGT94QLVkEwmfSPjNFmHoEcAjCRtFPiISzGSreXYQoWxaokb+0nXpXOkkTYfWRoWhk4DAABg9ZHOzs6Fl0PTkEqlEpL5K+dC0ssBEHrer1zrkVyuyvC/uNaZ63jSVxpRK8nE478CxgzTpn3/aUM4HbWTJAin54rFSFPQzxd833+zB91DuskZ/DLa0p8vHgmMyRBCa+9wKzqyLh0GV48mJ1jgZboSiZQHfc994wNWvHP075dzBMVw58S7RwvBNcba/662qNHBQFdXV+uwwS1kY9LoGuCOMX+PsGTJ8vskd3PQx0LDE4Z27rgGCyOE2ADEy3t2fd9FbYaJkLRjeXv7vpJy+9KGbt++PVy2dOnrSDjLFTSOo5cuXnJ0Kp3evH379hkVkJrrdHV1tb6waNEPjTHO8zOOIuHWZ597bl/egf0yhYbA9xrlCAAYw3N37XjxrlXt7ZlG6s4GMpnMqvLQ0E+N4Z80UtcYs18bj7/hiGX8ZB9JJ3nrJ0NC0XL44nz++Z80UrdZZJLJd4D4Dul0wucBSMrlCsUuAJXRbeOzhVcEXtdIp4CRwsceWu5MJ5O3TZTTfr6QzWY7M75/LQ1vbXTjA4AVvo8xjQ9MMF1rle8fZQlnyYmmQ8IuAVfGKpWvuar/12h8318Tkz4J4gPNrI4egt35fP7JsdsmfOaspZCxJMHwi1a8rqWlJRgeHk6bSmW9YjjDyLx7pl9Y0l6CNwK4pr9QuA9zL8mkl02lzgDs+yWcS7KpTzyC/WkuXzp9/PYJAyCVWnGmh5bqxgWkoWGr5AQFkplKpTo8VC6XzMfrOQGCnkOozSB/fGhHx/1btmwZnqktlyQSiaWxmD2NFXMWDM92XQCiFqzVxqBYvHv89slGnZhOJh8zhq+p0viNQbH4Xoy5vqQSifMNuSkkX2uMWUkb3kKy/uu7NGShh0k+CPG3tPZpLlr0+76+vqG6bddAKpVKkOE6lLXOGPMaUccDXN/sX/qESI/2F4qvn+ijSYcdMx0dFzLmVZ3jT9DPQvHdY1LBM5NJHH/ooYmHt2zZMtyVSKQqHn8CcMLyZfUgyYLohfS/8dbhi3t6Xnwhag0A8H0/6VE3QjhmskLSsxNe0J/P3zThJ1Mc5aV9f0stL4gkDSC0l+QGBm4fuz2b8q8PrR6zwPdjxIMkX1GtzRq0Q5nw/CAY3By17bGk0+3n0Hq3NGLMPgokPZkrFI/GJNXap6oOFkL6dC1iJDvgmc3pdPKy/ZxA+IghrigWi0UK50GKvLum7JWuGx8AgmBwsxX+3bVOZIT205ik8YEqVu1kff8eEG+pWbgSfqx/YOAb47QEABnf/zSJL9dscxIkFVqHy+ueef55l6uc9rFy5cpDWuOxZ5rxLF8Lgu7O5Ysbp9pn+vqA1n5CUs1j9fLMv2WSydPGbkqn06uzvv/3e8rlK+1LM1KiQOBVjWp8ANi+ffsfCc7qXkBS6ImfmG6/aQOgv1T6H2v1nVodIGlAXJtOpztGt3nSYSD+bpHnXS6ai6OYjSzJivx2vXZqJSSvcVzUoS4IbqqmPE9VFUJb2to+I6nmUTmSaVYqXxj9vy+fv9+G9m+s9EQ+n98Sgu+RVJnKxrQIj+TzeaeLWyYin8/30PFs6hkj2xdr3VNV7aGqAqC3t/d50nxwRs4YfiCTSYyOJygolb5YGBi4EQAKhcJtMuG76qmUZQHn8xkn1+Z9zdKeDEkKWflgtY/CVdcI7s/n78DMLgUeQh1Qv74zlTol4ydzKLMdno6T9OREx0+H54VNK0VjTOU3zdKeDBLfqeWtak1FoheVy5+Q1Fu7W+bc1cnk4WO3hGSBwKHGM1/L5Uq/TReKxyi0H5b01LTmpO0h7PXWamN/MHh97f5EQzn0nC6rqxVJvUPDlWlv/MZS82BGZsWK49AS/xnJmtLLhdA38vnix/azlek4AhWzOlcs/hQA0ul0B0mZSiVjpRPhmXUIbRsAyJgdCMMnPc97vK9QeBRTPNs2Ct/3D4sRsyIIJO2lcGp/sVhTybkZjWalUu2XeohdWdNB0pC82LpcLjdhQorOzs42WxkegBAPQ/u+0fsE3/eTcWs3eIuHfzl6XcskElfC43mw9su54oDT4kpT4ft+MkYUmqW/H1Z/2V8sbqr1sJouAaPk84PfAlTboxfZpjD8D0wSdH19fUMQ/wHgY/EYy6PbPeAeeeaO4T2tPxi1JMMNEFoEE8zE/6gol8tOy7xWSwhcPZPGB+rI37N27dpFu3fsuI/EG2s5LrS6PF8sVl1GrjOdOEMVnEHPu6Evn3+4dk/dsXLlykPaWuING4CaENmH2pYtP3Xr1q17Z3J4XS80UqlUwih8gDTrqj1GkjXgpX2FwtX1aM8GDl+xYvneRS1O3jxWg6SnZLyTgiAYmKmNGV0CRsnn8yWZ2EZJVSeaImlEbMr6/r92d3c7y1PcCMJDbNPeCEraBi+2sZ7GB+oMAAAIgqBXxtsoqTZHiE+9MFh6pDOdOGP6nWcnYbis7vM3EwSVZLyNk91Q10IkXyAIgqdkvDMlDdZyHGmOlsxPMqnkrzOJxId830/Wcnw6nV6MiL7DTLC28T2ApAHROzMIgunHS6og0i+QSqW6jbV30TA7cyvaIvFRAs+CCiTuIblL0hJLJij5BA4DtB7A4a3D5ZWNfBM4lnQ63WFkSw0TlO0L6W0cP7O3HiKP4FQq1UXpLtdLzUeJLdqzwtUUsOlIpVIJD3JW2HEskp7xrDZuK5UircQWefeZz+d7QulkCQ0ZJy+Xl3jT7+UGSY25BEiPhuBxUTc+4Oj6WSwWC/HW1uMtwu+6sD+WhjVC87RvsMY7ecxk20hxdgPV09OzJ8gPXALqUknl6Y+YGdbapt0EtjkMAEkhhCv684WLgiBwltHd+cnrD4pXheAZroogtzYxAFz1ABKKIXh6f6EQ2bzJyWjIySsUCvda8igJkZdDb2YP4CIArNXtsTB8TaFQuDdq2xPRsJOXz+dLuULhfIAX1DxoNAVqa+I9QITasnoB1KVBsXh278BAw15yNfzX05/P3xQL7fqoeoMwXNTEp4C2SAJACm+OS6/uD4pXRWGvFprSffYODAS5QuF8WB0H2ZomMIynmU8B9V5+JPyG4Km5wsC7ekqlfFR+1ULTrp8A0F8sPtRfKJ2A0F4saUbdnqQ5dw8gaQDCZblC4di+fL6pE0ubGgAvYftLpWtD8JUQLqt1zuGiJvYAtSJpG4TLQnBNf6HwdcyCaW2z7uRtAOL5ROLP4PEzAKfMWCapEm9tW9bT09OUmTkbgHjgJ3dONz9S0h8IfjPW2vqtZvk6GbMuAMZgOtOJ023I94M4h2Trgbvopv588YLGu/YyGd+/mcQ7x2+XtAfCZuPpu31B6W6MpOWfdczmANjH6tWrV1SGhi6kwZ+LXA9hN6xu2ROGl2/fvv2PzfTt8BUrlu+Nx78G4hwRrRAft+S1LS0tN/T29j7fTN+q4f8BJ2akrenNOnkAAAAASUVORK5CYII=",
+            "name": "github.png"
+        }
+    ],
+    "information": {
+        "author": "centreon",
+        "changelog": "- Change check interval to 1h",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin-pack to check Github through its ReST API\r\n* Statistics\r\n* Issues\r\n* Commits\r\n* Pullrequests\r\n* Github-Status\r\n"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin-pack pour superviser Github via son API\r\n* Statistics\r\n* Issues\r\n* Commits\r\n* Pullrequests\r\n* Github-Status"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n##  Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Github-Restapi\r\n## Centreon Configuration\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Github-Restapi-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Checks\r\n\r\nPlease deploy manually modes issues/commits/stats... because you need to specify your repository path for URLPATH macro (/repo/OWNER/REPONAME)\r\n\r\nAlso do not forget to set GITHUBUSERNAME AND GITHUBPASSWORD macro value at the host level\r\n",
+        "name": "Github",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_github_restapi.pl",
+                "package_name": "centreon-plugin-Applications-Github-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-github-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Github",
+            "Social",
+            "Development"
+        ],
+        "update_date": "1523550428",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le statut de la plateforme github via son API}\r\n{EN: Check status of github website and services.}",
+            "active_checks_enabled": 2,
+            "alias": "Github-Status",
+            "check_timeperiod": "",
+            "command_name": "App-Github-Restapi-Status",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Github-Status-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Requ\u00eate et trace les statistiques d'un d\u00e9p\u00f4t (stars, forks, watchers ..)}\r\n{EN: Query and display your github repository statistics (stars, forks, watchers).}",
+            "active_checks_enabled": 2,
+            "alias": "Statistics",
+            "check_timeperiod": "",
+            "command_name": "App-Github-Restapi-Repositories-Statistics",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Github-Repository-Statistics-Restapi",
+            "normal_check_interval": 60,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Trace le nombre de PR ouvertes sur un d\u00e9p\u00f4t github}\r\n{EN: Display PR activity on a github repository.}",
+            "active_checks_enabled": 2,
+            "alias": "Pull-Requests",
+            "check_timeperiod": "",
+            "command_name": "App-Github-Restapi-Repositories-Pull-Requests",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Github-Repository-Pull-Resquests-Restapi",
+            "normal_check_interval": 60,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Trace le nombre d'issue(s) ouverte sur un projet github}\r\n{EN: Display number of issue on a github project.}",
+            "active_checks_enabled": 2,
+            "alias": "Issues",
+            "check_timeperiod": "",
+            "command_name": "App-Github-Restapi-Repositories-Issues",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Github-Repository-Issues-Restapi",
+            "normal_check_interval": 60,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Trace le nombre de commit r\u00e9alis\u00e9s sur un d\u00e9p\u00f4t github (via un fichier de cache)}\r\n{EN: Display commit activity on a github repository.}",
+            "active_checks_enabled": 2,
+            "alias": "Commits",
+            "check_timeperiod": "",
+            "command_name": "App-Github-Restapi-Repositories-Commits",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Github-Repository-Commits-Restapi",
+            "normal_check_interval": 60,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

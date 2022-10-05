@@ -1,0 +1,179 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hikvision_nvr_snmp.pl --plugin=hardware::devices::hikvision::nvr::snmp::plugin --mode=uptime --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-uptime=\\'$_SERVICEWARNINGUPTIME$\\' --critical-uptime=\\'$_SERVICECRITICALUPTIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Hikvision-Nvr-SNMP-Uptime",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hikvision_nvr_snmp.pl --plugin=hardware::devices::hikvision::nvr::snmp::plugin --mode=memory --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Hikvision-Nvr-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hikvision_nvr_snmp.pl --plugin=hardware::devices::hikvision::nvr::snmp::plugin --mode=disks --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-space-usage=\\'$_SERVICEWARNINGSPACEUSAGE$\\' --critical-space-usage=\\'$_SERVICECRITICALSPACEUSAGE$\\' --warning-space-usage-free=\\'$_SERVICEWARNINGSPACEUSAGEFREE$\\' --critical-space-usage-free=\\'$_SERVICECRITICALSPACEUSAGEFREE$\\' --warning-space-usage-prct=\\'$_SERVICEWARNINGSPACEUSAGEPRCT$\\' --critical-space-usage-prct=\\'$_SERVICECRITICALSPACEUSAGEPRCT$\\' --warning-disks-total=\\'$_SERVICEWARNINGDISKSTOTAL$\\' --critical-disks-total=\\'$_SERVICECRITICALDISKSTOTAL$\\' --warning-disks-errors=\\'$_SERVICEWARNINGDISKSERRORS$\\' --critical-disks-errors=\\'$_SERVICECRITICALDISKSERRORS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Hikvision-Nvr-SNMP-Disks",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les Hikvision NVR via SNMP}\r\n{EN: Template to check Hikvision NVR using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Hikvision NVR using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "hikvision-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Hikvision-Nvr-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Device-Hikvision-Nvr-Uptime-SNMP",
+                "HW-Device-Hikvision-Nvr-Memory-SNMP",
+                "HW-Device-Hikvision-Nvr-Disks-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "hikvision-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Hikvision NVR using SNMP:\r\n* Disks\r\n* Memory\r\n* Uptime"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller les NVR Hikvision via SNMP :\r\n* Disks\r\n* Memory\r\n* Uptime"
+            }
+        ],
+        "discovery_category": "hardware-server",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Hikvision NVR SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_hikvision_nvr_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Devices-Hikvision-Nvr-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-devices-hikvision-nvr-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Hardware",
+            "Hikvision",
+            "NVR",
+            "SNMP"
+        ],
+        "update_date": "1641456254",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Dur\u00e9e depuis laquelle le serveur tourne sans interruption.}\r\n\r\n{EN: Time since the server has been working and available.}",
+            "active_checks_enabled": 2,
+            "alias": "Uptime",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Hikvision-Nvr-SNMP-Uptime",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Hikvision-Nvr-Uptime-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le taux d'utilisation m\u00e9moire.}\r\n\r\n{EN: Check memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Hikvision-Nvr-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Hikvision-Nvr-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le taux d'utilisation des disques.}\r\n\r\n{EN: Check disks.}",
+            "active_checks_enabled": 2,
+            "alias": "Disks",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Hikvision-Nvr-SNMP-Disks",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /reparing|formatting/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /abnormal|smartfailed/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Hikvision-Nvr-Disks-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

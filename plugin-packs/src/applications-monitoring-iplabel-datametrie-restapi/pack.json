@@ -1,0 +1,208 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [
+                    {
+                        "modifier": "g",
+                        "object": "@SERVICENAME@",
+                        "order": 0,
+                        "pattern": "[()]",
+                        "replace": ""
+                    }
+                ],
+                "command_for_discovery": "App-Monitoring-Iplabel-Datametrie-Restapi-Kpi-Discover",
+                "command_for_macro": "App-Monitoring-Iplabel-Datametrie-Restapi-Kpi-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-Monitoring-Iplabel-Datametrie-Restapi"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERID",
+                        "value": "^$id$$"
+                    }
+                ],
+                "name": "App-Monitoring-Iplabel-Datametrie-Restapi-List-Kpi",
+                "service_display_name": "Kpi-$name$",
+                "service_template": "App-Monitoring-Iplabel-Datametrie-Kpi-Restapi"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_iplabel_datametrie_restapi.pl --plugin=apps::monitoring::iplabel::datametrie::restapi::plugin --mode=list-kpi --hostname=127.0.0.1 --api-username=none --api-password=none --disco-format\\\"",
+            "name": "App-Monitoring-Iplabel-Datametrie-Restapi-Kpi-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_iplabel_datametrie_restapi.pl --plugin=apps::monitoring::iplabel::datametrie::restapi::plugin --mode=list-kpi --hostname=\\'$_HOSTIPLABELDATAMETRIEAPIHOSTNAME$\\' --api-username=\\'$_HOSTIPLABELDATAMETRIEAPIUSERNAME$\\' --api-password=\\'$_HOSTIPLABELDATAMETRIEAPIPASSWORD$\\' --port=\\'$_HOSTIPLABELDATAMETRIEAPIPORT$\\' --proto=\\'$_HOSTIPLABELDATAMETRIEAPIPROTO$\\' $_HOSTIPLABELDATAMETRIEAPIEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "App-Monitoring-Iplabel-Datametrie-Restapi-Kpi-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_iplabel_datametrie_restapi.pl --plugin=apps::monitoring::iplabel::datametrie::restapi::plugin --mode=alarms --hostname=\\'$_HOSTIPLABELDATAMETRIEAPIHOSTNAME$\\' --api-username=\\'$_HOSTIPLABELDATAMETRIEAPIUSERNAME$\\' --api-password=\\'$_HOSTIPLABELDATAMETRIEAPIPASSWORD$\\' --port=\\'$_HOSTIPLABELDATAMETRIEAPIPORT$\\' --proto=\\'$_HOSTIPLABELDATAMETRIEAPIPROTO$\\' $_HOSTIPLABELDATAMETRIEAPIEXTRAOPTIONS$ --warning-orange=\\'$_SERVICEWARNINGORANGE$\\' --critical-orange=\\'$_SERVICECRITICALORANGE$\\' --warning-red=\\'$_SERVICEWARNINGRED$\\' --critical-red=\\'$_SERVICECRITICALRED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Monitoring-Iplabel-Datametrie-Restapi-Alarms",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_iplabel_datametrie_restapi.pl --plugin=apps::monitoring::iplabel::datametrie::restapi::plugin --mode=kpi --hostname=\\'$_HOSTIPLABELDATAMETRIEAPIHOSTNAME$\\' --api-username=\\'$_HOSTIPLABELDATAMETRIEAPIUSERNAME$\\' --api-password=\\'$_HOSTIPLABELDATAMETRIEAPIPASSWORD$\\' --port=\\'$_HOSTIPLABELDATAMETRIEAPIPORT$\\' --proto=\\'$_HOSTIPLABELDATAMETRIEAPIPROTO$\\' $_HOSTIPLABELDATAMETRIEAPIEXTRAOPTIONS$ --filter-id=\\'$_SERVICEFILTERID$\\' --filter-name=\\'$_SERVICEFILTERNAME$\\' --unknown-status=\\'$_SERVICEUNNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-success-rate=\\'$_SERVICEWARNINGSUCCESSRATE$\\' --critical-success-rate=\\'$_SERVICECRITICALSUCCESSRATE$\\' --warning-sla-availability=\\'$_SERVICEWARNINGSLAAVAILABILITY$\\' --critical-sla-availability=\\'$_SERVICECRITICALSLAAVAILABILITY$\\' --warning-performance=\\'$_SERVICEWARNINGPERFORMANCE$\\' --critical-performance=\\'$_SERVICECRITICALPERFORMANCE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Monitoring-Iplabel-Datametrie-Restapi-Kpi",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser IP-Label Datametrie via la Rest API}\r\n{EN: Template to check IP-Label Datametrie using Rest API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to monitor IP-Label Datametrie using Rest API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "iplabel-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTIPLABELDATAMETRIEAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTIPLABELDATAMETRIEAPIPORT$",
+                    "value": "443"
+                },
+                {
+                    "key": "$_HOSTIPLABELDATAMETRIEAPIHOSTNAME$",
+                    "value": "api.ip-label.net"
+                },
+                {
+                    "key": "$_HOSTIPLABELDATAMETRIEAPIUSERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTIPLABELDATAMETRIEAPIPASSWORD$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Iplabel-Datametrie-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "Generic-Active-Cloud-Host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Monitoring-Iplabel-Datametrie-Alarms-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "iplabel-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* add alarms service",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to get user experience metrics and user scenarios status from IP-Label Datametrie API:\r\n* Alarms\r\n* Kpi"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser IP-Label Datametrie via l\\'API Rest :\r\n* Alarms\r\n* Kpi"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "",
+        "name": "IP-Label Datametrie Rest API",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_monitoring_iplabel_datametrie_restapi.pl",
+                "package_name": "centreon-plugin-Applications-Monitoring-Iplabel-Datametrie-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-monitoring-iplabel-datametrie-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Monitoring",
+            "Application",
+            "IP-Label",
+            "Datametrie",
+            "Restapi",
+            "iplabel"
+        ],
+        "update_date": "1590570157",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le alarmes en cours.}\r\n\r\n{EN: Check current alarms.}",
+            "active_checks_enabled": 2,
+            "alias": "Alarms",
+            "check_timeperiod": "",
+            "command_name": "App-Monitoring-Iplabel-Datametrie-Restapi-Alarms",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Iplabel-Datametrie-Alarms-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le resultat des KPI.}\r\n\r\n{EN: Check KPI results.}",
+            "active_checks_enabled": 2,
+            "alias": "Kpi",
+            "check_timeperiod": "",
+            "command_name": "App-Monitoring-Iplabel-Datametrie-Restapi-Kpi",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Iplabel-Datametrie-Kpi-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

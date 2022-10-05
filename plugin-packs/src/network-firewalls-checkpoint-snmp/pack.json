@@ -1,0 +1,463 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-FW-Checkpoint-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-FW-Checkpoint-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-FW-Checkpoint-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-FW-Checkpoint-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-FW-Checkpoint-Traffic-Global-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_checkpoint.pl --plugin=network::checkpoint::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-FW-Checkpoint-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_checkpoint.pl --plugin=network::checkpoint::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-FW-Checkpoint-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_checkpoint.pl --plugin=network::checkpoint::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-memory=\\'$_SERVICEWARNINGMEMORY$\\' --critical-memory=\\'$_SERVICECRITICALMEMORY$\\' --warning-swap=\\'$_SERVICEWARNINGSWAP$\\' --critical-swap=\\'$_SERVICECRITICALSWAP$\\' --warning-failed-malloc=\\'$_SERVICEWARNINGFAILEDMALLOC$\\' --critical-failed-malloc=\\'$_SERVICECRITICALFAILEDMALLOC$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-FW-Checkpoint-Memory-SNMP",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_checkpoint.pl --plugin=network::checkpoint::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-FW-Checkpoint-Hardware-SNMP",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_checkpoint.pl --plugin=network::checkpoint::snmp::plugin --mode=hastate --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --no-ha-status=\\'$_SERVICENOHASTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-FW-Checkpoint-HA-State-SNMP",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_checkpoint.pl --plugin=network::checkpoint::snmp::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-average=\\'$_SERVICEWARNINGAVERAGE$\\' --critical-average=\\'$_SERVICECRITICALAVERAGE$\\' --warning-core=\\'$_SERVICEWARNINGCORE$\\' --critical-core=\\'$_SERVICECRITICALCORE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-FW-Checkpoint-Cpu-SNMP",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_checkpoint.pl --plugin=network::checkpoint::snmp::plugin --mode=connections --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-FW-Checkpoint-Connections-SNMP",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_checkpoint.pl --plugin network::checkpoint::snmp::plugin --mode=vpn-status --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-FW-Checkpoint-Vpn-Status-SNMP",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_checkpoint.pl --plugin=network::checkpoint::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$$$\\' --name --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-FW-Checkpoint-Traffic-Name-SNMP",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_checkpoint.pl --plugin=network::checkpoint::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-FW-Checkpoint-Traffic-Global-SNMP",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_checkpoint.pl --plugin=network::checkpoint::snmp::plugin --mode=vrrp-status --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-FW-Checkpoint-Vrrp-Status-SNMP",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les firewalls Checkpoint en SNMP}\r\n{EN: Template to check Checkpoint firewall using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Checkpoint firewall using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "checkpoint-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAGENT$",
+                    "value": "SNMP"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-FW-Checkpoint-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-FW-Checkpoint-Memory-SNMP",
+                "Net-FW-Checkpoint-Hardware-SNMP",
+                "Net-FW-Checkpoint-HA-State-SNMP",
+                "Net-FW-Checkpoint-Cpu-SNMP",
+                "Net-FW-Checkpoint-Connections-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "checkpoint-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ tag / doc update",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin Pack to monitor CheckPoint firewall via SNMP:\r\n* Connections\r\n* Cpu\r\n* HA-State\r\n* Hardware\r\n* Memory\r\n* Traffic-Generic-Name\r\n* Traffic-Global\r\n* Vpn-Status\r\n* Vrrp-Status"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin Pack pour surveiller un pare-feu CheckPoint firewall via SNMP :\r\n* Connections\r\n* Cpu\r\n* HA-State\r\n* Hardware\r\n* Memory\r\n* Traffic-Generic-Name\r\n* Traffic-Global\r\n* Vpn-Status\r\n* Vrrp-Status"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "CheckPoint firewall",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_checkpoint.pl",
+                "package_name": "centreon-plugin-Network-Firewalls-Checkpoint-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Network-Firewalls-Checkpoint-Snmp",
+                "version": "20160524-1"
+            }
+        ],
+        "slug": "network-firewalls-checkpoint-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "CheckPoint",
+            "Firewall",
+            "Hardware",
+            "Network",
+            "SNMP",
+            "Security"
+        ],
+        "update_date": "1628799474",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation m\u00e9moire}\r\n\r\n{EN: Check memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-FW-Checkpoint-Memory-SNMP",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-FW-Checkpoint-Memory-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des composants hardware}\r\n\r\n{EN: Check hardware components health.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware",
+            "check_timeperiod": "",
+            "command_name": "Net-FW-Checkpoint-Hardware-SNMP",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-FW-Checkpoint-Hardware-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de la haute-disponibilit\u00e9}\r\n\r\n{EN: Check HA State.}",
+            "active_checks_enabled": 2,
+            "alias": "HA-State",
+            "check_timeperiod": "",
+            "command_name": "Net-FW-Checkpoint-HA-State-SNMP",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{hastate} !~ /(UP|working)/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICENOHASTATUS$",
+                    "password": false,
+                    "value": "UNKNOWN"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-FW-Checkpoint-HA-State-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du CPU}\r\n\r\n{EN: Check CPU usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-FW-Checkpoint-Cpu-SNMP",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --filter-perfdata='^cpu.utilization.percentage'"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-FW-Checkpoint-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de connexions}\r\n\r\n{EN: Check connections number.}",
+            "active_checks_enabled": 2,
+            "alias": "Connections",
+            "check_timeperiod": "",
+            "command_name": "Net-FW-Checkpoint-Connections-SNMP",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-FW-Checkpoint-Connections-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des vpn}\r\n\r\n{EN: Check vpn status.}",
+            "active_checks_enabled": 2,
+            "alias": "Vpn-Status",
+            "check_timeperiod": "",
+            "command_name": "Net-FW-Checkpoint-Vpn-Status-SNMP",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{type} eq \"permanent\" and %{status} =~ /down/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-FW-Checkpoint-Vpn-Status-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau d'une interface r\u00e9seau.}\r\n\r\n{EN: Check traffic of an network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-FW-Checkpoint-Traffic-Name-SNMP",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-FW-Checkpoint-Traffic-Generic-Name-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau de plusieurs interfaces r\u00e9seau.}\r\n\r\n{EN: Check traffic of multiple network interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-FW-Checkpoint-Traffic-Global-SNMP",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-FW-Checkpoint-Traffic-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des VRRP.}\r\n\r\n{EN: Check vrrp status.}",
+            "active_checks_enabled": 2,
+            "alias": "Vrrp-Status",
+            "check_timeperiod": "",
+            "command_name": "Net-FW-Checkpoint-Vrrp-Status-SNMP",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{adminState} eq \"up\" and %{operState} ne %{operStateLast}"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-FW-Checkpoint-Vrrp-Status-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

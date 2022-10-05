@@ -1,0 +1,949 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_restapi.pl --plugin=storage::netapp::restapi::plugin --mode=volume-usage --hostname=$HOSTADDRESS$ --url-path=\\'$_HOSTAPIURLPATH$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --username=\\'$_HOSTAPIUSERNAME$\\' --password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --filter-state=\\'$_SERVICEFILTERSTATE$\\' --filter-style=\\'$_SERVICEFILTERSTYLE$\\' --filter-type=\\'$_SERVICEFILTERTYPE$\\' --units=\\'$_SERVICEUNITS$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-inodes=\\'$_SERVICEWARNINGINODES$\\' --critical-inodes=\\'$_SERVICECRITICALINODES$\\' --warning-snapshot=\\'$_SERVICEWARNINGSNAPSHOT$\\' --critical-snapshot=\\'$_SERVICECRITICALSNAPSHOT$\\' --warning-compresssaved=\\'$_SERVICEWARNINGCOMPRESSSAVED$\\' --critical-compresssaved=\\'$_SERVICECRITICALCOMPRESSSAVED$\\' --warning-dedupsaved=\\'$_SERVICEWARNINGDEDUPSAVED$\\' --critical-dedupsaved=\\'$_SERVICECRITICALDEDUPSAVED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "DEPRECATED-HW-Storage-NetApp-Restapi-Volume-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_restapi.pl --plugin=storage::netapp::restapi::plugin --mode=volume-status --hostname=$HOSTADDRESS$ --url-path=\\'$_HOSTAPIURLPATH$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --username=\\'$_HOSTAPIUSERNAME$\\' --password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "DEPRECATED-HW-Storage-NetApp-Restapi-Volume-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_restapi.pl --plugin=storage::netapp::restapi::plugin --mode=snapmirror-status --hostname=$HOSTADDRESS$ --url-path=\\'$_HOSTAPIURLPATH$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --username=\\'$_HOSTAPIUSERNAME$\\' --password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "DEPRECATED-HW-Storage-NetApp-Restapi-Snapmirror-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_restapi.pl --plugin=storage::netapp::restapi::plugin --mode=qtree-status --hostname=$HOSTADDRESS$ --url-path=\\'$_HOSTAPIURLPATH$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --username=\\'$_HOSTAPIUSERNAME$\\' --password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --filter-volume=\\'$_SERVICEFILTERVOLUME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "DEPRECATED-HW-Storage-NetApp-Restapi-Qtree-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_restapi.pl --plugin=storage::netapp::restapi::plugin --mode=node-hardware-status --hostname=$HOSTADDRESS$ --url-path=\\'$_HOSTAPIURLPATH$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --username=\\'$_HOSTAPIUSERNAME$\\' --password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --filter-cluster=\\'$_SERVICEFILTERCLUSTER$\\' --warning-failed-fans=\\'$_SERVICEWARNINGFAILEDFANS$\\' --critical-failed-fans=\\'$_SERVICECRITICALFAILEDFANS$\\' --warning-failed-psu=\\'$_SERVICEWARNINGFAILEDPSU$\\' --critical-failed-psu=\\'$_SERVICECRITICALFAILEDPSU$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "DEPRECATED-HW-Storage-NetApp-Restapi-Node-Hardware-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_restapi.pl --plugin=storage::netapp::restapi::plugin --mode=node-failover-status --hostname=$HOSTADDRESS$ --url-path=\\'$_HOSTAPIURLPATH$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --username=\\'$_HOSTAPIUSERNAME$\\' --password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --filter-cluster=\\'$_SERVICEFILTERCLUSTER$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "DEPRECATED-HW-Storage-NetApp-Restapi-Node-Failover-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_restapi.pl --plugin=storage::netapp::restapi::plugin --mode=lun-online --hostname=$HOSTADDRESS$ --url-path=\\'$_HOSTAPIURLPATH$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --username=\\'$_HOSTAPIUSERNAME$\\' --password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --filter-volume=\\'$_SERVICEFILTERVOLUME$\\' --warning-online=\\'$_SERVICEWARNINGONLINE$\\' --critical-online=\\'$_SERVICECRITICALONLINE$\\' --warning-not-online=\\'$_SERVICEWARNINGNOTONLINE$\\' --critical-not-online=\\'$_SERVICECRITICALNOTONLINE$\\' --warning-mapped=\\'$_SERVICEWARNINGMAPPED$\\' --critical-mapped=\\'$_SERVICECRITICALMAPPED$\\' --warning-not-mapped=\\'$_SERVICEWARNINGNOTMAPPED$\\' --critical-not-mapped=\\'$_SERVICECRITICALNOTMAPPED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "DEPRECATED-HW-Storage-NetApp-Restapi-Lun-Online",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_restapi.pl --plugin=storage::netapp::restapi::plugin --mode=disk-failed --hostname=$HOSTADDRESS$ --url-path=\\'$_HOSTAPIURLPATH$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --username=\\'$_HOSTAPIUSERNAME$\\' --password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --filter-node=\\'$_SERVICEFILTERNODE$\\' --filter-cluster=\\'$_SERVICEFILTERCLUSTER$\\' --warning-failed=\\'$_SERVICEWARNINGFAILED$\\' --critical-failed=\\'$_SERVICECRITICALFAILED$\\' --warning-pre-failed=\\'$_SERVICEWARNINGPREFAILED$\\' --critical-pre-failed=\\'$_SERVICECRITICALPREFAILED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "DEPRECATED-HW-Storage-NetApp-Restapi-Disk-Failed",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_restapi.pl --plugin=storage::netapp::restapi::plugin --mode=cluster-status --hostname=$HOSTADDRESS$ --url-path=\\'$_HOSTAPIURLPATH$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --username=\\'$_HOSTAPIUSERNAME$\\' --password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "DEPRECATED-HW-Storage-NetApp-Restapi-Cluster-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_restapi.pl --plugin=storage::netapp::restapi::plugin --mode=cluster-io --hostname=$HOSTADDRESS$ --url-path=\\'$_HOSTAPIURLPATH$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --username=\\'$_HOSTAPIUSERNAME$\\' --password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-total-throughput=\\'$_SERVICEWARNINGTOTALTHROUGHPUT$\\' --critical-total-throughput=\\'$_SERVICECRITICALTOTALTHROUGHPUT$\\' --warning-total-ops=\\'$_SERVICEWARNINGTOTALOPS$\\' --critical-total-ops=\\'$_SERVICECRITICALTOTALOPS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "DEPRECATED-HW-Storage-NetApp-Restapi-Cluster-Io",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_restapi.pl --plugin=storage::netapp::restapi::plugin --mode=aggregate-usage --hostname=$HOSTADDRESS$ --url-path=\\'$_HOSTAPIURLPATH$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --username=\\'$_HOSTAPIUSERNAME$\\' --password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --filter-node=\\'$_SERVICEFILTERNODE$\\' --filter-cluster=\\'$_SERVICEFILTERCLUSTER$\\' --filter-state=\\'$_SERVICEFILTERSTATE$\\' --filter-type=\\'$_SERVICEFILTERTYPE$\\' --units=\\'$_SERVICEUNITS$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-snapshot=\\'$_SERVICEWARNINGSNAPSHOT$\\' --critical-snapshot=\\'$_SERVICECRITICALSNAPSHOT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "DEPRECATED-HW-Storage-NetApp-Restapi-Aggregate-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_restapi.pl --plugin=storage::netapp::restapi::plugin --mode=aggregate-raid-status --hostname=$HOSTADDRESS$ --url-path=\\'$_HOSTAPIURLPATH$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --username=\\'$_HOSTAPIUSERNAME$\\' --password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --filter-node=\\'$_SERVICEFILTERNODE$\\' --filter-cluster=\\'$_SERVICEFILTERCLUSTER$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "DEPRECATED-HW-Storage-NetApp-Restapi-Aggregate-Raid-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_restapi.pl --plugin=storage::netapp::restapi::plugin --mode=aggregate-status --hostname=$HOSTADDRESS$ --url-path=\\'$_HOSTAPIURLPATH$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --username=\\'$_HOSTAPIUSERNAME$\\' --password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --filter-node=\\'$_SERVICEFILTERNODE$\\' --filter-cluster=\\'$_SERVICEFILTERCLUSTER$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "DEPRECATED-HW-Storage-NetApp-Restapi-Aggregate-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_restapi.pl --plugin=storage::netapp::restapi::plugin --mode=cluster-usage --hostname=$HOSTADDRESS$ --url-path=\\'$_HOSTAPIURLPATH$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --username=\\'$_HOSTAPIUSERNAME$\\' --password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-max-node-utilization=\\'$_SERVICEWARNINGMAXNODEUTILIZATION$\\' --critical-max-node-utilization=\\'$_SERVICECRITICALMAXNODEUTILIZATION$\\' --warning-max-aggregate-utilization=\\'$_SERVICEWARNINGMAXAGGREGATEUTILIZATION$\\' --critical-max-aggregate-utilization=\\'$_SERVICECRITICALMAXAGGREGATEUTILIZATION$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "DEPRECATED-HW-Storage-NetApp-Restapi-Cluster-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_restapi.pl --plugin=storage::netapp::restapi::plugin --mode=disk-spare --hostname=$HOSTADDRESS$ --url-path=\\'$_HOSTAPIURLPATH$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --username=\\'$_HOSTAPIUSERNAME$\\' --password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --filter-node=\\'$_SERVICEFILTERNODE$\\' --filter-cluster=\\'$_SERVICEFILTERCLUSTER$\\' --warning-spare=\\'$_SERVICEWARNINGSPARE$\\' --critical-spare=\\'$_SERVICECRITICALSPARE$\\' --warning-zeroed=\\'$_SERVICEWARNINGZEROED$\\' --critical-zeroed=\\'$_SERVICECRITICALZEROED$\\' --warning-not-zeroed=\\'$_SERVICEWARNINGNOTZEROED$\\' --critical-not-zeroed=\\'$_SERVICECRITICALNOTZEROED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "DEPRECATED-HW-Storage-NetApp-Restapi-Disk-Spare",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_restapi.pl --plugin=storage::netapp::restapi::plugin --mode=fc-port-status --hostname=$HOSTADDRESS$ --url-path=\\'$_HOSTAPIURLPATH$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --username=\\'$_HOSTAPIUSERNAME$\\' --password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "DEPRECATED-HW-Storage-NetApp-Restapi-FC-Port-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_restapi.pl --plugin=storage::netapp::restapi::plugin --mode=lun-alignment --hostname=$HOSTADDRESS$ --url-path=\\'$_HOSTAPIURLPATH$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --username=\\'$_HOSTAPIUSERNAME$\\' --password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --filter-volume=\\'$_SERVICEFILTERVOLUME$\\' --warning-aligned=\\'$_SERVICEWARNINGALIGNED$\\' --critical-aligned=\\'$_SERVICECRITICALALIGNED$\\' --warning-misaligned=\\'$_SERVICEWARNINGMISALIGNED$\\' --critical-misaligned=\\'$_SERVICECRITICALMISALIGNED$\\' --warning-possibly-misaligned=\\'$_SERVICEWARNINGPOSSIBLYMISALIGNED$\\' --critical-possibly-misaligned=\\'$_SERVICECRITICALPOSSIBLYMISALIGNED$\\' --warning-indeterminate=\\'$_SERVICEWARNINGINDETERMINATE$\\' --critical-indeterminate=\\'$_SERVICECRITICALINDETERMINATE$\\' --warning-partial-writes=\\'$_SERVICEWARNINGPARTIALWRITES$\\' --critical-partial-writes=\\'$_SERVICECRITICALPARTIALWRITES$\\' --warning-not-mapped=\\'$_SERVICEWARNINGNOTMAPPED$\\' --critical-not-mapped=\\'$_SERVICECRITICALNOTMAPPED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "DEPRECATED-HW-Storage-NetApp-Restapi-Lun-Alignment",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_restapi.pl --plugin=storage::netapp::restapi::plugin --mode=lun-usage --hostname=$HOSTADDRESS$ --url-path=\\'$_HOSTAPIURLPATH$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --username=\\'$_HOSTAPIUSERNAME$\\' --password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --units=\\'$_SERVICEUNITS$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "DEPRECATED-HW-Storage-NetApp-Restapi-Lun-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_restapi.pl --plugin=storage::netapp::restapi::plugin --mode=snapmirror-usage --hostname=$HOSTADDRESS$ --url-path=\\'$_HOSTAPIURLPATH$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --username=\\'$_HOSTAPIUSERNAME$\\' --password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-last-transfer-duration=\\'$_SERVICEWARNINGLASTTRANSFERDURATION$\\' --critical-last-transfer-duration=\\'$_SERVICECRITICALLASTTRANSFERDURATION$\\' --warning-last-transfer-size=\\'$_SERVICEWARNINGLASTTRANSFERSIZE$\\' --critical-last-transfer-size=\\'$_SERVICECRITICALLASTTRANSFERSIZE$\\' --warning-lag-time=\\'$_SERVICEWARNINGLAGTIME$\\' --critical-lag-time=\\'$_SERVICECRITICALLAGTIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "DEPRECATED-HW-Storage-NetApp-Restapi-Snapmirror-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_restapi.pl --plugin=storage::netapp::restapi::plugin --mode=volume-io --hostname=$HOSTADDRESS$ --url-path=\\'$_HOSTAPIURLPATH$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --username=\\'$_HOSTAPIUSERNAME$\\' --password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --filter-state=\\'$_SERVICEFILTERSTATE$\\' --filter-style=\\'$_SERVICEFILTERSTYLE$\\' --filter-type=\\'$_SERVICEFILTERTYPE$\\' --warning-read-iops=\\'$_SERVICEWARNINGREADIOPS$\\' --critical-read-iops=\\'$_SERVICECRITICALREADIOPS$\\' --warning-write-iops=\\'$_SERVICEWARNINGWRITEIOPS$\\' --critical-write-iops=\\'$_SERVICECRITICALWRITEIOPS$\\' --warning-other-iops=\\'$_SERVICEWARNINGOTHERIOPS$\\' --critical-other-iops=\\'$_SERVICECRITICALOTHERIOPS$\\' --warning-avg-latency=\\'$_SERVICEWARNINGAVGLATENCY$\\' --critical-avg-latency=\\'$_SERVICECRITICALAVGLATENCY$\\' --warning-read-latency=\\'$_SERVICEWARNINGREADLATENCY$\\' --critical-read-latency=\\'$_SERVICECRITICALREADLATENCY$\\' --warning-write-latency=\\'$_SERVICEWARNINGWRITELATENCY$\\' --critical-write-latency=\\'$_SERVICECRITICALWRITELATENCY$\\' --warning-other-latency=\\'$_SERVICEWARNINGOTHERLATENCY$\\' --critical-other-latency=\\'$_SERVICECRITICALOTHERLATENCY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "DEPRECATED-HW-Storage-NetApp-Restapi-Volume-Io",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les baies de stockage Netapp via l'API OnCommand}\r\n{EN: Template to check Netapp Storage using OnCommand API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Netapp Storage using OnCommand API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "netapp-128-1.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAPIURLPATH$",
+                    "value": "/api/4.0/ontap"
+                },
+                {
+                    "key": "$_HOSTAPIPORT$",
+                    "value": "8443"
+                },
+                {
+                    "key": "$_HOSTAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTAPIUSERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAPIPASSWORD$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "DEPRECATED-HW-Storage-NetApp-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "DEPRECATED-HW-Storage-NetApp-Volume-Usage-Global-Restapi",
+                "DEPRECATED-HW-Storage-NetApp-Volume-Status-Global-Restapi",
+                "DEPRECATED-HW-Storage-NetApp-Snapmirror-Status-Global-Restapi",
+                "DEPRECATED-HW-Storage-NetApp-Qtree-Status-Global-Restapi",
+                "DEPRECATED-HW-Storage-NetApp-Node-Hardware-Status-Global-Restapi",
+                "DEPRECATED-HW-Storage-NetApp-Node-Failover-Status-Global-Restapi",
+                "DEPRECATED-HW-Storage-NetApp-Lun-Online-Restapi",
+                "DEPRECATED-HW-Storage-NetApp-Disk-Failed-Restapi",
+                "DEPRECATED-HW-Storage-NetApp-Cluster-Status-Global-Restapi",
+                "DEPRECATED-HW-Storage-NetApp-Cluster-Io-Global-Restapi",
+                "DEPRECATED-HW-Storage-NetApp-Aggregate-Usage-Global-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAH4AAAB+CAYAAADiI6WIAAABOklEQVR42u3Ruw2DQBRFwQ3IHJNTCnVYQjIJ7oweiFZaQQGuyAYacALLR3Okm73oTQiSJEmSJEmSJEmSjqxNZXjFym60Ohb/4d9TP+9rN9qCDx48ePDgwYMHb+ANvIE38AbewBt4A2/gDbyBN/AG3sAbeANv4A28gQcPHjx48ODBexZ4A2/gDbyBN/AG3sAbeAO/zfrd140f8GdbjrrxCR48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHnxG+TeV6eLXlqBkel/xNHYsgSZIkSZIkSZKkY/sB3w4IbYPJDrUAAAAASUVORK5CYII=",
+            "name": "netapp-128-1.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* deprecated",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor NetApp storage using OnCommand API :\r\n* Aggregate-Raid-Status\r\n* Aggregate-Status\r\n* Aggregate-Usage\r\n* Cluster-Ioo\r\n* Cluster-Status\r\n* Cluster-Usage\r\n* Disk-Failed\r\n* Disk-Spare\r\n* FC-Port-Status\r\n* Lun-Alignment\r\n* Lun-Online\r\n* Lun-Usage\r\n* Node-Failover-Status\r\n* Node-Hardware-Status\r\n* Qtree-Status\r\n* Snapmirror-Status\r\n* Snapmirror-Usage\r\n* Volume-Io\r\n* Volume-Status\r\n* Volume-Usage"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser le stockage NetApp l\\'API OnCommand :\r\n* Aggregate-Raid-Status\r\n* Aggregate-Status\r\n* Aggregate-Usage\r\n* Cluster-Ioo\r\n* Cluster-Status\r\n* Cluster-Usage\r\n* Disk-Failed\r\n* Disk-Spare\r\n* FC-Port-Status\r\n* Lun-Alignment\r\n* Lun-Online\r\n* Lun-Usage\r\n* Node-Failover-Status\r\n* Node-Hardware-Status\r\n* Qtree-Status\r\n* Snapmirror-Status\r\n* Snapmirror-Usage\r\n* Volume-Io\r\n* Volume-Status\r\n* Volume-Usage"
+            }
+        ],
+        "discovery_category": "storage",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAH4AAAB+CAYAAADiI6WIAAAE2UlEQVR42u2c0W3bQAyG/aC3PgcxAtl1B+gE3cAj5KkFivTFM3SHLJEl9FCgSAfoFB0jFRVdKtMk7xQ5kdB8P0C0tS2Zdx955J2MrlYIIYQQQugN68vPi9W3X3fYTHZzf5gH/Ocfu9aBB2w2uwM84AEPeMADHvCABzzgAQ94wAMe8IAHPOABD3jAA57JBzwGeAzwGOAxwGOAxwCPAR4DPAZ4DPAY4AEPeMADHvCABzzgAQ94wAMe8P8H+K/3+863c9rNfQP4pYMXv86tx/+MAPCABzzgAQ94wAMe8IAHPOABD3jAAx7wgAc84AEPeMADHvCABzzgAQ94wAMe8IAHPOABD3jAAx7wgAc84AEPeMADHvCABzzgAQ94wAMe8IAHPOABD3jAAx7wgAc84AEPeMADHvCABzzgAQ94wAMe8IAHPOABD3jAAx7wgAc8QgghhBBCCCGEEEIIIYQQQmge7dbr3Yft9iHZbrv9s16vL6Jr3tf19dE1m83dOf0ZWvtSNer61pcj3+r6O5QLwPfWRBP+kuC1Lz38Il1eXr47ub4N5LHB85bBh5myVPDiszWW7dXVJ0gXgo8mbKHgK8lucyybzW9IjwDv1ftS8LL01nX9sf38QT4jGdn+fW/BlCDT900rj7wuFmWuvOeNIxdA6f7JxO80N/Lvoe/pPT1O5x6VHn8/hmo4/+ma1NfItS++SkXgB9lSjQUvA3Yz8DGobo8mQDVl5jXByiJ+ar+N7ytaZTrfA38kAHJzKPeQXslLKHk/BU0Kqn5emy45zriKPg+8MWk58BLhuXumJvIpuyaA93Ym+norW83yEgTsAP4hmsPCe+zTfKbM7wO2mQe8zh4V5RF4t1l0JiI1kZPAt4FpQdEZJ36XgC+1VD5Kksebk1QmBkv+QeZkFvCSLRaoVO8j8Mby1hwtawpSysTuOw1fUk8gZvUb1hYuZbau+/3Wrgi8fFYgpHrrLNtNCL5NoNQXyJ9WQs12zmA57TZLfb33wFsQEvSo+x5m4tiuXpcVlSkn32U1TRY0K8gs+BF44/ygWsyOwwPv7YtlYj3wfUOjM/Zam478CeBPwOpAywSGDd6B0WWt4Z9T429LytJwvhcDvo/QJlev02Ra27GiWndcKorB57Zwnulsjhq3XMaKD9YcetsxKznGHFK9FviVV++XAN7bLmW/T9XV0rpr7RS6rZ/Tm5SuGrlnI7OA96LUAmdtq9LERDYceCn453bS1vm98362n3hqhP3nHavSPmGR4HN780HGVlaNd0669tbDk9Ls0/2HwOpOxxyLMrLkkKZrXI2uPNzCqqAdEyCLAR8trUf7eKN5SUeV/WnebfQU0IIk13QW7B6Cumz7PmjgolPLbo9tjGnYwIXH3v+a4cYJsOvFg/cehOS2UAXLbtj1lvQS3qlc1AimjJxaLiaUnXmy/Rng7eNJtUXqancBfOshUNRPPPUSelcRnMOroDKvs4Dk/B527d4SPnbsiwY/4ulc5fUFXT1WD2mM+5+cAErdtTLXOCQq8jutFNZK0G3T7OBtNDAzGR6PYA/mChmM/TVVGT93KgqY6ChVb4MEjkzmmCjvjnjVz6/Sa2P9DcZaRU2Z+Dt4lFwVr4Ij74Fm0NQDlRx4BHgEeDS7vJ9ejelFpt4DIYQQyugvQEmGL4QZYWMAAAAASUVORK5CYII=",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Storage-Netapp-Restapi\r\n\r\n## Centreon Configuration\r\n### Create a new NetApp server\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Storage-NetApp-Restapi-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\n### Host Macro Configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"23%\" />\r\n<col width=\"53%\" />\r\n<col width=\"24%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>APIURLPATH</p></td>\r\n<td align=\"left\"><p>OnCommand API path</p></td>\r\n<td align=\"left\"><p>/api/4.0/ontap</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>APIUSERNAME</p></td>\r\n<td align=\"left\"><p>OnCommand API username</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>APIPASSWORD</p></td>\r\n<td align=\"left\"><p>OnCommand API password</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>APIPORT</p></td>\r\n<td align=\"left\"><p>OnCommand API port</p></td>\r\n<td align=\"left\"><p>8443</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>APIPROTO</p></td>\r\n<td align=\"left\"><p>OnCommand API protcole</p></td>\r\n<td align=\"left\"><p>https</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "NetApp Restapi",
+        "plugins_requirements": [],
+        "requirement": [],
+        "slug": "hardware-storage-netapp-restapi",
+        "status": "deprecated",
+        "status_message": "",
+        "tags": [
+            "NetApp",
+            "Storage",
+            "Hardware",
+            "Restapi",
+            "SAN"
+        ],
+        "update_date": "1593520660",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation d'un ou plusieurs volume.}\r\n\r\n{EN: Check usage of one or several volume.}",
+            "active_checks_enabled": 2,
+            "alias": "Volume-Usage-Global",
+            "check_timeperiod": "",
+            "command_name": "DEPRECATED-HW-Storage-NetApp-Restapi-Volume-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNITS$",
+                    "password": false,
+                    "value": "%"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGUSAGE$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALUSAGE$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGINODES$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALINODES$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "DEPRECATED-HW-Storage-NetApp-Volume-Usage-Global-Restapi",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut d'un ou plusieurs volume.}\r\n\r\n{EN: Check status of one or several volume.}",
+            "active_checks_enabled": 2,
+            "alias": "Volume-Status-Global",
+            "check_timeperiod": "",
+            "command_name": "DEPRECATED-HW-Storage-NetApp-Restapi-Volume-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{state} !~ /online/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "DEPRECATED-HW-Storage-NetApp-Volume-Status-Global-Restapi",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat d'un ou plusieurs snapmirror.}\r\n\r\n{EN: Check state of one or several snapmirror.}",
+            "active_checks_enabled": 2,
+            "alias": "Snapmirror-Status-Global",
+            "check_timeperiod": "",
+            "command_name": "DEPRECATED-HW-Storage-NetApp-Restapi-Snapmirror-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{state} !~ /snapmirrored/i || %{update} =~ /not healthy/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "DEPRECATED-HW-Storage-NetApp-Snapmirror-Status-Global-Restapi",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat d'un ou plusieurs qtrees.}\r\n\r\n{EN: Check state of one or several qtrees.}",
+            "active_checks_enabled": 2,
+            "alias": "Qtree-Status-Global",
+            "check_timeperiod": "",
+            "command_name": "DEPRECATED-HW-Storage-NetApp-Restapi-Qtree-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "DEPRECATED-HW-Storage-NetApp-Qtree-Status-Global-Restapi",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat mat\u00e9riel d'un ou plusieurs noeuds.}\r\n\r\n{EN: Check hardware state of one or several nodes.}",
+            "active_checks_enabled": 2,
+            "alias": "Node-Hardware-Status-Global",
+            "check_timeperiod": "",
+            "command_name": "DEPRECATED-HW-Storage-NetApp-Restapi-Node-Hardware-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /not healthy/i || %{temperature} !~ /ok/i || %{battery_status} !~ /battery_ok|battery_fully_charge|battery_over_charged/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "DEPRECATED-HW-Storage-NetApp-Node-Hardware-Status-Global-Restapi",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du failover d'un ou plusieurs noeuds.}\r\n\r\n{EN: Check failover state of one or several nodes.}",
+            "active_checks_enabled": 2,
+            "alias": "Node-Failover-Status-Global",
+            "check_timeperiod": "",
+            "command_name": "DEPRECATED-HW-Storage-NetApp-Restapi-Node-Failover-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{state} !~ /connected/i || %{interconnect} !~ /up/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "DEPRECATED-HW-Storage-NetApp-Node-Failover-Status-Global-Restapi",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de connexion des LUNs.}\r\n\r\n{EN: Check LUNs connection state.}",
+            "active_checks_enabled": 2,
+            "alias": "Lun-Online",
+            "check_timeperiod": "",
+            "command_name": "DEPRECATED-HW-Storage-NetApp-Restapi-Lun-Online",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "DEPRECATED-HW-Storage-NetApp-Lun-Online-Restapi",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de disque en \u00e9chec et en pr\u00e9-\u00e9chec.}\r\n\r\n{EN: Check number of failed and pre-failed disks.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Failed",
+            "check_timeperiod": "",
+            "command_name": "DEPRECATED-HW-Storage-NetApp-Restapi-Disk-Failed",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALFAILED$",
+                    "password": false,
+                    "value": "0"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALPREFAILED$",
+                    "password": false,
+                    "value": "0"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "DEPRECATED-HW-Storage-NetApp-Disk-Failed-Restapi",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut d'un ou plusieurs cluster.}\r\n\r\n{EN: Check status of one or several cluster.}",
+            "active_checks_enabled": 2,
+            "alias": "Cluster-Status-Global",
+            "check_timeperiod": "",
+            "command_name": "DEPRECATED-HW-Storage-NetApp-Restapi-Cluster-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /ok/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "DEPRECATED-HW-Storage-NetApp-Cluster-Status-Global-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des IO d'un ou plusieurs cluster.}\r\n\r\n{EN: Check IO usage of one or several cluster.}",
+            "active_checks_enabled": 2,
+            "alias": "Cluster-Io-Global",
+            "check_timeperiod": "",
+            "command_name": "DEPRECATED-HW-Storage-NetApp-Restapi-Cluster-Io",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "DEPRECATED-HW-Storage-NetApp-Cluster-Io-Global-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation d'un ou plusieurs aggr\u00e9gats.}\r\n\r\n{EN: Check usage of one or several aggregates.}",
+            "active_checks_enabled": 2,
+            "alias": "Aggregate-Usage-Global",
+            "check_timeperiod": "",
+            "command_name": "DEPRECATED-HW-Storage-NetApp-Restapi-Aggregate-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNITS$",
+                    "password": false,
+                    "value": "%"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "DEPRECATED-HW-Storage-NetApp-Aggregate-Usage-Global-Restapi",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du raid d'un ou plusieurs aggr\u00e9gats.}\r\n\r\n{EN: Check raid state of one or several aggregates.}",
+            "active_checks_enabled": 2,
+            "alias": "Aggregate-Raid-Status-Global",
+            "check_timeperiod": "",
+            "command_name": "DEPRECATED-HW-Storage-NetApp-Restapi-Aggregate-Raid-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /normal/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "DEPRECATED-HW-Storage-NetApp-Aggregate-Raid-Status-Global-Restapi",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat d'un ou plusieurs aggr\u00e9gats.}\r\n\r\n{EN: Check state of one or several aggregates.}",
+            "active_checks_enabled": 2,
+            "alias": "Aggregate-Status-Global",
+            "check_timeperiod": "",
+            "command_name": "DEPRECATED-HW-Storage-NetApp-Restapi-Aggregate-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{state} !~ /online/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "DEPRECATED-HW-Storage-NetApp-Aggregate-Status-Global-Restapi",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation d'un ou plusieurs cluster.}\r\n\r\n{EN: Check usage of one or several cluster.}",
+            "active_checks_enabled": 2,
+            "alias": "Cluster-Usage-Global",
+            "check_timeperiod": "",
+            "command_name": "DEPRECATED-HW-Storage-NetApp-Restapi-Cluster-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGMAXNODEUTILIZATION$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALMAXNODEUTILIZATION$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGMAXAGGREGATEUTILIZATION$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALMAXAGGREGATEUTILIZATION$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "DEPRECATED-HW-Storage-NetApp-Cluster-Usage-Global-Restapi",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de disque de spare et leur \u00e9tat.}\r\n\r\n{EN: Check number of spare disks and their state.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Spare",
+            "check_timeperiod": "",
+            "command_name": "DEPRECATED-HW-Storage-NetApp-Restapi-Disk-Spare",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSPARE$",
+                    "password": false,
+                    "value": "0"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALNOTZEROED$",
+                    "password": false,
+                    "value": "0"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "DEPRECATED-HW-Storage-NetApp-Disk-Spare-Restapi",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut d'une ou plusieurs port fibre channel.}\r\n\r\n{EN: Check status of one or several FC port.}",
+            "active_checks_enabled": 2,
+            "alias": "FC-Port-Status-Global",
+            "check_timeperiod": "",
+            "command_name": "DEPRECATED-HW-Storage-NetApp-Restapi-FC-Port-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /online/i || %{state} !~ /online/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "DEPRECATED-HW-Storage-NetApp-FC-Port-Status-Global-Restapi",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les probl\u00e8mes d'alignement des LUNs.}\r\n\r\n{EN: Check LUNs alignment problem.}",
+            "active_checks_enabled": 2,
+            "alias": "Lun-Alignment",
+            "check_timeperiod": "",
+            "command_name": "DEPRECATED-HW-Storage-NetApp-Restapi-Lun-Alignment",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "DEPRECATED-HW-Storage-NetApp-Lun-Alignment-Restapi",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des LUNs.}\r\n\r\n{EN: Check LUNs usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Lun-Usage-Global",
+            "check_timeperiod": "",
+            "command_name": "DEPRECATED-HW-Storage-NetApp-Restapi-Lun-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNITS$",
+                    "password": false,
+                    "value": "%"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "DEPRECATED-HW-Storage-NetApp-Lun-Usage-Global-Restapi",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les performances d'un ou plusieurs snapmirror.}\r\n\r\n{EN: Check performances of one or several snapmirror.}",
+            "active_checks_enabled": 2,
+            "alias": "Snapmirror-Usage-Global",
+            "check_timeperiod": "",
+            "command_name": "DEPRECATED-HW-Storage-NetApp-Restapi-Snapmirror-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "DEPRECATED-HW-Storage-NetApp-Snapmirror-Usage-Global-Restapi",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les performances d'un ou plusieurs volume.}\r\n\r\n{EN: Check performances of one or several volume.}",
+            "active_checks_enabled": 2,
+            "alias": "Volume-Io-Global",
+            "check_timeperiod": "",
+            "command_name": "DEPRECATED-HW-Storage-NetApp-Restapi-Volume-Io",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "DEPRECATED-HW-Storage-NetApp-Volume-Io-Global-Restapi",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

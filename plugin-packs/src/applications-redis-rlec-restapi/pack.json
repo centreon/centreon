@@ -1,0 +1,279 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_rlec_restapi.pl --plugin=apps::redis::rlec::restapi::plugin --mode=shards-stats --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTREDISRLECAPIPORT$\\' --proto=\\'$_HOSTREDISRLECAPIPROTO$\\' --username=\\'$_HOSTREDISRLECAPIUSERNAME$\\' --password=\\'$_HOSTREDISRLECAPIPASSWORD$\\' $_HOSTREDISRLECAPIEXTRAOPTIONS$ --interval=$_SERVICEINTERVAL$ --filter-shard=\\'$_SERVICEFILTERSHARD$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-total-cpu=\\'$_SERVICEWARNINGTOTALCPU$\\' --critical-total-cpu=\\'$_SERVICECRITICALTOTALCPU$\\' --warning-fork-cpu=\\'$_SERVICEWARNINGFORKCPU$\\' --critical-fork-cpu=\\'$_SERVICECRITICALFORKCPU$\\' --warning-main-thread-cpu=\\'$_SERVICEWARNINGMAINTHREADCPU$\\' --critical-main-thread-cpu=\\'$_SERVICECRITICALMAINTHREADCPU$\\' --warning-memory=\\'$_SERVICEWARNINGMEMORY$\\' --critical-memory=\\'$_SERVICECRITICALMEMORY$\\' --warning-mem-frag-ratio=\\'$_SERVICEWARNINGMEMFRAGRATIO$\\' --critical-mem-frag-ratio=\\'$_SERVICECRITICALMEMFRAGRATIO$\\' --warning-connected-clients=\\'$_SERVICEWARNINGCONNECTEDCLIENTS$\\' --critical-connected-clients=\\'$_SERVICECRITICALCONNECTEDCLIENTS$\\' --warning-blocked-clients=\\'$_SERVICEWARNINGBLOCKEDCLIENTS$\\' --critical-blocked-clients=\\'$_SERVICECRITICALBLOCKEDCLIENTS$\\' --warning-requests=\\'$_SERVICEWARNINGREQUESTS$\\' --critical-requests=\\'$_SERVICECRITICALREQUESTS$\\' --warning-keys=\\'$_SERVICEWARNINGKEYS$\\' --critical-keys=\\'$_SERVICECRITICALKEYS$\\' --warning-volatile-keys=\\'$_SERVICEWARNINGVOLATILEKEYS$\\' --critical-volatile-keys=\\'$_SERVICECRITICALVOLATILEKEYS$\\' --warning-evicted-objects=\\'$_SERVICEWARNINGEVICTEDOBJECTS$\\' --critical-evicted-objects=\\'$_SERVICECRITICALEVICTEDOBJECTS$\\' --warning-expired-objects=\\'$_SERVICEWARNINGEXPIREDOBJECTS$\\' --critical-expired-objects=\\'$_SERVICECRITICALEXPIREDOBJECTS$\\' --warning-read-rates=\\'$_SERVICEWARNINGREADRATES$\\' --critical-read-rates=\\'$_SERVICECRITICALREADRATES$\\' --warning-write-rates=\\'$_SERVICEWARNINGWRITERATES$\\' --critical-write-rates=\\'$_SERVICECRITICALWRITERATES$\\' --warning-rdb-changes-since-last-save=\\'$_SERVICEWARNINGRDBCHANGESSINCELASTSAVE$\\' --critical-rdb-changes-since-last-save=\\'$_SERVICECRITICALRDBCHANGESSINCELASTSAVE$\\' --warning-last-save-time=\\'$_SERVICEWARNINGLASTSAVETIME$\\' --critical-last-save-time=\\'$_SERVICECRITICALLASTSAVETIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Rlec-Restapi-Shards",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_rlec_restapi.pl --plugin=apps::redis::rlec::restapi::plugin --mode=nodes-stats --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTREDISRLECAPIPORT$\\' --proto=\\'$_HOSTREDISRLECAPIPROTO$\\' --username=\\'$_HOSTREDISRLECAPIUSERNAME$\\' --password=\\'$_HOSTREDISRLECAPIPASSWORD$\\' $_HOSTREDISRLECAPIEXTRAOPTIONS$ --interval=$_SERVICEINTERVAL$ --filter-node=\\'$_SERVICEFILTERNODE$\\' --units=\\'$_SERVICEUNITS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-shard-count=\\'$_SERVICEWARNINGSHARDCOUNT$\\' --critical-shard-count=\\'$_SERVICECRITICALSHARDCOUNT$\\' --warning-uptime=\\'$_SERVICEWARNINGUPTIME$\\' --critical-uptime=\\'$_SERVICECRITICALUPTIME$\\' --warning-cpu-system=\\'$_SERVICEWARNINGCPUSYSTEM$\\' --critical-cpu-system=\\'$_SERVICECRITICALCPUSYSTEM$\\' --warning-cpu-user=\\'$_SERVICEWARNINGCPUUSER$\\' --critical-cpu-user=\\'$_SERVICECRITICALCPUUSER$\\' --warning-memory=\\'$_SERVICEWARNINGMEMORY$\\' --critical-memory=\\'$_SERVICECRITICALMEMORY$\\' --warning-persistent-storage=\\'$_SERVICEWARNINGPERSISTENTSTORAGE$\\' --critical-persistent-storage=\\'$_SERVICECRITICALPERSISTENTSTORAGE$\\' --warning-ephemeral-storage=\\'$_SERVICEWARNINGEPHEMERALSTORAGE$\\' --critical-ephemeral-storage=\\'$_SERVICECRITICALEPHEMERALSTORAGE$\\' --warning-flash-storage=\\'$_SERVICEWARNINGFLASHSTORAGE$\\' --critical-flash-storage=\\'$_SERVICECRITICALFLASHSTORAGE$\\' --warning-flash-iops=\\'$_SERVICEWARNINGFLASHIOPS$\\' --critical-flash-iops=\\'$_SERVICECRITICALFLASHIOPS$\\' --warning-flash-throughput=\\'$_SERVICEWARNINGFLASHTHROUGHPUT$\\' --critical-flash-throughput=\\'$_SERVICECRITICALFLASHTHROUGHPUT$\\' --warning-connections=\\'$_SERVICEWARNINGCONNECTIONS$\\' --critical-connections=\\'$_SERVICECRITICALCONNECTIONS$\\' --warning-requests=\\'$_SERVICEWARNINGREQUESTS$\\' --critical-requests=\\'$_SERVICECRITICALREQUESTS$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Rlec-Restapi-Nodes",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_rlec_restapi.pl --plugin=apps::redis::rlec::restapi::plugin --mode=databases-stats --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTREDISRLECAPIPORT$\\' --proto=\\'$_HOSTREDISRLECAPIPROTO$\\' --username=\\'$_HOSTREDISRLECAPIUSERNAME$\\' --password=\\'$_HOSTREDISRLECAPIPASSWORD$\\' $_HOSTREDISRLECAPIEXTRAOPTIONS$ --interval=$_SERVICEINTERVAL$ --filter-database=\\'$_SERVICEFILTERDATABASE$\\' --units=\\'$_SERVICEUNITS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-total-cpu=\\'$_SERVICEWARNINGTOTALCPU$\\' --critical-total-cpu=\\'$_SERVICECRITICALTOTALCPU$\\' --warning-fork-cpu=\\'$_SERVICEWARNINGFORKCPU$\\' --critical-fork-cpu=\\'$_SERVICECRITICALFORKCPU$\\' --warning-main-thread-cpu=\\'$_SERVICEWARNINGMAINTHREADCPU$\\' --critical-main-thread-cpu=\\'$_SERVICECRITICALMAINTHREADCPU$\\' --warning-memory=\\'$_SERVICEWARNINGMEMORY$\\' --critical-memory=\\'$_SERVICECRITICALMEMORY$\\' --warning-mem-frag-ratio=\\'$_SERVICEWARNINGMEMFRAGRATIO$\\' --critical-mem-frag-ratio=\\'$_SERVICECRITICALMEMFRAGRATIO$\\' --warning-connections=\\'$_SERVICEWARNINGCONNECTIONS$\\' --critical-connections=\\'$_SERVICECRITICALCONNECTIONS$\\' --warning-total-rates=\\'$_SERVICEWARNINGTOTALRATES$\\' --critical-total-rates=\\'$_SERVICECRITICALTOTALRATES$\\' --warning-latency=\\'$_SERVICEWARNINGLATENCY$\\' --critical-latency=\\'$_SERVICECRITICALLATENCY$\\' --warning-other-rates=\\'$_SERVICEWARNINGOTHERRATES$\\' --critical-other-rates=\\'$_SERVICECRITICALOTHERRATES$\\' --warning-other-latency=\\'$_SERVICEWARNINGOTHERLATENCY$\\' --critical-other-latency=\\'$_SERVICECRITICALOTHERLATENCY$\\' --warning-keys=\\'$_SERVICEWARNINGKEYS$\\' --critical-keys=\\'$_SERVICECRITICALKEYS$\\' --warning-evicted-objects=\\'$_SERVICEWARNINGEVICTEDOBJECTS$\\' --critical-evicted-objects=\\'$_SERVICECRITICALEVICTEDOBJECTS$\\' --warning-expired-objects=\\'$_SERVICEWARNINGEXPIREDOBJECTS$\\' --critical-expired-objects=\\'$_SERVICECRITICALEXPIREDOBJECTS$\\' --warning-read-rates=\\'$_SERVICEWARNINGREADRATES$\\' --critical-read-rates=\\'$_SERVICECRITICALREADRATES$\\' --warning-read-latency=\\'$_SERVICEWARNINGREADLATENCY$\\' --critical-read-latency=\\'$_SERVICECRITICALREADLATENCY$\\' --warning-write-rates=\\'$_SERVICEWARNINGWRITERATES$\\' --critical-write-rates=\\'$_SERVICECRITICALWRITERATES$\\' --warning-write-latency=\\'$_SERVICEWARNINGWRITELATENCY$\\' --critical-write-latency=\\'$_SERVICECRITICALWRITELATENCY$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Rlec-Restapi-Databases",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_rlec_restapi.pl --plugin=apps::redis::rlec::restapi::plugin --mode=cluster-stats --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTREDISRLECAPIPORT$\\' --proto=\\'$_HOSTREDISRLECAPIPROTO$\\' --username=\\'$_HOSTREDISRLECAPIUSERNAME$\\' --password=\\'$_HOSTREDISRLECAPIPASSWORD$\\' $_HOSTREDISRLECAPIEXTRAOPTIONS$ --interval=$_SERVICEINTERVAL$ --units=\\'$_SERVICEUNITS$\\' --warning-cpu-system=\\'$_SERVICEWARNINGCPUSYSTEM$\\' --critical-cpu-system=\\'$_SERVICECRITICALCPUSYSTEM$\\' --warning-cpu-user=\\'$_SERVICEWARNINGCPUUSER$\\' --critical-cpu-user=\\'$_SERVICECRITICALCPUUSER$\\' --warning-memory=\\'$_SERVICEWARNINGMEMORY$\\' --critical-memory=\\'$_SERVICECRITICALMEMORY$\\' --warning-persistent-storage=\\'$_SERVICEWARNINGPERSISTENTSTORAGE$\\' --critical-persistent-storage=\\'$_SERVICECRITICALPERSISTENTSTORAGE$\\' --warning-ephemeral-storage=\\'$_SERVICEWARNINGEPHEMERALSTORAGE$\\' --critical-ephemeral-storage=\\'$_SERVICECRITICALEPHEMERALSTORAGE$\\' --warning-flash-storage=\\'$_SERVICEWARNINGFLASHSTORAGE$\\' --critical-flash-storage=\\'$_SERVICECRITICALFLASHSTORAGE$\\' --warning-flash-iops=\\'$_SERVICEWARNINGFLASHIOPS$\\' --critical-flash-iops=\\'$_SERVICECRITICALFLASHIOPS$\\' --warning-flash-throughput=\\'$_SERVICEWARNINGFLASHTHROUGHPUT$\\' --critical-flash-throughput=\\'$_SERVICECRITICALFLASHTHROUGHPUT$\\' --warning-connections=\\'$_SERVICEWARNINGCONNECTIONS$\\' --critical-connections=\\'$_SERVICECRITICALCONNECTIONS$\\' --warning-requests=\\'$_SERVICEWARNINGREQUESTS$\\' --critical-requests=\\'$_SERVICECRITICALREQUESTS$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Rlec-Restapi-Cluster",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les clusters RedisLabs Enterprise}\r\n{EN: Template to check RedisLabs Enterprise clusters}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check RedisLabs Enterprise clusters",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "Redis-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTREDISRLECAPIPORT$",
+                    "value": "9443"
+                },
+                {
+                    "key": "$_HOSTREDISRLECAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTREDISRLECAPIEXTRAOPTIONS$",
+                    "value": "--http-backend=curl --insecure"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Rlec-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Redis-Rlec-Restapi-Shards",
+                "App-Redis-Rlec-Restapi-Nodes",
+                "App-Redis-Rlec-Restapi-Databases",
+                "App-Redis-Rlec-Restapi-Cluster"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "Redis-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor RedisLabs Enterprise clusters:\r\n* Cluster\r\n* Databases\r\n* Nodes\r\n* Shards"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pour superviser RedisLabs Enterprise cluster:\r\n* Cluster\r\n* Databases\r\n* Nodes\r\n* Shards"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAGWRJREFUeJztnXmYHFd5r99zauuZ6dlXSaPRNpJsZBvfCJIbCBevmLDaJMK2kG0ExHaAmITk5uYJ4bkQkjwJCQE7YbEdMMgbyIlZFOzgAM4GxlzMYluyZcmSRhqNZt+nu2s994+eGbU0PTPdXVWtJf0+j/5QT9c5p6u+OvWd7/t9p6BChQoVKlSoUKFChQoVKlSoUKFChQoVKlSoUKHCeYs40wM4E+zd0tmkSeNKVPDLCnmhIGgHKQTKVaiDCvkLhP/kBc8d/ZmA4EyPN07+2xjA/ld2rsLTrlXI6xDB60Hoyx0jYAClHlGor16w9+gPyjHOcnNeG8DLW9fXO05wg1DcAvxPwv3e/SC+6MKui58/PBDREM8456UBvHBx11YZyFuV4F1ATcTN+wr1pBDynhPNh79++b/hRdx+WTlvDODFzatXYmo3CaXepxDdZer2BIpdmvDv3fj8sZfL1GeknNMGsHfLFlOSukYIdROo6wp5rsdEAOIpJdg1Y9oPvOqZvtQZGkfRnJMGcGBL1yt85M0I3gO0Lvd9vWMFWkMj9ov7yjA6xoVit1TqCxv39fysHB2G4ZwxgKxDp64XiptBvbaYY4WmsfbRfyHIpJn4p68x+di3CKanlj3OXLue2qt/Hbe/j8k9Xy9h1OIZUPf7yrt/y97e0RIaiJ2z2gAUyJe2rH8NBDcpwQ6gutS2kpdfzaq77sm2a9tM//v3GH/kIVJP/xCUmv+e1b2Jmv91BcnLrqTqf7wKgoBDb7oM9/ixMD8lA+yRQt6z8blD3xOglj2iTJyVBrD/lZ2rVKDvQHErsD6qdrt2PZK9qDk4h19m4uu7kclaaq/+dcx1G075+/S/f5/jH3xvVEMA2I/gPleJL58Ny8mzxgAOr12byNRwHUK9RyCuAGTUfSQuuZQ1DzwKovCf3Xv7Lcz84D+iHgqAA2KPEMEXN13Q84R4BD+OTpbjjBvAvkvW/JJQ8j1Cqe1AY1z9yGQttVe9kbb/81FksragY5yjPRx+6xUQxB4NPqYU92Fw34U/P3Ik7s5yOSMGcKC7u86r8m8QiltBbY2rH6Hr1Pza66l7y3UkL7sSYSWKOt4b6Gfs/i8x+e1v4A0PxTTKU5hfTiaT7v2rn+pNx91hWQ0g5gjdPFb3Jureeh31125Da2oO32Dgk/rxj5jY8yhT33kMZWfCt7k840KxW8DnN+098vO4OondAJ69uKvRQNsmlPogcHGcfWlNzTTecBNVv/RqtOYW9KZmtMamop75y+FPjDP52LeY/OY/ktn7XGTtLo14RgnuEY758AX79y+/fi2m5Sgbm0OBPHDx+isCFdwKvB0w4+inEISmoc0agt7WjtbUjN7YjN7WRs3rr8Jcs3bJ4/3REbzhIbz+PryhIbzBfrzBAbyhAdI//yn+xHh5fkiWyJeTkRpAzvLtNmBdlG3HQdWlW+na9cipM4RSHP/d27Ff3Ic3PIhynMj6m/F9EkKiyUhO+34E9+lCu6/72ZcHS20k9EjOonh8SXR84pPUX7tt/v+pHz/Fsfduj6x9XykmPY9Rz8NTAT8dGmFtsobNyVqarEgmRkegnlBC7iolO1myAbx4ybrN+Gongp1AW6ntCE3D3LARq3szeseK7L/GJtB1tGQtynUI0mmCdBpvaADvRB/u8WNk9j2HPzZWarfzaA2NrNvzPbSG7Aq07/ffz9QTj4duNxMEjHoe4547H2jUBTw9eHI10WyZrK9JsiGZxJSRhD2Oo3gATd19wbM9hws5oCgD+MUl7TWmqtomlHhfsfH4XIwVK0leeQ3JK95A4qJLkFWlRXjd3qPMPPVfTH/3X0j9+CmUV1pqvuHGm2n/44/jDQ1y6A2vLbmdQCkmPI8Rz8POEzvQheDpwYWztSYEndXVbEomWVFVVVLfpw8F+FeBuruvpWfPUrNCQQbw4kXrXwXB+4AbgbpSR2VtuoDm236H2qveCNFY/DzuiT7GvnIv47sfRLlucQdLyZoHHmX6P59k5PN3FnWoIvtsn/A8Jn2PYAm3bDEDyKXeMNiQTLKxNokltaLGsghHhRIf3bT38AP59I2LGoACsf+iddsE6vdUVk4ViqZ3/xYtH/pDhB6vi5DZ9xx9H/5A0cmbxCWX4vX34w32F/R9TynGXY8xz8VRhTnjhRjAHLmzQkdVVRTe+tc2P39k++lGkLfdfReu3yi14MvAa8L3C/XvuJ6Oj/9lFE0VhHPoID03vp0gFa0uY+5uH/M8pjwfVeQqrBgDyKXOMOhOJulOJklopc8KU45686tf6nks97MF8/DhS9c2SC14koguPkDjjp1RNVUQ5vpukldeE1l7gYJBx+FAKk1PJsOk5xV98aF0j3vacxnMZBixS1+SeiqgJzPddPrnC+bjvnTmumYjsarknvKg3OjW0oX3WaQfsARSQIOhI4RgzPVwVXlKBao1jfXJJJtqa0mGeHS6SvFyKkVa+dOn/21Bqz0ZZzIhDWpCTDWnM/oPn2flpz4baUh2KTLPP8v095+ItE1TSFoNSYtuMBNkHwOTJa4WlkIKaE9UsSmZpKu6GhHynI17Lj3pzKJGu8AA/CDwD6RmWFNVRaNuhOp8jql/fZwTf/IHtH/kE8jqkkU9BTHzw/+k/48/HGkELxchIKlpJDUN1zCZ8DxGPRe3AEdwqa/U6DrramrYXFtLTQSOcsr36c1kmPSXNtK8PXmzU0ajYdBpWZEsRya/9Sjp//cjmnbeRv073ll0anY57Bf3MfLFzzP1nW8vfaYjxJCCFtOg2TRKcg6lEKyO1tNn0vPod+yCZ6clTW3MdRl3PZoNnQ4rQSLk2t090cfAX/xfhu76a2pedzm1l19N4tKtGCtWFt2Wsm0yLzxP6kc/YOp73ymX4jcvgpOzgmfOLg99F2eRoEBUXv0cCsWo6zJgO6SC4oRFy841CsWw6zLsuiQ1nXbTpEE3Qj3Og+lpph7fw9Tje7KDaGnF3LAJY8VKjJWrkLV1iEQCrSZJYGdQrkswNZnNyp3owzl+DOfA/pIjdqUgq6sLWlbqYnZWYHZWcF2m/AAhFDVSck1HB+2JaGa/QCmGXYd+28Ep0TEt6mEz7XtMpz0sqdFuGjSbJloEE5c3PFQuxc2SCMNAb1+B1b0Rc/1GjNVdWBs2YnVv4vgdt5L6ydOFt0XOrKAUgmxwJwpcpRhwbIYdBy/k464kb8MOfI5mfI5nbBpNg3bToiri0G6caHX1mN0bsWYvstGZvdDmuvWQx98Z/fK9RV3809EjuvAp32fQcRhx3ZLiEPkI5W76KIYdhxHHoU43aDdN6mIO9RbKonfzxguQyWTB7TiHDjL8938b40iXRqEYcz0GHJsZP3rhcCRXSwETnsuE52JJjVbDoMU0I7P8pTj9bjY3bMLa0I2xsjN0wkn5Hic+8vvl0gCegqsCRhyXQdfBiVGVHPntagc+vbbPcdumwdDpMK1Ig0q5JC68iMZ3v4/aq9+EMKKJWeQyes9nyTz/bOTtLkUqyE7zo66zZGaxJJRcYMkLbtH7VzdcK4QopRBuUao1jTbDpMkwiUYNdSpaUzP1126j4fp3Ze/8CLBf2EvP9mvLstJQwKTnMuA4sUQXZ+mzq7QL3rt/+BRR6YLL8eCahsuVEt+PYwS6lLQaBq2GGZUC5lSkpPqXf5WGbdupveqavA5dISjHoeeGt2Ef2B/xAE/FV4oh12EwxDKuQI5rQr31xp7xBdXKC87QNd2Z42Yq8UYQkSaEILtunZ71ZKd9H4kgIbXoUgRK4fYeY+qJx5j89jdRdgZz7QZkkSqb4U//VeS5hFwyfsAJx+ZQJsWE5+HHWyv6iPS8t27vnTyU7495T/3uzromR2pfIivpjpWs02jSahqRrZNzEaZJ8rKraNyxc0FhaD7SP3+Go7dcD0VG1JajTNP8PALxk0AG//umI+P/tvT3luD+rqZ3CvgzUBsjHV3egQgaDJ120yIZl9P4ioup33YjdW+5FplYOCsE6RQ9296M03Mksj59FGOOy4Bjk46/xpA6XafNNHsaNeNOD+8ry+1LsOwt9yTovWua3q3Dn/hKrYluqIsTt9Mok7XUvfEtNO7YibnhpG0P/OlHGH/koUj6sIOAIddhyHHwY05OCQRNhkGHaVJ16s2TAR4OfPHxV7xwuCf/sUvw3EXr2k3U7QpuBzqmfY8Bx2HMc8uyxYEuBM2GSZtpYsXsNMrqGnrfvzN0JnHa9xlw7FPk4HGhIWg2TTosE1MseX4yQonf2bz38D+c/oe8BnCgu9sKEt4fKfgjYEHmwg4CBh2HYceJ24GZH2S9rtNqWtTpejz1bEKUfPEDBSOuw4BjkynDNG9KQZtp0WqYxfhNylfBRVv2Hj0lbbogEPSTrVuNwB7Zo+DqxVqypGR1IsHKhFWW55sCxj2Pcc/DkpJWw6TFNNCXtvoiOyn+4nsqYHj29xciCAlLtabRZpo0GwaiyNtAgTiSSb0OWNoA1PTgm5ShLXrxc9EQtJgmzabJpOcyOOvhxnkq7CCg187QZ2doNE3aTZPqaPTzRY1hwLYZ9mKI1p2GQNA46xyHiagey2QYdbwFW9IsMIBjmXRyk15TVBw/O0Ub1OvGvPMz7Lh4MQY3AmBkNhFVrWm0mybNuhGr7jAV+AzaDsOeE7sPZAhJs2nQFjJo5irF4XRq0aXnAgOYCbyZl1IzdFfVYJbggltS0mklWGlZTMxmsaZjyGLlkvJ9DqfT9IoMrWbWaYzy8TDt+5ywbSa86JTGi1Ets9N82BVQgGLQcTiRsZf00/Img1K+z76ZKToTVTSXqP6RCBoNg0bDyOax3ZgSHDm4StFn2/Q7Nk2GSYdplSxjU8C463LCtouWWRWLgMjS6dkUfdYvKSSLuGhvnlIcSacYkJKVViKUDKxa01irVdFpWgy78ac4AwXDs6uU2cAI9bpRkNvkK8WI6zDoOLF79JoQ8zPWMsu4ZXGVYsC2GXKLizssa27pIODldApjfrBWyXl+XUo6LIt2y2LK8xhyndjXy5Oz+n1DCBoMgzpdp1pKNCHRhcBTCjsImPY9Jj2/5KqfYkho2ZVMq2GFDnTZgc+g4zLk2CW92aLg+WZ+erWz02v7wqhTwWSnPJ06XZ/9AQ7DrhtrxMxViiEnG5k7E0Q5zUN0fknRIwmAYddh2M1Or+2mRX2IH2RJjdWJKlYlEmVzGsuJhohMNxnMyr8HHYdUROcolCnOTa8JKWmzLJoNo2SV8JlwGuNkLmDVahYVrcvL3Ow16NihVcCnE4kkLBMEHE2nOZ7OZK3dKP3xADlOo5WYd8jy7bhxNpLUNNpNK3TtBHDyRnCc2N5cFakmcE4lPJwTnGkqIWw5PzghaDct2kyLSc9jcLbk6WybFKRgNmkVfppXCib9eHQDMk/4KjYN93xwJpOhOeRSZy4ZVK/rOEG2GmbQdfDO8KygC0nbfOAp3O3uKcVoyCqfZXClL396+ocLDEAIEanZuUrRb9sMODZ1Wngv2JSClZZFh2Ux5jgMuNE5RIViSUm7adESgV4hEwTZ1Ylrx+nvBEKI376xb3TBvjkLRaFd9Y0KeRBYsJtEVCSkpM20aDZLdxpzSfk+A47DaIQVM/molhptlklLyJyDUjDuuwzaDlPLlG9HQF8ggptu7pnIK/TN+yseWN38akTwDaD4st0i0BA0GwatVjSlZSe9ZSfSRFRS01hhWdSH3C/BU4oR12XQscvh1GaAT5tp/S/eOTS0YGeQORY14we76huVEn+DELeQRz0cNVE4jXMECka8rCGkS3w8CKDRMOiwrNDp5vlonesQxKwb0ISg1TBps8xeU4gv+Ep8ccveI4tufbbsmd69tvVSjeDuTBC8WpVhd3FDiNBOYy6Tnseg6zDhugU9HHQhaDJM2gyThBau/0kvK6ErRxbRlJJ206RlYcV2BsFdflDziS179y6YCRa9oC9u3lyrdPsPhOB2oC3OYEQ+og6dukox7rpM+h7pwMcNFL5SGEJgSklS06nVdep0DRnCzgOVjdb1l0keVqVptBsmTaa53Dt2fuyrmtdt2bv3lFh43l/6wkVrLxPwALCgOCQARl2HgRDTa7EkNEmLHk1ULS7KqQKG0vySMce54Vdf6vta7mcLbq19F65ZIeCfWeSNHhJoMUxaDHN2ios/OJPxA3r9DH2OTbORVcmEiTRGyUxOUibuyy4QNJlGSTK4TBBw1M0sHwga8py3tWtWQa9zmcvoZfyAQTcrz4pTJRzkZPRqdZ1Ww6TR0EM7jaUw4bn0Ow5TZajyMYTILj8NE6MEvyjl+xxMpXCCYEEqdKEmMJ0eNKSkqYhy64Qm6dISrJpTCbvxPx6mPI8pz8PIzOoUDBM95l1K5jZjOmGX5/k+XyCz/PM9L4GCfifDCdtZND6yUBUsUIfTaWzls8Kwigp4zKmEW0yzbMGZOZ3CCduJrbRsfjMmJ14lE5wskWs1Qji/SjHiuRy3l5eF5e1BoTiesRl1PVZZCRpKGEi1prGuqorORIKR2eBMnCXQ2a1UXMZcl6Su02Ga1GvhMnLe7GZMQxFsxrQcupS0GOFUwMFsuflAEfmEJa9s2vc5mJqhRtPoMC0adb3oEKghxLwMrFzVsdOex0HPw5TZZE2RFTRk5iqf4o3PA9GogN0cQy12BVLQrT3j+6fpAouXXefWDqSDgCHbZsR1Y3UanSCgN5MtImnSTep1nTpDz5t/SAcBU57LqOvGrkgSAho0nTbTojZEjONkhLF0Qy2q96hk11VS0lVVxaqqBKOzGyHF6TQG6qSMjXQ2m2cIgRQCL1DYKijL2j0nTBsqyjnteZxwHCYjWHqWZH65suswu4dqZGeU1lmnMW71yxx2EGDH3EcultRoM41QKuAAFYtmMnSMNXf30DA7feTKwIbL4DTGjQBq9ezNESaL6CrFoGMz5LqxCGAiUwRlt4dLc9zOhFqO6TlO41QZkylREZUKOI5dQfMRuSQsdzkWZqeP02sHhly3bHH2UohCBazI7jQelzReSTV5+mex7uua8n2O+Gl67UyonT4sqdFpaaw0E4zOqoTjrtcrlHkVsFFY6Vk+yrIrqOIX4+bED07/eKEmUJP9US9+5wIqg+5JXWBtCTt9SMF8pHHa9xh0HMbc+Eu5TmduSdthmSS10u+hckVLETztB/I37ji40PddcA0UiAe7GnaD+M34RkTOTh/hFLWuUtlIo2sv+oKGqJjbjGmFFa7quIzbxaUV4pOp1tE/v+0Z8jpSec/83VsxksONH1OKPyTmx4QU0KQbtJkW1SFi+HPPz/4YdtWe34zJLD1MW8ZdQQFcAQ/7Oh+9+dDY0aW+uPQ+gesaXil88efAmyMd3iJEtT3c1GwRybjvhao8NoSg3bKyjl2JT/iMPysUKUNYGZgSQt0rXfmZfBLwfBT0q3Z1Nv+KlMGHgXcQ84wA0W0P56iAQdspumZ+rtaxRS/NEBWUewnbJ+AuQ+cL7zw0NlHMgUX9vPvWtnbogX+7QH0AaClqiCUwF0xpNcK9pyhQMOY5jLvZYtZ8+YcqKanVDZoMo+R0crl3BQVxQBF81pMNd+88cqSklxqUdEp3d3ZWOTK1A9QdwEWltFEs1mxmr9kIX4ZlBwGeyopCdSkwZzeLCNPegBO/IiqHJ5XgUzt6xh4TIberCq2leqir8dcCuIPs4yF2oV4kgomIKOeuYQpsAbtlwN9s7x2L7C0WkYnpvrq6foOH+G2E2EmMZWW51GhzufTwxSTFMOF59Nt2Ocq6AHqBz0nPu3d739Rw1I1Hftbu6sZqdpreplC/S4RvIF+K7Lv6TNoMq6St7Qrh5DLTYaYsF148owjuSrWOP7zYGj6SXuJqGODBrvqtAfJWATuAeF8azMnHQ5TvKYri5YxF4ADfVEJ85qae0R/G3RmUodQL4L61DQ16wC0C8SFgXTn6nNMplCJjg2zgZsDJbgAdfwJKDCrUfcIXf7/j+GhvzJ2d2nM5O/sYyO6uxjch+ACKN0BJaueiMHOydIV4+jO+z7CbTcPGXcgJ4hlBcOeIOb47X5y+HJyxOquvrq7f4Ar5WwLeSzliCiI7K9RqGlWahjUryfJR2IFixvOY9L1ylG0HwGMCeee7jo58N+7OluOMF9rt7uysssX0DVLI9yvU8i/1OXcZAe7VPPG5QsO05eCMG0Au5XYay4EQ6qVA8bmUV33vbX19y79+vMycVQYwx+71jfW2p94tEHcA68/0eEogAPV9ibjrxqNj/xw2WhcnZ6UBzPExkBu7mq9QBLdSpkhjSKYUPKxJ+entR0ZePNODKYSz2gByebCrfr1C3ga8hzI4jUVyUAnudBLaV05/NevZzjljAHOcjDQGt4K46kyORcHPQH2m8+j4Q5dDWeLCUXPOGUAuu1bXv0oKeQdwPWCWqVul4HGk+uvl3sp5LnBOG8AcuzYk2zTX2Kngg0A0rw9fiAt8I1DBJ28+NvGTmPooO+eFAcyxewumO9X09ogTUdMgvhTo6lPL6evORc4rA8jl/jVNrxFKfYjSZWwjoO4SqL9719GJsYiHd9Zw3hrAHA+saupEU+8HdgIdyx4geFoo8SUjrT201A6b5wvnvQHM8TGQG1Y3vhYhrhSKixHBapBSwESggsNI+SNdBN+98cj4kTM91goVKlSoUKFChQoVKlSoUKFChQoVKlSoUKFChQoVIuH/A5cXH2OJlhhFAAAAAElFTkSuQmCC",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Redis Labs Enterprise Cluster Rest API",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_redis_rlec_restapi.pl",
+                "package_name": "centreon-plugin-Applications-Redis-Rlec-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-redis-rlec-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Redis",
+            "Restapi",
+            "RLEC",
+            "Application"
+        ],
+        "update_date": "1638808844",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques des shards.}\r\n{EN: Check shards statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Shards",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Rlec-Restapi-Shards",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "5min"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /inactive/i || %{backup} =~ /failed/i || %{sync} =~ /link_down/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Rlec-Restapi-Shards",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques des noeuds.}\r\n{EN: Check nodes statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Nodes",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Rlec-Restapi-Nodes",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "5min"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNITS$",
+                    "password": false,
+                    "value": "%"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /down/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Rlec-Restapi-Nodes",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques des bases de donn\u00e9es.}\r\n{EN: Check databases statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Databases",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Rlec-Restapi-Databases",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "5min"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNITS$",
+                    "password": false,
+                    "value": "%"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /creation-failed/i || %{backup_status} =~ /failed/i || %{export_status} =~ /failed/i || %{import_status} =~ /failed/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Rlec-Restapi-Databases",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques du cluster.}\r\n{EN: Check cluster statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Cluster",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Rlec-Restapi-Cluster",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "5min"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Rlec-Restapi-Cluster",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,241 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_apc.pl --plugin=hardware::ups::apc::snmp::plugin --mode=sensors --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Apc-SNMP-Sensors",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_apc.pl --plugin=hardware::ups::apc::snmp::plugin --mode=output-lines --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-load=\\'$_SERVICEWARNINGLOAD$\\' --critical-load=\\'$_SERVICECRITICALLOAD$\\' --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\' --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\' --warning-frequence=\\'$_SERVICEWARNINGFREQUENCE$\\' --critical-frequence=\\'$_SERVICECRITICALFREQUENCE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Apc-SNMP-Output-Lines",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_apc.pl --plugin=hardware::ups::apc::snmp::plugin --mode=input-lines --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\' --warning-frequence=\\'$_SERVICEWARNINGFREQUENCE$\\' --critical-frequence=\\'$_SERVICECRITICALFREQUENCE$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Apc-SNMP-Input-Lines",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_apc.pl --plugin=hardware::ups::apc::snmp::plugin --mode=battery-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-load=\\'$_SERVICEWARNINGLOAD$\\' --critical-load=\\'$_SERVICECRITICALLOAD$\\' --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\' --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\' --warning-temperature=\\'$_SERVICEWARNINGTEMPERATURE$\\' --critical-temperature=\\'$_SERVICECRITICALTEMPERATURE$\\' --warning-time=\\'$_SERVICEWARNINGTIME$\\' --critical-time=\\'$_SERVICECRITICALTIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Apc-SNMP-Battery-Status",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check UPS Apc using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "apc-128-2.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-UPS-Apc-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-UPS-Apc-Sensors-SNMP",
+                "HW-UPS-Apc-Output-Lines-SNMP",
+                "HW-UPS-Apc-Input-Lines-SNMP",
+                "HW-UPS-Apc-Battery-Status-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "apc-128-2.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* add input lines",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor APC UPS :\r\n* Battery-Status\r\n* Input-Lines\r\n* Output-Lines\r\n* Sensors"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les UPS APC :\r\n* Battery-Status\r\n* Input-Lines\r\n* Output-Lines\r\n* Sensors"
+            }
+        ],
+        "discovery_category": "ups-pdu",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites \r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Ups-Apc-Snmp\r\n\r\n### SNMP\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the monitoring server\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp)\r\n\r\n## Centreon Configuration\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-UPS-Apc-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "APC UPS",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_ups_apc.pl",
+                "package_name": "centreon-plugin-Hardware-Ups-Apc-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "centreon-plugin-Hardware-Ups-Apc-Snmp",
+                "version": "20170329-1"
+            }
+        ],
+        "slug": "hardware-ups-apc-snmp",
+        "status": "stable",
+        "status_message": "add input lines",
+        "tags": [
+            "APC",
+            "UPS",
+            "Hardware",
+            "SNMP",
+            "PDU",
+            "Power Supply"
+        ],
+        "update_date": "1552992043",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les sondes.}\r\n\r\n{EN: Check sensors.}",
+            "active_checks_enabled": 2,
+            "alias": "Sensors",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Apc-SNMP-Sensors",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-UPS-Apc-Sensors-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les m\u00e9triques de la source d'alimentation.}\r\n\r\n{EN: Check output lines metrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Output-Lines",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Apc-SNMP-Output-Lines",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /onLine|rebooting/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /unknown/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGLOAD$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALLOAD$",
+                    "password": false,
+                    "value": "95"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-UPS-Apc-Output-Lines-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les m\u00e9triques de la source d'alimentation.}\r\n\r\n{EN: Check input lines metrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Input-Lines",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Apc-SNMP-Input-Lines",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "HW-UPS-Apc-Input-Lines-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de la batterie.}\r\n\r\n{EN: Check battery status.}",
+            "active_checks_enabled": 2,
+            "alias": "Battery-Status",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Apc-SNMP-Battery-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /batteryLow/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{replace} =~ /yes/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /unknown/i"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-UPS-Apc-Battery-Status-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

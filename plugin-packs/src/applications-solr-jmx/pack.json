@@ -1,0 +1,152 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_solr_jmx.pl --plugin=apps::java::solr::jmx::plugin --mode=request-handler-usage --custommode=jolokia --url=\\'$_HOSTJOLOKIAURL$\\' --username=\\'$_HOSTJOLOKIAUSERNAME$\\' --password=\\'$_HOSTJOLOKIAPASSWORD$\\' $_HOSTJOLOKIAEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-requests-count=\\'$_SERVICEWARNINGREQUESTSCOUNT$\\' --critical-requests-count=\\'$_SERVICECRITICALREQUESTSCOUNT$\\' --warning-avg-requests=\\'$_SERVICEWARNINGAVGREQUESTS$\\' --critical-avg-requests=\\'$_SERVICECRITICALAVGREQUESTS$\\' --warning-avg-time=\\'$_SERVICEWARNINGAVGTIME$\\' --critical-avg-time=\\'$_SERVICECRITICALAVGTIME$\\' --warning-15min-rate-requests=\\'$_SERVICEWARNING15MINRATEREQUESTS$\\' --critical-15min-rate-requests=\\'$_SERVICECRITICAL15MINRATEREQUESTS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Solr-JMX-Request-Handler-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_solr_jmx.pl --plugin=apps::java::solr::jmx::plugin --mode=cache-usage --custommode=jolokia --url=\\'$_HOSTJOLOKIAURL$\\' --username=\\'$_HOSTJOLOKIAUSERNAME$\\' --password=\\'$_HOSTJOLOKIAPASSWORD$\\' $_HOSTJOLOKIAEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-evictions-count=\\'$_SERVICEWARNINGEVICTIONSCOUNT$\\' --critical-evictions-count=\\'$_SERVICECRITICALEVICTIONSCOUNT$\\' --warning-lookups-count=\\'$_SERVICEWARNINGLOOKUPSCOUNT$\\' --critical-lookups-count=\\'$_SERVICECRITICALLOOKUPSCOUNT$\\' --warning-inserts-count=\\'$_SERVICEWARNINGINSERTSCOUNT$\\' --critical-inserts-count=\\'$_SERVICECRITICALINSERTSCOUNT$\\' --warning-hits-count=\\'$_SERVICEWARNINGHITSCOUNT$\\' --critical-hits-count=\\'$_SERVICECRITICALHITSCOUNT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Solr-JMX-Cache-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Solr using JMX",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "app-solr-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Solr-JMX",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Solr-Request-Handler-Usage-JMX",
+                "App-Solr-Cache-Usage-JMX"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "app-solr-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor a Solr:\r\n* Cache Usage\r\n* Request Handler Usage"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser Solr :\r\n* Cache Usage\r\n* Request Handler Usage"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Solr-Jmx\r\n\r\nPlease install jolokia agent on your java application server\r\n[Jolikia download page](https://jolokia.org/download.html). Ask to\r\nyour admin to deploy it and give you the URL.\r\n\r\n# Centreon Configuration\r\n## Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Solr-JMX-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Solr",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_solr_jmx.pl",
+                "package_name": "centreon-plugin-Applications-Solr-Jmx",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-solr-jmx",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Solr",
+            "JMX",
+            "Java",
+            "Application"
+        ],
+        "update_date": "1505404360",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des 'request handler'.}\r\n\r\n{EN: Check request handler usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Request-Handler-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-Solr-JMX-Request-Handler-Usage",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": "(/select|/update)$"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Solr-Request-Handler-Usage-JMX",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des caches.}\r\n\r\n{EN: Check cache usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Cache-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-Solr-JMX-Cache-Usage",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Solr-Cache-Usage-JMX",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

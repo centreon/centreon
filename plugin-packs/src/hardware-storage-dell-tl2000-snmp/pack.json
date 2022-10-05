@@ -1,0 +1,127 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dell_tl2000_snmp.pl --plugin=storage::dell::TL2000::plugin --mode=global-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Dell-TL2000-SNMP-GlobalStatus",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Dell TL2000 Tape Library using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "Hardware-Dell-64.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Dell-TL2000-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Storage-Dell-TL2000-GlobalStatus-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "Hardware-Dell-64.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ remove hardcoded snmp community and version",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Dell TL2000 storage via SNMP"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un stockage Dell TL2000"
+            }
+        ],
+        "discovery_category": "storage",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Dell-TL2000-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp)\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Storage-Dell-TL2000-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Dell TL2000",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_dell_tl2000_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Dell-TL2000-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Hardware-Dell-TL2000-Snmp",
+                "version": "20160220-1"
+            }
+        ],
+        "slug": "hardware-storage-dell-tl2000-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Dell",
+            "Hardware",
+            "SAN",
+            "SNMP",
+            "Storage",
+            "TL2000"
+        ],
+        "update_date": "1499675510",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat globale de l'\u00e9quipement.}\r\n\r\n{EN: Check global status of the equipment.}",
+            "active_checks_enabled": 2,
+            "alias": "GlobalStatus",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Dell-TL2000-SNMP-GlobalStatus",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Storage-Dell-TL2000-GlobalStatus-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

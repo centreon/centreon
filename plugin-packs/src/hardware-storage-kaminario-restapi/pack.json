@@ -1,0 +1,172 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kaminario_restapi.pl --plugin=storage::kaminario::restapi::plugin --mode=volume-usage --hostname=\\'$HOSTADDRESS$\\' --username=\\'$_HOSTAPIUSERNAME$\\' --password=\\'$_HOSTAPIPASSWORD$\\' --timeout=\\'$_HOSTAPITIMEOUT$\\' --resolution=\\'$_HOSTAPIRESOLUTION$\\' $_HOSTAPIEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-latency-inner=\\'$_SERVICEWARNINGLATENCYINNER$\\' --critical-latency-inner=\\'$_SERVICECRITICALLATENCYINNER$\\' --warning-latency-outer=\\'$_SERVICEWARNINGLATENCYOUTER$\\' --critical-latency-outer=\\'$_SERVICECRITICALLATENCYOUTER$\\' --warning-iops=\\'$_SERVICEWARNINGIOPS$\\' --critical-iops=\\'$_SERVICECRITICALIOPS$\\' --warning-throughput=\\'$_SERVICEWARNINGTHROUGHPUT$\\' --critical-throughput=\\'$_SERVICECRITICALTHROUGHPUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Kaminario-Restapi-Volume-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kaminario_restapi.pl --plugin=storage::kaminario::restapi::plugin --mode=system-usage --hostname=\\'$HOSTADDRESS$\\' --username=\\'$_HOSTAPIUSERNAME$\\' --password=\\'$_HOSTAPIPASSWORD$\\' --timeout=\\'$_HOSTAPITIMEOUT$\\' --resolution=\\'$_HOSTAPIRESOLUTION$\\' $_HOSTAPIEXTRAOPTIONS$ --warning-latency-inner=\\'$_SERVICEWARNINGLATENCYINNER$\\' --critical-latency-inner=\\'$_SERVICECRITICALLATENCYINNER$\\' --warning-latency-outer=\\'$_SERVICEWARNINGLATENCYOUTER$\\' --critical-latency-outer=\\'$_SERVICECRITICALLATENCYOUTER$\\' --warning-iops=\\'$_SERVICEWARNINGIOPS$\\' --critical-iops=\\'$_SERVICECRITICALIOPS$\\' --warning-throughput=\\'$_SERVICEWARNINGTHROUGHPUT$\\' --critical-throughput=\\'$_SERVICECRITICALTHROUGHPUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Kaminario-Restapi-System-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Kaminario using Restapi",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "kaminario-128-2.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAPIUSERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAPIPASSWORD$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAPITIMEOUT$",
+                    "value": "10"
+                },
+                {
+                    "key": "$_HOSTAPIRESOLUTION$",
+                    "value": "5m"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Kaminario-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Storage-Kaminario-Volume-Usage-Global-Restapi",
+                "HW-Storage-Kaminario-System-Usage-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "kaminario-128-2.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Pure Storage via RestAPI:\r\n* System-Usage\r\n* Volume-Usage"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser le stockage Kaminario via RestAPI :\r\n* System-Usage\r\n* Volume-Usage"
+            }
+        ],
+        "discovery_category": "storage",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Storage-Kaminario-Restapi\r\n\r\n## Centreon Configuration\r\n### Create a new Kaminario host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Storage-Kaminario-Restapi-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Kaminario RestAPI",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_kaminario_restapi.pl",
+                "package_name": "centreon-plugin-Hardware-Storage-Kaminario-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-storage-kaminario-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Hardware",
+            "Storage",
+            "Kaminario",
+            "Restapi"
+        ],
+        "update_date": "1552059860",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des volumes.}\r\n\r\n{EN: Check volumes usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Volume-Usage-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Kaminario-Restapi-Volume-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Kaminario-Volume-Usage-Global-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du stockage.}\r\n\r\n{EN: Check storage usage.}",
+            "active_checks_enabled": 2,
+            "alias": "System-Usage",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Kaminario-Restapi-System-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Kaminario-System-Usage-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

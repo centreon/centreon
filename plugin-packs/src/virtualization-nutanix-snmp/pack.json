@@ -1,0 +1,1636 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v3.0": [
+                {
+                    "attributes": {
+                        "nutanix_hostname": {
+                            "type": "string"
+                        },
+                        "snmp_community": {
+                            "type": "string"
+                        },
+                        "snmp_port": {
+                            "type": "integer"
+                        },
+                        "snmp_version": {
+                            "type": "string"
+                        },
+                        "vm_name": {
+                            "type": "string"
+                        },
+                        "vm_power_state": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Virt-Nutanix-SNMP-HostDiscovery",
+                    "credentials": {},
+                    "default_template": "generic-active-host",
+                    "description": "Discover Nutanix virtal machines by requesting its SNMP agent",
+                    "discovery_examples": [
+                        {
+                            "nutanix_hostname": "10.0.0.1",
+                            "snmp_community": "nutanix",
+                            "snmp_port": "161",
+                            "snmp_version": "2c",
+                            "vm_name": "abc-123",
+                            "vm_power_state": "off"
+                        },
+                        {
+                            "nutanix_hostname": "10.0.0.2",
+                            "snmp_community": "nutanix",
+                            "snmp_port": "161",
+                            "snmp_version": "2c",
+                            "vm_name": "abc-123",
+                            "vm_power_state": "on"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.vm_name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.vm_name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.nutanix_hostname"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.SNMPCOMMUNITY",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.snmp_community"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.SNMPVERSION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.snmp_version"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.SNMPPORT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.snmp_port"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.FILTERNAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.vm_name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Virt-Nutanix-VM-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Nutanix VM",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Nutanix IP address",
+                                "group": "Nutanix host to discover",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "NUTANIXHOSTNAME",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Nutanix resources to discover",
+                                "group": "Nutanix host to discover",
+                                "hidden": true,
+                                "locked": true,
+                                "mandatory": false,
+                                "name": "DISCOVERYTYPE",
+                                "type": "text",
+                                "value": "vm"
+                            },
+                            {
+                                "description": "SNMP Community",
+                                "group": "SNMP agent configuration",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "SNMPCOMMUNITY",
+                                "type": "text",
+                                "value": "public"
+                            },
+                            {
+                                "description": "SNMP Version",
+                                "group": "SNMP agent configuration",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "SNMPVERSION",
+                                "type": "text",
+                                "value": "2c"
+                            },
+                            {
+                                "description": "SNMP Port",
+                                "group": "SNMP agent configuration",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "SNMPPORT",
+                                "type": "text",
+                                "value": 161
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 1
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": false,
+                    "slug": "virt-nutanix-vm-snmp",
+                    "type": "snmp",
+                    "uuid_attributes": [
+                        "vm_name"
+                    ]
+                },
+                {
+                    "attributes": {
+                        "container_name": {
+                            "type": "string"
+                        },
+                        "nutanix_hostname": {
+                            "type": "string"
+                        },
+                        "snmp_community": {
+                            "type": "string"
+                        },
+                        "snmp_port": {
+                            "type": "integer"
+                        },
+                        "snmp_version": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Virt-Nutanix-SNMP-HostDiscovery",
+                    "credentials": {},
+                    "default_template": "generic-active-host",
+                    "description": "Discover Nutanix containers by requesting its SNMP agent",
+                    "discovery_examples": [
+                        {
+                            "container_name": "abc-123",
+                            "nutanix_hostname": "10.0.0.1",
+                            "snmp_community": "nutanix",
+                            "snmp_port": "161",
+                            "snmp_version": "2c"
+                        },
+                        {
+                            "container_name": "abc-123",
+                            "nutanix_hostname": "10.0.0.2",
+                            "snmp_community": "nutanix",
+                            "snmp_port": "161",
+                            "snmp_version": "2c"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.container_name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.container_name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.nutanix_hostname"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.SNMPCOMMUNITY",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.snmp_community"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.SNMPVERSION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.snmp_version"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.SNMPPORT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.snmp_port"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.FILTERNAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.container_name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Virt-Nutanix-Container-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Nutanix Container",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Nutanix IP address",
+                                "group": "Nutanix host to discover",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "NUTANIXHOSTNAME",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Nutanix resources to discover",
+                                "group": "Nutanix host to discover",
+                                "hidden": true,
+                                "locked": true,
+                                "mandatory": false,
+                                "name": "DISCOVERYTYPE",
+                                "type": "text",
+                                "value": "container"
+                            },
+                            {
+                                "description": "SNMP Community",
+                                "group": "SNMP agent configuration",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "SNMPCOMMUNITY",
+                                "type": "text",
+                                "value": "public"
+                            },
+                            {
+                                "description": "SNMP Version",
+                                "group": "SNMP agent configuration",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "SNMPVERSION",
+                                "type": "text",
+                                "value": "2c"
+                            },
+                            {
+                                "description": "SNMP Port",
+                                "group": "SNMP agent configuration",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "SNMPPORT",
+                                "type": "text",
+                                "value": 161
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 1
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": false,
+                    "slug": "virt-nutanix-container-snmp",
+                    "type": "snmp",
+                    "uuid_attributes": [
+                        "container_name"
+                    ]
+                },
+                {
+                    "attributes": {
+                        "hypervisor_name": {
+                            "type": "string"
+                        },
+                        "nutanix_hostname": {
+                            "type": "string"
+                        },
+                        "snmp_community": {
+                            "type": "string"
+                        },
+                        "snmp_port": {
+                            "type": "integer"
+                        },
+                        "snmp_version": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Virt-Nutanix-SNMP-HostDiscovery",
+                    "credentials": {},
+                    "default_template": "generic-active-host",
+                    "description": "Discover Nutanix hypervisors by requesting its SNMP agent",
+                    "discovery_examples": [
+                        {
+                            "hypervisor_name": "abc-123",
+                            "nutanix_hostname": "10.0.0.1",
+                            "snmp_community": "nutanix",
+                            "snmp_port": "161",
+                            "snmp_version": "2c"
+                        },
+                        {
+                            "hypervisor_name": "abc-123",
+                            "nutanix_hostname": "10.0.0.2",
+                            "snmp_community": "nutanix",
+                            "snmp_port": "161",
+                            "snmp_version": "2c"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.hypervisor_name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.hypervisor_name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.nutanix_hostname"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.SNMPCOMMUNITY",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.snmp_community"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.SNMPVERSION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.snmp_version"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.SNMPPORT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.snmp_port"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.FILTERNAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.hypervisor_name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Virt-Nutanix-Hypervisor-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Nutanix Hypervisor",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Nutanix IP address",
+                                "group": "Nutanix host to discover",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "NUTANIXHOSTNAME",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Nutanix resources to discover",
+                                "group": "Nutanix host to discover",
+                                "hidden": true,
+                                "locked": true,
+                                "mandatory": false,
+                                "name": "DISCOVERYTYPE",
+                                "type": "text",
+                                "value": "hypervisor"
+                            },
+                            {
+                                "description": "SNMP Community",
+                                "group": "SNMP agent configuration",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "SNMPCOMMUNITY",
+                                "type": "text",
+                                "value": "public"
+                            },
+                            {
+                                "description": "SNMP Version",
+                                "group": "SNMP agent configuration",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "SNMPVERSION",
+                                "type": "text",
+                                "value": "2c"
+                            },
+                            {
+                                "description": "SNMP Port",
+                                "group": "SNMP agent configuration",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "SNMPPORT",
+                                "type": "text",
+                                "value": 161
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 1
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": false,
+                    "slug": "virt-nutanix-hypervisor-snmp",
+                    "type": "snmp",
+                    "uuid_attributes": [
+                        "hypervisor_name"
+                    ]
+                }
+            ]
+        },
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Virt-Nutanix-SNMP-Disks-Discover",
+                "command_for_macro": "Virt-Nutanix-SNMP-Disks-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$name$",
+                        "order": 0,
+                        "pattern": "(/dev.*|/run.*|/sys.*|/boot)",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Virt-Nutanix-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Virt-Nutanix-SNMP-Disk-Name",
+                "service_display_name": "Disk-$name$",
+                "service_template": "Virt-Nutanix-Disk-Usage-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Virt-Nutanix-SNMP-Storage-Pools-Discover",
+                "command_for_macro": "Virt-Nutanix-SNMP-Storage-Pools-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Virt-Nutanix-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Virt-Nutanix-SNMP-Storage-Pools",
+                "service_display_name": "Pool-$name$",
+                "service_template": "Virt-Nutanix-Storage-Pool-Usage-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nutanix_snmp.pl --plugin --mode=list-disks --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Virt-Nutanix-SNMP-Disks-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nutanix_snmp.pl --plugin --mode=list-disks --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Virt-Nutanix-SNMP-Disks-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nutanix_snmp.pl --plugin --mode=list-storage-pools --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Virt-Nutanix-SNMP-Storage-Pools-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nutanix_snmp.pl --plugin --mode=list-storage-pools --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Virt-Nutanix-SNMP-Storage-Pools-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nutanix_snmp.pl --plugin=cloud::nutanix::snmp::plugin --mode=vm-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --filter-name=\\'$_HOSTFILTERNAME$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-vm-power-state=\\'$_SERVICEWARNINGVMPOWERSTATE$\\' --critical-vm-power-state=\\'$_SERVICECRITICALVMPOWERSTATE$\\' --filter-counters=\\'vm-power-state\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-Nutanix-VM-SNMP-Power-State",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nutanix_snmp.pl --plugin=cloud::nutanix::snmp::plugin --mode=vm-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-avg-latency=\\'$_SERVICEWARNINGAVGLATENCY$\\' --critical-avg-latency=\\'$_SERVICECRITICALAVGLATENCY$\\' --warning-read-iops=\\'$_SERVICEWARNINGREADIOPS$\\' --critical-read-iops=\\'$_SERVICECRITICALREADIOPS$\\' --warning-write-iops=\\'$_SERVICEWARNINGWRITEIOPS$\\' --critical-write-iops=\\'$_SERVICECRITICALWRITEIOPS$\\' --warning-cpu=\\'$_SERVICEWARNINGCPU$\\' --critical-cpu=\\'$_SERVICECRITICALCPU$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-Nutanix-SNMP-Vm-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nutanix_snmp.pl --plugin=cloud::nutanix::snmp::plugin --mode=storage-pool-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-avg-latency=\\'$_SERVICEWARNINGAVGLATENCY$\\' --critical-avg-latency=\\'$_SERVICECRITICALAVGLATENCY$\\' --warning-iops=\\'$_SERVICEWARNINGIOPS$\\' --critical-iops=\\'$_SERVICECRITICALIOPS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-Nutanix-SNMP-Storage-Pool-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nutanix_snmp.pl --plugin=cloud::nutanix::snmp::plugin --mode=hypervisor-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-memory=\\'$_SERVICEWARNINGMEMORY$\\' --critical-memory=\\'$_SERVICECRITICALMEMORY$\\' --warning-avg-latency=\\'$_SERVICEWARNINGAVGLATENCY$\\' --critical-avg-latency=\\'$_SERVICECRITICALAVGLATENCY$\\' --warning-read-iops=\\'$_SERVICEWARNINGREADIOPS$\\' --critical-read-iops=\\'$_SERVICECRITICALREADIOPS$\\' --warning-write-iops=\\'$_SERVICEWARNINGWRITEIOPS$\\' --critical-write-iops=\\'$_SERVICECRITICALWRITEIOPS$\\' --warning-cpu=\\'$_SERVICEWARNINGCPU$\\' --critical-cpu=\\'$_SERVICECRITICALCPU$\\' --warning-vm-count=\\'$_SERVICEWARNINGVMCOUNT$\\' --critical-vm-count=\\'$_SERVICECRITICALVMCOUNT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-Nutanix-SNMP-Hypervisor-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nutanix_snmp.pl --plugin=cloud::nutanix::snmp::plugin --mode=disk-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-controllervm=\\'$_SERVICEFILTERCONTROLLERVM$\\' --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-avg-latency=\\'$_SERVICEWARNINGAVGLATENCY$\\' --critical-avg-latency=\\'$_SERVICECRITICALAVGLATENCY$\\' --warning-iops=\\'$_SERVICEWARNINGIOPS$\\' --critical-iops=\\'$_SERVICECRITICALIOPS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-Nutanix-SNMP-Disk-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nutanix_snmp.pl --plugin=cloud::nutanix::snmp::plugin --mode=container-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-avg-latency=\\'$_SERVICEWARNINGAVGLATENCY$\\' --critical-avg-latency=\\'$_SERVICECRITICALAVGLATENCY$\\' --warning-iops=\\'$_SERVICEWARNINGIOPS$\\' --critical-iops=\\'$_SERVICECRITICALIOPS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-Nutanix-SNMP-Container-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nutanix_snmp.pl --plugin=cloud::nutanix::snmp::plugin --mode=cluster-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-avg-latency=\\'$_SERVICEWARNINGAVGLATENCY$\\' --critical-avg-latency=\\'$_SERVICECRITICALAVGLATENCY$\\' --warning-iops=\\'$_SERVICEWARNINGIOPS$\\' --critical-iops=\\'$_SERVICECRITICALIOPS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-Nutanix-SNMP-Cluster-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nutanix_snmp.pl --plugin=cloud::nutanix::snmp::plugin --mode=vm-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --filter-name=\\'$_HOSTFILTERNAME$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-Nutanix-VM-SNMP-Traffic",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nutanix_snmp.pl --plugin=cloud::nutanix::snmp::plugin --mode=vm-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --filter-name=\\'$_HOSTFILTERNAME$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-avg-latency=\\'$_SERVICEWARNINGAVGLATENCY$\\' --critical-avg-latency=\\'$_SERVICECRITICALAVGLATENCY$\\' --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-Nutanix-VM-SNMP-Latency",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nutanix_snmp.pl --plugin=cloud::nutanix::snmp::plugin --mode=vm-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --filter-name=\\'$_HOSTFILTERNAME$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-read-iops=\\'$_SERVICEWARNINGREADIOPS$\\' --critical-read-iops=\\'$_SERVICECRITICALREADIOPS$\\' --warning-write-iops=\\'$_SERVICEWARNINGWRITEIOPS$\\' --critical-write-iops=\\'$_SERVICECRITICALWRITEIOPS$\\' --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-Nutanix-VM-SNMP-Iops",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nutanix_snmp.pl --plugin=cloud::nutanix::snmp::plugin --mode=vm-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --filter-name=\\'$_HOSTFILTERNAME$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-cpu=\\'$_SERVICEWARNINGCPU$\\' --critical-cpu=\\'$_SERVICECRITICALCPU$\\' --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-Nutanix-VM-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nutanix_snmp.pl --plugin=cloud::nutanix::snmp::plugin --mode=hypervisor-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --filter-name=\\'$_HOSTFILTERNAME$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-vm-count=\\'$_SERVICEWARNINGVMCOUNT$\\' --critical-vm-count=\\'$_SERVICECRITICALVMCOUNT$\\' --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-Nutanix-Hypervisor-SNMP-Vm-count",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nutanix_snmp.pl --plugin=cloud::nutanix::snmp::plugin --mode=hypervisor-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --filter-name=\\'$_HOSTFILTERNAME$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-memory=\\'$_SERVICEWARNINGMEMORY$\\' --critical-memory=\\'$_SERVICECRITICALMEMORY$\\' --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-Nutanix-Hypervisor-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nutanix_snmp.pl --plugin=cloud::nutanix::snmp::plugin --mode=hypervisor-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --filter-name=\\'$_HOSTFILTERNAME$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-avg-latency=\\'$_SERVICEWARNINGAVGLATENCY$\\' --critical-avg-latency=\\'$_SERVICECRITICALAVGLATENCY$\\' --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-Nutanix-Hypervisor-SNMP-Latency",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nutanix_snmp.pl --plugin=cloud::nutanix::snmp::plugin --mode=hypervisor-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --filter-name=\\'$_HOSTFILTERNAME$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-read-iops=\\'$_SERVICEWARNINGREADIOPS$\\' --critical-read-iops=\\'$_SERVICECRITICALREADIOPS$\\' --warning-write-iops=\\'$_SERVICEWARNINGWRITEIOPS$\\' --critical-write-iops=\\'$_SERVICECRITICALWRITEIOPS$\\' --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-Nutanix-Hypervisor-SNMP-Iops",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nutanix_snmp.pl --plugin=cloud::nutanix::snmp::plugin --mode=hypervisor-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --filter-name=\\'$_HOSTFILTERNAME$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-cpu=\\'$_SERVICEWARNINGCPU$\\' --critical-cpu=\\'$_SERVICECRITICALCPU$\\' --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-Nutanix-Hypervisor-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nutanix_snmp.pl --plugin=cloud::nutanix::snmp::plugin --mode=container-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --filter-name=\\'$_HOSTFILTERNAME$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-Nutanix-Container-SNMP-Storage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nutanix_snmp.pl --plugin=cloud::nutanix::snmp::plugin --mode=container-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --filter-name=\\'$_HOSTFILTERNAME$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-avg-latency=\\'$_SERVICEWARNINGAVGLATENCY$\\' --critical-avg-latency=\\'$_SERVICECRITICALAVGLATENCY$\\' --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-Nutanix-Container-SNMP-Latency",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nutanix_snmp.pl --plugin=cloud::nutanix::snmp::plugin --mode=container-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --filter-name=\\'$_HOSTFILTERNAME$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-iops=\\'$_SERVICEWARNINGIOPS$\\' --critical-iops=\\'$_SERVICECRITICALIOPS$\\' --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-Nutanix-Container-SNMP-Iops",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_nutanix_snmp.pl --plugin=cloud::nutanix::snmp::plugin --mode=discovery --hostname='$_NUTANIXHOSTNAME$' --snmp-community='$_SNMPCOMMUNITY$' --snmp-version='$_SNMPVERSION$' --snmp-port='$_SNMPPORT$' --snmp-timeout='$_TIMEOUT$' --discovery-type='$_DISCOVERYTYPE$' $_EXTRAOPTIONS$\"",
+            "name": "Virt-Nutanix-SNMP-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Nutanix CVM using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "Virt-Nutanix.jpg",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Virt-Nutanix-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Virt-Nutanix-Vm-Usage-SNMP",
+                "Virt-Nutanix-Storage-Pool-Usage-SNMP",
+                "Virt-Nutanix-Hypervisor-Usage-SNMP",
+                "Virt-Nutanix-Disk-Usage-SNMP",
+                "Virt-Nutanix-Container-Usage-SNMP",
+                "Virt-Nutanix-Cluster-Usage-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "_comment": "",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Nutanix VM using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": "Virt-Nutanix-VM-SNMP-Power-State",
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "Virt-Nutanix.jpg",
+            "macros": [
+                {
+                    "key": "$_HOSTFILTERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Nutanix-VM-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Virt-Nutanix-VM-Traffic-SNMP",
+                "Virt-Nutanix-VM-Power-State-SNMP",
+                "Virt-Nutanix-VM-Latency-SNMP",
+                "Virt-Nutanix-VM-Iops-SNMP",
+                "Virt-Nutanix-VM-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "_comment": "",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Nutanix hypervisor using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "Virt-Nutanix.jpg",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Nutanix-Hypervisor-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Virt-Nutanix-Hypervisor-Vm-Count-SNMP",
+                "Virt-Nutanix-Hypervisor-Memory-SNMP",
+                "Virt-Nutanix-Hypervisor-Latency-SNMP",
+                "Virt-Nutanix-Hypervisor-Iops-SNMP",
+                "Virt-Nutanix-Hypervisor-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "_comment": "",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Nutanix container using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "Virt-Nutanix.jpg",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Nutanix-Container-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Virt-Nutanix-Container-Storage-SNMP",
+                "Virt-Nutanix-Container-Latency-SNMP",
+                "Virt-Nutanix-Container-Iops-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "Virt-Nutanix.jpg"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Added a new host template\r\n* Added new service templates\r\n* Added service discovery commands\r\n* Added host discovery rules ",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin Pack to monitor Nutanix system using SNMP protocol**\r\n\r\nAvailable host templates and related services:\r\n\r\n|Virt-Nutanix-SNMP |Virt-Nutanix-Container-SNMP|Virt-Nutanix-Hypervisor-SNMP|Virt-Nutanix-VM-SNMP|\r\n|------------------|---------------------------|----------------------------|--------------------|\r\n|Cluster Usage     |Iops                       | Cpu                        |Cpu                 |\r\n|Container Usage   |Latency                    | Iops                       |Iops                |\r\n|Disk Usage        |Storage                    | Latency                    |Latency             |\r\n|Hypervisor Usage  |                           | Memory                     |Traffic             |\r\n|Storage Pool usage|                           | Vm-count                   |Power-State         |\r\n|Vm Usage          |                           |                            |                    |\r\n\r\nThis Plugin Pack provides sevral host discovery *providers* for containers, hypervisors and virtual machines, to be used with the Host Discovery module.\r\n\r\nPlease note that service templates are not necessarily linked to the related host template. "
+            },
+            {
+                "lang": "fr",
+                "value": "**Pack Plugin pour surveiller les syst\u00e8mes Nutanix en utilisant le protocole SNMP.**\r\n\r\nMod\u00e8les d\\'h\u00f4tes disponibles et services associ\u00e9s :\r\n\r\n|Virt-Nutanix-SNMP |Virt-Nutanix-Container-SNMP|Virt-Nutanix-Hypervisor-SNMP|Virt-Nutanix-VM-SNMP|\r\n|------------------|---------------------------|----------------------------|--------------------|\r\n|Cluster Usage     |Iops                       | Cpu                        |Cpu                 |\r\n|Container Usage   |Latency                    | Iops                       |Iops                |\r\n|Disk Usage        |Storage                    | Latency                    |Latency             |\r\n|Hypervisor Usage  |                           | Memory                     |Traffic             |\r\n|Storage Pool usage|                           | Vm-count                   |Power-State         |\r\n|Vm Usage          |                           |                            |                    |\r\n\r\n\r\nCe Plugin Pack fournit plusieurs fournisseurs de d\u00e9couverte d\\'h\u00f4tes (containers, hyperviseurs et machines virtuelles) \u00e0 utiliser avec le module de d\u00e9couverte d\\'h\u00f4tes.\r\n\r\nVeuillez noter que les mod\u00e8les de service ne sont pas n\u00e9cessairement li\u00e9s par d\u00e9faut au mod\u00e8le d\\'h\u00f4te correspondant."
+            }
+        ],
+        "discovery_category": "virtualization",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Virtualization-Nutanix-Snmp\r\n\r\n## SNMP Installation\r\nRead the [Nutanix to configure SNMP on your server]\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp)\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"37%\" />\r\n<col width=\"62%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Virt-Nutanix-SNMP</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Nutanix",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_nutanix_snmp.pl",
+                "package_name": "centreon-plugin-Virtualization-Nutanix-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "centreon-plugin-Virtualization-Nutanix-Snmp",
+                "version": "20170713-1"
+            }
+        ],
+        "slug": "virtualization-nutanix-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Virtualization",
+            "Nutanix",
+            "Cloud"
+        ],
+        "update_date": "1649443536",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des machines virtuelles.}\r\n\r\n{EN: Check virtual machine usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Vm-Usage",
+            "check_timeperiod": "",
+            "command_name": "Virt-Nutanix-SNMP-Vm-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Nutanix-Vm-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des 'storage pools'.}\r\n\r\n{EN: Check storage pool usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Storage-Pool-Usage",
+            "check_timeperiod": "",
+            "command_name": "Virt-Nutanix-SNMP-Storage-Pool-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Nutanix-Storage-Pool-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des hyperviseurs.}\r\n\r\n{EN: Check hypervisor usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Hypervisor-Usage",
+            "check_timeperiod": "",
+            "command_name": "Virt-Nutanix-SNMP-Hypervisor-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Nutanix-Hypervisor-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des disques.}\r\n\r\n{EN: Check disk usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Usage",
+            "check_timeperiod": "",
+            "command_name": "Virt-Nutanix-SNMP-Disk-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Nutanix-Disk-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du containers.}\r\n\r\n{EN: Check container usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Container-Usage",
+            "check_timeperiod": "",
+            "command_name": "Virt-Nutanix-SNMP-Container-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Nutanix-Container-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du cluster.}\r\n\r\n{EN: Check cluster usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Cluster-Usage",
+            "check_timeperiod": "",
+            "command_name": "Virt-Nutanix-SNMP-Cluster-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} ne \"started\""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Nutanix-Cluster-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic des machines virtuelles Nutanix.}\r\n\r\n{EN: Check Nutanix virtual machine traffic.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic",
+            "check_timeperiod": "",
+            "command_name": "Virt-Nutanix-VM-SNMP-Traffic",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTERS$",
+                    "password": false,
+                    "value": "^traffic.*$"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Nutanix-VM-Traffic-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat d'alimentation des machines virtuelles Nutanix.}\r\n\r\n{EN: Check Nutanix virtual machine power state.}",
+            "active_checks_enabled": 2,
+            "alias": "Power-State",
+            "check_timeperiod": "",
+            "command_name": "Virt-Nutanix-VM-SNMP-Power-State",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATE$",
+                    "password": false,
+                    "value": "%{vmPowerState} eq \"off\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Nutanix-VM-Power-State-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la latence des machines virtuelles Nutanix.}\r\n\r\n{EN: Check Nutanix virtual machine latency.}",
+            "active_checks_enabled": 2,
+            "alias": "Latency",
+            "check_timeperiod": "",
+            "command_name": "Virt-Nutanix-VM-SNMP-Latency",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTERS$",
+                    "password": false,
+                    "value": "^avg-latency$"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Nutanix-VM-Latency-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les op\u00e9rations de lecture et d'\u00e9criture des machines virtuelles Nutanix.}\r\n\r\n{EN: Check Nutanix virtual machine IOPS.}",
+            "active_checks_enabled": 2,
+            "alias": "Iops",
+            "check_timeperiod": "",
+            "command_name": "Virt-Nutanix-VM-SNMP-Iops",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTERS$",
+                    "password": false,
+                    "value": "^.*iops.*$"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Nutanix-VM-Iops-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du processeur des machines virtuelles Nutanix.}\r\n\r\n{EN: Check Nutanix virtual machine CPU usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Virt-Nutanix-VM-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTERS$",
+                    "password": false,
+                    "value": "^cpu$"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Nutanix-VM-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de machines virtuelles des hyperviseurs Nutanix.}\r\n\r\n{EN: Check hypervisor virtual machines count.}",
+            "active_checks_enabled": 2,
+            "alias": "Vm-count",
+            "check_timeperiod": "",
+            "command_name": "Virt-Nutanix-Hypervisor-SNMP-Vm-count",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTERS$",
+                    "password": false,
+                    "value": "^vm-count$"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Nutanix-Hypervisor-Vm-Count-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation de la m\u00e9moire des hyperviseurs Nutanix.}\r\n\r\n{EN: Check Nutanix hypervisor memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Virt-Nutanix-Hypervisor-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTERS$",
+                    "password": false,
+                    "value": "^memory$"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Nutanix-Hypervisor-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la latence des hyperviseurs Nutanix.}\r\n\r\n{EN: Check Nutanix hypervisor latency.}",
+            "active_checks_enabled": 2,
+            "alias": "Latency",
+            "check_timeperiod": "",
+            "command_name": "Virt-Nutanix-Hypervisor-SNMP-Latency",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTERS$",
+                    "password": false,
+                    "value": "^avg-latency$"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Nutanix-Hypervisor-Latency-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les op\u00e9rations de lecture et d'\u00e9criture des hyperviseurs Nutanix.}\r\n\r\n{EN: Check Nutanix hypervisors IOPS.}",
+            "active_checks_enabled": 2,
+            "alias": "Iops",
+            "check_timeperiod": "",
+            "command_name": "Virt-Nutanix-Hypervisor-SNMP-Iops",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTERS$",
+                    "password": false,
+                    "value": "^.*iops$"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Nutanix-Hypervisor-Iops-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des processeurs des hyperviseurs Nutanix.}\r\n\r\n{EN: Check Nutanix hypervisor CPU usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Virt-Nutanix-Hypervisor-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTERS$",
+                    "password": false,
+                    "value": "^cpu$"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Nutanix-Hypervisor-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du stockage des containers Nutanix.}\r\n\r\n{EN: Check Nutanix container storage usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Storage",
+            "check_timeperiod": "",
+            "command_name": "Virt-Nutanix-Container-SNMP-Storage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTERS$",
+                    "password": false,
+                    "value": "^usage$"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Nutanix-Container-Storage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la latence des containers Nutanix.}\r\n\r\n{EN: Check Nutanix containers latency.}",
+            "active_checks_enabled": 2,
+            "alias": "Latency",
+            "check_timeperiod": "",
+            "command_name": "Virt-Nutanix-Container-SNMP-Latency",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTERS$",
+                    "password": false,
+                    "value": "^avg-latency$"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Nutanix-Container-Latency-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les op\u00e9rations de lecture et d'\u00e9criture des containers Nutanix.}\r\n\r\n{EN: Check Nutanix containers IOPS.}",
+            "active_checks_enabled": 2,
+            "alias": "Iops",
+            "check_timeperiod": "",
+            "command_name": "Virt-Nutanix-Container-SNMP-Iops",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTERS$",
+                    "password": false,
+                    "value": "^iops$"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Nutanix-Container-Iops-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

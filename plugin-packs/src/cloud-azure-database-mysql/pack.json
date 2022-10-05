@@ -1,0 +1,1418 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Database-MySQL-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Database for MySQL resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.DBforMySQL/servers/SVC123456ABCD78",
+                            "location": "westeurope",
+                            "name": "SVC123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.DBforMySQL/servers"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.DBforMySQL/servers/SVC789012EFGH34",
+                            "location": "westus",
+                            "name": "SVC789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.DBforMySQLService/servers"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": "discovery.results.id"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCETYPE",
+                                "is_password": false,
+                                "source": "discovery.results.type"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Database-MySQL-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Database for MySQL",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-database-mysql",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Database-MySQL-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Database for MySQL resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.DBforMySQL/servers/SVC123456ABCD78",
+                            "location": "westeurope",
+                            "name": "SVC123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.DBforMySQL/servers"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.DBforMySQL/servers/SVC789012EFGH34",
+                            "location": "westus",
+                            "name": "SVC789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.DBforMySQLService/servers"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCETYPE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.type"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Database-MySQL-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Database for MySQL",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-database-mysql",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Database-MySQL-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Database for MySQL resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.DBforMySQL/servers/SVC123456ABCD78",
+                            "location": "westeurope",
+                            "name": "SVC123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.DBforMySQL/servers"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.DBforMySQL/servers/SVC789012EFGH34",
+                            "location": "westus",
+                            "name": "SVC789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.DBforMySQLService/servers"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCETYPE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.type"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Database-MySQL-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Database for MySQL",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-database-mysql",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_mysql_api.pl --plugin=cloud::azure::database::mysql::plugin --mode=traffic --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --resource-type=\\'$_HOSTAZURERESOURCETYPE$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-MySQL-Api-Traffic",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_mysql_api.pl --plugin=cloud::azure::database::mysql::plugin --mode=storage --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --resource-type=\\'$_HOSTAZURERESOURCETYPE$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-serverlog-percent=\\'$_SERVICEWARNINGSERVERLOGPERCENT$\\' --critical-serverlog-percent=\\'$_SERVICECRITICALSERVERLOGPERCENT$\\' --warning-storage-percent=\\'$_SERVICEWARNINGSTORAGEPERCENT$\\' --critical-storage-percent=\\'$_SERVICECRITICALSTORAGEPERCENT$\\' --warning-storage-backup=\\'$_SERVICEWARNINGSTORAGEBACKUP$\\' --critical-storage-backup=\\'$_SERVICECRITICALSTORAGEBACKUP$\\' --warning-storage-used=\\'$_SERVICEWARNINGSTORAGEUSED$\\' --critical-storage-used=\\'$_SERVICECRITICALSTORAGEUSED$\\' --warning-storage-limit=\\'$_SERVICEWARNINGSTORAGELIMIT$\\' --critical-storage-limit=\\'$_SERVICECRITICALSTORAGELIMIT$\\' --warning-servelog-usage=\\'$_SERVICEWARNINGSERVELOGUSAGE$\\' --critical-servelog-usage=\\'$_SERVICECRITICALSERVELOGUSAGE$\\' --warning-serverlog-limit=\\'$_SERVICEWARNINGSERVERLOGLIMIT$\\' --critical-serverlog-limit=\\'$_SERVICECRITICALSERVERLOGLIMIT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-MySQL-Api-Storage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_mysql_api.pl --plugin=cloud::azure::database::mysql::plugin --mode=replication --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --resource-type=\\'$_HOSTAZURERESOURCETYPE$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-replication-lag-count=\\'$_SERVICEWARNINGREPLICATIONLAGCOUNT$\\' --critical-replication-lag-count=\\'$_SERVICECRITICALREPLICATIONLAGCOUNT$\\' --warning-replication-lag=\\'$_SERVICEWARNINGREPLICATIONLAG$\\' --critical-replication-lag=\\'$_SERVICECRITICALREPLICATIONLAG$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-MySQL-Api-Replication",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_mysql_api.pl --plugin=cloud::azure::database::mysql::plugin --mode=memory --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --resource-type=\\'$_HOSTAZURERESOURCETYPE$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-memory-usage=\\'$_SERVICEWARNINGMEMORYUSAGE$\\' --critical-memory-usage=\\'$_SERVICECRITICALMEMORYUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-MySQL-Api-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_mysql_api.pl --plugin=cloud::azure::database::mysql::plugin --mode=io-consumption --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --resource-type=\\'$_HOSTAZURERESOURCETYPE$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-ioconsumption-usage=\\'$_SERVICEWARNINGIOCONSUMPTIONUSAGE$\\' --critical-ioconsumption-usage=\\'$_SERVICECRITICALIOCONSUMPTIONUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-MySQL-Api-Io-Consumption",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_mysql_api.pl --plugin=cloud::azure::database::mysql::plugin --mode=cpu --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --resource-type=\\'$_HOSTAZURERESOURCETYPE$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-cpu-usage=\\'$_SERVICEWARNINGCPUUSAGE$\\' --critical-cpu-usage=\\'$_SERVICECRITICALCPUUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-MySQL-Api-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_mysql_api.pl --plugin=cloud::azure::database::mysql::plugin --mode=connections --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --resource-type=\\'$_HOSTAZURERESOURCETYPE$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-connections-failed=\\'$_SERVICEWARNINGCONNECTIONSFAILED$\\' --critical-connections-failed=\\'$_SERVICECRITICALCONNECTIONSFAILED$\\' --warning-connections-total=\\'$_SERVICEWARNINGCONNECTIONSTOTAL$\\' --critical-connections-total=\\'$_SERVICECRITICALCONNECTIONSTOTAL$\\' --warning-connections-aborted=\\'$_SERVICEWARNINGCONNECTIONSABORTED$\\' --critical-connections-aborted=\\'$_SERVICECRITICALCONNECTIONSABORTED$\\' --warning-connections-active=\\'$_SERVICEWARNINGCONNECTIONSACTIVE$\\' --critical-connections-active=\\'$_SERVICECRITICALCONNECTIONSACTIVE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-MySQL-Api-Connections",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_mysql_api.pl --plugin=cloud::azure::database::mysql::plugin --mode=queries --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-queries=\\'$_SERVICEWARNINGQUERIES$\\' --critical-queries=\\'$_SERVICECRITICALQUERIES$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-MySQL-Api-Queries",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_database_mysql_api.pl --statefile-suffix='autodiscovery' --plugin=cloud::azure::database::mysql::plugin --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Database-MySQL-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les instances Azure Database for MySQL via l'API}\r\n{EN: Template to check Azure Database for MySQL resources using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Database for MySQL service using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-database-mysql-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCETYPE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-MySQL",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Database-MySQL-Traffic-Api",
+                "Cloud-Azure-Database-MySQL-Storage-Api",
+                "Cloud-Azure-Database-MySQL-Replication-Api",
+                "Cloud-Azure-Database-MySQL-Memory-Api",
+                "Cloud-Azure-Database-MySQL-IO-Consumption-Api",
+                "Cloud-Azure-Database-MySQL-Cpu-Api",
+                "Cloud-Azure-Database-MySQL-Connections-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-database-mysql-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ add proper tags management",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin Pack pour superviser les ressources Azure Database for MySQL via RestAPI ou AZCLI.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponibles et services associ\u00e9s:\r\n\r\n|Cloud-Azure-Database-MySQL-custom|\r\n|---|\r\n|Cpu|\r\n|Memory|\r\n|Queries|\r\n|Traffic|\r\n|Storage|\r\n|Connections|\r\n|Replication|\r\n|Io-consumption|\r\n\r\nCe Plugin Pack fournit un *provider* Host Discovery pour le module d\\'auto-d\u00e9couverte d\\'H\u00f4tes"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack to monitor Azure Database for MySQL resources using RestAPI or AZCLI.**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|Cloud-Azure-Database-MySQL-custom|\r\n|---|\r\n|Cpu|\r\n|Memory|\r\n|Queries|\r\n|Traffic|\r\n|Storage|\r\n|Connections|\r\n|Replication|\r\n|Io-consumption|\r\n\r\n\r\nThis Plugin Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure Database for MySQL",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_database_mysql_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Database-MySQL-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-database-mysql",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "SNMP",
+            "Azure",
+            "Microsoft",
+            "HostDisco",
+            "Rest",
+            "Restapi",
+            "API",
+            "MySQL",
+            "Database"
+        ],
+        "update_date": "1636823137",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du r\u00e9seau de l'instance Azure Database for MySQL.}\r\n\r\n{EN: Check Azure Database for MySQL network usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-MySQL-Api-Traffic",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-MySQL-Traffic-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques de stockage de l'instance Azure Database for MySQL.}\r\n\r\n{EN: Check Azure Database for MySQL storage statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Storage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-MySQL-Api-Storage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT15M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Maximum"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-MySQL-Storage-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la r\u00e9plication de l'instance Azure Database for MySQL.}\r\n\r\n{EN: Check Azure Database for MySQL replication status.}",
+            "active_checks_enabled": 2,
+            "alias": "Replication",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-MySQL-Api-Replication",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Maximum"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-MySQL-Replication-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation de la m\u00e9moire de l'instance Azure Database for MySQL.}\r\n\r\n{EN: Check Azure Database for MySQL memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-MySQL-Api-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-MySQL-Memory-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les \u00e9critures/lectures de l'instance Azure Database for MySQL.}\r\n\r\n{EN: Check Azure Database for MySQL IO usage.}",
+            "active_checks_enabled": 2,
+            "alias": "IO-Consumption",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-MySQL-Api-Io-Consumption",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Maximum"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-MySQL-IO-Consumption-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le CPU de l'instance Azure Database for MySQL.}\r\n\r\n{EN: Check Azure Database for MySQL CPU usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-MySQL-Api-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-MySQL-Cpu-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques de connexions de l'instance Azure Database for MySQL.}\r\n\r\n{EN: Check Azure Database for MySQL connections statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Connections",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-MySQL-Api-Connections",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-MySQL-Connections-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de requ\u00eates de l'instance Azure Database for MySQL.}\r\n\r\n{EN: Check Azure Database for MySQL queries count.}",
+            "active_checks_enabled": 2,
+            "alias": "Queries",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-MySQL-Api-Queries",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-MySQL-Queries-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

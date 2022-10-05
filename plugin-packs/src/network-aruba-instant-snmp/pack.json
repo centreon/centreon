@@ -1,0 +1,167 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aruba_instant_snmp.pl --plugin=network::aruba::instant::snmp::plugin --mode=ssid-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Aruba-Instant-SNMP-Ssid-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aruba_instant_snmp.pl --plugin=network::aruba::instant::snmp::plugin --mode=ap-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-cpu=\\'$_SERVICEWARNINGCPU$\\' --critical-cpu=\\'$_SERVICECRITICALCPU$\\' --warning-clients=\\'$_SERVICEWARNINGCLIENTS$\\' --critical-clients=\\'$_SERVICECRITICALCLIENTS$\\' --warning-mem-usage=\\'$_SERVICEWARNINGMEMUSAGE$\\' --critical-mem-usage=\\'$_SERVICECRITICALMEMUSAGE$\\' --warning-mem-usage-free=\\'$_SERVICEWARNINGMEMUSAGEFREE$\\' --critical-mem-usage-free=\\'$_SERVICECRITICALMEMUSAGEFREE$\\' --warning-mem-usage-prct=\\'$_SERVICEWARNINGMEMUSAGEPRCT$\\' --critical-mem-usage-prct=\\'$_SERVICECRITICALMEMUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Aruba-Instant-SNMP-Ap-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Aruba Instant using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "aruba-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Aruba-Instant-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Aruba-Instant-Ssid-Status-SNMP",
+                "Net-Aruba-Instant-Ap-Usage-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "aruba-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* change description",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack pour superviser les contr\u00f4leurs et les points d\\'acc\u00e8s Aruba via SNMP.**\r\n\r\nAvailable host template and related services:\r\n\r\n|Net-Aruba-Instant-SNMP|\r\n|---|\r\n|Ap-Usage|\r\n|Ssid-Status|"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser les \u00e9quipements Aruba Instant via SNMP.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponible et ses services :\r\n\r\n|Net-Aruba-Instant-SNMP|\r\n|---|\r\n|Ap-Usage|\r\n|Ssid-Status|"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n\r\n## Prerequisites\r\n\r\n### Centreon Plugin\r\n\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Aruba-Instant-Snmp\r\n\r\n### Configure SNMP\r\n\r\nFollow constructor procedure to enable and configure SNMP on the equipment.\r\n\r\nRead *[this guide](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp)* to troubleshoot SNMP problems.\r\n\r\n## Centreon Configuration\r\n\r\n### Create hosts using the appropriate template\r\n\r\nBe sure to have with you the following information:\r\n\r\n* Read-only SNMP community\r\n* IP Address of the equipment\r\n\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Field</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>Name</p></td>\r\n            <td align=\"left\"><p><em>Name of the access point</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Alias</p></td>\r\n            <td align=\"left\"><p><em>Description</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>IP Address / DNS</p></td>\r\n            <td align=\"left\"><p><em><b>IP address of the access point</b></em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>SNMP Community & Version</p></td>\r\n            <td align=\"left\"><p><em>Community and version of the SNMP agent</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Monitored from</p></td>\r\n            <td align=\"left\"><p><em>Poller used to monitor</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Templates</p></td>\r\n            <td align=\"left\"><p>Net-Aruba-Instant-SNMP-custom</p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nCheck the *Create Services linked to the Template too* box and click on the *Save* button.\r\n\r\nThe following services will be created:\r\n\r\n* Ap-Usage\r\n* Ssid-Status\r\n",
+        "name": "Aruba Instant SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_aruba_instant_snmp.pl",
+                "package_name": "centreon-plugin-Network-Aruba-Instant-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-aruba-instant-snmp",
+        "status": "stable",
+        "status_message": "change description",
+        "tags": [
+            "Access Point",
+            "Aruba",
+            "SNMP",
+            "Instant",
+            "Network"
+        ],
+        "update_date": "1564998469",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le status des SSID.}\r\n\r\n{EN: Check SSID status.}",
+            "active_checks_enabled": 2,
+            "alias": "Ssid-Status",
+            "check_timeperiod": "",
+            "command_name": "Net-Aruba-Instant-SNMP-Ssid-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /enable/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Aruba-Instant-Ssid-Status-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les points d'acc\u00e8s.}\r\n\r\n{EN: Check access points usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Ap-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Aruba-Instant-SNMP-Ap-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /up/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Aruba-Instant-Ap-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

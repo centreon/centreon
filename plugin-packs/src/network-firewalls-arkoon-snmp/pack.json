@@ -1,0 +1,465 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": null,
+                "changes": [],
+                "command_for_discovery": "Net-FW-Arkoon-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-FW-Arkoon-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-FW-Arkoon-SNMP"
+                ],
+                "macros": [],
+                "name": "Net-FW-Arkoon-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-FW-Arkoon-Traffic-Global-SNMP"
+            },
+            {
+                "_comment": null,
+                "changes": [],
+                "command_for_discovery": "Net-FW-Arkoon-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-FW-Arkoon-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-FW-Arkoon-SNMP"
+                ],
+                "macros": [],
+                "name": "Net-FW-Arkoon-SNMP-Packet-Errors-Name",
+                "service_display_name": "Packet-Errors-$name$",
+                "service_template": "Net-FW-Arkoon-Packet-Errors-Global-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_arkoon.pl --plugin=network::arkoon::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-FW-Arkoon-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_arkoon.pl --plugin=network::arkoon::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-FW-Arkoon-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_arkoon.pl --plugin=network::arkoon::plugin --mode=swap --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage-prct=\\'$_SERVICEWARNING$\\' --critical-usage-prct=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-FW-Arkoon-SNMP-swap",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_arkoon.pl --plugin=network::arkoon::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-FW-Arkoon-SNMP-memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_arkoon.pl --plugin=network::arkoon::plugin --mode=load --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-FW-Arkoon-SNMP-load",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_arkoon.pl --plugin=network::arkoon::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$$$\\' --name --add-status --add-errors --oid-filter=\\'ifDesc\\' --oid-display=\\'ifDesc\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-FW-Arkoon-SNMP-Packet-Errors-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_arkoon.pl --plugin=network::arkoon::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-errors --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --oid-filter=\\'ifDesc\\' --oid-display=\\'ifDesc\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-FW-Arkoon-SNMP-Packet-Errors-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_arkoon.pl --plugin=network::arkoon::plugin --mode=processcount --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --process-name=\\'$_SERVICEPROCESSNAME$\\' --process-path=\\'$_SERVICEPROCESSPATH$\\' --process-args=\\'$_SERVICEPROCESSARGS$\\' --regexp-name --regexp-path --regexp-args --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-FW-Arkoon-SNMP-process-generic",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_arkoon.pl --plugin=network::arkoon::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$$$\\' --name --add-status --add-traffic --oid-filter=\\'ifDesc\\' --oid-display=\\'ifDesc\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-FW-Arkoon-SNMP-Traffic-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_arkoon.pl --plugin=network::arkoon::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --oid-filter=\\'ifDesc\\' --oid-display=\\'ifDesc\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-FW-Arkoon-SNMP-Traffic-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_arkoon.pl --plugin=network::arkoon::plugin --mode=uptime --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-uptime=\\'$_SERVICEWARNING$\\' --critical-uptime=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-FW-Arkoon-SNMP-uptime",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les firewalls  Arkoon en SNMP}\r\n{EN: Template to check Arkoon firewall using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Arkoon firewall using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "Network-Arkoon-64.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-FW-Arkoon-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-FW-Arkoon-Swap-SNMP",
+                "Net-FW-Arkoon-Memory-SNMP",
+                "Net-FW-Arkoon-Load-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "Network-Arkoon-64.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ logo / tag update",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Arkoon Network equipment via SNMP:\r\n* Load\r\n* Memory\r\n* Packet-Errors (by interface Name or global)\r\n* Process-Generic\r\n* Swap\r\n* Traffic (by interface Name or global)\r\n* Uptime"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un \u00e9quipement r\u00e9seau Arkoon via SNMP : \r\n* Load\r\n* Memory\r\n* Packet-Errors (by interface Name or global)\r\n* Process-Generic\r\n* Swap\r\n* Traffic (by interface Name or global)\r\n* Uptime"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Arkoon",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_arkoon.pl",
+                "package_name": "centreon-plugin-Network-Firewalls-Arkoon-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Network-Firewalls-Arkoon-Snmp",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "network-firewalls-arkoon-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Arkoon",
+            "Hardware",
+            "Network",
+            "SNMP",
+            "Security"
+        ],
+        "update_date": "1628799283",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire virtuelle (SWAP)}\r\n\r\n{EN: Check virtual memory usage (SWAP)}",
+            "active_checks_enabled": 2,
+            "alias": "Swap",
+            "check_timeperiod": "",
+            "command_name": "Net-FW-Arkoon-SNMP-swap",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-FW-Arkoon-Swap-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation m\u00e9moire}\r\n\r\n{EN: Check memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-FW-Arkoon-SNMP-memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-FW-Arkoon-Memory-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du CPU.}\r\n\r\n{EN: Check CPU usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Load",
+            "check_timeperiod": "",
+            "command_name": "Net-FW-Arkoon-SNMP-load",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "4,3,2"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "6,5,4"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-FW-Arkoon-Load-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le pourcentage de paquets en erreur/\u00e9cart\u00e9 d'une interface r\u00e9seau.}\r\n\r\n{EN: Check packets on errors/discards of a network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Packet-Errors-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-FW-Arkoon-SNMP-Packet-Errors-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-FW-Arkoon-Packet-Errors-Generic-Name-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le pourcentage de paquets en erreur/\u00e9cart\u00e9 de plusieurs interfaces r\u00e9seau.}\r\n\r\n{EN: Check packets on errors/discards of multiple network interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Packet-Errors-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-FW-Arkoon-SNMP-Packet-Errors-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-FW-Arkoon-Packet-Errors-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le fonctionnement d'un processus/service Arkoon.}\r\n\r\n{EN: Check Arkoon process/service is working.}",
+            "active_checks_enabled": 2,
+            "alias": "Process-Generic",
+            "check_timeperiod": "",
+            "command_name": "Net-FW-Arkoon-SNMP-process-generic",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-FW-Arkoon-Process-Generic-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau d'une interface r\u00e9seau.}\r\n\r\n{EN: Check traffic of an network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-FW-Arkoon-SNMP-Traffic-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-FW-Arkoon-Traffic-Generic-Name-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau de plusieurs interfaces r\u00e9seau.}\r\n\r\n{EN: Check traffic of multiple network interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-FW-Arkoon-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-FW-Arkoon-Traffic-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de r\u00e9cuperer l'uptime.}\r\n\r\n{EN: Get uptime.}",
+            "active_checks_enabled": 2,
+            "alias": "Uptime",
+            "check_timeperiod": "",
+            "command_name": "Net-FW-Arkoon-SNMP-uptime",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-FW-Arkoon-Uptime-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

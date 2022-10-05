@@ -1,0 +1,1157 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Storage-StorageSync-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Storage Storage Sync resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/microsoft.storagesync/storageSyncServices/FRT123456ABCD78",
+                            "location": "westeurope",
+                            "name": "FRT123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "microsoft.storagesync/storageSyncServices"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/microsoft.storagesync/storageSyncServices/FRT789012EFGH34",
+                            "location": "westus",
+                            "name": "FRT789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "microsoft.storagesync/storageSyncServices"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": "discovery.results.id"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Storage-StorageSync-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Storage Sync",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-storage-storagesync",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Storage-StorageSync-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Storage Storage Sync resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/microsoft.storagesync/storageSyncServices/FRT123456ABCD78",
+                            "location": "westeurope",
+                            "name": "FRT123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "microsoft.storagesync/storageSyncServices"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/microsoft.storagesync/storageSyncServices/FRT789012EFGH34",
+                            "location": "westus",
+                            "name": "FRT789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "microsoft.storagesync/storageSyncServices"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Storage-StorageSync-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Storage Sync",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-storage-storagesync",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Storage-StorageSync-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Storage Storage Sync resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/microsoft.storagesync/storageSyncServices/FRT123456ABCD78",
+                            "location": "westeurope",
+                            "name": "FRT123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "microsoft.storagesync/storageSyncServices"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/microsoft.storagesync/storageSyncServices/FRT789012EFGH34",
+                            "location": "westus",
+                            "name": "FRT789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "microsoft.storagesync/storageSyncServices"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Storage-StorageSync-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Storage Sync",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-storage-storagesync",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_storage_storagesync_api.pl  --plugin=cloud::azure::storage::storagesync::plugin --mode=server-status --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-heartbeat=\\'$_SERVICEWARNINGHEARTBEAT$\\' --critical-heartbeat=\\'$_SERVICECRITICALHEARTBEAT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Storage-StorageSync-Api-Server-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_storage_storagesync_api.pl  --plugin=cloud::azure::storage::storagesync::plugin --mode=recalls --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\'  --warning-throughput-recalls-size=\\'$_SERVICEWARNINGTHROUGHPUTRECALLSSIZE$\\' --critical-throughput-recalls-size=\\'$_SERVICECRITICALTHROUGHPUTRECALLSSIZE$\\' --warning-application-recalls-size=\\'$_SERVICEWARNINGAPPLICATIONRECALLSSIZE$\\' --critical-application-recalls-size=\\'$_SERVICECRITICALAPPLICATIONRECALLSSIZE$\\' --warning-successful-recalls=\\'$_SERVICEWARNINGSUCCESSFULRECALLS$\\' --critical-successful-recalls=\\'$_SERVICECRITICALSUCCESSFULRECALLS$\\' --warning-total-recalls-size=\\'$_SERVICEWARNINGTOTALRECALLSSIZE$\\' --critical-total-recalls-size=\\'$_SERVICECRITICALTOTALRECALLSSIZE$\\' --warning-recalls-size=\\'$_SERVICEWARNINGRECALLSSIZE$\\' --critical-recalls-size=\\'$_SERVICECRITICALRECALLSSIZE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Storage-StorageSync-Api-Recalls",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_storage_storagesync_api.pl  --plugin=cloud::azure::storage::storagesync::plugin --mode=files-synced --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\'  --warning-item-errors=\\'$_SERVICEWARNINGITEMERRORS$\\' --critical-item-errors=\\'$_SERVICECRITICALITEMERRORS$\\' --warning-bytes-synced=\\'$_SERVICEWARNINGBYTESSYNCED$\\' --critical-bytes-synced=\\'$_SERVICECRITICALBYTESSYNCED$\\' --warning-files-synced=\\'$_SERVICEWARNINGFILESSYNCED$\\' --critical-files-synced=\\'$_SERVICECRITICALFILESSYNCED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Storage-StorageSync-Api-Files-Synced",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_storage_storagesync_api.pl --statefile-suffix='autodiscovery' --plugin=cloud::azure::storage::storagesync::plugin --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Storage-StorageSync-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Azure Storage Sync via l'API}\r\n{EN: Template to check Azure Storage Sync using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Storage Sync using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-storage-storagesync-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Storage-StorageSync",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Storage-StorageSync-Server-Status-Api",
+                "Cloud-Azure-Storage-StorageSync-Recalls-Api",
+                "Cloud-Azure-Storage-StorageSync-Files-Synced-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-storage-storagesync-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ add proper tags management",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Azure Storage Sync  service using RestAPI or AZCLI.**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|Cloud-Azure-Storage-StorageSync-custom|\r\n|---|\r\n|Files-Synced|\r\n|Recalls|\r\n|Server-Status|\r\n\r\nThis Plugin-Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin-Pack pour superviser les resources Azure Storage Sync via RestAPI ou AZCLI.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponibles et services associ\u00e9s:\r\n\r\n|Cloud-Azure-Storage-StorageSync-custom|\r\n|---|\r\n|Files-Synced|\r\n|Recalls|\r\n|Server-Status|\r\n\r\nCe Plugin-Pack fournit un *provider* Host Discovery pour le module d\\'auto-d\u00e9couverte d\\'H\u00f4tes"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure Storage Sync",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_storage_storagesync_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Storage-StorageSync-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-storage-storagesync",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Cloud",
+            "Microsoft",
+            "Azure",
+            "HostDisco",
+            "Storage",
+            "SrorageSync",
+            "API"
+        ],
+        "update_date": "1636825608",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le status du server de l'instance Azure Storage Sync.}\r\n\r\n{EN: Check Azure Storage Sync service instance server status.}",
+            "active_checks_enabled": 2,
+            "alias": "Server-Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Storage-StorageSync-Api-Server-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Maximum"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Storage-StorageSync-Server-Status-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les rappels de l'instance Azure Storage Sync.}\r\n\r\n{EN: Check Azure Storage Sync service recalls.}",
+            "active_checks_enabled": 2,
+            "alias": "Recalls",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Storage-StorageSync-Api-Recalls",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Storage-StorageSync-Recalls-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de fichiers synchronis\u00e9s avec Azure Storage Sync.}\r\n\r\n{EN: Check Azure Storage Sync service files synced.}",
+            "active_checks_enabled": 2,
+            "alias": "Files-Synced",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Storage-StorageSync-Api-Files-Synced",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Storage-StorageSync-Files-Synced-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

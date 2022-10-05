@@ -1,0 +1,168 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dell_idrac.pl --plugin=hardware::server::dell::idrac::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Dell-iDrac-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dell_idrac.pl --plugin=hardware::server::dell::idrac::snmp::plugin --mode=global-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Dell-iDrac-SNMP-GlobalStatus",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les serveurs Dell via la carte iDrac en SNMP}\r\n{EN: Template to check Dell server through iDrac card using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Dell server through iDrac card using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "dell-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Server-Dell-iDrac-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Dell-iDrac-Hardware-SNMP",
+                "HW-Dell-iDrac-GlobalStatus-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "dell-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Setting the version of base-generic whose iDRAC PP is dependant of to 3.2.2",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Dell hardware servers via iDRAC using SNMP"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser le mat\u00e9rie ldes serverus Dell via iDRAC en utilisant le protocole SNMP"
+            }
+        ],
+        "discovery_category": "hardware-server",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Servers-Dell-IDrac-Snmp\r\n\r\n## SNMP\r\nSNMP must be configured on the monitored host\r\n\r\n## Centreon Configuration\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Server-Dell-iDrac-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Dell iDRAC",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_dell_idrac.pl",
+                "package_name": "centreon-plugin-Hardware-Servers-Dell-IDrac-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Hardware-Servers-Dell-IDrac-Snmp",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "hardware-servers-dell-idrac-snmp",
+        "status": "stable",
+        "status_message": "Adding the version for the dependance to base-generic",
+        "tags": [
+            "Dell",
+            "Hardware",
+            "iDRAC",
+            "Management card",
+            "SNMP",
+            "Servers"
+        ],
+        "update_date": "1584090396",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat globale de l'\u00e9quipement.}\r\n\r\n{EN: Check global status of the equipment.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware",
+            "check_timeperiod": "",
+            "command_name": "HW-Dell-iDrac-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Dell-iDrac-Hardware-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat globale de l'\u00e9quipement.}\r\n\r\n{EN: Check global status of the equipment.}",
+            "active_checks_enabled": 2,
+            "alias": "GlobalStatus",
+            "check_timeperiod": "",
+            "command_name": "HW-Dell-iDrac-SNMP-GlobalStatus",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Dell-iDrac-GlobalStatus-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

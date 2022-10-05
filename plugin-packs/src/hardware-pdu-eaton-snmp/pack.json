@@ -1,0 +1,193 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_pdu_eaton_snmp.pl  --plugin=hardware::pdu::eaton::snmp::plugin --mode=outlet --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\' --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\' --warning-power=\\'$_SERVICEWARNINGPOWER$\\' --critical-power=\\'$_SERVICECRITICALPOWER$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Pdu-Eaton-SNMP-Outlet",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_pdu_eaton_snmp.pl  --plugin=hardware::pdu::eaton::snmp::plugin --mode=group --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\' --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\' --warning-power=\\'$_SERVICEWARNINGPOWER$\\' --critical-power=\\'$_SERVICECRITICALPOWER$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Pdu-Eaton-SNMP-Group",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_pdu_eaton_snmp.pl  --plugin=hardware::pdu::eaton::snmp::plugin --mode=environment --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --unknown-humidity-status=\\'$_SERVICEUNKNOWNHUMIDITYSTATUS$\\' --warning-humidity-status=\\'$_SERVICEWARNINGHUMIDITYSTATUS$\\' --critical-humidity-status=\\'$_SERVICECRITICALHUMIDITYSTATUS$\\' --warning-humidity=\\'$_SERVICEWARNINGHUMIDITY$\\' --critical-humidity=\\'$_SERVICECRITICALHUMIDITY$\\' --unknown-temperature-status=\\'$_SERVICEUNKNOWNTEMPERATURESTATUS$\\' --warning-temperature-status=\\'$_SERVICEWARNINGTEMPERATURESTATUS$\\' --critical-temperature-status=\\'$_SERVICECRITICALTEMPERATURESTATUS$\\' --warning-temperature=\\'$_SERVICEWARNINGTEMPERATURE$\\' --critical-temperature=\\'$_SERVICECRITICALTEMPERATURE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Pdu-Eaton-SNMP-Environment",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser PDU Eaton via SNMP}\r\n{EN: Template to check PDU Eaton using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check PDU Eaton using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "eaton-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Pdu-Eaton-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Pdu-Eaton-Outlet-SNMP",
+                "HW-Pdu-Eaton-Group-SNMP",
+                "HW-Pdu-Eaton-Environment-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "eaton-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Add environment service",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Eaton PDU using SNMP:\r\n* Group\r\n* Outlet\r\n* Sensors"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un PDU Eaton via SNMP :\r\n* Group\r\n* Outlet\r\n* Sensors"
+            }
+        ],
+        "discovery_category": "ups-pdu",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n\r\n## Prerequisites\r\n\r\n### Centreon Plugin\r\n\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Pdu-Eaton-Snmp\r\n\r\n## SNMP\r\n\r\nConnect to your PDU Eaton and configure SNMP.\r\n\r\n## Centreon Configuration\r\n\r\n### Create a new PDU Eaton host\r\n\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Pdu-Eaton-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Eaton PDU SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_pdu_eaton_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Pdu-Eaton-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-pdu-eaton-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "PDU",
+            "Eaton",
+            "SNMP",
+            "Hardware"
+        ],
+        "update_date": "1571215864",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les sorties.}\r\n\r\n{EN: Check outlets.}",
+            "active_checks_enabled": 2,
+            "alias": "Outlet",
+            "check_timeperiod": "",
+            "command_name": "HW-Pdu-Eaton-SNMP-Outlet",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Pdu-Eaton-Outlet-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les groupes.}\r\n\r\n{EN: Check groups.}",
+            "active_checks_enabled": 2,
+            "alias": "Group",
+            "check_timeperiod": "",
+            "command_name": "HW-Pdu-Eaton-SNMP-Group",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Pdu-Eaton-Group-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les capteurs (humidit\u00e9, temp\u00e9rature).}\r\n\r\n{EN: Check environmental sensors.}",
+            "active_checks_enabled": 2,
+            "alias": "Environment",
+            "check_timeperiod": "",
+            "command_name": "HW-Pdu-Eaton-SNMP-Environment",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALHUMIDITYSTATUS$",
+                    "password": false,
+                    "value": "%{status} eq \"bad\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALTEMPERATURESTATUS$",
+                    "password": false,
+                    "value": "%{status} eq \"bad\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Pdu-Eaton-Environment-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

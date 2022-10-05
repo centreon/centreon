@@ -1,0 +1,98 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_protocol_jmx.pl --plugin=apps::protocols::jmx::plugin --mode=numeric-value --custommode=jolokia --url=\\'$_SERVICEJOLOKIAURL$\\' --username=\\'$_SERVICEJOLOKIAUSERNAME$\\' --password=\\'$_SERVICEJOLOKIAPASSWORD$\\' --mbean-pattern=\\'$_SERVICEMBEANPATTERN$\\' --attribute=\\'$_SERVICEATTRIBUTE$\\' --lookup-path=\\'$_SERVICEPATH$\\' --perfdata-unit=\\'$_SERVICEPERFDATAUNIT$\\' --format=\\'$_SERVICEFORMAT$\\' --perfdata-name=\\'$_SERVICEPERFDATANAME$\\' --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Protocol-Jmx-Numeric-Value",
+            "type": "2"
+        }
+    ],
+    "host_templates": [],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Compatibility with Centreon Plugin Packs Manager v2.2.0",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor an MBEAN value using JMX protocol"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack Plugin pour surveiller une valeur MBEAN via le protocole JMX"
+            }
+        ],
+        "discovery_category": "protocol",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Protocol-Jmx\r\n\r\nPlease install jolokia agent on your java application server\r\n[Jolikia download page](https://jolokia.org/download.html). Ask to\r\nyour admin to deploy it and give you the URL.\r\n\r\n## Centreon Configuration\r\n### Create a service using the appropriate template\r\nGo to *Configuration &gt; Services* and click *Add*. Then, fill the form\r\nas shown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Service name</p></td>\r\n<td align=\"left\"><p><em>Choose a name</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Service Template</p></td>\r\n<td align=\"left\"><p>App-Protocol-Jmx-Numeric-Value-Generic-Custom-custom</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Macros</p></td>\r\n<td align=\"left\"><p>JOLOKIAURL, MBEANPATTERN, ATTRIBUTE, PATH</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "JMX value",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_protocol_jmx.pl",
+                "package_name": "centreon-plugin-Applications-Protocol-Jmx",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Applications-Protocol-Jmx",
+                "version": "20160324-2"
+            }
+        ],
+        "slug": "applications-protocol-jmx",
+        "status": "stable",
+        "status_message": "Update configuration",
+        "tags": [
+            "Application",
+            "Java",
+            "JMX",
+            "Jolokia",
+            "MBEAN",
+            "Web server"
+        ],
+        "update_date": "1486389228",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier une valeur JMX num\u00e9rique.}\r\n\r\n{EN: Check an JMX numeric value.}",
+            "active_checks_enabled": 2,
+            "alias": "Numeric-Value-Generic",
+            "check_timeperiod": "",
+            "command_name": "App-Protocol-Jmx-Numeric-Value",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFORMAT$",
+                    "password": false,
+                    "value": "current value is %s"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERFDATANAME$",
+                    "password": false,
+                    "value": "value"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Protocol-Jmx-Numeric-Value-Generic",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

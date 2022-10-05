@@ -1,0 +1,369 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_standard_rfc1628_snmp.pl --plugin=hardware::ups::standard::rfc1628::snmp::plugin --mode=output-source --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Standard-Rfc1628-SNMP-Output-Source",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_standard_rfc1628_snmp.pl --plugin=hardware::ups::standard::rfc1628::snmp::plugin --mode=output-lines --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-load=\\'$_SERVICEWARNINGLOAD$\\' --critical-load=\\'$_SERVICECRITICALLOAD$\\'  --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\'  --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\'  --warning-power=\\'$_SERVICEWARNINGPOWER$\\' --critical-power=\\'$_SERVICECRITICALPOWER$\\'  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Standard-Rfc1628-SNMP-Output-Lines",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_standard_rfc1628_snmp.pl --plugin=hardware::ups::standard::rfc1628::snmp::plugin --mode=input-lines --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-frequence=\\'$_SERVICEWARNINGFREQUENCE$\\' --critical-frequence=\\'$_SERVICECRITICALFREQUENCE$\\'  --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\'  --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\'  --warning-power=\\'$_SERVICEWARNINGPOWER$\\' --critical-power=\\'$_SERVICECRITICALPOWER$\\'  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Standard-Rfc1628-SNMP-Input-Lines",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_standard_rfc1628_snmp.pl --plugin=hardware::ups::standard::rfc1628::snmp::plugin --mode=battery-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-charge-remaining=\\'$_SERVICEWARNING$\\' --critical-charge-remaining=\\'$_SERVICECRITICAL$\\' --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\' --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\' --warning-temperature=\\'$_SERVICEWARNINGTEMPERATURE$\\' --critical-temperature=\\'$_SERVICECRITICALTEMPERATURE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Standard-Rfc1628-SNMP-Battery-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_standard_rfc1628_snmp.pl --plugin=hardware::ups::standard::rfc1628::snmp::plugin --mode=alarms --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Standard-Rfc1628-SNMP-Alarms",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check UPS Hardware using rfc 1628 standard using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-UPS-Standard-Rfc1628-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-UPS-Standard-Rfc1628-Output-Source-SNMP",
+                "HW-UPS-Standard-Rfc1628-Output-Lines-SNMP",
+                "HW-UPS-Standard-Rfc1628-Input-Lines-SNMP",
+                "HW-UPS-Standard-Rfc1628-Battery-Status-SNMP",
+                "HW-UPS-Standard-Rfc1628-Alarms-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Update battery-status service",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor standard Unit Power Supply (UPS) according RFC 1628 using SNMP protocole:\r\n* Alarms\r\n* Output sources\r\n* Output lines\r\n* Input lines\r\n* Battery status"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack Plugin pour surveiller les onduleurs standards selon RFC 1628 en utilisant le protocole SNMP :\r\n* Contr\u00f4le la pr\u00e9sence d\\'alarmes\r\n* Contr\u00f4le l\\'\u00e9tat de la source d\\'alimentation\r\n* Contr\u00f4le les m\u00e9triques de la source d\\'alimentation\r\n* Contr\u00f4le les m\u00e9triques de l\\'alimentation\r\n* Contr\u00f4le l\\'\u00e9tat de la batterie et la charge restante"
+            }
+        ],
+        "discovery_category": "ups-pdu",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Ups-Standard-Rfc1628-Snmp\r\n\r\n## SNMP\r\nSNMP must be configured on the monitored host\r\n\r\n## Centreon Configuration\r\n### Create a new UPS host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-UPS-Standard-Rfc1628-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "UPS Standard",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_ups_standard_rfc1628_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Ups-Standard-Rfc1628-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Hardware-Ups-Standard-Rfc1628-Snmp",
+                "version": "20160220-1"
+            }
+        ],
+        "slug": "hardware-ups-standard-rfc1628-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Hardware",
+            "Power",
+            "RFC1628",
+            "SNMP",
+            "Supply",
+            "UPS"
+        ],
+        "update_date": "1540832079",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de la source d'alimentation.}\r\n\r\n{EN: Check output source status.}",
+            "active_checks_enabled": 2,
+            "alias": "Output-Source",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Standard-Rfc1628-SNMP-Output-Source",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-UPS-Standard-Rfc1628-Output-Source-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les m\u00e9triques de la source d'alimentation.}\r\n\r\n{EN: Check output lines metrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Output-Lines",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Standard-Rfc1628-SNMP-Output-Lines",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALCURRENT$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALLOAD$",
+                    "password": false,
+                    "value": "95"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALPOWER$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALVOLTAGE$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGCURRENT$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGLOAD$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGPOWER$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGVOLTAGE$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-UPS-Standard-Rfc1628-Output-Lines-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les m\u00e9triques de l'alimentation.}\r\n\r\n{EN: Check input lines metrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Input-Lines",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Standard-Rfc1628-SNMP-Input-Lines",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALCURRENT$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALFREQUENCE$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALPOWER$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALVOLTAGE$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGCURRENT$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGFREQUENCE$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGPOWER$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGVOLTAGE$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-UPS-Standard-Rfc1628-Input-Lines-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de la batterie et la charge restante.}\r\n\r\n{EN: Check battery status and battery charge remaining.}",
+            "active_checks_enabled": 2,
+            "alias": "Battery-Status",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Standard-Rfc1628-SNMP-Battery-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /unknown/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /low/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /depleted/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "50:"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "20:"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-UPS-Standard-Rfc1628-Battery-Status-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la pr\u00e9sence d'alarmes.}\r\n\r\n{EN: Check if alarms present.}",
+            "active_checks_enabled": 2,
+            "alias": "Alarms",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Standard-Rfc1628-SNMP-Alarms",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-UPS-Standard-Rfc1628-Alarms-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

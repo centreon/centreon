@@ -1,0 +1,345 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_violin_3000.pl --plugin=storage::violin::3000::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Violin-3000-SNMP-hardware",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Violin 3000 in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Violin-3000-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Storage-Violin-3000-Hardware-Global-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ remove hardcoded snmp community and version",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Violin Memory 3000 storage via SNMP:\r\n* Chassis-Alarm\r\n* Fan\r\n* Global-Fc\r\n* Global\r\n* Local-Fc\r\n* Psu\r\n* Temperature\r\n* Vimm"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller le stockage Violin Memory 3000 via SNMP :\r\n* Chassis-Alarm\r\n* Fan\r\n* Global-Fc\r\n* Global\r\n* Local-Fc\r\n* Psu\r\n* Temperature\r\n* Vimm"
+            }
+        ],
+        "discovery_category": "storage",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Storage-Violin-3000-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Storage-Violin-3000-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Violin Memory 3000",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_violin_3000.pl",
+                "package_name": "centreon-plugin-Hardware-Storage-Violin-3000-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Hardware-Storage-Violin-3000-Snmp",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "hardware-storage-violin-3000-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "3000",
+            "SAN",
+            "SNMP",
+            "Storage",
+            "Violin",
+            "Violin Memory"
+        ],
+        "update_date": "1499675509",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'ensemble du mat\u00e9riel (ventilateur, temp\u00e9rature, alarme du chassis, global fc, local fc, vimm) du stockage.}\r\n\r\n{EN: Check all hardware (Fans, Power Supplies, Temperatures, Chassis alarm, vimm, global fc, local fc) of storage.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Violin-3000-SNMP-hardware",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Storage-Violin-3000-Hardware-Global-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les ventilateurs du stockage.}\r\n\r\n{EN: Check fans of storage.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Fan",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Violin-3000-SNMP-hardware",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "fan"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Storage-Violin-3000-Hardware-Fan-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les alimentations du stockage.}\r\n\r\n{EN: Check power supplies of storage.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Psu",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Violin-3000-SNMP-hardware",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "psu"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Storage-Violin-3000-Hardware-Psu-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les alarmes du chasis du stockage.}\r\n\r\n{EN: Check chassis alarm of storage.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Chassis-Alarm",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Violin-3000-SNMP-hardware",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "ca"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Storage-Violin-3000-Hardware-Chassis-Alarm-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les 'vimm' du stockage.}\r\n\r\n{EN: Check vimm of storage.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Vimm",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Violin-3000-SNMP-hardware",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "vimm"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Storage-Violin-3000-Hardware-Vimm-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les temp\u00e9ratures du stockage.}\r\n\r\n{EN: Check temperatures of storage.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Temperature",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Violin-3000-SNMP-hardware",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "temperature"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Storage-Violin-3000-Hardware-Temperature-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les 'global fc' du stockage.}\r\n\r\n{EN: Check global fc of storage.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global-Fc",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Violin-3000-SNMP-hardware",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "gfc"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Storage-Violin-3000-Hardware-Global-Fc-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les 'local fc' du stockage.}\r\n\r\n{EN: Check local fc of storage.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Local-Fc",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Violin-3000-SNMP-hardware",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "lfc"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Storage-Violin-3000-Hardware-Local-Fc-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

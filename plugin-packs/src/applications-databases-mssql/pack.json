@@ -1,0 +1,583 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mssql.pl --plugin database::mssql::plugin --hostname $HOSTADDRESS$ --port $_HOSTMSSQLPORT$ --username \\'$_HOSTMSSQLUSERNAME$\\' --password \\'$_HOSTMSSQLPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --mode=\\'transactions\\' --filter-database=\\'$_SERVICEFILTERDATABASE$\\' --warning-databases-transactions=\\'$_SERVICEWARNINGDATABASESTRANSACTIONS$\\' --critical-databases-transactions=\\'$_SERVICECRITICALDATABASESTRANSACTIONS$\\' --warning-database-transactions=\\'$_SERVICEWARNINGDATABASETRANSACTIONS$\\' --critical-database-transactions=\\'$_SERVICECRITICALDATABASETRANSACTIONS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-MSSQL-Transactions",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mssql.pl --plugin database::mssql::plugin --hostname $HOSTADDRESS$ --port $_HOSTMSSQLPORT$ --username \\'$_HOSTMSSQLUSERNAME$\\' --password \\'$_HOSTMSSQLPASSWORD$\\'  --mode=\\'failed-jobs\\' $_HOSTEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-jobs-total=\\'$_SERVICEWARNINGJOBSTOTAL$\\' --critical-jobs-total=\\'$_SERVICECRITICALJOBSTOTAL$\\' --warning-jobs-failed=\\'$_SERVICEWARNINGJOBSFAILED$\\' --critical-jobs-failed=\\'$_SERVICECRITICALJOBSFAILED$\\' --warning-jobs-success=\\'$_SERVICEWARNINGJOBSSUCCESS$\\' --critical-jobs-success=\\'$_SERVICECRITICALJOBSSUCCESS$\\' --warning-jobs-canceled=\\'$_SERVICEWARNINGJOBSCANCELED$\\' --critical-jobs-canceled=\\'$_SERVICECRITICALJOBSCANCELED$\\' --warning-jobs-running=\\'$_SERVICEWARNINGJOBSRUNNING$\\' --critical-jobs-running=\\'$_SERVICECRITICALJOBSRUNNING$\\' --warning-jobs-retry=\\'$_SERVICEWARNINGJOBSRETRY$\\' --critical-jobs-retry=\\'$_SERVICECRITICALJOBSRETRY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-MSSQL-Failed-Jobs",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mssql.pl --plugin database::mssql::plugin --hostname $HOSTADDRESS$ --port $_HOSTMSSQLPORT$ --username \\'$_HOSTMSSQLUSERNAME$\\' --password \\'$_HOSTMSSQLPASSWORD$\\'  --mode=\\'$_SERVICEMODE$\\' $_HOSTEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-MSSQL",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mssql.pl --plugin database::mssql::plugin --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTMSSQLPORT$\\' --username=\\'$_HOSTMSSQLUSERNAME$\\' --password=\\'$_HOSTMSSQLPASSWORD$\\' $_HOSTEXTRAOPTIONS$  --mode=\\'databases-size\\' --filter-database=\\'$_SERVICEFILTERDATABASE$\\' --filter-database-state=\\'$_SERVICEFILTERDATABASESTATE$\\' --datafiles-maxsize=\\'$_SERVICEDATAFILESMAXSIZE$\\' --logfiles-maxsize=\\'$_SERVICELOGSFILESMAXSIZE$\\' --datafiles-maxsize-unlimited=\\'$_SERVICEDATAFILESMAXSIZEUNLIMITED$\\' --logfiles-maxsize-unlimited=\\'$_SERVICELOGSFILESMAXSIZEUNLIMITED$\\' --warning-logfiles-space-usage=\\'$_SERVICEWARNINGLOGFILESSPACEUSAGE$\\' --critical-logfiles-space-usage=\\'$_SERVICECRITICALLOGFILESSPACEUSAGE$\\' --warning-logfiles-space-usage-free=\\'$_SERVICEWARNINGLOGFILESSPACEUSAGEFREE$\\' --critical-logfiles-space-usage-free=\\'$_SERVICECRITICALLOGFILESSPACEUSAGEFREE$\\' --warning-logfiles-space-usage-prct=\\'$_SERVICEWARNINGLOGFILESSPACEUSAGEPRCT$\\' --critical-logfiles-space-usage-prct=\\'$_SERVICECRITICALLOGFILESSPACEUSAGEPRCT$\\' --warning-datafiles-space-usage=\\'$_SERVICEWARNINGDATAFILESSPACEUSAGE$\\' --critical-datafiles-space-usage=\\'$_SERVICECRITICALDATAFILESSPACEUSAGE$\\' --warning-datafiles-space-usage-free=\\'$_SERVICEWARNINGDATAFILESSPACEUSAGEFREE$\\' --critical-datafiles-space-usage-free=\\'$_SERVICECRITICALDATAFILESSPACEUSAGEFREE$\\' --warning-datafiles-space-usage-prct=\\'$_SERVICEWARNINGDATAFILESSPACEUSAGEPRCT$\\' --critical-datafiles-space-usage-prct=\\'$_SERVICECRITICALDATAFILESSPACEUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-MSSQL-Databases-Size",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mssql.pl --plugin=database::mssql::plugin --hostname=$HOSTADDRESS$ --port=$_HOSTMSSQLPORT$ --username=\\'$_HOSTMSSQLUSERNAME$\\' --password=\\'$_HOSTMSSQLPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --mode=\\'blocked-processes\\' --filter-status=\\'$_SERVICEFILTERSTATUS$\\' --filter-program=\\'$_SERVICEFILTERPROGRAM$\\' --filter-command=\\'$_SERVICEFILTERCOMMAND$\\' --warning-blocked-processes=\\'$_SERVICEWARNINGBLOCKEDPROCESSES$\\' --critical-blocked-processes=\\'$_SERVICECRITICALBLOCKEDPROCESSES$\\' --warning-wait-time=\\'$_SERVICEWARNINGWAITTIME$\\' --critical-wait-time=\\'$_SERVICECRITICALWAITTIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-MSSQL-Blocked-Processes",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mssql.pl --plugin database::mssql::plugin --hostname $HOSTADDRESS$ --port $_HOSTMSSQLPORT$ --username \\'$_HOSTMSSQLUSERNAME$\\' --password \\'$_HOSTMSSQLPASSWORD$\\' $_HOSTEXTRAOPTIONS$  --mode=\\'backup-age\\' --filter-name=\\'$_SERVICEFILTERNAME$\\' --filter-database-state=\\'$_SERVICEFILTERDATABASESTATE$\\' --unit=\\'$_SERVICEUNIT$\\' --warning-incremental-last-execution=\\'$_SERVICEWARNINGINCREMENTALLASTEXECUTION$\\' --critical-incremental-last-execution=\\'$_SERVICECRITICALINCREMENTALLASTEXECUTION$\\' --warning-incremental-last-duration=\\'$_SERVICEWARNINGINCREMENTALLASTDURATION$\\' --critical-incremental-last-duration=\\'$_SERVICECRITICALINCREMENTALLASTDURATION$\\' --warning-log-last-execution=\\'$_SERVICEWARNINGLOGLASTEXECUTION$\\' --critical-log-last-execution=\\'$_SERVICECRITICALLOGLASTEXECUTION$\\' --warning-log-last-duration=\\'$_SERVICEWARNINGLOGLASTDURATION$\\' --critical-log-last-duration=\\'$_SERVICECRITICALLOGLASTDURATION$\\' --warning-full-last-execution=\\'$_SERVICEWARNINGFULLLASTEXECUTION$\\' --critical-full-last-execution=\\'$_SERVICECRITICALFULLLASTEXECUTION$\\' --warning-full-last-duration=\\'$_SERVICEWARNINGFULLLASTDURATION$\\' --critical-full-last-duration=\\'$_SERVICECRITICALFULLLASTDURATION$\\' --warning-last-execution=\\'$_SERVICEWARNINGLASTEXECUTION$\\' --critical-last-execution=\\'$_SERVICECRITICALLASTEXECUTION$\\' --warning-last-duration=\\'$_SERVICEWARNINGLASTDURATION$\\' --critical-last-duration=\\'$_SERVICECRITICALLASTDURATION$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-MSSQL-Backup-Age",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mssql.pl --plugin database::mssql::plugin --hostname $HOSTADDRESS$ --port $_HOSTMSSQLPORT$ --username \\'$_HOSTMSSQLUSERNAME$\\' --password \\'$_HOSTMSSQLPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --mode=\\'sql\\' --sql-statement=\\'$_SERVICESQLSTATEMENT$\\' --warning-value=\\'$_SERVICEWARNINGVALUE$\\' --critical-value=\\'$_SERVICECRITICALVALUE$\\' --warning-execution-time=\\'$_SERVICEWARNINGEXECUTIONTIME$\\' --critical-execution-time=\\'$_SERVICECRITICALEXECUTIONTIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-MSSQL-Sql",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mssql.pl --plugin database::mssql::plugin --hostname $HOSTADDRESS$ --port $_HOSTMSSQLPORT$ --username \\'$_HOSTMSSQLUSERNAME$\\' --password \\'$_HOSTMSSQLPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --mode=\\'sql-string\\' --sql-statement=\\'$_SERVICESQLSTATEMENT$\\' --value-column=\\'$_SERVICEVALUE$\\' --warning-string=\\'$_SERVICEWARNING$\\' --critical-string=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-MSSQL-Sql-String",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mssql.pl --plugin=database::mssql::plugin --hostname=$HOSTADDRESS$ --port=$_HOSTMSSQLPORT$ --username=\\'$_HOSTMSSQLUSERNAME$\\' --password=\\'$_HOSTMSSQLPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --mode=\\'page-life-expectancy\\' --warning-page-life-expectancy=\\'$_SERVICEWARNINGPAGELIFEEXPECTANCY$\\' --critical-page-life-expectancy=\\'$_SERVICECRITICALPAGELIFEEXPECTANCY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-MSSQL-Life-Page-Expectancy",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser une base de donn\u00e9es MSSQL}\r\n{EN: Template to check MSSQL Database}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check MSSQL Database",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "mssql-128-2.png",
+            "macros": [
+                {
+                    "key": "$_HOSTMSSQLPASSWORD$",
+                    "value": "PASSWORD"
+                },
+                {
+                    "key": "$_HOSTMSSQLPORT$",
+                    "value": "1433"
+                },
+                {
+                    "key": "$_HOSTMSSQLUSERNAME$",
+                    "value": "USERNAME"
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-MSSQL",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-DB-MSSQL-Transactions",
+                "App-DB-MSSQL-Failed-Jobs",
+                "App-DB-MSSQL-Deadlocks",
+                "App-DB-MSSQL-Databases-Size",
+                "App-DB-MSSQL-Connection-Time",
+                "App-DB-MSSQL-Connected-Users",
+                "App-DB-MSSQL-Blocked-Processes"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "mssql-128-2.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* mode backup-age - add thresholds options last-duration and last-execution\r\n* add --filter-database-state option",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor MS SQL Server DBMS using SQL request.\r\nSeveral indicators are available but not linked to the template of host.\r\nYou have to use them manually:\r\n* Backup-Age\r\n* Blocked-Processes\r\n* Cache-Hitratio\r\n* Connected-Users\r\n* Connection-Time\r\n* Database-Free\r\n* Database-Used\r\n* Deadlocks\r\n* Failed-Jobs\r\n* Locks-Waits\r\n* Logs-Size\r\n* Page-Life-Expectancy\r\n* Transactions"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack Plugin pour surveiller les SGBD MS SQL Server en utilisant des requ\u00eates SQL.\r\nDe nombreux indicateurs sont disponibles mais ne sont pas associ\u00e9s au mod\u00e8le d\\'h\u00f4te.\r\nIls doivent \u00eatre d\u00e9ploy\u00e9s manuellement:\r\n* Backup-Age\r\n* Blocked-Processes\r\n* Cache-Hitratio\r\n* Connected-Users\r\n* Connection-Time\r\n* Database-Free\r\n* Database-Used\r\n* Deadlocks\r\n* Failed-Jobs\r\n* Locks-Waits\r\n* Logs-Size\r\n* Page-Life-Expectancy\r\n* Transactions"
+            }
+        ],
+        "discovery_category": "database",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Databases-Mssql\r\n\r\n## Username\r\n\r\nThe username string should not be longer than 32 chararacters. Username\r\nmust be in the following form: [Servername|Domainname]\r\nIn order for the plugin to operate correctly, a database user with specific privileges is required.\r\nThe simplest way is to assign the Nagios-user the role \u201cserveradmin\u201d and \"db_owner\". As an alternative you can use the sa-User for the database connection. Alas, this opens a serious security hole, as the (cleartext) administrator password can be found in the nagios configuration files\r\nBirk Bohne wrote the following script which allows the automated creation of a minimal, yet sufficient privileged monitoring-user.\r\n\r\n    declare @dbname varchar(255)\r\n    declare @check_mssql_health_USER varchar(255)\r\n    declare @check_mssql_health_PASS varchar(255)\r\n    declare @check_mssql_health_ROLE varchar(255)\r\n    declare @source varchar(255)\r\n    declare @options varchar(255)\r\n    declare @backslash int\r\n    \r\n    /*******************************************************************/\r\n    SET @check_mssql_health_USER = '\"[Servername|Domainname]\\Username\"'\r\n    SET @check_mssql_health_PASS = 'Password'\r\n    SET @check_mssql_health_ROLE = 'Rolename'\r\n    /******************************************************************\r\n    \r\n    PLEASE CHANGE THE ABOVE VALUES ACCORDING TO YOUR REQUIREMENTS\r\n    \r\n    - Example for Windows authentication:\r\n      SET @check_mssql_health_USER = '\"[Servername|Domainname]\\Username\"'\r\n      SET @check_mssql_health_ROLE = 'Rolename'\r\n    \r\n    - Example for SQL Server authentication:\r\n      SET @check_mssql_health_USER = 'Username'\r\n      SET @check_mssql_health_PASS = 'Password'\r\n      SET @check_mssql_health_ROLE = 'Rolename'\r\n    \r\n    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\r\n    It is strongly recommended to use Windows authentication. Otherwise\r\n    you will get no reliable results for database usage.\r\n    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\r\n    \r\n    *********** NO NEED TO CHANGE ANYTHING BELOW THIS LINE *************/\r\n    \r\n    SET @options = 'DEFAULT_DATABASE=MASTER, DEFAULT_LANGUAGE=English'\r\n    SET @backslash = (SELECT CHARINDEX('\\', @check_mssql_health_USER))\r\n    IF @backslash > 0\r\n      BEGIN\r\n        SET @source = ' FROM WINDOWS'\r\n        SET @options = ' WITH ' + @options\r\n      END\r\n    ELSE\r\n      BEGIN\r\n        SET @source = ''\r\n        SET @options = ' WITH PASSWORD=''' + @check_mssql_health_PASS + ''',' + @options\r\n      END\r\n    \r\n    PRINT 'create Nagios plugin user ' + @check_mssql_health_USER\r\n    EXEC ('CREATE LOGIN ' + @check_mssql_health_USER + @source + @options)\r\n    EXEC ('USE MASTER GRANT VIEW SERVER STATE TO ' + @check_mssql_health_USER)\r\n    EXEC ('USE MASTER GRANT ALTER trace TO ' + @check_mssql_health_USER)\r\n    EXEC ('USE MSDB GRANT SELECT ON sysjobhistory TO ' + @check_mssql_health_USER)\r\n    EXEC ('USE MSDB GRANT SELECT ON sysjobschedules TO ' + @check_mssql_health_USER)\r\n    EXEC ('USE MSDB GRANT SELECT ON sysjobs TO ' + @check_mssql_health_USER)\r\n    PRINT 'User ' + @check_mssql_health_USER + ' created.'\r\n    PRINT ''\r\n    \r\n    declare dblist cursor for\r\n      select name from sysdatabases WHERE name NOT IN ('master', 'tempdb', 'msdb') open dblist\r\n        fetch next from dblist into @dbname\r\n        while @@fetch_status = 0 begin\r\n          EXEC ('USE [' + @dbname + '] print ''Grant permissions in the db '' + ''\"'' + DB_NAME() + ''\"''')\r\n          EXEC ('USE [' + @dbname + '] CREATE ROLE ' + @check_mssql_health_ROLE)\r\n          EXEC ('USE [' + @dbname + '] GRANT EXECUTE TO ' + @check_mssql_health_ROLE)\r\n          EXEC ('USE [' + @dbname + '] GRANT VIEW DATABASE STATE TO ' + @check_mssql_health_ROLE)\r\n          EXEC ('USE [' + @dbname + '] GRANT VIEW DEFINITION TO ' + @check_mssql_health_ROLE)\r\n          EXEC ('USE [' + @dbname + '] CREATE USER ' + @check_mssql_health_USER + ' FOR LOGIN ' + @check_mssql_health_USER)\r\n          EXEC ('USE [' + @dbname + '] EXEC sp_addrolemember ' + @check_mssql_health_ROLE + ' , ' + @check_mssql_health_USER)\r\n          EXEC ('USE [' + @dbname + '] print ''Permissions in the db '' + ''\"'' + DB_NAME() + ''\" granted.''')\r\n          fetch next from dblist into @dbname\r\n        end\r\n    close dblist\r\n    deallocate dblist\r\n\r\nPlease keep in mind that check_mssql_health\u2019s functionality is limited when using SQL Server authentication. This method is strongly discouraged. Normally there is already a Nagios-(Windows-)-user which can be used for the Windows authentication method.\r\n\r\n### RPM\r\nIn order to use this template, the following RPM are needed:\r\n\r\n* freetds\r\n* perl-DBD-Sybase\r\n* unixODBC\r\n\r\n### Configuration of freetds.conf file\r\nThe /etc/freetds.conf file have to be modified in order to encrypt the\r\npassword. To do that :\r\n\r\n    vi /etc/freetds.conf\r\n\r\nModify line tds 'version = 4.2' to 'tds version = 8.0'.\r\nThen remove comment symbol at the beginning of this line.\r\n\r\n## Centreon Configuration\r\n### Create a new MSSQL database server\r\nGo to \"Configuration &gt; Hosts\" and click \"Add\". Then, fill the form as\r\nshown by the following table :\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-DB-MSSQL-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick \"Save\" button.\r\n\r\nThose services were automatically created for this host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"24%\" />\r\n<col width=\"75%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Service</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Backup-Age</p></td>\r\n<td align=\"left\"><p>Check database backups of the server. This time is given in minutes.</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Blocked-Processes</p></td>\r\n<td align=\"left\"><p>Check blocked processes on the server. Service cannot work because of a SQL request It depends of your MS SQL Server version.</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Cache-Hitratio</p></td>\r\n<td align=\"left\"><p>Check the 'Data Buffer Cache Hit Ratio' of the server.</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Connection-Time</p></td>\r\n<td align=\"left\"><p>Check the connection time to the server.</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Database-Free</p></td>\r\n<td align=\"left\"><p>Check free space of databases on the server.</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Deadlocks</p></td>\r\n<td align=\"left\"><p>Check deadlocks per second of the server.</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Failed-Jobs</p></td>\r\n<td align=\"left\"><p>Check failed jobs of the server.</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Ping</p></td>\r\n<td align=\"left\"><p>Monitor host response time</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Transactions</p></td>\r\n<td align=\"left\"><p>Check transactions per second of the server.</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\n### Host Macro Configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"19%\" />\r\n<col width=\"48%\" />\r\n<col width=\"19%\" />\r\n<col width=\"13%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n<th align=\"left\">Example</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>MSSQLUSERNAME</p></td>\r\n<td align=\"left\"><p>the MSSQL user</p></td>\r\n<td align=\"left\"><p>USERNAME</p></td>\r\n<td align=\"left\"><p>root</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>MSSQLPASSWORD</p></td>\r\n<td align=\"left\"><p>the MSSQL password</p></td>\r\n<td align=\"left\"><p>PASSWORD</p></td>\r\n<td align=\"left\"><p>p@ssw0rd</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>MSSQLPORT</p></td>\r\n<td align=\"left\"><p>Port to connect to database</p></td>\r\n<td align=\"left\"><p>1433</p></td>\r\n<td align=\"left\"><p>1433</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\n\r\nWhen we want to check multiple instances on a MSSQL server, we can use next syntax in the host extraoptions :\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"19%\" />\r\n<col width=\"48%\" />\r\n<col width=\"19%\" />\r\n<col width=\"13%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n<th align=\"left\">Example</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>EXTRAOPTIONS</p></td>\r\n<td align=\"left\"><p>the Host Extraoptions</p></td>\r\n<td align=\"left\"><p></p></td>\r\n<td align=\"left\"><p>--datasource='Sybase:server=SERVERNAME\\INSTANCENAME'</p></td>\r\n</tr>",
+        "name": "Microsoft SQL Server",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_mssql.pl",
+                "package_name": "centreon-plugin-Applications-Databases-Mssql",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Applications-Databases-Mssql",
+                "version": "20160324-2"
+            }
+        ],
+        "slug": "applications-databases-mssql",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Microsoft",
+            "MS SQL",
+            "MSSQL",
+            "Server",
+            "SQL",
+            "SQL Server",
+            "Windows"
+        ],
+        "update_date": "1644940723",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le nombre de transactions par seconde du serveur. Aucune alerte par d\u00e9faut.}\r\n\r\n{EN: Check transactions per second of the server. No alerts by default.}",
+            "active_checks_enabled": 2,
+            "alias": "Transactions",
+            "check_timeperiod": "",
+            "command_name": "App-DB-MSSQL-Transactions",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-MSSQL-Transactions",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les jobs MSSQL en erreur.}\r\n\r\n{EN: Check MSSQL failed jobs.}",
+            "active_checks_enabled": 2,
+            "alias": "Failed-Jobs",
+            "check_timeperiod": "",
+            "command_name": "App-DB-MSSQL-Failed-Jobs",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICELOOKBACK$",
+                    "password": false,
+                    "value": "183"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-DB-MSSQL-Failed-Jobs",
+            "normal_check_interval": 180,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le nombre de \"deadlocks\" par seconde du serveur.} {EN: Check deadlocks per second of the server.}",
+            "active_checks_enabled": 2,
+            "alias": "Deadlocks",
+            "check_timeperiod": "",
+            "command_name": "App-DB-MSSQL",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "0"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEMODE$",
+                    "password": false,
+                    "value": "dead-locks"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "0"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-DB-MSSQL-Deadlocks",
+            "normal_check_interval": 20,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'espace utilis\u00e9 des bases de donn\u00e9es du serveur.}\r\n{EN: Check database data and logs files.}",
+            "active_checks_enabled": 2,
+            "alias": "Databases-Size",
+            "check_timeperiod": "",
+            "command_name": "App-DB-MSSQL-Databases-Size",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERDATABASE$",
+                    "password": false,
+                    "value": "^(?!(tempdb))"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-MSSQL-Databases-Size",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier la dur\u00e9e de connexion au serveur. Ce temps est donn\u00e9 en secondes.} {EN: Check the connection time to the server. This time is given in seconds.}",
+            "active_checks_enabled": 2,
+            "alias": "Connection-Time",
+            "check_timeperiod": "",
+            "command_name": "App-DB-MSSQL",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "5000"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEMODE$",
+                    "password": false,
+                    "value": "connection-time"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "1000"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-MSSQL-Connection-Time",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le nombre d'utilisateurs connect\u00e9s \u00e0 la base de donn\u00e9es.} {EN: Check number of connected users on the database.}",
+            "active_checks_enabled": 2,
+            "alias": "Connected-Users",
+            "check_timeperiod": "",
+            "command_name": "App-DB-MSSQL",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEMODE$",
+                    "password": false,
+                    "value": "connected-users"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-MSSQL-Connected-Users",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les processus bloqu\u00e9s. Ce service utilise une requ\u00eate non valide selon les versions MS SQL Server.} {EN: Check blocked processes on the server. Service cannot work because of a SQL request. It depends of your MS SQL Server version.}",
+            "active_checks_enabled": 2,
+            "alias": "Blocked-Processes",
+            "check_timeperiod": "",
+            "command_name": "App-DB-MSSQL-Blocked-Processes",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGBLOCKEDPROCESSES$",
+                    "password": false,
+                    "value": "1"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALBLOCKEDPROCESSES$",
+                    "password": false,
+                    "value": "5"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-DB-MSSQL-Blocked-Processes",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le nombre de \"locks-waits\" par seconde du serveur.} {EN: Check locks-waits per second of the server.}",
+            "active_checks_enabled": 2,
+            "alias": "Locks-Waits",
+            "check_timeperiod": "",
+            "command_name": "App-DB-MSSQL",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "0"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEMODE$",
+                    "password": false,
+                    "value": "locks-waits"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "0"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-DB-MSSQL-Locks-Waits",
+            "normal_check_interval": 20,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les sauvegardes des bases donn\u00e9es MSSQL.}\r\n{EN: Check database backups of the server.}",
+            "active_checks_enabled": 2,
+            "alias": "Backup-Age",
+            "check_timeperiod": "",
+            "command_name": "App-DB-MSSQL-Backup-Age",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": "^(?!(tempdb))"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNIT$",
+                    "password": false,
+                    "value": "d"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-DB-MSSQL-Backup-Age",
+            "normal_check_interval": 180,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le \"Data Buffer Cache Hit Ratio\" du serveur. Aucunes alertes par d\u00e9faut.} {EN: Check the \"Data Buffer Cache Hit Ratio\" of the server. No alerts by default.}",
+            "active_checks_enabled": 2,
+            "alias": "Cache-Hitratio",
+            "check_timeperiod": "",
+            "command_name": "App-DB-MSSQL",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEMODE$",
+                    "password": false,
+                    "value": "cache-hitratio"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-DB-MSSQL-Cache-Hitratio",
+            "normal_check_interval": 20,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant d'ex\u00e9cuter une requ\u00eate SQL personnalis\u00e9e renvoyant une donn\u00e9e num\u00e9rique.}\r\n\r\n{EN: Check allowing to execute a custom SQL request with a digital answer.}",
+            "active_checks_enabled": 2,
+            "alias": "Sql-Statement",
+            "check_timeperiod": "",
+            "command_name": "App-DB-MSSQL-Sql",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-MSSQL-Sql-Statement",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant d'ex\u00e9cuter une requ\u00eate SQL personnalis\u00e9e renvoyant une chaine de caract\u00e8res.}\r\n\r\n{EN: Check allowing to execute a custom SQL request with a string answer.}",
+            "active_checks_enabled": 2,
+            "alias": "Sql-Statement-String",
+            "check_timeperiod": "",
+            "command_name": "App-DB-MSSQL-Sql-String",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-MSSQL-Sql-Statement-String",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le \"Page Life Expectancy du serveur. Aucunes alertes par d\u00e9faut.} {EN: Check the \"Page Life Expectancy\" of the server. No alerts by default.}",
+            "active_checks_enabled": 2,
+            "alias": "Page-Life-Expectancy",
+            "check_timeperiod": "",
+            "command_name": "App-DB-MSSQL-Life-Page-Expectancy",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-MSSQL-Page-Life-Expectancy",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

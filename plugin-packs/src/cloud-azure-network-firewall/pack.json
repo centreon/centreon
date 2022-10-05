@@ -1,0 +1,1163 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-Firewall-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Network Firewall resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Network/azurefirewalls/FWL123456ABCD78",
+                            "location": "westeurope",
+                            "name": "FWL123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/azurefirewalls"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Network/azurefirewalls/FWL789012EFGH34",
+                            "location": "westus",
+                            "name": "FWL789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/azurefirewalls"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": "discovery.results.id"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-Firewall-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Firewall",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-network-firewall",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-Firewall-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Network Firewall resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Network/azurefirewalls/FWL123456ABCD78",
+                            "location": "westeurope",
+                            "name": "FWL123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/azurefirewalls"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Network/azurefirewalls/FWL789012EFGH34",
+                            "location": "westus",
+                            "name": "FWL789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/azurefirewalls"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-Firewall-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Firewall",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-network-firewall",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-Firewall-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Network Firewall resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Network/azurefirewalls/FWL123456ABCD78",
+                            "location": "westeurope",
+                            "name": "FWL123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/azurefirewalls"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Network/azurefirewalls/FWL789012EFGH34",
+                            "location": "westus",
+                            "name": "FWL789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/azurefirewalls"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-Firewall-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Firewall",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-network-firewall",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_firewall_api.pl --plugin=cloud::azure::network::firewall::plugin --mode=throughput --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-throughput=\\'$_SERVICEWARNINGTHROUGHPUT$\\' --critical-throughput=\\'$_SERVICECRITICALTHROUGHPUT$\\' --warning-processed-data=\\'$_SERVICEWARNINGPROCESSEDDATA$\\' --critical-processed-data=\\'$_SERVICECRITICALPROCESSEDDATA$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-Firewall-Api-Throughput",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_firewall_api.pl --plugin=cloud::azure::network::firewall::plugin --mode=hits --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-network-rules-hits=\\'$_SERVICEWARNINGNETWORKRULESHITS$\\' --critical-network-rules-hits=\\'$_SERVICECRITICALNETWORKRULESHITS$\\' --warning-application-rules-hits=\\'$_SERVICEWARNINGAPPLICATIONRULESHITS$\\' --critical-application-rules-hits=\\'$_SERVICECRITICALAPPLICATIONRULESHITS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-Firewall-Api-Hits",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_firewall_api.pl --plugin=cloud::azure::network::firewall::plugin --mode=health --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-firewall-health-percentage=\\'$_SERVICEWARNINGFIREWALLHEALTHPERCENTAGE$\\' --critical-firewall-health-percentage=\\'$_SERVICECRITICALFIREWALLHEALTHPERCENTAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-Firewall-Api-Health",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_network_firewall_api.pl --statefile-suffix='autodiscovery' --plugin=cloud::azure::network::firewall::plugin --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Network-Firewall-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les instances Azure Firewall via l'API}\r\n{EN: Template to check Azure Firewall resources service using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Network Firewall service using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-network-firewall-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-Firewall",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Network-Firewall-Throughput-Api",
+                "Cloud-Azure-Network-Firewall-Hits-Api",
+                "Cloud-Azure-Network-Firewall-Health-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-network-firewall-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ add proper tags management",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Azure Network Firewall service using RestAPI or AZCLI.**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|Cloud-Azure-Network-Firewall-custom|\r\n|---|\r\n|Health|\r\n|Hits|\r\n|Throughput|\r\n\r\nThis Plugin-Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin-Pack pour superviser les resources Azure Network Firewall via RestAPI ou AZCLI.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponibles et services associ\u00e9s:\r\n\r\n|Cloud-Azure-Network-Firewall-custom|\r\n|---|\r\n|Health|\r\n|Hits|\r\n|Throughput|\r\n\r\nCe Plugin-Pack fournit un *provider* Host Discovery pour le module d\\'auto-d\u00e9couverte d\\'H\u00f4tes"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAA3MSURBVHhe7Z0JdFTVGce/7743mQQSk8wEUFBwQRQP2qO4ARaSDFAriJaCx91AFgpqe+jisWqlbkfbc9pqy6E2mUDVo1Wwlb14yIJSVOwiSqVS1+NSxUxW9sy8e/u95BIYJiGTZN7Me2/u75yX933fm4GZuf/33e++5T4El5M9byN6Nc9wADYakH0TNf184HwUAB9FX/5k+bIoBMB+ANwNTNsNPPIRF2IrCPFOu3H4q30rrqLN7sG1Asgtqx2qA8xCZLMR8TJqfB8ITlv62n70EyGjt/GQANwBIrLGQHihuTLQIF/gaFwlAP8tGzX0escD0yuoxWYjiDwKJ/o7koKwhQOu5jxSiZrn701/mGzIbY7DNQLwldVewhi7m/b2qylde2TYYrCduofVlFgebqou2imDjsLxAvCV1o5gmvYQfZHraefMkuEkg/soLTxtGMaS5upASAYdgWMFMKzsZRYB/Xrq4x9DhNNkOKWQCHZT9rkzVFW8WYZsjyMFkF9Sm8sytF9SaTaffnaq9WwE4kEhYKkRNu5vXhE4JKO2xXEC8JfXn00f+hna6y+TITsiiBcNgy9oXj61WcZsiaME4K/YMp4+8Eqq7s+UIZvDtgnefkMoOO0zGbAdjhFAQXldEVX4z5M5tDPiDCgTvCUEzmoMFn0uQ7bCEQKgxp+ATHsJBB8mQw4DtxvCuKapKrBHBmyD7QXgL6sdh4xtog86QoYcCWWCVyFizAytmLZXhmwBFdL2xVdeM5TS/p+c3vgm9D0mg8aeyL9tqyZDtsC2Asgvr8lkwIL0w42TIcdDmexW3RNeDHNes03mta0AqPHvocafKV23oAHDBwvyD02WfsqxZQ3gX7CliAmxjszBnRF3IQDfMSKRyc3Lp7bKUMqwXQbwlW3ORyGWkunKxjdBEBcwDX8m3ZRiLwHMXUkZUr+L0tJ5MuJaGLJF/vItk6SbMmwlAH+efxztHrdL1+1kMeAP+srqU3ouwzYCyF24HhlqD9PenyND7oeGhgx5Sgtd2whADw+6gsqjK6WbLtDez5bkLajPlH7SsYUACspXMRry/ZRMb2ckfUCEC3QOM6SbdGySAQom0g8RkE66wajuuSO/ZFNK2sIuXUA5LRmdZvpBdc9EpnvGSzeppFwABaX1I2nvnyXddCWDusDvSTuppFwAyOAmWpmXb6c1JIAZvvmbT5Ju0kipAHy31pj931zppjtDkLEiaSeNlAoAM5h5ps/1R/3ixBwJJX1nSPrJoMG3bdY8msjSmD6avvIiUqBZACoIIcTXBoizmqsC+2TIcpIigPyS2gzQYLTG2FTq7K6kr3oh/ce5tMk8AJJ0EdoYg3M+pTEY2CZ9y7Hux5+7EvJzfIOZrs+i1FZB/xENc8RgknnKC087Q1ng7lBV8S+kazmWNEb+vJqcgrwhCzVd/wcD8QwKXgiC56jGjwecIo2kkNAMkH3nRsw45J3JgN2PDC+kBrfV9W8OoSHCwiObn5yelLuKErZHFpTXDfEezqpmyF5EhItV4/ebHGZoI6VtOQkRgK+sdhIyrY7+sRJKKWl7SDdBeBHwDGlbzoAEkDe/lhWU19+oMW0d9fHmmF5V9APH/A3HdprW028BZJdu0XQN76J0X021a74MKxLDGLm2nH4JILfsZebV4F4a3j1EbsouZnAtiN1OXmUFfRZA9pyNqKPnLhremVe12uvefJdAfUCBNC2nbwKYuxIy87wlDPFB8lTjW4QQyRNAn4q2gtLaK1DDjfS29LlwMwUIECHOxbkHudF8cPl0c247y4hbAOZkTBpj2+gdo2RIYR1cIPuAmuc94MY2zo2/GuLwrtblMxI+HV1cAsgtq9M8iKuo4v+ODCmSy14BuJP6hirKDGubqoubZHzAxCUAf0V9CQMMUnJSR/dSCSJlAPxAGJGlgGxFqKpov9zSb3oVgK+8bjgVfTvohUNkSJF6OGWE7eaZw0j7ob+1PvXtftcJvY4CNMT7VePbDoYgJtCfDZ4M7325FfX9niDzhBnAV1Z3kcbwNTLT7oYN54CUDWCDIXh5c1Vxn+cg6jkDdNypC+Z4XzW+rRFmNriairP11F2PlsG46VEAvlz/eEScLl2FzaG2upghW5tfVtOnORR7FAAVfj+kVZJm3VYkAsoEYzWmrfaX1p0qQ73SbQ3gK68ZqaG2m0x1oseBCGD1RkTMbF5eeECGeqTbDMCA3UIr1fgOBYEXaho8ml+xuddRXswLfCU1OvUnN0tX4UyoCWGRxtk10u+RGAGgjpfQ6pxOT+FchI6M/da3oHa4DHRLbIowH7nSQ22gcBynMsEegSVLpBtLtABo7I+AV0lP4QJoT77R/2XR5dKNIUoA/ryCUdR3uGZqVkUHGUyIR3JvfiU22xNRQWr8ibRSZ/zcBkKhJ4t3Oz3t8aroMVUoHA2jnfsnULE2prY7TgB4qTQU7mO6jw86V9pddAnAt7DGQ0OHb0hX4T50hizm+E6XADDCTqMRgDr652YQb8qbHz017VEBdD6JS43/XQw17khN4+aBvi6OqQGYQx7FphgAVAtGH+c5KgCEU6SlcDdRk1MfkwHUDZ7pACKOyyut7ZqX8agAhJqsMU3QdcYukvYxRSBi0mepVKSMruM9XQIQQgz4JgOFUxBdp/uPqQGgUa4VLoey/VnSjBJAwu43U9gbAXC6NKNqgJA0FW5HCP+Ri0S6BMCF+FSaCpdDO3uW/7MJHYf9j2YAAeZl4JQdFOlABD3Z5vqoADLCH1P7H5auwuXozOho6y4BNCz7VgQEfihdhbsxwk0HOqak7xKACeX/f0pT4WKEgNa2P1/b0d1HCYA2bZWGwsUgwFfSjD7/n19WO1Zn7N9kHieMxJPBI8BoUZggtOtesHQ6sGjWNVQWdTypLUoAmTdvYNlZWZ/TMMGyU8MZRhgue38DnPnFm5DRro4+m3BNh8aTToPXx90Ae7KHyah1CCEeD1UVLzbtmCuACsrrgiSAUukmnKJ3X4Rx7z4rPcWx7M89HV4ofgT2ewbJiDVQ578oVFn0e9OOTfUCV5l/O53Ekh1phzEfbJSe4ngGt34CZ3+5Q3qWIbjg26UdKwAhIluoSvxaugkl+2ATeCIq7Z+I3JaPpGUNlP73iXB4p3RjuwCTgor6ZbRhoXQTxvCWT2F2zY8AZfGnI8JgZk29yTK8HYsVGDSEFtyaku390ybBdqoFTDg1z6eDElsTUGqvofQ/Tbo9CKC0bjxq+AaZCZ0Q+ngBnOLxwMyTrLkOJfu8iyD7nPOll1hC9esh0mLV2XNqItkB76VaYNKU33U6CYIywGIqAB+XbvfDvXAE/0UvfEW6lmJ+VyuWjr/Ul1mydP7rFi1IZZhcut8/B4IhBF8r7Q66FUDrU0XmZ1lGi7lWuAQBYkdjcGtUkdFjByyArSOxmweFFC6BsvrTAA9Ir5MeBdBYVRjmnU8FSeIBKoVVUCrfiwJiDsCcsASPcFxPb3xVugonI8TzoWAgpnI9oQDaqosMesm9ZKrrBJzNQRLAr6QdxQkFYBKqnPIa9R0dhw0VzoTa71na+80rvmLoVQAmnIslAPgf6SqcRSsVAI9KO4a4BNBUHWjj3LidzKQ80FiRMGjnF4+FgsU9Hl+OSwAmja2N9VyI+8hUowLn8Dbt/U9Iu1viFgCsug50ZL8hRT0nIwpbg200jF9Ae/9BGeiW+AVA7Kks5CLM76DEoi4dszdccHFPY2Xxm9LvkT4JwKTxj1NbecT4rkD2ugy5gs7j8PEt9gbNfn8F9dNxjdz6fbahoLxuBK1WI+LFnZHe6e5s4Iw+nA30TZoOLDO+5yNp3sy4TwdH9u+Fptdrpdc7/MB+ELx/z3DMHX8FePL80jsxbeCBsXCl9OKDBLoOOb++IRjo9VkBJn3OAEcIVRV/YQgxUwBuMlUnw5aiZ+eAJyc3rqVP1wJwDsa+triX/ja+iT5ocLeft7tFz+7TqXJBbVFncFESb+Ob9FsAJs3BwB7qbOYIwatIBAl/rKkibsy0/xIa4dnNwb49VXRAAjBpqire387hdgHi+4CsQYYVSQPbac9fKoDf1FA9rVUG42bAAjBpqy6OhCqLlnEjUkhKpM5UZYPkgF9xbswLnfLxDxqrpvbrIF1CBHCExmBgVyQSmcUFLCBVqruNraNdoPYXzvkU+s2fgwfm9ft3TqgATFpWTD/QWFVYHQHjUvqAP+4QAjJ1C1AiQBamlt5ucH4dYsvcxmDxf+WWfpNwARyhpTLQRur8dTs3LheGMYeEsI5GqG1ysyJ+qM2xWQBbI4zI1UZYFDcFA2sanpyVkEPylgngCG3BQEsoWLwm9MauWRPeqr4BuaHOJcSJF/kh6k5LwtwYF9q+69pQMPBy84riuId48WC5ALp4ZxEMC+1sUWVB/GQCP9RYVfR0SzDwP3g74bdpdJA8AShsiRJAmqMEkOY4TAAJv1MmBdjrOyT10/w8L28iKc68lqBDeH09G5h1+hhg9J548A4dAd4hJ0vvxPD2w3Dgk/el1zsHPn4PjIP9K8YzTz0DtKy47/9vyd201tJp/B0lgL6Qc96FkD3GoptDt2yAsGU3h0bRMvzDDy0VgMO6AEWiUQJIc5QA0hwlgDRHCSDNUQJIc5QA0hwlgDRHCSDNUQJIc5IrAM7D5t9OR2EHkioAIcQntEroJU2KgZFUATywd28DiWC1dBU2IOk1ABdiMaWCF8hUE0+lHID/A4aMo9ZEnpq9AAAAAElFTkSuQmCC",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure Firewall",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_network_firewall_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Network-Firewall-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-network-firewall",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Cloud",
+            "Azure",
+            "Microsoft",
+            "Network",
+            "Firewall",
+            "HostDisco",
+            "API",
+            "Restapi",
+            "Security"
+        ],
+        "update_date": "1636824753",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques de donn\u00e9es des resources Azure Firewall.}\r\n\r\n{EN: Check Azure Firewall throughput statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Throughput",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-Firewall-Api-Throughput",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-Firewall-Throughput-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques des Hits Azure Firewall.}\r\n\r\n{EN: Check Azure Firewall hits statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Hits",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-Firewall-Api-Hits",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-Firewall-Hits-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la sant\u00e9 des resources Azure Firewall.}\r\n\r\n{EN: Check Azure Firewall health.}",
+            "active_checks_enabled": 2,
+            "alias": "Health",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-Firewall-Api-Health",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-Firewall-Health-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,162 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ovh_restapi.pl --plugin=cloud::ovh::restapi::plugin --mode=sms --ovh-type=\\'$_HOSTOVHTYPE$\\' --ovh-application-key=\\'$_HOSTOVHAPPLICATIONKEY$\\' --ovh-consumer-key=\\'$_HOSTOVHCONSUMERKEY$\\' --ovh-application-secret=\\'$_HOSTOVHAPPLICATIONSECRET$\\' $_HOSTOVHEXTRAOPTIONS$ --filter-service=\\'$_SERVICEFILTERSERVICE$\\' --warning-left=\\'$_SERVICEWARNINGLEFT$\\' --critical-left=\\'$_SERVICECRITICALLEFT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Ovh-Restapi-Sms",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ovh_restapi.pl --plugin=cloud::ovh::restapi::plugin --mode=quota-usage --ovh-type=\\'$_HOSTOVHTYPE$\\' --ovh-application-key=\\'$_HOSTOVHAPPLICATIONKEY$\\' --ovh-consumer-key=\\'$_HOSTOVHCONSUMERKEY$\\' --ovh-application-secret=\\'$_HOSTOVHAPPLICATIONSECRET$\\' $_HOSTOVHEXTRAOPTIONS$ --filter-service=\\'$_SERVICEFILTERSERVICE$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Ovh-Restapi-Quota-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check OVH using Rest APIi",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "cloud-ovh-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTOVHAPPLICATIONKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTOVHCONSUMERKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTOVHAPPLICATIONSECRET$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTOVHTYPE$",
+                    "value": "OVH_API_EU"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Ovh-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Ovh-Sms-Restapi",
+                "Cloud-Ovh-Quota-Usage-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAABQCAYAAADRAH3kAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAGzAAABswBjF0ZoQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAABLASURBVHic7Z17eJTVmcB/75nJFeRmW6toBQkTKWrXltai3UqBJOBl19oFq725tk/BG2RCLqBr+1kvJIPkprLV1ZWudr31ptQK4dLUlrptpa27oiTgZau04ooQlSRkZs67f8xMGsLMZDLzhcmzO7/nyZPJnHPe9/3yvd/5zvU9wv8jps5bfkKeRzqBca4IVLmrc3PT9a7IyhIm2wYcS7weuR23bj5ygKC52R1Z2WPUOEBphX/BybP9RSMlv6Si8uMCV7olT5SbO9vXvp2WLeX+i92yI1NGhwMsWuRR1eYxY7V6pFQYpQnXrld3jX3n0Lp0Sk4rrzrFgz7iq/D/rTu2ZMaocIDp7558GVCqwqrT5i//iNvySyv8i4HPuidRqnbsuDeYTkmP2jsUihW90T170mc0OICguir6ucgrcqubwqfMcQpVtcE9ifqzzrbmp9MpeXr5snMRFgGIUlGyoHK2e3alR9YdoLS88nMCZ/R/IXx5evnyc9ySn5/XVQVMcUlcUK2k95pyHGPxtAIS+8pYlrpkV9pk3QEULhv0lQg0M+AflS5T5y0/AdG6TOXEUGHd7i3NL6VTtvTXB68E/cSgry+ZMscpzNyy9MmqA8yZ43iBS45OkU9Pr/Bfnqn8PI804GK3zxMK3pJOyZlzrhmrEO/VNq6goKsiQ8MyIqsO8EZe11zgQ/HSRDVwVnn1mHRll8yvOhv4Srrlj0L1pl1b796fTtFgft6NwInx5drFmZiVKVl1ABFdmCR5ci+hmnRFG49txa3rU3nxpOCEe9IpWlp+3VSgMqFozEJceN2lS5YdgFlDZKmdccGKU4cr11fuvwzlM2madRRGbVV7uxNKr3TeGpAk73mdWLLw+tPSk5052XMAxzEoHxsiV5ENhW4fjtiTZ/uLUK3PwLIjENiwa0vLpnTKlpZVnqfopUPl81jv4MbhMSNrDjD9VwdLgeOGyqfI5b75y1N+mseM1WqEYdcaCQhiNL3XkOMYldR6M2r5eFo6XMCbLcVi9KwUX32CkbXApwFNltE31z9ZXez2gd7VsbGlI17KlDlOYb6366REJWV718U69CsuosXo36RrYaZkrQZQJG7rPwGf8lVUfnnIXB5dDaTdcxjEO3liEo5K5hccvA2jLyf6UdHmVBWJcrI7Jg+frDmAUSYMq4Cyeuaca8YmSj69fNknEL6UsWExdSI37tzU9E68tBlly6ajXOeWLuDDLsoaFtmrAcwwHQAm9xXk1yZIEyumGRe7fZMPj78vUXJYPI1Aviu6IgzZFhopsucAw60BAFGqT19QOWXw96XllVe42e2z4E/U7Sstr5wLepFbuqLks2iRx2WZKZE1BxBJS3eRtRzRxTt5tr9IldtcMgvgJ3s2N7XFTVm0yKOReQq3UWbOTNrAHSmyORB0KM1ylw1cTFF8nNa52O3rM2GTsBfhOzh5KXCmS7oG0o3j2BGQOyRZ6wYqHEp//NO24DizfM90nQjurSISpGXX1sbOeGlnXnj1xMMhnOQd0bRJ92HImKw5AMr/pF9Wzp6+/eBXxatlirjV7XsraPMTvkr6goUO6Adc0jWYfSMkd0iyNxCk8jKS/uMkIo3K8BuSSSTe9MqWhq54Kb7yFacr4avd03UUr4yg7KRkrw1gJMOL1om4N4v2fOf4N+5PnBxuBPJc0nUUKrw2UrKHImsOYE1wF3A4W/qPQKSaxx8Px0vylS27AEg2bZ05lj+OqPwkZM0B9jx952HI3oXHEOSHnZuatsRLmzPH8SImMNI2GI8+O9I6EurOlmIAhaxdeJTDakk0ushf8rquBWaOsA3vdGxsidvzOBZk1QE8VjdmUz9oU+eWprhtkZkV/kkqetNIWyDoRoaY5RxJsuoAYw70bAM5kCX1b1mPXZ0oMaj2FuD4EbdCzBMjriMJ2RsHAHbsuDfoK/c/BQw91esygt6w5+k7342XNmeO4/2zdL0i2JXx0tWaryL6URfM6AmbUFZrwawtRoxRUuY/34i2H1Olon/onD1xVjrDr9Mq/CUe1ReAgkzNUPjX3W3NX89UTiZkfWPIns1Nv1B44VjqVKUy3bF3j9VmXLj5AEbln92Qk5EN2TYAQERbj6Gyx3e3tTyTTtGSMn85woUuWbK9Y3PTcy7JSptR4QDHvd2zHnh55DVprxFN2O1LyqJFHhFd65YlImbEexipMCocYMeOe4OIfmfEFQmNuzY2v5ZOUd/ByUuP2MSaGds6NjX+3CVZGTEqHACgc/bEh4DtI6hinzU2rW3iZ1549UQMjkt2hBBT5ZKsjBk1DoDjWA92KZBW4IWhkbpE3b6hOBwsuBnFnalg0UDnpsbnXZHlAqPHAYCX2lpfECWtHbhD8FznueMfTKfg9PmVM8CdffwKL3S/m3ipeTYYVQ4A0HHehNuAzS6KVESq0u32iVG3poIPqSd82RvPNvW4IMs1sj4QFI+ZF9R8OBTu+5obsqyVfbs3N69Pp+yUOZUTCgp0iSt2KL/f3dbipmPnyJEjR44cOXLkyJEjR44cOXLkyJEjR44cOXLkyJEjRxJSmg4+bX7deC99x+fle7sL93XtT/e4lByjj7gOMHXe8hO8HvmGgTKF2RwdEm2Pqm5RzCN7Njf9IpHw0+f7z7RGnxTk8Y62pmGvxp1RUXliWNmK8MfOTc1XxL4vrfAvUNX7VPWW3ZtbUo7iHZOn8Pvdbc3HfDfSaOTIFUGLFnlKyytvzffIKwK3KpxP/Hh4JSKy1Ii2+8ort06r8JfEE2499mxgiqL+0rLrEoZVTUTYylJgBnrkWnxVezEwWYxZNCx5yjnADIErcJxRtxoqG/T/E84qrx7j6zrpSYUbFYqBfah8xxrOtZ7whzrbmk0h3rEetT5Bv6FKe7ToXA/6bGlZ5XlHCQ+FniISBMIL3uE+cYJorMyPByYoEqm5VIe1oklN//UKO3eOytVQx5r+zaG9hNaBXAAgcI+3r696Z/u69wdm/s+2Ow4Bu6M/95eWLf87FXkQ5QMqPOGb6/9Y57amvbH8u7bevb+03P9TRb+gwlVAysEWSssrP6dwGoBVeSCzy8yRCAMwfUHlpcBXAQRp7WhrXjr45sejY3PLk6IyD7QXOB6vPSq8qsWuj34s9VX4P5WqYQqxNYGv7dnclNZWrhxDYwAkTGwb9M6wJzSsxlrH5qbnRGKbJmTB9LLKI0KfT+6buBH4CwBqU1roGQ0KHTloQfQBshhA4f86prTMPwvhkwAIDdHYPcPivfyeO4GDACJyzcC09nYnJMhDkb/kS6mcDxzKz7sMGAsoYfPQcO3JkTpejJ1HpC11qPtd+UE6Qv684d7u0vLKRxWWgM49KoOx92OlBhg/ZhwXA48lk6dIpKYQ2ZYohEs2aGq67cRgMK8CmAEcJ6J7reWloqKip5YtW5b0wXEcZ+yYMYXzVJkF5niwvWBet9ZuW7lyZcKdQq2treMOH+6+yFrZUFdX915ra+u4np6eLxjDDGspEJF9IuH/OPXUab9YvHhxeIC+wqKioouAM0Q4QYQu0FdVzZba2tr+jbhei5wrgMBzmWxaUGE7yhJg2tR5y094dWtLf/TLjo0tHb7yyt8Cn1LVK0niAKXl101VIpG/xfa3H7KK4zj5xcWFgWBQrgbt7xarRk657O3teXvNmvp/qqlZGXdMIhCovxbkZtVYyBklMgSjGCMEAg0/D4ftN1etWrVncNne3t4bQWqNoSEQCOzo7e2+T0TGxXSDomp47bVX/xQIBJbU1tZuXLOm/mJVuR/44EBbozq1oaHh8fz8/CV+v/+gEVVfJItktF/No/YPsc95XuMbnK7S35KvKFl4fcITMqx4/zFq6bvvFfb8KBOb3MBxHFNUVPQTkOVExkS2i+CocrUqN4vwa+ADqvLdQCBwVMyhyHdyF3A8yC4RGlS5VkRXAA8T6SZ/zuMxzzY0NJTGMWE8gCrzQP8dZJ8qt6hylSpXi7COyOv3I6Ab1qxp+Laq/Ciij5+CVKlyFUgl6I8BFWFxMNi3+Z577snzgkwCsOhbmfyj+sh/y0MkxL5YO3Fwejic/7DXHG4EijzWfAmIt1NXROXL0Sfk0T9vuLd7CLWnllYsT/mMILVyxnDbk8XFxdeCLgTCqny9rq7ue4OyOIFA4HLQ74nodap6g0gkBm5DQ8M8iJ1hpLdPmTL1WwOraYDVq1eXeL3maVVKRORBVT0nVn4Qs0Ce6O7uXuw4Tt/AhMbGxttDoeAvgamqOEBIRC+pqVm5YZCMlkAgUA76FDCrq+vANwxRDwPS2jkbQzyH++PsqpijHCASh1efAFDkqngyfGXL5oJOBTCE16egdpqq1Kf6AzqswSjHcQxodCu3tsa5+QDU1tY+rMpnRPTCgTdPhDoitdnPamtX3jj45gOsWrVqjzF2MWBBP3nHHXfMS2BOn4h8c/DNB6iqqtqrysCAE+vj3PyYrW2g/wagKl/0RhQDDG9UbTDd3sOeseFiAERt3LCrVs0DRvSLKL7p5cvP2d3W8psjMojnSlAQOndtak0liORbiCScizgKZTLoualmLy4uPgt0CqDGeFuS5a2rq/vtwL/r6+vHA/MARGzSyCIrVqz6QyDQsBUoA/t5IF7k0h01NTUJa2mv1/tMOBypgVX5VTJ9ImxV5SoRzvACB4AiozI+WaGhGN9XPD52162JH/tvz3njt/h+ffB14BQiLf1+ByhZeP04CeulCqCsJ7W6+oXOTU0pn707fUHlpWJJ2QFE7Cejo82vVldX/3eq5QA8Hv2Eqhig79Chw0lvSATdBlKmStzBMhH2xvs+xtixY9/s6jpoASMiryXLK8IbkUYhEwwRB8BKgsONUyQYNv0nX3nUxg/+6DgW0QcBBK4YOCZgQp7F0TkIG2a09P0ldk1pxC+S2OTX6/Gq7cGoSqwHEHfSTJW4J5jFWLJkSZC/Bt9OesyttSY2ymsM6H8BCGR0fKnxhGOHJNo+W7QzUT6P1fVEnu7xxcfx938VEBv61baX2xpfz8QWF4md5jXsEz2sldix9e+lkl9E3o38TnTcfQaHKyTBDAjY/LEpcyrTPoBBVc4HUHgx0cELAC9tbt2NxGIBRYaGo+fwxWYT16drg9tYS2/0YzpHxMXGVFKKKShiiwBUGarn4yrGGDYReSIL8guG10qOMbPCP0miY/cGhgx9Kqrro5/Kp5VXnWLFfI1Ia7mr+z3zZDo2jATGRKpd1bRej/ujv0/UFKatrZWoDkla1buN6djY0qFC5Jg0lVUzK/yThiskpHwbKALCEFo3VH5vX/BR4H3AeFS/AnwlkqLfH00hVKzleQARPrpmzZphnU2kqrGzECY0Nq6ePlR+YyKNvwHljgkGwFhuAcLASUG1981c5KRc5fnK/J9X9DoAhe91tN316lBlolPNkVE+0VUKH4las364FzCS9PT0/E6E94ECa+0/DKfsypUr/6RKJ0A4bJLOgtbX149XjdSgIrI1bYPTwAB0bG7ersLtka/k88Gug0/55vtPS1awZOH1BaUVy+sQfTwqZ48pzK9MVbGIWR/9GDsPeGfnxpbfDdN+11i7dvXZgUDAHwgE+qezHcd5X5WHAES4fe3atafEK9vY2Fi0Zk3DTYFA/f2PPfZY/wmgxnB35JNUNTQ0xO3eOY5jjDF3ERmQ2y8iD7t3VUPTvyJo9+wJju/Zg2NQqoD5GH3JV1b5ExE2qdVOjPdtUTsW7EkKn5WwLOp/clVeFAle1PFkc0otXoCOTY3tvvLKl4FpAEj2Vv20trYW9PZ2t4OOA7ocx/lQrOtmjOcma8OXACeFQqHfNDQ03Gqt3VhYWPhOMBj8oIidGwoFayLXIb179+5dQXRq/NChnnXFxYVXgJwjwrZAoH6tiOeHXq/3T8FgsDA6zrAC9PyIJXJtTU3NMT1D8K8LIx3Hdm5qXgFyOZF+bz7CYoX7MfJLCL+kor9TkScQWRG9+YeBO0Oaf24qVf8gFIjF7gvlebzfT7WgqIQBZIj+7mBMWGP5wwOPag2Hw0UgsS7fuEmTJhXG0qqrq982xjMPeEWEE0W42+MxLweDfQdAO1Xlu0Sc+FURu9Dv9x+MlXUcJxQK2QtB2oExIN9Stc9Hy/5FVZ4ksvC2V0S/WVtb+2gcs+2g38mwAKoadyQ2jszwUStjO9uaHjluf/cMVC5V1e8Cz4O+SSSCZ5fCboENii4nJNM625qXJev2JaOvjxZBfiiwbOfP1ryZajlr9AFEtlphWFHGw17bDvpjUW4eGDfQ7/cfVKVOlWdUqVm2bNkR8yLV1dUvdnf3zAS9RoRNwOvAgeg7/qeqXNXd3fPRmppV7YN13nDDDftramrmiuglRGb/dhMZfHsT+K0Iqz0er6+mZuW/JDD7+yDbrLVDDo6JsEaEH+Tl5SWd2e3u7n5RlUdUqf9fOysIsgWohYkAAAAASUVORK5CYII=",
+            "name": "cloud-ovh-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor cloud OVH using Rest API:\r\n* Quota\r\n* SMS"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack Plugin pour surveiller le cloud OVH en utilisant la Rest API :\r\n* Quota\r\n* SMS"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Cloud-Ovh-Restapi\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"37%\" />\r\n<col width=\"62%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Cloud-Ovh-Restapi</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "OVH",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_ovh_restapi.pl",
+                "package_name": "centreon-plugin-Cloud-Ovh-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-ovh-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "OVH",
+            "Cloud",
+            "Rest"
+        ],
+        "update_date": "1502365763",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le nombre de SMS restants.}\r\n\r\n{EN: Check SMS left.}",
+            "active_checks_enabled": 2,
+            "alias": "Sms",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Ovh-Restapi-Sms",
+            "discovery_list_mode": "C",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Ovh-Sms-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'espace de stockage.}\r\n\r\n{EN: Check web hosting space.}",
+            "active_checks_enabled": 2,
+            "alias": "Quota-Usage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Ovh-Restapi-Quota-Usage",
+            "discovery_list_mode": "C",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Ovh-Quota-Usage-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

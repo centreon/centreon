@@ -1,0 +1,583 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Citrix-Netscaler-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Citrix-Netscaler-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Citrix-Netscaler-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Citrix-Netscaler-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Citrix-Netscaler-Traffic-Global-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Citrix-Netscaler-SNMP-Vservers-Discover",
+                "command_for_macro": "Net-Citrix-Netscaler-SNMP-Vservers-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Citrix-Netscaler-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Citrix-Netscaler-SNMP-Vserver-Name",
+                "service_display_name": "Vserver-$name$",
+                "service_template": "Net-Citrix-Netscaler-Vserver-Status-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netscaler.pl --plugin=network::citrix::netscaler::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Citrix-Netscaler-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netscaler.pl --plugin=network::citrix::netscaler::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Citrix-Netscaler-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netscaler.pl --plugin=network::citrix::netscaler::snmp::plugin --mode=list-vservers --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Citrix-Netscaler-SNMP-Vservers-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netscaler.pl --plugin=network::citrix::netscaler::snmp::plugin --mode=list-vservers --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Citrix-Netscaler-SNMP-Vservers-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netscaler.pl --plugin=network::citrix::netscaler::snmp::plugin --mode=vserver-status --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --filter-type=\\'$_SERVICEFILTERTYPE$\\' --warning-health=\\'$_SERVICEWARNINGHEALTH$\\' --critical-health=\\'$_SERVICECRITICALHEALTH$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Citrix-Netscaler-SNMP-Vserver-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netscaler.pl --plugin=network::citrix::netscaler::snmp::plugin --mode=storage --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Citrix-Netscaler-SNMP-Storage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netscaler.pl --plugin=network::citrix::netscaler::snmp::plugin --mode=memory --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\'  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Citrix-Netscaler-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netscaler.pl --plugin=network::citrix::netscaler::snmp::plugin --mode=health --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Citrix-Netscaler-SNMP-Health",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netscaler.pl --plugin=network::citrix::netscaler::snmp::plugin --mode=cpu --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\'  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Citrix-Netscaler-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netscaler.pl --plugin=network::citrix::netscaler::snmp::plugin --mode=connections --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-active=\\'$_SERVICEWARNINGACTIVE$\\' --critical-active=\\'$_SERVICECRITICALACTIVE$\\'  --warning-server=\\'$_SERVICEWARNINGSERVER$\\' --critical-server=\\'$_SERVICECRITICALSERVER$\\' --warning-client=\\'$_SERVICEWARNINGCLIENT$\\' --critical-client=\\'$_SERVICECRITICALCLIENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Citrix-Netscaler-SNMP-Connections",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netscaler.pl --plugin=network::citrix::netscaler::snmp::plugin --mode=certificates-expire --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-days=\\'$_SERVICEWARNINGDAYS$\\' --critical-days=\\'$_SERVICECRITICALDAYS$\\'  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Citrix-Netscaler-SNMP-Certificates-Expire",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netscaler.pl --plugin=network::citrix::netscaler::snmp::plugin --mode=ha-state --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Citrix-Netscaler-SNMP-Ha-State",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netscaler.pl --plugin=network::citrix::netscaler::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACEID$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Citrix-Netscaler-SNMP-Traffic-Id",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netscaler.pl --plugin=network::citrix::netscaler::snmp::plugin --mode=interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$\\' --name --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Citrix-Netscaler-SNMP-Traffic-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netscaler.pl --plugin=network::citrix::netscaler::snmp::plugin --mode=interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Citrix-Netscaler-SNMP-Traffic-Global",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Citrix Netscaler en SNMP}\r\n{EN: Template to check Citrix Netscaler Series using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Citrix Netscaler Series using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Citrix-Netscaler-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Citrix-Netscaler-Vserver-Status-SNMP",
+                "Net-Citrix-Netscaler-Storage-SNMP",
+                "Net-Citrix-Netscaler-Memory-SNMP",
+                "Net-Citrix-Netscaler-Health-SNMP",
+                "Net-Citrix-Netscaler-Cpu-SNMP",
+                "Net-Citrix-Netscaler-Connections-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Exporting the Vserver status rule.",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Citrix Netscaler loadbalancer via SNMP:\r\n* Cpu\r\n* HA-Status\r\n* Health\r\n* Memory\r\n* Storage\r\n* Traffic (by interface name, ID or all interfaces)\r\n* Vserver-Status (by name or global)"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un loadbalancer Citrix Netscaler via SNMP :\r\n* Cpu\r\n* HA-Status\r\n* Health\r\n* Memory\r\n* Storage\r\n* Traffic (by interface name, ID or all interfaces)\r\n* Vserver-Status (by name or global)"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Loadbalancers-Netscaler-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Citrix-Netscaler-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Citrix Netscaler",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_netscaler.pl",
+                "package_name": "centreon-plugin-Network-Loadbalancers-Netscaler-Snmp",
+                "package_version": "20220616"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-loadbalancers-netscaler-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Citrix",
+            "Netscaler",
+            "Network",
+            "Loadbalancer",
+            "SNMP"
+        ],
+        "update_date": "1655134685",
+        "version": "22.06.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le statut et la sant\u00e9 des 'vservers'.}\r\n\r\n{EN: Check vservers status and health.}",
+            "active_checks_enabled": 2,
+            "alias": "Vserver-Status",
+            "check_timeperiod": "",
+            "command_name": "Net-Citrix-Netscaler-SNMP-Vserver-Status",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Citrix-Netscaler-Vserver-Status-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation des disques.}\r\n\r\n{EN: Check the rate of utilization of storages.}",
+            "active_checks_enabled": 2,
+            "alias": "Storage",
+            "check_timeperiod": "",
+            "command_name": "Net-Citrix-Netscaler-SNMP-Storage",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGUSAGE$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALUSAGE$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Citrix-Netscaler-Storage-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation m\u00e9moire du mat\u00e9riel}\r\n\r\n{EN: Check machine memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Citrix-Netscaler-SNMP-Memory",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Citrix-Netscaler-Memory-SNMP",
+            "normal_check_interval": 10,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du mat\u00e9riel (Ventilateurs, alimentations, temp\u00e9ratures, voltages).}\r\n\r\n{EN: Check hardware environment (Fanspeed, Power Supplies, Temperatures, Voltages).}",
+            "active_checks_enabled": 2,
+            "alias": "Health",
+            "check_timeperiod": "",
+            "command_name": "Net-Citrix-Netscaler-SNMP-Health",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Citrix-Netscaler-Health-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine. Ce contr\u00f4le pourra remonter la moyenne du taux d'utilisation des CPU.}\r\n\r\n{EN: Check the rate of utilization of CPU for the machine. This check can give the average utilization rate of CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Citrix-Netscaler-SNMP-Cpu",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "95"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Citrix-Netscaler-Cpu-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les connexions.}\r\n\r\n{EN: Check connections.}",
+            "active_checks_enabled": 2,
+            "alias": "Connections",
+            "check_timeperiod": "",
+            "command_name": "Net-Citrix-Netscaler-SNMP-Connections",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-Citrix-Netscaler-Connections-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'expiration des certificats.}\r\n\r\n{EN: Check number of days remaining before the expiration of certificates.}",
+            "active_checks_enabled": 2,
+            "alias": "Certificates-Expire",
+            "check_timeperiod": "",
+            "command_name": "Net-Citrix-Netscaler-SNMP-Certificates-Expire",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Citrix-Netscaler-Certificates-Expire-SNMP",
+            "normal_check_interval": 60,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de la haute-disponibilit\u00e9.}\r\n\r\n{EN: Check High Availability Status.}",
+            "active_checks_enabled": 2,
+            "alias": "Ha-State",
+            "check_timeperiod": "",
+            "command_name": "Net-Citrix-Netscaler-SNMP-Ha-State",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Citrix-Netscaler-Ha-State-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau d'une interface r\u00e9seau.}\r\n\r\n{EN: Check traffic of an network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Id",
+            "check_timeperiod": "",
+            "command_name": "Net-Citrix-Netscaler-SNMP-Traffic-Id",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Citrix-Netscaler-Traffic-Generic-Id-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau d'une interface r\u00e9seau.}\r\n\r\n{EN: Check traffic of an network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-Citrix-Netscaler-SNMP-Traffic-Name",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Citrix-Netscaler-Traffic-Generic-Name-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau de plusieurs interfaces r\u00e9seau.}\r\n\r\n{EN: Check traffic of multiple network interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Citrix-Netscaler-SNMP-Traffic-Global",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Citrix-Netscaler-Traffic-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

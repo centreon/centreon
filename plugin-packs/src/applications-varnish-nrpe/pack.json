@@ -1,0 +1,141 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::varnish::local::plugin\\' \\'stats\\'  \\' --command=\\\\\\\"$_SERVICECOMMAND$\\\\\\\" --command-path=\\\\\\\"$_SERVICECOMMANDPATH$\\\\\\\" --command-options=\\\\\\\"$_SERVICECOMMANDOPTIONS$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Varnish-NRPE-Stats",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Varnish using NRPE protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "varnish-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTNRPECLIENT$",
+                    "value": "check_nrpe"
+                },
+                {
+                    "key": "$_HOSTNRPEEXTRAOPTIONS$",
+                    "value": "-u -E"
+                },
+                {
+                    "key": "$_HOSTNRPEPORT$",
+                    "value": "5666"
+                },
+                {
+                    "key": "$_HOSTNRPETIMEOUT$",
+                    "value": "55"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Varnish-NRPE",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Varnish-Stats-NRPE"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "varnish-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Varnish application using NRPE protocol:\r\n* Stats"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack Plugin pour surveiller l\\'application Varnish en utilisant le protocole NRPE:\r\n* Stats"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\nThis chapter describes the prerequisites installation needed by plugins\r\nto run.\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller (EPEL repository):\r\n\r\n    # yum install nagios-nrpe-plugin\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Varnish-NRPE-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Varnish NRPE",
+        "plugins_requirements": [],
+        "requirement": [],
+        "slug": "applications-varnish-nrpe",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Application",
+            "Varnish",
+            "Cache",
+            "NRPE"
+        ],
+        "update_date": "1562597698",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les statistiques varnish.}\r\n\r\n{EN: Check varnish stats.}",
+            "active_checks_enabled": 2,
+            "alias": "Varnish-Stats",
+            "check_timeperiod": "",
+            "command_name": "App-Varnish-NRPE-Stats",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMMAND$",
+                    "password": false,
+                    "value": "varnishstat"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMMANDPATH$",
+                    "password": false,
+                    "value": "/usr/bin"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMMANDOPTIONS$",
+                    "password": false,
+                    "value": " -1 -j 2>&1"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Varnish-Stats-NRPE",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,127 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hitachi_standard_snmp.pl --plugin=storage::hitachi::standard::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Hitachi-Standard-SNMP-Hardware",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Hitachi Data Systems (9990, df600,...) en SNMP}\r\n{EN: Template to check Hitachi Data Systems (9990, df600,...) using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Hitachi storage (9990, df600,...) using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Hitachi-Standard-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Storage-Hitachi-Standard-Hardware-Global-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix base generic dependency",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Hitachi storage via SNMP:\r\n* Hardware-Global"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un stockage Hitachi via SNMP:\r\n* Hardware-Global"
+            }
+        ],
+        "discovery_category": "storage",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Storage-Hitachi-Standard-Snmp\r\n\r\n## SNMP\r\nConnect to your Hitachi NAS and configure SNMP.\r\n\r\n## Centreon Configuration\r\n### Create a new NetApp server\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Storage-Hitachi-Standard-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Hitachi Standard",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_hitachi_standard_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Storage-Hitachi-Standard-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "centreon-plugin-Hardware-Storage-Hitachi-Standard-Snmp",
+                "version": "20161212-1"
+            }
+        ],
+        "slug": "hardware-storage-hitachi-standard-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Hitachi",
+            "Storage",
+            "Hardware",
+            "SNMP",
+            "DF600",
+            "9990"
+        ],
+        "update_date": "1610090277",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'ensemble du mat\u00e9riel.}\r\n\r\n{EN: Check all hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Hitachi-Standard-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Storage-Hitachi-Standard-Hardware-Global-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

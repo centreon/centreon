@@ -1,0 +1,885 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$USER1$\\\\/operatingsystems-as400\\\\/check_merethis_as400_generic --connector &quot;$_HOSTDAEMONAS400HOST$:$_HOSTDAEMONAS400PORT$&quot; --host $HOSTADDRESS$ --user $_HOSTAS400USER$ --password $_HOSTAS400PASSWORD$ --check pageFault --args &quot;$_SERVICEWARNING$!$_SERVICECRITICAL$&quot;\\\"",
+            "name": "OS-AS400-Page-Fault",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/operatingsystems-as400\\\\/check_merethis_as400_generic --connector &quot;$_HOSTDAEMONAS400HOST$:$_HOSTDAEMONAS400PORT$&quot; --host $HOSTADDRESS$ --user $_HOSTAS400USER$ --password $_HOSTAS400PASSWORD$ --check diskUsageRepartition --args &quot;$_SERVICEWARNING$!$_SERVICECRITICAL$&quot;\\\"",
+            "name": "OS-AS400-disk-usage-repartition",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/operatingsystems-as400\\\\/check_merethis_as400_generic --connector &quot;$_HOSTDAEMONAS400HOST$:$_HOSTDAEMONAS400PORT$&quot; --host $HOSTADDRESS$ --user $_HOSTAS400USER$ --password $_HOSTAS400PASSWORD$ --check diskState\\\"",
+            "name": "OS-AS400-disk-state",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/operatingsystems-as400\\\\/check_merethis_as400_generic --connector &quot;$_HOSTDAEMONAS400HOST$:$_HOSTDAEMONAS400PORT$&quot; --host $HOSTADDRESS$ --user $_HOSTAS400USER$ --password $_HOSTAS400PASSWORD$ --check cpuUsage  --args &quot;$_SERVICEWARNING$!$_SERVICECRITICAL$&quot;\\\"",
+            "name": "OS-AS400-cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/operatingsystems-as400\\\\/check_merethis_as400_generic --connector &quot;$_HOSTDAEMONAS400HOST$:$_HOSTDAEMONAS400PORT$&quot; --host $HOSTADDRESS$ --user $_HOSTAS400USER$ --password $_HOSTAS400PASSWORD$ --check asp1Usage --args &quot;$_SERVICEWARNING$!$_SERVICECRITICAL$&quot;\\\"",
+            "name": "OS-AS400-asp1-usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/operatingsystems-as400\\\\/check_merethis_as400_generic --connector \\\\\\\"$_HOSTDAEMONAS400HOST$:$_HOSTDAEMONAS400PORT$\\\\\\\" --host $HOSTADDRESS$ --user $_HOSTAS400USER$ --password $_HOSTAS400PASSWORD$ --check specificJobInSubSystem --args \\\\\\\"$_SERVICEJOBNAME$!$_SERVICESUBSYSTEMNAME$!$_SERVICESTATUS$!$_SERVICESTATUSACTIVE$!$_SERVICEWARNINGMINCOUNT$!$_SERVICEWARNINGMAXCOUNT$!$_SERVICECRITICALMINCOUNT$!$_SERVICECRITICALMAXCOUNT$\\\\\\\"\\\"",
+            "name": "OS-AS400-Job-In-SubSystem",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/operatingsystems-as400\\\\/check_merethis_as400_generic --connector \\\\\\\"$_HOSTDAEMONAS400HOST$:$_HOSTDAEMONAS400PORT$\\\\\\\" --host $HOSTADDRESS$ --user $_HOSTAS400USER$ --password $_HOSTAS400PASSWORD$ --check allJobHaveNoMsgWInSubSystem --args \\\\\\\"$_SERVICESUBSYSTEMNAME$!$_SERVICEWARNINGCOUNT$!$_SERVICECRITICALCOUNT$\\\\\\\"\\\"",
+            "name": "OS-AS400-Job-Active-Have-No-Msgw-in-SubSystem",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/operatingsystems-as400\\\\/check_merethis_as400_generic --connector \\\\\\\"$_HOSTDAEMONAS400HOST$:$_HOSTDAEMONAS400PORT$\\\\\\\" --host $HOSTADDRESS$ --user $_HOSTAS400USER$ --password $_HOSTAS400PASSWORD$ --check specificJobRunningInSubSystem --args \\\\\\\"$_SERVICEJOBNAME$!$_SERVICESUBSYSTEMNAME$!$_SERVICEWARNINGMINCOUNT$!$_SERVICEWARNINGMAXCOUNT$!$_SERVICECRITICALMINCOUNT$!$_SERVICECRITICALMAXCOUNT$\\\\\\\"\\\"",
+            "name": "OS-AS400-Job-Running-In-SubSystem",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/operatingsystems-as400\\\\/check_merethis_as400_generic --connector &quot;$_HOSTDAEMONAS400HOST$:$_HOSTDAEMONAS400PORT$&quot; --host $HOSTADDRESS$ --user $_HOSTAS400USER$ --password $_HOSTAS400PASSWORD$ --check diskUsage  --args &quot;$_SERVICEDISKNAME$!$_SERVICEWARNING$!$_SERVICECRITICAL$&quot;\\\"",
+            "name": "OS-AS400-disk-usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/operatingsystems-as400\\\\/check_merethis_as400_generic --connector &quot;$_HOSTDAEMONAS400HOST$:$_HOSTDAEMONAS400PORT$&quot; --host $HOSTADDRESS$ --user $_HOSTAS400USER$ --password $_HOSTAS400PASSWORD$ --check jobExist --args &quot;$_SERVICEJOBNAME$!$_SERVICESUBSYSTEMNAME$&quot;\\\"",
+            "name": "OS-AS400-job-exist",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/operatingsystems-as400\\\\/check_merethis_as400_generic --connector &quot;$_HOSTDAEMONAS400HOST$:$_HOSTDAEMONAS400PORT$&quot; --host $HOSTADDRESS$ --user $_HOSTAS400USER$ --password $_HOSTAS400PASSWORD$ --check jobHasNoMsgw --args &quot;$_SERVICEJOBNAME$!$_SERVICESUBSYSTEMNAME$&quot;\\\"",
+            "name": "OS-AS400-Job-Has-No-Msgw",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/operatingsystems-as400\\\\/check_merethis_as400_generic --connector \\\\\\\"$_HOSTDAEMONAS400HOST$:$_HOSTDAEMONAS400PORT$\\\\\\\" --host $HOSTADDRESS$ --user $_HOSTAS400USER$ --password $_HOSTAS400PASSWORD$ --check jobQueueStatus --args \\\\\\\"$_SERVICEJOBQUEUENAME$!$_SERVICELIBNAME$\\\\\\\"\\\"",
+            "name": "OS-AS400-Job-Queue-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/operatingsystems-as400\\\\/check_merethis_as400_generic --connector &quot;$_HOSTDAEMONAS400HOST$:$_HOSTDAEMONAS400PORT$&quot; --host $HOSTADDRESS$ --user $_HOSTAS400USER$ --password $_HOSTAS400PASSWORD$ --check jobQueueWaitJobCount --args &quot;$_SERVICEJOBQUEUENAME$!$_SERVICELIBNAME$!$_SERVICEWARNING$!$_SERVICECRITICAL$&quot;\\\"",
+            "name": "OS-AS400-Job-Queue-Wait-Job-Count",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/operatingsystems-as400\\\\/check_merethis_as400_generic --connector &quot;$_HOSTDAEMONAS400HOST$:$_HOSTDAEMONAS400PORT$&quot; --host $HOSTADDRESS$ --user $_HOSTAS400USER$ --password $_HOSTAS400PASSWORD$ --check messageQueueSize --args &quot;$_SERVICEMQUEUENAME$!$_SERVICESEVERITYLEVEL$!$_SERVICEWARNING$!$_SERVICECRITICAL$&quot;\\\"",
+            "name": "OS-AS400-Message-Queue-Size",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/operatingsystems-as400\\\\/check_merethis_as400_generic --connector &quot;$_HOSTDAEMONAS400HOST$:$_HOSTDAEMONAS400PORT$&quot; --host $HOSTADDRESS$ --user $_HOSTAS400USER$ --password $_HOSTAS400PASSWORD$ --check subSystemExist --args &quot;$_SERVICESUBSYSTEMNAME$!$_SERVICELIBNAME$&quot;\\\"",
+            "name": "OS-AS400-subsystem-exist",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/operatingsystems-as400\\\\/check_merethis_as400_generic --connector \\\\\\\"$_HOSTDAEMONAS400HOST$:$_HOSTDAEMONAS400PORT$\\\\\\\" --host $HOSTADDRESS$ --user $_HOSTAS400USER$ --password $_HOSTAS400PASSWORD$ --check messageQueueSizeFiltered --args \\\\\\\"$_SERVICEMQUEUENAME$!$_SERVICEIDFILTER$!$_SERVICEMINSEVERITYLEVEL$!$_SERVICEMAXSEVERITYLEVEL$!$_SERVICEWARNING$!$_SERVICECRITICAL$\\\\\\\"\\\"",
+            "name": "OS-AS400-Message-Queue-Filtered-Size",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/operatingsystems-as400\\\\/check_merethis_as400_generic --connector \\\\\\\"$_HOSTDAEMONAS400HOST$:$_HOSTDAEMONAS400PORT$\\\\\\\" --host $HOSTADDRESS$ --user $_HOSTAS400USER$ --password $_HOSTAS400PASSWORD$ --check newMessageInMessageQueue --args \\\\\\\"$_SERVICEMQUEUENAME$!$_SERVICEIDFILTER$!$_SERVICEMINSEVERITYLEVEL$!$_SERVICEMAXSEVERITYLEVEL$!$_SERVICEWARNING$!$_SERVICECRITICAL$\\\\\\\"\\\"",
+            "name": "OS-AS400-New-Message-In-MessageQueue-Filtered",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/operatingsystems-as400\\\\/check_merethis_as400_generic --connector \\\\\\\"$_HOSTDAEMONAS400HOST$:$_HOSTDAEMONAS400PORT$\\\\\\\" --host $HOSTADDRESS$ --user $_HOSTAS400USER$ --password $_HOSTAS400PASSWORD$ --check allJobHaveNoMsgW --args \\\\\\\"$_SERVICEWARNINGCOUNT$!$_SERVICECRITICALCOUNT$\\\\\\\"\\\"",
+            "name": "OS-AS400-Job-Active-Have-No-Msgw",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les serveurs AS/400 via le Centreon-Connector-as400}\r\n{EN: Template to check AS/400 server using Centreon-Connector-as400 protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check AS/400 server using Centreon-Connector-as400 protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [
+                {
+                    "key": "$_HOSTAS400PASSWORD$",
+                    "value": "DEFAULT"
+                },
+                {
+                    "key": "$_HOSTAS400USER$",
+                    "value": "DEFAULT"
+                },
+                {
+                    "key": "$_HOSTDAEMONAS400HOST$",
+                    "value": "localhost"
+                },
+                {
+                    "key": "$_HOSTDAEMONAS400PORT$",
+                    "value": "8091"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-AS400",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "OS-AS400-Connector-Page-Fault",
+                "OS-AS400-Connector-Disk-Usage-Repartition",
+                "OS-AS400-Connector-Disk-State",
+                "OS-AS400-Connector-CPU",
+                "OS-AS400-Connector-Asp1-Usage"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Deprecated old AS400 pack",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor IBM AS400 operating system:\r\n* Asp1-Usage\r\n* Cpu\r\n* Disk-State\r\n* Disk-Usage\r\n* Disk-Usage-Repartition\r\n* Job-Exist\r\n* Job-Has-No-Msgw\r\n* Job-In-SubSystem\r\n* Job-Queue-Status\r\n* Job-Queue-Wait-Job-Count\r\n* Job-Running-In-SubSystem\r\n* Job-Active-Habve-No-Msgw\r\n* Job-Active-Have-No-Msgw-In-SubSystem\r\n* Message-Queue-Filtered-Size\r\n* Message-Queue-New-Message\r\n* Message-Queue-Size\r\n* Page-Fault\r\n* SubSystem-Exist"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller les syst\u00e8me d\\'exploitation IBM AS400 :\r\n* Asp1-Usage\r\n* Cpu\r\n* Disk-State\r\n* Disk-Usage\r\n* Disk-Usage-Repartition\r\n* Job-Exist\r\n* Job-Has-No-Msgw\r\n* Job-In-SubSystem\r\n* Job-Queue-Status\r\n* Job-Queue-Wait-Job-Count\r\n* Job-Running-In-SubSystem\r\n* Job-Active-Habve-No-Msgw\r\n* Job-Active-Have-No-Msgw-In-SubSystem\r\n* Message-Queue-Filtered-Size\r\n* Message-Queue-New-Message\r\n* Message-Queue-Size\r\n* Page-Fault\r\n* SubSystem-Exist"
+            }
+        ],
+        "discovery_category": "operating-system",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    $ yum install ces-plugins-Operatingsystems-As400\r\n\r\nYou have to install java-jdk at least in version 1.7.0 on the poller the\r\njmx connector will be install :\r\n\r\n    $ yum install java-1.7.0-openjdk\r\n\r\nYou have to install also the AS400 connector :\r\n\r\n    $ yum install centreon-connector-as400-server\r\n\r\n- Then start it with :\r\n\r\n    $ systemctl start centreon-connector-as400\r\n\r\nThe connector can be install on your poller or on an other server\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>OS-AS400-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\nThose services were automatically created for this host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"23%\" />\r\n<col width=\"76%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Service</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Ping</p></td>\r\n<td align=\"left\"><p>Monitor host response time</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Asp1-Usage</p></td>\r\n<td align=\"left\"><p>Monitor the ASP1 rate</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>CPU-Usage</p></td>\r\n<td align=\"left\"><p>Monitor the AS400 cpu time used (in percent)</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Disk-State</p></td>\r\n<td align=\"left\"><p>Monitor the state of all physical disks</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Disk-Usage-Repartition</p></td>\r\n<td align=\"left\"><p>Compare utilization rate of different physical disks</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Page-Fault</p></td>\r\n<td align=\"left\"><p>Monitor the page fault rate</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nHost macro configuration\r\n------------------------\r\n\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"24%\" />\r\n<col width=\"38%\" />\r\n<col width=\"21%\" />\r\n<col width=\"16%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n<th align=\"left\">Example</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>DAEMONAS400HOST</p></td>\r\n<td align=\"left\"><p>The hostname or ip address</p></td>\r\n<td align=\"left\"><p>localhost</p></td>\r\n<td align=\"left\"><p>localhost</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>DAEMONAS400PORT</p></td>\r\n<td align=\"left\"><p>The connection port used</p></td>\r\n<td align=\"left\"><p>8091</p></td>\r\n<td align=\"left\"><p>8091</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AS400USER</p></td>\r\n<td align=\"left\"><p>AS400 login</p></td>\r\n<td align=\"left\"><p>DEFAULT</p></td>\r\n<td align=\"left\"><p>usr1</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>AS400PASSWORD</p></td>\r\n<td align=\"left\"><p>AS400 password</p></td>\r\n<td align=\"left\"><p>DEFAULT</p></td>\r\n<td align=\"left\"><p>x5jGyR</p></td>\r\n</tr>\r\n</tbody>\r\n</table>",
+        "name": "IBM AS400",
+        "plugins_requirements": [],
+        "requirement": [
+            {
+                "name": "ces-plugins-Operatingsystems-As400",
+                "version": "1.7.5-1"
+            }
+        ],
+        "slug": "operatingsystems-as400",
+        "status": "deprecated",
+        "status_message": "Deprecated old AS400 pack",
+        "tags": [
+            "AS400",
+            "IBM",
+            "Operating System",
+            "OS400",
+            "SNMP",
+            "System"
+        ],
+        "update_date": "1584370575",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le taux de page fault.\r\nR\u00e9cup\u00e8re le taux de page  par seconde, et le taux de page fault par seconde, database et non database.\r\nCalcule le pourcentage de page fault par rapport au page.\r\nRemonte ok si ce pourcentage est en dessous du seuil warning.\r\nRemonte warning si ce pourcentage est au dessus du seuil warning.\r\nRemonte critical si ce pourcentage est au dessus du seuil critical.}\r\n\r\n{EN: Check page fault rate.\r\nRecover page rate per second and page fault rate per second, database and no database.\r\nCalculate the percentage of page fault in relation to the page.\r\nReport a OK state if the percentage is below the threshold WARNING.\r\nReport a WARNING state if the percentage is above the threshold WARNING.\r\nReport a CRITICAL state if the percentage is above the threshold CRITICAL.}",
+            "active_checks_enabled": 2,
+            "alias": "Page-Fault",
+            "check_timeperiod": "",
+            "command_name": "OS-AS400-Page-Fault",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "50"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "70"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-AS400-Connector-Page-Fault",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Compare les taux d'utilisation des diff\u00e9rents disques physiques.\r\nCalcul l'\u00e9cart entre le taux d'utilisation minimal et maximal de l'ensemble des disques physiques.\r\nRemonte OK si l'\u00e9cart est en dessous du seuil Warning.\r\nRemonte warning si l'\u00e9cart est au dessus du seuil Warning.\r\nRemonte critical si l'\u00e9cart est au dessus du seuil Critique.}\r\n\r\n{EN: Compare utilization rate of different physical disks.\r\nCalculate the gap between minimum utilization rate and maximum whole physical disks.\r\nReport a OK state if the gap is below the threshold WARNING.\r\nReport a WARNING state if the gap is above the threshold WARNING.\r\nReport a CRITICAL state if the gap is above the threshold CRITICAL.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Usage-Repartition",
+            "check_timeperiod": "",
+            "command_name": "OS-AS400-disk-usage-repartition",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "0.5"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "2"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-AS400-Connector-Disk-Usage-Repartition",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de fonctionnement de l'ensemble des disques physiques\r\nUn disque physique peut prendre plusieurs \u00e9tat : no control, active, failed, hardware failure, rebuild, \r\nnot ready, protected, busy, not operational, unknown state (13 \u00e9tats au total).\r\nRemonte un \u00e9tat ok si tous les disques sont actifs.\r\nRemonte un \u00e9tat critique si au moins un disque est dans un \u00e9tat diff\u00e9rent de actif.}\r\n\r\n{EN: Check running state of whole physical disks.\r\nPhysical disk can take statements: no control, active; failed, hardware failure, rebuild, not ready, \r\nprotected, busy, not operational, unknown state (13 states in total).\r\nReport a OK state if all disks are active.\r\nReport a CRITICAL state if at least one disk is in different state from active.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-State",
+            "check_timeperiod": "",
+            "command_name": "OS-AS400-disk-state",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "OS-AS400-Connector-Disk-State",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le temps pendant lequel les CPU de l'AS/400 \u00e9taient utilis\u00e9s.\r\nRemonte un \u00e9tat ok si le temps cpu est en dessous du seuil warning.\r\nRemonte un \u00e9tat warning si le temps cpu passe au dessus du seuil warning.\r\nRemonte un \u00e9tat critique si le temps cpu passe au dessus du seuil critique.\r\nIl peut d\u00e9passer 100% sur les partitions non brid\u00e9s (uncapped partition).}\r\n\r\n{EN: Check the time during which the CPU AS/400 were used.\r\nReport a OK state if the time CPU is below the threshold WARNING.\r\nReport a WARNING state if the time CPU pass above the threshold WARNING.\r\nReport a CRITICAL state if the time CPU pass above the threshold CRITICAL.\r\nIt may exceed 100% on the uncapped partition.}",
+            "active_checks_enabled": 2,
+            "alias": "CPU-Usage",
+            "check_timeperiod": "",
+            "command_name": "OS-AS400-cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-AS400-Connector-CPU",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le taux d'occupation de l'ASP1.\r\nRemonte un \u00e9tat ok si le taux d'occupation est en dessous du seuil warning.\r\nRemonte un \u00e9tat warning si le taux d'occupation passe au dessus du seuil warning.\r\nRemonte un \u00e9tat critique si le taux d'occupation passe au dessus du seuil critique.}\r\n\r\n{EN: Check the occupation rate of ASP1.\r\nReport a OK state if the occupation rate is below the threshold WARNING.\r\nReport a WARNING state if the occupation rate is above the threshold WARNING.\r\nReport a CRITICAL state if the occupation rate is above the threshold CRITICAL.}",
+            "active_checks_enabled": 2,
+            "alias": "Asp1-Usage",
+            "check_timeperiod": "",
+            "command_name": "OS-AS400-asp1-usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-AS400-Connector-Asp1-Usage",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'existence d'un job. Contr\u00f4le que le job n'a pas de MSGW.\r\nRemonte ok si le job existe.\r\nRemonte critical si le job n'existe pas, ou que le job a un MSGW.}\r\n\r\n{EN: Check job existence. Check job hasn't a MSGW.\r\nReport OK  state if the job exist.\r\nReport CRITICAL state if the job doesn't exist, or job has a MSGW.}",
+            "active_checks_enabled": 2,
+            "alias": "Job-In-Subsystem",
+            "check_timeperiod": "",
+            "command_name": "OS-AS400-Job-In-SubSystem",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALMAXCOUNT$",
+                    "password": false,
+                    "value": "2000"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALMINCOUNT$",
+                    "password": false,
+                    "value": "0"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEJOBNAME$",
+                    "password": false,
+                    "value": "JOBNAME"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICESTATUS$",
+                    "password": false,
+                    "value": "*ANY"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICESTATUSACTIVE$",
+                    "password": false,
+                    "value": "ANY"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICESUBSYSTEMNAME$",
+                    "password": false,
+                    "value": "SUBSYSTEMNAME"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGMAXCOUNT$",
+                    "password": false,
+                    "value": "1000"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGMINCOUNT$",
+                    "password": false,
+                    "value": "1"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-AS400-Connector-Job-In-SubSystem",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'existence d'un job. Contr\u00f4le que le job n'a pas de MSGW.\r\nRemonte ok si le job existe.\r\nRemonte critical si le job n'existe pas, ou que le job a un MSGW.}\r\n\r\n{EN: Check job existence. Check job hasn't a MSGW.\r\nReport OK  state if the job exist.\r\nReport CRITICAL state if the job doesn't exist, or job has a MSGW.}",
+            "active_checks_enabled": 2,
+            "alias": "Jobs-Have-No-Msgw-In-SubSystem",
+            "check_timeperiod": "",
+            "command_name": "OS-AS400-Job-Active-Have-No-Msgw-in-SubSystem",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALCOUNT$",
+                    "password": false,
+                    "value": "2"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICESUBSYSTEMNAME$",
+                    "password": false,
+                    "value": "SUBSYSTEMNAME"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGCOUNT$",
+                    "password": false,
+                    "value": "1"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-AS400-Connector-Jobs-Active-Have-No-Msgw-In-SubSystem",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'existence d'un job. Contr\u00f4le que le job n'a pas de MSGW.\r\nRemonte ok si le job existe.\r\nRemonte critical si le job n'existe pas, ou que le job a un MSGW.}\r\n\r\n{EN: Check job existence. Check job hasn't a MSGW.\r\nReport OK  state if the job exist.\r\nReport CRITICAL state if the job doesn't exist, or job has a MSGW.}",
+            "active_checks_enabled": 2,
+            "alias": "Job-Running-In-Subsystem",
+            "check_timeperiod": "",
+            "command_name": "OS-AS400-Job-Running-In-SubSystem",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALMAXCOUNT$",
+                    "password": false,
+                    "value": "2000"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALMINCOUNT$",
+                    "password": false,
+                    "value": "0"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEJOBNAME$",
+                    "password": false,
+                    "value": "JOBNAME"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICESUBSYSTEMNAME$",
+                    "password": false,
+                    "value": "SUBSYSTEMNAME"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGMAXCOUNT$",
+                    "password": false,
+                    "value": "1000"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGMINCOUNT$",
+                    "password": false,
+                    "value": "1"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-AS400-Connector-Job-Running-In-SubSystem",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le taux d'occupation d'un disque physique.\r\nRemonte ok si le taux d'occupation est en dessous du seuil warning.\r\nRemonte warning si le taux d'occupation est au dessus du seuil warning.\r\nRemonte critical si le taux d'occupation est au dessus du seuil critique.}\r\n\r\n{EN: Check occupation rate of physical disk.\r\nReport a OK state if the occupation rate is below the threshold WARNING.\r\nReport a WARNING state if the occupation rate is above the threshold WARNING.\r\nReport a CRITICAL state if the occupation rate is above the threshold CRITICAL.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Usage",
+            "check_timeperiod": "",
+            "command_name": "OS-AS400-disk-usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEDISKNAME$",
+                    "password": false,
+                    "value": "DISKNAME"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-AS400-Connector-Disk-Usage",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'existence d'un job. L'indicateur ne contr\u00f4le pas son \u00e9tat.\r\nRemonte OK si le job existe.\r\nRemonte Critical si le job n'existe pas.}\r\n\r\n{EN: Check job existence. Indicator don't check is state.\r\nReport a OK state if the job exist.\r\nReport CRITICAL if the job doesn't exist.}",
+            "active_checks_enabled": 2,
+            "alias": "Job-Exist",
+            "check_timeperiod": "",
+            "command_name": "OS-AS400-job-exist",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICESUBSYSTEMNAME$",
+                    "password": false,
+                    "value": "SUBSYSTEMNAME"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEJOBNAME$",
+                    "password": false,
+                    "value": "JOBNAME"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-AS400-Connector-Job-Exist",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'existence d'un job. Contr\u00f4le que le job n'a pas de MSGW.\r\nRemonte ok si le job existe.\r\nRemonte critical si le job n'existe pas, ou que le job a un MSGW.}\r\n\r\n{EN: Check job existence. Check job hasn't a MSGW.\r\nReport OK  state if the job exist.\r\nReport CRITICAL state if the job doesn't exist, or job has a MSGW.}",
+            "active_checks_enabled": 2,
+            "alias": "Job-Has-No-Msgw",
+            "check_timeperiod": "",
+            "command_name": "OS-AS400-Job-Has-No-Msgw",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICESUBSYSTEMNAME$",
+                    "password": false,
+                    "value": "SUBSYSTEMNAME"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEJOBNAME$",
+                    "password": false,
+                    "value": "JOBNAME"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-AS400-Connector-Job-Has-No-Msgw",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'existence et l'\u00e9tat d'une jobQueue. \r\nUne jobQueue peut avoir l'\u00e9tat RELEASED ou HELD. \r\nRemonte l'\u00e9tat OK si la jobqueue est en \u00e9tat RELEASED. \r\nRemonte l'\u00e9tat critical si la jobqueue est en \u00e9tat HELD ou n'existe pas.}\r\n\r\n{EN: Check job queue existence and state.\r\nJob queue can take statements RELEASED or HELD.\r\nReport a OK state if the job queue is in RELEASED state.\r\nReport a CRITICAL state if the job queue is in HELD state or not existing.}",
+            "active_checks_enabled": 2,
+            "alias": "Job-Queue-Status",
+            "check_timeperiod": "",
+            "command_name": "OS-AS400-Job-Queue-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEJOBQUEUENAME$",
+                    "password": false,
+                    "value": "JOBQNAME"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICELIBNAME$",
+                    "password": false,
+                    "value": "LIBNAME"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-AS400-Connector-Job-Queue-Status",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR:Contr\u00f4le le nombre de job en attente dans une jobQueue sans tenir compte des priorit\u00e9s des jobs.\r\nLes jobs dans une jobqueue peuvent avoir plusieurs \u00e9tats\u00a0:ACTIVE, HELD, ou SCHEDULED.\r\nRemonte ok si le nombre de job en \u00e9tat HELD est inf\u00e9rieur au seuil warning.\r\nRemonte warning si le nombre de job en \u00e9tat HELD est au dessus du seuil warning.\r\nRemonte critical si le nombre de job en \u00e9tat HELD est au dessus du seuil critical.}\r\n\r\n{EN: Check the number of job waiting in a job queue ignoring priorities of jobs.\r\nJobs in job queue can take different statements: ACTIVE, HELD or SCHEDULED.\r\nReport a OK state if the number of job in HELD state is lower than the threshold WARNING.\r\nReport a WARNING state if the number of job in HELD state is above the threshold WARNING.\r\nReport a CRITICAL state if the number of job in HELD state is above the threshold CRITICAL.}",
+            "active_checks_enabled": 2,
+            "alias": "Job-Queue-Wait-Job-Count",
+            "check_timeperiod": "",
+            "command_name": "OS-AS400-Job-Queue-Wait-Job-Count",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEJOBQUEUENAME$",
+                    "password": false,
+                    "value": "JOBQNAME"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICELIBNAME$",
+                    "password": false,
+                    "value": "LIBNAME"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "1"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "2"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-AS400-Connector-Job-Queue-Wait-Job-Count",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la taille de la file d'attente des messages. \r\nR\u00e9cup\u00e8re tous les message dont la s\u00e9v\u00e9rit\u00e9 est sup\u00e9rieure ou \u00e9gale \u00e0 celle d\u00e9finie dans les arguments. \r\nRemonte OK si le nombre de message est en dessous du seuil warning. \r\nRemonte Warning si le nombre de message est au dessus du seuil warning. \r\nRemonte Critical si le nombre de message est au dessus du seuil critical.}\r\n\r\n{EN: Check messages queue size.\r\nRecover all the message whose the severity is superior or equal to the define arguments.\r\nReport a OK stage if the number of message is below  the threshold WARNING.\r\nReport a WARNING state if the number of message is above the threshold WARNING.\r\nReport a CRITICAL state if the number of message is above the threshold CRITICAL.}",
+            "active_checks_enabled": 2,
+            "alias": "Message-Queue-Size",
+            "check_timeperiod": "",
+            "command_name": "OS-AS400-Message-Queue-Size",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEMQUEUENAME$",
+                    "password": false,
+                    "value": "MQNAME"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICESEVERITYLEVEL$",
+                    "password": false,
+                    "value": "40"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "2000"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "2500"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-AS400-Connector-Message-Queue-Size",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la pr\u00e9sence et l'\u00e9tat d'un sous syst\u00e8me\r\nUn sous syst\u00e8me peut prendre les \u00e9tats ACTIVE, ENDING, INACTIVE, RESTRICTED, et STARTING.\r\nRemonte ok si le sous syst\u00e8me est en \u00e9tat ACTIVE.\r\nRemonte critical si le sous syst\u00e8me est dans un autre \u00e9tat que ACTIVE, ou que le sous syst\u00e8me n'a pas \u00e9t\u00e9 trouv\u00e9.}\r\n\r\n{EN: Check the presence and the state of a subsystem.\r\nA subsystem can take statements ACTIVE, ENDING, INACTIVE, RESTRICTED, and STARTING.\r\nReport a OK state if the subsystem state is ACTIVE.\r\nReport a CRITICAL state if the subsystem state is different than ACTIVE, or the subsystem wasn't found.}",
+            "active_checks_enabled": 2,
+            "alias": "SubSystem-Exist",
+            "check_timeperiod": "",
+            "command_name": "OS-AS400-subsystem-exist",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICELIBNAME$",
+                    "password": false,
+                    "value": "LIBNAME"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICESUBSYSTEMNAME$",
+                    "password": false,
+                    "value": "SUBSYSTEMNAME"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-AS400-Connector-SubSystem-Exist",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la taille de la file d'attente des messages. \r\nR\u00e9cup\u00e8re tous les message dont la s\u00e9v\u00e9rit\u00e9 est sup\u00e9rieure ou \u00e9gale \u00e0 celle d\u00e9finie dans les arguments. \r\nRemonte OK si le nombre de message est en dessous du seuil warning. \r\nRemonte Warning si le nombre de message est au dessus du seuil warning. \r\nRemonte Critical si le nombre de message est au dessus du seuil critical.}\r\n\r\n{EN: Check messages queue size.\r\nRecover all the message whose the severity is superior or equal to the define arguments.\r\nReport a OK stage if the number of message is below  the threshold WARNING.\r\nReport a WARNING state if the number of message is above the threshold WARNING.\r\nReport a CRITICAL state if the number of message is above the threshold CRITICAL.}",
+            "active_checks_enabled": 2,
+            "alias": "Message-Queue-Filtered-Size",
+            "check_timeperiod": "",
+            "command_name": "OS-AS400-Message-Queue-Filtered-Size",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "2"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEIDFILTER$",
+                    "password": false,
+                    "value": "REGEX"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEMAXSEVERITYLEVEL$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEMINSEVERITYLEVEL$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEMQUEUENAME$",
+                    "password": false,
+                    "value": "MQNAME"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "1"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-AS400-Connector-Message-Queue-Filtered-Size",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la taille de la file d'attente des messages. \r\nR\u00e9cup\u00e8re tous les message dont la s\u00e9v\u00e9rit\u00e9 est sup\u00e9rieure ou \u00e9gale \u00e0 celle d\u00e9finie dans les arguments. \r\nRemonte OK si le nombre de message est en dessous du seuil warning. \r\nRemonte Warning si le nombre de message est au dessus du seuil warning. \r\nRemonte Critical si le nombre de message est au dessus du seuil critical.}\r\n\r\n{EN: Check messages queue size.\r\nRecover all the message whose the severity is superior or equal to the define arguments.\r\nReport a OK stage if the number of message is below  the threshold WARNING.\r\nReport a WARNING state if the number of message is above the threshold WARNING.\r\nReport a CRITICAL state if the number of message is above the threshold CRITICAL.}",
+            "active_checks_enabled": 2,
+            "alias": "Message-Queue-New-Message",
+            "check_timeperiod": "",
+            "command_name": "OS-AS400-New-Message-In-MessageQueue-Filtered",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "2"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEIDFILTER$",
+                    "password": false,
+                    "value": "REGEX"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEMAXSEVERITYLEVEL$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEMINSEVERITYLEVEL$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEMQUEUENAME$",
+                    "password": false,
+                    "value": "MQNAME"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "1"
+                }
+            ],
+            "max_check_attempts": 1,
+            "name": "OS-AS400-Connector-Message-Queue-New-Message",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'existence d'un job. Contr\u00f4le que le job n'a pas de MSGW.\r\nRemonte ok si le job existe.\r\nRemonte critical si le job n'existe pas, ou que le job a un MSGW.}\r\n\r\n{EN: Check job existence. Check job hasn't a MSGW.\r\nReport OK  state if the job exist.\r\nReport CRITICAL state if the job doesn't exist, or job has a MSGW.}",
+            "active_checks_enabled": 2,
+            "alias": "Job-Has-No-Msgw",
+            "check_timeperiod": "",
+            "command_name": "OS-AS400-Job-Active-Have-No-Msgw",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALCOUNT$",
+                    "password": false,
+                    "value": "2"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGCOUNT$",
+                    "password": false,
+                    "value": "1"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-AS400-Connector-Jobs-Active-Have-No-Msgw",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

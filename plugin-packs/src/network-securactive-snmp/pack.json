@@ -1,0 +1,204 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Network-Securactive-SNMP-List-Bca-Discovery",
+                "command_for_macro": "Network-Securactive-SNMP-List-Bca-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Securactive-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "NAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Securactive-SNMP-List-Bca",
+                "service_display_name": "Bca-$name$",
+                "service_template": "Net-Securactive-bca-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Network-Securactive-SNMP-List-Bcn-Discovery",
+                "command_for_macro": "Network-Securactive-SNMP-List-Bcn-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Securactive-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "NAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Securactive-SNMP-List-Bcn",
+                "service_display_name": "Bcn-$name$",
+                "service_template": "Net-Securactive-bcn-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_securactive_snmp.pl --plugin=network::securactive::snmp::plugin --mode=list-bca --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Network-Securactive-SNMP-List-Bca-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_securactive_snmp.pl --plugin=network::securactive::snmp::plugin --mode=list-bca --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Network-Securactive-SNMP-List-Bca-Discovery",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_securactive_snmp.pl --plugin=network::securactive::snmp::plugin --mode=list-bcn --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Network-Securactive-SNMP-List-Bcn-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_securactive_snmp.pl --plugin=network::securactive::snmp::plugin --mode=list-bcn --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Network-Securactive-SNMP-List-Bcn-Discovery",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_plugins.pl --plugin=network::securactive::plugin --mode=bcn --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --bcn=\\'$_SERVICEBCN$\\' --name=$_SERVICENAME$\\' --filter=$_SERVICEFILTER$ --display-transform-src=$_SERVICEDISPLAYTRANSFORMSRC$ --display-transform-dst=$_SERVICEDISPLAYTRANSFORMDST$   $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Securactive-SNMP-Bcn",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_plugins.pl --plugin=network::securactive::plugin --mode=bca --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ -- name=\\'$_SERVICENAME$\\' --filter=\\'$_SERVICEFILTER$\\' --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\'  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Securactive-SNMP-Bca",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Securactive en SNMP}\r\n{EN: Template to check Securactive devices using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Securactive using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "Securactive.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Securactive-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Securactive-bcn-SNMP",
+                "Net-Securactive-bca-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "Securactive.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ fix service discovery commands",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor securactive network equipment via SNMP:\r\n* Bca\r\n* Bcn\r\n* List-bca\r\n* List-bcn"
+            },
+            {
+                "lang": "fr",
+                "value": ""
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Securactive-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Securactive-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Securactive ",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_securactive_snmp.pl",
+                "package_name": "centreon-plugin-Network-Securactive-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-securactive-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "securactive",
+            "Network",
+            "SNMP"
+        ],
+        "update_date": "1585665964",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le du r\u00e9seaeu critique.}\r\n\r\n{EN: Check Business Critical Network.}",
+            "active_checks_enabled": 2,
+            "alias": "Bcn",
+            "check_timeperiod": "",
+            "command_name": "Net-Securactive-SNMP-Bcn",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Securactive-bcn-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le des applications critique.}\r\n\r\n{EN: Check Business Critical Application.}",
+            "active_checks_enabled": 2,
+            "alias": "Bca",
+            "check_timeperiod": "",
+            "command_name": "Net-Securactive-SNMP-Bca",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Securactive-bca-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,247 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sybase.pl --plugin=database::sybase::plugin --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTSYBASEPORT$\\' --username=\\'$_HOSTSYBASEUSERNAME$\\' --password=\\'$_HOSTSYBASEPASSWORD$\\' --tds-level=\\'$_HOSTSYBASETDSLEVEL$\\' --mode=databases-size --filter-database=$_SERVICEFILTERDATABASE$ --warning-data=\\'$_SERVICEWARNINGDATA$\\' --critical-data=\\'$_SERVICECRITICALDATA$\\' --warning-log=\\'$_SERVICEWARNINGLOG$\\' --critical-log=\\'$_SERVICECRITICALLOG$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Sybase-Databases-Size",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sybase.pl --plugin=database::sybase::plugin --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTSYBASEPORT$\\' --username=\\'$_HOSTSYBASEUSERNAME$\\' --password=\\'$_HOSTSYBASEPASSWORD$\\' --tds-level=\\'$_HOSTSYBASETDSLEVEL$\\' --mode=connection-time --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Sybase-Connection-Time",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sybase.pl --plugin=database::sybase::plugin --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTSYBASEPORT$\\' --username=\\'$_HOSTSYBASEUSERNAME$\\' --password=\\'$_HOSTSYBASEPASSWORD$\\' --tds-level=\\'$_HOSTSYBASETDSLEVEL$\\' --mode=connected-users --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Sybase-Connected-Users",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sybase.pl --plugin=database::sybase::plugin --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTSYBASEPORT$\\' --username=\\'$_HOSTSYBASEUSERNAME$\\' --password=\\'$_HOSTSYBASEPASSWORD$\\' --tds-level=\\'$_HOSTSYBASETDSLEVEL$\\' --mode=blocked-processes --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Sybase-Blocked-Processes",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sybase.pl --plugin=database::sybase::plugin --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTSYBASEPORT$\\' --username=\\'$_HOSTSYBASEUSERNAME$\\' --password=\\'$_HOSTSYBASEPASSWORD$\\' --tds-level=\\'$_HOSTSYBASETDSLEVEL$\\' --mode=sql --sql-statement=\\'$_SERVICESQLSTATEMENT$\\' --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Sybase-Sql",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Sybase Database",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [
+                {
+                    "key": "$_HOSTSYBASEPORT$",
+                    "value": "2638"
+                },
+                {
+                    "key": "$_HOSTSYBASETDSLEVEL$",
+                    "value": "CS_TDS_50"
+                },
+                {
+                    "key": "$_HOSTSYBASEUSERNAME$",
+                    "value": "USERNAME"
+                },
+                {
+                    "key": "$_HOSTSYBASEPASSWORD$",
+                    "value": "PASSWORD"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Sybase",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-DB-Sybase-Database-Size",
+                "App-DB-Sybase-Connection-Time",
+                "App-DB-Sybase-Connected-Users",
+                "App-DB-Sybase-Blocked-Processes"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Compatibility with Centreon Plugin Packs Manager v2.2.0",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Sybase Server DBMS using SQL request.\r\nSeveral indicators are available but not linked to the template of host.\r\nYou have to use them manually:\r\n* Database-Size\r\n* Connection-Time\r\n* Connected-Users\r\n* Blocked-Processes"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack Plugin pour surveiller les SGBD Sybase Server en utilisant des requ\u00eates SQL.\r\nDe nombreux indicateurs sont disponibles mais ne sont pas associ\u00e9s au mod\u00e8le d\\'h\u00f4te.\r\nIls doivent \u00eatre d\u00e9ploy\u00e9s manuellement:\r\n* Database-Size\r\n* Connection-Time\r\n* Connected-Users\r\n* Blocked-Processes"
+            }
+        ],
+        "discovery_category": "database",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n##Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Databases-Sybase\r\n\r\n## Username\r\nThe username string should not be longer than 32 chararacters. Username\r\nmust be in the following form: [Servername|Domainname]\\Username\r\n\r\n### RPM\r\nIn order to use this template, the following RPM are needed:\r\n\r\n* freetds-0.82\r\n* perl-DBD-Sybase-1.10-1\r\n* unixODBC-2.2.11-10\r\n* unixODBC-devel-2.2.11-10\r\n\r\n## Centreon Configuration\r\n### Create a new Sybase database server\r\nGo to \"Configuration &gt; Hosts\" and click \"Add\". Then, fill the form as\r\nshown by the following table :\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-DB-Sybase-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick \"Save\" button.\r\n\r\nThose services were automatically created for this host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"24%\" />\r\n<col width=\"75%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Service</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Blocked-Processes</p></td>\r\n<td align=\"left\"><p>Check blocked processes on the server.</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Connection-Time</p></td>\r\n<td align=\"left\"><p>Check the connection time to the server.</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Database-Size</p></td>\r\n<td align=\"left\"><p>Check Size space of databases on the server.</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Connected-User</p></td>\r\n<td align=\"left\"><p>Check connected user.</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\n### Host Macro Configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"19%\" />\r\n<col width=\"48%\" />\r\n<col width=\"19%\" />\r\n<col width=\"13%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n<th align=\"left\">Example</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>SYBASEUSERNAME</p></td>\r\n<td align=\"left\"><p>the Sybase user</p></td>\r\n<td align=\"left\"><p>USERNAME</p></td>\r\n<td align=\"left\"><p>root</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>SYBASEPASSWORD</p></td>\r\n<td align=\"left\"><p>the Sybase password</p></td>\r\n<td align=\"left\"><p>PASSWORD</p></td>\r\n<td align=\"left\"><p>p@ssw0rd</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>SYBASEPORT</p></td>\r\n<td align=\"left\"><p>Port Of the Sybase Database</p></td>\r\n<td align=\"left\"><p>2638</p></td>\r\n<td align=\"left\"><p>2638</p></td>\r\n</tr>\r\n</tbody>\r\n</table>",
+        "name": "Sybase",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_sybase.pl",
+                "package_name": "centreon-plugin-Applications-Databases-Sybase",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "centreon-plugin-Applications-Databases-Sybase",
+                "version": "20161121-3"
+            }
+        ],
+        "slug": "applications-databases-sybase",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "bdms",
+            "Database",
+            "sap",
+            "sgdb",
+            "sybase"
+        ],
+        "update_date": "1486389225",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'espace utilis\u00e9 des bases de donn\u00e9es du serveur.} {EN: Check used space of databases on the server.}",
+            "active_checks_enabled": 2,
+            "alias": "Database-Size",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Sybase-Databases-Size",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERDATABASE$",
+                    "password": false,
+                    "value": "^(?!(tempdb))"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Sybase-Database-Size",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier la dur\u00e9e de connexion au serveur. Ce temps est donn\u00e9 en secondes.} {EN: Check the connection time to the server. This time is given in seconds.}",
+            "active_checks_enabled": 2,
+            "alias": "Connection-Time",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Sybase-Connection-Time",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Sybase-Connection-Time",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le nombre d'utilisateurs connect\u00e9s \u00e0 la base de donn\u00e9es.} {EN: Check number of connected users on the database.}",
+            "active_checks_enabled": 2,
+            "alias": "Connected-Users",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Sybase-Connected-Users",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Sybase-Connected-Users",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les processus bloqu\u00e9s.}\r\n{EN: Check blocked processes.}",
+            "active_checks_enabled": 2,
+            "alias": "Blocked-Processes",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Sybase-Blocked-Processes",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "1"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "5"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Sybase-Blocked-Processes",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "",
+            "active_checks_enabled": 2,
+            "alias": "Generic-Sql",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Sybase-Sql",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Sybase-Sql",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

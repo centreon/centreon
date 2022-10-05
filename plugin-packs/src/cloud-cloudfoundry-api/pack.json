@@ -1,0 +1,215 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cloudfoundry_restapi.pl --plugin=cloud::cloudfoundry::restapi::plugin --mode=instances-state --custommode=\\'$_HOSTCLOUDFOUNDRYCUSTOMMODE$\\' --hostname=\\'$_HOSTCLOUDFOUNDRYAPIHOSTNAME$\\' --api-path=\\'$_HOSTCLOUDFOUNDRYAPIPATH$\\' --api-username=\\'$_HOSTCLOUDFOUNDRYAPIUSERNAME$\\' --api-password=\\'$_HOSTCLOUDFOUNDRYAPIPASSWORD$\\' --port=\\'$_HOSTCLOUDFOUNDRYAPIPORT$\\' --proto=\\'$_HOSTCLOUDFOUNDRYAPIPROTO$\\' --app-guid=\\'$_SERVICEAPPGUID$\\' --warning-app-state=\\'$_SERVICEWARNINGAPPSTATE$\\' --critical-app-state=\\'$_SERVICECRITICALAPPSTATE$\\'  --warning-instance-state=\\'$_SERVICEWARNINGINSTANCESTATE$\\' --critical-instance-state=\\'$_SERVICECRITICALINSTANCESTATE$\\' --warning-running=\\'$_SERVICEWARNINGRUNNING$\\' --critical-running=\\'$_SERVICECRITICALRUNNING$\\' --warning-stopped=\\'$_SERVICEWARNINGSTOPPED$\\' --critical-stopped=\\'$_SERVICECRITICALSTOPPED$\\' --warning-crashed=\\'$_SERVICEWARNINGCRASHED$\\' --critical-crashed=\\'$_SERVICECRITICALCRASHED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Cloudfoundry-Api-Instances-State",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cloudfoundry_restapi.pl --plugin=cloud::cloudfoundry::restapi::plugin --mode=apps-state --custommode=\\'$_HOSTCLOUDFOUNDRYCUSTOMMODE$\\' --hostname=\\'$_HOSTCLOUDFOUNDRYAPIHOSTNAME$\\' --api-path=\\'$_HOSTCLOUDFOUNDRYAPIPATH$\\' --api-username=\\'$_HOSTCLOUDFOUNDRYAPIUSERNAME$\\' --api-password=\\'$_HOSTCLOUDFOUNDRYAPIPASSWORD$\\' --port=\\'$_HOSTCLOUDFOUNDRYAPIPORT$\\' --proto=\\'$_HOSTCLOUDFOUNDRYAPIPROTO$\\' --organization-guid=\\'$_SERVICEORGANIZATIONGUID$\\' --space-guid=\\'$_SERVICESPACEGUID$\\' --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-state=\\'$_SERVICEWARNINGSTATE$\\' --critical-state=\\'$_SERVICECRITICALSTATE$\\' --warning-started=\\'$_SERVICEWARNINGSTARTED$\\' --critical-started=\\'$_SERVICECRITICALSTARTED$\\' --warning-stopped=\\'$_SERVICEWARNINGSTOPPED$\\' --critical-stopped=\\'$_SERVICECRITICALSTOPPED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Cloudfoundry-Api-Apps-State",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Cloud Foundry using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "cloudfoundry-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTCLOUDFOUNDRYCUSTOMMODE$",
+                    "value": "restapi"
+                },
+                {
+                    "key": "$_HOSTCLOUDFOUNDRYAPIPATH$",
+                    "value": "/v2"
+                },
+                {
+                    "key": "$_HOSTCLOUDFOUNDRYAPIUSERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTCLOUDFOUNDRYAPIPASSWORD$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTCLOUDFOUNDRYAPIPORT$",
+                    "value": "443"
+                },
+                {
+                    "key": "$_HOSTCLOUDFOUNDRYAPIPROTO$",
+                    "value": "https"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Cloudfoundry-Api",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Cloudfoundry-Instances-State-Api",
+                "Cloud-Cloudfoundry-Apps-State-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjEuMvojzfEAABPDSURBVHhe7Z33nxVFusb337kEhUngkBFkMIABBEUUTCA5DGkQUMLCkMOQJDMMQXI0rK6oKLCurrLrrrrurve6e10/996/oe779Jw+U/PO0/F09wnyw/dzmJdTb1fV+5zq6uoKvzLGVCwtLS1mzpw5ZsyYMWbIkCFm4MCBpn///qZfv34U/B++M3ToUPPkk0+aefPmmd27d4sr7r8SoMZy5dy5c2bq1Knm/vvvpwEuhGHDhpkZM2aYy5cvy6X49csRaiw3mpqazPDhw2ng0qChocEsX75cLs3zU05QYzmAX/u4ceNogLJk0qRJkh2ex3KAGkudJ554ggajmIwfP16yxvNbylBjqbJw4UIzYMAAGoBSAB3Icrs1UGOpsW/fvlQ6dmnxwAMPmGPHjknWeXlKCWosJebPn08ruRxA51SXp9SgxlJh7NixtGLLiQkTJkhRePlKAWosBfDczSq0HBkxYoQUiZez2FBjMcFAy+DBg2lFljPow+iylgLUWCzOnDnj9KRZBSYJhnzxNGHjN0ScFBD2lStXpKi8/MWAGovFoEGDaMUVAkbtpk2bZnbs2BFqGPfixYtm69atZsqUKU7TzXwWAt4z6GsWE2osBkne8/HiBy9y9DXiMmvWrERvSxClvkaxoMaseeSRR2hFReWhhx4ye/fuFZf8OoWCVgTBY9eOCt5Qav/FgBqzBGPprIKi8OCDD5oDBw6IO36NpNm1a5cz2MPyEoVXXnlF3PFrZAU1ZgUqklVMFGbPni2uuP+0SUK8hw8fFlfcfxZQY1bgXs0qJQxI29bWJm6476zAbaGQziteY2ufWUKNWfD000/TCglDsSuNgd49y2sYXnjhBXHB/aYNNabN0aNHaUWEYdSoUeKC+y02I0eOpHkOA+Y3aH9ZQI1pE7cnXcrBd0GHlOU9iNGjR0ty7jNNqDFN9uzZQysgiFIbQPEjbp+gGH0aakyTOM/8GKq9cOGCJOc+ozDn9v+Ycdf/bYa/+99mmMNPZuR7P5mnP/rZLPr8/+QrPF0UWltbYw0tF2NsgBrTAhM7WMGD2LRpkyTnPoN4/uOfTfXFH033c/9lutmc1/xo/gNc+NF0E+qv/cvMuf2/4oL7DWLlypW0LEGcOnVKknOfaUCNaYH7HCu0H4899pgk5f78GHxFAnnmB9Pt7H9yzrlI8AOEMfr9n8Qlv44fcfoDmOiq/aQJNaYFK3AQUefhj37nX6bbaQm8BmIQuuc+8zBxACWQHiKGKZ/8LJfg12UcP36clskP3Dq0nzShxjRYtGgRLbAfUYdKe535h+n+5j9MNwYThUVYYdRf/lEuxa/PmDhxIi2bH6tXr5ak3F/SUGMaRH30i/JLmH3j36bbqb/n6W4jwXeJKwwXVxg9BZ0HP1j5/Hj00UclGfeVNNSYBqygfrz88suSjPuymfHRT6b7yb91optNThRUHICJwoaIAvQ8+4NcnudJg3mBrIx+aB9pQY1Js3PnTlpIP8Lc+xd/Kr/849+b7ick8JqcGMIKwwWicD4l+L4th3BvSBHE6QscOnRIknJ/SUKNSYMZOayQXoSdP9cTwfcgijBcgoThthg2tefCiSDq4NCCBQskGfeVJNSYNFGnVk2fPl2ScV8uIy5IANr+2oke6m8mjDwngARe6BYgEL+WA6KYJrchnT/Ns88+S8vqRVb9AGpMGozksUJ6EeYdeffW70z3YwFoQWiYMIT21gOIADQ5Udji6HHqb5Ilnk8XvDZmZfUCU9C0jzSgxqRhBfRDp9f0PSG/9qPfmh6tLt91honBRgkBLUeY1qNDGCAniBzP/OafkjWeXxdWVj90+jSgxiTBVC1WOC8wLVz70PQ48k27AIIgwogjjk42JQpXGD1FFDqfGlZePzBNXvtIGmpMkjVr1tDCefH4449LMu4LzL/+T9Pj8F+MIwI/ciLobgvCxaflKEQgOq+aqGMhuG1oH0lDjUmC3iwrnBfPP/+8JOO+wMgz37cLwAsJfk8tBhsmCMERSoHCaPzYvzOIPQRYmb1YtWqVJOO+koIakyTqI2DQfP76Y9+anof+0hVLBPa/839L8H2FAZQouhDQ3xh3zX+EEFO/WJm9yGJ1MTUmSVQBNDY2SjLuC1QjmAf/nKenyyEbSxiWQFxheH4yUdgwUbiIOIad9X8aiFoXdwVAqEKAD3zdiR7upy0IKgwggU5JGENO+3cE7wogBEG3gNrDEuj9f8rT08YShY0jkINABJCgQPLkhPDQOf8W4MUXX6Rl9qIiBBB1h4+gTuDAVqnwfRJ8L6IKwyVQHDlBKHHYQnjhbf8+wFNPPUXL7AVmFWkfSUONSRJ1ahR2ANM+bCZelGfuN/7YiR6AiUETUhgu7S1HTgwhhLHulv9TQNRp49u3b5dk3FdSUGOSRJ0FjJcm2oem5947pgtKFC6OOAAThIuIIWrL4SC3FbtDqvOpYeX148SJE5KM+0oKakwaVjg/dHrNvQj4HiUALywx2IQShksIcQxs+0ayxvPrwsrqh06fBtSYNFGnSB85ckSScV/g2fN/Nffs+criTieoEDSWGBihxGEJQ+dRE/VlUJiWMAmoMWmibv6AHb61D03v3RL4XV+ae3YD+TdDCcRpNQoUSL7lADkhDJCOqc6fBp1bVlYvMKNY+0gDakyaqIUPMyFk2fs/mHtFAC6OGBhxBBJGJDlB3CPovDGiTgjBriTaRxpQY9JgYQcrpB/aB2P4oT+aXjv/kOde6zOcOCwx2OSFASTYPsKYcvXvkhWePxd05lgZ/cjqnAJqTANWSD9mzpwpybgvm74SpF4tEnjBFoD96aKF4SkOJgqghDHm9LeSBZ4vm6gtINA+0oIa0yDqZhCYRaR9eHGfNPO9d3zh0AvkBJEXRk4cjLw4JPCBwgA5MTzQ+rVcmudHw8rnR5YbS1JjGmCRByusH3PnzpWk3J9myL6vTO/tn+eFwOjV4mIJw0Mg+RbDRYLv8vjJ4E6fS9ThX4DRU+0nLagxDU6fPk0L60fUZVJPtP6pXQReEFEAp9UAOWF0EogSwqwrwfP/XC5dukTLFYT2kybUmBZxtnzH+Ln240fD/jumatvnDr1tmCA0lihs2sXxhZl0Jtw93wULW1mZ/MBwsfaTJtSYFnGXTGNZufblR7+dX5iqrb/vzDbQLoxOAmFC0IgAHjkSPNhjs2XLFlqWILBLqfaVJtSYJnE2U4ozRbpu62emestnpspGi8JGCcRuOQbt/VJc8uswsKopzp7HxdhVnBrT5NVXX6WFDyJq5TRd/d5Ub/6dIwIvwgijWoShfQcR93ST5uZmSc59pgU1pk3cfXdxmKP25ceglt+bGojAIv+3JQSNLYwnpWOp/fqB7WpZ3oMo1nby1Jg2WP/OKiEMYZaN2dRsum1qNknghWoXSxAuWigQQo2g/fmBPX5YnsOQ9b3fhRqzoJC9djds2CAuuF/NMGkFajfeNrUiBBtbGHlxKBFMPhF+sOell16ieQ3Dww8/LC6437Shxiw4e/YsrYwwRBklBLUbbpk8EIONhzDqRADajxfYoZzlMwxRy5I01JgVcTuEIMrq2aHbJKDrb5k6EYBNJ2G4iCjqhAlH70hS7k9TyJ7Ha9euFRfcbxZQY5YUclZA2DlzC899Y/qsv2lxK4+XMLQPLwpp+kvhzABqzJq4O2uiH6F9eVHX/Kmpa77ZiT6gkzDauS+CAOJsCAlKZedTasya8+fPx95yfenSpeKC+7Xpv1GCvk5EABwxaDqEMX5/uIEf7GPE8hQEbhnaV7GgxmIQdxfRsHPnJh760tRK8EFeCJqcGNa8FbzUG8QZ7UOLgT2DtK9iQY3FAqthWaUFEaYvsFaCWrv2E29EAC46LSNuz3/z5s2SnPssBtRYTLZt2+Y8GrHK8yLsE0HNr2+YWhsihLp1n8hXeXqb5557jubFC7RUUV9qZQE1FhvsERRFBGHnDVSvuWFcamwsUQzedFO+ytPbROmz4FaB+RDaRylAjaUATtCI8lIFexFqH5q+ayX4qz/uICcGm4dbwg0AsTwwivGGLwrUWEqE3VQhzM6iQzZ+aqpXfWRqgAgAdBKEMFk6izqdZv369TQPGqyM1mlLDWosNfDyKOiWEOY0zuGbbzoC8ALCmHMy+O1f0JJ3NPml1tnzghpLFb+dt8M8W4/ccstUr5RgaywRLD0XPOETG1mxPIBingAWB2osZU6ePOksIdcVH2bW0Ei0AK9/mKcGrGynOkcYAeDYOn19bACV1LE2WUKN5QAGU/Aa1Q1AGAE0SA+/6rXrnXkdfOgAUTSdDV7mbXdOIcZiHfmWBNRYTuC496lTp4bqAzy2/bapXnG9Ay0GYeWl4GXeWLgZdWJKqUKNlcr4XZ+ZqhUfSPA1HaLYcC14w8dKghorlfE7f2eqlv9W+KArIgSw4ep38lWevhKhxkpl5IZPTPWy3zpUuTiC6GDpmfDTwCoBaqxURqy/YXq/+r7pvayDqjztglj6ZrRZwOUONVYqDc03TNVSCbbgCEEjQlhyVwCVS8O6jyX47xHaRQGaTt0VQMUy/Ncfmd5NvxHe60QVyImhse0r+SpPX4lQY6UyZNV103uJCMDGEUQHUw9+Ll/l6SsRaqxUhqz8wPRa/G5XEVhMPRB9LWA5Q42VSv8V0tGDAARHCPpTBPDUjnATQioFaqxU+i+Xe/6id7qSEwEYt+2uAMoWbMeG9/A4qLq1tVVMnf+/b9O7pkoCrrHF8ODaD7uk279/v1myZIlzhg/ePej/L2eosdxg07PZyeN1SxDwtx0QbDf4thgaVn/QJZ2eABq0o3k5QY3lxLhx4zoFx2Xs2LHy352/W73gbeOwsJ0ql5wowNCV73dJh7d/2v/kyZO7fK8cocZyAGsI/DaawFGtOk1t41umRsBnrQihxsIVxxDpJ+h0o0aNotdAy4O5iJikotOUC9RYirS1tZlly5aZ0aNH02BosD2t9uEEPocrBP05aOm7XdLh/s+uocFCV8wXxBzGN954w1kB5IJzE0ppRZALNRaD1157zVkwiV81ZtyAuFvJ4Ber/YM6CbCNKwaberkN6HSATQOLAyauYAcx7b9YUGOWzJgxI/JKIC/gx2+P4br510yexmumTw78u5235O+35Ks8PX7dcRexaiButGj6GllDjVmAPXGSqkxsyBhmfWAfCbyLLQb3b+dThKDTaXAectQDoBhY0XTs2DFxya+TBdSYFVFP0rTBrz3qvLy+864amz4gF3gXCEGn8wP7GcdZJQzCLm1PE2rMElYxQQQdLcfYeuFrc9/cq+1I4G20MHTaMOCUk6ibRezatUuScn9ZQY1ZwirGC1RwmDWAjNXHv5TgX3Ho63xKsF1B2MQUAMAC0Ci3tV/8FjEYTGEVw0AzW8hj1MTm66Z+zpVO3AdyorCZvy/8DmGMKItaZ8+eLUm4nyygxix45plnaIUw8Ms/evSoJOO+GPP33DIjm94x9bMvd2AFv18O22YDcdSLGEa//p5ZfjT6HIEoLQF2CMf7Bu0jC6gxTVpaWpx1fKwivIiyyrZh8dumfpYEG9jB98MKvCsMJpAxq7oOE3sRZ2d0DCThhZP2lSbUmAZr1qxxBkFYwYPQvhhLpNnuN+uSBL4d/Lvjbwkyg4nBi5wIBkboI7CyhAG3OwxlY0dU7Dyu/SYJNSYBhm5xEnjczZNd8LinfTPqZ0qg/aDCABLciMIYOP+KXJLnwyau4DULFy4Ud/wahUKNSRD32ViDe6n2zaifcdE4sOD7kROCK4wOgUiwPYQxcF44AbC3iHEIWwdxoMZCwSgfK0hctH/GjG03TD8RAMiLwQsmBC8cMdjiuGx2nA83dTypHwFIq29AjYUSpYcfhrDn6G9+844ZiIBNlyATChXI8AXhRwkxXMzKEpcJEyaIW36tQqDGQin0vq8Js/bfZvqWG2YAgjbtQjtEDBo/cQydf9WsOBxttjAe7VhZooAzl7EryooVKwwEpa+RBNRYKHhmR5OF3cBRgEJ203bBCx99nSD2XPzavLj+url/7mXTb3pODDZECKD/zIumYeE1M3tHuD0DNZMmTaJlCAM6vVkODlFjGmCYNMrIH8PrPX8U9l3+s1nX9gez/MBnZsGumw6vy697w4loB0N5UchbQjaNLW2oMU0OHjxY0Pt/tCbYplX7LTY4AAN7ArI8hyHqbS4pqDFt8BaMVUIUoh4omSZxjofVpPms7wc1ZkFSz8i4LRRjTz7M8WO7lcXlF3doFDZ2YhURF7wwQkdx48aN4p5fs1DQscU09CSf712yPDDahhqzAB0eVhFJgQmmOGcQFYsWAquGdB68OHXqlDPFbPHixc7zN17vRp3sERU88ul8ZAE1ZgGrhF86TU1NUjW8vtKCGtOmsbGRVsAvHbQyeF2u6ytNqDFNcBYAK/xdOsAAmq63tKDGtMCJGWl0oCqNLHchpca0OHLkiNPZYYW+S/tEEJxFoOstTagxbQodEi51cC+P+tQQ5STUJKHGLMDbrTAHSGPYGK0GHumwkASrcSEg/I30hQwrFwqCjLMD8LiIIW5dRhe8B2lubjY4ZVTPGMZkDywm1WmyghqzBMu87beFGE/HekG/CmVgAAh79qf9vA4wihnlBHMGzgzGlDltzxpqLAZJHqmGik2jZcCvN6owSx1qrBTsAyUKpZhn/KcJNVYSfucMhQWbUmi/lQI1VhpYTMoCG4Y0Z+SWAtRYicQdgMpyVK4YUGMlghct7vO515OC+3/oQEIwmNip/VQW5lf/D2wzIRh+aLpHAAAAAElFTkSuQmCC",
+            "name": "cloudfoundry-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "- Add generic-host template",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Cloud Foundry using API:\r\n* Apps state\r\n* Instances state"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser Cloud Foundry via l\\'API :\r\n* Etat des applications\r\n* Etat des instances"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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OInOInOInOInOInOInOInOInOInOInOInOInOInOInOInOInOInOInOInOInOInOInOInOInOInOInOInOInOInOInOInOInOInOInOInOInOInOInf/2Q==",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Cloud-Cloudfoundry-Api\r\n\r\n## Centreon Configuration\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Cloud-Cloudfoundry-Api-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Host Macro Configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"23%\" />\r\n<col width=\"53%\" />\r\n<col width=\"24%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>CLOUDFOUNDRYAPIHOSTNAME</p></td>\r\n<td align=\"left\"><p>Hostname of the Cloud Foundry API</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>CLOUDFOUNDRYAPIPATH</p></td>\r\n<td align=\"left\"><p>URL of the API</p></td>\r\n<td align=\"left\"><p>/v2</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>CLOUDFOUNDRYAPIPORT</p></td>\r\n<td align=\"left\"><p>Port of the API</p></td>\r\n<td align=\"left\"><p>443</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>CLOUDFOUNDRYAPIPROTO</p></td>\r\n<td align=\"left\"><p>Protocol used by API</p></td>\r\n<td align=\"left\"><p>https</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>CLOUDFOUNDRYAPIUSERNAME</p></td>\r\n<td align=\"left\"><p>API username</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>CLOUDFOUNDRYAPIPASSWORD</p></td>\r\n<td align=\"left\"><p>API password</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Cloud Foundry",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_cloudfoundry_restapi.pl",
+                "package_name": "centreon-plugin-Cloud-Cloudfoundry-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-cloudfoundry-api",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Cloud",
+            "API",
+            "Restapi"
+        ],
+        "update_date": "1541785233",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des instances.}\r\n\r\n{EN: Check instances state.}",
+            "active_checks_enabled": 2,
+            "alias": "Instances-State",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Cloudfoundry-Api-Instances-State",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEAPPGUID$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALAPPSTATE$",
+                    "password": false,
+                    "value": "%{state} !~ /STARTED/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALINSTANCESTATE$",
+                    "password": false,
+                    "value": "%{state} !~ /RUNNING/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Cloudfoundry-Instances-State-Api",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des applications.}\r\n\r\n{EN: Check applications state.}",
+            "active_checks_enabled": 2,
+            "alias": "Apps-State",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Cloudfoundry-Api-Apps-State",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEORGANIZATIONGUID$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICESPACEGUID$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATE$",
+                    "password": false,
+                    "value": "%{state} !~ /STARTED/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Cloudfoundry-Apps-State-Api",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,261 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_zixi_restapi.pl --plugin=apps::video::zixi::restapi::plugin --mode=broadcaster-system-usage --hostname=\\'$HOSTADDRESS$\\' --username=\\'$_HOSTZIXIUSERNAME$\\' --password=\\'$_HOSTZIXIPASSWORD$\\' --port=\\'$_HOSTZIXIPORT$\\' $_HOSTZIXIEXTRAOPTIONS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --warning-disk-usage=\\'$_SERVICEWARNINGDISKUSAGE$\\' --critical-disk-usage=\\'$_SERVICECRITICALDISKUSAGE$\\' --warning-memory-usage=\\'$_SERVICEWARNINGMEMORYUSAGE$\\' --critical-memory-usage=\\'$_SERVICECRITICALMEMORYUSAGE$\\' --warning-cpu-load=\\'$_SERVICEWARNINGCPULOAD$\\' --critical-cpu-load=\\'$_SERVICECRITICALCPULOAD$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Video-Zixi-RESTAPI-Broadcaster-System-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_zixi_restapi.pl --plugin=apps::video::zixi::restapi::plugin --mode=broadcaster-output-usage --hostname=\\'$HOSTADDRESS$\\' --username=\\'$_HOSTZIXIUSERNAME$\\' --password=\\'$_HOSTZIXIPASSWORD$\\' --port=\\'$_HOSTZIXIPORT$\\' $_HOSTZIXIEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' --warning-dropped-in=\\'$_SERVICEWARNINGDROPPEDIN$\\' --critical-dropped-in=\\'$_SERVICECRITICALDROPPEDIN$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Video-Zixi-RESTAPI-Broadcaster-Output-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_zixi_restapi.pl --plugin=apps::video::zixi::restapi::plugin --mode=broadcaster-license-usage --hostname=\\'$HOSTADDRESS$\\' --username=\\'$_HOSTZIXIUSERNAME$\\' --password=\\'$_HOSTZIXIPASSWORD$\\' --port=\\'$_HOSTZIXIPORT$\\' $_HOSTZIXIEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-days=\\'$_SERVICEWARNINGDAYS$\\' --critical-days=\\'$_SERVICECRITICALDAYS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Video-Zixi-RESTAPI-Broadcaster-License-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_zixi_restapi.pl --plugin=apps::video::zixi::restapi::plugin --mode=broadcaster-input-usage --hostname=\\'$HOSTADDRESS$\\' --username=\\'$_HOSTZIXIUSERNAME$\\' --password=\\'$_HOSTZIXIPASSWORD$\\' --port=\\'$_HOSTZIXIPORT$\\' $_HOSTZIXIEXTRAOPTIONS$ --filter-source=\\'$_SERVICEFILTERSOURCE$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Video-Zixi-RESTAPI-Broadcaster-Input-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Zixi Broadcaster Server in Rest API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "app-zixi-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTZIXIPORT$",
+                    "value": "4444"
+                },
+                {
+                    "key": "$_HOSTZIXIUSERNAME$",
+                    "value": "username"
+                },
+                {
+                    "key": "$_HOSTZIXIPASSWORD$",
+                    "value": "password"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Video-Zixi-Broadcaster-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Video-Zixi-Broadcaster-System-Usage-RESTAPI",
+                "App-Video-Zixi-Broadcaster-Output-Usage-RESTAPI",
+                "App-Video-Zixi-Broadcaster-License-Usage-RESTAPI",
+                "App-Video-Zixi-Broadcaster-Input-Usage-RESTAPI"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "app-zixi-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Zixi application using REST API:\r\n* broadcaster-input-usage\r\n* broadcaster-license-usage\r\n* broadcaster-output-usage\r\n* broadcaster-system-usage"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller une application Zixi via REST API :\r\n* broadcaster-input-usage\r\n* broadcaster-license-usage\r\n* broadcaster-output-usage\r\n* broadcaster-system-usage"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Video-Zixi-Restapi\r\n\r\n### Rest API\r\nThe plugin need an account to connect on Rest API.\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Video-Zixi-Broadcaster-Restapi-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "ZIXI",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_zixi_restapi.pl",
+                "package_name": "centreon-plugin-Applications-Video-Zixi-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-video-zixi-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Zixi",
+            "Video"
+        ],
+        "update_date": "1502185761",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation syst\u00e8me.}\r\n{EN: Check system usage.}",
+            "active_checks_enabled": 2,
+            "alias": "System-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-Video-Zixi-RESTAPI-Broadcaster-System-Usage",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGDISKUSAGE$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALDISKUSAGE$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGMEMORYUSAGE$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALMEMORYUSAGE$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGCPULOAD$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALCPULOAD$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Video-Zixi-Broadcaster-System-Usage-RESTAPI",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des sorties.}\r\n{EN: Check output usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Output-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-Video-Zixi-RESTAPI-Broadcaster-Output-Usage",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /Connecting|Connected/i || %{error} !~ /none/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Video-Zixi-Broadcaster-Output-Usage-RESTAPI",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des licences.}\r\n{EN: Check license usage.}",
+            "active_checks_enabled": 2,
+            "alias": "License-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-Video-Zixi-RESTAPI-Broadcaster-License-Usage",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Video-Zixi-Broadcaster-License-Usage-RESTAPI",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des entr\u00e9es.}\r\n{EN: Check input usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Input-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-Video-Zixi-RESTAPI-Broadcaster-Input-Usage",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /Connecting|Connected/i || %{error} !~ /none/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Video-Zixi-Broadcaster-Input-Usage-RESTAPI",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,309 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_rubrik_restapi.pl --plugin=apps::backup::rubrik::restapi::plugin --mode=tasks --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTRUBRIKAPIUSERNAME$\\' --api-password=\\'$_HOSTRUBRIKAPIPASSWORD$\\' --port=\\'$_HOSTRUBRIKAPIPORT$\\' --proto=\\'$_HOSTRUBRIKAPIPROTO$\\' $_HOSTRUBRIKAPIEXTRAOPTIONS$ --warning-succeeded=\\'$_SERVICEWARNINGSUCCEEDED$\\' --critical-succeeded=\\'$_SERVICECRITICALSUCCEEDED$\\' --warning-failed=\\'$_SERVICEWARNINGFAILED$\\' --critical-failed=\\'$_SERVICECRITICALFAILED$\\' --warning-canceled=\\'$_SERVICEWARNINGCANCELED$\\' --critical-canceled=\\'$_SERVICECRITICALCANCELED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Rubrik-Restapi-Tasks",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_rubrik_restapi.pl --plugin=apps::backup::rubrik::restapi::plugin --mode=storage --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTRUBRIKAPIUSERNAME$\\' --api-password=\\'$_HOSTRUBRIKAPIPASSWORD$\\' --port=\\'$_HOSTRUBRIKAPIPORT$\\' --proto=\\'$_HOSTRUBRIKAPIPROTO$\\' $_HOSTRUBRIKAPIEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' --warning-full-remaining-days=\\'$_SERVICEWARNINGFULLREMAININGDAYS$\\' --critical-full-remaining-days=\\'$_SERVICECRITICALFULLREMAININGDAYS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Rubrik-Restapi-Storage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_rubrik_restapi.pl --plugin=apps::backup::rubrik::restapi::plugin --mode=nodes --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTRUBRIKAPIUSERNAME$\\' --api-password=\\'$_HOSTRUBRIKAPIPASSWORD$\\' --port=\\'$_HOSTRUBRIKAPIPORT$\\' --proto=\\'$_HOSTRUBRIKAPIPROTO$\\' $_HOSTRUBRIKAPIEXTRAOPTIONS$ --cluster-id=\\'$_SERVICECLUSTERID$\\' --filter-node-id=\\'$_SERVICEFILTERNODEID$\\' --unknown-node-status=\\'$_SERVICEUNKNOWNNODESTATUS$\\' --warning-node-status=\\'$_SERVICEWARNINGNODESTATUS$\\' --critical-node-status=\\'$_SERVICECRITICALNODESTATUS$\\' --warning-cluster-nodes-total=\\'$_SERVICEWARNINGCLUSTERNODESTOTAL$\\' --critical-cluster-nodes-total=\\'$_SERVICECRITICALCLUSTERNODESTOTAL$\\' --warning-cluster-nodes-ok=\\'$_SERVICEWARNINGCLUSTERNODESOK$\\' --critical-cluster-nodes-ok=\\'$_SERVICECRITICALCLUSTERNODESOK$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Rubrik-Restapi-Nodes",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_rubrik_restapi.pl --plugin=apps::backup::rubrik::restapi::plugin --mode=disks --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTRUBRIKAPIUSERNAME$\\' --api-password=\\'$_HOSTRUBRIKAPIPASSWORD$\\' --port=\\'$_HOSTRUBRIKAPIPORT$\\' --proto=\\'$_HOSTRUBRIKAPIPROTO$\\' $_HOSTRUBRIKAPIEXTRAOPTIONS$ --cluster-id=\\'$_SERVICECLUSTERID$\\' --filter-disk-id=\\'$_SERVICEFILTERDISKID$\\' --unknown-disk-status=\\'$_SERVICEUNKNOWNDISKSTATUS$\\' --warning-disk-status=\\'$_SERVICEWARNINGDISKSTATUS$\\' --critical-disk-status=\\'$_SERVICECRITICALDISKSTATUS$\\' --warning-cluster-disks-total=\\'$_SERVICEWARNINGCLUSTERDISKSTOTAL$\\' --critical-cluster-disks-total=\\'$_SERVICECRITICALCLUSTERDISKSTOTAL$\\' --warning-cluster-disks-active=\\'$_SERVICEWARNINGCLUSTERDISKSACTIVE$\\' --critical-cluster-disks-active=\\'$_SERVICECRITICALCLUSTERDISKSACTIVE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Rubrik-Restapi-Disks",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_rubrik_restapi.pl --plugin=apps::backup::rubrik::restapi::plugin --mode=compliance --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTRUBRIKAPIUSERNAME$\\' --api-password=\\'$_HOSTRUBRIKAPIPASSWORD$\\' --port=\\'$_HOSTRUBRIKAPIPORT$\\' --proto=\\'$_HOSTRUBRIKAPIPROTO$\\' $_HOSTRUBRIKAPIEXTRAOPTIONS$ --warning-incompliance=\\'$_SERVICEWARNINGINCOMPLIANCE$\\' --critical-incompliance=\\'$_SERVICECRITICALINCOMPLIANCE$\\' --warning-noncompliance=\\'$_SERVICEWARNINGNONCOMPLIANCE$\\' --critical-noncompliance=\\'$_SERVICECRITICALNONCOMPLIANCE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Rubrik-Restapi-Compliance",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_rubrik_restapi.pl --plugin=apps::backup::rubrik::restapi::plugin --mode=cluster --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTRUBRIKAPIUSERNAME$\\' --api-password=\\'$_HOSTRUBRIKAPIPASSWORD$\\' --port=\\'$_HOSTRUBRIKAPIPORT$\\' --proto=\\'$_HOSTRUBRIKAPIPROTO$\\' $_HOSTRUBRIKAPIEXTRAOPTIONS$ --cluster-id=\\'$_SERVICECLUSTERID$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-read=\\'$_SERVICEWARNINGREAD$\\' --critical-read=\\'$_SERVICECRITICALREAD$\\' --warning-write=\\'$_SERVICEWARNINGWRITE$\\' --critical-write=\\'$_SERVICECRITICALWRITE$\\' --warning-read-iops=\\'$_SERVICEWARNINGREADIOPS$\\' --critical-read-iops=\\'$_SERVICECRITICALREADIOPS$\\' --warning-write-iops=\\'$_SERVICEWARNINGWRITEIOPS$\\' --critical-write-iops=\\'$_SERVICECRITICALWRITEIOPS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Rubrik-Restapi-Cluster",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Rubrik via l'API}\r\n{EN: Template to check Rubrik using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Rubrik using Rest API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "rubrik-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTRUBRIKAPIPORT$",
+                    "value": "443"
+                },
+                {
+                    "key": "$_HOSTRUBRIKAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTRUBRIKAPIEXTRAOPTIONS$",
+                    "value": "--http-backend=curl --insecure"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Rubrik-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Rubrik-Tasks-Restapi",
+                "App-Rubrik-Storage-Restapi",
+                "App-Rubrik-Nodes-Restapi",
+                "App-Rubrik-Disks-Restapi",
+                "App-Rubrik-Compliance-Restapi",
+                "App-Rubrik-Cluster-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAABlWSURBVHic7Z15dBRluoeft7oTwiKIG+KKYgRBRRTmqjMyBkEWWbLRQBJA8SozLuM4eo535p/JvefMHXXGcRkWnZkriiTEBrIQjbIFHRVFEUVRURQUFcQNUdYkVd/9o3pPV3d1d3XSCfzO6VPVX9X3vm/V89ZX21dVcEzHdEzHdExHqaS9A2g3rSt3s6/vZQD02v0meeUt7RxRu+joTIDlc8/G7apDMQQERDajWiaSf+vn7R1aW+voS4CaBf3QWIviXHPxfatAyWe4JI9JN+1o1/jaWFp7B2BLyx/si1KpJ2vd/AEIL0eBD8jZ6LzAin+ek7KfDqTMbQHKyzWGdc1HaXeh5EpEFjDxrluStlc97wI0bS3QNwp830wCsBNDy6No9vak/Hi9p+IyGkF6orRakLkUF29NOu40K/MSYF15Dge6zURxN0pyzUIB5GtcXMV1d32UsM26BUNRrAJOigPf72snBsklQXXVNJQsCdhSolCsQeTvbNnyLOXlRsI206jM2QU0lPek/t472J/zCUo9BoTCB+QUdO3KhO3WPToMxRqQOPBDf5yFJuuoeaJ/EkvSNcKmIDIaZAUXXryNpbX3UF19YhJ206LMSID6Pxeg5+wEHgI5zbflpG63dv5VKLUW5ASzIBZ8wodKzkKRbBL4/PhHAslwLqLuRWnb8K74ZdJ2HVRmJAByN9ArSnnELwHVLLgapAGkZ9AWduH7x89Eaeuoe+q8xJzHillASW80mZqYzfQoQxJArTaHvpWmkgAeqpr54xCeA+kRtEui8P3lZ6KTeBK03vrDpyleSchempQZCdD3hD+ZW2ukQlaeEsAV31btvImI1IDkBG2QLHz/8Ax0eYnqqgviB+Ai5tZv+mlAHaqKbyv9yowEGDanmUOHChCpS2nrr503FbTlIF3MAkfg+8tORbU04l08KG4csbf+5zlwXBEej257udKozEgAAE95EwcPekDVmgWRW3+cpKhbUAraYpCsYH2cgu+Dqp2Ky9WI1xsnCSy3/ufY37OAG/IOx67fdsqcBAAzCQ4fnArUJlSvZv7NKBaBuM2CaIljcdpnCT90nrDpfXAZ1kkQ2K5bbf0NdMvKKPiQaQkAZhLsPs6DkhpbW3/t/FsReRTEtyyR0ELKIsdjwoco8P3jfXCpRpYtG2xvoaSBbtmFjB9/xN78bafMSwCAOXOa+ar7VKA6WBglCWrn3wMyF0SC86Qdvn+8D2I0Ul19YevAwlqYZzMVPmRqAoCZBLu7TUPJ8kCZQfAyqgn/3uj76rTD99s5BcNYG5YEIqGXeqv5fk9BpsKHTE4AMJNgT850hEoQA5e2BYDaeX/OAPj+8VPQ1ZrA7sBwbQExQCr57utpzJnTnNpKSK/iHFpnkJY/2JeiO3ezYt5wDG1DOzX7IXZaTf8So2UwHs8+li/vS1HR7hSXuE2U2S1AqIruNFeocl1mDT/yyDsSfozpYQecMRLF+szidKTLBDPWjgEfwJ1W63V/6oPL/QiGNg44zh6cyGnsBNcC3t5zP+XlBrr2AZpBdPjEsW8xPQA2xnQ7rYwYZsGy+lyUmgsyAsiJ7cvCr+InlNaAYdxByag9pEnp2wWUl2tc1u0VlFwedJUo/LDxuyn49QMA1Dz2BCKzMgo+fI3RdAFdujTTLO+gpF98X5bwQ6bLq3iu/jkigeuLTip9u4BLegx0DD4CIjdRPde8j97c+0YMFmUMfGEvok3A4/meZu1q5+ADcAVL19q4B5Gc0pcAwkn+kZThm+MD0NyTAPB4dFqOnw3yZHCeeDaixOIEfMUedH5J0aQ3TL8Wy50UfP+yZPlsOq80HwQ6Bt83DLkb6PHobP5iNmhPxrcRxZYzzf5uFCPx5L8bc7lTgR9sCdKiNkgA/zBV+FFWRHm5weads0F7IraNeEBiwbeM9zNa1FV48t+PudwZDB/a5DTQIfhWh0Dl5Qb5189GeNTZO38xW5EdGFoe0wo+aR2QFpzXEfgdvgVwCn6MFSGimHz9LShtQXQbvqEz8LfSLL/AMynGAyQdAz6k9TqAm8Bmm074fokolLqV2sUKxS1BG76hM/Dfxsi+lunjv4kZi6PwBevmL3WlfxfgGHwhbpcwEUV+2W0I8x2HL7yJZozCEwd+IEaH4KePPZBIC1B/3zWI6gvqWSb8fq+tOo7Ct9kcmi3BbdRUKJBbHdryX+FQ9njKxv9oM4gkfUUMA/PazALv+hPQtevA2MX0K9faqWKvBXjmvjxQq1E8hZIdPPvnsfYiamP4AbeiKCi9HYN50X1E82UJ/99kyTj78CNt2PUVMQxbBza208oNIzFkO8IiRFtN5Xpbzx3ET4Dycg2l/hoSTS8MrY76+230a3cSfhJJUFRyO2aHkQh7sYCETX8eo2kskyf/lJjzKMuQNHwby/30KyPQVB1IL7PLuQji+oOdKOMnwKVdS4FLI1ZONlDBir/eHN+FU/ATTAAwk6Bw2m+Av7eyF++2r+JZ9vcqwOM5lITjcJvphF/52miU63kUPSLW72iqXo17CTl2AnjLsxHKW28ZAkpcwKOs+Ms91gYchm8kccwqoiicegdKeyRgL+49f/Hy/Z4kO3BGHASmDD9GElS9di1CHUq6RlkWgazb4kUbe412zbkN5NwQ6JH31QW0e1nxwMOtn993B4N3An4qzwqKKIqKf4toD9uAv4QTe5am1pOnjeArqQWJeBg11L+6Hu/6E2JFap0Aq+/tBdofokCP9vsNzzy0kHXlrY9WHIOfQgKAmQQFRXeCPGztj3+y5a0y8vJSfF+Qk/CjLHfFhjEoqQO6WiczgHSjJfuGWJFaJ8Ah7XcoOTG6gyg/Q2bxY68KvOXZ5rxKdx6+K7WnaUQUxcW/JdCfMGwlP8qWt3/lwPP7uvPwteByV74+Fo1akJzY6873X+R2vF7LCygxzi+0S8ODiBYYkRdZPOSc8CNwEy7X+7TQBGQ7A19Ak7es401AxYW/Z1nNTmA2oEAep3jyo47Ybpa3cTkJX5rIPvweYB7wCbVEPvrWajzs/9kY/ccBz0QL1zoBRB5CcSnIaa2MKsukMFC+FyRMuGUvdQvuQvEwST+0EVIuPEB+WcRt1xRUXLAAWOCYPb9KRr1DVePfEH7nAHwD5E4K8n4AQNPuR9HFGnyUJFCAIZbvOIi/Y214pCeG28ZjucDBw4fx/C78tKlm/mWIjAXXcQBmz/7QPU/ouLQuVxwGXqRo1jpbMWSKnn4hD9QIAm8MidzbasQsV/wEPMe0KzYFJi3ZMAyR8SjpFhud36bSMbT3ydpWZfUwaopHVhaqXnAhLumL3rKJwtu+S4uPo0ENDV34sffdKBmJkt241f/iuTxK/4Pk5WwCeL3ZZH+7EKTEZ/oHRJvF5JtXOOrnaFBDQxf29V4GMiFkl3AAZALTh7/glBvnEqDhkS40ub0gkyL2Zc0gU8m/ucYxX51d3vVd0bU6YHSU44IDgGNJ4EwC1D/WDV2vAxnVKmDzYK4ZxTQKb6q2MnFMPnnXd6VFW4HQel2GJoHGRKYOS/m4KPX+AN55PdD1Z1rDl9Aj+SxEvNQ8Pj1lf51Z9Ru72YAP0B1DnqHyzZGpukytBah58Hiky3Mgl9s8z9cRbSb5N1Sm5Lczqn5jN/Y3rwC5xtY1BHN4EKUmUnJZY7Juk0+AZ+b3ppmViAxP8CKPjpJZFF5fkbTvzqb6jd3Y31IPErJF27yQpOQgmprE9EttdQCJVHK7gLp/9qFFXkwCPpi3y56k5smypHx3NqUC37xA1g1DW0HFplHJuE+8BVj+WF9c+hqQQUnAD710rCNcT8GsxckE3im0aHN33IfqEckLFiZ9CfkQSiZRevGaREJILAGWzz0bl7YWpH+K8P1lOoobKJr5VEJxdAYt2tydrEPPgFwdLEwavn94CGQyJRetthuG/V3Air+fg0tb5yB8QFyItpDlFTNsx9EZlB74YF52rmfxuxPshmKvBah/bCC6vgbkdGv40QIKuxZgPR3RgdkUli6yG3iH1aLN3ck6/CwQ0mnTEfghQ46ATKHkwvp44cRPgNpHB4GxBqRvmuD7WwcdxY0UlzwZN6aOKnOf34DIiGCh4/D9dZoQiuMlQewEqJ97KbprFXBimuH7ywyUNpviqZ0vCbwbe6G3PA/+dyZAGuH7y5owmMKMwZb3YqyPAVbMG47uWk3bwQdEQ1hI9dO/soyrI6p94AOSjSZLeWrrJKvQoidA3dwRGNpa4IQ2hO8fF5TMZ5n311ZBdyiZ8Fe2A3z/MBtNLaVi6+Ro4bVOgNoFY1Cu5wm81MlvrE3g+8cFZB7LlnXsJAjC/49gYZvC98+QDXip/DA/MsTwY4C6eWPNL135ux1FC8oKGnF6APvtxJke7stAMYcpRf+KDDzj5V3XA73rOpBhwcJ2gR863oSSfMoGPOcvCLYA68rdKO0JMge+GZ/IP6iuTvmuV5tLz7k7w+ADko2wEK8KdPELJsD3J50O9Mkg+P6hYMiNdDSJv1c1OA8/cn1FG1qO9+Hw9tP9f4IJ8G3WLpDvMwx+RFkHkqHMrtxpgU+y8EHJ9xzaG3iTaTAB5sxpRmm/BvQMg6/QtP+jo+lIl/tQ4uvAmTHwdUR+xZxhgcfews8CCm72glaKoiVD4Bsg/0nhpKQ7PLSbbhj6Ay3NeYj4nmXICPg3UJq7FIu5g6r5hwe0CsDtPHzbuxgd5EaKJz8ZNcaOIu+mkzGMtSgualf4yPWU5ba69W69c63+1xREKmn1HZ5I51HGU4ffjFBCUf4yy/g6krybTsZQwSTIEPiRtVqreuEURPmSoM3gN4GaSnFBYh+OynR5N52MzhoUF7dxsz+L0lzL7nexEwCg9vFilFaJIqsN4B9EqQKmFKyKG1dHVMU7vRFjNajLMgF+ZG1r1TxRhPlJ9Kw0wj+AUpOZUpBU58YOo4p3eiNqFahhMeEHXgyWbLPPTMrOj9v72l6PoILrlyNqOkhzmuDvQ3Ftp4cPUHrxXo4Yo1Ga+XbxpOCHrjtoBV8xww78iJo2tPyp6xB8n2Z1CL7IXhTjKM7fkFAsHV0L3zqebNcqhOGJww9VGPxmhGmUnm/7CazEEgB8SaAtB7o4cOfvazTXtRRO3JxwHJ1BC986ni7ulcDPUoJvbmDNoKZSNiChZzATTwCAZRXjEamm1ZsqEoL/FZp7NIUTtiQVQ2fRwreOp0vWShQ/MwuSgt+EUlOZMSDhM6fkEgCgpmochqom7DPttuHvBNcoiiduS9p/Z5J3Yy+aclYi/n4DbQM/muXEVFM1DgNfEtiG/ynivoaiCdtT8t3Z5P2kF02HYyQB4f/98EU8lObWJes2taeDC6Y9h2gFIIcDwcWG/yGiX3UMfhR5+u8jO2cM8Jr9LV+mpAI/mofktOzpMYhWiwrdHfiHgfEPyJJRTJ68yxGfnVWLt/VEIvsQQlT4M3JTfvOKM98LKJ66EiX5wOEg9DD4b9HkGnEMvg2V5f6I3jQKeDFYGAFfk2In4IOTH4woLl6JUpNBfG8JC8DfiNE0ipKJ3zrmq7Nr5pAD6EeuQ3ghDL6SI2hSTElu3Cd+7MqZXUColi8fjuH6o/lxCWnEaPpvPJ79jvs5GuR9rwfNrj+iGAnaLlD/Q9mAN9o7rGPqRLJuAbxeFy69BLSBhH2sJ9pew/9yQ/kco+XxsHfsL6sbhiFjEI6L/nLEOOMGn6OzLJ0fUE6LKt8biTJGoElO65dj+mW1B9ZA+IkWYyUzB24Mm+T9vCvNRo6tGFSTTlluzC+dWCdA9ZI7UfK3hG9WiJpGUdHTACxdcTvwEIgW9czA/qXkbxB1NZ5Rzr0ksaGhC/tO+gUAvXq/zPjcI47ZrnznQZDfht8H8SuhizwGSt3BjAFzAVj8cSUwrXWlaBgDdrZjZI1g1plfRgvV+iDQ0D5udUSvIm/sRPyEl9F181p0xTO9QR5wAD4gJ6O0v1jGmqiqXunPDydsBrUG1Bp+2LuZqo2W79NNzPaWIQ7BB/O5iAdYuON434RD4ZWE6DZ8vs0N9VxcTUOtwo2RANIAsj3MoBV40/FmDmdPwuNpAiBHHwQWnUiSu4k0kqcbx1jGa1dLXu2Hcq1BZEDAvjAApV7A++Z5KdvXGeIQfL+yydIHA3ACtwDP2gTvL2+mWduIhawTwOPREVngO/0gBnhAPiJLG0PphJDPybldDsIHJAelhby5PAlVvJYL8hJIv9b2OQPdeImqN1P7VLuIy0H45n8xzGOw8blHyD5SCFIXXjcqeH/5Um445yurcGNfBxD3v0D2xwAPyE4M92gmT7Y4SHMEfswwbanitVw01oGc0dp+INZTUaoR76ZBqTlzEH6kPIObyD7kwfxugDX4oB6JFWnsBCgo+AHkKQvwoGQPmjEaz8Sd0Q04CT+FJKjacL4P/umt7RMxLqei40ASRPOTIny/PIOb2L/Xg1I1wXmj7hbeZOY5MTvaxL8SqMlDZogRrYDIt4h2DYWFH1lXzhD4StmF7y/oQwuNLE4lCZyCb7Hsc4Y1c3DvVLNfRjTfAvBgvCjjJ0Bh4UcoWROxNf9oduOa9F7c+o7Ct/fdioC8bwzwwT+ttX2IXiZ+KH3QpJHKtwcn5tTCZrTpycL3a86wZrL7eYAlwfkDdXbT5cDS6BWDsnsv4H8B5fuC2D5wTaB4suWRZUAJw492nEGUcRvyvjEAXW9MEr7/fx+gkarNFybm3MpfyP9U4fvlEZ2D381CJBy2Yj6ewU3xqttLgCkFLyByDWhluI1+TJnwUtw6LZA4/Gh1/PPaitRU5fqB6HqyW35k+SkYrE0sCZyGH+fbwXOGNXP62SWIuh/4CFGPcObZ99qJ1P7Xw4smJ/huejfmkjoF3+YWUbl+IKI1gvSNaTNyGPtxLTMJFr8zirKL43y4ykX4ckf4TBi+zeXOkxbgHt/Ptpy7HRxVTsOPE64Jf501fAt/9p7VOwVN1rL4nYtiBxG5DCH/0wU/BaU5AcA5+HFWRtWrF/jgnxrdpkULkNiDmicjrrUs/sBGEkT4ykD40CYtQFvA3zAEJf9OM3z/ccjJiPEiFR9cFjuokLoJwZcY05xX2+0CbMH3TYv7QGSIqjYMQak1ICdZ24wWT6x54+4meoNazZKtIS+BilSy8CPmS+TgNwm1zS7ANnwSg+99/ZJ2gO832BtDrYqeBB0DPrRFC+AY/IgV5H39EnSjveD7x3tjsJrFHw4Plge+/Nk65qTgd9RdgLi+dR6+fAPAkvVDffBPjD1/RJmz8P3D4xG1KpgE8q3j8HXtG9Kk9KWXUoK38RWQKxyCv4OmbhfR43AOR9T7IKfEnj+iLD3wQ8v3kNUyCGiiKetdoF/rOrHGQ/2GTBNepbTfzxFJyw4hjS2AKLJa8kGqgJ9SgH8YtJVo6lpmDjnAEWNiBsIH6EOTazyewfsR17XASgLPSUTWt7ARDv8noApDz08XfEjkSmAyKhzzNeDwxyLF9xXsjILvq6cZAJT23waMjbMgGaE2OAtwQHUvH4f3vR4AuNwrQHwdHDMJvuwi2/UsAE+93zf+QmWGMj8BlmwYxsHsTzAOmK+M8wzbh9JGgfhed5oR8L8GfSye/vtY9MkwJOsLFm+r4LGNWfYXtH2U2QlQ+fpg4DngZBS/pGrjtQCUDNuKizyQkGcNnYYvUcoifPnhG9o1lF1g3iTS1GDMntAldD++KtOTIHMToOqV/girCJ7n56CMYKdQz/APcamRwK70wCfKeMj/UPgzzwu+5UQZIetUCuneu4aGbV3iLG27KTMTwLv+dJR7NaiIXsARPYI8wz9E3Hn4k6Bt4e9Bk5Fh8KPFCNfxnbuaRzIzCTIvASo3nkSLtgo4x7oJDtG0Sz5CXHkovmxj+NdQkhujS1xIfVHj6a3VsHCHvUe62lCZlQCLX+uJ1vI8IlE6Y8ZJAiV5YDMJUoWPjIwNP6KuWW8cbqozLQkyJwHqN3bDTT0K321WG1t/qEqHbkORB3yRPvh8BTKSstw4zyhGi1kAxuEmo1qCzEiAxzZmcaCpBhgRY+XFV+nQbYi6Cvg0LfANO/Aj6re+hjcWtyxnnUrvRTibyowE6Nl8G2jXWj91HDkeQ9OHfooYeUQmQWrN/hco11XMPP8De0HEkgCM58ud01K3lboyIwFEzvKNRJsYMm4z3OlDP0W5r0bY4QD8z1FaHjPO+9ie8xAbsW7pKnVFYvbSo8xIAM2YhyLiBVJJbP2hKh30GYYrDyU7UoLvliTgWyngay+a8bQzNlNTZiSA58qP0bkAUXNAtgYnRIAyErRbOugzdK4GticNf1ruJwl6DbHRysd2kP/CcOdSeu6/k7LrsDIjAQDKLv+RaZf/gw+HD0YxCVhN4JlEnzQ5ZFXdUjMH70QnD9T2BODvTAF+xC1gFLAapU3ik7NzmXH2fcw647sk7KZFSbStbajKjQMRuQ0kH8UPtLhGMnPI10nZWvTeWbikEaR/XPhCHqXnJ/c20yUfn0mL9h6gEJ5Ck7mUnLM1br12UmYngNNa8u6ZGFnrgJDXwUTAN4yrmTlwR0p+Fm/ryYHuLcw57WBKdtpAR1cCgLmFGi2+JAg7z/8MQ+WlDL+DKXOOAdpK08/7HM2dh4j5kQpzy38bwz3iaIMPR2ML4Ne6dW52nWZ+4Pm0XZvIy2tp54iO6ZiO6ZiO6ZjaUv8PqZKhn9hCfLcAAAAASUVORK5CYII=",
+            "name": "rubrik-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* use --insecure option",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Rubrik using Rest API:\r\n* Cluster\r\n* Compliance\r\n* Disks\r\n* Nodes\r\n* Storage\r\n* Tasks"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser Rubrik via l\\'API Rest :\r\n* Cluster\r\n* Compliance\r\n* Disks\r\n* Nodes\r\n* Storage\r\n* Tasks"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Rubrik Rest API",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_rubrik_restapi.pl",
+                "package_name": "centreon-plugin-Applications-Rubrik-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-rubrik-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Rubrik",
+            "Backup",
+            "Application",
+            "Restapi"
+        ],
+        "update_date": "1607331237",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les t\u00e2ches.}\r\n\r\n{EN: Check tasks.}",
+            "active_checks_enabled": 2,
+            "alias": "Tasks",
+            "check_timeperiod": "",
+            "command_name": "App-Rubrik-Restapi-Tasks",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Rubrik-Tasks-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le syst\u00e8me de stockage.}\r\n\r\n{EN: Check storage system.}",
+            "active_checks_enabled": 2,
+            "alias": "Storage",
+            "check_timeperiod": "",
+            "command_name": "App-Rubrik-Restapi-Storage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Rubrik-Storage-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les noeuds du cluster.}\r\n\r\n{EN: Check cluster nodes.}",
+            "active_checks_enabled": 2,
+            "alias": "Nodes",
+            "check_timeperiod": "",
+            "command_name": "App-Rubrik-Restapi-Nodes",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECLUSTERID$",
+                    "password": false,
+                    "value": "me"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALNODESTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /ok/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Rubrik-Nodes-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les disques.}\r\n\r\n{EN: Check cluster disks.}",
+            "active_checks_enabled": 2,
+            "alias": "Disks",
+            "check_timeperiod": "",
+            "command_name": "App-Rubrik-Restapi-Disks",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECLUSTERID$",
+                    "password": false,
+                    "value": "me"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALDISKSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /active/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Rubrik-Disks-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la conformit\u00e9 des sauvegardes.}\r\n\r\n{EN: Check backup objects compliance.}",
+            "active_checks_enabled": 2,
+            "alias": "Compliance",
+            "check_timeperiod": "",
+            "command_name": "App-Rubrik-Restapi-Compliance",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Rubrik-Compliance-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le cluster.}\r\n\r\n{EN: Check cluster.}",
+            "active_checks_enabled": 2,
+            "alias": "Cluster",
+            "check_timeperiod": "",
+            "command_name": "App-Rubrik-Restapi-Cluster",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECLUSTERID$",
+                    "password": false,
+                    "value": "me"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /ok/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Rubrik-Cluster-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

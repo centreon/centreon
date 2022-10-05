@@ -1,0 +1,208 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_citrix_sdx_snmp.pl --plugin=network::citrix::sdx::snmp::plugin --mode=xen-usage --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-memory-usage=\\'$_SERVICEWARNINGMEMORYUSAGE$\\' --critical-memory-usage=\\'$_SERVICECRITICALMEMORYUSAGE$\\' --warning-cpu-usage=\\'$_SERVICEWARNINGCPUUSAGE$\\' --critical-cpu-usage=\\'$_SERVICECRITICALCPUUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Citrix-Sdx-SNMP-Xen-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_citrix_sdx_snmp.pl --plugin=network::citrix::sdx::snmp::plugin --mode=sr-usage --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Citrix-Sdx-SNMP-Sr-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_citrix_sdx_snmp.pl --plugin=network::citrix::sdx::snmp::plugin --mode=hardware --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Citrix-Sdx-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_citrix_sdx_snmp.pl --plugin=network::citrix::sdx::snmp::plugin --mode=disk-usage --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-read-iops=\\'$_SERVICEWARNINGREADIOPS$\\' --critical-read-iops=\\'$_SERVICECRITICALREADIOPS$\\' --warning-write-iops=\\'$_SERVICEWARNINGWRITEIOPS$\\' --critical-write-iops=\\'$_SERVICECRITICALWRITEIOPS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Citrix-Sdx-SNMP-Disk-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Citrix SDX using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Citrix-Sdx-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Citrix-Sdx-Xen-Usage-SNMP",
+                "Net-Citrix-Sdx-Storage-Repository-Usage-SNMP",
+                "Net-Citrix-Sdx-Hardware-SNMP",
+                "Net-Citrix-Sdx-Disk-Usage-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "centreon",
+        "changelog": "* Fixing typo in package name by deprecating centreon-pack-centreon-plugin-network-citrix-sdx-snmp",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Citrix SDX equipment with SNMP : \r\n* Storage-Repository-Usage\r\n* Xen-Usage\r\n* Hardware\r\n* Disk-Usage"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les \u00e9quipements Citrix SDX via SNMP : \r\n* Storage-Repository-Usage\r\n* Xen-Usage\r\n* Hardware\r\n* Disk-Usage"
+            }
+        ],
+        "discovery_category": "",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAAAyCAYAAACUPNO1AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAQHAAAEBwBA/62pwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAZ8SURBVHic7ZxpjBRFFIC/nV3xWBDiCUgI4gEbDo3KegQI3opGPCLxQE2EEILEK6hBo/vHKDEaL8CYiCRrYsQYD8QDjVckGuTwXhEVV8KKiOji7soCC+uP15Mdmrq6e7p7ZugvqR+78+q96q43Va9eVQ0kyyTgY6DdKx8CExNuQ0ZKPAx0a0pDiu3KSIBL0Xd+vpyXWusyYmcZdgdYklrrMmJnE3YH2JBa6/ZjcgnZ2VkkmYwik5QDLHeQ+TT2VmSkxmhgB/rhfzswPLXWZSTCZKSj/Z3fAVyeYrv2a6oStncsMBOoRzp/BTCfLADMyEgH1xEgB5wJnAoMAPoDbcjybgPwHrDFoqOXwV43PasAk1xQ9gC7iqTLRjVQY/h8F9KetDkU+A/ochEeAjwDbMa8hu9CcvxT0K8sthnqby2Q67DYClJ+8HQeGLBeK9AELEJiF1PH5mmw6LzJJz/boR07gBMUtmqAVQ71vwAO8OrUAfcANwLTgTu896KkN/A40OlgxF9WA+MUOsvJAfylGUlnmwjqADngEwfbryhs3etQr40e5zkYuBvZjLsfmAMMBGapHmQQbt5lKl2ItxVSzg7QjQzfs1UvzCOoAwAMRTrKZnt8QZ1hqFdT/nJdQZ1zgBFIh58CPIKMCDP9w3UdsAaZ66NQDcxFIv5KoQp5cZcUUed64D4HuSeQESMHPAccZJFfBLxY8Hc1PfHHRKAv8Ku/0mHAOor37etAln15yn0EyJcm1HFOmBEAT9dHDnZvAG5zkPsJ6OOz0RuZ8ychQ/+FwMnArYXBTSPqgCMsDSi8rERpBd5BVjejgCMMsnXAGcBnRbK9B7gZ+AbpKB1zkQjexE7gGmRaKaQdiTfO9+z1BU4C5uUd4AKKO7R9CzwZsu4KJGjxczr65WEn8JXi/82ONjfRM2dWA9OABehXNOMpngOAfFHuQlZcOgY66JmDBOEq1nhlMOLw//o/tA0tbcipnjHAUUgwcgXwGhL05eV2I53lx3UK0GHaS/jZUtc2BTQp6rxgkH9aIR92CshThYxCYaemdwmZPxnpoHwdErHqGAv85snO18iUmwPcbpB/XiEf1QEAjgH+tuhRlc3I9BWYHPItNtGBrIHXG2SWI0uN75A1aiVwpOGzv2Ky2YJMBUHoRmKIP8IYzAETLDLPIiOAjV+Q6WFbmIaUGEOAqYbPv4zR9kLg7QDyjwFvhTVWgww7Jl4OoK8zbENSpha4CtnnOAvZnlYFoiBJmCAdFIbpyGjazyK3Grc8ghYXB1gbxUCZMBh1ylXFPOIf5QYAhzjI1RJx4yyHzCEmkj4zUMqsJv47DP2AxciuqI3hyNIvNDlkDWxiWBQDFcQyJJGyPWY7CzCvuPzMQVZyocgBGy0yVwfQZ8tRlyPbkBTqRcA/MduaBVwbsE4vJHCsDmMwh+zjm5iBW4r4OGAlkmasJPoic3LcjEY2m8JQj+wThGIU9kTDj5iHpXH0JILmaWRKORFkK53IEtdElERQbyTYjtLGDuB4Sxu1uKSC25ENiXokFXwicCXwOvumgusVNkrZAVqAPy0yzciOqY4oDvCSpW43smNoO6DzASGD9rMdGhCkfE3PUaQ8pewATchmkO253kc/14Z1gBkOdjciO5SmG9b5Ms3yLrQsdVAepNzp01/qDgDwhsNzNWhshHGAkcgBTVO93cC5nnwf4HeLfCtyqiswcRwIGVKgvxwcYCDyAm0dcrHCRlAHqPXs2t7jQ7560xzqvGl5H1rqsM+FQcotBbrLwQFAlmK259rK3qedILgDNDrYWcm+CaEcbmc2J1veiZZBnuEoHR/lUKiOpBwgh1xUtT3jCvY+Vh3EAaY66G9DAm0VExzqb8G8o2mkFngUt9On/rKKaMfCdSR5HsD15G3h2QdXBxiB27nHKZZnetVBR6NFh5XBSGrS9gMPXcgPPl1P9IshOpI+EPKApY6/Y10coBb43kHnYof3MRS3exuXmZQEuRo2xitHI8FSO7J+3oAsj2ydWGOwl3eiOOvHTRXmdOxupJ0ZGaVDttVbXGqQhNIkJABrQYbzfH4ho4I5HPgc9Ty8hMrcKc0owHakW3daOqMCOA17NL4LCaBLiqR+JazSGesgU4P8yEZJkTlAcfDvfEaVS4zMAYqD6l6iijjvE2SkSDVyIdYUAyxNrXUZiVCHfq9+LSUYAGYUn/7AU0h6fAfyYw0PYr/Xnxr/A3edaZgg2vi1AAAAAElFTkSuQmCC",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Citrix-Sdx-Snmp\r\n\r\n## SNMP\r\nSNMP must be configured on the monitored system.\r\n\r\n## Centreon Configuration\r\n### Create a new Host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Citrix-Sdx-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Citrix SDX",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_citrix_sdx_snmp.pl",
+                "package_name": "centreon-plugin-Network-Citrix-Sdx-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-citrix-sdx-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Citrix",
+            "Virtualization",
+            "Network"
+        ],
+        "update_date": "1508848809",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00c3\u00b4le l'utilisation des hyperviseurs Xen.}\n\n{EN: Check xen hypervisor usages.}",
+            "active_checks_enabled": 2,
+            "alias": "Xen-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Citrix-Sdx-SNMP-Xen-Usage",
+            "discovery_list_mode": "N",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Citrix-Sdx-Xen-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00c3\u00b4le l'utilisation des d\u00c3\u00a9p\u00c3\u00b4ts de stockage.}\n\n{EN: Check storage repository usages.}",
+            "active_checks_enabled": 2,
+            "alias": "Storage-Repository-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Citrix-Sdx-SNMP-Sr-Usage",
+            "discovery_list_mode": "N",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Citrix-Sdx-Storage-Repository-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00c3\u00b4le l'\u00c3\u00a9tat du mat\u00c3\u00a9riel.}\n\n{EN: Check hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware",
+            "check_timeperiod": "",
+            "command_name": "Net-Citrix-Sdx-SNMP-Hardware",
+            "discovery_list_mode": "N",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Citrix-Sdx-Hardware-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00c3\u00b4le l'utilisation des disques.}\n\n{EN: Check disk usages.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Citrix-Sdx-SNMP-Disk-Usage",
+            "discovery_list_mode": "N",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Citrix-Sdx-Disk-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

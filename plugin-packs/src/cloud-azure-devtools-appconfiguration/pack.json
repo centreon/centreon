@@ -1,0 +1,1076 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-DevTools-AppConfiguration-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure DevTools AppConfiguration resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.AppConfiguration/configurationStores/SVC123456ABCD78",
+                            "location": "westeurope",
+                            "name": "SVC123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.AppConfiguration/configurationStores"
+                        },
+                        {
+                            "id": "/subscriptions/1bzcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.AppConfiguration/configurationStores/SVC789012EFGH34",
+                            "location": "westus",
+                            "name": "SVC789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.AppConfiguration/configurationStores"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": "discovery.results.id"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-DevTools-AppConfiguration-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure App Configuration",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-appconfiguration",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-DevTools-AppConfiguration-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure DevTools AppConfiguration resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.AppConfiguration/configurationStores/SVC123456ABCD78",
+                            "location": "westeurope",
+                            "name": "SVC123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.AppConfiguration/configurationStores"
+                        },
+                        {
+                            "id": "/subscriptions/1bzcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.AppConfiguration/configurationStores/SVC789012EFGH34",
+                            "location": "westus",
+                            "name": "SVC789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.AppConfiguration/configurationStores"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-DevTools-AppConfiguration-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure App Configuration",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-appconfiguration",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-DevTools-AppConfiguration-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure DevTools AppConfiguration resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.AppConfiguration/configurationStores/SVC123456ABCD78",
+                            "location": "westeurope",
+                            "name": "SVC123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.AppConfiguration/configurationStores"
+                        },
+                        {
+                            "id": "/subscriptions/1bzcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.AppConfiguration/configurationStores/SVC789012EFGH34",
+                            "location": "westus",
+                            "name": "SVC789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.AppConfiguration/configurationStores"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-DevTools-AppConfiguration-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure App Configuration",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-appconfiguration",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_devtools_appconfiguration_api.pl --plugin=cloud::azure::devtools::appconfiguration::plugin --mode=http-requests --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\'  --warning-http-requests=\\'$_SERVICEWARNINGHTTPREQUESTS$\\' --critical-http-requests=\\'$_SERVICECRITICALHTTPREQUESTS$\\' --warning-http-throttled-requests=\\'$_SERVICEWARNINGHTTPTHROTTLEDREQUESTS$\\' --critical-http-throttled-requests=\\'$_SERVICECRITICALHTTPTHROTTLEDREQUESTS$\\' --warning-http-requests-duration=\\'$_SERVICEWARNINGHTTPREQUESTSDURATION$\\' --critical-http-requests-duration=\\'$_SERVICECRITICALHTTPREQUESTSDURATION$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-DevTools-AppConfiguration-Api-Http-Requests",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_devtools_appconfiguration_api.pl --statefile-suffix='autodiscovery' --plugin=cloud::azure::devtools::appconfiguration::plugin --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-DevTools-AppConfiguration-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les ressources Azure App Configuration via l'API}\r\n{EN: Template to check Azure App Configuration resources using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure App Configuration resources using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-devtools-appconfiguration-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-DevTools-AppConfiguration",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-DevTools-AppConfiguration-Http-Requests-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-devtools-appconfiguration-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ add proper tags management",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Azure App Configuration resources using RestAPI or AZCLI.**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|Cloud-Azure-DeveloperTools-AppConfiguration-custom|\r\n|---|\r\n|Http-Requests|\r\n\r\nThis Plugin-Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin-Pack pour superviser les ressources Azure App Configuration via RestAPI ou AZCLI.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponibles et services associ\u00e9s:\r\n\r\n|Cloud-Azure-DeveloperTools-AppConfiguration-custom|\r\n|---|\r\n|Http-Requests|\r\n\r\nCe Plugin-Pack fournit un *provider* Host Discovery pour le module d\\'auto-d\u00e9couverte d\\'H\u00f4tes"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure App Configuration",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_devtools_appconfiguration_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-DevTools-AppConfiguration-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-devtools-appconfiguration",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Cloud",
+            "Azure",
+            "Microsoft",
+            "API",
+            "Restapi",
+            "HostDisco",
+            "AppConfiguration",
+            "DeveloperTools"
+        ],
+        "update_date": "1636823506",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les requ\u00eates HTTP de Azure App Configuration.}\r\n\r\n{EN: Check Azure App Configuration HTTP Requests.}",
+            "active_checks_enabled": 2,
+            "alias": "Http-Requests",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-DevTools-AppConfiguration-Api-Http-Requests",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Count"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-DevTools-AppConfiguration-Http-Requests-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,377 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Microsens-G6-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Microsens-G6-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Microsens-G6-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "INTERFACENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Microsens-G6-SNMP-Interface-Name",
+                "service_display_name": "Interface-$name$",
+                "service_template": "Net-Microsens-G6-Interfaces-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Microsens-G6-SNMP-Sfp-Discover",
+                "command_for_macro": "Net-Microsens-G6-SNMP-Sfp-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$type$",
+                        "order": 0,
+                        "pattern": "empty",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Microsens-G6-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERPORT",
+                        "value": "^$port$$"
+                    }
+                ],
+                "name": "Net-Microsens-G6-SNMP-Sfp-Port",
+                "service_display_name": "Sfp-$port$",
+                "service_template": "Net-Microsens-G6-Sfp-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_microsens_g6_snmp.pl --plugin=network::microsens::g6::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Microsens-G6-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_microsens_g6_snmp.pl --plugin=network::microsens::g6::snmp::plugin --mode=list-interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Microsens-G6-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_microsens_g6_snmp.pl --plugin=network::microsens::g6::snmp::plugin --mode=list-sfp --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Microsens-G6-SNMP-Sfp-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_microsens_g6_snmp.pl --plugin=network::microsens::g6::snmp::plugin --mode=list-sfp --hostname=\\'$HOSTADDRESS$\\' --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Microsens-G6-SNMP-Sfp-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_microsens_g6_snmp.pl --plugin=network::microsens::g6::snmp::plugin --mode=uptime --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-uptime=\\'$_SERVICEWARNINGUPTIME$\\' --critical-uptime=\\'$_SERVICECRITICALUPTIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Microsens-G6-SNMP-Uptime",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_microsens_g6_snmp.pl --plugin=network::microsens::g6::snmp::plugin --mode=memory --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-swap=\\'$_SERVICEWARNINGSWAP$\\' --critical-swap=\\'$_SERVICECRITICALSWAP$\\' --warning-swap-free=\\'$_SERVICEWARNINGSWAPFREE$\\' --critical-swap-free=\\'$_SERVICECRITICALSWAPFREE$\\' --warning-swap-prct=\\'$_SERVICEWARNINGSWAPPRCT$\\' --critical-swap-prct=\\'$_SERVICECRITICALSWAPPRCT$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' --warning-buffer=\\'$_SERVICEWARNINGBUFFER$\\' --critical-buffer=\\'$_SERVICECRITICALBUFFER$\\' --warning-cached=\\'$_SERVICEWARNINGCACHED$\\' --critical-cached=\\'$_SERVICECRITICALCACHED$\\' --warning-shared=\\'$_SERVICEWARNINGSHARED$\\' --critical-shared=\\'$_SERVICECRITICALSHARED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Microsens-G6-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_microsens_g6_snmp.pl --plugin=network::microsens::g6::snmp::plugin --mode=load --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Microsens-G6-SNMP-Load",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_microsens_g6_snmp.pl --plugin=network::microsens::g6::snmp::plugin --mode=hardware --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Microsens-G6-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_microsens_g6_snmp.pl --plugin=network::microsens::g6::snmp::plugin --mode=cpu-detailed --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-user=\\'$_SERVICEWARNINGUSER$\\' --critical-user=\\'$_SERVICECRITICALUSER$\\' --warning-nice=\\'$_SERVICEWARNINGNICE$\\' --critical-nice=\\'$_SERVICECRITICALNICE$\\' --warning-system=\\'$_SERVICEWARNINGSYSTEM$\\' --critical-system=\\'$_SERVICECRITICALSYSTEM$\\' --warning-idle=\\'$_SERVICEWARNINGIDLE$\\' --critical-idle=\\'$_SERVICECRITICALIDLE$\\' --warning-wait=\\'$_SERVICEWARNINGWAIT$\\' --critical-wait=\\'$_SERVICECRITICALWAIT$\\' --warning-kernel=\\'$_SERVICEWARNINGKERNEL$\\' --critical-kernel=\\'$_SERVICECRITICALKERNEL$\\' --warning-interrupt=\\'$_SERVICEWARNINGINTERRUPT$\\' --critical-interrupt=\\'$_SERVICECRITICALINTERRUPT$\\' --warning-softirq=\\'$_SERVICEWARNINGSOFTIRQ$\\' --critical-softirq=\\'$_SERVICECRITICALSOFTIRQ$\\' --warning-steal=\\'$_SERVICEWARNINGSTEAL$\\' --critical-steal=\\'$_SERVICECRITICALSTEAL$\\' --warning-guest=\\'$_SERVICEWARNINGGUEST$\\' --critical-guest=\\'$_SERVICECRITICALGUEST$\\' --warning-guestnice=\\'$_SERVICEWARNINGGUESTNICE$\\' --critical-guestnice=\\'$_SERVICECRITICALGUESTNICE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Microsens-G6-SNMP-Cpu-Detailed",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_microsens_g6_snmp.pl --plugin=network::microsens::g6::snmp::plugin --mode=interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --add-errors --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Microsens-G6-SNMP-Interfaces",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_microsens_g6_snmp.pl --plugin=network::microsens::g6::snmp::plugin --mode=sfp --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-port=\\'$_SERVICEFILTERPORT$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-temperature=\\'$_SERVICEWARNINGTEMPERATURE$\\' --critical-temperature=\\'$_SERVICECRITICALTEMPERATURE$\\' --warning-input-power=\\'$_SERVICEWARNINGINPUTPOWER$\\' --critical-input-power=\\'$_SERVICECRITICALINPUTPOWER$\\' --warning-output-power=\\'$_SERVICEWARNINGOUTPUTPOWER$\\' --critical-output-power=\\'$_SERVICECRITICALOUTPUTPOWER$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Microsens-G6-SNMP-Sfp",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Microsens de g\u00e9n\u00e9ration 6 en SNMP}\r\n{EN: Template to check Microsens Generation 6 Ethernet Switches using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Microsens Generation 6 Ethernet Switches using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Microsens-G6-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Microsens-G6-Uptime-SNMP",
+                "Net-Microsens-G6-Memory-SNMP",
+                "Net-Microsens-G6-Load-SNMP",
+                "Net-Microsens-G6-Hardware-SNMP",
+                "Net-Microsens-G6-Cpu-Detailed-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Microsens Generation 6 Ethernet Switches in SNMP:\r\n* Cpu detailed\r\n* Hardware\r\n* Interfaces\r\n* Load\r\n* Memory\r\n* Sfp\r\n* Uptime"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un \u00e9quipement Microsens de g\u00e9n\u00e9ration 6 via SNMP :\r\n* Cpu detailed\r\n* Hardware\r\n* Interfaces\r\n* Load\r\n* Memory\r\n* Sfp\r\n* Uptime"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAACvVJREFUeJzt2XtwXFUdwPHv795s2+wmtKmglEIRH6ioMIKI8rYCFaGhuxARtfLSFhGapvL0Hxad8QHa7oZWBHUQAcHWZtNCGaajtVpQfHTGAqXIQ+vwKJVIkmZ3k2Z3z88/9nV3uxsTZ/Sv32dmZ3LP43fPvefec849AWOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxvyvSLOMSGzVYpx8pj7dd65738YVLwbTWruS87yc3llfVoU7s6nlj4BKZFHykcBpN2f6u5P15dsvvOO96gqLFTkN9CigDWEfyguCPAnugXSqZ1c4lviFOFoPvBpRYECFx7Pp8QfZfH2mvkg4tmoOzluC6NkC7wSZLuiggx2e8PP0m0Pr2RrPH3A/utYcqvn8lYKeBbwLtB28DPCKiv4x++ZQD1vj+bZo8gOq+p0mt7XC4W4d7V/xx/Ci5AmCfr0217s/07/swfJRa6z3cM+5uyr31dMvZvt69lTu20XJk9W5S1U5CeQwoAVlCNEXBO+edKr7oWbtaGmWIcjRKnyqPr3g+9uAb9c0N6ddNCjroY8CEL9V2DGrmi+6p6bgub3Tw9PdSucKSwEftJqnzALmKfoJxB8AdqEsQGg7sNVaCs+lkci06935K+ePPrLi1XJuW6z3IlX3Y0QPCtZR6BB4hyrRto6OJ7Xrtmhm3Q2vl0tELlx1FvncOoFZwTsEOhM4TFTfx9ZblkEcKLwF8Q64F/UEr/TCuLciUlfeHcuZ8RRb42MALTLe5qSlUibk/HA5TDiW6HUF/QpI7cssdIAc5VRfBJo+AN5/amgD0QZpXf9FnKJ43Gub4daKcDXgVzP0n6L8DvgLMAYguD311QXSiPwd+Fdtjh7thaTyZrVfkDxZ1f0MCHQ+uwV+r5Cu1EI/Sn7aRpbcFSpe2Zo2nDxITefzssITCH8GGUZlACTw1Nb4p8BL9T9P5IDRKeDwto6ZV06QD0BbNHGRKNdQHcnzwFMKjwO7gLzn6RsTxWg6AgQJpBXCgAf64dYLvnfE6IavvgwwY+HtRyGcWCypw+AdBNp0aqkX3jHrSoXOQNKQqCxNh55Yz7p1BQDOuT0SiYQuRNwz9fUd8li2r7sLkNZY70ke7pcokWKud0L5EpyvK1FC1YvSnkzf8iSItkdXv6VAboMgp5RyTwwPjF2ahR+Fc+OnIXJwuZqia7Kp5ddWOvzMeEukY/b7J7h7N6VT3fdM9n5UzyM3ctk9P+Ynl495BZdzDe6oCosCg6U6x6mjG5b/oZww87zvd+yfsb9jovNMdgTYC2wv1/G9lkqH+aFQrBpHHq0ZvidBYFngUFHv4nR/99pK5wNsvj6TSS3/aXr9ip0ThNLRvmVPorwQCJYGaI+ufjfKSYGyWzJ9PYlyJ46krvmXj7sCpHJOUfd5AA9tD57EEy9E/NZqd2yN5zOpZTumdNHNjQP7S38fER7edxnA/lCra1RYtHYa9H2mB4+HN109OLa+528TnXBSI4AiLahLIXJi8VhjwJpipn66PAKJeH2q7pLJxITSgkypvD0KT2T7l22ebH0AwbW2nr9yrk6X6S2OcxU+WMlTUgBO8x8JLncF7auPM5L66vORaGIncGyp1PF0rfUZf/0ZpHr/VXVJZEfHmcRW9QuyKX3s0OPE4w07qHSuj0UWJXK1qVrI9Pc82KD4fhG5X1W/XGy/3sy5vU1HDxXZiWr5ZRRVtkSiiS0Cj+RVN4719+xuVrdskiOA+p7fkgoknNa+8LsHz1i06u0gpeGfPZp32yYXrxQVdySBLxER+d1U6pdqneeFvFd8Jy8pspriOiKnyJrM0FDxS0OYE6zhlIZvhcBLgcP2Dgbb0huWPQv6QF3Lj0blBlV+E9kx67nIot5zmrVO4UsI99X+5EdNykoB+SalNQ/CvPAMvbxp7Ly3muLoXOYDZyskfZGXwtHE+khn4m3N6sMUFoEj66/9K/Bc6TDkWkLn+Z5cSKkDFenzNF9oGqCBFjw/eCxKrlnZKXrKx78l8DlXc50i2nCeckLNm6y5rABkDglfjurXQF5vUO3diHs4HEuc2CBvSgTxRv1D96jKDytpqjdPz2nDfspuvPa1gupHQdZSnD6CPIEYPo/S1eU3qg+TfwCE4uTeX03QGIHVvyesn2Ssilwu/1rwWNHjphoD2Kkq8dLKt+wEJ4UbqoE1+Jag4h3ZKJAobw8cZoeGhotfB3cvzWX6e76VOWTGPEE/oegaYCRQdprA1Y1j6jdU+EjNT+X0xpeiwhvPCp77FjBaDMC8gldY3Lg8jPX37M6kui/28vm54C4D2Vz3RXJ8mzvjvc3qT/YBCAE49SrTgMInobz6Z2/6zcFthZAfalS5aeNPyPwD2B1IWhCJ9k7pIVBkV7a/+9bsIa3zQaqLMdXFnBlvKf29PVhHVBbWx2ntSs4DKucWeOqADaG7l+bSqZ4t2VTPNTj/FAiMGErDh0rF+3u2b/mfan793dsblQU8Wmf7xU0eqWysqUp30xtQMvLwdQOZ1Ip7M6nuBaDfrW3E/rc2qzelfYDR/mv/BLxcOpyGFusLpNgaz+t446GqqXjcUXybykKI29QWS368vuhBXStnhzvvOKxprLuX5oBVgZQ54dmzFwBkNvQ8A/p0NUs/FYklP1s57FrZWtrJDC6KK4u0cCzRybm9NStsN80NE/jkURhs2rbJE0bfLK6JCnob1VFmVqPCB3WufFe4s/dD1O3oqjBU01aZNkITk/oKCLRPVRIbSpsPwVOum1qcqkzLcG8kP2shUBwWlbkKv4pEE7tQSp2m7yzk5VjPd93AD5rFCqnbkBPGQaYVW+s+B2wqDonJG0A3UXzoBdX7I9HkVaCvkNdTEY4IhHou3eKK8/CSu0LyxmgqMqMwQjSxHXSPIq2S19MJbFwJEtjqDtIbI9HkpQ0y7s0cuD/g0T7HA8hsXL43Ek2sAW5qdr0F3z9F0HsiixK7RXhaRYZRPRwlMMXoSPvIzF3ZJjGmNAUAeKqpury96cHh304yzoHWxcdbC/vPBx6qzl0qwDEIFxd/8mFgmjZ5E8qG+nuGEPl1JUHpPLjzO+0AmVT3Y6p6DVQWmgJ6GnAJSLDzX/ALbiHrVowCtO4ZmwN4IDOB+SCfE4gBlc0hQTdkBgfva9Ks94CeUf8TcY2mDGHWvsrb7OXz3wP2NbteFZ0LKghHKXSiuhj4ONUHM4d4V+3d/IWmu45NRwB1bgDxyqv+yhCSPiS8LfLG6HYo7baJpMpzped5eSpfCoKKBIfFcixEtWY1PbDxxhHgkvYLknc4nytwzEeYV7wQUdBB0J0qPFuMzPNAGATBvUoNeQD0yFITGPVnnAI8BpDt77mzLZrcptADeg4wt1iK/cBO4KFMW+773Ff9J5LIWF6ZnhL0eEQOq+4myjDoduDe9HHD95f3Apx4WdHqtQbaRc0mmZMBAF/9tBNXLl/zdTLy8HUDkWjimyCXVbOEcfXHAXxkl4NtoMcAs0snccCroFvAX5Xpm3iTatJbtv938bjHTlrgmALrPj2lz8tJ61rr0zHocfeS/AR7+bVtem2Oz/N7lK3xAlPd9vxf6lrrw7M+7yc/0caUMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjPk/+TedETFi5F5n4AAAAABJRU5ErkJggg==",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Microsens G6 SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_microsens_g6_snmp.pl",
+                "package_name": "centreon-plugin-Network-Microsens-G6-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-microsens-g6-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Network",
+            "Microsens",
+            "G6",
+            "SNMP"
+        ],
+        "update_date": "1640699345",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Dur\u00e9e depuis laquelle le serveur tourne sans interruption.}\r\n\r\n{EN: Time since the server has been working and available.}",
+            "active_checks_enabled": 2,
+            "alias": "Uptime",
+            "check_timeperiod": "",
+            "command_name": "Net-Microsens-G6-SNMP-Uptime",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Microsens-G6-Uptime-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire vive (RAM)..}\r\n\r\n{EN: Check the rate of the utilization of memory (RAM).}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Microsens-G6-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Microsens-G6-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la charge serveur.}\r\n\r\n{EN: Check the server load average.}",
+            "active_checks_enabled": 2,
+            "alias": "Load",
+            "check_timeperiod": "",
+            "command_name": "Net-Microsens-G6-SNMP-Load",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Microsens-G6-Load-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du mat\u00e9riel.}\r\n\r\n{EN: Check hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware",
+            "check_timeperiod": "",
+            "command_name": "Net-Microsens-G6-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Microsens-G6-Hardware-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation d\u00e9taill\u00e9 CPU de la machine. Ce contr\u00f4le pourra remonter la moyenne du taux d'utilisation des CPU ainsi que le taux par CPU pour les CPU multi-coeur.}\r\n\r\n{EN: Check the detailed rate of utilization of CPU for the machine. This check can give the average CPU utilization rate and the rate per CPU for multi-core CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu-Detailed",
+            "check_timeperiod": "",
+            "command_name": "Net-Microsens-G6-SNMP-Cpu-Detailed",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Microsens-G6-Cpu-Detailed-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces.}\r\n\r\n{EN: Check interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "Net-Microsens-G6-SNMP-Interfaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} !~ /up|dormant/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Microsens-G6-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les ports sfp.}\r\n\r\n{EN: Check sfp ports.}",
+            "active_checks_enabled": 2,
+            "alias": "Sfp",
+            "check_timeperiod": "",
+            "command_name": "Net-Microsens-G6-SNMP-Sfp",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /txFailure|lossOfSignal|readError/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Microsens-G6-Sfp-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

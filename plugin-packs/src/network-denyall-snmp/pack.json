@@ -1,0 +1,422 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Denyall-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Denyall-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Denyall-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "INTERFACENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Denyall-SNMP-Interface-Name",
+                "service_display_name": "Interface-$name$",
+                "service_template": "Net-Denyall-Interfaces-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Denyall-SNMP-Reverse-Proxy-Discover",
+                "command_for_macro": "Net-Denyall-SNMP-Reverse-Proxy-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Denyall-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERUID",
+                        "value": "^$uid$$"
+                    }
+                ],
+                "name": "Net-Denyall-SNMP-Reverse-Proxy-Uid",
+                "service_display_name": "Reverse-Proxy-$uid$",
+                "service_template": "Net-Denyall-Reverse-Proxy-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_denyall_snmp.pl --plugin=network::denyall::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Denyall-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_denyall_snmp.pl --plugin=network::denyall::snmp::plugin --mode=list-interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Denyall-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_denyall_snmp.pl --plugin=network::denyall::snmp::plugin --mode=list-reverse-proxy --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Denyall-SNMP-Reverse-Proxy-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_denyall_snmp.pl --plugin=network::denyall::snmp::plugin --mode=list-reverse-proxy --hostname=\\'$HOSTADDRESS$\\' --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Denyall-SNMP-Reverse-Proxy-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_denyall_snmp.pl --plugin=network::denyall::snmp::plugin --mode=swap --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Denyall-SNMP-Swap",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_denyall_snmp.pl --plugin=network::denyall::snmp::plugin --mode=storage --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --storage=\\'$_SERVICEFILTERSTORAGE$\\' --name --regexp --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' --warning-count=\\'$_SERVICEWARNINGCOUNT$\\' --critical-count=\\'$_SERVICECRITICALCOUNT$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-access=\\'$_SERVICEWARNINGACCESS$\\' --critical-access=\\'$_SERVICECRITICALACCESS$\\' --units=\\'$_SERVICEUNITS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Denyall-SNMP-Storage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_denyall_snmp.pl --plugin=network::denyall::snmp::plugin --mode=memory --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' --warning-buffer=\\'$_SERVICEWARNINGBUFFER$\\' --critical-buffer=\\'$_SERVICECRITICALBUFFER$\\' --warning-cached=\\'$_SERVICEWARNINGCACHED$\\' --critical-cached=\\'$_SERVICECRITICALCACHED$\\' --warning-shared=\\'$_SERVICEWARNINGSHARED$\\' --critical-shared=\\'$_SERVICECRITICALSHARED$\\' --warning-swap=\\'$_SERVICEWARNINGSWAP$\\' --critical-swap=\\'$_SERVICECRITICALSWAP$\\' --warning-swap-free=\\'$_SERVICEWARNINGSWAPFREE$\\' --critical-swap-free=\\'$_SERVICECRITICALSWAPFREE$\\' --warning-swap-prct=\\'$_SERVICEWARNINGSWAPPRCT$\\' --critical-swap-prct=\\'$_SERVICECRITICALSWAPPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Denyall-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_denyall_snmp.pl --plugin=network::denyall::snmp::plugin --mode=load --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Denyall-SNMP-Load",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_denyall_snmp.pl --plugin=network::denyall::snmp::plugin --mode=cpu --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-core=\\'$_SERVICEWARNINGCORE$\\' --critical-core=\\'$_SERVICECRITICALCORE$\\' --warning-average=\\'$_SERVICEWARNINGAVERAGE$\\' --critical-average=\\'$_SERVICECRITICALAVERAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Denyall-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_denyall_snmp.pl --plugin=network::denyall::snmp::plugin --mode=interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --add-errors --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Denyall-SNMP-Interfaces",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_denyall_snmp.pl --plugin=network::denyall::snmp::plugin --mode=reverse-proxy --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-uid=\\'$_SERVICEFILTERUID$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-memory-usage=\\'$_SERVICEWARNINGMEMORYUSAGE$\\' --critical-memory-usage=\\'$_SERVICECRITICALMEMORYUSAGE$\\' --warning-requests=\\'$_SERVICEWARNINGREQUESTS$\\' --critical-requests=\\'$_SERVICECRITICALREQUESTS$\\' --warning-cpu-utilization=\\'$_SERVICEWARNINGCPUUTILIZATION$\\' --critical-cpu-utilization=\\'$_SERVICECRITICALCPUUTILIZATION$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Denyall-SNMP-Reverse-Proxy",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements DenyAll en SNMP}\r\n{EN: Template to check DenyAll devices using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check DenyAll equipments in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "denyall-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Denyall-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Denyall-Swap-SNMP",
+                "Net-Denyall-Storage-SNMP",
+                "Net-Denyall-Memory-SNMP",
+                "Net-Denyall-Load-SNMP",
+                "Net-Denyall-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "denyall-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ tag / display / doc update",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor DenyAll devices in SNMP.**\r\n\r\nAvailable host template and related services:\r\n\r\n|Net-Denyall-SNMP|\r\n|---|\r\n|Cpu|\r\n|Interfaces|\r\n|Load|\r\n|Memory|\r\n|Reserver-Proxy|\r\n|Storage|\r\n|Swap|"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser les DenyAll via SNMP.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponible et ses services :\r\n\r\n|Net-Denyall-SNMP|\r\n|---|\r\n|Cpu|\r\n|Interfaces|\r\n|Load|\r\n|Memory|\r\n|Reserver-Proxy|\r\n|Storage|\r\n|Swap|"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "DenyAll (Rohde & Schwarz) SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_denyall_snmp.pl",
+                "package_name": "centreon-plugin-Network-Denyall-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-denyall-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "DenyAll",
+            "Network",
+            "SNMP",
+            "Security",
+            "rohde & schwarz"
+        ],
+        "update_date": "1628800641",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le la swap.}\r\n\r\n{EN: Check swap.}",
+            "active_checks_enabled": 2,
+            "alias": "Swap",
+            "check_timeperiod": "",
+            "command_name": "Net-Denyall-SNMP-Swap",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --use-new-perfdata"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Denyall-Swap-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'espace disque.}\r\n\r\n{EN: Check storage.}",
+            "active_checks_enabled": 2,
+            "alias": "Storage",
+            "check_timeperiod": "",
+            "command_name": "Net-Denyall-SNMP-Storage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "hrStorageDescr"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "hrStorageDescr"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNITS$",
+                    "password": false,
+                    "value": "%"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --use-new-perfdata"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Denyall-Storage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la m\u00e9moire.}\r\n\r\n{EN: Check memory.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Denyall-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --use-new-perfdata"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Denyall-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la load average.}\r\n\r\n{EN: Check load-average.}",
+            "active_checks_enabled": 2,
+            "alias": "Load",
+            "check_timeperiod": "",
+            "command_name": "Net-Denyall-SNMP-Load",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Denyall-Load-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation processeur.}\r\n\r\n{EN: Check cpu usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Denyall-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --use-new-perfdata"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Denyall-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces.}\r\n\r\n{EN: Check interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "Net-Denyall-SNMP-Interfaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} !~ /up|dormant/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --no-skipped-counters --use-new-perfdata"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Denyall-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les reverse proxy.}\r\n\r\n{EN: Check reverse proxies.}",
+            "active_checks_enabled": 2,
+            "alias": "Reverse-Proxy",
+            "check_timeperiod": "",
+            "command_name": "Net-Denyall-SNMP-Reverse-Proxy",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /down/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Denyall-Reverse-Proxy-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

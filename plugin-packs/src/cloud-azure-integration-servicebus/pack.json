@@ -1,0 +1,1205 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Integration-ServiceBus-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Integration ServiceBus resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.ServiceBus/namespaces/SVC123456ABCD78",
+                            "location": "westeurope",
+                            "name": "SVC123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.ServiceBus/namespaces"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.ServiceBus/namespaces/SVC789012EFGH34",
+                            "location": "westus",
+                            "name": "SVC789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.ServiceBusService/ServiceBus"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": "discovery.results.id"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Integration-ServiceBus-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure ServiceBus",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-integration-servicebus",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Integration-ServiceBus-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Integration ServiceBus resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.ServiceBus/namespaces/SVC123456ABCD78",
+                            "location": "westeurope",
+                            "name": "SVC123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.ServiceBus/namespaces"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.ServiceBus/namespaces/SVC789012EFGH34",
+                            "location": "westus",
+                            "name": "SVC789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.ServiceBusService/ServiceBus"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Integration-ServiceBus-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure ServiceBus",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-integration-servicebus",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Integration-ServiceBus-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Integration ServiceBus resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.ServiceBus/namespaces/SVC123456ABCD78",
+                            "location": "westeurope",
+                            "name": "SVC123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.ServiceBus/namespaces"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.ServiceBus/namespaces/SVC789012EFGH34",
+                            "location": "westus",
+                            "name": "SVC789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.ServiceBusService/ServiceBus"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Integration-ServiceBus-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure ServiceBus",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-integration-servicebus",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_integration_servicebus_api.pl --plugin=cloud::azure::integration::servicebus::plugin --mode=requests --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-incoming-requests=\\'$_SERVICEWARNINGINCOMINGREQUESTS$\\' --critical-incoming-requests=\\'$_SERVICECRITICALINCOMINGREQUESTS$\\' --warning-throttled-requests=\\'$_SERVICEWARNINGTHROTTLEDREQUESTS$\\' --critical-throttled-requests=\\'$_SERVICECRITICALTHROTTLEDREQUESTS$\\' --warning-successful-requests=\\'$_SERVICEWARNINGSUCCESSFULREQUESTS$\\' --critical-successful-requests=\\'$_SERVICECRITICALSUCCESSFULREQUESTS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Integration-ServiceBus-Api-Requests",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_integration_servicebus_api.pl --plugin=cloud::azure::integration::servicebus::plugin --mode=namespaces --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-memory-usage-percentage=\\'$_SERVICEWARNINGMEMORYUSAGEPERCENTAGE$\\' --critical-memory-usage-percentage=\\'$_SERVICECRITICALMEMORYUSAGEPERCENTAGE$\\' --warning-cpu-usage-percentage=\\'$_SERVICEWARNINGCPUUSAGEPERCENTAGE$\\' --critical-cpu-usage-percentage=\\'$_SERVICECRITICALCPUUSAGEPERCENTAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Integration-ServiceBus-Api-Namespaces",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_integration_servicebus_api.pl --plugin=cloud::azure::integration::servicebus::plugin --mode=messages --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-total-messages=\\'$_SERVICEWARNINGTOTALMESSAGES$\\' --critical-total-messages=\\'$_SERVICECRITICALTOTALMESSAGES$\\' --warning-scheduled-messages=\\'$_SERVICEWARNINGSCHEDULEDMESSAGES$\\' --critical-scheduled-messages=\\'$_SERVICECRITICALSCHEDULEDMESSAGES$\\' --warning-deadlettered-messages=\\'$_SERVICEWARNINGDEADLETTEREDMESSAGES$\\' --critical-deadlettered-messages=\\'$_SERVICECRITICALDEADLETTEREDMESSAGES$\\' --warning-outgoing-messages=\\'$_SERVICEWARNINGOUTGOINGMESSAGES$\\' --critical-outgoing-messages=\\'$_SERVICECRITICALOUTGOINGMESSAGES$\\' --warning-active-messages=\\'$_SERVICEWARNINGACTIVEMESSAGES$\\' --critical-active-messages=\\'$_SERVICECRITICALACTIVEMESSAGES$\\' --warning-incoming-messages=\\'$_SERVICEWARNINGINCOMINGMESSAGES$\\' --critical-incoming-messages=\\'$_SERVICECRITICALINCOMINGMESSAGES$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Integration-ServiceBus-Api-Messages",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_integration_servicebus_api.pl --plugin=cloud::azure::integration::servicebus::plugin --mode=connections --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-closed-connections=\\'$_SERVICEWARNINGCLOSEDCONNECTIONS$\\' --critical-closed-connections=\\'$_SERVICECRITICALCLOSEDCONNECTIONS$\\' --warning-active-connections=\\'$_SERVICEWARNINGACTIVECONNECTIONS$\\' --critical-active-connections=\\'$_SERVICECRITICALACTIVECONNECTIONS$\\' --warning-opened-connections=\\'$_SERVICEWARNINGOPENEDCONNECTIONS$\\' --critical-opened-connections=\\'$_SERVICECRITICALOPENEDCONNECTIONS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Integration-ServiceBus-Api-Connections",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_integration_servicebus_api.pl --statefile-suffix='autodiscovery' --plugin=cloud::azure::integration::servicebus::plugin --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Integration-ServiceBus-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les espaces de nom Azure ServiceBus via l'API}\r\n{EN: Template to check Azure ServiceBus namespaces using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Integration ServiceBus namespaces resources using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-integration-servicebus-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Integration-ServiceBus",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Integration-ServiceBus-Requests-Api",
+                "Cloud-Azure-Integration-ServiceBus-Namespaces-Api",
+                "Cloud-Azure-Integration-ServiceBus-Messages-Api",
+                "Cloud-Azure-Integration-ServiceBus-Connections-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-integration-servicebus-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ Fix ServiceBus namespaces mode",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Azure ServiceBus namespaces using RestAPI or AZCLI.**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|Cloud-Azure-Integration-ServiceBus-custom|\r\n|---|\r\n|Connections|\r\n|Messages|\r\n|Requests|\r\n|Resources|\r\n\r\nThis Plugin-Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin-Pack pour superviser les espaces de nom Azure ServiceBus via RestAPI ou AZCLI.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponibles et services associ\u00e9s:\r\n\r\n|Cloud-Azure-Integration-ServiceBus-custom|\r\n|---|\r\n|Connections|\r\n|Messages|\r\n|Requests|\r\n|Resources|\r\n\r\nCe Plugin-Pack fournit un *provider* Host Discovery pour le module d\\'auto-d\u00e9couverte d\\'H\u00f4tes"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure ServiceBus",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_integration_servicebus_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Integration-ServiceBus-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-integration-servicebus",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Cloud",
+            "Azure",
+            "Microsoft",
+            "ServiceBus",
+            "API",
+            "Restapi",
+            "HostDisco",
+            "NameSpaces"
+        ],
+        "update_date": "1636823683",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les requ\u00eates des espaces de nom Azure ServiceBus.}\r\n\r\n{EN: Check Azure ServiceBus namespaces requests.}",
+            "active_checks_enabled": 2,
+            "alias": "Requests",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Integration-ServiceBus-Api-Requests",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Integration-ServiceBus-Requests-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les ressources allou\u00e9es aux espaces de nom Azure ServiceBus.}\r\n\r\n{EN: Check Azure ServiceBus namespaces allocated resources.}",
+            "active_checks_enabled": 2,
+            "alias": "Namespaces",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Integration-ServiceBus-Api-Namespaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Maximum"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Integration-ServiceBus-Namespaces-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les messages des espaces de nom Azure ServiceBus.}\r\n\r\n{EN: Check Azure ServiceBus namespaces messages.}",
+            "active_checks_enabled": 2,
+            "alias": "Messages",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Integration-ServiceBus-Api-Messages",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Integration-ServiceBus-Messages-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les connexions aux espaces de nom Azure ServiceBus.}\r\n\r\n{EN: Check Azure ServiceBus namespaces connections.}",
+            "active_checks_enabled": 2,
+            "alias": "Connections",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Integration-ServiceBus-Api-Connections",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Integration-ServiceBus-Connections-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,144 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_barco_cs_restapi.pl --plugin=hardware::devices::barco::cs::restapi::plugin --mode=device --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTBARCOCSAPIUSERNAME$\\' --api-password=\\'$_HOSTBARCOCSAPIPASSWORD$\\' --port=\\'$_HOSTBARCOCSAPIPORT$\\' --proto=\\'$_HOSTBARCOCSAPIPROTO$\\' $_HOSTBARCOCSAPIEXTRAOPTIONS$ --warning-cpu-fanspeed=\\'$_SERVICEWARNINGCPUFANSPEED$\\' --critical-cpu-fanspeed=\\'$_SERVICECRITICALCPUFANSPEED$\\' --warning-process-status=\\'$_SERVICEWARNINGPROCESSSTATUS$\\' --critical-process-status=\\'$_SERVICECRITICALPROCESSSTATUS$\\' --warning-device-status=\\'$_SERVICEWARNINGDEVICESTATUS$\\' --critical-device-status=\\'$_SERVICECRITICALDEVICESTATUS$\\' --warning-cpu-temperature=\\'$_SERVICEWARNINGCPUTEMPERATURE$\\' --critical-cpu-temperature=\\'$_SERVICECRITICALCPUTEMPERATURE$\\' --warning-pcie-temperature=\\'$_SERVICEWARNINGPCIETEMPERATURE$\\' --critical-pcie-temperature=\\'$_SERVICECRITICALPCIETEMPERATURE$\\' --warning-sio-temperature=\\'$_SERVICEWARNINGSIOTEMPERATURE$\\' --critical-sio-temperature=\\'$_SERVICECRITICALSIOTEMPERATURE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Barco-Cs-Restapi-Device",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Barco ClickShare using Rest API}\r\n{EN: Template to check Barco ClickShare using Rest API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Barco ClickShare  using Rest API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "barco-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTBARCOCSAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTBARCOCSAPIPORT$",
+                    "value": "4001"
+                },
+                {
+                    "key": "$_HOSTBARCOCSAPIEXTRAOPTIONS$",
+                    "value": "--http-backend=curl --insecure"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Barco-Cs-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Device-Barco-Cs-Device-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "barco-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Barco ClickShare using Rest API :\r\n* Device"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser Barco ClickShare via l\\'API Rest :\r\n* Device"
+            }
+        ],
+        "discovery_category": "hardware-server",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAC19JREFUeJztnXl0VNUdx7/vzUwyyayZLOyLIptUdhHQoigHrFioySmbQKygICihisVUE08L1BKwIFZstVKgRUQEUYrgVjQBkiIqSJFFMAHU7MkkmX3mzesfE15yM5PJZCHB3t/nnDkn977f+93fvPvNvb977ztnAIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgftwIV/6QATUCH+L/H58A+IB6HX4Z+hwB8uiOi4loL2QIeYBtDACIHR0M0bGQADiHBMA5JADOIQFwDgmAc0gAnEMC4BwSAOdc81u/YkI81L16QoiNgVRUDN+FfMDv7+iwrgqi0QDVdb0hxlvgt1ZBungJ/vKKq9pmiwSgvWcSzC+ujchWdrkhFVyEc8+/4NiyDbLH0/RNoojY2TOgX/wwom4eAQjKkQWk4hI439yNmufWQiosatSF7oHZMGQsjyxGhxO+c+fhfOttOHbsilhgotkE7eS7oZ00AarevaDqlASoVUF2rnf2wfr4U6F9GA2IfXAudHNmQjPkJkDF3u89fRbO7Tthf2UTpOKSiOJqDsqTvQR9bqRnATHTkhG/Y2uzG/OdOYeyqdPgO3e+URtVl86I3/06okaPCutLtttROW9RoMNCoE9bBPP6rGbH6Mk7ivLkWWHFJcTGwrAsDYZlaRAM+iZ9OrbtQMXseUH1sdNTYFqfBVXnTk368FfXoDpzBWwbXgZkuUn7cMgQ8np2xFmAekA/JH64F2JCfMjrqk5JSDzycZOdDwCCTgfL9s3QzUtt0xijRo9Cwnu7IcTEhI6xezckZr8P4++ejqjzQyIIMK1ZBcsbWyLqfCAwUpjXZ8GyfTMEjaZl7YagTXIA37f58FdaQ14TzWaor++tDOOqnj1gzEyHdcky1lAQYNmxFerevZhq9yc5cH90EH6bDZpBAxEzLQWiyajcY964Dp4vjsP75YnwMZ79Bn6bLeQ1VWICVD17KGXN0MHQP7oANWvWs3bduiIp7yBU3boG+fCXlUMqLAo5xfnyC5iycUUGDMvSGhj5At815wikklKo4i3QjBwG7aQJjBhjp6cAkhQYUVo5EjBcgj73MnRyJJ+yaXPk+pRPnxvWvmTcRNnvcCj2UnmFfFltYn3eN5Px6a+ukUsnpwT5+j6xl+w6mM3Yuj78d5BdZdqTjE3x2DvDf6fkmbIsSYq9579fM9e/05hl92efszF6PHLNS6/IRQOHR/TcLkMnl0y4V5b9fsaP8/2P5MK+g0Pa/9D5etm+9XW5IRXzF0fcZsPPJehzr/R7u0wB7uzDcPxju1IWLXFQd+/G2OjmzWXKFb9aANe+A0G+/KVlKJvyy8BqoJboCeODRo7m4tz9LlwHPlTKmoH9maFWNz8VUSOH18VhrULZxCmwLv41vKfPRtaIKMK8YS2T1No3bUXZPcnwfXMh5C1SUTEq5j6E6owVTL1p9YqWT0H1Q2q1hwiRnS62on62rFIh+q47lKL3xEk4d73TuK8aW9DwHD3xrtbH6HbXFQQBEGsfjyjC8Ey9FYUso2JGKtyf5DTLf0zKVGgG9lfKnqPHYF2YBkhSoEmdDvpH5sO09g8wPP4YkytVr1wN5863lbJoiYP+0YXNaj8U7SIAdf++iJ0zUynLNjukS98pZVVSIgStVim7c4406dOTfYgpq3p2b1WM0beNgXby3UrZ922BIojosbdA1bWLcs256x243v+oWf41Nw0KWpVUPZUJ2esNXL9xADqdyIN543oYnlgC0/PPofOpY4ged2ud/fIMRSwAYPztk4i+8/ZmxdGQNkkC9UsXIyblFyGviZY4RN06mulgx87dTLIkXEnqapGrq5ts02+tYtsxmcLam9dnQa4K7Vcw6BE1Yhigrnscju1vKn9Hj2cfsn1T+CWw5sYBML+whvU/cjizxpd+KKwbQdRqWP75GtR9rmO/U1IiLK//HcWDRsJfVQ1ffgHcuUcRfduYgF+9Dokf74P3+FfMBpntpb/C/Sn7D9IYbSKAqNGjgAjfJvSXlqE6c2VYG7kts9taom4eEbGtr+AibM9vUMqq7mzW7zl6LOz9gtmE6Anjw9p4j3+lZPFRt4yEZtiQkHaqbl2hnTJZyaG8X55QBHAFzdDB0AwdrJSd+w4A7SmA5uCvroHscIS1iUmeCk2/vmFtBG10W4bFIFdaIXu8dW0ZDOz1mtDLyebgr+dD1SkprK2qS+e6+yIYHZtDuwtA3ec6mFavQOVDjzZqoxnYn0mW2hvNsCEwZixHVfqzAAB/SSlzXezSGdLFS61qo36nek+dDmvrPXmq7r4QexCtoU0EUDEjtdEtWUGrRUzKVMS9+mdlQyM29X5UPfl00Dx+NSm9fRLc2YdDx6jTQZc6K7BEq52ndY88hOpnV0H2eOC78C1jr50wHvbXtjTalnQhH5ULlihl0aBH7P3TmWE+atQICDodZLsdvrPfwL5pK3QPzg3y5T6YXbc8FQRoGyR9vvwCODZvg1RUrNR5cv/TaGwNueojgOxywbFtB9QD+sFYu5QSNBpEjbkFrv0fXO3mI0K222Hb+Co0w4cqW8uiyQjN4J/Ac+wLuPbuBzbUHX4ZlqXBvmUb4POF9CcVl8D+yiamzvbiX5Cwb5eSGwhaLXTzU2F7YSMAwPrYMshuD/QL5yn7BM7d76Jy4RIlV4j5+T3MjqX36zMoHXsn/I0kt5HQbvsA3hMn2YYtcY3aVq/KwneCPuynsOsNbR6jJ+8zNsbaudlXcBGew3lKvXpAP5hWZjbLt+zxwLr0N8z2rTEzXcn8ZYcD1kVLUditL0rHTURh7xtRnjIL/tKyQCyWOJjW/ZHxWZ3+bKs6H2hHAWjrbfQACHva1mE0/I8W6x5PVTrb4Yblj8O8bjWzvG0K76nTzAaXaIlDwv49UPfto9RJhUWB84B6OYaqUxIS9u2C+vq6ZaLn8y/h3PtexG03RptMAWJSIhNcfQSTEbHTU6B7+EGlTq6xwZN7tC2abjfcOUdg2/Ay9EseUer0SxcjJnkK7K9thTv7UEDU3uBpwW+zKYmkNS2weXNlBFT37YOkY4dgy1oH+982M2f+otmE2FnTYMhMZ1YKsseDynmL2uQwqE0EYN6wlpkjm6Jm3YuQnc62aLpdsT6RDlWvHoiZeq9Sp+rZA8bfPR32vvrvA0g/FKI8eSYSDuxRRg/RaIBxZSaMv38GvnPnIRWXBN6E6ndD8NGv34/K1IeDptSW0u7vBLoPZqNm1ZqmDa9FfD6Up9yPmqx1rXotzf3pIZRNnBK0vIQoQj2gH6Jvvw2aQQODOl+221E+bQ4cb7zV4rYb0n6HQV4vbC9sRNnP7ovstbBrFUlC1fIMFA8dA+eevS3+Lu6cIygeMhqOLduY/f2QyDJce98LtBnmkKwltGgK8J05h5rVf4rIVna7IV28DNf+DxpN/PzlFYw/TwSHQX6bjb2nQU7hOfYFc126/H2TPr0nT7H3nA99RHvFtvy+mRCNBkTfMQ6q3j0D87Qq+J1A7/GvQvqQiopR8cACVGWsQOzsGYj+6Viob+gDMSEe/qoqSBfy4T6cC8f2nfCdOddk/C2hRe8EEj9uOuydQOLagwTAOSQAziEBcA4JgHNIAJxDAuAcEgDnkAA4hwTAOSQAziEBcA4JgHNIAJxDAuAcEgDnkAA4hwTAOSQAziEBcA4JgHNIAJxDAuAcEgDnkAA4hwTAOSQAziEBcA4JgHNIAJxDAuAcEgDnkAA4hwTAOSQAziEBcA4JgHNIAJxDAuAcEgDnkAA4hwTAOSQAziEBcA4JgHNIAJxDAuAcEgDnkAA4R/nFEDnw8zHt/lvCRIfgE4DQP3tKEARBEARBEARBEARBEARBEARBEARBEARBEARBEARBEMSPjP8Bh1bVYcmQZPoAAAAASUVORK5CYII=",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Barco ClickShare Rest API",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_barco_cs_restapi.pl",
+                "package_name": "centreon-plugin-Hardware-Devices-Barco-Cs-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-devices-barco-cs-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Barco",
+            "ClickShare",
+            "Videoconference",
+            "Restapi"
+        ],
+        "update_date": "1627894910",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9quipement (statut, temp\u00e9ratures.}\r\n\r\n{EN: Check device (status, temperatures).}",
+            "active_checks_enabled": 2,
+            "alias": "Device",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Barco-Cs-Restapi-Device",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGDEVICESTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /warning/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALDEVICESTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /error/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Barco-Cs-Device-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

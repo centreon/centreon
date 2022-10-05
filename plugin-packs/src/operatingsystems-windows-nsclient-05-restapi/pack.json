@@ -1,0 +1,897 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nsclient_restapi.pl --plugin=apps::nsclient::restapi::plugin --mode=query --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNSCPRESTAPIPORT$\\' --proto=\\'$_HOSTNSCPRESTAPIPROTO$\\' --legacy-password=\\'$_HOSTNSCPRESTAPILEGACYPASSWORD$\\' $_HOSTNSCPRESTAPIEXTRAOPTIONS$ --command=check_pagefile --arg=\\'detail-syntax=$_SERVICEDETAILSYNTAX$\\' --arg=\\\\\\\"warning=$_SERVICEWARNING$\\\\\\\" --arg=\\\\\\\"critical=$_SERVICECRITICAL$\\\\\\\" --arg=\\\\\\\"perf-config=$_SERVICEPERFCONFIG$\\\\\\\" --arg=\\\\\\\"filter=$_SERVICEFILTER$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Windows-NSClient05-Restapi-Swap",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nsclient_restapi.pl --plugin=apps::nsclient::restapi::plugin --mode=query --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNSCPRESTAPIPORT$\\' --proto=\\'$_HOSTNSCPRESTAPIPROTO$\\' --legacy-password=\\'$_HOSTNSCPRESTAPILEGACYPASSWORD$\\' $_HOSTNSCPRESTAPIEXTRAOPTIONS$ --command=check_service --arg=\\\\\\\"filter=$_SERVICEFILTER$\\\\\\\" --arg=\\\\\\\"service=$_SERVICESERVICE$\\\\\\\"  --arg=\\\\\\\"exclude=$_SERVICEEXCLUDE$\\\\\\\" --arg=\\\\\\\"exclude=$_SERVICEEXCLUDE2$\\\\\\\" --arg=\\\\\\\"warning=$_SERVICEWARNING$\\\\\\\" --arg=\\\\\\\"critical=$_SERVICECRITICAL$\\\\\\\" --arg=\\'top-syntax=$_SERVICETOPSYNTAX$\\' --arg=\\'detail-syntax=$_SERVICEDETAILSYNTAX$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Windows-NSClient05-Restapi-Services-Auto",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nsclient_restapi.pl --plugin=apps::nsclient::restapi::plugin --mode=query --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNSCPRESTAPIPORT$\\' --proto=\\'$_HOSTNSCPRESTAPIPROTO$\\' --legacy-password=\\'$_HOSTNSCPRESTAPILEGACYPASSWORD$\\' $_HOSTNSCPRESTAPIEXTRAOPTIONS$ --command=check_memory --arg=\\\\\\\"detail-syntax=$_SERVICEDETAILSYNTAX$\\\\\\\" --arg=\\\\\\\"warning=$_SERVICEWARNING$\\\\\\\" --arg=\\\\\\\"critical=$_SERVICECRITICAL$\\\\\\\" --arg=\\\\\\\"perf-config=$_SERVICEPERFCONFIG$\\\\\\\" --arg=\\\\\\\"filter=$_SERVICEFILTER$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Windows-NSClient05-Restapi-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nsclient_restapi.pl --plugin=apps::nsclient::restapi::plugin --mode=query --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNSCPRESTAPIPORT$\\' --proto=\\'$_HOSTNSCPRESTAPIPROTO$\\' --legacy-password=\\'$_HOSTNSCPRESTAPILEGACYPASSWORD$\\' $_HOSTNSCPRESTAPIEXTRAOPTIONS$ --command=check_drivesize --arg=\\\\\\\"drive=$_SERVICEDRIVE$\\\\\\\" --arg=\\\\\\\"perf-config=$_SERVICEPERFCONFIG$\\\\\\\" --arg=\\\\\\\"filter=$_SERVICEFILTER$\\\\\\\" --arg=\\\\\\\"warning=$_SERVICEWARNING$\\\\\\\" --arg=\\\\\\\"critical=$_SERVICECRITICAL$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Windows-NSClient05-Restapi-Disks",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nsclient_restapi.pl --plugin=apps::nsclient::restapi::plugin --mode=query --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNSCPRESTAPIPORT$\\' --proto=\\'$_HOSTNSCPRESTAPIPROTO$\\' --legacy-password=\\'$_HOSTNSCPRESTAPILEGACYPASSWORD$\\' $_HOSTNSCPRESTAPIEXTRAOPTIONS$ --command=check_cpu --arg=\\\\\\\"warning=$_SERVICEWARNING$\\\\\\\" --arg=\\\\\\\"critical=$_SERVICECRITICAL$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Windows-NSClient05-Restapi-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nsclient_restapi.pl --plugin=apps::nsclient::restapi::plugin --mode=query --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNSCPRESTAPIPORT$\\' --proto=\\'$_HOSTNSCPRESTAPIPROTO$\\' --legacy-password=\\'$_HOSTNSCPRESTAPILEGACYPASSWORD$\\' $_HOSTNSCPRESTAPIEXTRAOPTIONS$ --command=check_pdh --arg=\\\\\\\"counter=$_SERVICECOUNTERNAME$\\\\\\\" --arg=\\\\\\\"warning=$_SERVICEWARNING$\\\\\\\" --arg=\\\\\\\"critical=$_SERVICECRITICAL$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Windows-NSClient05-Restapi-Counter",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nsclient_restapi.pl --plugin=apps::nsclient::restapi::plugin --mode=query --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNSCPRESTAPIPORT$\\' --proto=\\'$_HOSTNSCPRESTAPIPROTO$\\' --legacy-password=\\'$_HOSTNSCPRESTAPILEGACYPASSWORD$\\' $_HOSTNSCPRESTAPIEXTRAOPTIONS$ --command=check_eventlog --arg=\\\\\\\"file=$_SERVICEFILE$\\\\\\\" --arg=\\\\\\\"filter=$_SERVICEFILTER$\\\\\\\" --arg=\\'top-syntax=$_SERVICETOPSYNTAX$\\' --arg=\\'detail-syntax=$_SERVICEDETAILSYNTAX$\\' --arg=\\\\\\\"warning=$_SERVICEWARNING$\\\\\\\" --arg=\\\\\\\"critical=$_SERVICECRITICAL$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Windows-NSClient05-Restapi-Eventlog",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nsclient_restapi.pl --plugin=apps::nsclient::restapi::plugin --mode=query --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNSCPRESTAPIPORT$\\' --proto=\\'$_HOSTNSCPRESTAPIPROTO$\\' --legacy-password=\\'$_HOSTNSCPRESTAPILEGACYPASSWORD$\\' $_HOSTNSCPRESTAPIEXTRAOPTIONS$ --command=check_files --arg=\\\\\\\"paths=$_SERVICEPATHS$\\\\\\\" --arg=\\\\\\\"pattern=$_SERVICEPATTERN$\\\\\\\" --arg=\\\\\\\"warning=$_SERVICEWARNING$\\\\\\\" --arg=\\\\\\\"critical=$_SERVICECRITICAL$\\\\\\\" --arg=\\'top-syntax=$_SERVICETOPSYNTAX$\\' --arg=\\'detail-syntax=$_SERVICEDETAILSYNTAX$\\' --arg=\\\\\\\"filter=$_SERVICEFILTER$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Windows-NSClient05-Restapi-Files",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nsclient_restapi.pl --plugin=apps::nsclient::restapi::plugin --mode=query --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNSCPRESTAPIPORT$\\' --proto=\\'$_HOSTNSCPRESTAPIPROTO$\\' --legacy-password=\\'$_HOSTNSCPRESTAPILEGACYPASSWORD$\\' $_HOSTNSCPRESTAPIEXTRAOPTIONS$ --command=check_logfiles --arg=\\'--logfile=\\\\\\\"$_SERVICELOGFILE$\\\\\\\" --tag=\\\\\\\"$_SERVICETAG$\\\\\\\" --criticalpattern=\\\\\\\"$_SERVICECRITICAL$\\\\\\\" --warningpattern=\\\\\\\"$_SERVICEWARNING$\\\\\\\" \\'\\\"",
+            "name": "OS-Windows-NSClient05-Restapi-Logfiles-Simple",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nsclient_restapi.pl --plugin=apps::nsclient::restapi::plugin --mode=query --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNSCPRESTAPIPORT$\\' --proto=\\'$_HOSTNSCPRESTAPIPROTO$\\' --legacy-password=\\'$_HOSTNSCPRESTAPILEGACYPASSWORD$\\' $_HOSTNSCPRESTAPIEXTRAOPTIONS$ --command=check_centreon_plugins --arg=\\'os::windows::local::plugin\\' --arg=\\'time\\' --arg=\\'--ntp-hostname=\\\\\\\"$_SERVICENTPADDR$\\\\\\\" --warning=\\\\\\\"$_SERVICEWARNING$\\\\\\\" --critical=\\\\\\\"$_SERVICECRITICAL$\\\\\\\"  $_SERVICEEXTRAOPTIONS$ \\'\\\"",
+            "name": "OS-Windows-NSClient05-Restapi-Ntp",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nsclient_restapi.pl --plugin=apps::nsclient::restapi::plugin --mode=query --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNSCPRESTAPIPORT$\\' --proto=\\'$_HOSTNSCPRESTAPIPROTO$\\' --legacy-password=\\'$_HOSTNSCPRESTAPILEGACYPASSWORD$\\' $_HOSTNSCPRESTAPIEXTRAOPTIONS$ --command=check_centreon_plugins --arg=\\'os::windows::local::plugin\\' --arg=\\'pending-reboot\\' --arg=\\'--warning-status=\\\\\\\"$_SERVICEWARNINGSTATUS$\\\\\\\" --critical-status=\\\\\\\"$_SERVICECRITICALSTATUS$\\\\\\\"  $_SERVICEEXTRAOPTIONS$ \\'\\\"",
+            "name": "OS-Windows-NSClient05-Restapi-Pending-Reboot",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nsclient_restapi.pl --plugin=apps::nsclient::restapi::plugin --mode=query --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNSCPRESTAPIPORT$\\' --proto=\\'$_HOSTNSCPRESTAPIPROTO$\\' --legacy-password=\\'$_HOSTNSCPRESTAPILEGACYPASSWORD$\\' $_HOSTNSCPRESTAPIEXTRAOPTIONS$ --command=check_process --arg=\\'process=$_SERVICEPROCESS$\\' --arg=\\\\\\\"warning=$_SERVICEWARNING$\\\\\\\"  --arg=\\\\\\\"critical=$_SERVICECRITICAL$\\\\\\\" --arg=\\'top-syntax=$_SERVICETOPSYNTAX$\\' --arg=\\'detail-syntax=$_SERVICEDETAILSYNTAX$\\' --arg=\\\\\\\"filter=$_SERVICEFILTER$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Windows-NSClient05-Restapi-Process",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nsclient_restapi.pl --plugin=apps::nsclient::restapi::plugin --mode=query --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNSCPRESTAPIPORT$\\' --proto=\\'$_HOSTNSCPRESTAPIPROTO$\\' --legacy-password=\\'$_HOSTNSCPRESTAPILEGACYPASSWORD$\\' $_HOSTNSCPRESTAPIEXTRAOPTIONS$ --command=check_service --arg=\\\\\\\"filter=$_SERVICEFILTER$\\\\\\\" --arg=\\\\\\\"service=$_SERVICESERVICE$\\\\\\\"  --arg=\\\\\\\"exclude=$_SERVICEEXCLUDE$\\\\\\\" --arg=\\\\\\\"ok=$_SERVICEOK$\\\\\\\" --arg=\\\\\\\"warning=$_SERVICEWARNING$\\\\\\\" --arg=\\\\\\\"critical=$_SERVICECRITICAL$\\\\\\\" --arg=\\'top-syntax=$_SERVICETOPSYNTAX$\\' --arg=\\'detail-syntax=$_SERVICEDETAILSYNTAX$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Windows-NSClient05-Restapi-Services-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nsclient_restapi.pl --plugin=apps::nsclient::restapi::plugin --mode=query --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNSCPRESTAPIPORT$\\' --proto=\\'$_HOSTNSCPRESTAPIPROTO$\\' --legacy-password=\\'$_HOSTNSCPRESTAPILEGACYPASSWORD$\\' $_HOSTNSCPRESTAPIEXTRAOPTIONS$ --command=check_centreon_plugins --arg=\\'os::windows::local::plugin\\' --arg=\\'sessions\\' --arg=\\'--filter-sessionname=\\\\\\\"$_SERVICEFILTERSESSIONNAME$\\\\\\\" --config=\\\\\\\"$_SERVICECONFIG$\\\\\\\" --language=\\\\\\\"$_SERVICELANGUAGE$\\\\\\\" --warning-sessions-created=\\\\\\\"$_SERVICEWARNINGSESSIONSCREATED$\\\\\\\" --critical-sessions-created=\\\\\\\"$_SERVICECRITICALSESSIONSCREATED$\\\\\\\" --warning-sessions-disconnected=\\\\\\\"$_SERVICEWARNINGSESSIONSDISCONNECTED$\\\\\\\" --critical-sessions-disconnected=\\\\\\\"$_SERVICECRITICALSESSIONSDISCONNECTED$\\\\\\\" --warning-sessions-reconnected=\\\\\\\"$_SERVICEWARNINGSESSIONSRECONNECTED$\\\\\\\" --critical-sessions-reconnected=\\\\\\\"$_SERVICECRITICALSESSIONSRECONNECTED$\\\\\\\" --warning-sessions-active=\\\\\\\"$_SERVICEWARNINGSESSIONSACTIVE$\\\\\\\" --critical-sessions-active=\\\\\\\"$_SERVICECRITICALSESSIONSACTIVE$\\\\\\\" $_SERVICEEXTRAOPTIONS$ \\'\\\"",
+            "name": "OS-Windows-NSClient05-Restapi-Sessions",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nsclient_restapi.pl --plugin=apps::nsclient::restapi::plugin --mode=query --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNSCPRESTAPIPORT$\\' --proto=\\'$_HOSTNSCPRESTAPIPROTO$\\' --legacy-password=\\'$_HOSTNSCPRESTAPILEGACYPASSWORD$\\' $_HOSTNSCPRESTAPIEXTRAOPTIONS$ --command=check_tasksched --arg=\\\\\\\"filter=$_SERVICEFILTER$\\\\\\\" --arg=\\\\\\\"warning=$_SERVICEWARNING$\\\\\\\" --arg=\\\\\\\"critical=$_SERVICECRITICAL$\\\\\\\" --arg=\\\\\\\"perf-config=$_SERVICEPERFCONFIG$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Windows-NSClient05-Restapi-Tasksched",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nsclient_restapi.pl --plugin=apps::nsclient::restapi::plugin --mode=query --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNSCPRESTAPIPORT$\\' --proto=\\'$_HOSTNSCPRESTAPIPROTO$\\' --legacy-password=\\'$_HOSTNSCPRESTAPILEGACYPASSWORD$\\' $_HOSTNSCPRESTAPIEXTRAOPTIONS$ --command=check_uptime --arg=\\\\\\\"warning=$_SERVICEWARNING$\\\\\\\" --arg=\\\\\\\"critical=$_SERVICECRITICAL$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Windows-NSClient05-Restapi-Uptime",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les serveurs Windows via Rest API (NSClientpp 0.5)}\r\n{EN: Template to check Windows server using Rest API protocol (NSClientpp 0.5)}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Windows server using Rest API protocol (NSClient 0.5)",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "iis-128-2.png",
+            "macros": [
+                {
+                    "key": "$_HOSTNSCPRESTAPIPORT$",
+                    "value": "8443"
+                },
+                {
+                    "key": "$_HOSTNSCPRESTAPIPROTO$",
+                    "value": "https"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Windows-NSClient-05-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "OS-Windows-NSClient05-Swap-Restapi",
+                "OS-Windows-NSClient05-Services-Auto-Restapi",
+                "OS-Windows-NSClient05-Memory-Restapi",
+                "OS-Windows-NSClient05-Disks-Restapi",
+                "OS-Windows-NSClient05-Cpu-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABGdBTUEAALGPC/xhBQAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAOwgAADsIBFShKgAAAAXdJREFUeNrt0kENgEAMRNFqQRGOMIMJMEWCgbIC2Nve5jX56X3y6t23Tmtc/XXc1WkVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALAWwGwMZWQEAIwAgAAQAEoEUOfTaU0HucYLCwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABY2wdAJk7gki710QAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAABJ0RVh0RVhJRjpPcmllbnRhdGlvbgAxhFjs7wAAAABJRU5ErkJggg==",
+            "name": "iis-128-2.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ logo / doc update",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Microsoft Windows Server via NSClient++ 0.5.x using RestAPI:\r\n* Counter-Active-Sessions\r\n* Counter-Generic\r\n* Cpu\r\n* Disk\r\n* EventLog\r\n* Files\r\n* Logfiles\r\n* Memory\r\n* NTP\r\n* Pending Reboot\r\n* Process\r\n* Services-Auto\r\n* Services\r\n* Sessions\r\n* Swap\r\n* Task\r\n* Uptime"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser un serveur Microsoft Windows Server via NSClient++ 0.5.x using RestAPI:\r\n* Counter-Active-Sessions\r\n* Counter-Generic\r\n* Cpu\r\n* Disk\r\n* EventLog\r\n* Files\r\n* Logfiles\r\n* Memory\r\n* NTP\r\n* Pending Reboot\r\n* Process\r\n* Services-Auto\r\n* Services\r\n* Sessions\r\n* Swap\r\n* Task\r\n* Uptime"
+            }
+        ],
+        "discovery_category": "operating-system",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABGdBTUEAALGPC/xhBQAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAOwgAADsIBFShKgAAAAXdJREFUeNrt0kENgEAMRNFqQRGOMIMJMEWCgbIC2Nve5jX56X3y6t23Tmtc/XXc1WkVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALAWwGwMZWQEAIwAgAAQAEoEUOfTaU0HucYLCwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABY2wdAJk7gki710QAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAABJ0RVh0RVhJRjpPcmllbnRhdGlvbgAxhFjs7wAAAABJRU5ErkJggg==",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Windows NSClient API",
+        "plugins_requirements": [],
+        "requirement": [],
+        "slug": "operatingsystems-windows-nsclient-05-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Microsoft",
+            "NSClient++",
+            "Rest",
+            "Operating System",
+            "Server",
+            "System",
+            "Windows"
+        ],
+        "update_date": "1628772121",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire virtuelle (SWAP)}\r\n\r\n{EN: Check the rate of the utilization of virtual memory (SWAP)}",
+            "active_checks_enabled": 2,
+            "alias": "Swap",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NSClient05-Restapi-Swap",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEDETAILSYNTAX$",
+                    "password": false,
+                    "value": "${name} ${used} (${size})"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "none"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "used > 0"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERFCONFIG$",
+                    "password": false,
+                    "value": "*(prefix:'used_')*(unit:B)%(ignored:true)"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": "size > 0 and name = 'total'"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--arg=\"perf-syntax=swap\""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Windows-NSClient05-Swap-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier si les services automatiques sont d\u00e9marr\u00e9s.}\r\n\r\n{EN: Check that all auto-start services are running.}",
+            "active_checks_enabled": 2,
+            "alias": "Services-Auto",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NSClient05-Restapi-Services-Auto",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": "start_type = 'auto' and is_trigger = 0"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICESERVICE$",
+                    "password": false,
+                    "value": "*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "not state_is_perfect()"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "not state_is_ok()"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETOPSYNTAX$",
+                    "password": false,
+                    "value": "${problem_list}"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEDETAILSYNTAX$",
+                    "password": false,
+                    "value": "${name}=${state} (${start_type})"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--arg=\"perf-config=none\""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Windows-NSClient05-Services-Auto-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire vive (RAM)}\r\n\r\n{EN: Check the rate of the utilization of memory (RAM)}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NSClient05-Restapi-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEDETAILSYNTAX$",
+                    "password": false,
+                    "value": "%(type) free: %(free) used: %(used) size: %(size)"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "used > 80%"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "used > 90%"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERFCONFIG$",
+                    "password": false,
+                    "value": "used(unit:B)%(ignored:true)"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": "type = 'physical'"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--arg=\"perf-syntax=used\""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Windows-NSClient05-Memory-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le taux d'utilisation des disques Windows.}\r\n\r\n{EN: Check Windows disk usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Disks",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NSClient05-Restapi-Disks",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEDRIVE$",
+                    "password": false,
+                    "value": "*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERFCONFIG$",
+                    "password": false,
+                    "value": "used(unit:B)used %(ignored:true)"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": "type = 'fixed' and name not regexp '.*yst.*'"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "total_used>80%"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "total_used>90%"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Windows-NSClient05-Disks-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine. Ce contr\u00f4le pourra remonter la moyenne du taux d'utilisation des CPU ainsi que le taux par CPU pour les CPU multi-coeur.}\r\n\r\n{EN: Check the rate of utilization of CPU for the machine. This check can give the average CPU utilization rate and the rate per CPU for multi-core CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NSClient05-Restapi-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "time = '5m' and load > 80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "time = '5m' and load > 90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--arg=show-all"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Windows-NSClient05-Cpu-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de sessions actives.}\r\n\r\n{EN: Check active sessions.}",
+            "active_checks_enabled": 2,
+            "alias": "Active-Sessions",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NSClient05-Restapi-Counter",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOUNTERNAME$",
+                    "password": false,
+                    "value": "\\\\Terminal Services\\\\Active Sessions"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "none"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "none"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--arg=show-all"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Windows-NSClient05-Counter-Active-Sessions-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de r\u00e9cup\u00e9rer la valeur d'un compteur de performance.}\r\n\r\n{EN: Check the content of a performance counter.}",
+            "active_checks_enabled": 2,
+            "alias": "Counter-Generic",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NSClient05-Restapi-Counter",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "none"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "none"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Windows-NSClient05-Counter-Generic-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les \u00e9v\u00e9nements en erreurs dans les eventlogs.}\r\n\r\n{EN: Check eventlogs errors.}",
+            "active_checks_enabled": 2,
+            "alias": "Eventlog-Generic",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NSClient05-Restapi-Eventlog",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": "written > -60m and level in ('error', 'warning')"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETOPSYNTAX$",
+                    "password": false,
+                    "value": "${status}: ${count} ${problem_list}"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEDETAILSYNTAX$",
+                    "password": false,
+                    "value": "${source} ${id}"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "count>0"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "count>5"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--arg=\"unique=1\""
+                }
+            ],
+            "max_check_attempts": 1,
+            "name": "OS-Windows-NSClient05-Eventlog-Generic-restapi",
+            "normal_check_interval": 60,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier des fichiers/r\u00e9pertoires (taille, dernier acc\u00e8s,..).}\r\n\r\n{EN: Check files/directories (size, last access,...).}",
+            "active_checks_enabled": 2,
+            "alias": "Files-Generic",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NSClient05-Restapi-Files",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETOPSYNTAX$",
+                    "password": false,
+                    "value": "${status}: ${problem_count}/${count} files (${problem_list})"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEDETAILSYNTAX$",
+                    "password": false,
+                    "value": "${name}"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--arg=show-all"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Windows-NSClient05-Files-Generic-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Controle les fichiers de logs.}\r\n\r\n{EN: Check log files.}",
+            "active_checks_enabled": 2,
+            "alias": "Logfiles-Generic",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NSClient05-Restapi-Logfiles-Simple",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "OS-Windows-NSClient05-Logfiles-Generic-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la synchronisation avec un serveur NTP.}\r\n\r\n{EN: Check the synchronization with an NTP server.}",
+            "active_checks_enabled": 2,
+            "alias": "Ntp",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NSClient05-Restapi-Ntp",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "-1:1"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "-2:2"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Windows-NSClient05-Ntp-Restapi",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le si Windows n\u00e9cessite un red\u00e9marrage.}\r\n\r\n{EN: Check windows pending reboot.}",
+            "active_checks_enabled": 2,
+            "alias": "Pending-Reboot",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NSClient05-Restapi-Pending-Reboot",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{RebootPending} =~ /true/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Windows-NSClient05-Pending-Reboot-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le des processus (\u00e9tat, taille m\u00e9moire, nombres,...).}\r\n\r\n{EN: Checks processes (state, memory size, numbers,...).}",
+            "active_checks_enabled": 2,
+            "alias": "Process-generic",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NSClient05-Restapi-Process",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "none"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "none"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETOPSYNTAX$",
+                    "password": false,
+                    "value": "${status}: ${problem_list}"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEDETAILSYNTAX$",
+                    "password": false,
+                    "value": "${exe}=${state}"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": "none"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--arg=\"show-all\""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Windows-NSClient05-Process-Generic-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'\u00e9tat des services Windows.}\r\n\r\n{EN: Check windows services states.}",
+            "active_checks_enabled": 2,
+            "alias": "Services-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NSClient05-Restapi-Services-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": "none"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICESERVICE$",
+                    "password": false,
+                    "value": "*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOK$",
+                    "password": false,
+                    "value": "state_is_ok()"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "none"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "not state_is_ok()"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETOPSYNTAX$",
+                    "password": false,
+                    "value": "${problem_list}"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEDETAILSYNTAX$",
+                    "password": false,
+                    "value": "${name}=${state} (${start_type})"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--arg=\"perf-config=none\""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Windows-NSClient05-Services-Generic-Name-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les sessions utilisateurs Windows.}\r\n\r\n{EN: Check Windows user sessions.}",
+            "active_checks_enabled": 2,
+            "alias": "Sessions",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NSClient05-Restapi-Sessions",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICELANGUAGE$",
+                    "password": false,
+                    "value": "en"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Windows-NSClient05-Sessions-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les t\u00e2ches planifi\u00e9es Windows.}\r\n\r\n{EN: Check windows scheduled task.}",
+            "active_checks_enabled": 2,
+            "alias": "Task-Generic",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NSClient05-Restapi-Tasksched",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": "enabled eq 1 and has_run eq 1"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "task_status = 'running' and most_recent_run_time < -60m"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "task_status not in ('running') and exit_code > 0"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERFCONFIG$",
+                    "password": false,
+                    "value": "*(ignored:true)"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Windows-NSClient05-Task-Generic-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'uptime Windows.}\r\n\r\n{EN: Check windows uptime.}",
+            "active_checks_enabled": 2,
+            "alias": "Uptime",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NSClient05-Restapi-Uptime",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "none"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "none"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Windows-NSClient05-Uptime-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

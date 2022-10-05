@@ -1,0 +1,480 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_printers_generic_snmp.pl --plugin=hardware::printers::standard::rfc3805::plugin --mode=papertray-usage --hostname=$HOSTADDRESS$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning \\'$_SERVICEWARNING$\\' --critical \\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Printer-Standard-Rfc3805-Papertray-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_printers_generic_snmp.pl --plugin=hardware::printers::standard::rfc3805::plugin --mode=markersupply-usage --hostname=$HOSTADDRESS$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning \\'$_SERVICEWARNING$\\' --critical \\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Printer-Standard-Rfc3805-Markersupply-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_printers_generic_snmp.pl --plugin=hardware::printers::standard::rfc3805::plugin --mode=marker-impression --hostname=$HOSTADDRESS$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning $_SERVICEWARNING$ --critical $_SERVICECRITICAL$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Printer-Standard-Rfc3805-Impressions",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_printers_generic_snmp.pl --plugin=hardware::printers::standard::rfc3805::plugin --mode=hardware-device --hostname=$HOSTADDRESS$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' $_HOSTSNMPEXTRAOPTIONS$\\\"",
+            "name": "HW-Printer-Standard-Rfc3805-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_printers_generic_snmp.pl --plugin=hardware::printers::standard::rfc3805::plugin --mode=printer-error --hostname=$HOSTADDRESS$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' $_HOSTSNMPEXTRAOPTIONS$\\\"",
+            "name": "HW-Printer-Standard-Rfc3805-Errors",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_printers_generic_snmp.pl --plugin=hardware::printers::standard::rfc3805::plugin --mode=cover-status --hostname=$HOSTADDRESS$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' $_HOSTSNMPEXTRAOPTIONS$\\\"",
+            "name": "HW-Printer-Standard-Rfc3805-Cover-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_printers_generic_snmp.pl --plugin=hardware::printers::standard::rfc3805::plugin --mode=papertray-usage --hostname=$HOSTADDRESS$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning \\'$_SERVICEWARNING$\\' --critical \\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Printer-Papertray-Usage-standard",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_printers_generic_snmp.pl --plugin=hardware::printers::standard::rfc3805::plugin --mode=markersupply-usage --hostname=$HOSTADDRESS$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning \\'$_SERVICEWARNING$\\' --critical \\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Printer-Markersupply-Usage-standard",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_printers_generic_snmp.pl --plugin=hardware::printers::standard::rfc3805::plugin --mode=marker-impression --hostname=$HOSTADDRESS$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning $_SERVICEWARNING$ --critical $_SERVICECRITICAL$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Printer-Impressions-standard",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_printers_generic_snmp.pl --plugin=hardware::printers::standard::rfc3805::plugin --mode=hardware-device --hostname=$HOSTADDRESS$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' $_HOSTSNMPEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Printer-Hardware-standard",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_printers_generic_snmp.pl --plugin=hardware::printers::standard::rfc3805::plugin --mode=printer-error --hostname=$HOSTADDRESS$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' $_HOSTSNMPEXTRAOPTIONS$ --ok-status=\\'$_SERVICEOKSTATUS$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Printer-Error-standard",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_printers_generic_snmp.pl --plugin=hardware::printers::standard::rfc3805::plugin --mode=cover-status --hostname=$HOSTADDRESS$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' $_HOSTSNMPEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Printer-Cover-Status-standard",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check printer according to RFC 3805",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "HW-Printer-Generic-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Printer-standard-rfc3805",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Printer-Standard-Rfc3805-PaperTray-Usage-SNMP",
+                "HW-Printer-Standard-Rfc3805-Markersupply-Usage-SNMP",
+                "HW-Printer-Standard-Rfc3805-Impressions-SNMP",
+                "HW-Printer-Standard-Rfc3805-Hardware-SNMP",
+                "HW-Printer-Standard-Rfc3805-Errors-SNMP",
+                "HW-Printer-Standard-Rfc3805-CoverStatus-SNMP",
+                "HW-Printer-PaperTray-Usage-standard-SNMP",
+                "HW-Printer-Markersupply-Usage-standard-SNMP",
+                "HW-Printer-Impressions-Usage-standard-SNMP",
+                "HW-Printer-Hardware-standard-SNMP",
+                "HW-Printer-Errors-standard-SNMP",
+                "HW-Printer-CoverStatus-Hardware-standard-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAIAAABMXPacAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAHdElNRQfZBxQUGQL6nzgHAAAAGHRFWHRTb2Z0d2FyZQBwYWludC5uZXQgNC4wLjlsM35OAAAgo0lEQVR4Xu19B2wjbXrejwsMpDgwbAQBDOOABL67GEkcn+E4TnLG4RLfGfH9+/d/u7aod2nVRfUuUXXVe6+rspJWVKd6o6jeqd5F9V5JSsxDzogiRxJFlZW09D54sNihZobv+zzfvN/7UZzRF8LPuFN8NuCO8dmAO8ZnA+4Yt2qAQHBYUdGakFAUH19435iVVbmwsEoGeou4VQM4nMmoqPzo6A8xMfeOCOzdu/L19XUy1tvCrRrQ0TGEPDs7h8nte4P9fZ54ZOSWlZVtb2+Tr94KPhsgwsEBaUBJSQmXyyVfvRV8NkCEzwbcDI4IHlEowuFpHmJfEp8NuDoIcQWHR3zBIcjjHx7wD/d5AnDvQLB7wN/Z52+De/ytPd7mLm8D3DlY3z5Y2z6APQQ+G3BFXEf91a1/lgZERuZ1dg6R29fDNdVf2dqXGIAuCIFFRb1XcgPa2wfDw993dAyS29fA9dVf2ZQxAIFFRuYouQFtbZywsGzYQG5fFTei/rKsAQgsPDxL6Q0YCAnJgg3k9pVwU+ovbexJG4DAwsIyldyA1tb+4OB3sIHcvjxuUP1FGQMOEFhoaIaSG9DS0h8YmA4byO1L4mbVX1iXMQCBBQenKbkBbHZfQEBqS0sfuX0Z3Lj6YgNIB2AAAgsKSlVyA5qbe/39k9nsXnJbYXwM9efXdqUNQGBv3yYrvQE9vr5JlzXgI6nPlTUAgQUEJCm5ASxWt49PAmwgtxXAx1N/blXGAATm75+g5AY0NXXR6XGwgdy+CB9VfRAnJ95ob+8Agfn6xiu9AZ2enjGwgdyWi4+t/uzKjrQBCMzHJ1bJDWhs7PTwiIYN5Pb5uAX1Z5a3pQ1AYHR6jJIb0NDQ4eYWCRvI7XNwO+pPL21JGbCPwLy8opTcgPr6dheXcNhAbp+FW1N/enFT2gAE5uERoeQG1NW1OTuHwgZy+xRuU/2phQ1pAxCYu3u40hvQ6ugYXF/fRm7L4pbVn5yXMQCBubmFKrkBtbUtDg5BsIHclsLtqz/BXZc2AIG5uIQouQE1NS12dm9hA7l9jDtRf2JuTfJ7eRiAwJydg5TcgOpqto2NP2wgt8W4K/XHZ1elDUBgjo6BSm9AM43mW1PDJrfvVP2xmRWJAbu7+wjMwSFAyQ2oqmJZWfnABnJbbMBdqT82LWMAArO391dyAyormyws6LCB3BYKMfzvSv3RqWUpA/YQmK2tr5IbUFHRaG7uCRvIbRggHv53ov7I5JK0AQjMxsZb+Q0wNXWvrGwkt4VC1J+7Un94YlHaAARGo9GV3AAms8HExBU2kNuiWzaO7kr94fEFaQMQmJWVp5IbUF5eb2zsDBvIbaEQ9eeu1B8am5c2AIFZWHgopwEbGxvZ2dne3t6Wlo6Ghk6wgfyBUMgTG3An6g+OyhiAwAwM7PT09Hx8fDo7L/7A/Kbw0Q0YHh5+8uTJP4nx9KmagYFDeXkd+TOxAXelPmeEK20AAtPWtiLiBCIiIogffWx8XAMEAoGGhsbvjwED9PTsyspqyR8LhZgA7kp9zvCcxICdnT0EpqVlSQYqBoPBODw8JHb4ePgoBmB5tbKy0t/fn5mZSSRjYWExOzvLYDB1dW1KS6UNENyV+gNDsxJ9YQACs7X12d3dLS0tJWJ+/fp1YWHh+Pg4XiR2+xi4AQP4fD6irKqqSkxMdHd3Rxn97rvviBwkqKys7O3ttbd319amlZTUkEcKhZgA7kr9/sEZKQN2EZi+vm1CQgJGD2omGfcxnj17hjEUGBiYm5vb3t6+trZGHHh9XNGA1dXV2tpaFEpTU9Nvv/32y4sAhzIyMjQ0DDU1rUpKqsmzEAbckfp9nGlpAxCYpqa5trY2yiaNRiPjPh8vX77EaMvJyRkcHLxOpbqcAWNjY0lJSQYGBg8ePCADOYVHjx7r6xs6OroEBYWlpGQWFjIbG9sRop+fn4aGgYaGRXFxFXk6oXCPJ7gr9fsGZAxAYBoaZpqamjMzM1NTc9XVrLy8ori4ZB+fACsrG3V1jW+++YbM8BQeP36MHq++vv7g4IA4oeJQyAAej4fKaGhoSL6hFBCWnp6+p6d3UlI6k1nb2zsyMTFP4ezsMk5iZmYGA9TUzIqKKonTAmiB7kr93v4pgZQBCExd3VRLS4vNZm9t7VJSAMfG5tjsrvz8orCwKBsbu+fPVUgJpPDo0aPIyMj5+XnitIrgYgNYLJa6ujqGvASoOWZmFlFR8ZWVDSMjsxMTC/K5tLSOpQCubhigqmpSVFRBnhr934HgrtTv6ZuUNgCBqaq+QZB5eXn7+zxKCmeys5OTnf3Bw4OuovKClEYM6BMbG7u/v0+cXD7kGYDpKC4ujjzrgwdfffWVhYVVdnb+4ODE5OSC4lxf3+ZwOLq6ujDg1as3hYWyBtyR+j29EwLBiQEI7PVrYwSJiQ3tKSWFC1lb2+znF/j48RNSrAcPUKjRChLnlwN5BqSlpZEne/DA3t4JF+DU1OIVuLu7jx4J3REMePHCCM0o+QbIfJ9/V+p394xLG4DAXr0yRJBOTk54BWWTkoUiHBmZwbTx8OEjQjTYeeHDJ841oKur6+uvv8ao/+abb3Ny8qenF69MPl8AL/X19WGAiopBQUE5+R5iA+5K/a5uGQMQ2MuXBgjSyMgIjfXi4jolC8XZ2TmgqakF6QAHBwf5y4izDUAEqIbEKVJT301PL12ZMzOiGdjf3x9zuLqGwcNnxjFppZ0TW7X9a4VtywlVc4GFkx45Y7ZpIybxgzqRA69D+p7493xH7/q9e8dvndt/bd/6v21a/taK/dfmzf/NlPVf3jT9hVHjfzJs/IVB48/1G36m34B/fwEaNPyFYcN/Nmr8r8aNf2XS+DfmTX9nyfqVNes3ts2/c2R/6dLynUfLE+/WV/5t2kHtxuEd1jGdzold7+rnSzpWGjnrrUPL3z0ze6pihCABNEJra9uURC7F7u5BLB0IAbOzs9HaEsKextkGYAVIHEyj2c7MQMSrc2FBtGaxsrLCyPqNqt8XP1RI+C8eVv7Ri5o/06z/uUHjL82af2Xb+g9O7V95dD707X4R2Kse2qcXNWAcxzFPHLJJHXZIH3F6N+qWNeqZM0bPHffOHffJI4n/4xW46Jo1in3s00doKcPmCYPGsRzdyAG1kD6VwN4ffLq/dO/8v45t/4vWAiP/XL/xT9Xr/vB59U9+PInnjx/lIUigra1NPG9NDQ5ODw2BM8PDs2g30AiNj3PREU1NLUBlSqYUMhglhIaqqqqjo6OEsKdxhgHojtEOo/5gNm9v70U1vA5XVzfRAhmLoUPPL+lcbhpaH5jdnl3bX9vhre/eMVe2edMrez1TW3WctcCiKW1DC8RZVFS0ubnDZnPks6VlsK1tqLNzpLt7rLd3fGBgEobBJ5iE+QAeoGeBjEB8fPzOzg6pryzOMKClpYU4zMXFjaLmFbi5uTs0NPRGBJPA/IG5Tf695fjKwUMDOgJNSEjg8fjQ9zpsbR3Mzi4ilMTUAhFIfWVxhgG+vr5YXgE1NU1zcyvX5N7eQV1dnampqZYxLa9jbWSVf5+p456OUH18fKADhjYG+DWppiZaQqOWFBcXn7kyoBqARe+TJ09wjJqaGpe7zOWuXJNogXJycrAMfmzs37HA617i3y27FvntC/zWeT6by2fN8ZrmeI2zvIZjWsQ0IFTMWKjDqCft7cNymFlU5Z2YkVlUTXldmoGBEeLB/A3akNnZWVJlKVANQPdJHBAYGDI/v3p9Hh0JsbQxNzfX8sxmcQW3xoZZQdU0v3SSzxjj543ws4d5GYO8VA4vZUAezXKmzMwtEO3yMtYBWOuOnEf32JR/olmFN+Ub9wb7MnMpP5WwvLyB0BNVCNqSKkuBakBycjKuF4DJrF5YWL0ml5dFyxAXFxdLS0vzeHbltOAjsWJaUDQhyBnhp3D4sX28sG5ecNdV6Fy7pWosinZgYGBxca27e/RMtrUP/tbSrGiKZTcY+2WF19+GObV1DFH2IdjVNfrq1Wvo+ejRo8rKyr29PUJnCagG2NraYu/vv/9+cpKLDvKaRDOHZQiuaHNLa8dCLmP88AZZMH6YPiSI6hMEdPLdW/gu7JvhQ4sIBIx5a2Nju6dn7Eyy2ziqCXT7ljhVZtBf59D/0tKopY1D2UdCJyc38ZD+FqvRxcVFUuhjyBiAwocJALvq6xvA/+tze3t3amrK2tr6tYlHZPte5sjh9ZnEOQzsEji3CMwb+Kb1N88f3BkIODc3d3+fh+byPNLL0/WqQn6T4/2XdiY63v6Un0ozLi6FMADdzekFgYwBc3Nz34nh7e27tLR+faIFwqKGRqM9ocUmcA4Tr8Gw3kOnlkODWoFa5cfl74O6EHB0dPTR0VF//8R57Owe8cnJVKf7uMUld3YPU34qzdLSGkJVVLbT04CMAc3NzcSuqakZFCmvRnTTpaWlKGsvfUvDew+vwMDuQ2vW4asKwfclt8Rfxy5Y2dh7eXlBEKyqsLy6Jjs7B1HSoaqOjg4qG5/PJ9QmIGMArjvCgMrKmuXljSsT0s/MLA4PzwgEhyh8dnZ2L2P7/LuOLkW75kOVisPfFRz+w4db5a+z9tXMve3t7Q8ODpDF4ODU9Yl5GKqqqKhUVFRsbm6ScoshY0BkZCS8Anp6BlZWNq5AtD0IemRkZmhoenRU1PYGBQVZ2Tqr5qy4tx0pQre2I52aIwjx37PvjN9YJcAAFGRMY+LPgq5LMzMLqPrDDz8UFRVR5mEZA9zd3Yn9uNyl1dXNS3FlZRPLLogO9QnCCczq6EFfWwSY1vLt2EfyadN89Ix59Musw5+l3TH/3rHM0dGxp6cHXZwknevQzc1TPLC/z8jImJ6eJuUWQ8YALECw0/PnzyniXsilpbXJyXmoL00Mn5WVFScnpx/t0swaj+TzYdnRz9KO/n3iveCfu/ci7Orq6t3dfUpSV2NQUBhhAOZ2SiMkY4CWlhaGv66u3traloJcXd2am1seH58bG6MSPx0aGnJ2dv7au1q//ug8PmUe/ce0o38Vc59IX7J3csWMyOcLKEldjfHxKRAWCAwM5HBkHpknYwAWAdjJwsJyfX1LEaLoT08vTExwz+TOzh6LxXJ1df3H0CGtGuFpqlUJ/ypT+JMI4Rfh94xBPG1aQGxsLDTBlU3J6wrMysolDEBzhcpGqE3gxAAej/fjjz9iJ0dHJ9S+C4lWZ2pqAfGdR/SgmHNsnT3/X9KaVqWQwm8LhX8UiVTvKb+xSvLz84MsuL4peV2BDEYpYQDqQUeHzJMaTgxAewQDAC8vOlbh8on6jrEvn1jIpKSkqNNCVBgCrXKhhJrlwr9LE/7EX/jFPeb/oJWjJdnd3cU4o+R1BVZU1BDaorlis09uEgVODFheXiZ2otO9t7a2Nzd3ziOm3NnZRfmcnxf9Kjg4OPgHu0ytEqGEqkXC/4BrnH7f+VNat4eHx+zsLCotJbXLcmFhpamJRWhrY2PT1NQk/SviEwO4XC6xk729y9DQ1Obm1tbWzmmurKzPzS1dSOyGhQxK3lfutVqFQoLP84R/4if8wu0T4B9YLXh4evX29mImo6SmILlcDOk1yIiePje3lNDW2tq6sbER1Z4UXdoA9O0PxaDRnPPzG0pLWwYGJtbXN7e3ofsuQQwHDG3xL2ouIMrUwsICnU7/R99BrQ9C8HGW8A/dhV84fiK02TN1ChJ/3ZNHSe1CLi6urq1toIpMT8/X1/dAzLi494S2VlZWDQ0N0r8aOzEACwRiJ1tbVxxDsLCQ1d4+hIsINoBY6OL/ihADB/2Wm5ff70JWtXKFj9OF/1qU1afEp7REBoMhEBxSUjuP0H11dWNzE3Pk1uDgVEVFu0TGhIQ8QlsYAFOlfytwpgFukiMlrKnpGh6exqlhLC4LVBi8nxxi4KDY6TuEP0niq6QL/62d8AuLT4y/sSxGEwFllpao2UkTdQbjHaUGAxQVv7WVg1FLUU8hAzDhPBLjTAMIMhhNzc39k5Nc2ID3w7vivWEGgqAQA6e4uPiRbaZauvDfQf03nx5/8aYtNDQUyiBHSnbg6uo6BiJ02NnZWVxc6ekZLS9vpcglIQwgtKXRaOcagJJN7GRj40I5/jRhMpvdPz4+Cw8QAeLAxYFAERb8wL84YUZGhoo78xeuwi8MP0n+qdGYv78/xEJVQVIgEtzYIEUHMLt2d48wmW0UcU4TcwChra2tLeaAsw1AASN2srZ2ohwvhwUFjXV13f394wsLy0RYuDQQIp/PLywsfOLTQcnqE+JPLZZSU1Mhy84OGhBS9PX1jbGx2ZaWgZISNkUKOYyJySa0dXBwQBd09iSMsz8Ww9LSnnK8giwubmax+jicyfl50aSNuFvG9kOreabZ/O+iBL/0OvwTqyNKkveK/9JE+HPno98GH2qm8j1LeHntB0gBxMAfH5/r6BiqrDyZVy/FyMgMQlsXFxcWi3V2G4rVwZMnT7CTmRntw4fGa7KoiIUOrLt7dGJiDhcvkQm4uLbXPrHP6OJF1fFdigR6GYIfogW/8uP/3HH/j832/8BIQBHlBvkTo8N/8+bgpzZ7f+PF+30oXzVZQMsXBFbyM1t59UMH4wt728dBopxiOsVIYrMHUNkpqV2BYWEphAFY3GElLLk1CjgxAHjx4gV2MjY2YzBYN0tcsPCjo2MYSzzkhnYNeUoDZREXJirsDHe5e3S5tneJ0bKUXrcYzVx4WzTvmTfvkMW1SueaJHMNE7m6cXNasXOaMXMaMXNaMXPasXP6CXPGSVyLNK7tO67r+3lfxnx42UJSzWIua5HZudQ6uDw6vbyyskq8EfGOEmAaQxOJwtLbO4YWA+0jZjhK/NdkcHA8YYCPj09rq8wj82QM0NfXx0Wgp2eEYvKxiYUeWlsk3NU1Mjg4iQsFq0d0F5CDFOZGgZKISgKhp6bmR0amoXVb2yDGBKZQSmAfgwEBkRAWCAoKOvfDOABdKnbS0NCCOnfIsrLWqqoOzO1NTX0tLRwUX5gEyfr7J1AWcA1hRQIRj3/fNI1NvAgXsXTv6xtHR9jZOQx94W5DQ09NTSdUprzFLZNODyIMiI6O7u6WeXa5jAHu7u7Y6cWLlyh8n3mDdHHxJgxIS0vr75f5Cy4yBmDdgZ2ePn1aVsZGKbwsMdAorygfr5ajra0ThH327Flubi7le+oyBsAfqA/k51dXVXVelkxmM+UV5ePVcjQ1tYSqqqqqBQUF4+PjpNxiyBhQUlJCGJCRwcAMeSlWV3fQaPYvX6orNxmMKkriilBbWxeq6unpQeGZmRlSbjFkDECHRBgQF5dRV9dzKVZUsF++fP0/lR25uUWUxC9kbW2XiooKVDUzM2MymfK+FzQ1NYU6BQQFRTU29l6KZWX1qqpqf6/sePfuPSXxC1lW1kSoam9vX1NTQ7lzWMYALIWeP3+OXd3cvFms/kuxsJCprq7xf5QdycnpTU3U3OUzJ6eYMMDT07OpqQmLElJuMWQMAAwNDbGrhYU15Y7AC/n+PUNTU+t3yo6EhOSGhi5K7vIZF5dGGBASEoIiL/05BEA1gE6n4yLQ0NBsbRXd56c409OzdHR0yOcbncLXX39N3KnzSeDLL78k4z6F+PjE6mo2JXf59PMLhqRAamoqZRUGUA1AJ0rsXV/fSbnfTA5bWzkYGnp6+sRdmRR8//339fX1MP9TAYo1GfopxMTEl5bWUtKXT1tbB+iprq6en59/+mZVqgENDQ2EAfn5ZV1dolucFGFTU3dcXIKBgSHx9SMKnJycyMw+EaBbJ0M/hejo2IKCUkr68onKDD1NTEzQg6LNIYU+BtUALpeLngmIiUmi3Gojh7W1bAwNIyNj4jM/CoqLi8nMPhEMDAzo6uqS0csiMjI6KyuPkr4cNjWJelCA+Lbv8rLo61LSoBpwdHSEUo4DXF09KHd6yCGTWRcVFQOTiTeThra29sTEBJlZa2tLC3gB2OzzSEVzs4JsZrEuJk5IBNnR0ZGZmUkmIIvw8Mjk5DRK+nKIdQNxYEBAAIvForRAANUAALviAG1tHfGjKmYUYVERMyIiyszM/PUppKSkoPARiUFcItWmJpAFNjYSbAIbGsBGsL5exLo6gg21tRLW19QQrKuuFrGqqhasrJRhRUUNQSazGiwvB6vKyghWEiwtJVlSAlYUF4vIZNYQcQKoFaqqqmQOUggNDY+OjqOkL4chIZEQ88WLF9Chvb0d45tU+RhnGFBWVoYDABarY3R0ThEWFBRHRkb5+Pi6HcPV1fXNG3Nwenq6s7OzTQyMYoxHFgskPCBtEDsh8uDYhqb6ehGPPRDZIOUEacOxB9I87YHIBrEHIhsIEmaUloooNkBEwgNESISKWhEYGKKtrW9hYUWmJEZERGRUVPTMzBJFgfNoaWkFJQ0MDD58+DA4eMYf0z/DgPn5ecKAtLSs8fF5RbiwsLq1tb23t39wwCM4OjobFZWfm3vyiFCAx+MfHICiHfb3wYO9PRF3d8F9cGcH3NveJkh+HW9zE9zZ2CBIfjdbcncCcYfIygooc5MauLgIkncsS+7cJx6gcPwoC/KJIpJnzOD8ZKxCYU/PoJmZR2BggiQpEGmCeAuKAmeyt3fk5cuXUBITQEVFxdzcHHlqKZxhAGBtbY3DHB2dpZ/HJYdIRpztCRmMRhgwMDBBnlF8E7Ks+rz7pv70NBI5mSQFgkMnp0ATE7f+/jHp1EAcTlHgTOblMcQj+UVoaCgmgK2tLfLUUjjbAHSssA4lj8MZJ6K8FMfG5qKjP8THF2LIk2cUDX+BlPr3buwTTxuDagiGjFgoLCqqfvPGJTHxvSS1S9HNzQMyoqnJzs5GHT49AQBnG7CysgL1cTDWt5IEFGddXReGf03NyS8/8d4Kqk9If1fqT00t4FgyaNF3pdbfvHG1sPDA65JTKUgOZ4zQ0MXFBdMqWkHypLI42wAgLCwMBxsaGk1Oip68qjiRT0pKKQzAxECeS/QQOtHwv//qE8+gRLRk3KJbd9MMDBwLC2skCSpINEsQEK1UfHw8+uAz6w9wrgGYMdTU1HCKhIRUydNjFWF7+xDUz84+eT4x8AmpjxTwRmTcQmFv76C+vr2LS5B0jheyra1XXV0d6jk6OjIYjL6+PvJ0p3CuAQBmglevXsHDjIz3HM4UpcM9j3l5WJTl9/aOkWcRz2afkPogXpHU68PDIzs7X11d27q6dkqm57G2lo0lEaTT09NLSkrC9CvnCa7yDEAQMTExKGTic+n7+wdlZxc0NLRjhd3XN3Emu7pGY2I+xMUxoDh5FtHw59+U+mLpT9QnpL9Z9UF0kIiKjF4oLC6u0tGxCQpKpCQrTTa7t6CgPCIi1tLSGnIB6P2joqKYTCblvlQK5BkACASCqqoqW1tbTU1N4rwA/m9lZePl5RcREZeWllNQwKyqQpXr6+gYKSlpxvCvqjr5i8Fw8ZNTf3yci2PJBITC9fVNPT1bPT275uZ+pIlkkXJ6+vvIyHgfnwAbG3sdHV1SGnHBMDMz8/X1xdK3vLy8u7tb/iPVLzCAwMLCAmyAn+7u7lZWVvr6+mcu09XVNUJCMmCAdPR8Pv9YfZH0n4T6Y2MiSvfQEREpGhqW6up6ZKpSgBQoNZaWllj8BwUFoebk5OSg7WltbZ2cnKQ8G+U0FDKAwN7eHs7IZrOLi4uzsrKio6P9/f09PDzs7e3x9sbGxubmNKifmXnydHpAMfVFN1/eK/WxlMEbkTkIhQMDw+rqFmpqoqdvYghiakXiAQEBERERycnJUAPzZWlpaW1tbU9PD1RaW1uj/ObrPFzCAGnAjNXV1enpaczvqD6VlZWFhYWJiXkwoLt7hNxJPP3eofqE9BL1xQ8VVlT90dE5vCKZivEfGxsvVVXTiIgYZAqtkXJjY2NXV9fIiOi5JEtLS9vb2wqKLo0rGnAae3v7sbEFIBQnXxJ3n3LUJ8rO/VCfS1EfHBmZRWxkJqIvTVW/fm1ia+sxMDCwv79/Ba3PxI0ZgL4Tw7+i4uS712jgFFefkP5eqQ/iQDIZoXBra1td3fz16zfl5cwLK7viuDEDcnIwS+fPzJx86wiT2MdRX/Q4wFtQf3gYnJHup8PDk1RUDP39Q2/wzx3ejAFQBOqnp5dLf9yEonTr6pPSK6I+UfQl6hPSU9QH8UZkPkIhhzPy/LmBlpZ5W1sb+dK1cTMGEJ++tbef/MIBCwix+nuftPpY1mJT8gf3AAsLl6dPdVNSMjY2Tnqk6+AGDODzBQkJRdHRH6Ay+ZL4w2fpjx8Iyi7ETq4MaYekTTr2SfR8lmOfCIrcEhsm+mRCyrNNwrNTzsmYJ+2fxMJjF8/wEgGTWYn+skLFkyc6VlbOaH7Il66HGzAAIwXDv7j45O9kKzE2N7dUVAyeP9e7qan4BgwoKmqCAaOjMt+6VmK8fRuFiyAwMPxSfy/sPFzXABQWFJ+EhELpZ+AoN9rbu2GAvr7VjfzZ4esaMDu7hOGfmVmBdcBl2dMzCmLlDHZ1DXd1DYGdnYNgRwcHbG8fANva+sHW1j6wpaUXZLN72Ozu5mawi8UCO5uawI7GRrC9oQFsq68HW8G6upa6OnZtLdhcUwOyqqvBpqoqsBHr2crKhooKsJ7JBOvKy8HasrIasLS0WsyqkpITMhjlmIdVVPTLy8t3zvnDJIrjBq6AxMQieHBZRkTkhoe/DwvLCQ3NDgnJDA5+FxSU8fZtekBAqr9/ip9fsq9vko9Pgrd3PJ0e5+kZ6+ER7e4e5eYW6eoa4eIS5uwc6ugY4uAQbG8faGf31tY2wMbGj0bztbb2sbT0trCgm5t7mpl5mJq6m5i4vnnjYmTkLP6b2Q76+vZ6ena6urY6OjRtbWtNTSvxp2zmampmqqqmWOu+emX84oUR+n10nM+e6UFrjPfTNDKiMRiMM7/ocCncwBwwP7+cmVkYF5d5KcbGvouNzYiJyYiOTo+OTouKAlMjI1MiIsBkLHnAsLDEsLCE0NCEkJB4MDg4Ljg4NigoNjAwJjAw+u1bMCogIBL094/w8wPDfX3DQB+fUB+fEG/vEDo9mE4P8vICAz0934IeHgHu7v6gm5sf6Orq6+LiAzo7ezs7052c6I6OXo6Ong4OoIe9vTtoZ0elq6t3QkJiTU3NvTAAQFPc3Nxc/c8JLBZreHj4+jPfzRjwGVfGZwPuGJ8NuGN8NuBOIRT+f1ozipQme4W9AAAAAElFTkSuQmCC",
+            "name": "HW-Printer-Generic-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Add EXTRAOPTION in commands",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor standard printer according RFC 3805 using SNMP protocol:\r\n* Cover status\r\n* Impressions\r\n* Maker supply usage\r\n* Paper tray\r\n* Errors\r\n* Global hardware"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack Plugin pour surveiller les imprimantes standards selon RFC 3805 en utilisant le protocole SNMP :\r\n* \u00c9tats des \u00e9l\u00e9ments recens\u00e9s dans la table \\\"cover\\\"\r\n* Nombre d\\'impressions\r\n* Niveau d\\'encre des cartouches\r\n* Taux de remplissage des bacs \u00e0 papier\r\n* Erreurs imprimantes li\u00e9es au papier\r\n* Indicateurs mat\u00e9riels"
+            }
+        ],
+        "discovery_category": "printer",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Printers-Generic-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp)\r\n\r\n## Centreon Configuration\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"55%\" />\r\n<col width=\"44%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Printer-Standard-rfc3805-snmp-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nChoose \"Yes\" for the \"Create Services linked to template\" option.\r\n\r\nClick on the *Save* button.\r\n\r\nFollowing services are automatically created : \r\n* Printer-Hardware,\r\n* Printer-Errors, \r\n* Cover-Status, \r\n* Marker-Impressions and Marker-Supply. \r\n\r\nIf you want, you can add the paper tray check with the service template\r\nprovided.",
+        "name": "Printer standard",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_printers_generic_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Printers-Generic-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-printers-standard-rfc3805-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Hardware",
+            "Paper",
+            "Printer",
+            "RFC3805",
+            "SNMP"
+        ],
+        "update_date": "1550233114",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00c3\u00b4le le taux de remplissage des diff\u00c3\u00a9rents bacs \u00c3\u00a0 papier.}\n\n{EN: Check utilization rate of papertrays.}",
+            "active_checks_enabled": 2,
+            "alias": "PaperTray-Usage",
+            "check_timeperiod": "",
+            "command_name": "HW-Printer-Standard-Rfc3805-Papertray-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "20:"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "30:"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Printer-Standard-Rfc3805-PaperTray-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00c3\u00b4le le niveau d'encre des cartouches.}\n\n{EN: Check marker supply usage.}",
+            "active_checks_enabled": 2,
+            "alias": "MarkerSupply-Usage",
+            "check_timeperiod": "",
+            "command_name": "HW-Printer-Standard-Rfc3805-Markersupply-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "20:"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "30:"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Printer-Standard-Rfc3805-Markersupply-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00c3\u00b4le le nombre d'impressions entre deux contr\u00c3\u00b4les.}\n\n{EN: Check the number of impressions between two checks.}",
+            "active_checks_enabled": 2,
+            "alias": "Impressions",
+            "check_timeperiod": "",
+            "command_name": "HW-Printer-Standard-Rfc3805-Impressions",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "40"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "30"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Printer-Standard-Rfc3805-Impressions-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Controle diff\u00c3\u00a9rents indicateurs mat\u00c3\u00a9riels sur une imprimante.}\n\n{EN: Check several hardware health indicator through an unique service.}",
+            "active_checks_enabled": 2,
+            "alias": "Printer-Hardware",
+            "check_timeperiod": "",
+            "command_name": "HW-Printer-Standard-Rfc3805-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Printer-Standard-Rfc3805-Hardware-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00c3\u00b4le des erreurs imprimantes li\u00c3\u00a9es au papier (bourrage etc.).}\n\n{EN: Check errors on printer like paper low or jammed.}",
+            "active_checks_enabled": 2,
+            "alias": "Printer-Errors",
+            "check_timeperiod": "",
+            "command_name": "HW-Printer-Standard-Rfc3805-Errors",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Printer-Standard-Rfc3805-Errors-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00c3\u00b4le les \u00c3\u00a9tats des \u00c3\u00a9l\u00c3\u00a9ments recens\u00c3\u00a9s dans la table \"cover\" de la MIB d\u00c3\u00a9finie dans la rfc3805  .}\n\n{EN: Check Printer cover status based on components present in the \"Cover\" table of the rfc3805 mib.}",
+            "active_checks_enabled": 2,
+            "alias": "Cover-Status",
+            "check_timeperiod": "",
+            "command_name": "HW-Printer-Standard-Rfc3805-Cover-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Printer-Standard-Rfc3805-CoverStatus-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le taux de remplissage des diff\u00e9rents bacs \u00e0 papier.}\r\n\r\n{EN: Check utilization rate of papertrays.}",
+            "active_checks_enabled": 1,
+            "alias": "PaperTray-Usage",
+            "check_timeperiod": "",
+            "command_name": "HW-Printer-Papertray-Usage-standard",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "Paper tray threshold",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "30:"
+                },
+                {
+                    "description": "Paper tray threshold",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "20:"
+                }
+            ],
+            "max_check_attempts": 2,
+            "name": "HW-Printer-PaperTray-Usage-standard-SNMP",
+            "normal_check_interval": 20,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 0,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le niveau d'encre des cartouches.}\r\n\r\n{EN: Check marker supply usage.}",
+            "active_checks_enabled": 1,
+            "alias": "MarkerSupply-Usage",
+            "check_timeperiod": "",
+            "command_name": "HW-Printer-Markersupply-Usage-standard",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "Marker supply  threshold",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "30:"
+                },
+                {
+                    "description": "Marker supply  threshold",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "20:"
+                }
+            ],
+            "max_check_attempts": 2,
+            "name": "HW-Printer-Markersupply-Usage-standard-SNMP",
+            "normal_check_interval": 20,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 0,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre d'impressions entre deux contr\u00f4les.}\r\n\r\n{EN: Check the number of impressions between two checks.}",
+            "active_checks_enabled": 1,
+            "alias": "Impressions",
+            "check_timeperiod": "",
+            "command_name": "HW-Printer-Impressions-standard",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "Page count threshold",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "30"
+                },
+                {
+                    "description": "Page count threshold",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "40"
+                }
+            ],
+            "max_check_attempts": 2,
+            "name": "HW-Printer-Impressions-Usage-standard-SNMP",
+            "normal_check_interval": 20,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 0,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Controle diff\u00e9rents indicateurs mat\u00e9riels sur une imprimante.}\r\n\r\n{EN: Check several hardware health indicator through an unique service.}",
+            "active_checks_enabled": 1,
+            "alias": "Printer-Hardware",
+            "check_timeperiod": "",
+            "command_name": "HW-Printer-Hardware-standard",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 2,
+            "name": "HW-Printer-Hardware-standard-SNMP",
+            "normal_check_interval": 20,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 0,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le des erreurs imprimantes li\u00e9es au papier (bourrage etc.).}\r\n\r\n{EN: Check errors on printer like paper low or jammed.}",
+            "active_checks_enabled": 1,
+            "alias": "Printer-Errors",
+            "check_timeperiod": "",
+            "command_name": "HW-Printer-Error-standard",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEOKSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /ok/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /.*/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 2,
+            "name": "HW-Printer-Errors-standard-SNMP",
+            "normal_check_interval": 20,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 0,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les \u00e9tats des \u00e9l\u00e9ments recens\u00e9s dans la table \"cover\" de la MIB d\u00e9finie dans la rfc3805  .}\r\n\r\n{EN: Check Printer cover status based on components present in the \"Cover\" table of the rfc3805 mib.}",
+            "active_checks_enabled": 1,
+            "alias": "Cover-Status",
+            "check_timeperiod": "",
+            "command_name": "HW-Printer-Cover-Status-standard",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 2,
+            "name": "HW-Printer-CoverStatus-Hardware-standard-SNMP",
+            "normal_check_interval": 20,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 0,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

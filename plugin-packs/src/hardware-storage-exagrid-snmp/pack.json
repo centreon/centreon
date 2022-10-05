@@ -1,0 +1,121 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_exagrid_snmp.pl --plugin=storage::exagrid::snmp::plugin --mode=server-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-retention-usage=\\'$_SERVICEWARNINGRETENTIONUSAGE$\\' --critical-retention-usage=\\'$_SERVICERETENTIONUSAGE$\\' --warning-landing-usage=\\'$_SERVICEWARNINGLANDINGUSAGE$\\' --critical-landing-usage=\\'$_SERVICECRITICALLANDINGUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Exagrid-SNMP-Server-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Exagrid Storage using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "storage-exagrid.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Exagrid-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Storage-Exagrid-Server-Usage-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "storage-exagrid.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Exagrid storage via SNMP:\r\n* Server Usage"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser le stockage Exagrid via SNMP :\r\n* Server Usage"
+            }
+        ],
+        "discovery_category": "storage",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Storage-Exagrid-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Storage-Exagrid-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Exagrid",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_exagrid_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Storage-Exagrid-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-storage-exagrid-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "SNMP",
+            "Storage",
+            "Exagrid",
+            "Hardware"
+        ],
+        "update_date": "1502108972",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation de l'\u00e9quipement.}\r\n\r\n{EN: Check server status and usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Server-Usage",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Exagrid-SNMP-Server-Usage",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /warning/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /error/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Exagrid-Server-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

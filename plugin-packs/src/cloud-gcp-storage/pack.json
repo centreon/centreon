@@ -1,0 +1,537 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "location_type": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "project_number": {
+                            "type": "string"
+                        },
+                        "storage_class": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Gcp-Storage-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Google Storage",
+                    "discovery_examples": [
+                        {
+                            "id": "centreon-dev.appspot.com",
+                            "location": "EU",
+                            "location_type": "multi-region",
+                            "name": "centreon-dev.appspot.com",
+                            "project_number": "911574237460",
+                            "storage_class": "STANDARD"
+                        },
+                        {
+                            "id": "staging.centreon-dev.appspot.com",
+                            "location": "EU",
+                            "location_type": "multi-region",
+                            "name": "staging.centreon-dev.appspot.com",
+                            "project_number": "911574237460",
+                            "storage_class": "STANDARD"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.GCPKEYFILEPATH",
+                                "is_password": false,
+                                "source": "discovery.parameters.KEYFILEPATH"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.GCPDIMENSIONVALUE",
+                                "is_password": false,
+                                "source": "discovery.results.name"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Gcp-Storage-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Google Storage",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Key File Path",
+                                "group": "GCP",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "KEYFILEPATH",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Scope endpoint",
+                                "group": "GCP",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "SCOPEENDPOINT",
+                                "type": "text",
+                                "value": "https://www.googleapis.com/auth/cloud-platform"
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": "--http-backend=curl"
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "cloud-gcp-storage",
+                    "type": "gcp",
+                    "uuid_attributes": [
+                        "name"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "location_type": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "project_number": {
+                            "type": "string"
+                        },
+                        "storage_class": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Gcp-Storage-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Google Storage",
+                    "discovery_examples": [
+                        {
+                            "id": "centreon-dev.appspot.com",
+                            "location": "EU",
+                            "location_type": "multi-region",
+                            "name": "centreon-dev.appspot.com",
+                            "project_number": "911574237460",
+                            "storage_class": "STANDARD"
+                        },
+                        {
+                            "id": "staging.centreon-dev.appspot.com",
+                            "location": "EU",
+                            "location_type": "multi-region",
+                            "name": "staging.centreon-dev.appspot.com",
+                            "project_number": "911574237460",
+                            "storage_class": "STANDARD"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.GCPKEYFILEPATH",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.KEYFILEPATH"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.GCPDIMENSIONVALUE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Gcp-Storage-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Google Storage",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Key File Path",
+                                "group": "GCP",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "KEYFILEPATH",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Scope endpoint",
+                                "group": "GCP",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "SCOPEENDPOINT",
+                                "type": "text",
+                                "value": "https://www.googleapis.com/auth/cloud-platform"
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": "--http-backend=curl"
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "cloud-gcp-storage",
+                    "type": "gcp",
+                    "uuid_attributes": [
+                        "name"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_gcp_storage_api.pl --plugin=cloud::google::gcp::storage::plugin --mode=bucket --proxyurl=\\'$_HOSTPROXYURL$\\' --key-file=\\'$_HOSTGCPKEYFILEPATH$\\' --scope-endpoint=\\'$_HOSTGCPSCOPEENDPOINT$\\' --dimension-name=\\'$_HOSTGCPDIMENSIONNAME$\\' --dimension-operator=\\'$_HOSTGCPDIMENSIONOPERATOR$\\' --dimension-value=\\'$_HOSTGCPDIMENSIONVALUE$\\' $_HOSTGCPEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-bucket-objects=\\'$_SERVICEWARNINGBUCKETOBJECTS$\\' --critical-bucket-objects=\\'$_SERVICECRITICALBUCKETOBJECTS$\\' --warning-received-volume=\\'$_SERVICEWARNINGRECEIVEDVOLUME$\\' --critical-received-volume=\\'$_SERVICECRITICALRECEIVEDVOLUME$\\' --warning-sent-volume=\\'$_SERVICEWARNINGSENTVOLUME$\\' --critical-sent-volume=\\'$_SERVICECRITICALSENTVOLUME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Gcp-Storage-Api-Bucket",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_gcp_storage_api.pl --plugin=cloud::google::gcp::storage::plugin --mode=discovery --key-file='$_KEYFILEPATH$' --scope-endpoint='$_SCOPEENDPOINT$' --proxyurl='$_PROXYURL$' --timeout='$_TIMEOUT$' --statefile-suffix='-autodiscovery' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Gcp-Storage-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Google Cloud Platform Storage via l'API}\r\n{EN: Template to check Google Cloud Platform Storage using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Google Cloud Platform Storage using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "gcp-cloud-storage-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTGCPKEYFILEPATH$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTGCPDIMENSIONVALUE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTGCPDIMENSIONNAME$",
+                    "value": "resource.labels.bucket_name"
+                },
+                {
+                    "key": "$_HOSTGCPDIMENSIONOPERATOR$",
+                    "value": "equals"
+                },
+                {
+                    "key": "$_HOSTGCPSCOPEENDPOINT$",
+                    "value": "https://www.googleapis.com/auth/cloud-platform"
+                },
+                {
+                    "key": "$_HOSTGCPEXTRAOPTIONS$",
+                    "value": "--http-backend=curl"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Gcp-Storage",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Gcp-Storage-Bucket-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "gcp-cloud-storage-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Adding HD v3 provider",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Google Storage service.**\r\n\r\nAvailable host templates and related services:\r\n\r\n|Cloud-Gcp-Storage|\r\n|---|\r\n|Bucket|\r\n\r\nThis pack provides a host discovery rule."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser le service Google Storage.**\r\n\r\nMod\u00e8les d\\'h\u00f4te disponibles et leurs services :\r\n\r\n|Cloud-Gcp-Storage|\r\n|---|\r\n|Bucket|\r\n\r\nCe pack fournit une r\u00e8gle de d\u00e9couverte d\\'h\u00f4te."
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Google Storage",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_gcp_storage_api.pl",
+                "package_name": "centreon-plugin-Cloud-Gcp-Storage-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-gcp-storage",
+        "status": "stable",
+        "status_message": "Adding HD v3 provider",
+        "tags": [
+            "Cloud",
+            "Google",
+            "GCP",
+            "Storage"
+        ],
+        "update_date": "1617293915",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les m\u00e9triques de la bucket.}\r\n\r\n{EN: Check storage bucket metrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Bucket",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Gcp-Storage-Api-Bucket",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Gcp-Storage-Bucket-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

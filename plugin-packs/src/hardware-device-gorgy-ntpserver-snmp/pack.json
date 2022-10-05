@@ -1,0 +1,208 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "HW-Device-Gorgy-Ntpserver-SNMP-Interfaces-Discover",
+                "command_for_macro": "HW-Device-Gorgy-Ntpserver-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "HW-Device-Gorgy-Ntpserver-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "HW-Device-Gorgy-Ntpserver-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "HW-Device-Gorgy-Ntpserver-Traffic-Global-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_gorgy_ntpserver.pl --plugin=hardware::devices::gorgy::ntpserver::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "HW-Device-Gorgy-Ntpserver-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_gorgy_ntpserver.pl --plugin=hardware::devices::gorgy::ntpserver::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "HW-Device-Gorgy-Ntpserver-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_gorgy_ntpserver.pl --plugin=hardware::devices::gorgy::ntpserver::snmp::plugin --mode=global-status --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTION$ --warning-sync-status=\\'$_SERVICEWARNINGSYNCSTATUS$\\' --critical-sync-status=\\'$_SERVICECRITICALSYNCSTATUS$\\' --warning-timebase-status=\\'$_SERVICEWARNINGTIMEBASESTATUS$\\' --critical-timebase-status=\\'$_SERVICECRITICALTIMEBASESTATUS$\\'  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Gorgy-Ntpserver-SNMP-Global-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_gorgy_ntpserver.pl --plugin=hardware::devices::gorgy::ntpserver::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Gorgy-Ntpserver-SNMP-Traffic-Global",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les serveurs ntp Gorgy.}\r\n{EN: Template to check Gorgy ntp servers.}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Gorgy ntp server through SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "HW-Gorgy-64.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Gorgy-Ntpserver-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Device-Gorgy-Ntpserver-Global-Status-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "HW-Gorgy-64.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* add disco capabilities",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor NTP Gorgy Timing server using SNMP:\r\n* Global Status"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un serveur de temps Gorgy via SNMP :\r\n* Global Status"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Devices-Gorgy-Ntpserver-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp)\r\n\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Device-gorgy-Ntpserver-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Gorgy NTP Server",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_gorgy_ntpserver.pl",
+                "package_name": "centreon-plugin-Hardware-Devices-Gorgy-Ntpserver-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "centreon-plugin-Hardware-Devices-Gorgy-Ntpserver-Snmp",
+                "version": "20161212-1"
+            }
+        ],
+        "slug": "hardware-device-gorgy-ntpserver-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Gorgy",
+            "Timing",
+            "NTP",
+            "SNMP",
+            "Hardware"
+        ],
+        "update_date": "1584623724",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le statut global.}\r\n\r\n{EN: Check global status.}",
+            "active_checks_enabled": 2,
+            "alias": "Global-Status",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Gorgy-Ntpserver-SNMP-Global-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSYNCSTATUS$",
+                    "password": false,
+                    "value": "%{sync_status} =~ /Running with autonomy|Free running/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSYNCSTATUS$",
+                    "password": false,
+                    "value": "%{sync_status} =~ /Server locked|Never synchronized|Server not synchronized/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGTIMEBASESTATUS$",
+                    "password": false,
+                    "value": "%{timebase_status} =~ /^(?!(XO|XO OK|TCXO Precision < 2usec|OCXO Precision < 1usec)$)/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALTIMEBASESTATUS$",
+                    "password": false,
+                    "value": "%{timebase_status} =~ /^XO$/i"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Device-Gorgy-Ntpserver-Global-Status-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau.}\r\n\r\n{EN: Check network traffic.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Gorgy-Ntpserver-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "HW-Device-Gorgy-Ntpserver-Traffic-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

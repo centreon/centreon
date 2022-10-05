@@ -1,0 +1,321 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-DB-Mongodb-Databases-Discover",
+                "command_for_macro": "App-DB-Mongodb-Databases-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-DB-Mongodb"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERDATABASE",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "App-DB-Mongodb-Collection-Statistics",
+                "service_display_name": "Database-$name$-Collections",
+                "service_template": "App-DB-Mongodb-Collection-Statistics"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-DB-Mongodb-Databases-Discover",
+                "command_for_macro": "App-DB-Mongodb-Databases-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-DB-Mongodb"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERDATABASE",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "App-DB-Mongodb-Database-Statistics",
+                "service_display_name": "Database-$name$",
+                "service_template": "App-DB-Mongodb-Database-Statistics"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mongodb.pl --plugin=database::mongodb::plugin --mode=list-databases --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "App-DB-Mongodb-Databases-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mongodb.pl --plugin=database::mongodb::plugin --mode=list-databases --hostname=$HOSTADDRESS$ --username=\\'$_HOSTMONGODBUSERNAME$\\' --password=\\'$_HOSTMONGODBPASSWORD$\\' --port=\\'$_HOSTMONGODBPORT$\\' $_HOSTEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "App-DB-Mongodb-Databases-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mongodb.pl --plugin=database::mongodb::plugin --mode=queries --hostname=$HOSTADDRESS$ --username=\\'$_HOSTMONGODBUSERNAME$\\' --password=\\'$_HOSTMONGODBPASSWORD$\\' --port=\\'$_HOSTMONGODBPORT$\\' --protocol=\\'$_HOSTMONGODBPROTOCOL$\\' $_HOSTEXTRAOPTIONS$ --warning-queries-total-persecond=\\'$_SERVICEWARNINGTOTAL$\\' --critical-queries-total-persecond=\\'$_SERVICECRITICALTOTAL$\\' --warning-queries-insert-persecond=\\'$_SERVICEWARNINGINSERT$\\' --critical-queries-insert-persecond=\\'$_SERVICECRITICALINSERT$\\' --warning-queries-query-persecond=\\'$_SERVICEWARNINGQUERY$\\' --critical-queries-query-persecond=\\'$_SERVICECRITICALQUERY$\\' --warning-queries-update-persecond=\\'$_SERVICEWARNINGUPDATE$\\' --critical-queries-update-persecond=\\'$_SERVICECRITICALUPDATE$\\' --warning-queries-delete-persecond=\\'$_SERVICEWARNINGDELETE$\\' --critical-queries-delete-persecond=\\'$_SERVICECRITICALDELETE$\\' --warning-queries-getmore-persecond=\\'$_SERVICEWARNINGGETMORE$\\' --critical-queries-getmore-persecond=\\'$_SERVICECRITICALGETMORE$\\' --warning-queries-command-persecond=\\'$_SERVICEWARNINGCOMMAND$\\' --critical-queries-command-persecond=\\'$_SERVICECRITICALCOMMAND$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Mongodb-Queries",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mongodb.pl --plugin=database::mongodb::plugin --mode=database-statistics --hostname=$HOSTADDRESS$ --username=\\'$_HOSTMONGODBUSERNAME$\\' --password=\\'$_HOSTMONGODBPASSWORD$\\' --port=\\'$_HOSTMONGODBPORT$\\' --protocol=\\'$_HOSTMONGODBPROTOCOL$\\' $_HOSTEXTRAOPTIONS$ --filter-database=\\'$_SERVICEFILTERDATABASE$\\' --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --warning-instance-database-size-storage-bytes=\\'$_SERVICEWARNINGDATABASESIZESTORAGE$\\' --critical-instance-database-size-storage-bytes=\\'$_SERVICECRITICALDATABASESIZESTORAGE$\\' --warning-instance-database-size-data-bytes=\\'$_SERVICEWARNINGDATABASESIZEDATA$\\' --critical-instance-database-size-data-bytes=\\'$_SERVICECRITICALDATABASESIZEDATA$\\' --warning-instance-database-size-index-bytes=\\'$_SERVICEWARNINGDATABASESIZEINDEX$\\' --critical-instance-database-size-index-bytes=\\'$_SERVICECRITICALDATABASESIZEINDEX$\\' --warning-instance-database-collections-count=\\'$_SERVICEWARNINGDATABASECOLLECTIONS$\\' --critical-instance-database-collections-count=\\'$_SERVICECRITICALDATABASECOLLECTIONS$\\' --warning-instance-database-views-count=\\'$_SERVICEWARNINGDATABASEVIEWS$\\' --critical-instance-database-views-count=\\'$_SERVICECRITICALDATABASEVIEWS$\\' --warning-instance-database-documents-count=\\'$_SERVICEWARNINGDATABASEDOCUMENTS$\\' --critical-instance-database-documents-count=\\'$_SERVICECRITICALDATABASEDOCUMENTS$\\' --warning-instance-database-indexes-count=\\'$_SERVICEWARNINGDATABASEINDEXES$\\' --critical-instance-database-indexes-count=\\'$_SERVICECRITICALDATABASEINDEXES$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Mongodb-Database-Statistics",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mongodb.pl --plugin=database::mongodb::plugin --mode=connections --hostname=$HOSTADDRESS$ --username=\\'$_HOSTMONGODBUSERNAME$\\' --password=\\'$_HOSTMONGODBPASSWORD$\\' --port=\\'$_HOSTMONGODBPORT$\\' --protocol=\\'$_HOSTMONGODBPROTOCOL$\\' $_HOSTEXTRAOPTIONS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --warning-connections-active-count=\\'$_SERVICEWARNINGACTIVE$\\' --critical-connections-active-count=\\'$_SERVICECRITICALACTIVE$\\' --warning-connections-current-count=\\'$_SERVICEWARNINGCURRENT$\\' --critical-connections-current-count=\\'$_SERVICECRITICALCURRENT$\\' --warning-connections-usage-percentage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-connections-usage-percentage=\\'$_SERVICECRITICALUSAGE$\\' --warning-connections-created-persecond=\\'$_SERVICEWARNINGCONNECTIONSPERSECOND$\\' --critical-connections-created-persecond=\\'$_SERVICECRITICALCONNECTIONSPERSECOND$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Mongodb-Connections",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mongodb.pl --plugin=database::mongodb::plugin --mode=connection-time --hostname=$HOSTADDRESS$ --username=\\'$_HOSTMONGODBUSERNAME$\\' --password=\\'$_HOSTMONGODBPASSWORD$\\' --port=\\'$_HOSTMONGODBPORT$\\' --protocol=\\'$_HOSTMONGODBPROTOCOL$\\' $_HOSTEXTRAOPTIONS$ --warning-connection-time-milliseconds=\\'$_SERVICEWARNINGCONNECTIONTIME$\\' --critical-connection-time-milliseconds=\\'$_SERVICECRITICALCONNECTIONTIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Mongodb-Connection-Time",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mongodb.pl --plugin=database::mongodb::plugin --mode=collection-statistics --hostname=$HOSTADDRESS$ --username=\\'$_HOSTMONGODBUSERNAME$\\' --password=\\'$_HOSTMONGODBPASSWORD$\\' --port=\\'$_HOSTMONGODBPORT$\\' --protocol=\\'$_HOSTMONGODBPROTOCOL$\\' $_HOSTEXTRAOPTIONS$ --filter-database=\\'$_SERVICEFILTERDATABASE$\\' --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --warning-subinstance-collection-size-storage-bytes=\\'$_SERVICEWARNINGCOLLECTIONSIZESTORAGE$\\' --critical-subinstance-collection-size-storage-bytes=\\'$_SERVICECRITICALCOLLECTIONSIZESTORAGE$\\' --warning-subinstance-collection-size-index-bytes=\\'$_SERVICEWARNINGCOLLECTIONSIZEINDEX$\\' --critical-subinstance-collection-size-index-bytes=\\'$_SERVICECRITICALCOLLECTIONSIZEINDEX$\\' --warning-subinstance-collection-documents-count=\\'$_SERVICEWARNINGCOLLECTIONDOCUMENTS$\\' --critical-subinstance-collection-documents-count=\\'$_SERVICECRITICALCOLLECTIONDOCUMENTS$\\' --warning-subinstance-collection-indexes-count=\\'$_SERVICEWARNINGCOLLECTIONINDEXES$\\' --critical-subinstance-collection-indexes-count=\\'$_SERVICECRITICALCOLLECTIONINDEXES$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Mongodb-Collection-Statistics",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mongodb.pl --plugin=database::mongodb::plugin --mode=replication-status --hostname=$HOSTADDRESS$ --username=\\'$_HOSTMONGODBUSERNAME$\\' --password=\\'$_HOSTMONGODBPASSWORD$\\' --port=\\'$_HOSTMONGODBPORT$\\' --protocol=\\'$_HOSTMONGODBPROTOCOL$\\' $_HOSTEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-member-status=\\'$_SERVICEWARNINGMEMBERSTATUS$\\' --critical-member-status=\\'$_SERVICECRITICALMEMBERSTATUS$\\'  --warning-instance-replication-lag-seconds=\\'$_SERVICEWARNINGREPLICATIONLAG$\\' --critical-instance-replication-lag-seconds=\\'$_SERVICECRITICALREPLICATIONLAG$\\'  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Mongodb-Replication-Status",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check MongoDB databases",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "mongodb-128-2.png",
+            "macros": [
+                {
+                    "key": "$_HOSTMONGODBUSERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTMONGODBPASSWORD$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTMONGODBPORT$",
+                    "value": "27017"
+                },
+                {
+                    "key": "$_HOSTMONGODBPROTOCOL$",
+                    "value": "mongodb"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Mongodb",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-DB-Mongodb-Queries",
+                "App-DB-Mongodb-Database-Statistics",
+                "App-DB-Mongodb-Connections",
+                "App-DB-Mongodb-Connection-Time",
+                "App-DB-Mongodb-Collection-Statistics"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "mongodb-128-2.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* add procotol option",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor MongoDB databases :\r\n\r\nAvailable services :\r\n* Collections Statistics\r\n* Database Statistics\r\n* Connections\r\n* Queries\r\n* Connection Time\r\n* Replication Status\r\n\r\nAvailable rules :\r\n* Database Statistics\r\n* Collections Statistics (per databases)"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les bases de donn\u00e9es MongoDB :\r\n\r\nServices disponibles :\r\n* Collections Statistics\r\n* Database Statistics\r\n* Connections\r\n* Queries\r\n* Connection Time\r\n* Replication Status\r\n\r\nR\u00e8gles disponibles :\r\n* Database Statistics\r\n* Collections Statistics (per databases)"
+            }
+        ],
+        "discovery_category": "database",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Databases-Mongodb\r\n\r\n## Centreon Configuration\r\n### Create a new server postgresql\r\nGo to \"Configuration &gt; Hosts\" and click \"Add\". Then, fill the form as\r\nshown by the following table :\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-DB-Mongodb-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick \"Save\" button.\r\n\r\n### Host Macro Configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"22%\" />\r\n<col width=\"45%\" />\r\n<col width=\"18%\" />\r\n<col width=\"12%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>MONGODBPORT</p></td>\r\n<td align=\"left\"><p>Port used to connect to the MongoDB instance</p></td>\r\n<td align=\"left\"><p>27017</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>MONGODBUSERNAME</p></td>\r\n<td align=\"left\"><p>The MongoDB username</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>MONGODBPASSWORD</p></td>\r\n<td align=\"left\"><p>The MongoDB password</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n",
+        "name": "MongoDB",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_mongodb.pl",
+                "package_name": "centreon-plugin-Applications-Databases-Mongodb",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-databases-mongodb",
+        "status": "stable",
+        "status_message": "add procotol option",
+        "tags": [
+            "Database",
+            "NoSQL",
+            "MongoDB",
+            "Application",
+            "DB",
+            "SGBD"
+        ],
+        "update_date": "1559912479",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de requ\u00eates par secondes.}\n\n{EN: Check queries per seconds.}",
+            "active_checks_enabled": 2,
+            "alias": "Queries",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Mongodb-Queries",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Mongodb-Queries",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques des bases de donn\u00e9es.}\n\n{EN: Check databases statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Database-Statistics",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Mongodb-Database-Statistics",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Mongodb-Database-Statistics",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de connexions.}\n\n{EN: Check connections number.}",
+            "active_checks_enabled": 2,
+            "alias": "Connections",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Mongodb-Connections",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Mongodb-Connections",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le temps de connexion \u00e0 l'instance.}\n\n{EN: Check connection time to instance.}",
+            "active_checks_enabled": 2,
+            "alias": "Connection-Time",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Mongodb-Connection-Time",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Mongodb-Connection-Time",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques des collections, par bases de donn\u00e9es.}\n\n{EN: Check collections statistics, per databases.}",
+            "active_checks_enabled": 2,
+            "alias": "Collection-Statistics",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Mongodb-Collection-Statistics",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Mongodb-Collection-Statistics",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut de la r\u00e9plication entre les diff\u00e9rents membres d'un replicaset.}\r\n\r\n{EN: Check replicaset members replication status.}",
+            "active_checks_enabled": 2,
+            "alias": "Replication-Status",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Mongodb-Replication-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGMEMBERSTATUS$",
+                    "password": false,
+                    "value": "%{state} !~ /PRIMARY|SECONDARY/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALMEMBERSTATUS$",
+                    "password": false,
+                    "value": "%{health} !~ /up/"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Mongodb-Replication-Status",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

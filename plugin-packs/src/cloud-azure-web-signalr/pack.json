@@ -1,0 +1,1161 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Web-SignalR-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Web SignalR resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.SignalRService/SignalR/SIG123456ABCD78",
+                            "location": "westeurope",
+                            "name": "SIG123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.SignalRService/SignalR"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.SignalRService/SignalR/SIG789012EFGH34",
+                            "location": "westus",
+                            "name": "SIG789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.SignalRService/SignalR"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": "discovery.results.id"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Web-SignalR-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure SignalR",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-web-signalr",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Web-SignalR-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Web SignalR resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.SignalRService/SignalR/SIG123456ABCD78",
+                            "location": "westeurope",
+                            "name": "SIG123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.SignalRService/SignalR"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.SignalRService/SignalR/SIG789012EFGH34",
+                            "location": "westus",
+                            "name": "SIG789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.SignalRService/SignalR"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Web-SignalR-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure SignalR",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-web-signalr",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Web-SignalR-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Web SignalR resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.SignalRService/SignalR/SIG123456ABCD78",
+                            "location": "westeurope",
+                            "name": "SIG123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.SignalRService/SignalR"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.SignalRService/SignalR/SIG789012EFGH34",
+                            "location": "westus",
+                            "name": "SIG789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.SignalRService/SignalR"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Web-SignalR-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure SignalR",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-web-signalr",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_web_signalr_api.pl --plugin=cloud::azure::web::signalr::plugin --mode=usage --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-message-count=\\'$_SERVICEWARNINGMESSAGECOUNT$\\' --critical-message-count=\\'$_SERVICECRITICALMESSAGECOUNT$\\' --warning-connection-count=\\'$_SERVICEWARNINGCONNECTIONCOUNT$\\' --critical-connection-count=\\'$_SERVICECRITICALCONNECTIONCOUNT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Web-SignalR-Api-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_web_signalr_api.pl --plugin=cloud::azure::web::signalr::plugin --mode=traffic --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-inbound-traffic=\\'$_SERVICEWARNINGINBOUNDTRAFFIC$\\' --critical-inbound-traffic=\\'$_SERVICECRITICALINBOUNDTRAFFIC$\\' --warning-outbound-traffic=\\'$_SERVICEWARNINGOUTBOUNDTRAFFIC$\\' --critical-outbound-traffic=\\'$_SERVICECRITICALOUTBOUNDTRAFFIC$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Web-SignalR-Api-Traffic",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_web_signalr_api.pl --plugin=cloud::azure::web::signalr::plugin --mode=errors --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-system-errors=\\'$_SERVICEWARNINGSYSTEMERRORS$\\' --critical-system-errors=\\'$_SERVICECRITICALSYSTEMERRORS$\\' --warning-user-errors=\\'$_SERVICEWARNINGUSERERRORS$\\' --critical-user-errors=\\'$_SERVICECRITICALUSERERRORS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Web-SignalR-Api-Errors",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_web_signalr_api.pl --statefile-suffix='autodiscovery' --plugin=cloud::azure::web::signalr::plugin --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Web-SignalR-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les instances Azure SignalR via l'API}\r\n{EN: Template to check Azure SignalR resources service using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Web SignalR service using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-web-signalr-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Web-SignalR",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Web-SignalR-Usage-Api",
+                "Cloud-Azure-Web-SignalR-Traffic-Api",
+                "Cloud-Azure-Web-SignalR-Errors-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-web-signalr-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ add proper tags management",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Azure SignalR service using RestAPI or AZCLI.**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|Cloud-Azure-Web-SignalR-custom|\r\n|---|\r\n|Errors|\r\n|Traffic|\r\n|Usage|\r\n\r\nThis Plugin-Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin-Pack pour superviser les resources Azure SignalR via RestAPI ou AZCLI.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponibles et services associ\u00e9s:\r\n\r\n|Cloud-Azure-Web-SignalR-custom|\r\n|---|\r\n|Errors|\r\n|Traffic|\r\n|Usage|\r\n\r\nCe Plugin-Pack fournit un *provider* Host Discovery pour le module d\\'auto-d\u00e9couverte d\\'H\u00f4tes"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure SignalR",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_web_signalr_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Web-SignalR-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-web-signalr",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Azure",
+            "Microsoft",
+            "Web",
+            "Cloud",
+            "API",
+            "Restapi",
+            "HostDisco"
+        ],
+        "update_date": "1636825886",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des ressources Azure SignalR.}\r\n\r\n{EN: Check Azure SignalR usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Usage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Web-SignalR-Api-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Web-SignalR-Usage-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le trafic des ressources Azure SignalR.}\r\n\r\n{EN: Check Azure SignalR traffic.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Web-SignalR-Api-Traffic",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Web-SignalR-Traffic-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les erreurs des ressources Azure SignalR.}\r\n\r\n{EN: Check Azure SignalR errors.}",
+            "active_checks_enabled": 2,
+            "alias": "Errors",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Web-SignalR-Api-Errors",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Maximum"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Web-SignalR-Errors-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

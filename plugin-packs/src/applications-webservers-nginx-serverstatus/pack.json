@@ -1,0 +1,155 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nginx_serverstatus.pl --plugin=apps::nginx::serverstatus::plugin --mode=requests --hostname=\\'$HOSTADDRESS$\\' --proto=$_HOSTNGINXPROTOCOL$ --port=$_HOSTNGINXPORT$ $_HOSTNGINXSTATUSEXTRAOPTIONS$ --warning-connections-accepted=\\'$_SERVICEWARNINGACCEPTS$\\' --critical-connections-accepted=\\'$_SERVICECRITICALACCEPTS$\\' --warning-connections-handled=\\'$_SERVICEWARNINGHANDLED$\\' --critical-connections-handled=\\'$_SERVICECRITICALHANDLED$\\' --warning-connections-dropped=\\'$_SERVICEWARNINGCONNECTIONSDROPPED$\\' --critical-connections-dropped=\\'$_SERVICECRITICALCONNECTIONSDROPPED$\\' --warning-requests=\\'$_SERVICEWARNINGREQUESTS$\\' --critical-requests=\\'$_SERVICECRITICALREQUESTS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Webserver-Nginx-Requests",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nginx_serverstatus.pl --plugin=apps::nginx::serverstatus::plugin --mode=connections --hostname=\\'$HOSTADDRESS$\\' --proto=$_HOSTNGINXPROTOCOL$ --port=$_HOSTNGINXPORT$ $_HOSTNGINXSTATUSEXTRAOPTIONS$ --warning-connections-active=\\'$_SERVICEWARNINGACTIVE$\\' --critical-connections-active=\\'$_SERVICECRITICALACTIVE$\\' --warning-connections-reading=\\'$_SERVICEWARNINGREADING$\\' --critical-connections-reading=\\'$_SERVICECRITICALREADING$\\' --warning-connections-writing=\\'$_SERVICEWARNINGWRITING$\\' --critical-connections-writing=\\'$_SERVICECRITICALWRITING$\\' --warning-connections-waiting=\\'$_SERVICEWARNINGWAITING$\\' --critical-connections-waiting=\\'$_SERVICECRITICALWAITING$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Webserver-Nginx-Connections",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser un serveur Nginx via la page du module 'stub_status_module'}\r\n{EN: Template to check Nginx Server using 'stub_status_module' webpage}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Nginx Server using 'stub_status_module' webpage",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "nginx-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTNGINXPORT$",
+                    "value": "80"
+                },
+                {
+                    "key": "$_HOSTNGINXPROTOCOL$",
+                    "value": "http"
+                },
+                {
+                    "key": "$_HOSTNGINXSTATUSEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Webserver-Nginx-ServerStatus",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Webserver-Nginx-Requests",
+                "App-Webserver-Nginx-Connections"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "nginx-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* remove useless response-time service (use protocol http pack)\r\n* add some new threshold macros",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Nginx Web Server:\r\n* Connections\r\n* Requests"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser un serveur web Nginx :\r\n* Connections\r\n* Requests"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Webservers-Nginx-Serverstatus\r\n\r\n## HttpStubStatusModule\r\nWarning: The following procedure is an example. Cannot be applied on all context.\r\n\r\nThe module allows the generation of a live Nginx report, available on a\r\ndedicated web page. This report is used to generate statistics in\r\nCentreon. To activate this module, you have to open your nginx\r\nconfiguration file:\r\n\r\n    $ vi /etc/nginx/nginx.conf\r\n\r\nand check that if not already configured, add the followings lines in 'server' bracket:\r\n\r\n    server { \r\n        ... \r\n        location /nginx_status { \r\n            stub_status on; \r\n            access_log off;\r\n            allow <centreon-poller_@IP>;\r\n            deny all; \r\n        }\r\n        ...\r\n    }\r\n\r\nMake sure you are allowing pollers to access this URL.\r\n\r\nYou can check the validity of your configuration using:\r\n\r\n    $ nginx -t nginx: the configuration file\r\n    /etc/nginx/nginx.conf syntax is ok nginx: configuration file\r\n    /etc/nginx/nginx.conf test is successful\r\n\r\nNginx must be reloaded to take this modification into account:\r\n\r\n    $ /etc/init.d/nginx reload\r\n\r\nYou can now check the result by accessing the URL\r\n\r\n    http://<nginx_address>/nginx_status\r\n\r\n## Centreon configuration\r\n### Create an Nginx server\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"44%\" />\r\n<col width=\"55%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p><em>App-Webserver-Nginx-ServerStatus-custom</em></p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick the *Save* button.",
+        "name": "Nginx Server",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_nginx_serverstatus.pl",
+                "package_name": "centreon-plugin-Applications-Webservers-Nginx-Serverstatus",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Applications-Webservers-Nginx-Serverstatus",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "applications-webservers-nginx-serverstatus",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "HTTP",
+            "HTTPS",
+            "Nginx",
+            "Web",
+            "Web server"
+        ],
+        "update_date": "1615906924",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les requ\u00eates.}\r\n\r\n{EN: Check request informations.}",
+            "active_checks_enabled": 2,
+            "alias": "Nginx-Requests",
+            "check_timeperiod": "",
+            "command_name": "App-Webserver-Nginx-Requests",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Webserver-Nginx-Requests",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les connexions courantes.}\r\n\r\n{EN: Check current connections.}",
+            "active_checks_enabled": 2,
+            "alias": "Nginx-Connections",
+            "check_timeperiod": "",
+            "command_name": "App-Webserver-Nginx-Connections",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Webserver-Nginx-Connections",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

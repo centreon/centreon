@@ -1,0 +1,257 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Fiberstore-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Fiberstore-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Fiberstore-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "INTERFACENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Fiberstore-SNMP-Interface-Name",
+                "service_display_name": "Interface-$name$",
+                "service_template": "Net-Fiberstore-Interfaces-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_fiberstore_snmp.pl --plugin=network::fiberstore::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Fiberstore-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_fiberstore_snmp.pl --plugin=network::fiberstore::snmp::plugin --mode=list-interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Fiberstore-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_fiberstore_snmp.pl --plugin=network::fiberstore::snmp::plugin --mode=memory --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Fiberstore-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_fiberstore_snmp.pl --plugin=network::fiberstore::snmp::plugin --mode=hardware --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Fiberstore-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_fiberstore_snmp.pl --plugin=network::fiberstore::snmp::plugin --mode=cpu --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-cpu-utilization=\\'$_SERVICEWARNINGCPUUTILIZATION$\\' --critical-cpu-utilization=\\'$_SERVICECRITICALCPUUTILIZATION$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Fiberstore-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_fiberstore_snmp.pl --plugin=network::fiberstore::snmp::plugin --mode=interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --add-errors --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Fiberstore-SNMP-Interfaces",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Fiberstore en SNMP}\r\n{EN: Template to check Fiberstore devices using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Fiberstore equipments in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "fiberstore-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Fiberstore-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Fiberstore-Memory-SNMP",
+                "Net-Fiberstore-Hardware-SNMP",
+                "Net-Fiberstore-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "fiberstore-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Fiberstore via SNMP:\r\n* Cpu\r\n* Hardware\r\n* Interfaces\r\n* Memory\r\n"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les \u00e9quipements Fiberstore via SNMP :\r\n* Cpu\r\n* Hardware\r\n* Interfaces\r\n* Memory"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Fiberstore SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_fiberstore_snmp.pl",
+                "package_name": "centreon-plugin-Network-Fiberstore-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-fiberstore-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Network",
+            "Fiberstore",
+            "SNMP",
+            "Optical"
+        ],
+        "update_date": "1611653709",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation des m\u00e9moire.}\r\n\r\n{EN: Check the rate of the utilization of memory.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Fiberstore-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Fiberstore-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la mat\u00e9riel.}\r\n\r\n{EN: Check hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware",
+            "check_timeperiod": "",
+            "command_name": "Net-Fiberstore-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Fiberstore-Hardware-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation des processeurs.}\r\n\r\n{EN: Check the rate of the utilization of CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Fiberstore-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Fiberstore-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces.}\r\n\r\n{EN: Check interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "Net-Fiberstore-SNMP-Interfaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} !~ /up|dormant/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --no-skipped-counters"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Fiberstore-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

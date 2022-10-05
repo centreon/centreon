@@ -1,0 +1,237 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_efficientip_snmp.pl --plugin=network::efficientip::snmp::plugin --mode=dns-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$  --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --warning-udp=\\'$_SERVICEWARNINGUDP$\\' --critical-udp=\\'$_SERVICECRITICALUDP$\\' --warning-tcp=\\'$_SERVICEWARNINGTCP$\\' --critical-tcp=\\'$_SERVICECRITICALTCP$\\' --warning-requestv4=\\'$_SERVICEWARNINGREQUESTV4$\\' --critical-requestv4=\\'$_SERVICECRITICALREQUESTV4$\\' --warning-requestv6=\\'$_SERVICEWARNINGREQUESTV6$\\' --critical-requestv6=\\'$_SERVICECRITICALREQUESTV6$\\' --warning-recursion=\\'$_SERVICEWARNINGRECURSION$\\' --critical-recursion=\\'$_SERVICECRITICALRECURSION$\\' --warning-response=\\'$_SERVICEWARNINGRESPONSE$\\' --critical-response=\\'$_SERVICECRITICALRESPONSE$\\' --warning-recurserej=\\'$_SERVICEWARNINGRECURSEREJ$\\' --critical-recurserej=\\'$_SERVICECRITICALRECURSEREJ$\\' --warning-duplicate=\\'$_SERVICEWARNINGDUPLICATE$\\' --critical-duplicate=\\'$_SERVICECRITICALDUPLICATE$\\' --warning-dropped=\\'$_SERVICEWARNINGDROPPED$\\' --critical-dropped=\\'$_SERVICECRITICALDROPPED$\\' --warning-res-queryv4=\\'$_SERVICEWARNINGRESQUERYV4$\\' --critical-res-queryv4=\\'$_SERVICECRITICALRESQUERYV4$\\' --warning-res-queryv6=\\'$_SERVICEWARNINGRESQUERYV6$\\' --critical-res-queryv6=\\'$_SERVICECRITICALRESQUERYV6$\\' --warning-res-retry=\\'$_SERVICEWARNINGRESRETRY$\\' --critical-res-retry=\\'$_SERVICECRITICALRESRETRY$\\' --warning-res-responsev4=\\'$_SERVICEWARNINGRESRESPONSEV4$\\' --critical-res-responsev4=\\'$_SERVICECRITICALRESRESPONSEV4$\\' --warning-res-responsev6=\\'$_SERVICEWARNINGRESRESPONSEV6$\\' --critical-res-responsev6=\\'$_SERVICECRITICALRESRESPONSEV6$\\' --warning-success=\\'$_SERVICEWARNINGSUCCESS$\\' --critical-success=\\'$_SERVICECRITICALSUCCESS$\\' --warning-formerr=\\'$_SERVICEWARNINGFORMERR$\\' --critical-formerr=\\'$_SERVICECRITICALFORMERR$\\' --warning-servfail=\\'$_SERVICEWARNINGSERVFAIL$\\' --critical-servfail=\\'$_SERVICECRITICALSERVFAIL$\\' --warning-nxdomain=\\'$_SERVICEWARNINGNXDOMAIN$\\' --critical-nxdomain=\\'$_SERVICECRITICALNXDOMAIN$\\' --warning-nxrrset=\\'$_SERVICEWARNINGNXRRSET$\\' --critical-nxrrset=\\'$_SERVICECRITICALNXRRSET$\\' --warning-failure=\\'$_SERVICEWARNINGFAILURE$\\' --critical-failure=\\'$_SERVICECRITICALFAILURE$\\' --warning-xfrdone=\\'$_SERVICEWARNINGXFRDONE$\\' --critical-xfrdone=\\'$_SERVICECRITICALXFRDONE$\\' --warning-xfrrej=\\'$_SERVICEWARNINGXFRREJ$\\' --critical-xfrrej=\\'$_SERVICECRITICALXFRREJ$\\' --warning-res-val=\\'$_SERVICEWARNINGRESVAL$\\' --critical-res-val=\\'$_SERVICECRITICALRESVAL$\\' --warning-res-valsuccess=\\'$_SERVICEWARNINGRESVALSUCCESS$\\' --critical-res-valsuccess=\\'$_SERVICECRITICALRESVALSUCCESS$\\' --warning-res-valnegsuccess=\\'$_SERVICEWARNINGRESVALNEGSUCCESS$\\' --critical-res-valnegsuccess=\\'$_SERVICECRITICALESVALNEGSUCCESS$\\' --warning-res-valfail=\\'$_SERVICEWARNINGRESVALFAIL$\\' --critical-res-valfail=\\'$_SERVICECRITICALRESVALFAIL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Efficientip-SNMP-Dns-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_efficientip_snmp.pl --plugin=network::efficientip::snmp::plugin --mode=dhcp-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --warning-ack=\\'$_SERVICEWARNINGACK$\\' --critical-ack=\\'$_SERVICECRITICALACK$\\' --warning-nack=\\'$_SERVICEWARNINGNACK$\\' --critical-nack=\\'$_SERVICECRITICALNACK$\\' --warning-offer=\\'$_SERVICEWARNINGOFFER$\\' --critical-offer=\\'$_SERVICECRITICALOFFER$\\' --warning-inform=\\'$_SERVICEWARNINGINFORM$\\' --critical-inform=\\'$_SERVICECRITICALINFORM$\\' --warning-decline=\\'$_SERVICEWARNINGDECLINE$\\' --critical-decline=\\'$_SERVICECRITICALDECLINE$\\' --warning-release=\\'$_SERVICEWARNINGRELEASE$\\' --critical-release=\\'$_SERVICECRITICALRELEASE$\\' --warning-request=\\'$_SERVICEWARNINGREQUEST$\\' --critical-request=\\'$_SERVICECRITICALREQUEST$\\' --warning-discover=\\'$_SERVICEWARNINGDISCOVER$\\' --critical-discover=\\'$_SERVICECRITICALDISCOVER$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Efficientip-SNMP-Dhcp-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check EfficientIP devices using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "Net-Efficient-ip-64.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Efficientip-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Efficientip-Dnssec-Validation-SNMP",
+                "Net-Efficientip-Dns-Transfer-SNMP",
+                "Net-Efficientip-Dns-General-SNMP",
+                "Net-Efficientip-Dns-Answers-SNMP",
+                "Net-Efficientip-Dhcp-Usage-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "Net-Efficient-ip-64.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": " - Fix Dns-Answer service using Dhcp-Usage",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Effcient IP using SNMP:\r\n* Dhcp-Usage\r\n* Dns-General\r\n* Dns-Anwers\r\n* Dns-Transfer\r\n* Dnssec-Validation"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser un \u00e9quipement Effcient IP via SNMP :\r\n* Dhcp-Usage\r\n* Dns-General\r\n* Dns-Anwers\r\n* Dns-Transfer\r\n* Dnssec-Validation"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Efficientip-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp)\r\n\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Efficientip-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Efficient IP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_efficientip_snmp.pl",
+                "package_name": "centreon-plugin-Network-Efficientip-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "centreon-plugin-Network-Efficientip-Snmp",
+                "version": "20161212-1"
+            }
+        ],
+        "slug": "network-efficientip-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Efficientip",
+            "Efficient IP",
+            "DNS",
+            "DHCP",
+            "SNMP"
+        ],
+        "update_date": "1524650786",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques de validation DNSSEC du service dns.}\r\n\r\n{EN: Check DNSSEC Validation Statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Dnssec-Validation",
+            "check_timeperiod": "",
+            "discovery_list_mode": "N",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTERS$",
+                    "password": false,
+                    "value": "^(res-val|res-valsuccess|res-valnegsuccess|res-valfail)$"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Efficientip-Dnssec-Validation-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "Net-Efficientip-Dns-Usage-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du service dns.}\r\n\r\n{EN: Check dns usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Dns-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Efficientip-SNMP-Dns-Usage",
+            "discovery_list_mode": "N",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-Efficientip-Dns-Usage-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques des requ\u00eates de transfert du service dns.}\r\n\r\n{EN: Check DNS transfer requests statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Dns-Transfer",
+            "check_timeperiod": "",
+            "discovery_list_mode": "N",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTERS$",
+                    "password": false,
+                    "value": "^(xfrdone|xfrrej)$"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Efficientip-Dns-Transfer-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "Net-Efficientip-Dns-Usage-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation g\u00e9n\u00e9rale du service dns.}\r\n\r\n{EN: Check dns general usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Dns-General",
+            "check_timeperiod": "",
+            "discovery_list_mode": "N",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTERS$",
+                    "password": false,
+                    "value": "^(udp|tcp|requestv4|requestv6|recursion|response|recurserej|duplicate|dropped|res-queryv4|res-queryv6|res-retry|res-responsev4|res-responsev6)$"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Efficientip-Dns-General-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "Net-Efficientip-Dns-Usage-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques de r\u00e9ponse du service dns.}\r\n\r\n{EN: Check dns answers statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Dns-Answers",
+            "check_timeperiod": "",
+            "discovery_list_mode": "N",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTERS$",
+                    "password": false,
+                    "value": "^(success|formerr|servfail|nxdomain|nxrrset|failure)$"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Efficientip-Dns-Answers-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "Net-Efficientip-Dns-Usage-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du service dhcp.}\r\n\r\n{EN: Check dhcp usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Dhcp-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Efficientip-SNMP-Dhcp-Usage",
+            "discovery_list_mode": "N",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-Efficientip-Dhcp-Usage-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

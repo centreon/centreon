@@ -1,0 +1,505 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Acmepacket-Interfaces-Discover",
+                "command_for_macro": "Net-Acmepacket-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Acmepacket-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "INTERFACENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Acmepacket-SNMP-Interface-Name",
+                "service_display_name": "Interface-$name$",
+                "service_template": "Net-Acmepacket-Interfaces-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Acmepacket-Realm-Discover",
+                "command_for_macro": "Net-Acmepacket-Realm-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Acmepacket-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Acmepacket-SNMP-Realm-Name",
+                "service_display_name": "Realm-$name$",
+                "service_template": "Net-Acmepacket-Realm-Usage-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Acmepacket-Sip-Discover",
+                "command_for_macro": "Net-Acmepacket-Sip-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Acmepacket-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Acmepacket-SNMP-Sip-Name",
+                "service_display_name": "Sip-$name$",
+                "service_template": "Net-Acmepacket-Sip-Usage-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Acmepacket-Policy-Servers-Discover",
+                "command_for_macro": "Net-Acmepacket-Policy-Servers-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Acmepacket-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Acmepacket-SNMP-Policy-Server-Name",
+                "service_display_name": "Policy-Server-$name$",
+                "service_template": "Net-Acmepacket-Policy-Servers-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_acmepacket_snmp.pl --plugin=network::acmepacket::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Acmepacket-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_acmepacket_snmp.pl --plugin=network::acmepacket::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Acmepacket-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_acmepacket_snmp.pl --plugin=network::acmepacket::snmp::plugin --mode=list-realm --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Acmepacket-Realm-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_acmepacket_snmp.pl --plugin=network::acmepacket::snmp::plugin --mode=list-realm --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Acmepacket-Realm-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_acmepacket_snmp.pl --plugin=network::acmepacket::snmp::plugin --mode=list-sip --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Acmepacket-Sip-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_acmepacket_snmp.pl --plugin=network::acmepacket::snmp::plugin --mode=list-sip --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Acmepacket-Sip-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_acmepacket_snmp.pl --plugin=network::acmepacket::snmp::plugin --mode=list-policy-servers --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Acmepacket-Policy-Servers-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_acmepacket_snmp.pl --plugin=network::acmepacket::snmp::plugin --mode=list-policy-servers --hostname=\\'$HOSTADDRESS$\\' --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Acmepacket-Policy-Servers-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_acmepacket_snmp.pl --plugin=network::acmepacket::snmp::plugin --mode=system-usage --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-cpu-load=\\'$_SERVICEWARNINGCPULOAD$\\' --critical-cpu-load=\\'$_SERVICECRITICALCPULOAD$\\' --warning-memory-usage=\\'$_SERVICEWARNINGMEMORYUSAGE$\\' --critical-memory-usage=\\'$_SERVICECRITICALMEMORYUSAGE$\\' --warning-license-usage=\\'$_SERVICEWARNINGLICENSEUSAGE$\\' --critical-license-usage=\\'$_SERVICECRITICALLICENSEUSAGE$\\' --warning-health-score=\\'$_SERVICEWARNINGHEALTHSCORE$\\' --critical-health-score=\\'$_SERVICECRITICALHEALTHSCORE$\\' --warning-current-sessions=\\'$_SERVICEWARNINGCURRENTSESSIONS$\\' --critical-current-sessions=\\'$_SERVICECRITICALCURRENTSESSIONS$\\' --warning-current-calls=\\'$_SERVICEWARNINGCURRENTCALLS$\\' --critical-current-calls=\\'$_SERVICECRITICALCURRENTCALLS$\\' --warning-replication-status=\\'$_SERVICEWARNINGREPLICATIONSTATUS$\\' --critical-replication-status=\\'$_SERVICECRITICALREPLICATIONSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Acmepacket-SNMP-System-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_acmepacket_snmp.pl --plugin=network::acmepacket::snmp::plugin --mode=hardware --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Acmepacket-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_acmepacket_snmp.pl --plugin=network::acmepacket::snmp::plugin --mode=realm-usage --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-current-in-sessions=\\'$_SERVICEWARNINGCURRENTINSESSIONS$\\' --critical-current-in-sessions=\\'$_SERVICECRITICALCURRENTINSESSIONS$\\' --warning-current-in-sessions-rate=\\'$_SERVICEWARNINGCURRENTINSESSIONSRATE$\\' --critical-current-in-sessions-rate=\\'$_SERVICECRITICALCURRENTINSESSIONSRATE$\\' --warning-total-in-sessions=\\'$_SERVICEWARNINGTOTALINSESSIONS$\\' --critical-total-in-sessions=\\'$_SERVICECRITICALTOTALINSESSIONS$\\' --warning-current-out-sessions=\\'$_SERVICEWARNINGCURRENTOUTSESSIONS$\\' --critical-current-out-sessions=\\'$_SERVICECRITICALCURRENTOUTSESSIONS$\\' --warning-current-out-sessions-rate=\\'$_SERVICEWARNINGCURRENTOUTSESSIONSRATE$\\' --critical-current-out-sessions-rate=\\'$_SERVICECRITICALCURRENTOUTSESSIONSRATE$\\' --warning-total-out-sessions=\\'$_SERVICEWARNINGTOTALOUTSESSIONS$\\' --critical-total-out-sessions=\\'$_SERVICECRITICALTOTALOUTSESSIONS$\\' --warning-avg-qos-rfactor=\\'$_SERVICEWARNINGAVGQOSRFACTOR$\\' --critical-avg-qos-rfactor=\\'$_SERVICECRITICALAVGQOSRFACTOR$\\'  --warning-total-rfactor=\\'$_SERVICEWARNINGTOTALRFACTOR$\\' --critical-total-rfactor=\\'$_SERVICECRITICALTOTALRFACTOR$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Acmepacket-SNMP-Realm-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_acmepacket_snmp.pl --plugin=network::acmepacket::snmp::plugin --mode=sip-usage --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICESTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-sessions-rate=\\'$_SERVICEWARNINGINSESSIONSRATE$\\' --critical-in-sessions-rate=\\'$_SERVICECRITICALINSESSIONSRATE$\\' --warning-out-sessions-rate=\\'$_SERVICEWARNINGOUTSESSIONSRATE$\\' --critical-out-sessions-rate=\\'$_SERVICECRITICALOUTSESSIONSRATE$\\' --warning-latency=\\'$_SERVICEWARNINGLATENCY$\\' --critical-latency=\\'$_SERVICECRITICALLATENCY$\\' --warning-asr=\\'$_SERVICEWARNINGASR$\\' --critical-asr=\\'$_SERVICECRITICALASR$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Acmepacket-SNMP-Sip-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_acmepacket_snmp.pl --plugin=network::acmepacket::snmp::plugin --mode=interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --add-errors --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Acmepacket-SNMP-Interfaces",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_acmepacket_snmp.pl --plugin=network::acmepacket::snmp::plugin --mode=security --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-registrations-total=\\'$_SERVICEWARNINGREGISTRATIONSTOTAL$\\' --critical-registrations-total=\\'$_SERVICECRITICALREGISTRATIONSTOTAL$\\' --warning-registrations-protected=\\'$_SERVICEWARNINGREGISTRATIONSPROTECTED$\\' --critical-registrations-protected=\\'$_SERVICECRITICALREGISTRATIONSPROTECTED$\\' --warning-ipsec-tunnels=\\'$_SERVICEWARNINGIPSECTUNNELS$\\' --critical-ipsec-tunnels=\\'$_SERVICECRITICALIPSECTUNNELS$\\' --warning-ipsec-license-usage=\\'$_SERVICEWARNINGIPSECLICENSEUSAGE$\\' --critical-ipsec-license-usage=\\'$_SERVICECRITICALIPSECLICENSEUSAGE$\\' --warning-imsaka-sa-add-requests-in=\\'$_SERVICEWARNINGIMSAKASAADDREQUESTSIN$\\' --critical-imsaka-sa-add-requests-in=\\'$_SERVICECRITICALIMSAKASAADDREQUESTSIN$\\' --warning-imsaka-sa-add-responses-succeeded=\\'$_SERVICEWARNINGIMSAKASAADDRESPONSESSUCCEEDED$\\' --critical-imsaka-sa-add-responses-succeeded=\\'$_SERVICECRITICALIMSAKASAADDRESPONSESSUCCEEDED$\\' --warning-imsaka-sa-add-responses-failed=\\'$_SERVICEWARNINGIMSAKASAADDRESPONSESFAILED$\\' --critical-imsaka-sa-add-responses-failed=\\'$_SERVICECRITICALIMSAKASAADDRESPONSESFAILED$\\' --warning-imsaka-sa-add-added=\\'$_SERVICEWARNINGIMSAKASAADDADDED$\\' --critical-imsaka-sa-add-added=\\'$_SERVICECRITICALIMSAKASAADDADDED$\\' --warning-imsaka-sa-del-requests-in=\\'$_SERVICEWARNINGIMSAKASADELREQUESTSIN$\\' --critical-imsaka-sa-del-requests-in=\\'$_SERVICECRITICALIMSAKASADELREQUESTSIN$\\' --warning-imsaka-sa-del-responses-succeeded=\\'$_SERVICEWARNINGIMSAKASADELRESPONSESSUCCEEDED$\\' --critical-imsaka-sa-del-responses-succeeded=\\'$_SERVICECRITICALIMSAKASADELRESPONSESSUCCEEDED$\\' --warning-imsaka-sa-del-responses-failed=\\'$_SERVICEWARNINGIMSAKASADELRESPONSESFAILED$\\' --critical-imsaka-sa-del-responses-failed=\\'$_SERVICECRITICALIMSAKASADELRESPONSESFAILED$\\' --warning-imsaka-sa-del-deleted=\\'$_SERVICEWARNINGIMSAKASADELDELETED$\\' --critical-imsaka-sa-del-deleted=\\'$_SERVICECRITICALIMSAKASADELDELETED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Acmepacket-SNMP-Security",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_acmepacket_snmp.pl --plugin=network::acmepacket::snmp::plugin --mode=codec --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-resources-usage=\\'$_SERVICEWARNINGRESOURCESUSAGE$\\' --critical-resources-usage=\\'$_SERVICECRITICALRESOURCESUSAGE$\\' --warning-resources-usage-free=\\'$_SERVICEWARNINGRESOURCESUSAGEFREE$\\' --critical-resources-usage-free=\\'$_SERVICECRITICALRESOURCESUSAGEFREE$\\' --warning-resources-usage-prct=\\'$_SERVICEWARNINGRESOURCESUSAGEPRCT$\\' --critical-resources-usage-prct=\\'$_SERVICECRITICALRESOURCESUSAGEPRCT$\\' --warning-sessions-active=\\'$_SERVICEWARNINGSESSIONSACTIVE$\\' --critical-sessions-active=\\'$_SERVICECRITICALSESSIONSACTIVE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Acmepacket-SNMP-Codec",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_acmepacket_snmp.pl --plugin=network::acmepacket::snmp::plugin --mode=policy-servers --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-messages-aar=\\'$_SERVICEWARNINGMESSAGESAAR$\\' --critical-messages-aar=\\'$_SERVICECRITICALMESSAGESAAR$\\' --warning-messages-aaa-succeeded=\\'$_SERVICEWARNINGMESSAGESAAASUCCEEDED$\\' --critical-messages-aaa-succeeded=\\'$_SERVICECRITICALMESSAGESAAASUCCEEDED$\\' --warning-messages-aaa-errors=\\'$_SERVICEWARNINGMESSAGESAAAERRORS$\\' --critical-messages-aaa-errors=\\'$_SERVICECRITICALMESSAGESAAAERRORS$\\' --warning-server-transactions-total=\\'$_SERVICEWARNINGSERVERTRANSACTIONSTOTAL$\\' --critical-server-transactions-total=\\'$_SERVICECRITICALSERVERTRANSACTIONSTOTAL$\\' --warning-server-transactions-requests=\\'$_SERVICEWARNINGSERVERTRANSACTIONSREQUESTS$\\' --critical-server-transactions-requests=\\'$_SERVICECRITICALSERVERTRANSACTIONSREQUESTS$\\' --warning-server-transactions-requests-dropped=\\'$_SERVICEWARNINGSERVERTRANSACTIONSREQUESTSDROPPED$\\' --critical-server-transactions-requests-dropped=\\'$_SERVICECRITICALSERVERTRANSACTIONSREQUESTSDROPPED$\\' --warning-server-transactions-responses-succeded=\\'$_SERVICEWARNINGSERVERTRANSACTIONSRESPONSESSUCCEDED$\\' --critical-server-transactions-responses-succeded=\\'$_SERVICECRITICALSERVERTRANSACTIONSRESPONSESSUCCEDED$\\' --warning-server-transactions-responses-errors=\\'$_SERVICEWARNINGSERVERTRANSACTIONSRESPONSESERRORS$\\' --critical-server-transactions-responses-errors=\\'$_SERVICECRITICALSERVERTRANSACTIONSRESPONSESERRORS$\\' --warning-messages-asr=\\'$_SERVICEWARNINGMESSAGESASR$\\' --critical-messages-asr=\\'$_SERVICECRITICALMESSAGESASR$\\' --warning-messages-asa-succeeded=\\'$_SERVICEWARNINGMESSAGESASASUCCEEDED$\\' --critical-messages-asa-succeeded=\\'$_SERVICECRITICALMESSAGESASASUCCEEDED$\\' --warning-messages-asa-errors=\\'$_SERVICEWARNINGMESSAGESASAERRORS$\\' --critical-messages-asa-errors=\\'$_SERVICECRITICALMESSAGESASAERRORS$\\' --warning-total=\\'$_SERVICEWARNINGTOTAL$\\' --critical-total=\\'$_SERVICECRITICALTOTAL$\\' --warning-messages-rar=\\'$_SERVICEWARNINGMESSAGESRAR$\\' --critical-messages-rar=\\'$_SERVICECRITICALMESSAGESRAR$\\' --warning-messages-raa-succeeded=\\'$_SERVICEWARNINGMESSAGESRAASUCCEEDED$\\' --critical-messages-raa-succeeded=\\'$_SERVICECRITICALMESSAGESRAASUCCEEDED$\\' --warning-messages-raa-errors=\\'$_SERVICEWARNINGMESSAGESRAAERRORS$\\' --critical-messages-raa-errors=\\'$_SERVICECRITICALMESSAGESRAAERRORS$\\' --warning-client-transactions-total=\\'$_SERVICEWARNINGCLIENTTRANSACTIONSTOTAL$\\' --critical-client-transactions-total=\\'$_SERVICECRITICALCLIENTTRANSACTIONSTOTAL$\\' --warning-client-transactions=\\'$_SERVICEWARNINGCLIENTTRANSACTIONS$\\' --critical-client-transactions=\\'$_SERVICECRITICALCLIENTTRANSACTIONS$\\' --warning-messages-str=\\'$_SERVICEWARNINGMESSAGESSTR$\\' --critical-messages-str=\\'$_SERVICECRITICALMESSAGESSTR$\\' --warning-messages-sta-succeeded=\\'$_SERVICEWARNINGMESSAGESSTASUCCEEDED$\\' --critical-messages-sta-succeeded=\\'$_SERVICECRITICALMESSAGESSTASUCCEEDED$\\' --warning-messages-sta-errors=\\'$_SERVICEWARNINGMESSAGESSTAERRORS$\\' --critical-messages-sta-errors=\\'$_SERVICECRITICALMESSAGESSTAERRORS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Acmepacket-SNMP-Policy-Servers",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Acme Packet en SNMP}\r\n{EN: Template to check Acme Packet Series using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Acme Packet Series using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "network-acmepacket-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Acmepacket-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Acmepacket-System-Usage-SNMP",
+                "Net-Acmepacket-Hardware-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "network-acmepacket-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* add services codec, policy-servers, security",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Acme Packet equipment via SNMP:\r\n* Codec\r\n* Hardware\r\n* Interfaces\r\n* Policy servers\r\n* Realm\r\n* Security\r\n* Sip\r\n* System"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un \u00e9quipement Acme Packet via SNMP :\r\n* Codec\r\n* Hardware\r\n* Interfaces\r\n* Policy servers\r\n* Realm\r\n* Security\r\n* Sip\r\n* System"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Acmepacket-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Acmepacket-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Acme Packet",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_acmepacket_snmp.pl",
+                "package_name": "centreon-plugin-Network-Acmepacket-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-acmepacket-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "SNMP",
+            "Network",
+            "Oracle",
+            "Acme Packet",
+            "Telephony"
+        ],
+        "update_date": "1623830436",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du syst\u00e8me (cpu, m\u00e9moire, licences,...).}\r\n\r\n{EN: Check system usage (cpu, memory, license,...).}",
+            "active_checks_enabled": 2,
+            "alias": "System-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Acmepacket-SNMP-System-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALREPLICATIONSTATUS$",
+                    "password": false,
+                    "value": "%{replication_state} =~ /outOfService/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Acmepacket-System-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du mat\u00e9riel.}\r\n\r\n{EN: Check hardware environment.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware",
+            "check_timeperiod": "",
+            "command_name": "Net-Acmepacket-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Acmepacket-Hardware-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des 'realms'.}\r\n\r\n{EN: Check realm usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Realm-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Acmepacket-SNMP-Realm-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Acmepacket-Realm-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des 'SIPs'.}\r\n\r\n{EN: Check SIP usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Sip-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Acmepacket-SNMP-Sip-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /outOfService|constraintsViolation|inServiceTimedOut/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Acmepacket-Sip-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces.}\r\n\r\n{EN: Check interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "Net-Acmepacket-SNMP-Interfaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} !~ /up|dormant/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --no-skipped-counters --use-new-perfdata"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Acmepacket-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques de s\u00e9curit\u00e9.}\r\n\r\n{EN: Check security statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Security",
+            "check_timeperiod": "",
+            "command_name": "Net-Acmepacket-SNMP-Security",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Acmepacket-Security-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le transcodage des codecs.}\r\n\r\n{EN: Check codec transcoding.}",
+            "active_checks_enabled": 2,
+            "alias": "Codec",
+            "check_timeperiod": "",
+            "command_name": "Net-Acmepacket-SNMP-Codec",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Acmepacket-Codec-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques des policy servers externes.}\r\n\r\n{EN: Check external policy servers statitics.}",
+            "active_checks_enabled": 2,
+            "alias": "Policy-Servers",
+            "check_timeperiod": "",
+            "command_name": "Net-Acmepacket-SNMP-Policy-Servers",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Acmepacket-Policy-Servers-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

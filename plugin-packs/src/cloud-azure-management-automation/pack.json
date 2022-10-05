@@ -1,0 +1,1077 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Management-Automation-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Integration Automation resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Automation/automationAccounts/SVC123456ABCD78",
+                            "location": "westeurope",
+                            "name": "SVC123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Automation/namespaces"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Automation/automationAccounts/SVC789012EFGH34",
+                            "location": "westus",
+                            "name": "SVC789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.AutomationService/automationAccounts"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": "discovery.results.id"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Management-Automation-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Automation",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-management-automation",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Management-Automation-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Integration Automation resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Automation/automationAccounts/SVC123456ABCD78",
+                            "location": "westeurope",
+                            "name": "SVC123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Automation/namespaces"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Automation/automationAccounts/SVC789012EFGH34",
+                            "location": "westus",
+                            "name": "SVC789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.AutomationService/automationAccounts"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Management-Automation-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Automation",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-management-automation",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Management-Automation-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Integration Automation resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Automation/automationAccounts/SVC123456ABCD78",
+                            "location": "westeurope",
+                            "name": "SVC123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Automation/namespaces"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Automation/automationAccounts/SVC789012EFGH34",
+                            "location": "westus",
+                            "name": "SVC789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.AutomationService/automationAccounts"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Management-Automation-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Automation",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-management-automation",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_management_automation_api.pl --plugin=cloud::azure::management::automation::plugin --mode=jobs --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-update-deployment-runs=\\'$_SERVICEWARNINGUPDATEDEPLOYMENTRUNS$\\' --critical-update-deployment-runs=\\'$_SERVICECRITICALUPDATEDEPLOYMENTRUNS$\\' --warning-update-deployment-machine-runs=\\'$_SERVICEWARNINGUPDATEDEPLOYMENTMACHINERUNS$\\' --critical-update-deployment-machine-runs=\\'$_SERVICECRITICALUPDATEDEPLOYMENTMACHINERUNS$\\' --warning-jobs-total=\\'$_SERVICEWARNINGJOBSTOTAL$\\' --critical-jobs-total=\\'$_SERVICECRITICALJOBSTOTAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Management-Automation-Api-Jobs",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_management_automation_api.pl --statefile-suffix='autodiscovery' --plugin=cloud::azure::management::automation::plugin --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Management-Automation-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les instances Azure Automation via l'API}\r\n{EN: Template to check Azure Automation resources service using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Integration Automation API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-management-automation-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Management-Automation",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Management-Automation-Jobs-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAARdklEQVR4Xu1d93cU1xW+s7O7EpIAAQJckvgE4zjmOLaT/BWumGow1djYTuKSnMQOYKpL4kKO44I7TRIgRBXF/BVpxja7q+LkxLExEqKDtNLuzflmNdbs7JQ3ZSWNZvYXDkfz3rx37/fuu30kin6hpoAU6t1Hm6cIACEHQQSACAAhp0DItx9JgAgAIadAyLcfSYAIACGnQMi3H0mACAAhp0DItx9JgAgAIadAyLcfSYAIACGnQMi3H0mACAAhp0DItx9JgAgAIadAyLcfSYAIACGnQMi3H0mACAAhp0DItx9JgAgAIaeAh+0vaEhxdSJGdZUxeu3B6YE8TIFctAee+TZ0xe4UX8gSSRIRM1EeMzPT2KRMN9TI9OrMmwNB20As0jeu+TjR3J0pNiIeF3BAfXmm2ooY1S+6dUTTeEQvzkd++T7V7O2nWI5Zkw9AyHFBStw1JUnr75k24ug94hbkO6ccTPjC0XZ+5X570b2qpY3T3f0Uj4lPDiAAL9NqE/T6CLoeQg+AJ5pb+ey1HPUrlzjRpEqJti60FttLG1N8NUeO6+ryTHTnCJMEoQXAmiNt/HlXPyVjBRGt/nB3H37kNku6zNx2ipOyM9JBN6iIEe1a8lNnA8WFjKsnR9RiXO3A5aBNx9v4n2dKxTgYVRUnql9kzKjnD7dx6zln4h9LxOk/sHxkMR/rCi0AXvq0g//+XdbwHu/PM82YlKBXHii17VfuzXD3tbxyn4v+AKpJlTH68KGfOBglOru350bcgrxtR3z0yye+4r+d7jVV5ECY5mWlJ3bujhRrrwyRN+L55qUj7/SHWgLYAQBa+3XVMXpv3uCpXXO0nVNn+8jJ9Q/RP7UqRu/NH3mnP9QAwOZnbU+xmSlXAIBM78275Xsp+WhThi/05IuURjsJAPG/30CS2I0bqr+Pqitgw/EOTnf3UdMSMe+bFQBgDdxRF6cX7x8EwIL6FAMYor9cnuiWCTK99uDgHNqxv2rOcFwiekcjZUTn9uu5UQOA51vaue1cn6KcwQM3sTJGHy8wF7tP72/lby7nTJU5vda+8Xg7n+wszC/yszL7fnuglb+9klO8hFhrNayOxcOjIwhuR2TLw/cMTLP28/1FzAEDYeNMGxenN2YVa/PLd6f5ch+bmkAYWpOQaMfDg5LEboy6ezU4BOYeNDD7lu1O88UsE06++sNaxyaL3zdU1Aw8ANYfb+fPO80VMzCiKi7RbRMTdL43T23ncYoly5OMMdPhsn1w0C28sD7F/YLiH4+Bodt1HsVV8CHogKoFwY01Mr091/i6KBcgAg+AFXvSfLGXLRUzMASnDJs1E+HaZyCWDz5SLJLn7EixE/FvpPjZzSHihfQbCIEHAAhiFpoVIZZyVQyI/MlVMm3WXRf422NNGT4vqP1jvtrKGG3V6R9P7M1wl4UDCeNmTIrTS/cPbWLJqADAc4fbuMNEtJqBQI3bGzFLP2bezpSg8Dd2+f7xcBu3WawPk4+JS9QwDLkDowIAYNhD9WnOQ3YL/HDaEjJRk2BgZvaOFIs4fzDvD8bK9Nac4nvcTkLB9XzIJgAlsC1Xj4waAGD3Vna9Sh0oePDMvS/omVt7rIO/6MoWae1WlN6nc/os3ZXmK31saW7WJom2PhyZga4QrB20uDHFPf3F4V3175ANML2aHPrkH92T5gtZc5NRq8XPqEvSS/cVZ/0saUzz1X5zAJjFHDwTQ3CCUSUB1ra08hdKpk7ptnA77HcRjp2zM8V2iT/KHS5L1LDY2AMJ2/9ythQEuDJ+OFamv+quDEHe+fLYqALA401pPttTSmi3/vjVR+BaztoGf8ycPkXSqSHFPfnS+Dt0C6dSyRfOD0wyqgAwa0dK8a1rfzj5N8MfP9O5g+XxvRk+axP7xymeUBmjTyzczup6jPwASEW7pVam12c5X58fQBg1ADDy7eNkIhHDKiZgRcT5O1O2doWTTJ81R9qVYJX+hsrlmQ5GVoA1nqGN9+aYZCqYempSxp8fmC4hSxexgKKTT0SVskSNJvey3elZd7SdvzxrHfwB88dXSLTNJolU+64n92a4UydVMM/EMTG6oVom7LF4HxLliGhzmTKJAyMBID7NrHwjFy/89odcKH0q8RXvX2/eMmfO7TuMJIvqijYCpqIsjpPpnTIoi4EAwKbj7fyZw1DsuKSzk6kn/Pz6FFvJfzDlxrEyve2CKb872Mr/uZizVS61JiyujXKklQUCAHZ+dD3zRLRyqytABHBe8/weqk+xGoewu47wd697MntHIABgdxr1m/NqWsH5c77X3HkDyXDTOJn+Mtu95v7r5gx/d1U8uxhXxJ2Tk7TO5/KyQABA1BcPIIA54ypitG2h+yRMkdOJwpDxSaJEXKa+XJ56cwMVwgNr2CHwfrsYgRbYSpQxKdFWTZKKiOSweyYQAPjNvlY+jVqsgfo6q01BVP5yaoJeuNu+xs9sHhHAqdFE7T0NYua4UBWszSYye89SuIlz1m5m9T3IUNpZhmhhIACgElBNy1LMQAsU6AMydqdA+/cXjrRxqrs4vUx0vFJVJEtUL2h6Pr0/w99cNr8GIM0q4xJNG4/kVPeAtlp/oACAjSA5s7W7j3pypdk9YEBljKhRMMxrRJhHdqf5kkW+oBkx8W7oHnsdBJvM8gQg7qH1o/PI+2WuJgocAFQGrD9W8KppNWklFy8h0XYP96STe1kr/q2CQWagwR6+6Cp2NmE/PxoXpzdnD01mUGABAKLqT6uSDj4mRh+5PDWrW9r4VHe/oX1ulUvo9OSrgPjTiUJ9orbULJsjalkxdLkBgQbAksYUX9PU6eP01FXJ9OF89+bZ6pb2ktYv53rzhB4CRp5IJ7EAI0mgrzVEcOiQLiFVVAdx81wEAEGqGVUFweKYNk6mzR78AREABBlg9NgypFv1D5pRuAJqx8ToE5dXgNVS9ImhOPnTxsv0hocw7isnOvgfJVcAU8sK6wYVHkhWMjSwEmDd0YK5pv2ZFWR4JdjixjT3aOx1nPzrq2XaoikcdfOODcc6+POubElF0/XVMXp3iOoFAwmAFXsyfKG31H4upGYRNfhcZ6dN5FBDtx/7IGWszMBKmWj6hARtuq889r8K2EABAI6T01fyiulnppX7nWSJiuOTnYW0MFUJ9Kvc+5n9Gf6fiSPo+7qFCvumVW6kT6AAsGHA5u/LmzNe3ZBXrVxPzEchbbKFFmLQMfzs84NkUaSMW51CvBNmyQ1VsbKUkQdCAsA3jxMvslg/RTSYDvEPO70c8XgnTifoHXUVEn3kIPtIRDKI0FRknrI+46Q0CwvxGg5WN/Nkc4Y7r+ZJYqb9PufsPdWc4W+dhIOZ6PbJCdp4r786QSAAsLIpw9094rFzv0qtcEIx188nJ2jDff66ZhebpImbnaRQJ4TA5PvyrHiETmnMpGvw5FREPXuglb+60E+3TkzQGz63gl93rJ2/1MUA7Nbnt3IbKCUQi8U1oNb4621//F9vFXhVBlFsOqFCog98MPf0zEXCidJEWvMHbX6BXixDBb1prExvusg/FAGW3TMj4u9P7WvlbJ4JHbqVLGD8KxHFKU/QpLt7irVpLyXXq1ra+cyVftrmIapoRjSjtHAljyAuUW2lRCwVCtHyeVbM3ULHcSY//A5GawqEDiCCQKMmDoXQqkxvOvTVr2xK88cLxDqNiaxN+4yR5t+XYzo8hO5f7XpGBACebG5VzDxtTz6nhMXzs7afYn1hqNerwM06zMYguVV/jRXcyjHaMkSuX/3ahh0AjzeluPNaYVl1Y9yXcWE8avFRiq2/W8thwzsFhuJQQqGJjuLDDdBhB4B6anEP4vYz6s8rSuw/HGpVSsT0UsCPuUXXYPTcyj1p7jZIMwfz0Y3Ua1DJy9qGHQD6QIsXV6sSHoZr1WBXqpbtZX43hEYegZULGwreweVDF/4d8isA9x5aptbqghovn+jgz85ki7JszJI6IT7P9uSUfD+rSJ9oixjE8Td7iOOLAmFefZpRX2Z1ygpSYJTqAEsbTvHVfMFsUyN4tZUyXevLExI59LX8IKxSJJknqklKlIhJdDE7GP0zauCsMsPo/jdjFNZSk4zRzofdF49YgeAZtKG9gppesfhFNje0SSBDZgVs/LSDT54pTXiAiLa7e1SRrXXwmLlDVx1u5cx5JHPazTq4dYAAMYPra+L01hx/3LxoV/f1pX6lSkikq5i6Gtj6yldKfM5jEJFU4hQTmc3gGXxdE1eA159yPZjU+9t14LR6d8HZUnAw3Vwbp1dnOgfD8l0pvpgtvEW2ayhksphy+frt6F52APz+UBv/+4K5H7/IBWohGUCgn01O0qZ7i7twiVYOq/a3mZBQ6/MhcSpkSTnBY+NEE6viSnUOCAVRfaGnn9CHKEcx6s0NXk92MX1MYEdszHdkxQy7x+x46ujvQ/IyIweNml2DOjq0dscPDRnO9eQVPUC/MEgRff9ejAHAELQxE7kK45FQUSPT1T4m9PzBKbVk2IAyooDTgJwYa3eNqYBKykTXVcmENrHwUVitczg6hpcdAIipdyGmrnsTqmt3mdTQLUK/P5R+aYivaMtVMdpi0OAR/YG+vZwreocKIjRw0haKrG5p5f9eyimlZeXcPK6UujESvTt3UNFEhPH0lcI3CrW6DXQApVWsYE2hoyNu83A5aaC82qi2H5u3q6Fb2FCwn9UFgqGJGNEek7q/1QMNmHDCABa7zl1gxteXzD8Y4ZbIamDH6pvBzx7I8NeXCodCZb7bXkZu16mOKxsAVgwUWeoXCObcMSVJG2waHSAP8GSX8XcAqmWm6ROTtPae4uwYRAy/udxPt9cl6EWBrtsifgOnBAYAJo8Ra0UL0zXGTDuGQfsvGwCW7UrxpT7z3vwip19dnNkHmtXPtUMi2EkSKwbaAUC9x9U5VJey1XcD8Ax0Grf1iU4B5/V53yWAXXeNCpmoURDxdrmAILbbFG27z8ZBUqHTyHZdpw8UkGbOWVs1oQYA7m44QpSkDQN4OUnYNOvUoZp0MYmpeZk7P7odAHCyzBpNKA2kTb5SEnoJoIqkxwYiYHqzB8y7c2qS1t9dbM/rRdnG4x38r87SNu0Q/1OrJNoy31vChvWnY5FIEqO35pi7io1M2wHrkcajl4/P6dteRb3ZeN+vAP2L9GIcJ0SkbfuihjT35osDKV5bs2nXZvbxaDwDP4HdxyQWQdIZNH/G/iIAaCitfG1T13HTyq2LoUaBHUgO9P39SKAps8hpWXukjT/r6lO8ftofbPS7ptpbKRijd0GrSiMaOlmZgSLrG6pnyi4BsBGjuxyiHCdtQkWMplQVXHOdV/J0Ppsnrf2vEqIcjROeO4TuY0zZXF5pxAhvI7xxosyDLoBkVOg6+AQtopcTKiV6R+P8GSpGun1P2QFg90EnJRijcf2auVjBnIJ9729ljJZw6NnzosNq3OcOtbH+w5RumTEc48oOgAUNaUY7dK8/O0+g1/nDOr7sADC6J0FsuxerkNE+p3yMeWKCXitT6/QwgsCOD55ogmTIcwP2shqVQ9AD9zlCq0biXg0PIwSL4o9rfazE69WPQlfEzYNInhYb0sFlBQBoCs8gWp/VJEo7d+hNPTC/Ol7aEhXRPgRu4jGmfS4dPyHlr+22yw4AuxVorwho4r+YkigJ8tjNEf3dPQWGHQDagAwW46UuwD0Zwjty2AGAvvlIkpAkSUmKGK64eFghMOwAAOFR2Clxnn5cm6A1Htq8h5WJXvY9IgDgZQPRWG8UiADgjX6BHx0BIPAs9LaBCADe6Bf40REAAs9CbxuIAOCNfoEfHQEg8Cz0toEIAN7oF/jREQACz0JvG4gA4I1+gR8dASDwLPS2gQgA3ugX+NERAALPQm8biADgjX6BHx0BIPAs9LaBCADe6Bf40REAAs9CbxuIAOCNfoEfHQEg8Cz0toEIAN7oF/jREQACz0JvG4gA4I1+gR8dASDwLPS2gQgA3ugX+NH/B/E2d+oVMStYAAAAAElFTkSuQmCC",
+            "name": "az-management-automation-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ add proper tags management",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Azure Automation jobs using RestAPI or AZCLI.**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|Cloud-Azure-Management-Automation-custom|\r\n|---|\r\n|Jobs|\r\n\r\n\r\nThis Plugin-Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin-Pack pour superviser les jobs Azure Automation via RestAPI ou AZCLI.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponibles et services associ\u00e9s:\r\n\r\n|Cloud-Azure-Management-Automation-custom|\r\n|---|\r\n|Jobs|\r\n\r\nCe Plugin-Pack fournit un *provider* Host Discovery pour le module d\\'auto-d\u00e9couverte d\\'H\u00f4tes"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure Automation",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_management_automation_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Management-Automation-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-management-automation",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Cloud",
+            "Azure",
+            "Microsoft",
+            "API",
+            "Rest",
+            "Restapi",
+            "Automation",
+            "HostDisco",
+            "NameSpaces"
+        ],
+        "update_date": "1636824150",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les jobs count.}\r\n\r\n{EN: Check jobs count.}",
+            "active_checks_enabled": 2,
+            "alias": "Jobs",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Management-Automation-Api-Jobs",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Management-Automation-Jobs-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

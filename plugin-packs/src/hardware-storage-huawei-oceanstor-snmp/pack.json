@@ -1,0 +1,280 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "HW-Storage-Huawei-Oceanstor-SNMP-Controllers-Discover",
+                "command_for_macro": "HW-Storage-Huawei-Oceanstor-SNMP-Controllers-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "HW-Storage-Huawei-Oceanstor-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERID",
+                        "value": "^$id$$"
+                    }
+                ],
+                "name": "HW-Storage-Huawei-Oceanstor-SNMP-Controller-Id",
+                "service_display_name": "Controller-$id$",
+                "service_template": "HW-Storage-Huawei-Oceanstor-Controllers-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "HW-Storage-Huawei-Oceanstor-SNMP-Storage-Pools-Discover",
+                "command_for_macro": "HW-Storage-Huawei-Oceanstor-SNMP-Storage-Pools-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "HW-Storage-Huawei-Oceanstor-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "HW-Storage-Huawei-Oceanstor-SNMP-Storage-Pool-Name",
+                "service_display_name": "Storage-Pool-$name$",
+                "service_template": "HW-Storage-Huawei-Oceanstor-Storage-Pools-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_huawei_oceanstor_snmp.pl --plugin=storage::huawei::oceanstor::snmp::plugin --mode=list-controllers --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "HW-Storage-Huawei-Oceanstor-SNMP-Controllers-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_huawei_oceanstor_snmp.pl --plugin=storage::huawei::oceanstor::snmp::plugin --mode=list-controllers --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "HW-Storage-Huawei-Oceanstor-SNMP-Controllers-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_huawei_oceanstor_snmp.pl --plugin=storage::huawei::oceanstor::snmp::plugin --mode=list-storage-pools --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "HW-Storage-Huawei-Oceanstor-SNMP-Storage-Pools-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_huawei_oceanstor_snmp.pl --plugin=storage::huawei::oceanstor::snmp::plugin --mode=list-storage-pools --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "HW-Storage-Huawei-Oceanstor-SNMP-Storage-Pools-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_huawei_oceanstor_snmp.pl --plugin=storage::huawei::oceanstor::snmp::plugin --mode=hardware --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Huawei-Oceanstor-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_huawei_oceanstor_snmp.pl --plugin=storage::huawei::oceanstor::snmp::plugin --mode=controllers --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-id=\\'$_SERVICEFILTERID$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-cpu-utilization=\\'$_SERVICEWARNINGCPUUTILIZATION$\\' --critical-cpu-utilization=\\'$_SERVICECRITICALCPUUTILIZATION$\\' --warning-memory-usage=\\'$_SERVICEWARNINGMEMORYUSAGE$\\' --critical-memory-usage=\\'$_SERVICECRITICALMEMORYUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Huawei-Oceanstor-SNMP-Controllers",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_huawei_oceanstor_snmp.pl --plugin=storage::huawei::oceanstor::snmp::plugin --mode=storage-pools --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --filter-domain-name=\\'$_SERVICEFILTERDOMAINNAME$\\' --warning-space-usage=\\'$_SERVICEWARNINGSPACEUSAGE$\\' --critical-space-usage=\\'$_SERVICECRITICALSPACEUSAGE$\\' --warning-space-usage-free=\\'$_SERVICEWARNINGSPACEUSAGEFREE$\\' --critical-space-usage-free=\\'$_SERVICECRITICALSPACEUSAGEFREE$\\' --warning-space-usage-prct=\\'$_SERVICEWARNINGSPACEUSAGEPRCT$\\' --critical-space-usage-prct=\\'$_SERVICECRITICALSPACEUSAGEPRCT$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Huawei-Oceanstor-SNMP-Storage-Pools",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Huawei OceanStor en SNMP}\r\n{EN: Template to check Huawei OceanStor using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Huawei OceanStor using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "huawei-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Huawei-Oceanstor-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Storage-Huawei-Oceanstor-Hardware-Global-SNMP",
+                "HW-Storage-Huawei-Oceanstor-Controllers-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "huawei-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Huawei OceanStor via SNMP:\r\n* Controllers\r\n* Hardware-Global\r\n* Storage-Pools"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller Huawei OceanStor via SNMP :\r\n* Controllers\r\n* Hardware-Global\r\n* Storage-Pools"
+            }
+        ],
+        "discovery_category": "storage",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Huawei OceanStor SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_huawei_oceanstor_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Storage-Huawei-Oceanstor-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-storage-huawei-oceanstor-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Huawei",
+            "OceanStor",
+            "SNMP",
+            "Hardware",
+            "Storage"
+        ],
+        "update_date": "1619788474",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'ensemble du mat\u00e9riel.}\r\n\r\n{EN: Check all hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Huawei-Oceanstor-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Huawei-Oceanstor-Hardware-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les contr\u00f4leurs.}\r\n\r\n{EN: Check controllers.}",
+            "active_checks_enabled": 2,
+            "alias": "Controllers",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Huawei-Oceanstor-SNMP-Controllers",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{health_status} =~ /degraded|partially broken/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{health_status} =~ /fault|fail/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Huawei-Oceanstor-Controllers-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les pools de stockage.}\r\n\r\n{EN: Check storage pools.}",
+            "active_checks_enabled": 2,
+            "alias": "Storage-Pools",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Huawei-Oceanstor-SNMP-Storage-Pools",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{health_status} =~ /degraded|partially broken/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{health_status} =~ /fault|fail/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Huawei-Oceanstor-Storage-Pools-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

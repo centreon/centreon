@@ -1,0 +1,307 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_emc_vplex.pl --plugin=storage::emc::vplex::restapi::plugin --mode=storage-volumes --hostname=\\'$HOSTADDRESS$\\' --vplex-username=\\'$_HOSTVPLEXUSERNAME$\\' --vplex-password=\\'$_HOSTVPLEXPASSWORD$\\'  $_HOSTVPLEXEXTRAOPTIONS$ --cluster=\\'$_SERVICECLUSTER$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-EMC-Vplex-Restapi-Storage-Volumes",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_emc_vplex.pl --plugin=storage::emc::vplex::restapi::plugin --mode=psus --hostname=\\'$HOSTADDRESS$\\' --vplex-username=\\'$_HOSTVPLEXUSERNAME$\\' --vplex-password=\\'$_HOSTVPLEXPASSWORD$\\'  $_HOSTVPLEXEXTRAOPTIONS$ --engine=\\'$_SERVICEENGINE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-EMC-Vplex-Restapi-Psus",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_emc_vplex.pl --plugin=storage::emc::vplex::restapi::plugin --mode=fans --hostname=\\'$HOSTADDRESS$\\' --vplex-username=\\'$_HOSTVPLEXUSERNAME$\\' --vplex-password=\\'$_HOSTVPLEXPASSWORD$\\'  $_HOSTVPLEXEXTRAOPTIONS$ --engine=\\'$_SERVICEENGINE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-EMC-Vplex-Restapi-Fans",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_emc_vplex.pl --plugin=storage::emc::vplex::restapi::plugin --mode=distributed-devices --hostname=\\'$HOSTADDRESS$\\' --vplex-username=\\'$_HOSTVPLEXUSERNAME$\\' --vplex-password=\\'$_HOSTVPLEXPASSWORD$\\'  $_HOSTVPLEXEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-EMC-Vplex-Restapi-Distributed-Devices",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_emc_vplex.pl --plugin=storage::emc::vplex::restapi::plugin --mode=directors --hostname=\\'$HOSTADDRESS$\\' --vplex-username=\\'$_HOSTVPLEXUSERNAME$\\' --vplex-password=\\'$_HOSTVPLEXPASSWORD$\\'  $_HOSTVPLEXEXTRAOPTIONS$ --engine=\\'$_SERVICEENGINE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-EMC-Vplex-Restapi-Directors",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_emc_vplex.pl --plugin=storage::emc::vplex::restapi::plugin --mode=cluster-devices --hostname=\\'$HOSTADDRESS$\\' --vplex-username=\\'$_HOSTVPLEXUSERNAME$\\' --vplex-password=\\'$_HOSTVPLEXPASSWORD$\\'  $_HOSTVPLEXEXTRAOPTIONS$ --cluster=\\'$_SERVICECLUSTER$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-EMC-Vplex-Restapi-Cluster-Devices",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_emc_vplex.pl --plugin=storage::emc::vplex::restapi::plugin --mode=cluster-communication --hostname=\\'$HOSTADDRESS$\\' --vplex-username=\\'$_HOSTVPLEXUSERNAME$\\' --vplex-password=\\'$_HOSTVPLEXPASSWORD$\\'  $_HOSTVPLEXEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-EMC-Vplex-Restapi-Cluster-Communication",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check EMC Vplex storage with Restapi",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "Storage-EMC-64.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-EMC-Vplex-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Storage-EMC-Vplex-Storage-Volumes-Restapi",
+                "HW-Storage-EMC-Vplex-Psus-Restapi",
+                "HW-Storage-EMC-Vplex-Fans-Restapi",
+                "HW-Storage-EMC-Vplex-Distributed-Devices-Restapi",
+                "HW-Storage-EMC-Vplex-Directors-Restapi",
+                "HW-Storage-EMC-Vplex-Cluster-Devices-Restapi",
+                "HW-Storage-EMC-Vplex-Cluster-Communication-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAABSNJREFUaEPtlvlvFGUYx/1/KIKKgrZRosZ4JEalHtFgiCHEGFGDF1FiFE088Ki6PVi2WMtGllqrRQstLbjQMwo9gGAtu7P3we7sdnfZYzo7O/U7827fzl7C/mBeSd7JJ832fZ/3nef7Psc7NzW0Om9ouADWcAGs4QJYwwWwhgtgDRfAGi6ANVwAa7gA1nABrOEC/mM27Bc+GxNtFxLvjFwpmyL83wW8ORR+5VjIOpsoqGqzzVc2C6oIWNvmXNcmVOC82QA1vrVDAOvbhXWgTVhr2KeMNSYHBf/iLcZZwqYDrscPe5/vCzzb63/wkAc7k/Fdx8N5RX3E6qGWlCoCtth8J4V0QlJSBvBvNKOIOtG08tJvQVhCybdTsb9FKSurV5cKsBnzZIxbUZpt3vmoNC/qRKUz7vQzP/rpLBzda4/MhHKyoqaXCtgf7qrq8sdnopht6nQJ8aV9Y2LV06mZQgen48v6k5ULWLxvvMg3UzEpX3jteJha3tLuvBxbIsZ4646jmrYSTA67K00M8LRMisYYPnnEB/8wHs8quwbD69u1WD1s9fhT8l57tNHimg5mPx8Xt/7kN76UUlPAq8dC5H3YtyzcX46LJXuZHOfDOWKMZzqYa2jVkoTyXK8fGawW55ffOrG69tEfvElJwaBSULf2rcYEvDtyZc/JyIgznZHVjFzAqaEejAaEmgJ2GgQYDwxikItbbF46AsSs8ldEgpewrwiCY8qXlfIq0oZs+MW4SKaQEjPBovLBy1dxEIZVzk1m4ameYtXCEmVWXwoZBRgjsL0/sKe0o+FN+YLaeW5x1J0hS84GsjQI2/uDkHT4fMJ8tpiT3bMJMvXCLwESGPytknjXx7UFoAZaJmMtExpfTcS8CbmsJSMN4Mano9FtfX7dHy0IcI7MzoZyOP77u9yfjEb1/ZaHcNj61Pezi2RELqh3WlxksF6uLQDexLIKBXny+mBJLr54VDtjktk0Jf7wZ5ESLw8Eocg6l2gwOd8YCpMygCStk5ocNKlQBsYsrYvrrQFkEUmk7pnF3cMlEUAHhGfkyInHeCBpR38AHRMBvLfLjSmaMIGUrC00OSa9Wd1WCzJt+fVSdxGjK2uXgGl15MC5ODxDIuE3LBdEiSxEuPDXOrdIzJ6wIdM0AXAXFYmRvktJ3VCrgcf05WWsqRippG4BGibHh/YILdNf51O4dho7i0m8ezhMFuKhxw82f+cmApCE+I0RdH1ihqfjzzgxW8XkQNmUD1ZQUwC+QMjWZV0IoLudcKAQNQHIZuR0Goe6YoObyJ+UydqumUUaK3yW4aLFIFSQ/gjLBbF4A+Iif+hQyZcCRJ52pxstwnunIrQlVFJTwNdTItkap6jdxCvg2xDX1rAzTQQgo3J5NZrJG6P00ekIFuL22XywePwA7uKThOz59spdhszBtwkZ9CXlbT8HtGZvcqAkei4mJ7yZp3t8H9gj7/8ewSDdykgVAdh0YCGF3ocDA+jxCLp2lRYf7QghYEOHgBBfCEuwyckqej+qmST37fsFMZOnxw9vcHXMhXJ0E2zeezHZfMQHgwe6PaeEtNbd9OCgxC9FJPQljMAGfsPsbsNBlFFFQFOn+74uNz4M7zALYKPZdZdFA7sATOGV+IGjarK4MAsbuIgM2WgWaLLB4LaVxoIvWbLECDLkHoNbKJWdAyHoxOcD4oOcgQ2d/RdqptCNAhfAGi6ANVwAa7gA1nABrOECWMMFsIYLYA0XwBougDVcAGu4ALa0Ov8BFf1iAdgXK6MAAAAASUVORK5CYII=",
+            "name": "Storage-EMC-64.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Compatibility with Centreon Plugin Packs Manager v2.2.0",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor EMC Vplex storage using Rest API:\r\n* Cluster-Communication\r\n* Cluster-Devices\r\n* Directors\r\n* Distributed-Devices* Fans\r\n* Psu\r\n* Storage-Volumes"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller les stockages EMC Vplex via l\\'API Rest :\r\n* Cluster-Communication\r\n* Cluster-Devices\r\n* Directors\r\n* Distributed-Devices* Fans\r\n* Psu\r\n* Storage-Volumes"
+            }
+        ],
+        "discovery_category": "storage",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Storage-Emc-Vplex-Restapi\r\n\r\n### Rest API\r\nThe plugin need an account to connect on Rest API.\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Storage-EMC-Vplex-Restapi-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "EMC Vplex",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_emc_vplex.pl",
+                "package_name": "centreon-plugin-Hardware-Storage-Emc-Vplex-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Hardware-Storage-Emc-Vplex-Restapi",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "hardware-storage-emc-vplex-restapi",
+        "status": "stable",
+        "status_message": "Update configuration",
+        "tags": [
+            "EMC",
+            "Hardware",
+            "SAN",
+            "Storage",
+            "Vplex"
+        ],
+        "update_date": "1486389226",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de sant\u00e9 des volumes de stockage.}\r\n\r\n{EN: Check cluster storage volume health.}",
+            "active_checks_enabled": 2,
+            "alias": "Storage-Volumes",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-EMC-Vplex-Restapi-Storage-Volumes",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Storage-EMC-Vplex-Storage-Volumes-Restapi",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des alimentations.}\r\n\r\n{EN: Check power supplies state.}",
+            "active_checks_enabled": 2,
+            "alias": "Psus",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-EMC-Vplex-Restapi-Psus",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Storage-EMC-Vplex-Psus-Restapi",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des ventilateurs.}\r\n\r\n{EN: Check fan state.}",
+            "active_checks_enabled": 2,
+            "alias": "Fans",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-EMC-Vplex-Restapi-Fans",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Storage-EMC-Vplex-Fans-Restapi",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les 'distributed devices'.}\r\n\r\n{EN: Check distributed devices.}",
+            "active_checks_enabled": 2,
+            "alias": "Distributed-Devices",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-EMC-Vplex-Restapi-Distributed-Devices",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Storage-EMC-Vplex-Distributed-Devices-Restapi",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des 'directors'.}\r\n\r\n{EN: Check directors state.}",
+            "active_checks_enabled": 2,
+            "alias": "Directors",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-EMC-Vplex-Restapi-Directors",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Storage-EMC-Vplex-Directors-Restapi",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de sant\u00e9 des 'cluster devices'.}\r\n\r\n{EN: Check cluster devices health.}",
+            "active_checks_enabled": 2,
+            "alias": "Cluster-Devices",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-EMC-Vplex-Restapi-Cluster-Devices",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Storage-EMC-Vplex-Cluster-Devices-Restapi",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de la communication des 'clusters'.}\r\n\r\n{EN: Check cluster communication state.}",
+            "active_checks_enabled": 2,
+            "alias": "Cluster-Communication",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-EMC-Vplex-Restapi-Cluster-Communication",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Storage-EMC-Vplex-Cluster-Communication-Restapi",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,379 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Symbol-Wing-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Symbol-Wing-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Symbol-Wing-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "INTERFACENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Symbol-Wing-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Symbol-Wing-Traffic-Generic-Name-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Symbol-Wing-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Symbol-Wing-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Symbol-Wing-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Symbol-Wing-SNMP-Packet-Errors-Name",
+                "service_display_name": "Packet-Errors-$name$",
+                "service_template": "Net-Symbol-wing-Packet-Errors-Global-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_symbol_wing_snmp.pl --plugin=network::symbol::wing::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Symbol-Wing-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_symbol_wing_snmp.pl --plugin=network::symbol::wing::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Symbol-Wing-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_symbol_wing_snmp.pl --plugin=network::symbol::wing::snmp::plugin --mode=systems --hostname=\\'$HOSTADDRESS$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-cpu-utilization-1m=\\'$_SERVICEWARNINGCPUUTILIZATION1M$\\' --critical-cpu-utilization-1m=\\'$_SERVICECRITICALCPUUTILIZATION1M$\\' --warning-cpu-utilization-5m=\\'$_SERVICEWARNINGCPUUTILIZATION5M$\\' --critical-cpu-utilization-5m=\\'$_SERVICECRITICALCPUUTILIZATION5M$\\' --warning-cpu-utilization-15m=\\'$_SERVICEWARNINGCPUUTILIZATION15M$\\' --critical-cpu-utilization-15m=\\'$_SERVICECRITICALCPUUTILIZATION15M$\\' --warning-memory-usage=\\'$_SERVICEWARNINGMEMORYUSAGE$\\' --critical-memory-usage=\\'$_SERVICECRITICALMEMORYUSAGE$\\' --warning-memory-usage-free=\\'$_SERVICEWARNINGMEMORYUSAGEFREE$\\' --critical-memory-usage-free=\\'$_SERVICECRITICALMEMORYUSAGEFREE$\\' --warning-memory-usage-prct=\\'$_SERVICEWARNINGMEMORYUSAGEPRCT$\\' --critical-memory-usage-prct=\\'$_SERVICECRITICALMEMORYUSAGEPRCT$\\' --warning-devices-total=\\'$_SERVICEWARNINGDEVICESTOTAL$\\' --critical-devices-total=\\'$_SERVICECRITICALDEVICESTOTAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Symbol-Wing-SNMP-Systems",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_symbol_wing_snmp.pl --plugin=network::symbol::wing::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACEID$\\' --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Symbol-Wing-SNMP-Traffic-Id",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_symbol_wing_snmp.pl --plugin=network::symbol::wing::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$$$\\' --name --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Symbol-Wing-SNMP-Traffic-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_symbol_wing_snmp.pl --plugin=network::symbol::wing::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Symbol-Wing-SNMP-Traffic-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_symbol_wing_snmp.pl --plugin=network::symbol::wing::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-errors --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Symbol-Wing-SNMP-Packet-Errors-Global",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les switchs Symbol WiNG en SNMP}\r\n{EN: Host Template to check Symbol WiNG switchs using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Symbol Wing using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "symbol-tech-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Symbol-Wing-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Symbol-Wing-Systems-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "symbol-tech-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "increment version",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Symbol WiNG switches via SNMP:\r\n* Interfaces\r\n* Systems"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un switch Symbol WiNG via SNMP :\r\n* Interfaces\r\n* Systemes"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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0dj4xIkTffr0EVNnZ2fjSZemU10qU22q2WxGbE6aNOmDDz7ASZ944gnMjmVmZiIhGxoa6uvrMfhZWVmJBzZwlrt37yIOMX6bmZkp6rs55zdu3KipqdGekAIAzphqswHAL7/88ssvv4wdO3b69Ondu3c/evSogPb+KV8AiImJSU1NBYD169f7+vrOnj27b9++9+7dy8nJweKimTNnIooB4PLly7169UJK4JGOCRMmTJw4MT4+vr6+fv78+ZTSBQsWXLly5ZFHHomPjx88eLDRaExLS4uLixszZsy2bdumT58+YsSIqKgok8mUkpIyYsSI+Pj4y5cvf/zxxwDw6aefhoaGRkVFlZSUnDx5MiwsLC4ubtasWZjoB4Dt27cnJCQMHjwYC1j27t07duzYQYMGFRYWrlmzJi4url+/flhDHBcXN3r06AEDBqCAvv/++/X19e+++y7mVBcuXFhQUPD44497eHgsW7Zs5syZKLtJSUlGoxE5ydvbG3VSeXl5fn5+SkpKQkJCbGzs8OHDAWDp0qXDhw+Pj48fNWpUQkJC//79i4qKLl68OGHChEmTJvXv3//GjRtZWVkJCQkjR46MjIysr68/dOjQqFGj4uPjBw0alJaWNnfu3IaGhurq6ilTpmA5p81mW758+blz595999158+YtW7as4H6Jiz9Vc2dlZfXr1w//z549+6233mpoaOjUqdOvv/7av3//HTt2cM7d3NwQXwCQlpbWtm3byZMnh4eHJycnT506NT4+3mazde3add++fRs3bhw/frzVao2Li0OSjBo1as+ePUuWLBk9ejQALF++vFevXgAwbty4TZs2rV27tnPnzvX19evWrYuOjj537hweIX/jjTeOHTs2dOjQnTt3Ygk9VuYDwJdffrly5crnn39++fLlmKlev379jBkzbt261bVr18zMzOLi4qFDhxqNxvDw8IsXL547d+6RRx6xWCwxMTF48GPDhg3p6ekeHh54EGD58uWZmZkhISEA8PHHHw8ZMgQn2rVrV3BwMDIrCuWYMWNWrlyJk968eXPChAkbNmzYt28fIaS8vPzZZ5/dsWPHDz/84O3tzTmfPHny6tWrf/vttw0bNiAesrOzV6xY8eSTT6J8b9682cPDo6CgYMuWLfHx8SjBeDgQ1ay2HvVhdaTnz5/H6ua6urpjx4499dRT1dXVXbt27d27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",
+        "monitoring_procedure": "",
+        "name": "Symbol WiNG SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_symbol_wing_snmp.pl",
+                "package_name": "centreon-plugin-Network-Symbol-Wing-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-symbol-wing-snmp",
+        "status": "stable",
+        "status_message": "increment version",
+        "tags": [
+            "Switch",
+            "Hardware",
+            "Network",
+            "Symbol",
+            "Wing",
+            "SNMP",
+            "ServiceDisco"
+        ],
+        "update_date": "1642061981",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les systemes.}\r\n\r\n{EN: Check systems.}",
+            "active_checks_enabled": 2,
+            "alias": "Systems",
+            "check_timeperiod": "",
+            "command_name": "Net-Symbol-Wing-SNMP-Systems",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Symbol-Wing-Systems-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau d'une interface r\u00e9seau.}\r\n\r\n{EN: Check traffic of an network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Id",
+            "check_timeperiod": "",
+            "command_name": "Net-Symbol-Wing-SNMP-Traffic-Id",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERFACEID$",
+                    "password": false,
+                    "value": "1"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Symbol-Wing-Traffic-Generic-Id-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau d'une interface r\u00e9seau.}\r\n\r\n{EN: Check traffic of an network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-Symbol-Wing-SNMP-Traffic-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Symbol-Wing-Traffic-Generic-Name-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau d'une interface r\u00e9seau.}\r\n\r\n{EN: Check traffic of an network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Symbol-Wing-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} ne \"up\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Symbol-Wing-Traffic-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le pourcentage de paquets en erreur/\u00e9cart\u00e9 de plusieurs interfaces r\u00e9seau.}\r\n\r\n{EN: Check packets on errors/discards of multiple network interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Packet-Errors",
+            "check_timeperiod": "",
+            "command_name": "Net-Symbol-Wing-SNMP-Packet-Errors-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Symbol-wing-Packet-Errors-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

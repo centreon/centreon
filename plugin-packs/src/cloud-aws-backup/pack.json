@@ -1,0 +1,382 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v3.0": [
+                {
+                    "attributes": {
+                        "name": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Aws-Backup-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "AWS Access Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSACCESSKEY",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "AWS Secret Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSSECRETKEY",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover AWS Backup Vault.",
+                    "discovery_examples": [
+                        {
+                            "name": "aws/ec2/auto-backup-vault"
+                        },
+                        {
+                            "name": "instances-backup"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSACCESSKEY",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSACCESSKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSSECRETKEY",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSSECRETKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSREGION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.REGION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.VAULTBACKUPNAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Aws-Backup-Vault-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Amazon Web Service Backup Vault",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Region",
+                                "group": "AWS",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "REGION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "amazon-backup-vault",
+                    "type": "aws",
+                    "uuid_attributes": [
+                        "name"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_backup_api.pl --plugin=cloud::aws::backup::plugin --mode=job-status --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --backup-vault-name=\\'$_HOSTVAULTBACKUPNAME$\\' --filter-metric=\\'$_SERVICEBACKUPJOBTYPE$\\' --warning-number-backup-jobs-completed=\\'$_SERVICEWARNINGNUMBERBACKUPJOBSCOMPLETED$\\' --critical-number-backup-jobs-completed=\\'$_SERVICECRITICALNUMBERBACKUPJOBSCOMPLETED$\\' --warning-number-backup-jobs-failed=\\'$_SERVICEWARNINGNUMBERBACKUPJOBSFAILED$\\' --critical-number-backup-jobs-failed=\\'$_SERVICECRITICALNUMBERBACKUPJOBSFAILED$\\' --warning-number-copy-jobs-failed=\\'$_SERVICEWARNINGNUMBERCOPYJOBSFAILED$\\' --critical-number-copy-jobs-failed=\\'$_SERVICECRITICALNUMBERCOPYJOBSFAILED$\\' --warning-number-recovery-jobs-expired=\\'$_SERVICEWARNINGNUMBERRECOVERYJOBSEXPIRED$\\' --critical-number-recovery-jobs-expired=\\'$_SERVICECRITICALNUMBERRECOVERYJOBSEXPIRED$\\' --warning-number-copy-jobs-completed=\\'$_SERVICEWARNINGNUMBERCOPYJOBSCOMPLETED$\\' --critical-number-copy-jobs-completed=\\'$_SERVICECRITICALNUMBERCOPYJOBSCOMPLETED$\\' --warning-number-backup-jobs-expired=\\'$_SERVICEWARNINGNUMBERBACKUPJOBSEXPIRED$\\' --critical-number-backup-jobs-expired=\\'$_SERVICECRITICALNUMBERBACKUPJOBSEXPIRED$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' $_HOSTEXTRAOPTIONS$  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Backup-Api-Jobstatus",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_backup_api.pl --plugin=cloud::aws::backup::plugin --custommode=\\'awscli\\' --mode=discovery --aws-access-key=\\'$_AWSACCESSKEY$\\' --aws-secret-key=\\'$_AWSSECRETKEY$\\' --proxyurl=\\'$_PROXYURL$\\' --timeout=\\'$_TIMEOUT$\\' --region=\\'$_REGION$\\' $_EXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Backup-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Amazon Web Service Vault Backup Jobs",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 0,
+            "command_name": null,
+            "icon": "aws-backup-vault-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAWSCUSTOMMODE$",
+                    "value": "awscli"
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSSECRETKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSACCESSKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSREGION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTVAULTBACKUPNAME$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Backup-Vault",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Aws-Backup-Vault-Jobs-Status-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "aws-backup-vault-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "fix job name in command and add missing macro for job status command and stpl",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin Pack to monitor Amazon Web Service Backup Vault Jobs Status**\r\n\r\nAvailable Host template and related Service:\r\n\r\n|Cloud-Aws-Backup-Vault-custom|\r\n|---|\r\n|Backup-Vault-Jobs-Status|\r\n\r\nThis Plugin-Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin Pack  permettant de superivser le statut des jobs Amazon Web Service Backup Vault**\r\n\r\nMod\u00e8le d\\'h\u00f4te et de service disponible:\r\n\r\n|Cloud-Aws-Backup-Vault-custom|\r\n|---|\r\n|Backup-Vault-Jobs-Status|\r\n\r\nCe Plugin Pack est accompagn\u00e9 d\\'un *fournisseur* de d\u00e9couverte d\\'h\u00f4tes \u00e0 utiliser avec le module de d\u00e9couverte d\\'h\u00f4tes."
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 21.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Amazon Backup Vault",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_aws_backup_api.pl",
+                "package_name": "centreon-plugin-Cloud-Aws-Backup-Api",
+                "package_version": "20220616"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-aws-backup",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Amazon",
+            "AWS",
+            "Cloud",
+            "HostDisco"
+        ],
+        "update_date": "1647852761",
+        "version": "22.05.1",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des jobs AWS Backup Vault.}\r\n\r\n{EN: Check AWS Backup Vault jobs status.}",
+            "active_checks_enabled": 2,
+            "alias": "Backup-Vault-Jobs-Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Backup-Api-Jobstatus",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEBACKUPJOBTYPE$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "86400"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "3600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--zeroed"
+                }
+            ],
+            "max_check_attempts": 1,
+            "name": "Cloud-Aws-Backup-Vault-Jobs-Status-Api",
+            "normal_check_interval": 1440,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

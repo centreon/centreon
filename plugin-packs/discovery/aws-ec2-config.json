@@ -1,0 +1,254 @@
+{
+    "name": "Amazon AWS EC2",
+    "description": "Discover Amazon Web Service Elastic Compute Cloud resources",
+    "command": {
+        "name": "Cloud-Aws-Resources-Discovery",
+        "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_cloudwatch_api.pl --plugin=cloud::aws::cloudwatch::plugin --custommode='awscli' --mode=discovery --aws-access-key='$_CREDENTIALSAWSACCESSKEY$' --aws-secret-key='$_CREDENTIALSAWSSECRETKEY$' --proxyurl='$_PROXYURL$' --timeout='$_TIMEOUT$' --region='$_DISCOVERYREGION$' --service='$_DISCOVERYSERVICE$' $_DISCOVERYEXTRAOPTIONS$\\\"",
+        "parameters": [
+            {
+                "name": "CREDENTIALSAWSACCESSKEY",
+                "description": "AWS Access Key",
+                "mandatory": true,
+                "type": "text",
+                "value": null,
+                "locked": false,
+                "hidden": false
+            },
+            {
+                "name": "CREDENTIALSAWSSECRETKEY",
+                "description": "AWS Secret Key",
+                "mandatory": true,
+                "type": "password",
+                "value": null,
+                "locked": false,
+                "hidden": false
+            },
+            {
+                "name": "DISCOVERYREGION",
+                "description": "Region",
+                "mandatory": true,
+                "type": "text",
+                "value": null,
+                "locked": false,
+                "hidden": false
+            },
+            {
+                "name": "DISCOVERYSERVICE",
+                "description": "Service",
+                "mandatory": true,
+                "type": "text",
+                "value": "EC2",
+                "locked": true,
+                "hidden": true
+            },
+            {
+                "name": "TIMEOUT",
+                "description": "Timeout",
+                "mandatory": true,
+                "type": "text",
+                "value": 10,
+                "locked": false,
+                "hidden": false
+            },
+            {
+                "name": "PROXYURL",
+                "description": "Proxy URL",
+                "mandatory": false,
+                "type": "text",
+                "value": null,
+                "locked": false,
+                "hidden": false
+            },
+            {
+                "name": "DISCOVERYEXTRAOPTIONS",
+                "description": "Extra Options",
+                "mandatory": false,
+                "type": "text",
+                "value": null,
+                "locked": false,
+                "hidden": false
+            }
+        ],
+        "test_option": "--test-login"
+    },
+    "mapping": {
+        "key": "type",
+        "entries": {
+            "ec2": {
+                "name": "ec2",
+                "description": "Elastic Compute Cloud",
+                "attributs": {
+                    "hostname": {
+                        "default": {
+                            "key": "id",
+                            "ref": "string"
+                        },
+                        "others": [
+                            {
+                                "key": "name",
+                                "ref": "string"
+                            }
+                        ]
+                    },
+                    "description": {
+                        "default": {
+                            "key": "name",
+                            "ref": "string"
+                        },
+                        "others": [
+                            {
+                                "key": "id",
+                                "ref": "string"
+                            }
+                        ]
+                    },
+                    "ip": {
+                        "default": {
+                            "key": "private_ip",
+                            "ref": "string"
+                        },
+                        "others": [
+                            {
+                                "key": "private_dns_name",
+                                "ref": "string"
+                            },
+                            {
+                                "key": "public_dns_name",
+                                "ref": "string"
+                            },
+                            {
+                                "key": "id",
+                                "ref": "string"
+                            }
+                        ]
+                    }
+                },
+                "templates": [
+                    {
+                        "name": "Cloud-Aws-Ec2-Instance-custom",
+                        "is_in_pp": true,
+                        "order": 0,
+                        "is_default": true,
+                        "macros": [
+                            {
+                                "name": "AWSSECRETKEY",
+                                "type": "password",
+                                "from": "parameters",
+                                "value": "CREDENTIALSAWSSECRETKEY"
+                            },
+                            {
+                                "name": "AWSACCESSKEY",
+                                "type": "text",
+                                "from": "parameters",
+                                "value": "CREDENTIALSAWSACCESSKEY"
+                            },
+                            {
+                                "name": "AWSREGION",
+                                "type": "text",
+                                "from": "parameters",
+                                "value": "DISCOVERYREGION"
+                            },
+                            {
+                                "name": "AWSINSTANCENAME",
+                                "type": "text",
+                                "from": "results",
+                                "value": "id"
+                            }
+                        ]
+                    }
+                ],
+                "extra_attributs": {
+                    "hostgroups": [
+                        {
+                            "key": "vpc_id",
+                            "ref": "string"
+                        },
+                        {
+                            "key": "key_name",
+                            "ref": "string"
+                        },
+                        {
+                            "key": "tags",
+                            "ref": "arrayofhash"
+                        }
+                    ],
+                    "categories": [
+                        {
+                            "key": "instance_type",
+                            "ref": "string"
+                        },
+                        {
+                            "key": "tags",
+                            "ref": "arrayofhash"
+                        }
+                    ]
+                }
+            },
+            "asg": {
+                "name": "asg",
+                "description": "Auto Scaling Group",
+                "attributs": {
+                    "hostname": {
+                        "default": {
+                            "key": "name",
+                            "ref": "string"
+                        },
+                        "others": []
+                    },
+                    "description": {
+                        "default": {
+                            "key": "name",
+                            "ref": "string"
+                        },
+                        "others": []
+                    },
+                    "ip": {
+                        "default": {
+                            "key": "name",
+                            "ref": "string"
+                        },
+                        "others": []
+                    }
+                },
+                "templates": [
+                    {
+                        "name": "Cloud-Aws-Ec2-Asg-custom",
+                        "is_in_pp": true,
+                        "order": 0,
+                        "is_default": true,
+                        "macros": [
+                            {
+                                "name": "AWSSECRETKEY",
+                                "type": "password",
+                                "from": "parameters",
+                                "value": "CREDENTIALSAWSSECRETKEY"
+                            },
+                            {
+                                "name": "AWSACCESSKEY",
+                                "type": "text",
+                                "from": "parameters",
+                                "value": "CREDENTIALSAWSACCESSKEY"
+                            },
+                            {
+                                "name": "AWSREGION",
+                                "type": "text",
+                                "from": "parameters",
+                                "value": "DISCOVERYREGION"
+                            },
+                            {
+                                "name": "AWSINSTANCENAME",
+                                "type": "text",
+                                "from": "results",
+                                "value": "name"
+                            }
+                        ]
+                    }
+                ],
+                "extra_attributs": {
+                    "hostgroups": [],
+                    "categories": []
+                }
+            }
+        }
+    }
+}

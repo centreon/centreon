@@ -1,0 +1,911 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "description": {
+                            "type": "string"
+                        },
+                        "id": {
+                            "type": "string"
+                        },
+                        "is_encrypted": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "perf_mode": {
+                            "type": "string"
+                        },
+                        "size": {
+                            "type": "string"
+                        },
+                        "throughput_mode": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Aws-Efs-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "AWS Access Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSACCESSKEY",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "AWS Secret Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSSECRETKEY",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Amazon AWS EFS instances",
+                    "discovery_examples": [
+                        {
+                            "id": "fs-1234abcd",
+                            "is_encrypted": true,
+                            "name": "MyEFSInstance1",
+                            "perf_mode": "generalPurpose",
+                            "size": 5000000000,
+                            "throughput_mode": "bursting",
+                            "type": "efs"
+                        },
+                        {
+                            "id": "fs-5678efgh",
+                            "is_encrypted": true,
+                            "name": "MyEFSInstance2",
+                            "perf_mode": "generalPurpose",
+                            "size": 9000000000,
+                            "throughput_mode": "bursting",
+                            "type": "efs"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.id"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.id"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSACCESSKEY",
+                                "is_password": false,
+                                "source": "discovery.credentials.AWSACCESSKEY"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSSECRETKEY",
+                                "is_password": true,
+                                "source": "discovery.credentials.AWSSECRETKEY"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSREGION",
+                                "is_password": false,
+                                "source": "discovery.parameters.REGION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSFILESYSTEMID",
+                                "is_password": false,
+                                "source": "discovery.results.id"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Aws-Efs-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Amazon AWS EFS",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Region",
+                                "group": "AWS",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "REGION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "amazon-efs",
+                    "type": "aws",
+                    "uuid_attributes": [
+                        "id",
+                        "name"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "description": {
+                            "type": "string"
+                        },
+                        "id": {
+                            "type": "string"
+                        },
+                        "is_encrypted": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "perf_mode": {
+                            "type": "string"
+                        },
+                        "size": {
+                            "type": "string"
+                        },
+                        "throughput_mode": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Aws-Efs-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "AWS Access Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSACCESSKEY",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "AWS Secret Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSSECRETKEY",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Amazon AWS EFS instances",
+                    "discovery_examples": [
+                        {
+                            "id": "fs-1234abcd",
+                            "is_encrypted": true,
+                            "name": "MyEFSInstance1",
+                            "perf_mode": "generalPurpose",
+                            "size": 5000000000,
+                            "throughput_mode": "bursting",
+                            "type": "efs"
+                        },
+                        {
+                            "id": "fs-5678efgh",
+                            "is_encrypted": true,
+                            "name": "MyEFSInstance2",
+                            "perf_mode": "generalPurpose",
+                            "size": 9000000000,
+                            "throughput_mode": "bursting",
+                            "type": "efs"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSACCESSKEY",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSACCESSKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSSECRETKEY",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSSECRETKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSREGION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.REGION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSFILESYSTEMID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Aws-Efs-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Amazon AWS EFS",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Region",
+                                "group": "AWS",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "REGION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "amazon-efs",
+                    "type": "aws",
+                    "uuid_attributes": [
+                        "id",
+                        "name"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "description": {
+                            "type": "string"
+                        },
+                        "id": {
+                            "type": "string"
+                        },
+                        "is_encrypted": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "perf_mode": {
+                            "type": "string"
+                        },
+                        "size": {
+                            "type": "string"
+                        },
+                        "throughput_mode": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Aws-Efs-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "AWS Access Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSACCESSKEY",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "AWS Secret Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSSECRETKEY",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Amazon AWS EFS instances",
+                    "discovery_examples": [
+                        {
+                            "id": "fs-1234abcd",
+                            "is_encrypted": true,
+                            "name": "MyEFSInstance1",
+                            "perf_mode": "generalPurpose",
+                            "size": 5000000000,
+                            "throughput_mode": "bursting",
+                            "type": "efs"
+                        },
+                        {
+                            "id": "fs-5678efgh",
+                            "is_encrypted": true,
+                            "name": "MyEFSInstance2",
+                            "perf_mode": "generalPurpose",
+                            "size": 9000000000,
+                            "throughput_mode": "bursting",
+                            "type": "efs"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSACCESSKEY",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSACCESSKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSSECRETKEY",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSSECRETKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSREGION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.REGION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSFILESYSTEMID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Aws-Efs-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Amazon AWS EFS",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Region",
+                                "group": "AWS",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "REGION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "amazon-efs",
+                    "type": "aws",
+                    "uuid_attributes": [
+                        "id",
+                        "name"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_efs_api.pl --plugin=cloud::aws::efs::plugin --mode=datausage --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --name=\\'$_HOSTAWSFILESYSTEMID$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-metadata-iobytes=\\'$_SERVICEWARNINGMETADATAIOBYTES$\\' --critical-metadata-iobytes=\\'$_SERVICECRITICALMETADATAIOBYTES$\\' --warning-data-iobytes-write=\\'$_SERVICEWARNINGDATAIOBYTESWRITE$\\' --critical-data-iobytes-write=\\'$_SERVICECRITICALDATAIOBYTESWRITE$\\' --warning-data-iobytes-read=\\'$_SERVICEWARNINGDATAIOBYTESREAD$\\' --critical-data-iobytes-read=\\'$_SERVICECRITICALDATAIOBYTESREAD$\\' --warning-total-iobytes=\\'$_SERVICEWARNINGTOTALIOBYTES$\\' --critical-total-iobytes=\\'$_SERVICECRITICALTOTALIOBYTES$\\' --warning-burst-bytes=\\'$_SERVICEWARNINGBURSTBYTES$\\' --critical-burst-bytes=\\'$_SERVICECRITICALBURSTBYTES$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Efs-Api-Datausage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_efs_api.pl --plugin=cloud::aws::efs::plugin --mode=connections --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --name=\\'$_HOSTAWSFILESYSTEMID$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-client-connections=\\'$_SERVICEWARNINGCLIENTCONNECTIONS$\\' --critical-client-connections=\\'$_SERVICECRITICALCLIENTCONNECTIONS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Efs-Api-Connections",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_efs_api.pl --plugin=cloud::aws::efs::plugin --custommode=\\'awscli\\' --mode=discovery --aws-access-key=\\'$_AWSACCESSKEY$\\' --aws-secret-key=\\'$_AWSSECRETKEY$\\' --proxyurl=\\'$_PROXYURL$\\' --timeout=\\'$_TIMEOUT$\\' --region=\\'$_REGION$\\' $_EXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Efs-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les syst\u00e8mes de fichier Amazon Elastic File Systems (Amazon EFS) via l&#39;API Cloudwatch.}\r\n{EN: Template to check Amazon Elastic File Systems (Amazon EFS) volumes using Cloudwatch API.}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Amazon EFS using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "icon": "aws-efs-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAWSCUSTOMMODE$",
+                    "value": "awscli"
+                },
+                {
+                    "key": "$_HOSTAWSSECRETKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSACCESSKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSREGION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSFILESYSTEMID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Efs",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Aws-Efs-Datausage-Api",
+                "Cloud-Aws-Efs-Connections-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "aws-efs-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "- Host disco rule added\r\n- fix HTPL name (EFS to Efs) for compliance",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Amazon Elastic File System (EFS) service.**\r\n\r\nAvailable host template and related services:\r\n\r\n|Cloud-Aws-Efs-Custom\r\n|---|\r\n|Efs-Connections|\r\n|Efs-Datausage|\r\n\r\nThis Pack provides a host discovery rule."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser le service Amazon Elastic File System (EFS).**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponible et ses services :\r\n\r\n|Cloud-Aws-Efs-Custom\r\n|---|\r\n|Efs-Connections|\r\n|Efs-Datausage|\r\n\r\nCe Pack contient une r\u00e8gle de d\u00e9couverte d\\'H\u00f4te. "
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Cloud-Aws-Efs-Api\r\n\r\nTo use it, you can either install 'awscli' (AWS Command Line Interface) or 'paws' (Perl AWS SDK).\r\n\r\n### Install awscli\r\nOn CentOS, install with following commands:\r\n\r\n    # yum install awscli\r\n\r\n## Centreon Configuration\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Cloud-Aws-EFS-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Host Macro Configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"23%\" />\r\n<col width=\"53%\" />\r\n<col width=\"24%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AWSCUSTOMMODE</p></td>\r\n<td align=\"left\"><p>Mode used by plugin (awscli or paws)</p></td>\r\n<td align=\"left\"><p>awscli</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>AWSSECRETKEY</p></td>\r\n<td align=\"left\"><p>CloudWatch secret key</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AWSACCESSKEY</p></td>\r\n<td align=\"left\"><p>CloudWatch access key</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>AWSREGION</p></td>\r\n<td align=\"left\"><p>Monitoring region</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AWSFILESYSTEMID</p></td>\r\n<td align=\"left\"><p>ID of your filesystem</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Amazon EFS",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_aws_efs_api.pl",
+                "package_name": "centreon-plugin-Cloud-Aws-Efs-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-aws-efs",
+        "status": "stable",
+        "status_message": "host disco rule and htpl name fix",
+        "tags": [
+            "Amazon",
+            "EFS",
+            "AWS",
+            "Elastic",
+            "Filesystem"
+        ],
+        "update_date": "1653990649",
+        "version": "22.05.1",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les m\u00e9triques li\u00e9es au syst\u00e8me de fichier EFS.}\r\n\r\n{EN: Check EFS filesystem related I/O metrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Efs-DataUsage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Efs-Api-Datausage",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Efs-Datausage-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "Efs-Connections",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Efs-Api-Connections",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Efs-Connections-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

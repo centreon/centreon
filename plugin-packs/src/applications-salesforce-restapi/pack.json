@@ -1,0 +1,131 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_salesforce_restapi.pl --plugin=apps::salesforce::restapi::plugin --mode=sfdc-instance --hostname=\\'$_HOSTAPIURL$\\' --http-backend=curl --instance=\\'$_HOSTINSTANCENAME$\\' $_HOSTEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Salesforce-Restapi-Status",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser vos instances Salesforce}\r\n{EN: Template to check Salesforce platform}",
+            "active_checks_enabled": 2,
+            "alias": "Host template to check Salesforce Cloud Instances",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "salesforce-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTINSTANCENAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": "--alias"
+                },
+                {
+                    "key": "$_HOSTAPIURL$",
+                    "value": "api.status.salesforce.com"
+                },
+                {
+                    "key": "$_HOSTDUMMYSTATUS$",
+                    "value": "OK"
+                },
+                {
+                    "key": "$_HOSTDUMMYOUTPUT$",
+                    "value": "This is a dummy check"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Salesforce-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "Generic-Active-Cloud-Host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Salesforce-Instance-Status-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "salesforce-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Add usage of alias by default",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Pack to monitor a Salesforce instance status using the RestAPI**\r\n\r\nAvailable Host template and related Service:\r\n\r\n|App-Salesforce-Api-custom|\r\n|---|\r\n|Instance-Status|\r\n"
+            },
+            {
+                "lang": "fr",
+                "value": "**Pack pour superviser le statut d\\'une instance Salesforce via la RestAPI.**\r\n\r\nMod\u00e8le d\\'H\u00f4te disponible et services associ\u00e9:\r\n\r\n|App-Salesforce-Api-custom|\r\n|---|\r\n|Instance-Status|"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires the version 19.10.1 or later of the Plugin Pack Manager module\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Salesforce",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_salesforce_restapi.pl",
+                "package_name": "centreon-plugin-Applications-Salesforce-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-salesforce-restapi",
+        "status": "stable",
+        "status_message": "Add usage of alias by default",
+        "tags": [
+            "Application",
+            "Salesforce"
+        ],
+        "update_date": "1632840031",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le statut et le nombre d'incident de votre instance Salesforce via son API}\r\n{EN: Check status and incident of your Salesforce cloud instance.}",
+            "active_checks_enabled": 2,
+            "alias": "Instance-Status",
+            "check_timeperiod": "",
+            "command_name": "App-Salesforce-Restapi-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Salesforce-Instance-Status-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

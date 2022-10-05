@@ -1,0 +1,686 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": null,
+                "changes": [],
+                "command_for_discovery": "Net-Nokia-Timos-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Nokia-Timos-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Nokia-Timos-SNMP"
+                ],
+                "macros": [],
+                "name": "Net-Nokia-Timos-SNMP-Packet-Errors-Name",
+                "service_display_name": "Packet-Errors-$name$",
+                "service_template": "Net-Nokia-Timos-Interfaces-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Nokia-Timos-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Nokia-Timos-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Nokia-Timos-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "INTERFACENAME",
+                        "value": "$name$"
+                    }
+                ],
+                "name": "Net-Nokia-Timos-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Nokia-Timos-Interfaces-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Nokia-Timos-SNMP-Bgp-Macro",
+                "command_for_macro": "Net-Nokia-Timos-SNMP-Bgp-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Nokia-Timos-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Nokia-Timos-SNMP-Bgp-Name",
+                "service_display_name": "Bgp-$name$",
+                "service_template": "Net-Nokia-Timos-Bgp-Usage-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Nokia-Timos-SNMP-Ldp-Discover",
+                "command_for_macro": "Net-Nokia-Timos-SNMP-Ldp-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Nokia-Timos-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Nokia-Timos-SNMP-Ldp-Name",
+                "service_display_name": "Ldp-$name$",
+                "service_template": "Net-Nokia-Timos-Ldp-Usage-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Nokia-Timos-SNMP-Sap-Macro",
+                "command_for_macro": "Net-Nokia-Timos-SNMP-Sap-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Nokia-Timos-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Nokia-Timos-SNMP-Sap-Name",
+                "service_display_name": "Sap-$name$",
+                "service_template": "Net-Nokia-Timos-Sap-Usage-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Nokia-Timos-SNMP-Isis-Discover",
+                "command_for_macro": "Net-Nokia-Timos-SNMP-Isis-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Nokia-Timos-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Nokia-Timos-SNMP-Isis-Name",
+                "service_display_name": "Isis-$name$",
+                "service_template": "Net-Nokia-Timos-Isis-Usage-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Nokia-Timos-SNMP-Vrtr-Discover",
+                "command_for_macro": "Net-Nokia-Timos-SNMP-Vrtr-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Nokia-Timos-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "INTERFACENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Nokia-Timos-SNMP-Vrtr-Name",
+                "service_display_name": "Vrtr-$name$",
+                "service_template": "Net-Nokia-Timos-Interfaces-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nokia_timos_snmp.pl --plugin=network::nokia::timos::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Nokia-Timos-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nokia_timos_snmp.pl --plugin=network::nokia::timos::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Nokia-Timos-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nokia_timos_snmp.pl --plugin=network::nokia::timos::snmp::plugin --mode=list-bgp --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Nokia-Timos-SNMP-Bgp-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nokia_timos_snmp.pl --plugin=network::nokia::timos::snmp::plugin --mode=list-ldp --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Nokia-Timos-SNMP-Ldp-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nokia_timos_snmp.pl --plugin=network::nokia::timos::snmp::plugin --mode=list-ldp --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Nokia-Timos-SNMP-Ldp-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nokia_timos_snmp.pl --plugin=network::nokia::timos::snmp::plugin --mode=list-sap --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Nokia-Timos-SNMP-Sap-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nokia_timos_snmp.pl --plugin=network::nokia::timos::snmp::plugin --mode=list-isis --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Nokia-Timos-SNMP-Isis-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nokia_timos_snmp.pl --plugin=network::nokia::timos::snmp::plugin --mode=list-isis --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Nokia-Timos-SNMP-Isis-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nokia_timos_snmp.pl --plugin=network::nokia::timos::snmp::plugin --mode=list-vrtr --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Nokia-Timos-SNMP-Vrtr-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nokia_timos_snmp.pl --plugin=network::nokia::timos::snmp::plugin --mode=list-vrtr --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Nokia-Timos-SNMP-Vrtr-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nokia_timos_snmp.pl --plugin=network::nokia::timos::snmp::plugin --mode=uptime --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-uptime=\\'$_SERVICEWARNING$\\' --critical-uptime=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Nokia-Timos-SNMP-Uptime",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nokia_timos_snmp.pl --plugin=network::nokia::timos::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Nokia-Timos-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nokia_timos_snmp.pl --plugin=network::nokia::timos::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Nokia-Timos-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nokia_timos_snmp.pl --plugin=network::nokia::timos::snmp::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Nokia-Timos-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nokia_timos_snmp.pl --plugin=network::nokia::timos::snmp::plugin --mode=ldp-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-ipv4-active-sessions=\\'$_SERVICEWARNINGIPV4ACTIVESESSIONS$\\' --critical-ipv4-active-sessions=\\'$_SERVICECRITICALIPV4ACTIVESESSIONS$\\' --warning-ipv4-active-link-adj=\\'$_SERVICEWARNINGIPV4ACTIVELINKADJ$\\' --critical-ipv4-active-link-adj=\\'$_SERVICECRITICALIPV4ACTIVELINKADJ$\\' --warning-ipv4-active-target-adj=\\'$_SERVICEWARNINGIPV4ACTIVETARGETADJ$\\' --critical-ipv4-active-target-adj=\\'$_SERVICECRITICALIPV4ACTIVETARGETADJ$\\' --warning-ipv4-oper-down-events=\\'$_SERVICEWARNINGIPV4OPERDOWNEVENTS$\\' --critical-ipv4-oper-down-events=\\'$_SERVICECRITICALIPV4OPERDOWNEVENTS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Nokia-Timos-SNMP-Ldp-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nokia_timos_snmp.pl --plugin=network::nokia::timos::snmp::plugin --mode=l2tp-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-vrtr-name=\\'$_SERVICEFILTERVRTRNAME$\\' --filter-peer-addr=\\'$_SERVICEFILTERPEERADDR$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-vrtr-tunnel-total=\\'$_SERVICEWARNINGVRTRTUNNELTOTAL$\\' --critical-vrtr-tunnel-total=\\'$_SERVICECRITICALVRTRTUNNELTOTAL$\\' --warning-vrtr-tunnel-active-sessions=\\'$_SERVICEWARNINGVRTRTUNNELACTIVESESSIONS$\\' --critical-vrtr-tunnel-active-sessions=\\'$_SERVICECRITICALVRTRTUNNELACTIVESESSIONS$\\' --warning-vrtr-tunnel-total-sessions=\\'$_SERVICEWARNINGVRTRTUNNELTOTALSESSIONS$\\' --critical-vrtr-tunnel-total-sessions=\\'$_SERVICECRITICALVRTRTUNNELTOTALSESSIONS$\\' --warning-peer-tunnel-total=\\'$_SERVICEWARNINGPEERTUNNELTOTAL$\\' --critical-peer-tunnel-total=\\'$_SERVICECRITICALPEERTUNNELTOTAL$\\' --warning-peer-tunnel-active-sessions=\\'$_SERVICEWARNINGPEERTUNNELACTIVESESSIONS$\\' --critical-peer-tunnel-active-sessions=\\'$_SERVICECRITICALPEERTUNNELACTIVESESSIONS$\\' --warning-peer-tunnel-total-sessions=\\'$_SERVICEWARNINGPEERTUNNELTOTALSESSIONS$\\' --critical-peer-tunnel-total-sessions=\\'$_SERVICECRITICALPEERTUNNELTOTALSESSIONS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Nokia-Timos-SNMP-L2tp-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nokia_timos_snmp.pl --plugin=network::nokia::timos::snmp::plugin --mode=bgp-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-active-prefixes=\\'$_SERVICEACTIVEPREFIXES$\\' --critical-active-prefixes=\\'$_SERVICEACTIVEPREFIXES$\\' --warning-sent-prefixes=\\'$_SERVICESENTPREFIXES$\\' --critical-sent-prefixes=\\'$_SERVICESENTPREFIXES$\\' --warning-received-prefixes=\\'$_SERVICERECEIVEDPREFIXES$\\' --critical-received-prefixes=\\'$_SERVICERECEIVEDPREFIXES$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Nokia-Timos-SNMP-Bgp-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nokia_timos_snmp.pl --plugin=network::nokia::timos::snmp::plugin --mode=isis-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-total-int-inservice=\\'$_SERVICETOTALINTINSERVICE$\\' --critical-total-int-inservice=\\'$_SERVICETOTALINTINSERVICE$\\' --warning-total-int-outservice=\\'$_SERVICETOTALINTOUTSERVICE$\\' --critical-total-int-outservice=\\'$_SERVICETOTALINTOUTSERVICE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Nokia-Timos-SNMP-Isis-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nokia_timos_snmp.pl --plugin=network::nokia::timos::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --add-errors --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Nokia-Timos-SNMP-Interfaces",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nokia_timos_snmp.pl --plugin=network::nokia::timos::snmp::plugin --mode=sap-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-traffic-in-below-cir=\\'$_SERVICETRAFFICINBELOWCIR$\\' --critical-traffic-in-below-cir=\\'$_SERVICTRAFFICINBELOWCIR$\\' --warning-traffic-in-above-cir=\\'$_SERVICETRAFFICINABOVECIR$\\' --critical-traffic-in-above-cir=\\'$_SERVICTRAFFICINABOVECIR$\\' --warning-traffic-out-below-cir=\\'$_SERVICETRAFFICOUTBELOWCIR$\\' --critical-traffic-out-below-cir=\\'$_SERVICTRAFFICOUTBELOWCIR$\\' --warning-traffic-out-above-cir=\\'$_SERVICETRAFFICOUTABOVECIR$\\' --critical-traffic-out-above-cir=\\'$_SERVICTRAFFICOUTABOVECIR$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Nokia-Timos-SNMP-Sap-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements (7750SR, 7210SAS) Nokia TimOs (SR OS) en SNMP}\r\n{EN: Template to check Nokia TiMOS (SR OS) equipments (7750SR, 7210SAS) using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Nokia (7750SR, 7210SAS) equipments in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "network-nokia-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": "--maxrepetitions=20 --subsetleef=20"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Nokia-Timos-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Nokia-Timos-Uptime-SNMP",
+                "Net-Nokia-Timos-Memory-SNMP",
+                "Net-Nokia-Timos-Hardware-SNMP",
+                "Net-Nokia-Timos-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "network-nokia-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix(pack)missing-icon",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Nokia TiMos equipments (7750SR, 7210SAS) via SNMP:\r\n* Bgp\r\n* Cpu\r\n* Hardware\r\n* L2tp\r\n* Ldp\r\n* Interface\r\n* Is-Is\r\n* Memory\r\n* Sap\r\n* Uptime"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un \u00e9quipement Nokia TiMos (7750SR, 7210SAS) via SNMP:\r\n* Bgp\r\n* Cpu\r\n* Hardware\r\n* L2tp\r\n* Ldp\r\n* Interface\r\n* Is-Is\r\n* Memory\r\n* Sap\r\n* Uptime"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Nokia-Timos-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Nokia-Timos-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Nokia TiMos",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_nokia_timos_snmp.pl",
+                "package_name": "centreon-plugin-Network-Nokia-Timos-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-nokia-timos-snmp",
+        "status": "stable",
+        "status_message": "fix(pack)missing-icon",
+        "tags": [
+            "Nokia",
+            "Network",
+            "TiMos",
+            "SNMP"
+        ],
+        "update_date": "1596008913",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'uptime.}\r\n\r\n{EN: Check uptime.}",
+            "active_checks_enabled": 2,
+            "alias": "Uptime",
+            "check_timeperiod": "",
+            "command_name": "Net-Nokia-Timos-SNMP-Uptime",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--check-overload"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Nokia-Timos-Uptime-SNMP",
+            "normal_check_interval": 60,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation des m\u00e9moire.}\r\n\r\n{EN: Check the rate of the utilization of memory.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Nokia-Timos-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Nokia-Timos-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le mat\u00e9riel.}\r\n\r\n{EN: Check hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware",
+            "check_timeperiod": "",
+            "command_name": "Net-Nokia-Timos-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Nokia-Timos-Hardware-SNMP",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation des processeurs.}\r\n\r\n{EN: Check the rate of the utilization of CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Nokia-Timos-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGUSAGE$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALUSAGE$",
+                    "password": false,
+                    "value": "80"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Nokia-Timos-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation LDP (Label Distribution Protocol).}\r\n\r\n{EN: Check LDP usage (Label Distribution Protocol).}",
+            "active_checks_enabled": 2,
+            "alias": "Ldp-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Nokia-Timos-SNMP-Ldp-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admin_state} eq \"inService\" and %{ipv4_oper_state} !~ /inService|transition/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Nokia-Timos-Ldp-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des tunnels L2TP.}\r\n\r\n{EN: Check L2TP usage.}",
+            "active_checks_enabled": 2,
+            "alias": "L2tp-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Nokia-Timos-SNMP-L2tp-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Nokia-Timos-L2tp-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation BGP.}\r\n\r\n{EN: Check BGP usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Bgp-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Nokia-Timos-SNMP-Bgp-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{state} =~ /outOfService/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Nokia-Timos-Bgp-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du protocole IS-IS.}\r\n\r\n{EN: Check IS-IS usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Isis-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Nokia-Timos-SNMP-Isis-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admin_state} eq \"inService\" and %{oper_state} !~ /inService|transition/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Nokia-Timos-Isis-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces.}\r\n\r\n{EN: Check interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "Net-Nokia-Timos-SNMP-Interfaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} !~ /up|dormant/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --no-skipped-counters"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Nokia-Timos-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation SAP.}\r\n\r\n{EN: Check SAP usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Sap-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Nokia-Timos-SNMP-Sap-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admin_state} eq \"up\" and %{oper_state} !~ /up/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Nokia-Timos-Sap-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

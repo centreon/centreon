@@ -1,0 +1,292 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_bluemind_ssh.pl --plugin=apps::bluemind::local::plugin --mode=xmpp --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --warning-packets-all=\\'$_SERVICEWARNINGPACKETSALL$\\' --critical-packets-all=\\'$_SERVICECRITICALPACKETSALL$\\' --warning-packets-chat=\\'$_SERVICEWARNINGPACKETSCHAT$\\' --critical-packets-chat=\\'$_SERVICECRITICALPACKETSCHAT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Bluemind-SSH-Xmpp",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_bluemind_ssh.pl --plugin=apps::bluemind::local::plugin --mode=webserver --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --warning-requests-time-total=\\'$_SERVICEWARNINGREQUESTSTIMETOTAL$\\' --critical-requests-time-total=\\'$_SERVICECRITICALREQUESTSTIMETOTAL$\\' --warning-requests-time-mean=\\'$_SERVICEWARNINGREQUESTSTIMEMEAN$\\' --critical-requests-time-mean=\\'$_SERVICECRITICALREQUESTSTIMEMEAN$\\' --warning-requests-total=\\'$_SERVICEWARNINGREQUESTSTOTAL$\\' --critical-requests-total=\\'$_SERVICECRITICALREQUESTSTOTAL$\\' --warning-requests-status-200=\\'$_SERVICEWARNINGREQUESTSSTATUS200$\\' --critical-requests-status-200=\\'$_SERVICECRITICALREQUESTSSTATUS200$\\' --warning-requests-status-304=\\'$_SERVICEWARNINGREQUESTSSTATUS304$\\' --critical-requests-status-304=\\'$_SERVICECRITICALREQUESTSSTATUS304$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Bluemind-SSH-Webserver",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_bluemind_ssh.pl --plugin=apps::bluemind::local::plugin --mode=milter --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --warning-connections-total=\\'$_SERVICEWARNINGCONNECTIONSTOTAL$\\' --critical-connections-total=\\'$_SERVICECRITICALCONNECTIONSTOTAL$\\' --warning-traffic-class-inbound=\\'$_SERVICEWARNINGTRAFFICCLASSINBOUND$\\' --critical-traffic-class-inbound=\\'$_SERVICECRITICALTRAFFICCLASSINBOUND$\\' --warning-traffic-class-outbound=\\'$_SERVICEWARNINGTRAFFICCLASSOUTBOUND$\\' --critical-traffic-class-outbound=\\'$_SERVICECRITICALTRAFFICCLASSOUTBOUND$\\' --warning-traffic-size-inbound=\\'$_SERVICEWARNINGTRAFFICSIZEINBOUND$\\' --critical-traffic-size-inbound=\\'$_SERVICECRITICALTRAFFICSIZEINBOUND$\\' --warning-traffic-size-outbound=\\'$_SERVICEWARNINGTRAFFICSIZEOUTBOUND$\\' --critical-traffic-size-outbound=\\'$_SERVICECRITICALTRAFFICSIZEOUTBOUND$\\' --warning-sessions-duration-total=\\'$_SERVICEWARNINGSESSIONSDURATIONTOTAL$\\' --critical-sessions-duration-total=\\'$_SERVICECRITICALSESSIONSDURATIONTOTAL$\\' --warning-sessions-duration-mean=\\'$_SERVICEWARNINGSESSIONSDURATIONMEAN$\\' --critical-sessions-duration-mean=\\'$_SERVICECRITICALSESSIONSDURATIONMEAN$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Bluemind-SSH-Milter",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_bluemind_ssh.pl --plugin=apps::bluemind::local::plugin --mode=lmtpd --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --warning-connections-active=\\'$_SERVICEWARNINGCONNECTIONSACTIVE$\\' --critical-connections-active=\\'$_SERVICECRITICALCONNECTIONSACTIVE$\\' --warning-connections-total=\\'$_SERVICEWARNINGCONNECTIONSTOTAL$\\' --critical-connections-total=\\'$_SERVICECRITICALCONNECTIONSTOTAL$\\' --warning-deliveries-success=\\'$_SERVICEWARNINGDELIVERIESSUCCESS$\\' --critical-deliveries-success=\\'$_SERVICECRITICALDELIVERIESSUCCESS$\\' --warning-deliveries-failure=\\'$_SERVICEWARNINGDELIVERIESFAILURE$\\' --critical-deliveries-failure=\\'$_SERVICECRITICALDELIVERIESFAILURE$\\' --warning-emails-size-total=\\'$_SERVICEWARNINGEMAILSSIZETOTAL$\\' --critical-emails-size-total=\\'$_SERVICECRITICALEMAILSSIZETOTAL$\\' --warning-sessions-duration-total=\\'$_SERVICEWARNINGSESSIONSDURATIONTOTAL$\\' --critical-sessions-duration-total=\\'$_SERVICECRITICALSESSIONSDURATIONTOTAL$\\' --warning-sessions-duration-mean=\\'$_SERVICEWARNINGSESSIONSDURATIONMEAN$\\' --critical-sessions-duration-mean=\\'$_SERVICECRITICALSESSIONSDURATIONMEAN$\\' --warning-traffic-transport-latency-total=\\'$_SERVICEWARNINGTRAFFICTRANSPORTLATENCYTOTAL$\\' --critical-traffic-transport-latency-total=\\'$_SERVICECRITICALTRAFFICTRANSPORTLATENCYTOTAL$\\' --warning-traffic-transport-latency-mean=\\'$_SERVICEWARNINGTRAFFICTRANSPORTLATENCYMEAN$\\' --critical-traffic-transport-latency-mean=\\'$_SERVICECRITICALTRAFFICTRANSPORTLATENCYMEAN$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Bluemind-SSH-Lmtpd",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_bluemind_ssh.pl --plugin=apps::bluemind::local::plugin --mode=ips --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --warning-connections-active=\\'$_SERVICEWARNINGCONNECTIONSACTIVE$\\' --critical-connections-active=\\'$_SERVICECRITICALCONNECTIONSACTIVE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Bluemind-SSH-Ips",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_bluemind_ssh.pl --plugin=apps::bluemind::local::plugin --mode=hps --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --filter-upstream=\\'$_SERVICEFILTERUPSTREAM$\\' --warning-authentication-success=\\'$_SERVICEWARNINGAUTHENTICATIONSUCCESS$\\' --critical-authentication-success=\\'$_SERVICECRITICALAUTHENTICATIONSUCCESS$\\' --warning-authentication-failure=\\'$_SERVICEWARNINGAUTHENTICATIONFAILURE$\\' --critical-authentication-failure=\\'$_SERVICECRITICALAUTHENTICATIONFAILURE$\\' --warning-requests-protected=\\'$_SERVICEWARNINGREQUESTSPROTECTED$\\' --critical-requests-protected=\\'$_SERVICECRITICALREQUESTSPROTECTED$\\' --warning-requests-maintenance=\\'$_SERVICEWARNINGREQUESTSMAINTENANCE$\\' --critical-requests-maintenance=\\'$_SERVICECRITICALREQUESTSMAINTENANCE$\\' --warning-upstream-requests-time-total=\\'$_SERVICEWARNINGUPSTREAMREQUESTSTIMETOTAL$\\' --critical-upstream-requests-time-total=\\'$_SERVICECRITICALUPSTREAMREQUESTSTIMETOTAL$\\' --warning-upstream-requests-time-mean=\\'$_SERVICEWARNINGUPSTREAMREQUESTSTIMEMEAN$\\' --critical-upstream-requests-time-mean=\\'$_SERVICECRITICALUPSTREAMREQUESTSTIMEMEAN$\\' --warning-upstream-requests-size-total=\\'$_SERVICEWARNINGUPSTREAMREQUESTSSIZETOTAL$\\' --critical-upstream-requests-size-total=\\'$_SERVICECRITICALUPSTREAMREQUESTSSIZETOTAL$\\' --warning-upstream-requests-total=\\'$_SERVICEWARNINGUPSTREAMREQUESTSTOTAL$\\' --critical-upstream-requests-total=\\'$_SERVICECRITICALUPSTREAMREQUESTSTOTAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Bluemind-SSH-Hps",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_bluemind_ssh.pl --plugin=apps::bluemind::local::plugin --mode=eas --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --warning-responses-size-total=\\'$_SERVICEWARNINGRESPONSESSIZETOTAL$\\' --critical-responses-size-total=\\'$_SERVICECRITICALRESPONSESSIZETOTAL$\\' --warning-execution-total=\\'$_SERVICEWARNINGEXECUTIONTOTAL$\\' --critical-execution-total=\\'$_SERVICECRITICALEXECUTIONTOTAL$\\' --warning-execution-mean=\\'$_SERVICEWARNINGEXECUTIONMEAN$\\' --critical-execution-mean=\\'$_SERVICECRITICALEXECUTIONMEAN$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Bluemind-SSH-Eas",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_bluemind_ssh.pl --plugin=apps::bluemind::local::plugin --mode=core --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --warning-calls-received-success=\\'$_SERVICEWARNINGCALLSRECEIVEDSUCCESS$\\' --critical-calls-received-success=\\'$_SERVICECRITICALCALLSRECEIVEDSUCCESS$\\' --warning-calls-received-failed=\\'$_SERVICEWARNINGCALLSRECEIVEDFAILED$\\' --critical-calls-received-failed=\\'$_SERVICECRITICALCALLSRECEIVEDFAILED$\\' --warning-heartbeat-broadcast=\\'$_SERVICEWARNINGHEARTBEATBROADCAST$\\' --critical-heartbeat-broadcast=\\'$_SERVICECRITICALHEARTBEATBROADCAST$\\' --warning-directory-cluster-events=\\'$_SERVICEWARNINGDIRECTORYCLUSTEREVENTS$\\' --critical-directory-cluster-events=\\'$_SERVICECRITICALDIRECTORYCLUSTEREVENTS$\\' --warning-request-handling-total=\\'$_SERVICEWARNINGREQUESTHANDLINGTOTAL$\\' --critical-request-handling-total=\\'$_SERVICECRITICALREQUESTHANDLINGTOTAL$\\' --warning-request-handling-mean=\\'$_SERVICEWARNINGREQUESTHANDLINGMEAN$\\' --critical-request-handling-mean=\\'$_SERVICECRITICALREQUESTHANDLINGMEAN$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Bluemind-SSH-Core",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser un serveur Bluemind en SSH}\r\n{EN: Host Template to check Bluemind server in SSH}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Template to check Bluemind server in SSH",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "bluemind-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSSHBACKEND$",
+                    "value": "sshcli"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Bluemind-SSH",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Bluemind-Xmpp-SSH",
+                "App-Bluemind-Webserver-SSH",
+                "App-Bluemind-Milter-SSH",
+                "App-Bluemind-Lmtpd-SSH",
+                "App-Bluemind-Ips-SSH",
+                "App-Bluemind-Hps-SSH",
+                "App-Bluemind-Eas-SSH",
+                "App-Bluemind-Core-SSH"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAABO1SURBVHic7Z17dFTVvcc/++RFkgkEkUe4ZAZQLCi1VhHaah+22AqB23VvK/YPpeu2QhDbBOxDb7U2vio+KklaGiZqXcV23Yqu22tJIl5ba9X2iqBSEEV5JGcSIIAIyWRmSGbm/O4fSTBCHjOTs89MSD7/ZK2Z2fv3y9nfs8/+7bP3/sEwZt2RI651R464ku1HMjGS7UAyEBHlNf3Xpp/M3pUeyn7fa/qXl4kMy2uhku2A03gbApcqZVUKXPHxb2SbCCUrpo7+v+R4lhyGjQB+1dQ6LiOq7gRuBtL6+JmA/M6IGj9aNt112EH3ksZZL4AykfTJvsDNgtwFjImxWBvwi/YO1/0lM1S7RveSzlktgEcb/F+2FBXA7IQqEN4XjNUrpubW2etZ6nBWCmDdgWBheiRyH6gb7KhPUDVKRVYVu/P32VFfKnFWCcB7UHIIt/0YuBUYZXP1YaAqPXTyju/OHO+3ue6kcdYIYL3ZuljBL0F5NJs6KKj/LHbnPqmUEs22tDPkBVDVEPi0UlaFgs87a1m2GpaULJs25jVn7drLkBXAY40t50Qt42f0H9bpxgL5vRVWP7zp/LwjSfJhUAw5AZSJpBf42r4D3Aecm2x/ujghyJpz2vLWLrlIdSTbmXgYUgLwNvivojOs+2SyfemD95QYq5dPzX0u2Y7EypAQwKNNwSlWNPJzu8I63QiqxiJSutKTvz/ZvgxESgtAc1inmw5gfaqHjSkrAAfDOt2kdNiYcgKorm+7RAypAL6g35oKKOQfAlfrt8XLylKly6e5tjtgK2ZS5h34Y40t53hNf4UYsg39jS/A02nRtIuWe/K+imF9BlFbNNv8ghjyhtds3VC11z9Bs62YSXoPUCZiTPIFrlciD6MY74DJN0FKiz2jX+3VD+QhQHcDHVeouw66c9eVKRXRbKtfkiqAqnr/lwxFBYqLHTB3TKHuyXfn/mqJUtG+fvRE/fH8sJFxmyCrgUzNPr0nhlq1otC1WbOdPkmKABwO68JAFZHwncXnndMSa6HqptYLiLJWUAs1+gZ0ho1pEilZNjW/Xret03FUAI80SnaO5S9RqDsAJxZj/lnBquWevF2JVlBtts0XpBKYZaNfvRFSqMpwdvDemydMaNNs6xSOCaAzrDMqQaY6YG6PQm5Z7hldY0dl3m2SocYHVgpyNzDajjr74YCgfuJU2OiIALymfyNwrQOmWhB1z9hA7i91zMk/7gtMjkr0ful8dOm+dk8Xe/KWaLbhWBh4keb6BeRJI6o+UTzV9YuYG79uTxZ1e7JiNfJdd+7B5Z7R3xZlzAX+kaizMaL7mgEpNA+QOLJVRK4o9oxeGtdK3hpzPpL5FpK5ixozrt5phTt323K360pgCdAYp8MpRXqyHRgEXVOsrvielZsaZ2BYa4GiU58pNlJj/oV0SrnGE9OAscvm0xuam+tC7bk/Am4DYu5NUoWh2AN0AJXpoZMzV3hcG2Ju/Oebc6k1yzCsnfRs/G4UXyHKW9SaFbywL9bl4yydNClQ7MkrSzOs2cDTsZZLFYaUAARVEyU6q9iTVxrzGzYRRZ25lEj7PuBn9H+XZgAlhNP3UWuWslFiXml0Y+GYvcWevCWCmg+8HWu5ZDNUBPCeGGrBCo9rcVzv2Gt9c3jO93eE3wITYy4njAPKcflep868YsDf92CFx/WXQ27Xp4Fi4Fg8ZZNBqgvguEKtOuR2zY5runRzQwF1phdkC8JnE7YuXIrwCnXmRp4/UBhrsTKlIsWevOo0w7oAqAT6nHpONk7NA+wCLoyzWEs4Tc773pTRsd9F27ZlcHj8SkDHhE0AeBjVcT8LZ8S1Xay6wf8NUTwTp713ij152kPBVO4BTsbV+DXmfA6P3w6Uo2e2Lhf4GVbm2/GGjRZyUIM/tpDKAoiNTY0zqDU3oXiB+HuZ+FGcj2IjteYLbDYdmazRydAVwMfDukVJ8GB+ImFjqjH0BPBRWLeXgcM63Xw8bCwbeqeMDC2Ha8zLqPO92hXWTUq2O6foDhsv971OTcPnku1OPAwNAfx30zhqzQoUrwOpfIEvQ6lXqTU3UFufOgLth9R+F3AqrIvGc7pHslHADWD8O7VmZ9iYwqRsD/B2WziT5vFv0RnWDZXG70ln2CiZOx9vCsQ1m+gkKdcDHGm3eLo5wA5/eCyKsXqtKV/nX3FrNDJja0vHQ+2Wn2sn5TIhK7XuuZTxpt2CTUdC3L23hR3+sG5zIRQPkDPqIgJqJsJtCFrX4e3whynb08JTh4KctFJng1DSewAB3mzp4JnmEB+GHZkyr8Gwvs+CaQ09PnuATY2/Q1n3A9ejaYo8ivDisZO80dLB4gnZXDk2C5XknRlJfRfgC0X4w6Eg+4KO7I3YDqqUIvfL/f6qtnEeWJXAXN0OebLT+VZBDtNzer0Pz953AYGI8NShIPfvb3Wi8T8EVhFwzxmw8QGKCrew1f1ZFN8GtJ76YYYiPLi/lSeaArRGLJ2m+sTRR0AU4aVj7Ww6HCKk/zkYQfEbohm3s3jyB3GVLFMWsIE/1v+JLOM2BG27hAR47UQ7b7W2c/W52SwYP4p0B58Ljj0CdgfCFz51KMjBk448518EYxVFhTttqa226QIkuhaF9l1CE7MMlhTkMNuV6cgjQLsAHmtsOf9RX3DHlhMd2bptAftA/YAi97Naaq/1fR3kF8B5Wurvwbz8zNAyd87FNxaO2avTjrYxwIbm5lyv6S+LWsZOXyiqu/GDwF3kWLO1NT5AkftZJh6dBawCWrXZAXyhaHbUMt7xmv4K774PtU2E2d4D9Nhm/SBd6/DK9rRwqF1L1y8oniEa+SGLz/PpMNAnmxsKsFQZwo1ouJEKstIom3Gq3WPa2ZwItjpe3ej/YoGv7Q2FxLcIMzHeQPF5FnqWON74ANdMPcRCTzGoeejfJTROkPLjvrad1b62r9lZsS0CWHcgWOg1WzeIxV+BS+yosx8+AFax1T2XhZ6/a7Y1MEXubSx0X9kVNjZrtjZLRDavN9s2/do8Md2OCgf1CNjQ3JzbtSum31O8bHoEdO7zVx0/ZeEMrc/fhHm+OZdIuy27hE57BPRGB7C+vaPjpyUzxiV8PRLqAURErTfblobac/fQuSpH9xFuf0ZxCUWe0pRtfICvTQpQ5CkjzZiN0r5LKBMoycrM3FdttpVulNg3sfQk7h6gqrFlrmEZ5RD7evvEewB5H+EWFk2tTaBw8nnO/AoW5SSQsCKGHuB03hTF6hXuvIFnO3sQcw/w2P6Qx2v6/2BYxmvE0fiJMi073WTiB7OHbOMDLPD8hYlHL80y1PMOWLtUCS95Tf8fHtsfivlsxQEF4D0oOevN1lujaZG3getwaPawPhT5H+bM0f5eWDtz5oTbLdntkDUFXBdNi7xbbbateXz30byBCvQpgO7ceoT97yjUGpw502cEe8gW5NZI9qjdA+VE7PWLal/g8mpf26vAxrPgqNbhzGTAW+Bre91rtl7Z2w/OEMB6018uYm0htVffjhAfl4F6eb3pLz/9izME0JV6JekniI5gO6q3tDopsyZwhOTglABSZxXkEKHdEkcmvLQLQFA1RzqiZ13CRd18GLaauo6bsWdRSx/oFMC7SqlrVnhci6PCkEqklCp0HTdzKVCMcFSHDR0COKZQq8a6XZ9c7nY5MQN2VtN93ExURT+hUA+AvTeTnQIIA5VEwuct97gq7F64MNxZ6ck/vtzjui0alYtB2TY9bteq4JNiWBevKByzx6b6RuiDldNHvwcs8jb4v4fil4Otz64eoGOk8Z3FgHdsqmeE4cyIAIY5IwIY5owIYJgzIoBhzogAhjkjAhjmjAhgmDMigGHOiACGOSMCGOaMCGCYMyKAYc6IAIY5IwIY5qSyAKbwV0n6SaaDpvN/mJJsN/oilQXwDYK+ndQ2XpNsRxJmU/2XCJpvAN9Itit9kcoCAJgJ1nPUmpuoMW05EsUR6pqmUGtuwDD+CuriZLvTH6kugG4WoXiXWrOCZ3cPuOU5aWw6mEOtWYZE3wduSLY7sTBUBABdR6KQkb2bOnMpIqm1f7HOXIwRfofOI3OcOBTTFoaSADoRJiP8ljrfFurqP5Nsd6hr+DS15ssIfwKG3Fb6oSeAj7gcMf5OrbmBZ/frPpPwTLoTWYnaSi+7bocKQ1kA0On/DaSl7aXWLKNuj/4cgtu2ZVBrlpIV3QeUAAmdzpUqOCMA4S2t9StcdCZo2q41bKxtvIbD43fgRCIr3desC2cEsMhzPcLVwLuaLXWHjS9QZ9qXR3hz4/nUmRvBeq7Thlb2ISxhked6zXYAJx8Bizx/ZuLRT+HASdvAfITt1JoV1O1JPJN4d37iqPU2QlwZwxPgoxPPF3l0HzJ5CmfHAHPmhCnyVBBRs4An0XtwRGdeX8mMP6+v8/mJa7AisyjylHHVtJOabX0MuwSQUbXXPyHmX3/dfZAiz1IMNQ/Uazb50Bfn0p3Xt84cOIFjrW+Og/mJ38Lg8xR5Fsd74nlUqcl2OGCXALKNDPZ5TX9Z5R6J/W5Z4N7K1sIruk7aPmyTL31xGcIr1Jkb2bTvzESRmxsKqDO9IE6ckNadyOpyFnhejaegtyFQ4DX93q4j+QfNGbNpXtP/BnDpIOrcg1iri6eOiW8P+x/r83UnaOpBAHiYHGsNeceinfmJuRtIfLwQGwknsvJukww1PrBSkMH4+WaxJ++ynh/oEADQeTYQRvSWuLeN15kXIlQA8wfrw0CkKcwspXKDlpyr2xadJ56XstAT97bu9WbrYoV6BDh/kD44J4AuOs/4j4TvLD7vnJa4StaZixHKgaHzFrB3GlHcwULPhngLVje1XiBR4xGQIpt8OUMAuqOAzpF4ekb8Z9ov9Gwi0NadoMmvy0GNdId1F8Tb+E/UH8+vNtvWSFTttLHxe8WpMLA7582WKrM19lTqSy7q6AobZ6I/bLSTGoheGG9YVyZirDfblnYY6bsFuRX9YyHH3wVcZqBe8Zr+jd59odhTtneHjZbxma5ReqqyHVFfoMizmKLpZjwFqxpb5haYgX84lHDrFL0IQHZptqmAa0mP7PKarbfFFTYuLnydrZ7POZHXN04+yk+8yP1KPAXXHQgWehv8/2VYxmsomafJvy7ObNteF1V0jTqdGoA1CuqOFR5XfIMkZ8PGvkg4rHukUbJzLH+JQt0O6F7l1Oc17nNVzcZdknnCFbhJkHvQ7yACLypDrSoudMV3NOpz+z+BZZSDcnbxqFIvoVQpCwp3xFu08wYzKkCm6XCtB0HgoUzLteY/pqlexyIDLqt63BeYHJHoGlDXx/L7QRIBfkOG3F48eXTMd9SjTcEpL30Q2PD80ZNXfdChNw372AyDf52Y3f65/Kw1/V3Y3vDWt84UQ5UrsDX5Y28IqiY9mva9G6dn9zsWiblBqxpb5hrRtEr9zykAPlSouwdKleo9KDkS9n9foe4AXGFLePFYO7VHg7TbrIMMQ/HlcVkUjc8h66ORU5Ogbi925z6plOozQvm1eWJsGmllwErsO5yzL7YbSkqWuUfHNBaJ647ukRf4ISD2lz+J8y5KrSp2u/6354cioqp9bd8Eeai3lDYnwhZ/PBxiy4l2W+LGi/My+NbkXMZl9BE0idpiSHTVsmljPvZiq0wkvcDX9h2Ee1GMt8GV/ojppjmdhLr0J+qP54eNjNsEcWQAJqiaNImULJuaX7/eF5hjiFUuMOB8wvuBCE8dCtJ0MpKQ3UlZaVxXkMOFroxYfm6B/D5iGT++eZqr2dvgvwooR6F7X0BCj81uBvVMr/L5ZyuhQsGXB1NPjASBV4GricNvEdjS0s4zzUH8kdj6g5w0xaIJ2Vx1ziiM+K9QK7AV+ErcJeNE4EVRlN7kzns70TpsGdQ5OKpNmGBU2HQkxEsfnsTqQwdKwbwxWXxzUg556am17eA0mgR1e9yhcy/Y9l/2CBvvJYVzDDa3R9nYHGSX/+M5KS/ITee6glymjErpRb4h4MGA4XrglkIVsqNC22Ve1Rj8F8OK3O9Q2JgwO/xhnjoUICLwbxOzmZeflbrO0jkOEiv8/ZumjW2ws15t/3N1o/+LIlQgfEqXjUESbItaawFcacZqICfJ/vSO4p9KUbq8MO9veqrXyKmwUeRhB8KgWBHgGcuK/Lj7burstaJ3AjeSOptljivUXfGGdfHiSK/n8ERIP8g2YHWxZ3Sv6/CqfYHLEWttLCGmRiyQ32dkqh98pyBPS6Konjj62HNyKvQ0DgJ3HXK7HitTqt85woEmmbQi/M1IUyXLCl1xv19IlKSMexwMG0MKVZkWCt333Znj41pVdPo0syb/ujkgqJ8MNKWsg6QNfHu8DtVygXvOHg6mnkebglOsaOTnmqKakEJVhrOD9948YUKbzXXHRNIjHw1h45uiWL3CnfeyDXWdoqqxZa5hGeXAZ+2ozy6BDpakC6Cb6kb/FyVK5SDmzj9QqHt1jppFRHl9gRsUsgYoSLCa3UqpVamSVDNlBAAJh40dwPr2jo6flswY50jC5Q3Nzbmh9twfAbcCo2Isdlyh7jrozl1XplRib6c0kFIC6KZH2Hgz/RzAIKgai0jpSk/+fsec68G6A8HC9EjkvgEeX46GdfGSkgLo5tEG/yxLUQ589bSv3lVKrU6VbrSq3v8lw2AtcMlpX70sUVWyYrrrn8nwKxZSWgDddIWNlSB5CnWP7tmxROixWOZBIJKssO6sxXtQcir3HNO9eXPQVO45Ntp7UFLzvUIv/D/oC9d/jv5xbQAAAABJRU5ErkJggg==",
+            "name": "bluemind-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Bluemind server.**\r\n\r\nAvailable host template and related services:\r\n\r\n|App-Bluemind-SSH-custom|\r\n|---|\r\n|App-Bluemind-Core-SSH|\r\n|App-Bluemind-Eas-SSH|\r\n|App-Bluemind-Hps-SSH|\r\n|App-Bluemind-Ips-SSH|\r\n|App-Bluemind-Lmtpd-SSH|\r\n|App-Bluemind-Milter-SSH|\r\n|App-Bluemind-Webserver-SSH|\r\n|App-Bluemind-Xmpp-SSH|\r\n"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser un serveur bluemind**\r\n\r\nMod\u00e8le disponible:\r\n\r\n|App-Bluemind-SSH-custom|\r\n|---|\r\n|App-Bluemind-Core-SSH|\r\n|App-Bluemind-Eas-SSH|\r\n|App-Bluemind-Hps-SSH|\r\n|App-Bluemind-Ips-SSH|\r\n|App-Bluemind-Lmtpd-SSH|\r\n|App-Bluemind-Milter-SSH|\r\n|App-Bluemind-Webserver-SSH|\r\n|App-Bluemind-Xmpp-SSH|\r\n"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "documentation online",
+        "name": "Bluemind SSH",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_bluemind_ssh.pl",
+                "package_name": "centreon-plugin-Applications-Bluemind-Ssh",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-bluemind-ssh",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Application",
+            "SNMP",
+            "SSH",
+            "Mail"
+        ],
+        "update_date": "1587998224",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le service de messagerie instantan\u00e9.}\r\n\r\n{EN: Check instant messaging service.}",
+            "active_checks_enabled": 2,
+            "alias": "Xmpp",
+            "check_timeperiod": "",
+            "command_name": "App-Bluemind-SSH-Xmpp",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Bluemind-Xmpp-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le service d'application web.}\r\n\r\n{EN: Check web application server.}",
+            "active_checks_enabled": 2,
+            "alias": "Webserver",
+            "check_timeperiod": "",
+            "command_name": "App-Bluemind-SSH-Webserver",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Bluemind-Webserver-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le service 'milter'.}\r\n\r\n{EN: Check milter service.}",
+            "active_checks_enabled": 2,
+            "alias": "Milter",
+            "check_timeperiod": "",
+            "command_name": "App-Bluemind-SSH-Milter",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Bluemind-Milter-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le service de r\u00e9ception des emails.}\r\n\r\n{EN: Check email delivery service.}",
+            "active_checks_enabled": 2,
+            "alias": "Lmtpd",
+            "check_timeperiod": "",
+            "command_name": "App-Bluemind-SSH-Lmtpd",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Bluemind-Lmtpd-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les op\u00e9rations IMAP.}\r\n\r\n{EN: Check IMAP operations tracking.}",
+            "active_checks_enabled": 2,
+            "alias": "Ips",
+            "check_timeperiod": "",
+            "command_name": "App-Bluemind-SSH-Ips",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Bluemind-Ips-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le service d'authentification.}\r\n\r\n{EN: Check authentication service.}",
+            "active_checks_enabled": 2,
+            "alias": "Hps",
+            "check_timeperiod": "",
+            "command_name": "App-Bluemind-SSH-Hps",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Bluemind-Hps-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le service de connexion des mobiles.}\r\n\r\n{EN: Check mobile connection service.}",
+            "active_checks_enabled": 2,
+            "alias": "Eas",
+            "check_timeperiod": "",
+            "command_name": "App-Bluemind-SSH-Eas",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Bluemind-Eas-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le coeur du moteur bluemind.}\r\n\r\n{EN: Check main bluemind engine.}",
+            "active_checks_enabled": 2,
+            "alias": "Core",
+            "check_timeperiod": "",
+            "command_name": "App-Bluemind-SSH-Core",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Bluemind-Core-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,179 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_management_resource_api.pl --plugin=cloud::azure::management::resource::plugin --mode=deployments-status --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-total-succeeded=\\'$_SERVICEWARNINGTOTALSUCCEEDED$\\' --critical-total-succeeded=\\'$_SERVICECRITICALTOTALSUCCEEDED$\\' --warning-total-failed=\\'$_SERVICEWARNINGTOTALFAILED$\\' --critical-total-failed=\\'$_SERVICECRITICALTOTALFAILED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Management-Resource-Api-Deployments-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_management_resource_api.pl --plugin=cloud::azure::management::resource::plugin --mode=items --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-total=\\'$_SERVICEWARNINGTOTAL$\\' --critical-total=\\'$_SERVICECRITICALTOTAL$\\'  --warning-compute=\\'$_SERVICEWARNINGCOMPUTE$\\' --critical-compute=\\'$_SERVICECRITICALCOMPUTE$\\'  --warning-storage=\\'$_SERVICEWARNINGSTORAGE$\\' --critical-storage=\\'$_SERVICECRITICALSTORAGE$\\'  --warning-network=\\'$_SERVICEWARNINGNETWORK$\\' --critical-network=\\'$_SERVICECRITICALNETWORK$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Management-Resource-Api-Items",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Azure Management Resource via l'API}\r\n{EN: Template to check Azure Management Resource using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Management Resource using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-management-resource-color-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Management-Resource",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-management-resource-color-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* prettify popup",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Microsoft Azure Resource Manager using Azure CLI or RestAPI.**\r\n\r\nAvailable host templates and related services:\r\n\r\n|Cloud-Azure-Management-Resource|\r\n|---|\r\n|*No services*|\r\n\r\nOther service templates available:\r\n\r\n* Cloud-Azure-Management-Resource-Deployments-Status-Api\r\n* Cloud-Azure-Management-Resource-Items-Api"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser Microsoft Azure Compute Resource Manager via la CLI ou la RestAPI Azure.**\r\n\r\nMod\u00e8les d\\'h\u00f4te disponibles et leurs services :\r\n\r\n|Cloud-Azure-Management-Resource|\r\n|---|\r\n|*No services*|\r\n\r\nAutre mod\u00e8les de service disponible :\r\n\r\n* Cloud-Azure-Management-Resource-Deployments-Status-Api\r\n* Cloud-Azure-Management-Resource-Items-Api"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n\r\n## Prerequisites\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Cloud-Azure-Management-Resource-Api\r\n\r\n### Perl dependencies (for 'api' custom mode)\r\nBy installing the plugin, some perl depencies will be installed :\r\n\r\n    JSON::XS\r\n    DateTime\r\n    Digest::MD5\r\n    Digest::SHA\r\n    LWP::UserAgent\r\n    LWP::Protocol::https\r\n    IO::Socket::SSL\r\n    URI\r\n    HTTP::ProxyPAC\r\n\r\nThe login and access token handling will be made by the plugin itself.\r\n\r\n### Azure CLI 2.0 (for 'azcli' custom mode)\r\nThe CLI needs at least Python version 2.7 (https://github.com/Azure/azure-cli/blob/dev/doc/install_linux_prerequisites.md).\r\n\r\nOn CentOS/RedHat, install with following commands:\r\n\r\n    (As root)\r\n    # rpm --import https://packages.microsoft.com/keys/microsoft.asc\r\n    # echo -e \"[azure-cli]\\nname=Azure CLI\\nbaseurl=https://packages.microsoft.com/yumrepos/azure-cli\\nenabled=1\\ngpgcheck=1\\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc\" > /etc/yum.repos.d/azure-cli.repo\r\n    # yum install azure-cli\r\n    (As centreon-engine)\r\n    # az login\r\n\r\nThe shell should prompt:\r\n\r\n    To sign in, use a web browser to open the page https://microsoft.com/devicelogin and enter the code CWT4WQZAD to authenticate.\r\n\r\nGo to https://microsoft.com/devicelogin and enter the given code.\r\n\r\nLog in with your account credentials. You should use a service account. Application is not yet supported.\r\n\r\nThe command line should now show:\r\n\r\n    [\r\n      {\r\n        \"cloudName\": \"AzureCloud\",\r\n        \"id\": \"0ef83f3a-d83e-2039-d930-309df93acd93d\",\r\n        \"isDefault\": true,\r\n        \"name\": \"N/A(tenant level account)\",\r\n        \"state\": \"Enabled\",\r\n        \"tenantId\": \"0ef83f3a-03cd-2039-d930-90fd39ecd048\",\r\n        \"user\": {\r\n          \"name\": \"email@mycompany.onmicrosoft.com\",\r\n          \"type\": \"user\"\r\n        }\r\n      }\r\n    ]\r\n\r\nYou now have a hidden azure directory where your token is stored in an accessTokens.json file.\r\n\r\n## Centreon Configuration\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Cloud-Azure-Management-Resource-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Set host macros\r\nThe following macros must be configured on host.\r\n\r\n#### Common macros\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AZURERESOURCEGROUP</p></td>\r\n<td align=\"left\"><p>Resource group</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\n#### 'api' custom mode macros\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AZURECUSTOMMODE</p></td>\r\n<td align=\"left\"><p>Custom mode 'api'</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>AZURESUBSCRIPTION</p></td>\r\n<td align=\"left\"><p>Subscription ID</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AZURETENANT</p></td>\r\n<td align=\"left\"><p>Tenant ID</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>AZURECLIENTID</p></td>\r\n<td align=\"left\"><p>Client ID</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AZURECLIENTSECRET</p></td>\r\n<td align=\"left\"><p>Client secret</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\n#### 'azcli' custom mode macros\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>AZURECUSTOMMODE</p></td>\r\n<td align=\"left\"><p>Custom mode 'azcli'</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>AZURESUBSCRIPTION</p></td>\r\n<td align=\"left\"><p>Subscription ID</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n## Available metrics\r\nGo to https://docs.microsoft.com/en-us/azure/monitoring-and-diagnostics/monitoring-supported-metrics to see the description of return metrics for this Azure service.",
+        "name": "Azure Resource",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_management_resource_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Management-Resource-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-management-resource",
+        "status": "stable",
+        "status_message": "prettify popup",
+        "tags": [
+            "Azure",
+            "Resource",
+            "Manager"
+        ],
+        "update_date": "1571153628",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le statut du d\u00e9ploiement d'un groupe de ressource.}\n\n{EN: Check resource group deployment status.}",
+            "active_checks_enabled": 2,
+            "alias": "Deployments-Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Management-Resource-Api-Deployments-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Management-Resource-Deployments-Status-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre d'objet dans un groupe de resource.}\n\n{EN: Check resource group items count.}",
+            "active_checks_enabled": 2,
+            "alias": "Items",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Management-Resource-Api-Items",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Management-Resource-Items-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

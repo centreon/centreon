@@ -1,0 +1,337 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Dlink-Standard-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Dlink-Standard-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Dlink-Standard-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "INTERFACENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Dlink-Standard-SNMP-Interface-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Dlink-Standard-Interfaces-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dlink_standard_snmp.pl --plugin=network::dlink::standard::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Dlink-Standard-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dlink_standard_snmp.pl  --plugin=network::dlink::standard::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Dlink-Standard-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dlink_standard_snmp.pl --plugin=network::dlink::standard::snmp::plugin --mode=memory --hostname=\\'$HOSTADDRESS$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Dlink-Standard-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dlink_standard_snmp.pl --plugin=network::dlink::standard::snmp::plugin --mode=hardware --hostname=\\'$HOSTADDRESS$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Dlink-Standard-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dlink_standard_snmp.pl --plugin=network::dlink::standard::snmp::plugin --mode=cpu --hostname=\\'$HOSTADDRESS$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-core-5s=\\'$_SERVICEWARNINGCORE5S$\\' --critical-core-5s=\\'$_SERVICECRITICALCORE5S$\\' --warning-core-1m=\\'$_SERVICEWARNINGCORE1M$\\' --critical-core-1m=\\'$_SERVICECRITICALCORE1M$\\' --warning-core-5m=\\'$_SERVICEWARNINGCORE5M$\\' --critical-core-5m=\\'$_SERVICECRITICALCORE5M$\\' --warning-average-5s=\\'$_SERVICEWARNINGAVERAGE5S$\\' --critical-average-5s=\\'$_SERVICECRITICALAVERAGE5S$\\' --warning-average-1m=\\'$_SERVICEWARNINGAVERAGE1M$\\' --critical-average-1m=\\'$_SERVICECRITICALAVERAGE1M$\\' --warning-average-5m=\\'$_SERVICEWARNINGAVERAGE5M$\\' --critical-average-5m=\\'$_SERVICECRITICALAVERAGE5M$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Dlink-Standard-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dlink_standard_snmp.pl --plugin=network::dlink::standard::snmp::plugin --mode=stack --hostname=\\'$HOSTADDRESS$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-members-total=\\'$_SERVICEWARNINGMEMBERSTOTAL$\\' --critical-members-total=\\'$_SERVICECRITICALMEMBERSTOTAL$\\' --unknown-link-status=\\'$_SERVICEUNKNOWNLINKSTATUS$\\' --warning-link-status=\\'$_SERVICEWARNINGLINKSTATUS$\\' --critical-link-status=\\'$_SERVICECRITICALLINKSTATUS$\\' --unknown-member-status=\\'$_SERVICEUNKNOWNMEMBERSTATUS$\\' --warning-member-status=\\'$_SERVICEWARNINGMEMBERSTATUS$\\' --critical-member-status=\\'$_SERVICECRITICALMEMBERSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Dlink-Standard-SNMP-Stack",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dlink_standard_snmp.pl --plugin=network::dlink::standard::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --add-errors --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Dlink-Standard-SNMP-Interfaces",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser le mat\u00e9riel D-Link  en SNMP}\r\n{EN: Host Template to check D-Link devices using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check D-Link using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Dlink-Standard-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Dlink-Standard-Memory-SNMP",
+                "Net-Dlink-Standard-Hardware-Global-SNMP",
+                "Net-Dlink-Standard-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* add new interfaces mode",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor D-Link network equipment via SNMP:\r\n* Cpu\r\n* Hardware\r\n* Interfaces\r\n* Memory\r\n* Stack"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un \u00e9quipement r\u00e9seau D-Link via SNMP : \r\n* Cpu\r\n* Hardware\r\n* Interfaces\r\n* Memory\r\n* Stack"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Dlink-Standard-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your equipment\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Dlink-Standard-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "D-Link Network",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_dlink_standard_snmp.pl",
+                "package_name": "centreon-plugin-Network-Dlink-Standard-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Network-Dlink-Standard-Snmp",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "network-dlink-standard-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Hardware",
+            "Network",
+            "SNMP",
+            "D-Link",
+            "Dlink"
+        ],
+        "update_date": "1602839812",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le taux d'utilisation m\u00e9moire.}\r\n\r\n{EN: Check memory.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Dlink-Standard-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Dlink-Standard-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le mat\u00e9riel ('ventilateur', 'alimentation').}\r\n\r\n{EN: Check hardware ('fan', 'power supply').}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Dlink-Standard-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Dlink-Standard-Hardware-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine. Ce contr\u00f4le pourra remonter la moyenne du taux d'utilisation des CPU.}\r\n\r\n{EN: Check the rate of utilization of CPU for the machine. This check can give the average utilization rate of CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Dlink-Standard-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Dlink-Standard-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la stack.}\r\n\r\n{EN: Check stack.}",
+            "active_checks_enabled": 2,
+            "alias": "Stack",
+            "check_timeperiod": "",
+            "command_name": "Net-Dlink-Standard-SNMP-Stack",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALLINKSTATUS$",
+                    "password": false,
+                    "value": "%{status} eq \"down\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNMEMBERSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /unknown/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGMEMBERSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /codeUpdate/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALMEMBERSTATUS$",
+                    "password": false,
+                    "value": "%{role} ne %{roleLast} || %{status} =~ /unsupported|codeMismatch/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Dlink-Standard-Stack-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces.}\r\n\r\n{EN: Check interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "Net-Dlink-Standard-SNMP-Interfaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} ne \"up\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "ifName"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "ifName"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--use-new-perfdata --verbose --no-skipped-counters"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Dlink-Standard-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

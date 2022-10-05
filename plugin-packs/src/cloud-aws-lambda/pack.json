@@ -1,0 +1,162 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_lambda_api.pl --plugin=cloud::aws::lambda::plugin --mode=invocations --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --name=\\'$_SERVICEFUNCTIONNAME$\\' --warning-throttles=\\'$_SERVICEWARNINGTHROTTLES$\\' --critical-throttles=\\'$_SERVICECRITICALTHROTTLES$\\' --warning-errors=\\'$_SERVICEWARNINGERRORS$\\' --critical-errors=\\'$_SERVICECRITICALERRORS$\\' --warning-iteratorage=\\'$_SERVICEWARNINGITERATORAGE$\\' --critical-iteratorage=\\'$_SERVICECRITICALITERATORAGE$\\' --warning-invocations=\\'$_SERVICEWARNINGINVOCATIONS$\\' --critical-invocations=\\'$_SERVICECRITICALINVOCATIONS$\\' --warning-deadlettererrors=\\'$_SERVICEWARNINGDEADLETTERERRORS$\\' --critical-deadlettererrors=\\'$_SERVICECRITICALDEADLETTERERRORS$\\' --warning-duration=\\'$_SERVICEWARNINGDURATION$\\' --critical-duration=\\'$_SERVICECRITICALDURATION$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Lambda-Api-Invocations",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Amazon Lambda via l'API}\r\n{EN: Template to check Amazon Lambda using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Amazon Lambda using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "aws-lambda-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSSECRETKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSACCESSKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSCUSTOMMODE$",
+                    "value": "paws"
+                },
+                {
+                    "key": "$_HOSTAWSREGION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Lambda",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Aws-Lambda-Invocations-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "aws-lambda-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* bump version",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Amazon Lambda service.**\r\n\r\nAvailable host templates and related services:\r\n\r\n|Cloud-Aws-Lambda|\r\n|---|\r\n|Lambda-Invocations|\r\n\r\n*Since version 3.3.0, thresholds in custom macros have been aligned to new performance data format of plugin.*"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser le service Amazon Lambda.**\r\n\r\nMod\u00e8les d\\'h\u00f4te disponibles et leurs services :\r\n\r\n|Cloud-Aws-Lambda|\r\n|---|\r\n|Lambda-Invocations|\r\n\r\n*Depuis la version 3.3.0, les macros personnalis\u00e9es de seuils ont \u00e9t\u00e9 modifi\u00e9es pour correspondre aux nouvelles donn\u00e9es de performance du plugin.*"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n\r\n## Prerequisites\r\n\r\n### Centreon Plugin\r\n\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Cloud-Aws-Lambda-Api\r\n\r\nTo use it, you can either install 'awscli' (AWS Command Line Interface) or 'paws' (Perl AWS SDK).\r\n\r\n### Install awscli\r\n\r\nOn CentOS, install with following commands:\r\n\r\n    # yum install awscli\r\n\r\n## Centreon Configuration\r\n\r\n### Create a host using the appropriate template\r\n\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Field</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>Name</p></td>\r\n            <td align=\"left\"><p><em>Name of the host</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Alias</p></td>\r\n            <td align=\"left\"><p><em>Description</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>IP Address / DNS</p></td>\r\n            <td align=\"left\"><p><em>Can be localhost</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Monitored from</p></td>\r\n            <td align=\"left\"><p><em>Poller used to monitor</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Templates</p></td>\r\n            <td align=\"left\"><p>Cloud-Aws-Lambda-custom</p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nThe following host macros should be set as shown:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Macro</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSACCESSKEY</p></td>\r\n            <td align=\"left\"><p><em>AWS access key</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSSECRETKEY</p></td>\r\n            <td align=\"left\"><p><em>AWS secret key</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSCUSTOMMODE</p></td>\r\n            <td align=\"left\"><p><em>Plugin custom mode: awscli or paws</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSREGION</p></td>\r\n            <td align=\"left\"><p><em>AWS region</em></p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nCheck the *Create Services linked to the Template too* box and click on the *Save* button.\r\n\r\nThe following service will be created:\r\n\r\n* Lambda-Invocations\r\n\r\nThe following service macros should be set as shown:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Macro</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>FUNCTIONNAME</p></td>\r\n            <td align=\"left\"><p><em>Name of the Lambda function</em></p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nAdd as many services as needed.\r\n",
+        "name": "AWS Lambda",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_aws_lambda_api.pl",
+                "package_name": "centreon-plugin-Cloud-Aws-Lambda-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-aws-lambda",
+        "status": "stable",
+        "status_message": "bump version",
+        "tags": [
+            "Amazon",
+            "AWS",
+            "Lambda",
+            "Cloud"
+        ],
+        "update_date": "1569941847",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les performances du cache Memcached.}\r\n\r\n{EN: Check Memcached performances.}",
+            "active_checks_enabled": 2,
+            "alias": "Lambda-Invocations",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Lambda-Api-Invocations",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "sum"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--statistic='average' --verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Lambda-Invocations-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

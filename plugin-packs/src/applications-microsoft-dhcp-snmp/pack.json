@@ -1,0 +1,155 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-Microsoft-Dhcp-SNMP-Subnets-Discover",
+                "command_for_macro": "App-Microsoft-Dhcp-SNMP-Subnets-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-Microsoft-Dhcp-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERSUBNETADDRESS",
+                        "value": "^$address$$"
+                    }
+                ],
+                "name": "App-Microsoft-Dhcp-SNMP-Subnets",
+                "service_display_name": "Subnet-$address$",
+                "service_template": "App-Microsoft-Dhcp-Subnets-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_microsoft_dhcp_snmp.pl --plugin=apps::microsoft::dhcp::snmp::plugin --mode=list-subnets --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "App-Microsoft-Dhcp-SNMP-Subnets-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_microsoft_dhcp_snmp.pl --plugin=apps::microsoft::dhcp::snmp::plugin --mode=list-subnets --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "App-Microsoft-Dhcp-SNMP-Subnets-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_microsoft_dhcp_snmp.pl --plugin=apps::microsoft::dhcp::snmp::plugin --mode=subnets --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-subnet-address=\\'$_SERVICEFILTERSUBNETADDRESS$\\' --warning-addresses-usage=\\'$_SERVICEWARNINGADDRESSESUSAGE$\\' --critical-addresses-usage=\\'$_SERVICECRITICALADDRESSESUSAGE$\\' --warning-addresses-usage-free=\\'$_SERVICEWARNINGADDRESSESUSAGEFREE$\\' --critical-addresses-usage-free=\\'$_SERVICECRITICALADDRESSESUSAGEFREE$\\' --warning-addresses-usage-prct=\\'$_SERVICEWARNINGADDRESSESUSAGEPRCT$\\' --critical-addresses-usage-prct=\\'$_SERVICECRITICALADDRESSESUSAGEPRCT$\\' --warning-pending-offers=\\'$_SERVICEWARNINGPENDINGOFFERS$\\' --critical-pending-offers=\\'$_SERVICECRITICALPENDINGOFFERS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Microsoft-Dhcp-SNMP-Subnets",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser l'application Microsoft DHCP en SNMP}\r\n{EN: Template to check Microsoft DHCP software using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Microsoft DHCP in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "iis-128-2.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Microsoft-Dhcp-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Microsoft-Dhcp-Subnets-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABGdBTUEAALGPC/xhBQAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAOwgAADsIBFShKgAAAAXdJREFUeNrt0kENgEAMRNFqQRGOMIMJMEWCgbIC2Nve5jX56X3y6t23Tmtc/XXc1WkVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALAWwGwMZWQEAIwAgAAQAEoEUOfTaU0HucYLCwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABY2wdAJk7gki710QAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAABJ0RVh0RVhJRjpPcmllbnRhdGlvbgAxhFjs7wAAAABJRU5ErkJggg==",
+            "name": "iis-128-2.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ logo update",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Microsoft DHCP application using SNMP:\r\n* Subnets"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller l\\'application Microsoft DHCP via SNMP:\r\n* Subnets"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABGdBTUEAALGPC/xhBQAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAOwgAADsIBFShKgAAAAXdJREFUeNrt0kENgEAMRNFqQRGOMIMJMEWCgbIC2Nve5jX56X3y6t23Tmtc/XXc1WkVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALAWwGwMZWQEAIwAgAAQAEoEUOfTaU0HucYLCwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABY2wdAJk7gki710QAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAABJ0RVh0RVhJRjpPcmllbnRhdGlvbgAxhFjs7wAAAABJRU5ErkJggg==",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Microsoft DHCP SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_microsoft_dhcp_snmp.pl",
+                "package_name": "centreon-plugin-Applications-Microsoft-Dhcp-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-microsoft-dhcp-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "DHCP",
+            "Microsoft",
+            "Application",
+            "SNMP",
+            "ServiceDisco"
+        ],
+        "update_date": "1628771892",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des sous-r\u00e9seaux.}\r\n\r\n{EN: Check subnets.}",
+            "active_checks_enabled": 2,
+            "alias": "Subnets",
+            "check_timeperiod": "",
+            "command_name": "App-Microsoft-Dhcp-SNMP-Subnets",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Microsoft-Dhcp-Subnets-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

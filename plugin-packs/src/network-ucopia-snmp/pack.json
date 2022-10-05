@@ -1,0 +1,212 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ucopia_snmp.pl --plugin=network::ucopia::wlc::snmp::plugin --mode=system --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --display-ok-counters=\\'$_SERVICEDISPLAYOKCOUNTERS$\\' --warning-service-status=\\'$_SERVICEWARNINGSERVICESTATUS$\\' --critical-service-status=\\'$_SERVICECRITICALSERVICESTATUS$\\' --warning-users-connected=\\'$_SERVICEWARNINGUSERSCONNECTED$\\' --critical-users-connected=\\'$_SERVICECRITICALUSERSCONNECTED$\\' --warning-users-connected-prct=\\'$_SERVICEWARNINGUSERSCONNECTEDPRCT$\\' --critical-users-connected-prct=\\'$_SERVICECRITICALUSERSCONNECTEDPRCT$\\' --warning-ha-status=\\'$_SERVICEWARNINGHASTATUS$\\' --critical-ha-status=\\'$_SERVICECRITICALHASTATUS$\\' --warning-disk-temperature=\\'$_SERVICEWARNINGDISKTEMPERATURE$\\' --critical-disk-temperature=\\'$_SERVICECRITICALDISKTEMPERATURE$\\' --warning-cpu-temperature=\\'$_SERVICEWARNINGCPUTEMPERATURE$\\' --critical-cpu-temperature=\\'$_SERVICECRITICALCPUTEMPERATURE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Ucopia-Wlc-SNMP-System",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Ucopia WLC equipments using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "network-ucopia-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Ucopia-Wlc-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Ucopia-Wlc-Users-SNMP",
+                "Net-Ucopia-Wlc-Temperature-SNMP",
+                "Net-Ucopia-Wlc-Service-Status-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAAAgCAYAAADaInAlAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAIDQAACA0B3qlk6AAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAABNTSURBVHic7Zt9eNTVlcc/5/5mkkkCeSVIIAiIL5WoqFEEMmTHdcW6Feo+Nba2XavY4gsiYmu71lbz1K19tlKwRXyptkpf16bWl7WLRVhSIWGxBTEaWt+KQkiCgUxCYEJmfr979o/JJJNkJiTK/lW+z8Pz8Dtz7j3n3HvuueeeewMncAIn8PcLGW0DBWlaTmBsjAnWceZg5BzQyQKZqkQRaUL1NcHb2h3hw4k/JvL/ofgJHB+MygHeWUpmoXGuEOFa4FIgKx2vwhERNhllbd4+71mpwfu4yp7A8ceIHECrMZ1d/vOsax9AmAtkjkJAjwqbrDXVRT+MvSqgw/HPnTt3is/nMwCxWCxaWlraWlNTM8R5Fiwoz+7q8o+3NkN6eTu3bt3ank6NysrKUs/zThWRElXNNUaPqppWny/2Zm3ttmbADqOWqaysnGStPcMYPUmVsarSA7QZ432Qk5P/9rp163pSNSwrK8soKiqalLJTE1UIHG1ra2tvbGyMDv79kksuKYrFYrn9/Kaltrb2aDolKyoqxjqOMw7A87yeiRMn7k81dsnwpSL+pgqnqgDDRKSlGV97p3OFqF2BMHm4zlJBIRPlk47Y08K3O/fqPu8/h4sGjiM11rr5AD6f2dXU1LQIGDKx7e2BChFWgJvV2+4nwH8k81RVVTn79+89XdW5zVqvUoSJoLkiGFVR0Ijn+ffMm1fxnOfpY/X19R8Mbd90jrXmBmu9S4CJ1jIGML1+3G2tOdDVdagxGAw+7PP5NtXW1h5O7iM/P3+atd5zoM5gG6x1FGLR/Pz89mAwuNUY7+mTTipt6J00iUaPLlHVL/bzm2uA7WmGToCvWeteAyAi+1tbW28EdqUbawBf661MCxjfKZ7oVBGdoJhig44NQyYdmEA2WaJUKhQO19GxoDAdWNNe6sS02vutVKdecapMB0nIOuzz+YYMHIAxJkfVngqSDSDCuOTfq6qqnJaWli+A+S5QmqILAXJU9UzgE8bIPwaDwc9v2bLlbwDV1dXm5Zdf/rKIuQeYmMasLGBy/J+GPC/2i7lz595dX1//YYLBcZwMa73TQFLa0as7oJXWmkWtra13VFdX/6q6ulpVGQ9y2iB5KTF37tyTRfSaJP5TVXUhx3AAM+Ehdnc5br2L96I6vmcNPKfKJlTfAA6hZCjaotA9XEcjRJ4oT3R0+CqPQ1/Dorm5eTnooyADJl9VLRBh4FYkgE8kNgagvLzcv3Hjy7eJ8CiDJr+3/WFgcMgOqPJlY+TpUCiU/xHVLgb74Pr16y8abUNjzFUgpySRBPT6UCg0Lm0jereAyavoBrohup8kj9EqnLZisrKyybYeudY6M1RkNmi5wHSEyapkjFLXsYref3ApVxetpmmUbUeEysq5ldbydQaumF0gPzXGrBOR7lgsVuI4cjXItaAvWcu36+u3vQeQlZX1D6p6b1JbBXar8oQxzh8cx2l3XTcDuAj0WiBE71iqamUsFvtmeXn53du3b48N1k2E/1aV76mq6zia7XkSFOEG4OR4e4qMMZ8G/nek9oZCoYDrxhYBg6PMlFgsdiXwRLq2KXMArca0h53PdBoKfJ5X77o05efzN6n23gVe0KVkdhmmWuOcpZZ/QriU+EpJG6IGYZbxmc+C/cEI+UeMsrKyDFW5DQZsCX+2Vr9SX1+3M4m2u6qqaltLS8tznmcbEgnknDlzssAuA0lexa+DXFdXt6WBgZHj7VAotM51Y9XATYAjIgb4ciAQ+Anw1mD9VDkQDodfTUr6/icYDLbGo1U8KRfRs0djs+dFLwM5PYnkEp/bTGBReXn52lTOCGkc4GAnJUb0XqtSJo4TVdU3wx3mD+Glbk1+Kw2ymp64cd5bwDMHl5Lr+J1LrXIlykIgF1AROlTxAWMHiXBUzQ2HvmrX5v6AA6Mx9lgoKCiYoKqfoncwVdUa4yypr9+8czBvb7JVm0wzxswEZiWR2lS5o65uy+up5NXW1h6YM2fOncaYWSJcmFDDGD4D3D8SnY2x71srmqTziE9Z8+efk9PdLdfTP5cfgr4KcgWACHMCgcBsYHNK2amIos4cVGbElSED5HzQf1PHqQuXOps6ljs37F/GSQn+otUcyl/pPVOQ512Pemejcj/C+6rkAvuB36uwUZXWfik6NeY6l4zU0FGgAgj02SJsmjBhQrrMeQiM0bOB4sS3KvVHjx7dMlybrVu3dovoI0DyKqu4/PLLh0ykKmbSpEn+srKyjAULFmQHg8GZ1spyBs7FB4PbpcORI2PPVuWyRPcirAXzGPQX4ETklvLy8uxU7VM7AFyKDKkRCJCFMs8qD/vFvHRwuVkWXsIUTYSuatzCH7JnQ7N7j7reFYqsBvIRLhHV8SC/FuFJoBklIMK8kRo6Cpwy6HtrTU3NcGf8QZCpJNVHjOHVdOFzIMwuIJz4UpVxnZ2deUO4DJdHIodfKSjIr+voaN8iwouqOj+JJaoqfxiJpqFQyCfCdfQ7/AFVeSE7O3uTiLzXz6nzc3Jyzkip9WCCLiUT4axjyM4AOVdUVqrf/Fd4ubm5eTHZ9A7c1TV4RavZVZjv3ul5chUqb6NylhG9VZVxInwT4UXg3JEYOjromOQvEWnnGMWnAa1VcwZ+y4i2KBHpApKKQZqhqv6h/VMUj6hcoMp5qlramzcAWJAXROTlkciMxWJnAMnO87rP5/vz+vXrj6jyNP12F1prv0CKwt8QB4g4FKIyxHPTwICcjcqarGynNnyHs0Cr+/MKqcYtXu3+0RH3YoTHe7VZoMp3gV9jeWiEckYBGVCIsZZxjKLkrSpHBpHGj6SdtTaXARVSjYrICCIHAB7wFsh9Pp/v+i1btoSP2QIQ0auAaQmBxvBUolJojPcCsDdJnyuDweBpg/sY4gBRyBQY4rnHgsKFavl5e9h5PHw7UzVp0PNW0e5leF8T9D6Jr5JJwAqborag2r9aVfF7npdy8qy1Gcn6q0oizL+dzCfCvKqqqpRbXSqIyHu9Z/0EZodCoUDaBv0azWRAsUz25+V92DmUT+ut1cUgi0T0X0EWgpSLmHklJSX3Da4kpkPv+f4LAzSwfDsYDG4PBoPbrXV+wcCT0FQRe+XgfoacAqyHK85HvrjJFfiSipl58DZzpxa6f5RqXIDi79O1d7ldka2+QkFvBSYaw4qDS9lUtJpDiQ5E6ACKej9LVbUQ+HCQHDGGMwbWIGyiXLyNuGMljqSzW1v3zgbqSbEVlJWVZVRVVbnV1dU2Ll/eBGmDRJKrs2Kx2DwgbVgOhUJjPC92Q++JJ6Fi/bp17/ZUVg4uIsq7nZ0da1PV/kcBcV13IcjJyTTgjGF2O0dVvjR//vw169ev74tyQ1aG59Eh6OAwOArVEFTOc4w+HQ6bxVrdL2PyKrpjPvdbwMZe0qk4ztWDemhI+n++48hNVVVVA4pNFRUVJcAiBkaABoBwONwKrEti96v6fpQq/AEmPz/v3o0b119bXl7uB3Acp0F1QL29WIQHKitnn5nK3FAoNMZ13e+rUp5E7lDVZ1PxHw+UlZX5gRsYxaVcL049cuTIFcmEIRFg/MMcbr+dd4ALPrqKoFCEyIqDHWbKppC9++LaeCSYsIIj4Tu8b6h1zgROFgi9s5SfnxavLWAMz1jLP9NnnNzc0rJv/Lx5c9aqOh3W2jNF+KoqU5PE7fX7/ZsBGhsboxUVFd8ToYL+VXw+sKGiouIREdkq4kXiq0euV+WTqrhZWYFLL7room/U1tY2zZs3736wF8UTNgBmep6zORic+yjoFlVzAMgSsee4bux64Dz6ndEDfdDvz0jKwo8v8vLygqBzkkhvqrLCGB0SuVXNXNCbiEeIDBH5yvz557y4fn3DEUhTCDLCRqt8jo/wYGQQshxk2bkzzb7GYvtoWU28fp6/lzfDk+SXoHcJTCp2yaY3g/b7Ay9Fo0f/qNqX3WaAfE5VPgV61BjJY6DnHwVdUVtb2xe16urqdgSDwe+A/jtQ0Eue3PvdoWpixItT2f0y+Kzf7+8sKyu7PRKJvJqVlXUP6AMJHhGKQL4J0iUiERH1q5q8QWPoAusCgewHN2zY4H7MsUuJOXPmZDmOLFLtmxtXlbV1dXU/I0X8D4Uu3OC6/s9DIrHXed3d2ecCdZCmDmDE2wy0HA+FFTJV5N7xk3xzEzSpwUPMr1HCFrJNdn8Ne+PGjQc9T78B7EwySIhXF8czcPJ7QJ48dOjwTxhovA2Hw0+I6B1Ac+K33uNWIfHIkFwY8UBfV9U1jY2N0e3bt8dKSkoeA/k68ULWID10Qm90SJ78o6A/EzE3btiwIUXyd3zgOM7pSYUfgAOO4zxPms2/tvZPrcALSaQMVbOorKwsA9I4wNjD7FaR3x4vpYFCH3r3h7fQd0b3OqPvI9SLcsTzGLBa6uvrd4qY+aCriFfFBhvnAltE9LqSkpLbGxoahuQsjY2N0c2b658CmQO6UkT+AimT210g93Z391xWV1fXmCDW1NR4W7ZsWQNSGX93wNsp9ECEg8DvQBb4fBk3bt68ecDCicViMVXdC+wB9qhyMBAIjKguIUJ7oh2wx1rbA/aTxKt8vXR59pVXXnlnuH5U5cm4nX19nVVQUDAVhgnx4SWBKfhj25T+ku/HxAE18umilW49xN8Wti/zfUfQwoICb1nitJCMUCjki0ajhY6jU60100QkU1U7rLVvW2ubt23b1sUIijyhUMjX09OTa4wpMcacpqq5qnpURN7zPG93aWlp53AvZ0KhkC8SieRlZmZOAk5R1VwRGwVnr7V2t7U2vHXr1pTX5aFQyAfkJ46z1tqjdXV1XSMZsPjpwuu7YItEIh0+ny8rIyOjLwpmZWVFkrP6Y+hvABzH0a6urs7t27fH0jqAgoRvNzcp8oBATjq+kUIginB1wSrv+QStY7lztYq0Fax0N33c/k/goyFtgURACyL2CVR+jH78B50KEVQG7I2CtyF/pVv7cfs+gY+OY2b5e5eTla2+rwl6FyO/70+F33sZ3jXF32fY8Lfv1vJbFM4GPaj+npWTVzW2tyw9b4ZrnamC2SbiLpz00I4nAfYtveA8Rb+ItWFflvfjCSsaPtTF5f7mTPsttbykjh5Qjxknr9n5/GA5H9xSHvQbxqkjf7GevbB03I5fSTW2aen5s1FdqIhfhRd+WrSjrroa23rrrGkxYudHo2ZDVqZePXH1jscB9t984SlRY5cJul8dWzP5RzuH7MfNS87/FyPyriucrGimoO/5rEyesGbHi3Gbz7vB9dzfTXnkjSEl4KYlM08HsxghYhzzxMQfbt+ji8v9+zJ1Uawrd+20pwY+EtXqkK/pQOeXAtnZv+mJdF9oVDomrtm+Y/d1UwO+MYW3CZKpRt8sbZn+gtTUeMcskU5eRXdhvvsA8BVB3mH417OpoMBmxLnrWJMPELXmd6CZqP6+NK/4EICrzngRe4aoZlvpL7goOlGs9amRCV63mQnwfnSso5YZKtxqYIaIpCzgWMy7Fl2o1t6k6F8TbxRF9TYx+iJ+HjPIbYu7ygsBrHELjZoyyeoJqPbd+9PjuIUiNh/IEU9mpxwAxfXgMsFeiXKxqlym0n9mV8wF4vjSLC5TJIY8xGzLtL6OPhthVk52W4pjfJsRNeUd3ZGAUTnF+nQiQNa4XEfgAhHdicdn2ifsyYFhtoBkSDVHCx/0fuk57kKQlcA+GfombjCiwD5UVgTEu6ZwVfSNkcia9vCfWkWky/Fri1TXxhNDz1MRfL5M/OjApE+RaQamZ/v5UxL5IGq2WWuuGlaOsc+D2Mnj8pIei0gg09EP3HBuE6rq9tgMAGuspwb/WM/voDIockqhGGapytZUsjKMblfsxaqmzYgcEeEs4/cNeS0EsGdp+fSmJeU3Ny2ZlShCoVZyQUoPu5G0D0sT2AUgSJ7ncyz4iT80ScDBcrKn9uHVRdsOQ5pCUDqM+wF/BffOjpu53wacy1FmK3xCRCaokiEQFbQVZJcVre+OehtL13BwNDJ60a3q9EUa8XnvWXVudF33dEfNtgTdQMzGr5VP7bZmOokn0yIRXPcZ4zizVCTle30AT2g2Vpv6HA1QZH13zLnXP+ZQDJFtXa09BwAOH+p+b0x2ztQe+DZGdyf4rVhPcF5Rq8Y4cibw7mA5xQ+91rzv1vIWhdesWivI/PFHbPJNXXfA+ixAD51NOYG8mrfGZncCqHE8wW4tXf3nx/r538doYcRmO0NOQDNodJspf6PH8b4llhzHsX1lcRFtn/TQa2uS+UflAAnkP0IYvF/pb3i6ZQOZAfCbbMR62IIiXBrp+Th/CeRkxu47aUxD37Fq0uqGfX9bXH5z1lj8JV30JZLh1qO12TnFxlfQI6VumwWY+lRtT9stZfcUP9J4ZP+d59wY83LSblmTC/Jfa+rseTOZNmnc2Cf2tUXyuk3MdPZIxwU1jTGAT/z0ra62r1fc0tEdCcChvsurKUUFb7Q0d71VknnIa/IVp42oTiC27OAHXmxGQUD358Zekoca+q6KO23PPTPGN0YATlv9bg9J7wpKi8bsaOrsGRA9pz71fk/bLTl3Fa9oHPJnd1KN1cU83jJW8rq7iE1fs/MQwEkrGiJvLaq4I51+J3ACJ/D3iP8DOK6EZrNRS0cAAAAASUVORK5CYII=",
+            "name": "network-ucopia-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Break change: change macro thresholds options\r\n* Add ha-status and service-status services",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Ucopia WLC equipment via SNMP:\r\n* High availability\r\n* Services\r\n* Temperature\r\n* Users"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un \u00e9quipement Ucopia WLC via SNMP :\r\n* High availability\r\n* Services\r\n* Temperature\r\n* Users"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Ucopia-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Ucopia-Wlc-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Ucopia",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_ucopia_snmp.pl",
+                "package_name": "centreon-plugin-Network-Ucopia-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-ucopia-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Network",
+            "SNMP",
+            "Ucopia"
+        ],
+        "update_date": "1562661149",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre d'utilisateurs connect\u00e9s.}\r\n\r\n{EN: Check connected users.}",
+            "active_checks_enabled": 2,
+            "alias": "Users",
+            "check_timeperiod": "",
+            "command_name": "Net-Ucopia-Wlc-SNMP-System",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTERS$",
+                    "password": false,
+                    "value": "users"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Ucopia-Wlc-Users-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la temp\u00e9rature.}\r\n\r\n{EN: Check temperature.}",
+            "active_checks_enabled": 2,
+            "alias": "Temperature",
+            "check_timeperiod": "",
+            "command_name": "Net-Ucopia-Wlc-SNMP-System",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTERS$",
+                    "password": false,
+                    "value": "temperature"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEDISPLAYOKCOUNTERS$",
+                    "password": false,
+                    "value": "temperature"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Ucopia-Wlc-Temperature-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des services.}\r\n\r\n{EN: Check service status.}",
+            "active_checks_enabled": 2,
+            "alias": "Service-Status",
+            "check_timeperiod": "",
+            "command_name": "Net-Ucopia-Wlc-SNMP-System",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTERS$",
+                    "password": false,
+                    "value": "service-status"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSERVICESTATUS$",
+                    "password": false,
+                    "value": "%{status} eq \"stopped\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Ucopia-Wlc-Service-Status-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut de la r\u00e9plication.}\r\n\r\n{EN: Check high availability status.}",
+            "active_checks_enabled": 2,
+            "alias": "Ha-Status",
+            "check_timeperiod": "",
+            "command_name": "Net-Ucopia-Wlc-SNMP-System",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTERS$",
+                    "password": false,
+                    "value": "ha-status"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Ucopia-Wlc-Ha-Status-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,145 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_php_apc_web.pl --plugin=apps::php::apc::web::plugin --mode=memory --hostname=$HOSTADDRESS$ --proto=\\'$_HOSTPHPAPCWEBPROTO$\\' --port=\\'$_HOSTPHPAPCWEBPORT$\\' --urlpath=\\'$_HOSTPHPAPCWEBURLPATH$\\' $_HOSTPHPAPCWEBEXTRAOPTIONS$ --warning-used=\\'$_SERVICEWARNINGUSED$\\' --critical-used=\\'$_SERVICECRITICALUSED$\\' --warning-fragmentation=\\'$_SERVICEWARNINGFRAGMENTATION$\\' --critical-fragmentation=\\'$_SERVICECRITICALFRAGMENTATION$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Php-Apc-Web-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_php_apc_web.pl --plugin=apps::php::apc::web::plugin --mode=file-cache --hostname=$HOSTADDRESS$ --proto=\\'$_HOSTPHPAPCWEBPROTO$\\' --port=\\'$_HOSTPHPAPCWEBPORT$\\' --urlpath=\\'$_HOSTPHPAPCWEBURLPATH$\\' $_HOSTPHPAPCWEBEXTRAOPTIONS$ --warning-request-rate=\\'$_SERVICEWARNINGREQUESTRATE$\\' --critical-request-rate=\\'$_SERVICECRITICALREQUESTRATE$\\' --warning-request-rate-now=\\'$_SERVICEWARNINGREQUESTRATENOW$\\' --critical-request-rate-now=\\'$_SERVICECRITICALREQUESTRATENOW$\\' --warning-hit-rate=\\'$_SERVICEWARNINGHITRATE$\\' --critical-hit-rate=\\'$_SERVICECRITICALHITRATE$\\' --warning-hit-rate-now=\\'$_SERVICEWARNINGHITRATENOW$\\' --critical-hit-rate-now=\\'$_SERVICECRITICALHITRATENOW$\\' --warning-miss-rate=\\'$_SERVICEWARNINGMISSRATE$\\' --critical-miss-rate=\\'$_SERVICECRITICALMISSRATE$\\' --warning-miss-rate-now=\\'$_SERVICEWARNINGMISSRATENOW$\\' --critical-miss-rate-now=\\'$_SERVICECRITICALMISSRATENOW$\\' --warning-hit-percent=\\'$_SERVICEWARNINGHITPERCENT$\\' --critical-hit-percent=\\'$_SERVICECRITICALHITPERCENT$\\' --warning-hit-percent-now=\\'$_SERVICEWARNINGHITPERCENTNOW$\\' --critical-hit-percent-now=\\'$_SERVICECRITICALHITPERCENTNOW$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Php-Apc-Web-File-Cache",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to monitor PHP APC module by the Webpage",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "app-php.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPHPAPCWEBPORT$",
+                    "value": "80"
+                },
+                {
+                    "key": "$_HOSTPHPAPCWEBURLPATH$",
+                    "value": "/apc.php"
+                },
+                {
+                    "key": "$_HOSTPHPAPCWEBPROTO$",
+                    "value": "http"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Php-Apc-Web",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Php-Apc-Memory-Web",
+                "App-Php-Apc-File-Cache-Web"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "app-php.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor PHP APC module:\r\n* File Cache\r\n* Memory"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser le module PHP APC :\r\n* File Cache\r\n* Memory"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Php-Apc-Web\r\n\r\nYou need a read access to the PHP APC Webpage.\r\n\r\n## Centreon Configuration\r\n### Create a new PHP APC module\r\nGo to \"Configuration &gt; Hosts\" and click \"Add\". Then, fill the form as\r\nshown by the following table :\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Php-Apc-Web-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Onglet <em>Relations</em> &gt; Parent Hostgroups</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick \"Save\" button.",
+        "name": "PHP APC",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_php_apc_web.pl",
+                "package_name": "centreon-plugin-Applications-Php-Apc-Web",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-php-apc-web",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Application",
+            "PHP",
+            "APC",
+            "Web"
+        ],
+        "update_date": "1502117845",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation m\u00e9moire.}\r\n\r\n{EN: Check memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Php-Apc-Memory",
+            "check_timeperiod": "",
+            "command_name": "App-Php-Apc-Web-Memory",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Php-Apc-Memory-Web",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du cache fichier.}\r\n\r\n{EN: Check file cache usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Php-Apc-File-Cache",
+            "check_timeperiod": "",
+            "command_name": "App-Php-Apc-Web-File-Cache",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Php-Apc-File-Cache-Web",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

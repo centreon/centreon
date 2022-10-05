@@ -1,0 +1,155 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Cisco-Meraki-Cloudcontroller-SNMP-Devices-Discover",
+                "command_for_macro": "Net-Cisco-Meraki-Cloudcontroller-SNMP-Devices-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Cisco-Meraki-Cloudcontroller-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Cisco-Meraki-Cloudcontroller-SNMP-Device-Usage",
+                "service_display_name": "Device-Usage-$name$",
+                "service_template": "Net-Cisco-Meraki-Cloudcontroller-Device-Usage-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cisco_meraki_snmp.pl --plugin=network::cisco::meraki::cloudcontroller::snmp::plugin --mode=list-devices --hostname=localhost --disco-format\\\"",
+            "name": "Net-Cisco-Meraki-Cloudcontroller-SNMP-Devices-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cisco_meraki_snmp.pl --plugin=network::cisco::meraki::cloudcontroller::snmp::plugin --mode=list-devices --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Cisco-Meraki-Cloudcontroller-SNMP-Devices-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cisco_meraki_snmp.pl --plugin=network::cisco::meraki::cloudcontroller::snmp::plugin --mode=device-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-product=\\'$_SERVICEFILTERPRODUCT$\\'  --filter-network=\\'$_SERVICEFILTERNETWORK$\\' --filter-name=\\'$_SERVICEFILTERNAME$\\' --filter-interface=\\'$_SERVICEFILTERINTERFACE$\\' --warning-total-devices=\\'$_SERVICEWARNINGTOTALDEVICES$\\' --critical-total-devices=\\'$_SERVICECRITICALTOTALDEVICES$\\' --warning-clients=\\'$_SERVICEWARNINGCLIENTS$\\' --critical-clients=\\'$_SERVICECRITICALCLIENTS$\\' --warning-in=\\'$_SERVICEWARNINGIN$\\' --critical-in=\\'$_SERVICECRITICALIN$\\' --warning-out=\\'$_SERVICEWARNINGOUT$\\' --critical-out=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Cisco-Meraki-Cloudcontroller-SNMP-Device-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Cisco Meraki Cloud Controller en SNMP}\r\n{EN: Template to check Cisco Meraki Cloud Controller using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Cisco Meraki Cloud Controller using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "network-meraki-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Cisco-Meraki-Cloudcontroller-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Cisco-Meraki-Cloudcontroller-Device-Usage-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "network-meraki-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* update display name",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Cisco Meraki Cloud Controller via SNMP:\r\n* Device Usage"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un Cloud Contr\u00f4leur Cisco Meraki via SNMP :\r\n* Device Usage"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Cisco-Meraki-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Cisco-Meraki-Cloudcontroller-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Cisco Meraki SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_cisco_meraki_snmp.pl",
+                "package_name": "centreon-plugin-Network-Cisco-Meraki-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-cisco-meraki-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Network",
+            "Cisco",
+            "Meraki",
+            "Wireless",
+            "SNMP"
+        ],
+        "update_date": "1585749514",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des points d'acc\u00e8s.}\r\n\r\n{EN: Check access point usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Device-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Cisco-Meraki-Cloudcontroller-SNMP-Device-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Cisco-Meraki-Cloudcontroller-Device-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

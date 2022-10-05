@@ -1,0 +1,125 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hwgste.pl --plugin=hardware::sensors::hwgste::snmp::plugin --mode=sensors --hostname=$HOSTADDRESS$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Sensor-HWgSTE-SNMP-Sensors",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les capteurs HWg-STE via SNMP}\r\n{EN: Template to check HWg-STE sensors using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check HWg-STE sensor using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Sensors-HWgSTE-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Sensor-HWgSTE-Sensors-Global-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Add warning and critical options",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monirot HWg-STE Sensors"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller les sondes HWg-STE"
+            }
+        ],
+        "discovery_category": "sensor",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAAAfCAIAAACgbFIKAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuOWwzfk4AAASlSURBVGhD7ZpdSFtnGMfjt8OPC4sYrN6oV1O8EIeXIsJaZIsKOtiwrgUvZBPmMMgYSDVrKWlSvxBs9UIYTqRs64qVNmOIuKnESVwWUHux6CQyIxEHMqf53L/neXM4OSdmLnWeBM6P5yLv8/zzxuf957znPUGVx+t7s21EFB+PPAsE/IFQKj56KJK91fHIL5F9+vCFSIb41b7HykGm520iDWLuFzsrB9naOxRpEPemf2TlQOBLi2tw0RmPMbDo3Nz/W+X2+lTXbotCc3uK9SfgjXfviGSZDXdZTcB7dx6r3g6RIcybDlYOMvrsZ6ns6fImKwd56XBJZZ2jz1k5EEAbn5sccRrWP47/iwGacxsQKkOshDVAIjvDgF6RTDGAxSUZIJEpBrBQroDXDMUAmUMxQOZQ7gEyh3IFyByKATKHYoDMoRggcygGyBxnGlB8c6jrkalr7IUwkuv6RLJYMOAvt+/oNF7D4/OHN+CcEQsGxDuKATIT3oD0d764+r7x6gchkXBdLIsRA/x+/8bGxvcSWJnD4XAscuzu7mLo9XrtdrvVaqWqkJ2dHVKCtbU1t9vNCgLwicvLyxAsLS3hNTInJyf8W0jDc3R0RCUevGt/f5+qcX8TPj09bW5uTkhIUElgCg6DwUDJvr6+3t5etVqNt5SVlbEyh8/n6+joEE1VXFy8vr7OFEE8Hk9mZiaqaWlp8BIZ2En68vJy0vCsrKxQSUhqaurQ0BCqcW/AwMAAtTQxMTHPkZycTBmm4OANQBU0NDSMj4/jW8zKHJOTk6SBmKbKzc3FsKqqiimCRGdARUUFTavVajGE02azOe4NqKuro/ZsNhtlUlJSKENDgjcAq4D9imVDaWlpIY3JZKJMQUEBhomJicfHx5QhojOgtraWMmNjY5TR6XRxb0B1dTU1c04DjEYjS0loamoijcgAcHh4SBniogzo6emJSwPuTS+wsmIAqwn4HwwI0dx68B0dPAjFADEXa4D+8U9CAVbfJ1h9gK6oGcUAxgUa8ODrRWH1lvGJaPUBDo7UzOrqKm6VIGoD2traSCMyABPisEsZAgfWvLw8lF7TAL1eH7sGiFb/puGJcOfh2d7ezs/PRzM4WWM5APUGmILjPAZg3ekhoLW1FY8LIDs7G8P6+nqmENDd3Y0STrR4qoCys7Pz1ewRDSgqKqJpNRoNhhkZGa9suxwDRp6af7D8JoxPRp9L/+NK99U8VXWT88L8h4Zvw64+cXBwMDw8/FkQnBqpYVbm6O/vh0MAzw0sFQ58NwsLC+EiibOysrAvuVwuVhaAawIXX05ODil5KisrmSIIbwD+MJo5PT29tLR0bm4O1UsyQLrWYTIISoaWbtyPtPqzs7MzMzNswEFbEL7LbMyBTcPNgRcsdQb4LFIC2l4iwE/Lg9sDqwXhDaipqeE1fEeXZUC0EXn1QXt7O+6HCwsLvIwMKCkpoaHsSO8BQmLagBv6byKvPsA2qlar0R4ucAKvk5KSpqbCtCALFovlCkdjYyNLCVChQat9TxRbeyGnLsK25RTJbNtOVhPwu/NPkSzq+LfFZ2CPHhwc1Gq1XRx4vpf+JBmjBAL/ABy/poXDggHhAAAAAElFTkSuQmCC",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites \r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Sensors-Hwgste-Snmp\r\n\r\n\r\n### SNMP\r\nConfigure SNMP on HWg-STE Hardware\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the monitoring server\r\n\r\n## Centreon Configuration\r\n### Create a new PDU Raritan host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Sensor-HWgSTE-SNMP  </p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "HWg-STE Sensor",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_hwgste.pl",
+                "package_name": "centreon-plugin-Hardware-Sensors-Hwgste-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Hardware-Sensors-Hwgste-Snmp",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "hardware-sensors-hwgste-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Hardware",
+            "HWg",
+            "Sensor",
+            "SNMP"
+        ],
+        "update_date": "1540832008",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'ensemble des sondes de l'\u00e9quipement.}\r\n{EN: Check all sensors of equipment.}",
+            "active_checks_enabled": 2,
+            "alias": "Sensors-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Sensor-HWgSTE-SNMP-Sensors",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Sensor-HWgSTE-Sensors-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

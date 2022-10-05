@@ -1,0 +1,323 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "HW-Storage-Netapp-Ontap-Restapi-Volumes-Discover",
+                "command_for_macro": "HW-Storage-Netapp-Ontap-Restapi-Volumes-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "HW-Storage-NetApp-Ontap-Restapi"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "HW-Storage-Netapp-Ontap-Restapi-Volume-Name",
+                "service_display_name": "Volume-$name$",
+                "service_template": "HW-Storage-NetApp-Ontap-Volumes-Restapi"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_restapi.pl --plugin=storage::netapp::ontap::restapi::plugin --mode=list-volumes --hostname=127.0.0.1 --api-username=none --api-password=none --disco-format\\\"",
+            "name": "HW-Storage-Netapp-Ontap-Restapi-Volumes-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_restapi.pl --plugin=storage::netapp::ontap::restapi::plugin --mode=list-volumes --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --api-username=\\'$_HOSTAPIUSERNAME$\\' --api-password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTAPIEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "HW-Storage-Netapp-Ontap-Restapi-Volumes-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_restapi.pl --plugin=storage::netapp::ontap::restapi::plugin --mode=hardware --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --api-username=\\'$_HOSTAPIUSERNAME$\\' --api-password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTAPIEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Ontap-Restapi-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_restapi.pl --plugin=storage::netapp::ontap::restapi::plugin --mode=cluster --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --api-username=\\'$_HOSTAPIUSERNAME$\\' --api-password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTAPIEXTRAOPTIONS$ --warning-read=\\'$_SERVICEWARNINGREAD$\\' --critical-read=\\'$_SERVICECRITICALREAD$\\' --warning-write=\\'$_SERVICEWARNINGWRITE$\\' --critical-write=\\'$_SERVICECRITICALWRITE$\\' --warning-read-iops=\\'$_SERVICEWARNINGREADIOPS$\\' --critical-read-iops=\\'$_SERVICECRITICALREADIOPS$\\' --warning-write-iops=\\'$_SERVICEWARNINGWRITEIOPS$\\' --critical-write-iops=\\'$_SERVICECRITICALWRITEIOPS$\\' --warning-read-latency=\\'$_SERVICEWARNINGREADLATENCY$\\' --critical-read-latency=\\'$_SERVICECRITICALREADLATENCY$\\' --warning-write-latency=\\'$_SERVICEWARNINGWRITELATENCY$\\' --critical-write-latency=\\'$_SERVICECRITICALWRITELATENCY$\\' --unknown-node-status=\\'$_SERVICEUNKNOWNNODESTATUS$\\' --warning-node-status=\\'$_SERVICEWARNINGNODESTATUS$\\' --critical-node-status=\\'$_SERVICECRITICALNODESTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Ontap-Restapi-Cluster",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_restapi.pl --plugin=storage::netapp::ontap::restapi::plugin --mode=luns --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --api-username=\\'$_HOSTAPIUSERNAME$\\' --api-password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTAPIEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Ontap-Restapi-Luns",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_restapi.pl --plugin=storage::netapp::ontap::restapi::plugin --mode=snapmirrors --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --api-username=\\'$_HOSTAPIUSERNAME$\\' --api-password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTAPIEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Ontap-Restapi-Snapmirrors",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_restapi.pl --plugin=storage::netapp::ontap::restapi::plugin --mode=volumes --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --api-username=\\'$_HOSTAPIUSERNAME$\\' --api-password=\\'$_HOSTAPIPASSWORD$\\' $_HOSTAPIEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' --warning-read=\\'$_SERVICEWARNINGREAD$\\' --critical-read=\\'$_SERVICECRITICALREAD$\\' --warning-write=\\'$_SERVICEWARNINGWRITE$\\' --critical-write=\\'$_SERVICECRITICALWRITE$\\' --warning-read-iops=\\'$_SERVICEWARNINGREADIOPS$\\' --critical-read-iops=\\'$_SERVICECRITICALREADIOPS$\\' --warning-write-iops=\\'$_SERVICEWARNINGWRITEIOPS$\\' --critical-write-iops=\\'$_SERVICECRITICALWRITEIOPS$\\' --warning-read-latency=\\'$_SERVICEWARNINGREADLATENCY$\\' --critical-read-latency=\\'$_SERVICECRITICALREADLATENCY$\\' --warning-write-latency=\\'$_SERVICEWARNINGWRITELATENCY$\\' --critical-write-latency=\\'$_SERVICECRITICALWRITELATENCY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Ontap-Restapi-Volumes",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les baies de stockage Netapp via Rest API}\r\n{EN: Template to check Netapp storage using Rest API protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Netapp storage using Rest API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "netapp-128-1.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAPIUSERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAPIPASSWORD$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAPIPORT$",
+                    "value": "443"
+                },
+                {
+                    "key": "$_HOSTAPIPROTO$",
+                    "value": "https"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Storage-NetApp-Ontap-Hardware-Restapi",
+                "HW-Storage-NetApp-Ontap-Cluster-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAH4AAAB+CAYAAADiI6WIAAABOklEQVR42u3Ruw2DQBRFwQ3IHJNTCnVYQjIJ7oweiFZaQQGuyAYacALLR3Okm73oTQiSJEmSJEmSJEmSjqxNZXjFym60Ohb/4d9TP+9rN9qCDx48ePDgwYMHb+ANvIE38AbewBt4A2/gDbyBN/AG3sAbeANv4A28gQcPHjx48ODBexZ4A2/gDbyBN/AG3sAbeAO/zfrd140f8GdbjrrxCR48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHnxG+TeV6eLXlqBkel/xNHYsgSZIkSZIkSZKkY/sB3w4IbYPJDrUAAAAASUVORK5CYII=",
+            "name": "netapp-128-1.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix(pack)missing-icon",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor NetApp storage via Rest API:\r\n* Cluster\r\n* Hardware\r\n* LUNs\r\n* Snapmirrors\r\n* Volumes"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser le stockage NetApp via Rest API :\r\n* Cluster\r\n* Hardware\r\n* LUNs\r\n* Snapmirrors\r\n* Volumes"
+            }
+        ],
+        "discovery_category": "storage",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAH4AAAB+CAYAAADiI6WIAAAE2UlEQVR42u2c0W3bQAyG/aC3PgcxAtl1B+gE3cAj5KkFivTFM3SHLJEl9FCgSAfoFB0jFRVdKtMk7xQ5kdB8P0C0tS2Zdx955J2MrlYIIYQQQugN68vPi9W3X3fYTHZzf5gH/Ocfu9aBB2w2uwM84AEPeMADHvCABzzgAQ94wAMe8IAHPOABD3jAA57JBzwGeAzwGOAxwGOAxwCPAR4DPAZ4DPAY4AEPeMADHvCABzzgAQ94wAMe8P8H+K/3+863c9rNfQP4pYMXv86tx/+MAPCABzzgAQ94wAMe8IAHPOABD3jAAx7wgAc84AEPeMADHvCABzzgAQ94wAMe8IAHPOABD3jAAx7wgAc84AEPeMADHvCABzzgAQ94wAMe8IAHPOABD3jAAx7wgAc84AEPeMADHvCABzzgAQ94wAMe8IAHPOABD3jAAx7wgAc8QgghhBBCCCGEEEIIIYQQQmge7dbr3Yft9iHZbrv9s16vL6Jr3tf19dE1m83dOf0ZWvtSNer61pcj3+r6O5QLwPfWRBP+kuC1Lz38Il1eXr47ub4N5LHB85bBh5myVPDiszWW7dXVJ0gXgo8mbKHgK8lucyybzW9IjwDv1ftS8LL01nX9sf38QT4jGdn+fW/BlCDT900rj7wuFmWuvOeNIxdA6f7JxO80N/Lvoe/pPT1O5x6VHn8/hmo4/+ma1NfItS++SkXgB9lSjQUvA3Yz8DGobo8mQDVl5jXByiJ+ar+N7ytaZTrfA38kAHJzKPeQXslLKHk/BU0Kqn5emy45zriKPg+8MWk58BLhuXumJvIpuyaA93Ym+norW83yEgTsAP4hmsPCe+zTfKbM7wO2mQe8zh4V5RF4t1l0JiI1kZPAt4FpQdEZJ36XgC+1VD5Kksebk1QmBkv+QeZkFvCSLRaoVO8j8Mby1hwtawpSysTuOw1fUk8gZvUb1hYuZbau+/3Wrgi8fFYgpHrrLNtNCL5NoNQXyJ9WQs12zmA57TZLfb33wFsQEvSo+x5m4tiuXpcVlSkn32U1TRY0K8gs+BF44/ygWsyOwwPv7YtlYj3wfUOjM/Zam478CeBPwOpAywSGDd6B0WWt4Z9T429LytJwvhcDvo/QJlev02Ra27GiWndcKorB57Zwnulsjhq3XMaKD9YcetsxKznGHFK9FviVV++XAN7bLmW/T9XV0rpr7RS6rZ/Tm5SuGrlnI7OA96LUAmdtq9LERDYceCn453bS1vm98362n3hqhP3nHavSPmGR4HN780HGVlaNd0669tbDk9Ls0/2HwOpOxxyLMrLkkKZrXI2uPNzCqqAdEyCLAR8trUf7eKN5SUeV/WnebfQU0IIk13QW7B6Cumz7PmjgolPLbo9tjGnYwIXH3v+a4cYJsOvFg/cehOS2UAXLbtj1lvQS3qlc1AimjJxaLiaUnXmy/Rng7eNJtUXqancBfOshUNRPPPUSelcRnMOroDKvs4Dk/B527d4SPnbsiwY/4ulc5fUFXT1WD2mM+5+cAErdtTLXOCQq8jutFNZK0G3T7OBtNDAzGR6PYA/mChmM/TVVGT93KgqY6ChVb4MEjkzmmCjvjnjVz6/Sa2P9DcZaRU2Z+Dt4lFwVr4Ij74Fm0NQDlRx4BHgEeDS7vJ9ejelFpt4DIYQQyugvQEmGL4QZYWMAAAAASUVORK5CYII=",
+        "monitoring_procedure": "",
+        "name": "NetApp Ontap Rest API",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_netapp_ontap_restapi.pl",
+                "package_name": "centreon-plugin-Hardware-Storage-Netapp-Ontap-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-storage-netapp-ontap-restapi",
+        "status": "stable",
+        "status_message": "fix(pack)missing-icon",
+        "tags": [
+            "Ontap",
+            "NetApp",
+            "Restapi",
+            "Storage",
+            "Hardware"
+        ],
+        "update_date": "1593523122",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le mat\u00e9riel.}\r\n\r\n{EN: Check hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Ontap-Restapi-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-Hardware-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du cluster.}\r\n\r\n{EN: Check cluster.}",
+            "active_checks_enabled": 2,
+            "alias": "Cluster",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Ontap-Restapi-Cluster",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALNODESTATUS$",
+                    "password": false,
+                    "value": "%{state} ne \"online\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-Cluster-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les LUNs.}\r\n\r\n{EN: Check LUNs.}",
+            "active_checks_enabled": 2,
+            "alias": "Luns",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Ontap-Restapi-Luns",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{state} !~ /online/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-Luns-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les snapmirrors.}\r\n\r\n{EN: Check snapmirrors.}",
+            "active_checks_enabled": 2,
+            "alias": "Snapmirrors",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Ontap-Restapi-Snapmirrors",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{healthy} ne \"true\" or %{state} eq \"broken_off\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-Snapmirrors-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les volumes.}\r\n\r\n{EN: Check volumes.}",
+            "active_checks_enabled": 2,
+            "alias": "Volumes",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Ontap-Restapi-Volumes",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{state} !~ /online/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-Volumes-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

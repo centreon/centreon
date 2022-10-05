@@ -1,0 +1,188 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_cyberpower_snmp.pl --plugin=hardware::ups::cyberpower::snmp::plugin --mode=output-lines --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-load=\\'$_SERVICEWARNINGLOAD$\\' --critical-load=\\'$_SERVICECRITICALLOAD$\\' --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\' --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\' --warning-power=\\'$_SERVICEWARNINGPOWER$\\' --critical-power=\\'$_SERVICECRITICALPOWER$\\' --warning-frequence=\\'$_SERVICEWARNINGFREQUENCE$\\' --critical-frequence=\\'$_SERVICECRITICALFREQUENCE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Cyberpower-SNMP-Output-Lines",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_cyberpower_snmp.pl --plugin=hardware::ups::cyberpower::snmp::plugin --mode=input-lines --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\' --warning-frequence=\\'$_SERVICEWARNINGFREQUENCE$\\' --critical-frequence=\\'$_SERVICECRITICALFREQUENCE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Cyberpower-SNMP-Input-Lines",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_cyberpower_snmp.pl --plugin=hardware::ups::cyberpower::snmp::plugin --mode=battery-status --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-charge-remaining=\\'$_SERVICEWARNINGCHARGEREMAINING$\\' --critical-charge-remaining=\\'$_SERVICECRITICALCHARGEREMAINING$\\' --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\' --warning-temperature=\\'$_SERVICEWARNINGTEMPERATURE$\\' --critical-temperature=\\'$_SERVICECRITICALTEMPERATURE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Cyberpower-SNMP-Battery-Status",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les onduleurs CyberPower Systems via SNMP}\r\n{EN: Template to check CyberPower Systems UPS using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check UPS CyberPower Systems using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-UPS-Cyberpower-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-UPS-Cyberpower-Output-Lines-SNMP",
+                "HW-UPS-Cyberpower-Input-Lines-SNMP",
+                "HW-UPS-Cyberpower-Battery-Status-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor CyberPower Systems UPS :\r\n* Battery-Status\r\n* Input-Lines\r\n* Output-Lines"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les UPS CyberPower Systems :\r\n* Battery-Status\r\n* Input-Lines\r\n* Output-Lines"
+            }
+        ],
+        "discovery_category": "ups-pdu",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "CyberPower Systems UPS SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_ups_cyberpower_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Ups-Cyberpower-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-ups-cyberpower-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "UPS",
+            "SNMP",
+            "Hardware",
+            "CyberPower"
+        ],
+        "update_date": "1602601243",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les m\u00e9triques de la source d'alimentation.}\r\n\r\n{EN: Check output lines metrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Output-Lines",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Cyberpower-SNMP-Output-Lines",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /normal/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-UPS-Cyberpower-Output-Lines-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les m\u00e9triques de la source d'alimentation.}\r\n\r\n{EN: Check input lines metrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Input-Lines",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Cyberpower-SNMP-Input-Lines",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /normal/"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-UPS-Cyberpower-Input-Lines-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de la batterie.}\r\n\r\n{EN: Check battery status.}",
+            "active_checks_enabled": 2,
+            "alias": "Battery-Status",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Cyberpower-SNMP-Battery-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /unknown|notPresent/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /low/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-UPS-Cyberpower-Battery-Status-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

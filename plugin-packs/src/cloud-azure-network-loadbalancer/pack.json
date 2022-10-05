@@ -1,0 +1,1198 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-LoadBalancer-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Network Load Balancer resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Network/loadbalancers/LBA123456ABCD78",
+                            "location": "westeurope",
+                            "name": "LBA123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/loadBalancers"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Network/loadbalancers/LBA789012EFGH34",
+                            "location": "westus",
+                            "name": "LBA789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/loadBalancers"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": "discovery.results.id"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-LoadBalancer-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Load Balancer",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-network-loadbalancer",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-LoadBalancer-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Network Load Balancer resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Network/loadbalancers/LBA123456ABCD78",
+                            "location": "westeurope",
+                            "name": "LBA123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/loadBalancers"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Network/loadbalancers/LBA789012EFGH34",
+                            "location": "westus",
+                            "name": "LBA789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/loadBalancers"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-LoadBalancer-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Load Balancer",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-network-loadbalancer",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-LoadBalancer-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Network Load Balancer resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Network/loadbalancers/LBA123456ABCD78",
+                            "location": "westeurope",
+                            "name": "LBA123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/loadBalancers"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Network/loadbalancers/LBA789012EFGH34",
+                            "location": "westus",
+                            "name": "LBA789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/loadBalancers"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-LoadBalancer-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Load Balancer",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-network-loadbalancer",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_loadbalancer_api.pl --plugin=cloud::azure::network::loadbalancer::plugin --mode=throughput --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-throughput-packets=\\'$_SERVICEWARNINGTHROUGHPUTPACKETS$\\' --critical-throughput-packets=\\'$_SERVICECRITICALTHROUGHPUTPACKETS$\\' --warning-throughput-bytes=\\'$_SERVICEWARNINGTHROUGHPUTBYTES$\\' --critical-throughput-bytes=\\'$_SERVICECRITICALTHROUGHPUTBYTES$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-LoadBalancer-Api-Throughput",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_loadbalancer_api.pl --plugin=cloud::azure::network::loadbalancer::plugin --mode=snat --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-snat-connection-count=\\'$_SERVICEWARNINGSNATCONNECTIONCOUNT$\\' --critical-snat-connection-count=\\'$_SERVICECRITICALSNATCONNECTIONCOUNT$\\' --warning-snat-ports-used=\\'$_SERVICEWARNINGSNATPORTSUSED$\\' --critical-snat-ports-used=\\'$_SERVICECRITICALSNATPORTSUSED$\\' --warning-snat-ports-allocated=\\'$_SERVICEWARNINGSNATPORTSALLOCATED$\\' --critical-snat-ports-allocated=\\'$_SERVICECRITICALSNATPORTSALLOCATED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-LoadBalancer-Api-Snat",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_loadbalancer_api.pl --plugin=cloud::azure::network::loadbalancer::plugin --mode=healthprobe --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-healthprobe-availibility-percentage=\\'$_SERVICEWARNINGHEALTHPROBEAVAILIBILITYPERCENTAGE$\\' --critical-healthprobe-availibility-percentage=\\'$_SERVICECRITICALHEALTHPROBEAVAILIBILITYPERCENTAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-LoadBalancer-Api-Healthprobe",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_loadbalancer_api.pl --plugin=cloud::azure::network::loadbalancer::plugin --mode=datapath --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-datapath-availability-percentage=\\'$_SERVICEWARNINGDATAPATHAVAILABILITYPERCENTAGE$\\' --critical-datapath-availability-percentage=\\'$_SERVICECRITICALDATAPATHAVAILABILITYPERCENTAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-LoadBalancer-Api-Datapath",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_network_loadbalancer_api.pl --statefile-suffix='autodiscovery' --plugin=cloud::azure::network::loadbalancer::plugin --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Network-LoadBalancer-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les instances Azure Load Balancer via l'API}\r\n{EN: Template to check Azure Load Balancer resources service using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Network Load Balancer service using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-network-lb-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-LoadBalancer",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Network-LoadBalancer-Throughput-Api",
+                "Cloud-Azure-Network-LoadBalancer-Snat-Api",
+                "Cloud-Azure-Network-LoadBalancer-Healthprobe-Api",
+                "Cloud-Azure-Network-LoadBalancer-Datapath-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-network-lb-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ add proper tags management",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Azure Network Load Balancer using RestAPI or AZCLI.**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|Cloud-Azure-Network-LoadBalancer-custom|\r\n|---|\r\n|Datapath-Availability|\r\n|Healthprobe-Availability|\r\n|Snat|\r\n|Throughput|\r\n\r\nThis Plugin-Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin-Pack pour superviser les resources Load Balancer Azure Network via RestAPI ou AZCLI.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponibles et services associ\u00e9s:\r\n\r\n|Cloud-Azure-Network-LoadBalancer-custom|\r\n|---|\r\n|Datapath-Availability|\r\n|Healthprobe-Availability|\r\n|Snat|\r\n|Throughput|\r\n\r\nCe Plugin-Pack fournit un *provider* Host Discovery pour le module d\\'auto-d\u00e9couverte d\\'H\u00f4tes\r\n"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure Load Balancer",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_network_loadbalancer_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Network-LoadBalancer-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-network-loadbalancer",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Cloud",
+            "Azure",
+            "Microsoft",
+            "Network",
+            "Virtual Network",
+            "API",
+            "Restapi",
+            "HostDisco"
+        ],
+        "update_date": "1635259804",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques de donn\u00e9es Azure Load Balancer.}\r\n\r\n{EN: Check Azure Load Balancer data throughput statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Throughput",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-LoadBalancer-Api-Throughput",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-LoadBalancer-Throughput-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques SNAT Azure Load Balancer.}\r\n\r\n{EN: Check Azure Load Balancer SNAT statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Snat",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-LoadBalancer-Api-Snat",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-LoadBalancer-Snat-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la disponibilit\u00e9 des Health Probes Azure Load Balancer.}\r\n\r\n{EN: Check Azure Load Balancer Health Probe availability.}",
+            "active_checks_enabled": 2,
+            "alias": "Healthprobe-Availability",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-LoadBalancer-Api-Healthprobe",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-LoadBalancer-Healthprobe-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la disponibilit\u00e9 des Datapath Azure Load Balancer.}\r\n\r\n{EN: Check Azure Load Balancer Datapath availability.}",
+            "active_checks_enabled": 2,
+            "alias": "Datapath-Availability",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-LoadBalancer-Api-Datapath",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-LoadBalancer-Datapath-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

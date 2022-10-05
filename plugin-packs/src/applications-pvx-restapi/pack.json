@@ -1,0 +1,490 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_pvx_restapi.pl --plugin=apps::pvx::restapi::plugin --mode=network-user-experience --custommode=\\'$_HOSTPVXCUSTOMMODE$\\' --hostname=\\'$_HOSTPVXAPIHOSTNAME$\\' --url-path=\\'$_HOSTPVXAPIURLPATH$\\' --api-key=\\'$_HOSTPVXAPIKEY$\\' --port=\\'$_HOSTPVXAPIPORT$\\' --proto=\\'$_HOSTPVXAPIPROTO$\\' --timeout=\\'$_HOSTPVXAPITIMEOUT$\\' $_HOSTPVXAPIEXTRAOPTIONS$ --timeframe=\\'$_SERVICETIMEFRAME$\\' --instance=\\'$_SERVICEINSTANCE$\\' --filter=\\'$_SERVICEFILTER$\\' --from=\\'$_SERVICEFROM$\\' --top=\\'$_SERVICETOP$\\' --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --warning-time=\\'$_SERVICEWARNINGTIME$\\' --critical-time=\\'$_SERVICECRITICALTIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Pvx-Restapi-Network-User-Experience",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_pvx_restapi.pl --plugin=apps::pvx::restapi::plugin --mode=network-traffic --custommode=\\'$_HOSTPVXCUSTOMMODE$\\' --hostname=\\'$_HOSTPVXAPIHOSTNAME$\\' --url-path=\\'$_HOSTPVXAPIURLPATH$\\' --api-key=\\'$_HOSTPVXAPIKEY$\\' --port=\\'$_HOSTPVXAPIPORT$\\' --proto=\\'$_HOSTPVXAPIPROTO$\\' --timeout=\\'$_HOSTPVXAPITIMEOUT$\\' $_HOSTPVXAPIEXTRAOPTIONS$ --timeframe=\\'$_SERVICETIMEFRAME$\\' --instance=\\'$_SERVICEINSTANCE$\\' --filter=\\'$_SERVICEFILTER$\\' --from=\\'$_SERVICEFROM$\\' --top=\\'$_SERVICETOP$\\' --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --warning-total-traffic=\\'$_SERVICEWARNINGTOTALTRAFFIC$\\' --critical-total-traffic=\\'$_SERVICECRITICALTOTALTRAFFIC$\\' --warning-total-client-traffic=\\'$_SERVICEWARNINGTOTALCLIENTTRAFFIC$\\' --critical-total-client-traffic=\\'$_SERVICECRITICALTOTALCLIENTTRAFFIC$\\' --warning-total-server-traffic=\\'$_SERVICEWARNINGTOTALSERVERTRAFFIC$\\' --critical-total-server-traffic=\\'$_SERVICECRITICALTOTALSERVERTRAFFIC$\\' --warning-traffic=\\'$_SERVICEWARNINGTRAFFIC$\\' --critical-traffic=\\'$_SERVICECRITICALTRAFFIC$\\' --warning-client-traffic=\\'$_SERVICEWARNINGCLIENTTRAFFIC$\\' --critical-client-traffic=\\'$_SERVICECRITICALCLIENTTRAFFIC$\\' --warning-server-traffic=\\'$_SERVICEWARNINGSERVERTRAFFIC$\\' --critical-server-traffic=\\'$_SERVICECRITICALSERVERTRAFFIC$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Pvx-Restapi-Network-Traffic",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_pvx_restapi.pl --plugin=apps::pvx::restapi::plugin --mode=network-connection --custommode=\\'$_HOSTPVXCUSTOMMODE$\\' --hostname=\\'$_HOSTPVXAPIHOSTNAME$\\' --url-path=\\'$_HOSTPVXAPIURLPATH$\\' --api-key=\\'$_HOSTPVXAPIKEY$\\' --port=\\'$_HOSTPVXAPIPORT$\\' --proto=\\'$_HOSTPVXAPIPROTO$\\' --timeout=\\'$_HOSTPVXAPITIMEOUT$\\' $_HOSTPVXAPIEXTRAOPTIONS$ --timeframe=\\'$_SERVICETIMEFRAME$\\' --instance=\\'$_SERVICEINSTANCE$\\' --filter=\\'$_SERVICEFILTER$\\' --from=\\'$_SERVICEFROM$\\' --top=\\'$_SERVICETOP$\\' --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --warning-ratio=\\'$_SERVICEWARNINGRATIO$\\' --critical-ratio=\\'$_SERVICECRITICALRATIO$\\' --warning-attempt=\\'$_SERVICEWARNINGATTEMPT$\\' --critical-attempt=\\'$_SERVICECRITICALATTEMPT$\\' --warning-successful=\\'$_SERVICEWARNINGSUCCESSFUL$\\' --critical-successful=\\'$_SERVICECRITICALSUCCESSFUL$\\' --warning-connection-time=\\'$_SERVICEWARNINGCONNECTIONTIME$\\' --critical-connection-time=\\'$_SERVICECRITICALCONNECTIONTIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Pvx-Restapi-Network-Connection",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_pvx_restapi.pl --plugin=apps::pvx::restapi::plugin --mode=http-hits --custommode=\\'$_HOSTPVXCUSTOMMODE$\\' --hostname=\\'$_HOSTPVXAPIHOSTNAME$\\' --url-path=\\'$_HOSTPVXAPIURLPATH$\\' --api-key=\\'$_HOSTPVXAPIKEY$\\' --port=\\'$_HOSTPVXAPIPORT$\\' --proto=\\'$_HOSTPVXAPIPROTO$\\' --timeout=\\'$_HOSTPVXAPITIMEOUT$\\' $_HOSTPVXAPIEXTRAOPTIONS$ --timeframe=\\'$_SERVICETIMEFRAME$\\' --instance=\\'$_SERVICEINSTANCE$\\' --filter=\\'$_SERVICEFILTER$\\' --from=\\'$_SERVICEFROM$\\' --top=\\'$_SERVICETOP$\\' --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --warning-ratio=\\'$_SERVICEWARNINGRATIO$\\' --critical-ratio=\\'$_SERVICECRITICALRATIO$\\' --warning-hits-error=\\'$_SERVICEWARNINGHITSERROR$\\' --critical-hits-error=\\'$_SERVICECRITICALHITSERROR$\\' --warning-hits=\\'$_SERVICEWARNINGHITS$\\' --critical-hits=\\'$_SERVICECRITICALHITS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Pvx-Restapi-Http-Hits",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les metrics par application expos\u00e9es par PVX via l'API}\r\n{EN: Template to check application metrics brought by PVX using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check PVX metrics by application using RestAPI",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "app-pvx-1-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPVXCUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTPVXAPIHOSTNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPVXAPIURLPATH$",
+                    "value": "/api"
+                },
+                {
+                    "key": "$_HOSTPVXAPIPORT$",
+                    "value": "443"
+                },
+                {
+                    "key": "$_HOSTPVXAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTPVXAPIKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPVXAPIEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Pvx-Application-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Pvx-Network-User-Experience-Application-Restapi",
+                "App-Pvx-Network-Traffic-Application-Restapi",
+                "App-Pvx-Network-Connection-Application-Restapi",
+                "App-Pvx-Http-Hits-Application-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "app-pvx-1-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "- secure perfdata generation",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor PVX (Performance Vision) monitoring system using RestAPI :\r\n* Traffic by instance (application, layer,...)\r\n* Connection by instance (application, server IP,...)\r\n* User Experience by instance (application,...)\r\n* HTTP Hits by instance (application,...)"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser le syst\u00e8me de supervision PVX (Performance Vision) via RestAPI :\r\n* Trafic par instance (application, layer,...)\r\n* Connexion par instance (application, IP,...)\r\n* Exp\u00e9rience Utilisateur par instance (application,...)\r\n* Hits HTTP par instance (application,...)"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### PVX version\r\nPlugin requires PVX version 5.1.1 minimum.\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Pvx-Restapi\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Pvx-Application-Restapi-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Host Macro Configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"23%\" />\r\n<col width=\"53%\" />\r\n<col width=\"24%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>PVXCUSTOMMODE</p></td>\r\n<td align=\"left\"><p>Mode used by plugin</p></td>\r\n<td align=\"left\"><p>api</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>PVXAPIHOSTNAME</p></td>\r\n<td align=\"left\"><p>Hostname of the PVX API instance</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>PVXAPIURLPATH</p></td>\r\n<td align=\"left\"><p>Path to the PVX API</p></td>\r\n<td align=\"left\"><p>/api</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>PVXAPIPORT</p></td>\r\n<td align=\"left\"><p>Port of the PVX API instance</p></td>\r\n<td align=\"left\"><p>443</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>PVXAPIPROTO</p></td>\r\n<td align=\"left\"><p>Protocol used by the PVX API</p></td>\r\n<td align=\"left\"><p>http</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>PVXAPIKEY</p></td>\r\n<td align=\"left\"><p>Key to access PVX API</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Other host templates\r\nThe \"App-Pvx-Application-Restapi-custom\" host template will add services that will retrieve metrics\r\nabout traffic, connection, user experience and http hits by application.\r\n\r\nIt's possible to have the same metrics by other 'instances' like layer, server IP, client OS.\r\nFor this, new host templates can be created and linked to existing service templates, or newly created ones, \r\nwhere the instance macro is set to instance name.\r\n\r\nExamples of existing service templates :\r\n<table>\r\n<colgroup>\r\n<col width=\"23%\" />\r\n<col width=\"53%\" />\r\n<col width=\"24%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Name</th>\r\n<th align=\"left\">Alias</th>\r\n<th align=\"left\">Instance macro value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Network-Traffic-Layer</p></td>\r\n<td align=\"left\"><p>App-Pvx-Network-Traffic-Layer-Restapi</p></td>\r\n<td align=\"left\"><p>layer</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Network-User-Experience-Server-Ip</p></td>\r\n<td align=\"left\"><p>App-Pvx-Network-User-Experience-Server-Ip-Restapi</p></td>\r\n<td align=\"left\"><p>server.ip</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Http-Hits-Server-Ip</p></td>\r\n<td align=\"left\"><p>App-Pvx-Http-Hits-Server-Ip-Restapi</p></td>\r\n<td align=\"left\"><p>server.ip</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\n### Create an API key\r\nAn API key has to be created to access the API. The key will never expire.\r\n\r\n(From the official documentation at http://docs.performancevision.com/api_use.html)\r\n\r\n#### Create a session ID :\r\nFirst, a session ID needs to be requested.\r\n\r\n    (From the central or poller)\r\n\r\n    # curl -k \"https://<pvxapihost>/api/login?user=<user>&password=<password>\"\r\n\r\nReplace pvxapihost, user and password by your values.\r\n\r\nThe command line should return:\r\n\r\n    {\r\n        \"type\": \"result\",\r\n        \"result\": \"session:91554086-842b-4b73-9028-c51d20d91b94\"\r\n    }\r\n\r\nThe session ID is \"session:91554086-842b-4b73-9028-c51d20d91b94\".\r\n\r\n#### Create an API key :\r\nWith the session ID, request an API key.\r\n\r\n    (From the central or poller)\r\n\r\n    # curl -k \"https://<pvxapihost>/api/create-api-key?name=<keyname>&_session=session:91554086-842b-4b73-9028-c51d20d91b94\"\r\n\r\nReplace pvxapihost by your value, and use the session ID for the \"_session\" argument.\r\n\r\nThe command line should return:\r\n\r\n    {\r\n        \"type\": \"result\",\r\n        \"result\": \"secret:e40b1cc6-f629-43a4-8be6-14a9c9f036e0\"\r\n    }\r\n\r\nThe API key is \"secret:e40b1cc6-f629-43a4-8be6-14a9c9f036e0\".\r\n",
+        "name": "PVX",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_pvx_restapi.pl",
+                "package_name": "centreon-plugin-Applications-Pvx-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-pvx-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "PVX",
+            "Restapi",
+            "Network",
+            "Application",
+            "IP",
+            "Accedian",
+            "Skylight"
+        ],
+        "update_date": "1557845676",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'exp\u00e9rience utilisateur par application.}\r\n\r\n{EN: Check the user experience by application.}",
+            "active_checks_enabled": 2,
+            "alias": "Network-User-Experience-Application",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINSTANCE$",
+                    "password": false,
+                    "value": "application"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Pvx-Network-User-Experience-Application-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "App-Pvx-Network-User-Experience-Restapi",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'exp\u00e9rience utilisateur par instance (\u00e0 d\u00e9finir).}\r\n\r\n{EN: Check the user experience by instance (to be defined).}",
+            "active_checks_enabled": 2,
+            "alias": "Network-User-Experience",
+            "check_timeperiod": "",
+            "command_name": "App-Pvx-Restapi-Network-User-Experience",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Pvx-Network-User-Experience-Restapi",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic par application.}\r\n\r\n{EN: Check traffic by application.}",
+            "active_checks_enabled": 2,
+            "alias": "Network-Traffic-Application",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINSTANCE$",
+                    "password": false,
+                    "value": "application"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Pvx-Network-Traffic-Application-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "App-Pvx-Network-Traffic-Restapi",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic par instance (\u00e0 d\u00e9finir).}\r\n\r\n{EN: Check traffic by instance (to be defined).}",
+            "active_checks_enabled": 2,
+            "alias": "Network-Traffic",
+            "check_timeperiod": "",
+            "command_name": "App-Pvx-Restapi-Network-Traffic",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Pvx-Network-Traffic-Restapi",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le ratio connections tent\u00e9es/connections r\u00e9ussies par application.}\r\n\r\n{EN: Check the connections attemps/success ratio by application.}",
+            "active_checks_enabled": 2,
+            "alias": "Network-Connection-Application",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINSTANCE$",
+                    "password": false,
+                    "value": "application"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Pvx-Network-Connection-Application-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "App-Pvx-Network-Connection-Restapi",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le ratio connections tent\u00e9es/connections r\u00e9ussies par instance (\u00e0 d\u00e9finir).}\r\n\r\n{EN: Check connections attemps/success ratio by instance (to be defined).}",
+            "active_checks_enabled": 2,
+            "alias": "Network-Connection",
+            "check_timeperiod": "",
+            "command_name": "App-Pvx-Restapi-Network-Connection",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Pvx-Network-Connection-Restapi",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre d'erreur HTTP (>=400) par application.}\r\n\r\n{EN: Check the number of HTTP errors (>=400) by application.}",
+            "active_checks_enabled": 2,
+            "alias": "Http-Hits-Application",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINSTANCE$",
+                    "password": false,
+                    "value": "application"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Pvx-Http-Hits-Application-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "App-Pvx-Http-Hits-Restapi",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre d'erreur HTTP (>=400) par instance (\u00e0 d\u00e9finir).}\r\n\r\n{EN: Check the number of HTTP errors (>=400) by instance (to be defined).}",
+            "active_checks_enabled": 2,
+            "alias": "Http-Hits",
+            "check_timeperiod": "",
+            "command_name": "App-Pvx-Restapi-Http-Hits",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Pvx-Http-Hits-Restapi",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "\"{FR: Contr\u00f4le le traffic par \"\"layer\"\".}\r\n\r\n{EN: Check traffic by layer.}\"",
+            "active_checks_enabled": 2,
+            "alias": "Network-Traffic-Layer",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINSTANCE$",
+                    "password": false,
+                    "value": "layer"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --filter-perfdata=\"noperfdata\""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Pvx-Network-Traffic-Layer-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "App-Pvx-Network-Traffic-Restapi",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic par IP (serveur).}\r\n\r\n{EN: Check traffic by IP (server).}",
+            "active_checks_enabled": 2,
+            "alias": "Network-Traffic-Server-Ip",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINSTANCE$",
+                    "password": false,
+                    "value": "server.ip"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Pvx-Network-Traffic-Server-Ip-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "App-Pvx-Network-Traffic-Restapi",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'exp\u00e9rience utilisateur par IP (serveur).}\r\n\r\n{EN: Check the user experience by IP (server).}",
+            "active_checks_enabled": 2,
+            "alias": "Network-User-Experience-Server-Ip",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINSTANCE$",
+                    "password": false,
+                    "value": "server.ip"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Pvx-Network-User-Experience-Server-Ip-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "App-Pvx-Network-User-Experience-Restapi",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le ratio connections tent\u00e9es/connections r\u00e9ussies par IP (serveur).}\r\n\r\n{EN: Check the connections attemps/success ratio by IP (server).}",
+            "active_checks_enabled": 2,
+            "alias": "Network-Connection-Server-Ip",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINSTANCE$",
+                    "password": false,
+                    "value": "server.ip"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Pvx-Network-Connection-Server-Ip-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "App-Pvx-Network-Connection-Restapi",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre d'erreur HTTP (>=400) par IP (serveur).}\r\n\r\n{EN: Check the number of HTTP errors (>=400) by IP (server).}",
+            "active_checks_enabled": 2,
+            "alias": "Http-Hits-Server-Ip",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINSTANCE$",
+                    "password": false,
+                    "value": "server.ip"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Pvx-Http-Hits-Server-Ip-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "App-Pvx-Http-Hits-Restapi",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,126 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sensorgateway.pl --plugin=hardware::sensors::serverscheck::sensorgateway::snmp::plugin --mode=sensors --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Sensors-Serverscheck-Sensorgateway-SNMP-Sensors",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Severscheck Sensorgateway in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Sensor-Serverscheck-Sensorgateway-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Sensors-Serverscheck-Sensorgateway-Sensors-Global-SNMP"
+            ],
+            "snmp_community": "public",
+            "snmp_version": "2c"
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Compatibility with Centreon Plugin Packs Manager v2.2.0",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor SensorGateway ServersCheck sensors"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les sondes SensorGateway ServersCheck"
+            }
+        ],
+        "discovery_category": "sensor",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Sensors-Serverscheck-Sensorgateway-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Sensor-Serverscheck-Sensorgateway-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "SensorGateway",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_sensorgateway.pl",
+                "package_name": "centreon-plugin-Hardware-Sensors-Serverscheck-Sensorgateway-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Hardware-Sensors-Serverscheck-Sensorgateway-Snmp",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "hardware-sensors-serverscheck-sensorgateway-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Sensor",
+            "SensorGateway",
+            "ServersCheck",
+            "SNMP"
+        ],
+        "update_date": "1486389219",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'ensemble des sondes de l'\u00e9quipement.}\r\n\r\n{EN: Check all sensors of equipment.}",
+            "active_checks_enabled": 2,
+            "alias": "Sensors-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Sensors-Serverscheck-Sensorgateway-SNMP-Sensors",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Sensors-Serverscheck-Sensorgateway-Sensors-Global-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

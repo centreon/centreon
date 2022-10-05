@@ -1,0 +1,396 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::microsoft::wsus::local::plugin\\' \\'updates-status\\'  \\' --wsus-server=\\\\\\\"$_HOSTWSUSSERVER$\\\\\\\" --wsus-port=\\\\\\\"$_HOSTWSUSPORT$\\\\\\\" --filter-counters=\\\\\\\"$_SERVICEFILTERCOUNTERS$\\\\\\\" --warning-with-client-errors=\\\\\\\"$_SERVICEWARNINGWITHCLIENTERRORS$\\\\\\\" --critical-with-client-errors=\\\\\\\"$_SERVICECRITICALWITHCLIENTERRORS$\\\\\\\" --warning-with-server-errors=\\\\\\\"$_SERVICEWARNINGWITHSERVERERRORS$\\\\\\\" --critical-with-server-errors=\\\\\\\"$_SERVICECRITICALWITHSERVERERRORS$\\\\\\\" --warning-needing-files=\\\\\\\"$_SERVICEWARNINGNEEDINGFILES$\\\\\\\" --critical-needing-files=\\\\\\\"$_SERVICECRITICALNEEDINGFILES$\\\\\\\" --warning-needed-by-computers=\\\\\\\"$_SERVICEWARNINGNEEDEDBYCOMPUTER$\\\\\\\" --critical-needed-by-computers=\\\\\\\"$_SERVICECRITICALNEEDEDBYCOMPUTER$\\\\\\\" --warning-up-to-date=\\\\\\\"$_SERVICEWARNINGUPTODATE$\\\\\\\" --critical-up-to-date=\\\\\\\"$_SERVICECRITICALUPTODATE$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Wsus-NRPE-Updates-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::microsoft::wsus::local::plugin\\' \\'synchronisation-status\\'  \\' --wsus-server=\\\\\\\"$_HOSTWSUSSERVER$\\\\\\\" --wsus-port=\\\\\\\"$_HOSTWSUSPORT$\\\\\\\" --filter-counters=\\\\\\\"$_SERVICEFILTERCOUNTERS$\\\\\\\" --warning-synchronisation-status=\\\\\\\"$_SERVICEWARNINGSYNCHRONISATIONSTATUS$\\\\\\\" --critical-synchronisation-status=\\\\\\\"$_SERVICECRITICALSYNCHRONISATIONSTATUS$\\\\\\\" --warning-last-synchronisation-status=\\\\\\\"$_SERVICEWARNINGLASTSYNCHRONISATIONSTATUS$\\\\\\\" --critical-last-synchronisation-status=\\\\\\\"$_SERVICECRITICALLASTSYNCHRONISATIONSTATUS$\\\\\\\" --warning-synchronisation-progress=\\\\\\\"$_SERVICEWARNINGSYNCHRONISATIONPROGRESS$\\\\\\\" --critical-synchronisation-progress=\\\\\\\"$_SERVICECRITICALSYNCHRONISATIONPROGRESS$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Wsus-NRPE-Synchronisation-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::microsoft::wsus::local::plugin\\' \\'server-statistics\\'  \\' --wsus-server=\\\\\\\"$_HOSTWSUSSERVER$\\\\\\\" --wsus-port=\\\\\\\"$_HOSTWSUSPORT$\\\\\\\" --filter-counters=\\\\\\\"$_SERVICEFILTERCOUNTERS$\\\\\\\" --warning-computers=\\\\\\\"$_SERVICEWARNINGCOMPUTERS$\\\\\\\" --critical-computers=\\\\\\\"$_SERVICECRITICALCOMPUTERS$\\\\\\\" --warning-computer-groups=\\\\\\\"$_SERVICEWARNINGCOMPUTERGROUPS$\\\\\\\" --critical-computer-groups=\\\\\\\"$_SERVICECRITICALCOMPUTERGROUPS$\\\\\\\" --warning-updates=\\\\\\\"$_SERVICEWARNINGUPDATES$\\\\\\\" --critical-updates=\\\\\\\"$_SERVICECRITICALUPDATES$\\\\\\\" --warning-approved-updates=\\\\\\\"$_SERVICEWARNINGAPPROVEDUPDATES$\\\\\\\" --critical-approved-updates=\\\\\\\"$_SERVICECRITICALAPPROVEDUPDATES$\\\\\\\" --warning-declined-updates=\\\\\\\"$_SERVICEWARNINGDECLINEDUPDATES$\\\\\\\" --critical-declined-updates=\\\\\\\"$_SERVICECRITICALDECLINEDUPDATES$\\\\\\\"--warning-not-approved-updates=\\\\\\\"$_SERVICEWARNINGNOTAPPROVEDUPDATES$\\\\\\\" --critical-declined-updates=\\\\\\\"$_SERVICECRITICALNOTAPPROVEDUPDATES$\\\\\\\" --warning-stale-updates=\\\\\\\"$_SERVICEWARNINGSTALEUPDATES$\\\\\\\" --critical-stale-updates=\\\\\\\"$_SERVICECRITICALSTALEUPDATES$\\\\\\\" --warning-expired-updates=\\\\\\\"$_SERVICEWARNINGEXPIREDUPDATES$\\\\\\\" --critical-expired-updates=\\\\\\\"$_SERVICECRITICALEXPIREDUPDATES$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Wsus-NRPE-Server-Statistics",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::microsoft::wsus::local::plugin\\' \\'computers-status\\'  \\' --wsus-server=\\\\\\\"$_HOSTWSUSSERVER$\\\\\\\" --wsus-port=\\\\\\\"$_HOSTWSUSPORT$\\\\\\\" --not-updated-since=\\\\\\\"$_SERVICENOTUPDATEDSINCE$\\\\\\\" --filter-counters=\\\\\\\"$_SERVICEFILTERCOUNTERS$\\\\\\\" --warning-needing-updates=\\\\\\\"$_SERVICEWARNINGNEEDINGUPDATES$\\\\\\\" --critical-needing-updates=\\\\\\\"$_SERVICECRITICALNEEDINGUPDATES$\\\\\\\" --warning-with-update-errors=\\\\\\\"$_SERVICEWARNINGWITHUPDATEERRORS$\\\\\\\" --critical-with-update-errors=\\\\\\\"$_SERVICECRITICALWITHUPDATEERRORS$\\\\\\\" --warning-up-to-date=\\\\\\\"$_SERVICEWARNINGUPTODATE$\\\\\\\" --critical-up-to-date=\\\\\\\"$_SERVICECRITICALUPTODATE$\\\\\\\" --warning-not-contacted=\\\\\\\"$_SERVICEWARNINGNOTCONTACTED$\\\\\\\" --critical-not-contacted=\\\\\\\"$_SERVICECRITICALNOTCONTACTED$\\\\\\\" --warning-unassigned=\\\\\\\"$_SERVICEWARNINGUNASSIGNED$\\\\\\\" --critical-unassigned=\\\\\\\"$_SERVICECRITICALUNASSIGNED$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Wsus-NRPE-Computers-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nsclient_restapi.pl --plugin=apps::nsclient::restapi::plugin --mode=query --hostname=$HOSTADDRESS$ --port=\\'$_HOSTNSCPRESTAPIPORT$\\' --proto=\\'$_HOSTNSCPRESTAPIPROTO$\\' --legacy-password=\\'$_HOSTNSCPRESTAPILEGACYPASSWORD$\\' $_HOSTNSCPRESTAPIEXTRAOPTIONS$ --command=check_centreon_plugins --arg=\\'apps::microsoft::wsus::local::plugin\\' --arg=\\'updates-status\\' --arg=\\' --wsus-server=\\\\\\\"$_HOSTWSUSSERVER$\\\\\\\" --wsus-port=\\\\\\\"$_HOSTWSUSPORT$\\\\\\\" --filter-counters=\\\\\\\"$_SERVICEFILTERCOUNTERS$\\\\\\\" --warning-with-client-errors=\\\\\\\"$_SERVICEWARNINGWITHCLIENTERRORS$\\\\\\\" --critical-with-client-errors=\\\\\\\"$_SERVICECRITICALWITHCLIENTERRORS$\\\\\\\" --warning-with-server-errors=\\\\\\\"$_SERVICEWARNINGWITHSERVERERRORS$\\\\\\\" --critical-with-server-errors=\\\\\\\"$_SERVICECRITICALWITHSERVERERRORS$\\\\\\\" --warning-needing-files=\\\\\\\"$_SERVICEWARNINGNEEDINGFILES$\\\\\\\" --critical-needing-files=\\\\\\\"$_SERVICECRITICALNEEDINGFILES$\\\\\\\" --warning-needed-by-computers=\\\\\\\"$_SERVICEWARNINGNEEDEDBYCOMPUTER$\\\\\\\" --critical-needed-by-computers=\\\\\\\"$_SERVICECRITICALNEEDEDBYCOMPUTER$\\\\\\\" --warning-up-to-date=\\\\\\\"$_SERVICEWARNINGUPTODATE$\\\\\\\" --critical-up-to-date=\\\\\\\"$_SERVICECRITICALUPTODATE$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Wsus-NSClient05-Restapi-Updates-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nsclient_restapi.pl --plugin=apps::nsclient::restapi::plugin --mode=query --hostname=$HOSTADDRESS$ --port=\\'$_HOSTNSCPRESTAPIPORT$\\' --proto=\\'$_HOSTNSCPRESTAPIPROTO$\\' --legacy-password=\\'$_HOSTNSCPRESTAPILEGACYPASSWORD$\\' $_HOSTNSCPRESTAPIEXTRAOPTIONS$ --command=check_centreon_plugins --arg=\\'apps::microsoft::wsus::local::plugin\\' --arg=\\'synchronisation-status\\' --arg=\\' --wsus-server=\\\\\\\"$_HOSTWSUSSERVER$\\\\\\\" --wsus-port=\\\\\\\"$_HOSTWSUSPORT$\\\\\\\" --filter-counters=\\\\\\\"$_SERVICEFILTERCOUNTERS$\\\\\\\"  --warning-synchronisation-status=\\\\\\\"$_SERVICEWARNINGSYNCHRONISATIONSTATUS$\\\\\\\" --critical-synchronisation-status=\\\\\\\"$_SERVICECRITICALSYNCHRONISATIONSTATUS$\\\\\\\" --warning-synchronisation-progress=\\\\\\\"$_SERVICEWARNINGSYNCHRONISATIONPROGRESS$\\\\\\\" --critical-synchronisation-progress=\\\\\\\"$_SERVICECRITICALSYNCHRONISATIONPROGRESS$\\\\\\\" --warning-last-synchronisation-status=\\\\\\\"$_SERVICEWARNINGLASTSYNCHRONISATIONSTATUS$\\\\\\\" --critical-last-synchronisation-status=\\\\\\\"$_SERVICECRITICALLASTSYNCHRONISATIONSTATUS$\\\\\\\" --warning-last-synchronisation-duration=\\\\\\\"$_SERVICEWARNINGLASTSYNCHRONISATIONDURATION$\\\\\\\" --critical-last-synchronisation-duration=\\\\\\\"$_SERVICECRITICALLASTSYNCHRONISATIONDURATION$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Wsus-NSClient05-Restapi-Synchronisation-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nsclient_restapi.pl --plugin=apps::nsclient::restapi::plugin --mode=query --hostname=$HOSTADDRESS$ --port=\\'$_HOSTNSCPRESTAPIPORT$\\' --proto=\\'$_HOSTNSCPRESTAPIPROTO$\\' --legacy-password=\\'$_HOSTNSCPRESTAPILEGACYPASSWORD$\\' $_HOSTNSCPRESTAPIEXTRAOPTIONS$ --command=check_centreon_plugins --arg=\\'apps::microsoft::wsus::local::plugin\\' --arg=\\'server-statistics\\' --arg=\\' --wsus-server=\\\\\\\"$_HOSTWSUSSERVER$\\\\\\\" --wsus-port=\\\\\\\"$_HOSTWSUSPORT$\\\\\\\" --filter-counters=\\\\\\\"$_SERVICEFILTERCOUNTERS$\\\\\\\" --warning-computers=\\\\\\\"$_SERVICEWARNINGCOMPUTERS$\\\\\\\" --critical-computers=\\\\\\\"$_SERVICECRITICALCOMPUTERS$\\\\\\\" --warning-computer-groups=\\\\\\\"$_SERVICEWARNINGCOMPUTERGROUPS$\\\\\\\" --critical-computer-groups=\\\\\\\"$_SERVICECRITICALCOMPUTERGROUPS$\\\\\\\" --warning-updates=\\\\\\\"$_SERVICEWARNINGUPDATES$\\\\\\\" --critical-updates=\\\\\\\"$_SERVICECRITICALUPDATES$\\\\\\\" --warning-approved-updates=\\\\\\\"$_SERVICEWARNINGAPPROVEDUPDATES$\\\\\\\" --critical-approved-updates=\\\\\\\"$_SERVICECRITICALAPPROVEDUPDATES$\\\\\\\" --warning-declined-updates=\\\\\\\"$_SERVICEWARNINGDECLINEDUPDATES$\\\\\\\" --critical-declined-updates=\\\\\\\"$_SERVICECRITICALDECLINEDUPDATES$\\\\\\\"--warning-not-approved-updates=\\\\\\\"$_SERVICEWARNINGNOTAPPROVEDUPDATES$\\\\\\\" --critical-declined-updates=\\\\\\\"$_SERVICECRITICALNOTAPPROVEDUPDATES$\\\\\\\" --warning-stale-updates=\\\\\\\"$_SERVICEWARNINGSTALEUPDATES$\\\\\\\" --critical-stale-updates=\\\\\\\"$_SERVICECRITICALSTALEUPDATES$\\\\\\\" --warning-expired-updates=\\\\\\\"$_SERVICEWARNINGEXPIREDUPDATES$\\\\\\\" --critical-expired-updates=\\\\\\\"$_SERVICECRITICALEXPIREDUPDATES$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Wsus-NSClient05-Restapi-Server-Statistics",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nsclient_restapi.pl --plugin=apps::nsclient::restapi::plugin --mode=query --hostname=$HOSTADDRESS$ --port=\\'$_HOSTNSCPRESTAPIPORT$\\' --proto=\\'$_HOSTNSCPRESTAPIPROTO$\\' --legacy-password=\\'$_HOSTNSCPRESTAPILEGACYPASSWORD$\\' $_HOSTNSCPRESTAPIEXTRAOPTIONS$ --command=check_centreon_plugins --arg=\\'apps::microsoft::wsus::local::plugin\\' --arg=\\'computers-status\\' --arg=\\' --wsus-server=\\\\\\\"$_HOSTWSUSSERVER$\\\\\\\" --wsus-port=\\\\\\\"$_HOSTWSUSPORT$\\\\\\\" --not-updated-since=\\\\\\\"$_SERVICENOTUPDATEDSINCE$\\\\\\\" --filter-counters=\\\\\\\"$_SERVICEFILTERCOUNTERS$\\\\\\\" --warning-needing-updates=\\\\\\\"$_SERVICEWARNINGNEEDINGUPDATES$\\\\\\\" --critical-needing-updates=\\\\\\\"$_SERVICECRITICALNEEDINGUPDATES$\\\\\\\" --warning-with-update-errors=\\\\\\\"$_SERVICEWARNINGWITHUPDATEERRORS$\\\\\\\" --critical-with-update-errors=\\\\\\\"$_SERVICECRITICALWITHUPDATEERRORS$\\\\\\\" --warning-up-to-date=\\\\\\\"$_SERVICEWARNINGUPTODATE$\\\\\\\" --critical-up-to-date=\\\\\\\"$_SERVICECRITICALUPTODATE$\\\\\\\" --warning-not-contacted=\\\\\\\"$_SERVICEWARNINGNOTCONTACTED$\\\\\\\" --critical-not-contacted=\\\\\\\"$_SERVICECRITICALNOTCONTACTED$\\\\\\\" --warning-unassigned=\\\\\\\"$_SERVICEWARNINGUNASSIGNED$\\\\\\\" --critical-unassigned=\\\\\\\"$_SERVICECRITICALUNASSIGNED$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Wsus-NSClient05-Restapi-Computers-Status",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Windows WSUS via NRPE}\r\n{EN: Template to check Windows WSUS using NRPE protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Microsoft WSUS using NRPE protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "iis-128-2.png",
+            "macros": [
+                {
+                    "key": "$_HOSTNRPECLIENT$",
+                    "value": "check_centreon_nrpe"
+                },
+                {
+                    "key": "$_HOSTNRPEEXTRAOPTIONS$",
+                    "value": "-u -m 8192"
+                },
+                {
+                    "key": "$_HOSTNRPEPORT$",
+                    "value": "5666"
+                },
+                {
+                    "key": "$_HOSTNRPETIMEOUT$",
+                    "value": "55"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Wsus-NRPE",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Wsus-Update-Status-NRPE",
+                "App-Wsus-Synchronisation-Status-NRPE",
+                "App-Wsus-Server-Statistics-NRPE",
+                "App-Wsus-Computers-Status-NRPE"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Windows WSUS via Rest API (NSClientpp 0.5)}\r\n{EN: Template to check Windows WSUS using Rest API protocol (NSClientpp 0.5)}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Microsoft WSUS using NSClient restapi",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "iis-128-2.png",
+            "macros": [
+                {
+                    "key": "$_HOSTNSCPRESTAPIPORT$",
+                    "value": "8443"
+                },
+                {
+                    "key": "$_HOSTNSCPRESTAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTNSCPRESTAPILEGACYPASSWORD$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Wsus-NSClient-05-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Wsus-Update-Status-NSClient05-Restapi",
+                "App-Wsus-Synchronisation-Status-NSClient05-Restapi",
+                "App-Wsus-Server-Statistics-NSClient05-Restapi",
+                "App-Wsus-Computers-Status-NSClient05-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABGdBTUEAALGPC/xhBQAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAOwgAADsIBFShKgAAAAXdJREFUeNrt0kENgEAMRNFqQRGOMIMJMEWCgbIC2Nve5jX56X3y6t23Tmtc/XXc1WkVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALAWwGwMZWQEAIwAgAAQAEoEUOfTaU0HucYLCwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABY2wdAJk7gki710QAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAABJ0RVh0RVhJRjpPcmllbnRhdGlvbgAxhFjs7wAAAABJRU5ErkJggg==",
+            "name": "iis-128-2.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "fix options in synchronisation-status mode",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Microsoft WSUS via Nsclient++ (NRPE or RestAPI):\r\n* Computer status\r\n* Server statistics\r\n* Synchronisation status\r\n* Updates status"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser Microsoft WSUS via Nsclient++ (NRPE ou RestAPI):\r\n* Computer status\r\n* Server statistics\r\n* Synchronisation status\r\n* Updates status"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABGdBTUEAALGPC/xhBQAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAOwgAADsIBFShKgAAAAXdJREFUeNrt0kENgEAMRNFqQRGOMIMJMEWCgbIC2Nve5jX56X3y6t23Tmtc/XXc1WkVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALAWwGwMZWQEAIwAgAAQAEoEUOfTaU0HucYLCwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABY2wdAJk7gki710QAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAABJ0RVh0RVhJRjpPcmllbnRhdGlvbgAxhFjs7wAAAABJRU5ErkJggg==",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\nNRPE :\r\n    # yum install centreon-nrpe-plugin\r\n\r\nNSClient++ RestAPI :\r\n    # yum install centreon-plugin-Operatingsystems-Windows-Restapi\r\n\r\n### Nsclient++\r\nThis plugin pack requires the use of the NSClient++ package provided by Centreon.\r\n\r\nYou can download it [here](https://download.centreon.com/?action=product&product=agent-nsclient&version=0.51&secKey=59d646114079212e03ec09454456a938)\r\n\r\nIf you have some problems with the centreon\\_plugins.exe, you can build it using [following procedure](https://documentation.centreon.com/docs/centreon-nsclient/en/latest/windows_agent.html#build-your-own-executable)\r\n\r\n## Centreon Configuration\r\n### Create a new IIS server\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Apps-Wsus-NRPE/App-Wsus-NSClient-05-Restapi</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Microsoft WSUS",
+        "plugins_requirements": [],
+        "requirement": [],
+        "slug": "applications-wsus-nsclient",
+        "status": "stable",
+        "status_message": "fix options in synchronisation-status mode",
+        "tags": [
+            "Microsoft",
+            "WSUS",
+            "Windows",
+            "NRPE"
+        ],
+        "update_date": "1608210565",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des mises \u00e0 jour.}\r\n\r\n{EN: Check updates status.}",
+            "active_checks_enabled": 2,
+            "alias": "Update-Status",
+            "check_timeperiod": "",
+            "command_name": "App-Wsus-NRPE-Updates-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Wsus-Update-Status-NRPE",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut de la synchronisation des mises \u00e0 jour avec le serveur WSUS.}\r\n\r\n{EN: Check updates synchronisation with WSUS server status.}",
+            "active_checks_enabled": 2,
+            "alias": "Synchronisation-Status",
+            "check_timeperiod": "",
+            "command_name": "App-Wsus-NRPE-Synchronisation-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALLASTSYNCHRONISATIONSTATUS$",
+                    "password": false,
+                    "value": "not %{status} =~ /Succeeded/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Wsus-Synchronisation-Status-NRPE",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le plusieurs statistiques du serveur WSUS.}\r\n\r\n{EN: Check serveral WSUS server statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Server-Statistics",
+            "check_timeperiod": "",
+            "command_name": "App-Wsus-NRPE-Server-Statistics",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Wsus-Server-Statistics-NRPE",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre d'ordinateurs dans chacun des statuts.}\r\n\r\n{EN: Check computers status count.}",
+            "active_checks_enabled": 2,
+            "alias": "Computers-Status",
+            "check_timeperiod": "",
+            "command_name": "App-Wsus-NRPE-Computers-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Wsus-Computers-Status-NRPE",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des mises \u00e0 jour.}\r\n\r\n{EN: Check updates status.}",
+            "active_checks_enabled": 2,
+            "alias": "Update-Status",
+            "check_timeperiod": "",
+            "command_name": "App-Wsus-NSClient05-Restapi-Updates-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Wsus-Update-Status-NSClient05-Restapi",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut de la synchronisation des mises \u00e0 jour avec le serveur WSUS.}\r\n\r\n{EN: Check updates synchronisation with WSUS server status.}",
+            "active_checks_enabled": 2,
+            "alias": "Synchronisation-Status",
+            "check_timeperiod": "",
+            "command_name": "App-Wsus-NSClient05-Restapi-Synchronisation-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALLASTSYNCHRONISATIONSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /Succeeded/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Wsus-Synchronisation-Status-NSClient05-Restapi",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le plusieurs statistiques du serveur WSUS.}\r\n\r\n{EN: Check serveral WSUS server statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Server-Statistics",
+            "check_timeperiod": "",
+            "command_name": "App-Wsus-NSClient05-Restapi-Server-Statistics",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Wsus-Server-Statistics-NSClient05-Restapi",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre d'ordinateurs dans chacun des statuts.}\r\n\r\n{EN: Check computers status count.}",
+            "active_checks_enabled": 2,
+            "alias": "Computers-Status",
+            "check_timeperiod": "",
+            "command_name": "App-Wsus-NSClient05-Restapi-Computers-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Wsus-Computers-Status-NSClient05-Restapi",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,128 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_storagetek_sl_snmp.pl --plugin=storage::storagetek::sl::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Storagetek-Sl-SNMP-Hardware",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check StorageTek SL Series (SL150, SL500,...) using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "HW-Storagetek-64.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Storagetek-Sl-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Storage-Storagetek-Sl-Hardware-Global-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAEAAAAAtCAYAAAAeA21aAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAACXBIWXMAAAsTAAALEwEAmpwYAAAB1WlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNS40LjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyI+CiAgICAgICAgIDx0aWZmOkNvbXByZXNzaW9uPjE8L3RpZmY6Q29tcHJlc3Npb24+CiAgICAgICAgIDx0aWZmOk9yaWVudGF0aW9uPjE8L3RpZmY6T3JpZW50YXRpb24+CiAgICAgICAgIDx0aWZmOlBob3RvbWV0cmljSW50ZXJwcmV0YXRpb24+MjwvdGlmZjpQaG90b21ldHJpY0ludGVycHJldGF0aW9uPgogICAgICA8L3JkZjpEZXNjcmlwdGlvbj4KICAgPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KAtiABQAAB59JREFUaAXVmlmsnVMUx1UNNRat1lButYYKD2JIPQgRadKgiBDDg0oNIeKBBJHUG0KIhCCGCJEIQQxBSKQJkZoJmlYM1ZagNdVMzb/fued/7fv1jHXOqa7kd/b+9rjW2mvvb383d+xG/z/ZGJXG1hlD+ncbFW3frJ3lm8BfzcawwfoWddAIUdE/oZQteBiCvWFPmAq7wgTYCjYHZQ2sho/hbXgB3gJFhzp2O2fadmCiwa5OdRHGU3YkXA6PwVL4FVS+W16iz2xQnKc6V61ikD8qoNEaX8o0Hs6Gh+AT6NZQV/c3+AWMhN8hK+5Y80Gpzjswjzix/KEWdRkinQMnwmGwKVTlJwp+gG/hR9BAx3CscbAN7AATQcdGso003vDX8c7zKNhuRI9+h0Qmz4SbMfkxcFY9JamJir4PS+q8S7ocVsLXoBNiFNkR0RE6YSeYAUeA43teKPZxbI1eCDpamy3rqzihxkemkrkWPKScXBbDTXAqqLzOaScqH5q1de6T4UNwHreG6SrYHhQdNxCZySxPQIx+jvwFoMGNRKe5FeJAn1W2kdEps9529pHIODILIHPrALeL0hcHqFBkNhlPYEP/RZgHk6AqUVoDyv7Vds2eSydolDimr07F7bEcdMLr0DeJ8qZ3w1K4EqZDKVHQNH3K+lZ525cr7RidiK9THaA+ig4akW6VGOnYJON4+4OHWA4+FRVfS9KpOFYc1ayvbbYF7w5bg2Gvk/JK9GD1jLkVpsDPoAOi22hvUPFfRU8vqg/iXvYUbqZ8vdmoJM6yUCXtH9HIvUAH7wf7whD4CtQJhn25oDrhM/Bw9cDdo546rk4qx+axd5JV63RElXZVRoUmz5vDoXAZeJAuB5XXyVV0snVxWrU+z/fTxnNBUc/1KtnPpRIqdxzcBSsginebehM0AuIQVzvOe428W0UZU4bMcFH/fzXcFdMoxa3iW+NM0PgyEj7lWT6HL8B7hJeiX8Ex7OvedxvsBtPAUI+BZGuh7pyK/ay7BjwcU052MFI6/BCmvBO+Bp3hfn0ILoZZMB00rhsxrHXAXHgKEjlGhPlEwVLyng0diStSKt5RpwaNMsbx1D0LXnsfhHmg0q1Ew1ytnBWNUttU5UAKXoEY71YwbxRNgZaiwuWgMaBlpxaV6e819YTK2OmmkYa1Bpp3/vQj21aic/qnwwIyGu6XoqlbaTI0lXLS02k1od6yLG/auUVFtX9pbLWuxTAdV/kmUTwfvANovOQPJWQbi95XboCXa7nhn14o6djSi7EK1ZpmjQblUYgDrq6VjD5w60X/Fp5X7+AHjZKBhp82nN8s5s2orAO+h6G6+uUWrxWl8QE82dgbVGRQK5b5epXGyIcZUJsuqQ+81oKWBr5Qb+wprWSQ4acN5zd6b4nKvgKfL1Qv7a0VZ/Xn8KSn5MlazWAvDCoWxevTr3MSm7z4rAQdoTQcP429L8cBX5L3Q0NZK2SGi3vyq0KO38s5ssLjGPcemAZKwznS2NfSe6AD8s68hXzE+obeS4MO0qxwDM7c6eqra3oeepCW42eR1xo2jbajxnu3DnDP5ObkCarxEdvHAFMH1jHBZ6m2yTxUjRL/Vud3wO3wOlwFvRTnbblwUayMAB3gB0ecsIz8RTAV/osYknuCt8Hr4Q3wkuK3wI3gd/7AJIY7oSumsa7CuZAvJ7K1aHA1lV9ApV+Fd+FT8IPG+7X99bQfGluBETUJdoXdQcM1cBeIPE3mLngcdLqiXkbhQCUhoqLfgQrohESAyvmNbXkjrLO9mDd6GrX7kXJvZafC9lCKERg9yvKB5Y0C5WBYATFAYyRO0EgjIcZanrbVVIONFsP9aMifpsnWJGdFGY2p63vaaNJsha2Z/XyYBzM61MRt4F7+EN4Bt8qbsAxKcZUl0VXWtcqnnw7viTRygAO73zPJAvKL4D4wMrwXbAFGxE/wLXwFvj08D1ZB+pIdkZwhiaaRijaZGG1k6bCBSJQ9ltmc+NIuZ1VpxxDzzRxNVUNJ/2zJNJpG5mbwDMmtrtuxM1bLNBPfSysdYBgrlrv6Mc5DK3nr1sVYDYjBjlc1yIibCy+CEafxB0HfpFTgbWbRAXJdMaNGa3DZtqhumLWtaKx947hGY+xM/WnwBGTL3EO+07OIpusuUch3+Qeg8fmjoueAylWlNCiGJbWunbN8MxwO82EhxOkryV8BO0LEcXViXyVOeJ5Z4oCc2J70t8EsKBXjsa0Y4jpwJpwBvho9ZD1EY7SpYe4rs5S+GB5Dy4nMO5kn+TlwB6wBlTccrYt8Q8YoWQa+/nz2fmA723sbHA/eBncCjZ8M1bsARbV/anqA9BFw5SPO53gyMCkd42pkdbzh6QwvQNkWqes2Xc0Yz8CFsA+Uki1V6lHWDySffWZqqBoRVSNdFct1hmSbVNv57I3wLXD7nAJToBSNNWoyb1nXt3w7D6tMQm86+ZPgKHDFJkLexWRrojNyOfJi9BEsBg1fAitAZ0QcP3NkntQNJG3nAJWwjUq6uhEN1wF+7Y0D27g9NP578GPKs6CR5I2gwevF6FKpThyQ9lmthHnKW6Ux1jYam63Rqs9A67pxQKmY/UJZbr40sgz3arv/xfM/GCLqVKlSQeoAAAAASUVORK5CYII=",
+            "name": "HW-Storagetek-64.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ fix hardcoded snmp community and version",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin Pack to monitor Storagetek Sl storage using SNMP:\r\n* Hardware-Global"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin Pack pour surveiller un stockage Storagetek Sl via SNMP :\r\n* Hardware-Global"
+            }
+        ],
+        "discovery_category": "storage",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Storage-Storagetek-Sl-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Storage-Storagetek-Sl-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Storagetek SL",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_storagetek_sl_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Storage-Storagetek-Sl-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "centreon-plugin-Hardware-Storage-Storagetek-Sl-Snmp",
+                "version": "20161212-1"
+            }
+        ],
+        "slug": "hardware-storage-storagetek-sl-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Hardware",
+            "Storage",
+            "Backup",
+            "SNMP",
+            "Storagetek",
+            "Oracle"
+        ],
+        "update_date": "1499675510",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'ensemble du mat\u00e9riel.}\r\n\r\n{EN: Check all hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Storagetek-Sl-SNMP-Hardware",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Storage-Storagetek-Sl-Hardware-Global-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

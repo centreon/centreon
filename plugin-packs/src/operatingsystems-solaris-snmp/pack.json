@@ -1,0 +1,955 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": null,
+                "changes": [],
+                "command_for_discovery": "OS-Solaris-SNMP-Interfaces-Discover",
+                "command_for_macro": "OS-Solaris-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "OS-Solaris-SNMP"
+                ],
+                "macros": [],
+                "name": "OS-Solaris-SNMP-Packet-Errors-Name",
+                "service_display_name": "Packet-Errors-$name$",
+                "service_template": "Os-Solaris-Packet-Errors-Global-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "OS-Solaris-SNMP-Storages-Discover",
+                "command_for_macro": "OS-Solaris-SNMP-Storages-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$name$",
+                        "order": 0,
+                        "pattern": "(/dev.*|/run.*|/sys.*|/boot)",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "OS-Solaris-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "OS-Solaris-SNMP-Disk-Name",
+                "service_display_name": "Disk-$name$",
+                "service_template": "OS-Solaris-Disk-Global-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "OS-Solaris-SNMP-Interfaces-Discover",
+                "command_for_macro": "OS-Solaris-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "OS-Solaris-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "OS-Solaris-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "OS-Solaris-Traffic-Global-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_solaris_snmp.pl --plugin=os::solaris::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "OS-Solaris-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_solaris_snmp.pl --plugin=os::solaris::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "OS-Solaris-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_solaris_snmp.pl --plugin=os::solaris::snmp::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "OS-Solaris-SNMP-Storages-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_solaris_snmp.pl --plugin=os::solaris::snmp::plugin --mode=list-storages --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "OS-Solaris-SNMP-Storages-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_linux_snmp.pl --plugin=os::linux::snmp::plugin --mode=load --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Linux-SNMP-Load",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_solaris_snmp.pl --plugin=os::solaris::snmp::plugin --mode=cpu-detailed --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-idle=\\'$_SERVICEWARNINGIDLE$\\'  --critical-idle=\\'$_SERVICECRITICALIDLE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Solaris-SNMP-Cpu-Detailed",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_solaris_snmp.pl --plugin=os::solaris::snmp::plugin --mode=storage --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --storage \\'$_SERVICEDISKID$\\' --display-transform-src=\\'$_SERVICETRANSFORMSRC$\\' --display-transform-dst=\\'$_SERVICETRANSFORMDST$\\' --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Solaris-SNMP-Disk-Id",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_solaris_snmp.pl --plugin=os::solaris::snmp::plugin --mode=storage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --storage \\'$_SERVICEDISKNAME$\\' --name --display-transform-src=\\'$_SERVICETRANSFORMSRC$\\' --display-transform-dst=\\'$_SERVICETRANSFORMDST$\\' --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Solaris-SNMP-Disk-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_solaris_snmp.pl --plugin=os::solaris::snmp::plugin --mode=storage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --storage=\\'$_SERVICEFILTER$\\' --name --regexp --display-transform-src=\\'$_SERVICETRANSFORMSRC$\\' --display-transform-dst=\\'$_SERVICETRANSFORMDST$\\' --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Solaris-SNMP-Disk-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_solaris_snmp.pl --plugin=os::solaris::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACEID$\\' --add-status --add-errors --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Solaris-SNMP-Packet-Errors-Id",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_solaris_snmp.pl --plugin=os::solaris::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$$$\\' --name --add-status --add-errors --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Solaris-SNMP-Packet-Errors-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_solaris_snmp.pl --plugin=os::solaris::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-errors --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Solaris-SNMP-Packet-Errors-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_solaris_snmp.pl --plugin=os::solaris::snmp::plugin --mode=processcount --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --process-status --process-name=\\'$_SERVICEPROCESSNAME$\\' --process-path=\\'$_SERVICEPROCESSPATH$\\' --process-args=\\'$_SERVICEPROCESSARGS$\\' --regexp-name --regexp-path --regexp-args --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Solaris-SNMP-Process-Generic",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_solaris_snmp.pl --plugin=os::solaris::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACEID$\\' --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Solaris-SNMP-Traffic-Id",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_solaris_snmp.pl --plugin=os::solaris::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$$$\\' --name --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Solaris-SNMP-Traffic-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_solaris_snmp.pl --plugin=os::solaris::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Solaris-SNMP-Traffic-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_solaris_snmp.pl --plugin=os::solaris::snmp::plugin --mode=uptime --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-uptime=\\'$_SERVICEWARNING$\\' --critical-uptime=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Solaris-SNMP-Uptime",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les serveurs Solaris via SNMP}\r\n{EN: Template to check Solaris server using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Solaris server using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "OS-Solaris-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "OS-Solaris-Load-SNMP",
+                "OS-Solaris-Cpu-Detailed-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "remove 'memory' reference in PP doc",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Oracle SOlaris operating system via SNMP:\r\n* Cpu-Detailed\r\n* Disk (by name, ID or global)\r\n* Load\r\n* Packet-Errors (by interface name, ID or all interfaces)\r\n* Process-Generic\r\n* Traffic (by interface name, ID or all interfaces)\r\n* Uptime"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller les syst\u00e8mes d\\'exploitation Oracle Solaris via SNMP :\r\n* Cpu-Detailed\r\n* Disk (by name, ID or global)\r\n* Load\r\n* Packet-Errors (by interface name, ID or all interfaces)\r\n* Process-Generic\r\n* Traffic (by interface name, ID or all interfaces)\r\n* Uptime"
+            }
+        ],
+        "discovery_category": "operating-system",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Operatingsystems-Solaris-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp)\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>OS-Solaris-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Solaris SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_solaris_snmp.pl",
+                "package_name": "centreon-plugin-Operatingsystems-Solaris-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Operatingsystems-Solaris-Snmp",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "operatingsystems-solaris-snmp",
+        "status": "stable",
+        "status_message": "remove 'memory' reference in PP doc",
+        "tags": [
+            "Operating System",
+            "Oracle",
+            "OS",
+            "Server",
+            "SNMP",
+            "Solaris",
+            "System"
+        ],
+        "update_date": "1624285282",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le de la charge serveur.}\r\n\r\n{EN: Check the server load average.}",
+            "active_checks_enabled": 2,
+            "alias": "Load",
+            "check_timeperiod": "",
+            "command_name": "OS-Linux-SNMP-Load",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-Solaris-Load-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation d\u00e9taill\u00e9 CPU de la machine. Ce contr\u00f4le pourra remonter la moyenne du taux d'utilisation des CPU ainsi que le taux par CPU pour les CPU multi-coeur.}\r\n\r\n{EN: Check the detailed rate of utilization of CPU for the machine. This check can give the average CPU utilization rate and the rate per CPU for multi-core CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu-Detailed",
+            "check_timeperiod": "",
+            "command_name": "OS-Solaris-SNMP-Cpu-Detailed",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIDLE$",
+                    "password": false,
+                    "value": "20:"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIDLE$",
+                    "password": false,
+                    "value": "10:"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-Solaris-Cpu-Detailed-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'espace libre disponible du disque. Pour chaque contr\u00f4le appara\u00eetra le nom du disque (\u00ab\u00a0label\u00a0\u00bb) plut\u00f4t que la lettre attribu\u00e9e. Les seuils pourront \u00eatre en pourcentage, en espace libre restant.}\r\n\r\n{EN: Check the rate of free space on the disk. For each checks the name of the disk will appear (\u00ab label \u00bb) rather than the letter assigned. Thresholds can be in percentage or in free space remaining.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Generic-Id",
+            "check_timeperiod": "",
+            "command_name": "OS-Solaris-SNMP-Disk-Id",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEDISKID$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICETRANSFORMDST$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICETRANSFORMSRC$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-Solaris-Disk-Generic-Id-SNMP",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'espace libre disponible du disque. Pour chaque contr\u00f4le appara\u00eetra le point de montage du disque (\u00ab\u00a0label\u00a0\u00bb). Les seuils pourront \u00eatre en pourcentage, en espace libre restant.}\r\n\r\n{EN: Check the rate of free space on the disk. For each checks the mount pont of the disk will appear (\u00ab label \u00bb). Thresholds can be in percentage or in free space remaining.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "OS-Solaris-SNMP-Disk-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--filter-perfdata='storage.space|used|free'"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-Solaris-Disk-Generic-Name-SNMP",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'espace libre disponible des disques. Pour chaque contr\u00f4le appara\u00eetra le point de montage des disques (\u00ab\u00a0label\u00a0\u00bb). Les seuils pourront \u00eatre en pourcentage, en espace libre restant.}\r\n\r\n{EN: Check the rate of free space on disks. For each checks the mount point of disks will appear (\u00ab label \u00bb). Thresholds can be in percentage or in free space remaining.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Global",
+            "check_timeperiod": "",
+            "command_name": "OS-Solaris-SNMP-Disk-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --filter-perfdata='storage.space|used|free'"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-Solaris-Disk-Global-SNMP",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le pourcentage de paquets en erreur/\u00e9cart\u00e9 d'une interface r\u00e9seau.}\r\n\r\n{EN: Check packets on errors/discards of a network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Packet-Errors-Generic-Id",
+            "check_timeperiod": "",
+            "command_name": "OS-Solaris-SNMP-Packet-Errors-Id",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALINDISCARD$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALINERROR$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALOUTDISCARD$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALOUTERROR$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--oid-display='ifdesc' --oid-filter='ifdesc'"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEINTERFACEID$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGINDISCARD$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGINERROR$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGOUTDISCARD$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGOUTERROR$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Os-Solaris-Packet-Errors-Generic-Id-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le pourcentage de paquets en erreur/\u00e9cart\u00e9 d'une interface r\u00e9seau.}\r\n\r\n{EN: Check packets on errors/discards of a network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Packet-Errors-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "OS-Solaris-SNMP-Packet-Errors-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALINDISCARD$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALINERROR$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALOUTDISCARD$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALOUTERROR$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--oid-display='ifdesc' --oid-filter='ifdesc'"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEINTERFACENAME$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGINDISCARD$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGINERROR$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGOUTDISCARD$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGOUTERROR$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Os-Solaris-Packet-Errors-Generic-Name-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le pourcentage de paquets en erreur/\u00e9cart\u00e9 de plusieurs interfaces r\u00e9seau.}\r\n\r\n{EN: Check packets on errors/discards of multiple network interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Packet-Errors-Global",
+            "check_timeperiod": "",
+            "command_name": "OS-Solaris-SNMP-Packet-Errors-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALINDISCARD$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALINERROR$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALOUTDISCARD$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALOUTERROR$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --oid-display='ifdesc' --oid-filter='ifdesc'"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGINDISCARD$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGINERROR$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGOUTDISCARD$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGOUTERROR$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Os-Solaris-Packet-Errors-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le fonctionnement d'un processus/service Linux.}\r\n\r\n{EN: Check Linux process/service is working.}",
+            "active_checks_enabled": 2,
+            "alias": "Process-Generic",
+            "check_timeperiod": "",
+            "command_name": "OS-Solaris-SNMP-Process-Generic",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "1:"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEPROCESSARGS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEPROCESSNAME$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEPROCESSPATH$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-Solaris-Process-Generic-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante de l'interface. Pour chaque contr\u00f4le appara\u00eetra le nom de l'interface (\u00ab\u00a0label\u00a0\u00bb raccourci d\u00e9crivant l'interface).}\r\n\r\n{EN: Check the bandwidth of the interface. For each checks the name of the interface will appear (\u00ab label \u00bb shortcut describing the interface).}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Id",
+            "check_timeperiod": "",
+            "command_name": "OS-Solaris-SNMP-Traffic-Id",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--oid-display='ifdesc' --oid-filter='ifdesc'"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEINTERFACEID$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-Solaris-Traffic-Generic-Id-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante de l'interface. Pour chaque contr\u00f4le appara\u00eetra le nom de l'interface (\u00ab\u00a0label\u00a0\u00bb raccourci d\u00e9crivant l'interface).}\r\n\r\n{EN: Check the bandwidth of the interface. For each checks the name of the interface will appear (\u00ab label \u00bb shortcut describing the interface).}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "OS-Solaris-SNMP-Traffic-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--oid-display='ifdesc' --oid-filter='ifdesc'"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEINTERFACENAME$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-Solaris-Traffic-Generic-Name-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante des interfaces. Pour chaque contr\u00f4le appara\u00eetra le nom de l'interface (\u00ab\u00a0label\u00a0\u00bb raccourci d\u00e9crivant l'interface).}\r\n\r\n{EN: Check the bandwidth of interfaces. For each checks the name of the interface will appear (\u00ab label \u00bb shortcut describing the interface).}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "OS-Solaris-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --oid-display='ifdesc' --oid-filter='ifdesc'"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-Solaris-Traffic-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Dur\u00e9e depuis laquelle le serveur tourne sans interruption.}\r\n\r\n{EN: Time since the server has been working and available.}",
+            "active_checks_enabled": 2,
+            "alias": "Uptime",
+            "check_timeperiod": "",
+            "command_name": "OS-Solaris-SNMP-Uptime",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "OS-Solaris-Uptime-SNMP",
+            "normal_check_interval": 60,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

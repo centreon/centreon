@@ -1,0 +1,3239 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Management-Discover-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Sql/servers/elasticpools/ELPEUR001",
+                            "location": "westeurope",
+                            "name": "ELPEUR001",
+                            "resourceGroup": "RSG1234",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers/elasticpools"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Sql/servers/elasticpools/ELPUS001",
+                            "location": "westus",
+                            "name": "ELPUS001",
+                            "resourceGroup": "RSG2345",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers/elasticpools"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": "discovery.results.id"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "contain",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.EventHub"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Analytics-EventHubs-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "contain",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.ContainerService/managedClusters"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Compute-Aks-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "contain",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Web/sites"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Compute-Functions-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Compute/virtualMachines"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Compute-VirtualMachine-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Compute/virtualMachineScaleSets"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Compute-Vmscalesets-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.DocumentDB/databaseAccounts"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-CosmosDb-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Sql/servers/elasticpools"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-Elasticpool-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "contain",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.DBforMySQL"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-MySQL-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Cache/Redis"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-Redis-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Sql/servers/databases"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-SqlDatabase-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Sql/managedInstances"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-SqlManagedInstance-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Sql/servers"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-SqlServer-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.AppConfiguration/configurationStores"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-DevTools-AppConfiguration-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "contain",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.EventGrid"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Integration-EventGrid-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.ServiceBus/namespaces"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Integration-ServiceBus-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.ApiManagement/service"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Management-ApiManagement-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "contain",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Insights"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Management-ApplicationInsights-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Automation/automationAccounts"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Management-Automation-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.RecoveryServices/vaults"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Management-Recovery-Backup-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/applicationGateways"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-AppGateway-V1-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Cdn/profiles"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-Cdn-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/expressRouteCircuits"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-ExpressRoute-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/azurefirewalls"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-Firewall-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/frontdoors"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-FrontDoor-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/loadBalancers"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-LoadBalancer-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/networkInterfaces"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-NetworkInterface-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/publicIPAddresses"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-PublicIP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/virtualNetworks"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-VirtualNetwork-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/virtualNetworkGateways"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-VpnGateway-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.KeyVault/vaults"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Security-KeyVault-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Storage/storageAccounts"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Storage-StorageAccount-Account-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Web/sites"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Web-AppService-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Web/serverFarms"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Web-AppServicePlan-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.SignalRService/SignalR"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Web-SignalR-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.ContainerRegistry/registries"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Storage-ContainerRegistry-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Discover",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Resource type",
+                                "group": "Filter on namespace/type",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "TYPE",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Resource namepace",
+                                "group": "Filter on namespace/type",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "NAMESPACE",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-management-discover",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Management-Discover-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Sql/servers/elasticpools/ELPEUR001",
+                            "location": "westeurope",
+                            "name": "ELPEUR001",
+                            "resourceGroup": "RSG1234",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers/elasticpools"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Sql/servers/elasticpools/ELPUS001",
+                            "location": "westus",
+                            "name": "ELPUS001",
+                            "resourceGroup": "RSG2345",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers/elasticpools"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "contain",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.EventHub"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Analytics-EventHubs-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "contain",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.ContainerService/managedClusters"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Compute-Aks-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "contain",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Web/sites"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Compute-Functions-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Compute/virtualMachines"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Compute-VirtualMachine-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Compute/virtualMachineScaleSets"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Compute-Vmscalesets-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.DocumentDB/databaseAccounts"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-CosmosDb-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Sql/servers/elasticpools"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-Elasticpool-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "contain",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.DBforMySQL"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-MySQL-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Cache/Redis"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-Redis-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Sql/servers/databases"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-SqlDatabase-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Sql/managedInstances"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-SqlManagedInstance-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Sql/servers"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-SqlServer-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.AppConfiguration/configurationStores"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-DevTools-AppConfiguration-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "contain",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.EventGrid"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Integration-EventGrid-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.ServiceBus/namespaces"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Integration-ServiceBus-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.ApiManagement/service"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Management-ApiManagement-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "contain",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Insights"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Management-ApplicationInsights-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Automation/automationAccounts"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Management-Automation-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.RecoveryServices/vaults"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Management-Recovery-Backup-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/applicationGateways"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-AppGateway-V1-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Cdn/profiles"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-Cdn-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/expressRouteCircuits"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-ExpressRoute-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/azurefirewalls"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-Firewall-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/frontdoors"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-FrontDoor-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/loadBalancers"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-LoadBalancer-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/networkInterfaces"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-NetworkInterface-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/publicIPAddresses"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-PublicIP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/virtualNetworks"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-VirtualNetwork-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/virtualNetworkGateways"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-VpnGateway-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.KeyVault/vaults"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Security-KeyVault-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Storage/storageAccounts"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Storage-StorageAccount-Account-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Web/sites"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Web-AppService-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Web/serverFarms"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Web-AppServicePlan-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.SignalRService/SignalR"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Web-SignalR-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.ContainerRegistry/registries"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Storage-ContainerRegistry-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Management Discover",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Resource type",
+                                "group": "Filter on namespace/type",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "TYPE",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Resource namepace",
+                                "group": "Filter on namespace/type",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "NAMESPACE",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-management-discover",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Management-Discover-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Sql/servers/elasticpools/ELPEUR001",
+                            "location": "westeurope",
+                            "name": "ELPEUR001",
+                            "resourceGroup": "RSG1234",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers/elasticpools"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Sql/servers/elasticpools/ELPUS001",
+                            "location": "westus",
+                            "name": "ELPUS001",
+                            "resourceGroup": "RSG2345",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers/elasticpools"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "contain",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.EventHub"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Analytics-EventHubs-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "contain",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.ContainerService/managedClusters"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Compute-Aks-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "contain",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Web/sites"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Compute-Functions-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Compute/virtualMachines"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Compute-VirtualMachine-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Compute/virtualMachineScaleSets"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Compute-Vmscalesets-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.DocumentDB/databaseAccounts"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-CosmosDb-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Sql/servers/elasticpools"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-Elasticpool-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "contain",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.DBforMySQL"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-MySQL-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Cache/Redis"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-Redis-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Sql/servers/databases"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-SqlDatabase-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Sql/managedInstances"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-SqlManagedInstance-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Sql/servers"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-SqlServer-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.AppConfiguration/configurationStores"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-DevTools-AppConfiguration-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "contain",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.EventGrid"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Integration-EventGrid-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.ServiceBus/namespaces"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Integration-ServiceBus-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.ApiManagement/service"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Management-ApiManagement-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "contain",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Insights"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Management-ApplicationInsights-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Automation/automationAccounts"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Management-Automation-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.RecoveryServices/vaults"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Management-Recovery-Backup-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/applicationGateways"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-AppGateway-V1-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Cdn/profiles"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-Cdn-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/expressRouteCircuits"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-ExpressRoute-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/azurefirewalls"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-Firewall-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/frontdoors"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-FrontDoor-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/loadBalancers"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-LoadBalancer-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/networkInterfaces"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-NetworkInterface-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/publicIPAddresses"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-PublicIP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/virtualNetworks"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-VirtualNetwork-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/virtualNetworkGateways"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-VpnGateway-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.KeyVault/vaults"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Security-KeyVault-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Storage/storageAccounts"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Storage-StorageAccount-Account-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Web/sites"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Web-AppService-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Web/serverFarms"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Web-AppServicePlan-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.SignalRService/SignalR"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Web-SignalR-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.ContainerRegistry/registries"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Storage-ContainerRegistry-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Management Discover",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Resource type",
+                                "group": "Filter on namespace/type",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "TYPE",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Resource namepace",
+                                "group": "Filter on namespace/type",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "NAMESPACE",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-management-discover",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                },
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "subscriptionId": {
+                            "type": "string"
+                        },
+                        "subscriptionName": {
+                            "type": "string"
+                        },
+                        "subscriptionTags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Management-Discovery-Tenant-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover all Azure resources for a tenant",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Sql/servers/elasticpools/ELPUS001",
+                            "location": "westus",
+                            "name": "ELPUS001",
+                            "resourceGroup": "RSG2345",
+                            "subscriptionId": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890",
+                            "subscriptionName": "SUBXXFRPP001",
+                            "subscriptionTags": [
+                                {
+                                    "key": "Environment",
+                                    "value": "dev"
+                                },
+                                {
+                                    "key": "CostCenter",
+                                    "value": "XXFRPPF03"
+                                }
+                            ],
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers/elasticpools"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.subscriptionId"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "contain",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.EventHub"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Analytics-EventHubs-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "contain",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.ContainerService/managedClusters"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Compute-Aks-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "contain",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Web/sites"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Compute-Functions-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Compute/virtualMachines"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Compute-VirtualMachine-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Compute/virtualMachineScaleSets"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Compute-Vmscalesets-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.DocumentDB/databaseAccounts"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-CosmosDb-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Sql/servers/elasticpools"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-Elasticpool-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "contain",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.DBforMySQL"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-MySQL-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Cache/Redis"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-Redis-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Sql/servers/databases"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-SqlDatabase-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Sql/managedInstances"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-SqlManagedInstance-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Sql/servers"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Database-SqlServer-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.AppConfiguration/configurationStores"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-DevTools-AppConfiguration-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "contain",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.EventGrid"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Integration-EventGrid-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.ServiceBus/namespaces"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Integration-ServiceBus-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.ApiManagement/service"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Management-ApiManagement-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "contain",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Insights"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Management-ApplicationInsights-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Automation/automationAccounts"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Management-Automation-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.RecoveryServices/vaults"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Management-Recovery-Backup-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/applicationGateways"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-AppGateway-V1-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Cdn/profiles"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-Cdn-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/expressRouteCircuits"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-ExpressRoute-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/azurefirewalls"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-Firewall-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/frontdoors"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-FrontDoor-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/loadBalancers"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-LoadBalancer-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/networkInterfaces"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-NetworkInterface-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/publicIPAddresses"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-PublicIP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/virtualNetworks"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-VirtualNetwork-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Network/virtualNetworkGateways"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Network-VpnGateway-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.KeyVault/vaults"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Security-KeyVault-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Storage/storageAccounts"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Storage-StorageAccount-Account-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Web/sites"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Web-AppService-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.Web/serverFarms"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Web-AppServicePlan-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.SignalRService/SignalR"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Web-SignalR-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "Microsoft.ContainerRegistry/registries"
+                                    }
+                                ],
+                                "value": "Cloud-Azure-Storage-ContainerRegistry-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Azure Tenant Discovery",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-management-disco-tenant",
+                    "type": "azure-no-subscription",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_management_discover_api.pl --statefile-suffix=\\'autodiscovery\\' --plugin=cloud::azure::management::discover::plugin --custommode=\\'api\\' --mode=discovery --subscription=\\'$_AZURESUBSCRIPTION$\\' --tenant=\\'$_AZURETENANT$\\' --client-id=\\'$_AZURECLIENTID$\\' --client-secret=\\'$_AZURECLIENTSECRET$\\' --timeout=\\'$_TIMEOUT$\\' --proxyurl=\\'$_PROXYURL$\\' --namespace=\\'$_NAMESPACE$\\' --type=\\'$_TYPE$\\' --resource-group=\\'$_RESOURCEGROUP$\\' --location=\\'$_LOCATION$\\' $_EXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Management-Discover-Api-HostDiscovery",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_management_discover_api.pl --statefile-suffix=\\'autodiscovery\\' --plugin=cloud::azure::management::discover::plugin --custommode=\\'api\\' --mode=discovery-tenant --tenant=\\'$_AZURETENANT$\\' --client-id=\\'$_AZURECLIENTID$\\' --client-secret=\\'$_AZURECLIENTSECRET$\\' --timeout=\\'$_TIMEOUT$\\' --proxyurl=\\'$_PROXYURL$\\' $_EXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Management-Discovery-Tenant-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "modifying disco command plugin executable name",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-analytics-eventhubs",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-compute-functions",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-compute-virtualmachine",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-database-cosmosdb",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-database-elasticpool",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-database-mysql",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-database-redis",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-database-sqlmanagedinstance",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-database-sqlserver",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-devtools-appconfiguration",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-integration-eventgrid",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-integration-servicebus",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-management-apimanagement",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-management-applicationinsights",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-management-automation",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-management-recovery",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-management-resource",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-network-appgateway",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-network-cdn",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-network-expressroute",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-network-firewall",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-network-frontdoor",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-network-loadbalancer",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-network-networkinterface",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-network-publicip",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-network-virtualnetwork",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-network-vpngateway",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-security-keyvault",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-storage-acr",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-storage-storageaccount",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-web-appservice",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-web-appserviceplan",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-web-signalr",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-compute-aks",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-compute-vmscalesets",
+                "version": "22.05.0"
+            },
+            {
+                "name": "cloud-azure-database-sqldatabase",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin-Pack to discover Azure resources attached to a given subscription.**\r\n\r\nThis Plugin-Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin-Pack pour d\u00e9couvrir les ressources Azure rattach\u00e9es \u00e0 une souscription donn\u00e9e.**\r\n\r\nCe Plugin-Pack fournit un *provider* Host Discovery pour le module d\\'auto-d\u00e9couverte d\\'H\u00f4tes"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAABhWlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV/TikUqDmYQcchQXbQgKqKbVLEIFkpboVUHk0u/oElD0uLiKLgWHPxYrDq4OOvq4CoIgh8gbm5Oii5S4v+SQosYD4778e7e4+4dIDTKTLMC44CmV81kLCplsqtS9ysCEBHEKGZlZhnx1GIanuPrHj6+3kV4lve5P0evmrMY4JOI55hhVok3iKc3qwbnfWKRFWWV+Jx4zKQLEj9yXXH5jXPBYYFnimY6OU8sEkuFDlY6mBVNjXiKOKxqOuULGZdVzluctXKNte7JXxjK6SsprtMcQgxLiCMBCQpqKKGMKiK06qRYSNJ+1MM/6PgT5FLIVQIjxwIq0CA7fvA/+N2tlZ+ccJNCUaDrxbY/hoHuXaBZt+3vY9tungD+Z+BKb/srDWDmk/R6WwsfAX3bwMV1W1P2gMsdYODJkE3Zkfw0hXweeD+jb8oC/bdAz5rbW2sfpw9AmrpavgEODoGRAmWve7w72Nnbv2da/f0A1jlyz+5T+nwAAAAGYktHRAD/AP8A/6C9p5MAAAAJcEhZcwAADdcAAA3XAUIom3gAAAAHdElNRQflBBQILC3SWyD6AAAFVklEQVR42u2dT2hcRRzHv/PebrJNuobEeikiVQIWEr140UMp9V8Re5PmJEUPjUhbsYHgqTQnsWIQRERFQiWXEj0UxKK14h/iQUqEVIOJSFVsU2rbw9Z2zSbvzc9rms3b3bwkO7/Z9/3AXmYT+L2Z7/z+zMybBQghhBBCCCGEZAjTyB+NfLOjsCDFvsiiu9kGxib49e0npi+vbB8++9BuCZB33YGhtJ0/8dRUaXnbkTO97e1tW3Y1fTCt/c/mC3Oje6auN/o/uVpf7p/YH97fPXesHMsQgGLgRKFyEMBHVe2BfGpgtrkWQBwuPQrgx+VtxSDfEwFfNd2YIEAYL8avnes/HQKHXn/yl6t1/6XWlzt6Zk/CyHEARTpLbwgF5rlIzOTRL/p6Ugtg+Ov+pw3wPPvT2+Demw+DY6kFYCQYYC96L4KB1AKAlfsggPNPnGCfKPksqbZv+8hEX1sqAUiAkFPIf0r33hWmrgJE8YNptq0MuK9PGy0cOEeyDQVAARAKgFAAhAIgGSS5DLTKLRfaRw9AKABCARAKgGx4EihKMhlJyEa12Je0XSmeZIH0AAwBhAIgFABhErhaluWepDcXLBp8q8FZ9koPQCgAQgEQCoBQAIQCID6VgTxvsb4qVegBiNceQM1Ciyh3A9pdwKW0AoBcgeCi8/415mbCV39BcNO1fRZmoapTTT4Way9qGP+ue674Eo0IIYQQQojrIgZDX/bvM9Zsd25hgO9H9/48W2Xfmb4DxgQF5x0YmNNv7b3wz/K2wc8e6SjmFlVcsFUs3D02sufbaM1loMTmKCCPO+/gSA4CmF3lm1ER2ebevngawB0C6MiXu8SGH2gQQOlaZRxAlDy/SKapsRDEt0Nb2756AmD/ZmH89d8SZpX375Lf488cgDlAramnYTdQ+26b5wcC6AEyDgXAEKA8CxSGACcCYJXVGvbVS+MYAhgC6GI3fCHgNry5LpwegFUAYQhYzcOKDh9rrKi2T33/4W96AEIBkDVXAbyCpbXtowcgtT0AuBLcWJLltQPwYC+A28EMAYQCIE0PAVpcmPZDgQwBpCU9gBXlE0yLfZFu+9ZRBXAlKAsxgCGAIUC5AxAPnACTQNJyHkB7FajFxshvB+DBUnAaZTAH3BAB/JT4m23N7F9jLq9eZpnvAOlyb19UqmqLgwpgz2kY4GhrwYIQQgghhJBGihi8fGrnUAA86NpACez4ewO/Ta5sP3Rq5yiArc47MJA33h2Y+2N52+DEA1152/amhgFeKnUe/vClqaU1l4GB4FkBFNwTGJ4HMFldBuIAAOf3BCIOxwDcIQBU2jskJ4MaBNDZffVVJF9lVGM7WImL4qHQzYXXxGVcATn27zpjLD1AxhXQunsBPBWaBR9QOwQoeAabMP6ifPyFB0KI3yGAl4W3tn31cwAeucvA+LMKyLoCmAMwB0hIAbS8eSO6s2xj/K4CPFgHoH3ZXgcw9ADMAUiG1wH4ZoijJBB8N7gRtO8EXPJ+HUC7h1qNMnhbOPE9BxAl9wRqz7Jbdx2AvxuX6XUANc/AU6FuBMD5lYX578M6AE+Fbmod6O2pYM0ZSrlubPWkClBd7zMGcB2AbKIHsDZ5p0uDA9CyThFD9zpAZ3dOUgnAANdVPAVPhKyHf0+++OdC2hBwlg7Sc0z9MUz0AOWe9vEtNxZfAeRhjTGAS8F1KZsIx1MngZ8MzCzmouAZAD9wKnnHPKzs+/jw7zPpy0AAY0fm5iHY9cL7vbtF8JgATb+XLxA7nTD13oFIp/MsOrLzK9vacvZWVMEJB86oAoMZe6vj8/HhC7c5DwghhBBCCCHV/A+huyOsSFXGQQAAAABJRU5ErkJggg==",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module >= 19.10.1\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure Discover",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_management_discover_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Management-Discover-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-management-discover",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Azure",
+            "Microsoft",
+            "Cloud",
+            "API",
+            "Restapi",
+            "HostDisco",
+            "Discover"
+        ],
+        "update_date": "1654787954",
+        "version": "22.06.1",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [],
+    "timeperiods": []
+}

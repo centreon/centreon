@@ -1,0 +1,146 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dynamics_ax.pl --plugin=database::mssql::plugin --dyn-mode=apps::dynamics::ax::mode::ediorder --hostname=$HOSTADDRESS$ --port=$_HOSTMSSQLPORT$ --username=\\'$_HOSTMSSQLUSERNAME$\\' --password=\\'$_HOSTMSSQLPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --filter-module=\\'$_SERVICEFILTERMODULE$\\' --filter-company=\\'$_SERVICEFILTERCOMPANY$\\'  --filter-portname=\\'$_SERVICEFILTERPORTNAME$\\' --timeframe=$_SERVICETIMEFRAME$ --warning-order-warning=$_SERVICEWARNINGORDERWARN$  --critical-order-warning=$_SERVICECRITICALORDERWARN$ --warning-order-critical=$_SERVICEWARNINGORDERCRIT$ --critical-order-critical=$_SERVICECRITICALGORDERCRIT$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Dynamics-AX-Database-Mssql",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser un serveur de base de donn\u00e9es Dynamics AX}\r\n{EN: Template to check Microsoft Dynamics AX database server}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Microsoft Dynamics AX database",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "app-dynamics-ax-64.png",
+            "macros": [
+                {
+                    "key": "$_HOSTMSSQLPASSWORD$",
+                    "value": "PASSWORD"
+                },
+                {
+                    "key": "$_HOSTMSSQLPORT$",
+                    "value": "1433"
+                },
+                {
+                    "key": "$_HOSTMSSQLUSERNAME$",
+                    "value": "USERNAME"
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Dynamics-AX-Database-Mssql",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Dynamics-AX-EDI-Order-MSSQL"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "app-dynamics-ax-64.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* put generic monitoring procedure",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            },
+            {
+                "name": "applications-databases-mssql",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Microsoft Dynamycs AX Database\r\n* EDI Order"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser la base de donn\u00e9es Microsoft Dynamics AX\r\n* EDI-Order"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\\r\\n\\r\\n* 19.04.2 or later\\r\\n* 19.10.1 or later\\r\\n* 20.04.0 or later\\r\\n\\r\\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' \",\r\n",
+        "name": "Dynamics AX Database",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_dynamics_ax.pl",
+                "package_name": "centreon-plugin-Applications-Dynamics-Ax-Mssql",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-dynamics-ax-mssql",
+        "status": "stable",
+        "status_message": "put generic monitoring procedure",
+        "tags": [
+            "Dynamics",
+            "Database",
+            "AX",
+            "MSSQL"
+        ],
+        "update_date": "1639584810",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les erreurs des commande EDI.}\r\n\r\n{EN: Check the EDI Orders errors.}",
+            "active_checks_enabled": 2,
+            "alias": "EDI-Order",
+            "check_timeperiod": "",
+            "command_name": "App-Dynamics-AX-Database-Mssql",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "14400"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Dynamics-AX-EDI-Order-MSSQL",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

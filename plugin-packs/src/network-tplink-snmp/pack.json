@@ -1,0 +1,263 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Tplink-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Tplink-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Tplink-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "INTERFACENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Tplink-SNMP-Interface-Name",
+                "service_display_name": "Interface-$name$",
+                "service_template": "Net-Tplink-Interfaces-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_tplink_snmp.pl --plugin=network::tplink::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Tplink-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_tplink_snmp.pl --plugin=network::tplink::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Tplink-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_tplink_snmp.pl --plugin=network::tplink::snmp::plugin --mode=uptime --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-uptime=\\'$_SERVICEWARNING$\\' --critical-uptime=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Tplink-SNMP-Uptime",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_tplink_snmp.pl --plugin=network::tplink::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Tplink-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_tplink_snmp.pl --plugin=network::tplink::snmp::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-core-5s=\\'$_SERVICEWARNINGCORE5S$\\' --critical-core-5s=\\'$_SERVICECRITICALCORE5S$\\' --warning-core-1m=\\'$_SERVICEWARNINGCORE1M$\\' --critical-core-1m=\\'$_SERVICECRITICALCORE1M$\\' --warning-core-5m=\\'$_SERVICEWARNINGCORE5M$\\' --critical-core-5m=\\'$_SERVICECRITICALCORE5M$\\' --warning-average-5s=\\'$_SERVICEWARNINGAVERAGE5S$\\' --critical-average-5s=\\'$_SERVICECRITICALAVERAGE5S$\\' --warning-average-1m=\\'$_SERVICEWARNINGAVERAGE1M$\\' --critical-average-1m=\\'$_SERVICECRITICALAVERAGE1M$\\' --warning-average-5m=\\'$_SERVICEWARNINGAVERAGE5M$\\' --critical-average-5m=\\'$_SERVICECRITICALAVERAGE5M$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Tplink-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_tplink_snmp.pl --plugin=network::tplink::snmp::plugin --mode=interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --add-errors --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Tplink-SNMP-Interfaces",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements TP Link en SNMP}\r\n{EN: Template to check TP Link SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Tplink using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "net-tplink-icon-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Tplink-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Tplink-Uptime-SNMP",
+                "Net-Tplink-Memory-SNMP",
+                "Net-Tplink-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "net-tplink-icon-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* add(Tplink) Add new plugin packs",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor TP-Link network equipment via SNMP:\r\n* Cpu\r\n* Interfaces\r\n* Memory\r\n*Uptime"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un \u00e9quipement r\u00e9seau TP-Link via SNMP : \r\n* Cpu\r\n* Interfaces\r\n* Memory\r\n*Uptime"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 20.04 or later\r\n* 20.10 or later\r\n* 21.04 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "TP-Link SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_tplink_snmp.pl",
+                "package_name": "centreon-plugin-Network-Tplink-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-tplink-snmp",
+        "status": "stable",
+        "status_message": "add(Tplink) Add new plugin packs",
+        "tags": [
+            "Hardware",
+            "Network",
+            "SNMP",
+            "TPLINK",
+            "TP-LINK"
+        ],
+        "update_date": "1622729817",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Dur\u00e9e depuis laquelle l'\u00e9quipement tourne sans interruption.}\r\n\r\n{EN: Time since the equipment has been working and available.}",
+            "active_checks_enabled": 2,
+            "alias": "Uptime",
+            "check_timeperiod": "",
+            "command_name": "Net-Tplink-SNMP-Uptime",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Tplink-Uptime-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire vive (RAM)..}\r\n\r\n{EN: Check the rate of the utilization of memory (RAM).}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Tplink-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Tplink-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le taux d'utilisation du CPU.}\r\n\r\n{EN: Check CPU usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Tplink-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Tplink-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces.}\r\n\r\n{EN: Check interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "Net-Tplink-SNMP-Interfaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} !~ /up|dormant/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "ifName"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --use-new-perfdata"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Tplink-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

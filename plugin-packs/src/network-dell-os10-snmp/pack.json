@@ -1,0 +1,481 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Dell-Os10-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Dell-Os10-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$name$",
+                        "order": 0,
+                        "pattern": "[Ll]o",
+                        "type": "exclusion"
+                    },
+                    {
+                        "object": "$status$",
+                        "order": 1,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Dell-Os10-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "INTERFACENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Dell-Os10-SNMP-Interface-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Dell-Os10-Interfaces-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dell_os10_snmp.pl --plugin=network::dell::os10::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Dell-Os10-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dell_os10_snmp.pl --plugin=network::dell::os10::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Dell-Os10-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dell_os10_snmp.pl --plugin=network::dell::os10::snmp::plugin --mode=swap --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Dell-Os10-SNMP-Swap",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dell_os10_snmp.pl --plugin=network::dell::os10::snmp::plugin --mode=memory --hostname=\\'$HOSTADDRESS$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-version=$_HOSTSNMPVERSION$ $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Dell-Os10-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dell_os10_snmp.pl --plugin=network::dell::os10::snmp::plugin --mode=load --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Dell-Os10-SNMP-Load",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dell_os10_snmp.pl --plugin=network::dell::os10::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Dell-Os10-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dell_os10_snmp.pl --plugin=network::dell::os10::snmp::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-average=\\'$_SERVICEWARNINGAVERAGE$\\' --critical-average=\\'$_SERVICECRITICALAVERAGE$\\' --warning-core=\\'$_SERVICEWARNINGCORE$\\' --critical-core=\\'$_SERVICECRITICALCORE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Dell-Os10-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dell_os10_snmp.pl --plugin=network::dell::os10::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --add-errors --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Dell-Os10-SNMP-Interfaces",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dell_os10_snmp.pl --plugin=network::dell::os10::snmp::plugin --mode=uptime --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-uptime=\\'$_SERVICEWARNINGUPTIME$\\' --critical-uptime=\\'$_SERVICECRITICALUPTIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Dell-Os10-SNMP-Uptime",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dell_os10_snmp.pl --plugin=network::dell::os10::snmp::plugin --mode=disk-usage --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' \\'$_HOSTSNMPEXTRAOPTIONS$\\' --diskpath=\\'$_SERVICEDISKPATH$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Dell-Os10-SNMP-Disk-usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dell_os10_snmp.pl --plugin=network::dell::os10::snmp::plugin --mode=inodes --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --diskpath=\\'$_SERVICEFILTERDISKPATH$\\' --name --regexp --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' --filter-device=\\'$_SERVICEFILTERDEVICE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Dell-Os10-SNMP-Inodes-Global",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les s\u00e9ries Dell OS 10 via SNMP}\r\n\r\n{EN: Template to check Dell OS 10 using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Dell Os10 using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "dell-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Dell-Os10-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Dell-Os10-Swap-SNMP",
+                "Net-Dell-Os10-Memory-SNMP",
+                "Net-Dell-Os10-Load-SNMP",
+                "Net-Dell-Os10-Hardware-SNMP",
+                "Net-Dell-Os10-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "dell-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Fix Net-Dell-Os10-SNMP-Swap",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Dell Os10 via SNMP:\r\n* Cpu\r\n* Memory\r\n* Load\r\n* Swap\r\n* Inode\r\n* Disk-usage\r\n* Traffic\r\n* Hardware\r\n* Uptime"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour contr\u00f4ler Dell Os10 via SNMP :\r\n* Cpu\r\n* Memory\r\n* Load\r\n* Swap\r\n* Inode\r\n* Disk-usage\r\n* Traffic\r\n* Hardware\r\n* Uptime"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Dell OS10 SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_dell_os10_snmp.pl",
+                "package_name": "centreon-plugin-Network-Dell-Os10-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-dell-os10-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Network",
+            "Dell",
+            "OS10",
+            "SNMP",
+            "Switch",
+            "Routeur"
+        ],
+        "update_date": "1604868934",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le swap}\r\n\r\n{EN: Check swap}",
+            "active_checks_enabled": 2,
+            "alias": "Swap",
+            "check_timeperiod": "",
+            "command_name": "Net-Dell-Os10-SNMP-Swap",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGUSAGE$",
+                    "password": false,
+                    "value": ":10"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALUSAGE$",
+                    "password": false,
+                    "value": ":30"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Dell-Os10-Swap-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la m\u00e9moire}\r\n\r\n{EN: Check Memory}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Dell-Os10-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGUSAGE$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALUSAGE$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Dell-Os10-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le Load sur 1m, 5m et 15m.}\r\n\r\n{EN: Check Load on 1m, 5m and 15m.}",
+            "active_checks_enabled": 2,
+            "alias": "Load",
+            "check_timeperiod": "",
+            "command_name": "Net-Dell-Os10-SNMP-Load",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Dell-Os10-Load-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les composants Hardware.}\r\n\r\n{EN: Check Hardware component.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware",
+            "check_timeperiod": "",
+            "command_name": "Net-Dell-Os10-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Dell-Os10-Hardware-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le CPU.}\r\n\r\n{EN: Check CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Dell-Os10-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGAVERAGE$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALAVERAGE$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Dell-Os10-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces.}\r\n\r\n{EN: Check interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "Net-Dell-Os10-SNMP-Interfaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} ne \"up\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGINTRAFFIC$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALINTRAFFIC$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUTTRAFFIC$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUTTRAFFIC$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "ifName"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "ifName"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Dell-Os10-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'uptime de l'\u00e9quipement.}\r\n\r\n{EN: Check Uptime of equipment.}",
+            "active_checks_enabled": 2,
+            "alias": "Uptime",
+            "check_timeperiod": "",
+            "command_name": "Net-Dell-Os10-SNMP-Uptime",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Dell-Os10-Uptime-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'usage du disque.}\r\n\r\n{EN: Check disk usage}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Dell-Os10-SNMP-Disk-usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGUSAGE$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALUSAGE$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Dell-Os10-Disk-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les inodes.}\r\n\r\n{EN: Check inodes.}",
+            "active_checks_enabled": 2,
+            "alias": "Inodes",
+            "check_timeperiod": "",
+            "command_name": "Net-Dell-Os10-SNMP-Inodes-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Dell-Os10-Inodes-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

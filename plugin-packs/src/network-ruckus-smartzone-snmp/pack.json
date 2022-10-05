@@ -1,0 +1,470 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Ruckus-Smartzone-SNMP-Ap-Discover",
+                "command_for_macro": "Net-Ruckus-Smartzone-SNMP-Ap-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Ruckus-Smartzone-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Ruckus-Smartzone-SNMP-Ap-Name",
+                "service_display_name": "Ap-$name$",
+                "service_template": "Net-Ruckus-Smartzone-Access-Point-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Ruckus-Smartzone-SNMP-Storage-Discover",
+                "command_for_macro": "Net-Ruckus-Smartzone-SNMP-Storage-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Ruckus-Smartzone-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Ruckus-Smartzone-SNMP-Disk-Name",
+                "service_display_name": "Disk-$name$",
+                "service_template": "Net-Ruckus-Smartzone-Storage-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Ruckus-Smartzone-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Ruckus-Smartzone-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$name$",
+                        "order": 0,
+                        "pattern": "[Ll]o",
+                        "type": "exclusion"
+                    },
+                    {
+                        "object": "$status$",
+                        "order": 1,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Ruckus-Smartzone-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "INTERFACENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Ruckus-Smartzone-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Ruckus-Smartzone-Interfaces-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ruckus_smartzone_snmp.pl --plugin=network::ruckus::smartzone::snmp::plugin --mode=list-access-points --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Ruckus-Smartzone-SNMP-Ap-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ruckus_smartzone_snmp.pl --plugin=network::ruckus::smartzone::snmp::plugin --mode=list-access-points --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Ruckus-Smartzone-SNMP-Ap-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ruckus_smartzone_snmp.pl --plugin=network::ruckus::smartzone::snmp::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Ruckus-Smartzone-SNMP-Storage-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ruckus_smartzone_snmp.pl --plugin=network::ruckus::smartzone::snmp::plugin --mode=list-storages --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Ruckus-Smartzone-SNMP-Storage-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ruckus_smartzone_snmp.pl --plugin=network::ruckus::smartzone::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Ruckus-Smartzone-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ruckus_smartzone_snmp.pl --plugin=network::ruckus::smartzone::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Ruckus-Smartzone-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ruckus_smartzone_snmp.pl --plugin=network::ruckus::smartzone::snmp::plugin --mode=system --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' --warning-connection-accesspoints=\\'$_SERVICEWARNINGCONNECTIONACCESSPOINTS$\\' --critical-connection-accesspoints=\\'$_SERVICECRITICALCONNECTIONACCESSPOINTS$\\' --warning-connection-client-devices-authorized=\\'$_SERVICEWARNINGCONNECTIONCLIENTDEVICESAUTHORIZED$\\' --critical-connection-client-devices-authorized=\\'$_SERVICECRITICALCONNECTIONCLIENTDEVICESAUTHORIZED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Ruckus-Smartzone-SNMP-System",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ruckus_smartzone_snmp.pl --plugin=network::ruckus::smartzone::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Ruckus-Smartzone-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ruckus_smartzone_snmp.pl --plugin=network::ruckus::smartzone::snmp::plugin --mode=load --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Ruckus-Smartzone-SNMP-Load",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ruckus_smartzone_snmp.pl --plugin=network::ruckus::smartzone::snmp::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-average=\\'$_SERVICEWARNINGAVERAGE$\\' --critical-average=\\'$_SERVICECRITICALAVERAGE$\\' --warning-core=\\'$_SERVICEWARNINGCORE$\\' --critical-core=\\'$_SERVICECRITICALCORE$\\'  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Ruckus-Smartzone-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ruckus_smartzone_snmp.pl --plugin=network::ruckus::smartzone::snmp::plugin --mode=access-points --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' --warning-connection-client-devices-authorized=\\'$_SERVICEWARNINGCONNECTIONCLIENTDEVICESAUTHORIZED$\\' --critical-connection-client-devices-authorized=\\'$_SERVICECRITICALCONNECTIONCLIENTDEVICESAUTHORIZED$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Ruckus-Smartzone-SNMP-Access-Point",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ruckus_smartzone_snmp.pl --plugin=network::ruckus::smartzone::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --add-errors --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Ruckus-Smartzone-SNMP-Interfaces",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ruckus_smartzone_snmp.pl --plugin=network::ruckus::smartzone::snmp::plugin --mode=storage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --storage=\\'$_SERVICEFILTERNAME$\\' --name --regexp --warning-count=\\'$_SERVICEWARNINGCOUNT$\\' --critical-count=\\'$_SERVICECRITICALCOUNT$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-access=\\'$_SERVICEWARNINGACCESS$\\' --critical-access=\\'$_SERVICECRITICALACCESS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Ruckus-Smartzone-SNMP-Storage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les appliances Ruckus SmartZone via SNMP}\r\n{EN: Template to check Ruckus SmartZone appliances using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Ruckus Smartzone using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "icon": "ruckus-128-3.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Ruckus-Smartzone-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Ruckus-Smartzone-System-SNMP",
+                "Net-Ruckus-Smartzone-Memory-SNMP",
+                "Net-Ruckus-Smartzone-Load-SNMP",
+                "Net-Ruckus-Smartzone-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "ruckus-128-3.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "fixing access-point command",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Ruckus Smartzone via SNMP:\r\n* Access Point\r\n* Cpu\r\n* Traffic-Global\r\n* Load\r\n* Memory\r\n* Storage\r\n* System"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour contr\u00f4ler Ruckus Smartzone via SNMP :\r\n* Access Point\r\n* Cpu\r\n* Traffic-Global\r\n* Load\r\n* Memory\r\n* Storage\r\n* System"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Ruckus-Smartzone-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Ruckus-Smz-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Ruckus Smartzone",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_ruckus_smartzone_snmp.pl",
+                "package_name": "centreon-plugin-Network-Ruckus-Smartzone-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-ruckus-smartzone-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Wifi",
+            "Ruckus",
+            "AP",
+            "Network",
+            "SNMP",
+            "Controller"
+        ],
+        "update_date": "1596635945",
+        "version": "22.06.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le du system.}\r\n\r\n{EN: Check system..}",
+            "active_checks_enabled": 2,
+            "alias": "System",
+            "check_timeperiod": "",
+            "command_name": "Net-Ruckus-Smartzone-SNMP-System",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Ruckus-Smartzone-System-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la m\u00e9moire.}\r\n\r\n{EN: Check memory.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Ruckus-Smartzone-SNMP-Memory",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--use-new-perfdata"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Ruckus-Smartzone-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du Load Average.}\r\n\r\n{EN: Check Load Average.}",
+            "active_checks_enabled": 2,
+            "alias": "Load",
+            "check_timeperiod": "",
+            "command_name": "Net-Ruckus-Smartzone-SNMP-Load",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "4,3,2"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "6,5,4"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Ruckus-Smartzone-Load-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du CPU.}\r\n\r\n{EN: Check CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Ruckus-Smartzone-SNMP-Cpu",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --use-new-perfdata"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Ruckus-Smartzone-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le des points d'acc\u00e8s.}\r\n\r\n{EN: Check access points.}",
+            "active_checks_enabled": 2,
+            "alias": "Access-Point",
+            "check_timeperiod": "",
+            "command_name": "Net-Ruckus-Smartzone-SNMP-Access-Point",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Ruckus-Smartzone-Access-Point-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces.}\r\n\r\n{EN: Check interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "Net-Ruckus-Smartzone-SNMP-Interfaces",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} ne \"up\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --use-new-perfdata"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Ruckus-Smartzone-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du Stockage.}\r\n\r\n{EN: Check Storage.}",
+            "active_checks_enabled": 2,
+            "alias": "Storage",
+            "check_timeperiod": "",
+            "command_name": "Net-Ruckus-Smartzone-SNMP-Storage",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGUSAGE$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALUSAGE$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --use-new-perfdata"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Ruckus-Smartzone-Storage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

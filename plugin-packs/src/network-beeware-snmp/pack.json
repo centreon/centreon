@@ -1,0 +1,164 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Beeware-SNMP-Reverse-Proxy-Discover",
+                "command_for_macro": "Net-Beeware-SNMP-Reverse-Proxy-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Beeware-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Beeware-SNMP-Reverse-Proxy-Name",
+                "service_display_name": "Proxy-$name$",
+                "service_template": "Net-Beeware-Reverse-Proxy-Usage-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_beeware.pl --plugin=network::brocade::snmp::plugin --mode=list-reverse-proxy --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Beeware-SNMP-Reverse-Proxy-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_beeware.pl --plugin=network::brocade::snmp::plugin --mode=list-reverse-proxy --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Beeware-SNMP-Reverse-Proxy-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_beeware.pl --plugin=network::beeware::snmp::plugin --mode=reverse-proxy-usage --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-memory=\\'$_SERVICEWARNINGMEMORY$\\' --critical-memory=\\'$_SERVICECRITICALMEMORY$\\' --warning-cpu=\\'$_SERVICEWARNINGCPU$\\' --critical-cpu=\\'$_SERVICECRITICALCPU$\\' --warning-nbchilds=\\'$_SERVICEWARNINGNBCHILDS$\\' --critical-nbchilds=\\'$_SERVICECRITICALNBCHILDS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Beeware-SNMP-Reverse-Proxy-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Beeware en SNMP}\r\n{EN: Template to check Beeware series using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Beeware series using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Beeware-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Beeware-Reverse-Proxy-Usage-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ tag / doc update",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Bee Ware appliances :\r\n* Reverse-Proxy-Usage"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les appliances Bee Ware :\r\n* Reverse-Proxy-Usage"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Bee Ware",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_beeware.pl",
+                "package_name": "centreon-plugin-Network-Beeware-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "centreon-plugin-Network-Beeware-Snmp",
+                "version": "20170329-1"
+            }
+        ],
+        "slug": "network-beeware-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Bee Ware",
+            "WAF",
+            "Network",
+            "SNMP",
+            "Firewall",
+            "Security",
+            "ServiceDisco"
+        ],
+        "update_date": "1628800409",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des reverse proxies.}\r\n\r\n{EN: Check reverse proxy status.}",
+            "active_checks_enabled": 2,
+            "alias": "Reverse-Proxy-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Beeware-SNMP-Reverse-Proxy-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /running/i"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Beeware-Reverse-Proxy-Usage-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

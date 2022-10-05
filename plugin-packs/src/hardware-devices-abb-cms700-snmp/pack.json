@@ -1,0 +1,186 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "HW-Device-Abb-Cms700-SNMP-Sensors-Discover",
+                "command_for_macro": "HW-Device-Abb-Cms700-SNMP-Sensors-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "HW-Device-Abb-Cms700-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "HW-Device-Abb-Cms700-SNMP-Sensors-Measurements",
+                "service_display_name": "Sensor-Measurements-$name$",
+                "service_template": "HW-Device-Abb-Cms700-Sensors-Measurements-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_abb_cms700_snmp.pl --plugin=hardware::devices::abb::cms700::snmp::plugin --mode=list-sensors --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "HW-Device-Abb-Cms700-SNMP-Sensors-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_abb_cms700_snmp.pl --plugin=hardware::devices::abb::cms700::snmp::plugin --mode=list-sensors --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=$_HOSTSNMPCOMMUNITY$ $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "HW-Device-Abb-Cms700-SNMP-Sensors-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_abb_cms700_snmp.pl --plugin=hardware::devices::abb::cms700::snmp::plugin --mode=sensors-measurements --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --filter-group=\\'$_SERVICEFILTERGROUP$\\' --filter-phase=\\'$_SERVICEFILTERPHASE$\\' --warning-current-mixte=\\'$_SERVICEWARNINGCURRENTMIXTE$\\' --critical-current-mixte=\\'$_SERVICECRITICALCURRENTMIXTE$\\' --warning-current-alternative=\\'$_SERVICEWARNINGCURRENTALTERNATIVE$\\' --critical-current-alternative=\\'$_SERVICECRITICALCURRENTALTERNATIVE$\\' --warning-current-direct=\\'$_SERVICEWARNINGCURRENTDIRECT$\\' --critical-current-direct=\\'$_SERVICECRITICALCURRENTDIRECT$\\' --warning-power-active=\\'$_SERVICEWARNINGPOWERACTIVE$\\' --critical-power-active=\\'$_SERVICECRITICALPOWERACTIVE$\\' --warning-energy-active=\\'$_SERVICEWARNINGENERGYACTIVE$\\' --critical-energy-active=\\'$_SERVICECRITICALENERGYACTIVE$\\' --warning-power-factor=\\'$_SERVICEWARNINGPOWERFACTOR$\\' --critical-power-factor=\\'$_SERVICECRITICALPOWERFACTOR$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Abb-Cms700-SNMP-Sensors-Measurements",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_abb_cms700_snmp.pl --plugin=hardware::devices::abb::cms700::snmp::plugin --mode=mains-measurements --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-power-active-total=\\'$_SERVICEWARNINGPOWERACTIVETOTAL$\\' --critical-power-active-total=\\'$_SERVICECRITICALPOWERACTIVETOTAL$\\' --warning-power-reactive-total=\\'$_SERVICEWARNINGPOWERREACTIVETOTAL$\\' --critical-power-reactive-total=\\'$_SERVICECRITICALPOWERREACTIVETOTAL$\\' --warning-power-apparent-total=\\'$_SERVICEWARNINGPOWERAPPARENTTOTAL$\\' --critical-power-apparent-total=\\'$_SERVICECRITICALPOWERAPPARENTTOTAL$\\' --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\' --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\' --warning-power-factor=\\'$_SERVICEWARNINGPOWERFACTOR$\\' --critical-power-factor=\\'$_SERVICECRITICALPOWERFACTOR$\\' --warning-cosphi=\\'$_SERVICEWARNINGCOSPHI$\\' --critical-cosphi=\\'$_SERVICECRITICALCOSPHI$\\' --warning-power-active=\\'$_SERVICEWARNINGPOWERACTIVE$\\' --critical-power-active=\\'$_SERVICECRITICALPOWERACTIVE$\\' --warning-power-reactive=\\'$_SERVICEWARNINGPOWERREACTIVE$\\' --critical-power-reactive=\\'$_SERVICECRITICALPOWERREACTIVE$\\' --warning-power-apparent=\\'$_SERVICEWARNINGPOWERAPPARENT$\\' --critical-power-apparent=\\'$_SERVICECRITICALPOWERAPPARENT$\\' --warning-energy-active=\\'$_SERVICEWARNINGENERGYACTIVE$\\' --critical-energy-active=\\'$_SERVICECRITICALENERGYACTIVE$\\' --warning-energy-reactive=\\'$_SERVICEWARNINGENERGYREACTIVE$\\' --critical-energy-reactive=\\'$_SERVICECRITICALENERGYREACTIVE$\\' --warning-energy-apparent=\\'$_SERVICEWARNINGENERGYAPPARENT$\\' --critical-energy-apparent=\\'$_SERVICECRITICALENERGYAPPARENT$\\' --warning-voltage-thd=\\'$_SERVICEWARNINGVOLTAGETHD$\\' --critical-voltage-thd=\\'$_SERVICECRITICALVOLTAGETHD$\\' --warning-current-thd=\\'$_SERVICEWARNINGCURRENTTHD$\\' --critical-current-thd=\\'$_SERVICECRITICALCURRENTTHD$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Abb-Cms700-SNMP-Mains-Measurements",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check ABB CMS-700 devices using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "abb-icon.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Abb-Cms700-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Device-Abb-Cms700-Sensors-Measurements-SNMP",
+                "HW-Device-Abb-Cms700-Mains-Measurements-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "abb-icon.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* add disco rule",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor ABB CMS-700 devices via SNMP :\r\n* Mains measurements\r\n* Sensors measurements"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les \u00e9quipements ABB CMS-700 via SNMP :\r\n* Mains measurements\r\n* Sensors measurements"
+            }
+        ],
+        "discovery_category": "sensor",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Devices-Abb-Cms700-Snmp\r\n\r\n# Centreon Configuration\r\n## Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Device-Abb-Cms700-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "ABB CMS-700",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_abb_cms700_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Devices-Abb-Cms700-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-devices-abb-cms700-snmp",
+        "status": "stable",
+        "status_message": "add disco rule",
+        "tags": [
+            "ABB",
+            "CMS700",
+            "CMS",
+            "Sensor",
+            "Voltage",
+            "Devices"
+        ],
+        "update_date": "1570118995",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les donn\u00e9es collect\u00e9es pour chaque capteurs.}\r\n\r\n{EN: Check branches/sensors collected data.}",
+            "active_checks_enabled": 2,
+            "alias": "Sensors-Measurements",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Abb-Cms700-SNMP-Sensors-Measurements",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Device-Abb-Cms700-Sensors-Measurements-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les donn\u00e9es collect\u00e9es pour les phases.}\r\n\r\n{EN: Check mains/phases collected data.}",
+            "active_checks_enabled": 2,
+            "alias": "Mains-Measurements",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Abb-Cms700-SNMP-Mains-Measurements",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Device-Abb-Cms700-Mains-Measurements-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

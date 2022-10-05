@@ -1,0 +1,184 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_alvarion_breezeaccess_snmp.pl --plugin=network::alvarion::breezeaccess::snmp::plugin --mode=uptime --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-uptime=\\'$_SERVICEWARNING$\\' --critical-uptime=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Alvarion-Breezeaccess-SNMP-Uptime",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_alvarion_breezeaccess_snmp.pl --plugin=network::alvarion::breezeaccess::snmp::plugin --mode=radio-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-rx-snr=\\'$_SERVICEWARNINGRXSNR$\\' --critical-rx-snr=\\'$_SERVICECRITICALRXSNR$\\' --warning-rx-power=\\'$_SERVICEWARNINGRXPOWER$\\' --critical-rx-power=\\'$_SERVICECRITICALRXPOWER$\\' --warning-bad-frames=\\'$_SERVICEWARNINGBADFRAMES$\\' --critical-bad-frames=\\'$_SERVICECRITICALBADFRAMES$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Alvarion-Breezeaccess-SNMP-Radio-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_alvarion_breezeaccess_snmp.pl --plugin=network::alvarion::breezeaccess::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --add-errors --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' --warning-in-ucast=\\'$_SERVICEWARNINGINUCAST$\\' --critical-in-ucast=\\'$_SERVICECRITICALINUCAST$\\' --warning-in-bcast=\\'$_SERVICEWARNINGINBCAST$\\' --critical-in-bcast=\\'$_SERVICECRITICALINBCAST$\\' --warning-in-mcast=\\'$_SERVICEWARNINGINMCAST$\\' --critical-in-mcast=\\'$_SERVICECRITICALINMCAST$\\' --warning-out-ucast=\\'$_SERVICEWARNINGOUTUCAST$\\' --critical-out-ucast=\\'$_SERVICECRITICALOUTUCAST$\\' --warning-out-bcast=\\'$_SERVICEWARNINGOUTBCAST$\\' --critical-out-bcast=\\'$_SERVICECRITICALOUTBCAST$\\' --warning-out-mcast=\\'$_SERVICEWARNINGOUTMCAST$\\' --critical-out-mcast=\\'$_SERVICECRITICALOUTMCAST$\\' --warning-speed=\\'$_SERVICEWARNINGSPEED$\\' --critical-speed=\\'$_SERVICECRITICALSPEED$\\' --warning-in-volume=\\'$_SERVICEWARNINGINVOLUME$\\' --critical-in-volume=\\'$_SERVICECRITICALINVOLUME$\\' --warning-out-volume=\\'$_SERVICEWARNINGOUTVOLUME$\\' --critical-out-volume=\\'$_SERVICECRITICALOUTVOLUME$\\' --warning-total-port=\\'$_SERVICEWARNINGTOTALPORT$\\' --critical-total-port=\\'$_SERVICECRITICALTOTALPORT$\\' --warning-global-admin-up=\\'$_SERVICEWARNINGGLOBALADMINUP$\\' --critical-global-admin-up=\\'$_SERVICECRITICALGLOBALADMINUP$\\' --warning-total-admin-down=\\'$_SERVICEWARNINGTOTALADMINDOWN$\\' --critical-total-admin-down=\\'$_SERVICECRITICALTOTALADMINDOWN$\\' --warning-total-oper-up=\\'$_SERVICEWARNINGTOTALOPERUP$\\' --critical-total-oper-up=\\'$_SERVICECRITICALTOTALOPERUP$\\' --warning-total-oper-down=\\'$_SERVICEWARNINGTOTALOPERDOWN$\\' --critical-total-oper-down=\\'$_SERVICECRITICALTOTALOPERDOWN$\\' --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Alvarion-Breezeaccess-SNMP-Interfaces",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Alvarion BreezeACCESS en SNMP}\r\n{EN: Template to check Alvarion BreezeACCESS devices using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Alvarion BreezeACCESS equipments in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "alvarion-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Alvarion-Breezeaccess-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Alvarion-Breezeaccess-Uptime-SNMP",
+                "Net-Alvarion-Breezeaccess-Radio-Status-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "alvarion-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix(pack)missing-icon\r\n",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Alvarion BreezeACCESS device via SNMP:\r\n* Interfaces\r\n* Radio status\r\n* Uptime"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un \u00e9quipement Alvarion BreezeACCESS via SNMP :\r\n* Interfaces\r\n* Radio status\r\n* Uptime"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Alvarion-Breezeaccess-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Alvarion-Breezeaccess-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Alvarion BreezeACCESS SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_alvarion_breezeaccess_snmp.pl",
+                "package_name": "centreon-plugin-Network-Alvarion-Breezeaccess-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-alvarion-breezeaccess-snmp",
+        "status": "stable",
+        "status_message": "fix(pack)missing-icon",
+        "tags": [
+            "Alvarion",
+            "BreezeACCESS",
+            "SNMP",
+            "Network"
+        ],
+        "update_date": "1596008764",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'uptime.}\r\n\r\n{EN: Check uptime.}",
+            "active_checks_enabled": 2,
+            "alias": "Uptime",
+            "check_timeperiod": "",
+            "command_name": "Net-Alvarion-Breezeaccess-SNMP-Uptime",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Alvarion-Breezeaccess-Uptime-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le signal radio.}\r\n\r\n{EN: Check radio signal.}",
+            "active_checks_enabled": 2,
+            "alias": "Radio-Status",
+            "check_timeperiod": "",
+            "command_name": "Net-Alvarion-Breezeaccess-SNMP-Radio-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Alvarion-Breezeaccess-Radio-Status-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces.}\r\n\r\n{EN: Check interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "Net-Alvarion-Breezeaccess-SNMP-Interfaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} !~ /up|dormant/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --no-skipped-counters"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Alvarion-Breezeaccess-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

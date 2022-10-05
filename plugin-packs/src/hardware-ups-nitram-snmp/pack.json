@@ -1,0 +1,192 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_nitram_snmp.pl --plugin=hardware::ups::nitram::snmp::plugin --mode=output-lines --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-load=\\'$_SERVICEWARNINGLOAD$\\' --critical-load=\\'$_SERVICECRITICALLOAD$\\' --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\' --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\' --warning-power=\\'$_SERVICEWARNINGPOWER$\\' --critical-power=\\'$_SERVICECRITICALPOWER$\\' --warning-frequence=\\'$_SERVICEWARNINGFREQUENCE$\\' --critical-frequence=\\'$_SERVICECRITICALFREQUENCE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Nitram-SNMP-Output-Lines",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_nitram_snmp.pl --plugin=hardware::ups::nitram::snmp::plugin --mode=input-lines --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\' --warning-frequence=\\'$_SERVICEWARNINGFREQUENCE$\\' --critical-frequence=\\'$_SERVICECRITICALFREQUENCE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Nitram-SNMP-Input-Lines",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_nitram_snmp.pl --plugin=hardware::ups::nitram::snmp::plugin --mode=battery-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-charge-remaining=\\'$_SERVICEWARNINGCHARGEREMAINING$\\' --critical-charge-remaining=\\'$_SERVICECRITICALCHARGEREMAINING$\\' --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\' --warning-temperature=\\'$_SERVICEWARNINGTEMPERATURE$\\' --critical-temperature=\\'$_SERVICECRITICALTEMPERATURE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Nitram-SNMP-Battery-Status",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check UPS Nitram using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "nitram-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-UPS-Nitram-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-UPS-Nitram-Output-Lines-SNMP",
+                "HW-UPS-Nitram-Input-Lines-SNMP",
+                "HW-UPS-Nitram-Battery-Status-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOtwAADrcBHI9bQQAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAABxiSURBVHic7Z15fBXV3f8/M3fNcrm5WSFkIWwJAQpikVawqLUqIKKlSgXXKs9TXkURywO2PFiKD1qXIor6tFo2wyZUllAEwUdFfoSwJKwhCYRs5Gbfc/dZvr8/kntJIGTmhiHk1nm/XsOLzP3OmXPmfOd7vuec7znDQILFuy8cOXip/idSciq9j4mDwjOXTx36065ktFKJMCygYRnlcqXSYzCstIykAmgYRlWAAEXDSNebtAVgAFZGQio9A1dzGeLp3TBrOOi1WjTbHXCGD4ZxzENgtLoOsnKqTdoCsK2Hyq3HVXAciY1n8f7qvyLMYgEAEBE+37oNqz5ZhpCH/wjWEOSTl1NvMiyA2gT0BnhbI8LLjmDd5vVI3/4FvtydDr3BAJ7j8PjMWZj/2+fxwZa1MD3wO981jBJNgIZhZbUlKjeXlnNfY/mCl8AwDGprajB3/isYOWo0mpoa8fjDD2Hfd4ew8r0VYDxOsIZgAK11J4UsH0C1ALcebcNljBkzxvd3YUEBbC02HD1yGCNHjQbDMEgdPhIltSUIjk8FoJAPwIJRLUAvgAEDEkWAvfJWFxZcBMtq8M77q7xCHeqLhRJNgOoE9g4iE5B5NBPjx08AAAwcPBgjR43Gi/85G3W1tYiIjMT5s2fRd8wzvvpSyAkEWLUJuOVYbrsff3nnfey4Yxwio6IQHBwCAJj78ivYnPYZ+vWPhyE+Fbq284BSTQCjNgG9AY3JAs+IBzDzqeewcsVbiI3tDwAYmpKCrJOn8MGn6xH369c6jNnIGb+RoQCqE9hbsAwbB0dEPzw77zUEsxwMOi1a7E6gbzISn3od7FUDQXKqTboJgNoN7E2YYhJhenS+7++QLmQZKNANVJ3AwEURJ1BtAgIXRZoA1QkMXBRxAhlW7QYGKmo8wA8cxeIBNGr9ByQKDQSpTmCgoogTqFEngwIWjRKTQWpQaOCiiBPIMqzaCwhQWCUCQljVCQxYlJkLUJuAgEWZcQDVCQxYFHECNaw6EBSoyKk3NSj03xiFgkJVJzBQkTOLL60ALKN2AwMUOfWmNgH/xiizNlBdGRSwKLIyiFXHAQIWVpF1AVCdwEBFTrWpASH/xigXEKIqQECiiBPIMIy6Q0iAosz+AKoTGLAosi5Ao04HByxy6k1GE8CqFiBAYdRxgB82iowDdHeHEC3LwKBtzYGLFyGI5HcaKjeGIjuEyA0L17IMokL1iDbpERakQ5Cuo/rZPQKqWzwoa3TB7hEk0+utGLQsgnQs9BoWAhE8PMHJCeB7oYIrtDawa1MSotcgwRKE2D6GLhUlRK9BUkQQBkQEobrFjQs1Dji5wFCEYL0G8WFGRIXoEazXXPM7AWhx8aizcyhrcvWact3UxaHBeg2SwoMQ08cga8jRCwMgxmRAZKgehbVOlDY4/bi6ZzFoWQyJCkG0Sd9lGRkAfYxa9DFqMSAiCHU2DwpqHbfc0im2OLT9m61hGSRaghAXZpSlYddDwzAYEhWMiBAdcqts4ITeZUL7mgwYHBUMrZ+FZABEhuoREaJHWZMLRXVOiHRryqZ4UGgfoxbJMSEwapXbMSI8WIfb48zIqbTB0Qt8A4YBBkUGo18fww2nEx9mRHiQDrlV9lvSLCi0MoiFVsMgLsyIuDCjX+ZeLkYdi1H9TcivsqPJxd+EO8iDZRgkRwfDEqyTFpZJiEGD2+JMyKu2o8nZs2VjZPQDJRUgWMs2xfULRahBUvSG0LIMhvUNwcUaBxqd3E29V2e0Vn4I+hiVL6eGZZAaE4rCOgdq7R7F07/ufZVwAhPCjacAPKBAfiRhGQZDo0Jwqc6BBkfPKQHDAEMib07lt7/HwMhgsAzTY0qgSDyAXDiOA8d5IIoiBKG1vWNZFhqNBjqdDlqtTtbslLcNLql3or4HlIBhgIERwTD7UfnU5tTJKU+HewEYEBEEhkGPlE2RdQFdQURwuVxwOhy+h9IZTjjBsiyCgoJgDAq6rpwXBsCA8CBoGOamPigGQEJ4kGTl8xwHt9sNjuN8yg20trE6nQ56vR4GgzynkQGQGB4ElmFuupVTJB7geng8brQ0N3d4IF0hCADHeeBwONDHbIZWK33reIsRGvbmKUF/swFhQdfPB8/zsLU0w+O5jskWAJ7zwOmwg9VoEBISgqCgYMn7MmgtG8PgpjqGikQEdUZzUxNsNlt3LgXPC3C73bBYLLKsQazZAJYBGhR2DGNMhi69fbvdjuampi4tWwd4AR63Bw6DA2EWCzSaa0cM28MAiAszAnDB5r45SqDRQPKh+aUARIS62ho4nTc+eldTU40wiwUmUx9J2b59DNAqaAmiQvVdVn5DQz1sLS3dStvh4OF2uxARGQmDwdilLAMgzmyEtcml+BhIsF6DvqHGY1JyshVAFEVUVVbC7XLdWM7aUVdTC1EQYQ4Lk5SNDNVDp2VRa7sxDzoyVN9lm19bXd1t6+ZF4AVUllcgMioKIaGhXcoyDNDfbERFs1uxwSKjlkW/VsspaVpkKYAoiii3lsGlYOV7qampBgBZSmA2aqFjGVTbPfB3dJVlcN3JHC/VVVVobm7yL+EuqKgoR1R0NMzmrsvGMEC/PgZU2zxw3KASGLUsYkwG2cP0kgrA87yuwmqFw+G4oYx1RWVFBcAwMJvNkrLBeg36a4yotXtkzx8YtCzCg3XQdTEyUltTg4b6etl5lktleQVEQYQlPLxLOYYBYkx6NDg4tLi7pwQGLYuoUL1fczSSClBVUT6upaW5Wxnyh/Kyy9CwLEJNJklZnYZBX5MBNg+PFjd/XWugZRmYDNou33oAaKivR3VVZXeyLYuKcitEEhERESkpawnWwaBj0eTk4E+IQaihdTbS36F6aQsgiBqB75mJjJKiIgwYNAghIV1tgt4KwwAmgxYhei1cnABOIAhErUGsbdFIOhlhsc1NTbBevizf2+8m5ZfLIAoioqKjJWWDdRoYNCxsbkHSL9BrWJiMGlll7QxJBRAFHrzQQ5MYAnDp4gUMHpqM4GDp/jTQ2rZLveHXw263oajwEkRR7Nb1/lJ2uRQc50Fs/zhJWQ3LwBykhcmogZsXwQnkm1ZmGcYXcnej8ZqSCiCIJHuwRwkEQcCFvFykDEuVNU7QXZwOBy7k50Pge3aGrtxqBc/zSEgcIEueZRgE6TQIUm6CsgOSCkCC0OMPSeB55Oacw7ARI2A0Kq8ELpcLuTk54Liem5lrT4XVCp7jkTRokN/zCXIReB5VlZVDpeSkLQCJ4HvQAnjhnU6cOX0aw0eMQEhI131pf3A6HDh39iw8HrdiaXaHiopy2B12pAxLhU6n7OvN8zxyzp2FwWDoJyUrwwfoeQvgReB5nMrORsqwVERESnvQUjQ2NCA35xw4rufjDTqjoa4OJ08cR/KwVFnjIHJwOZ3IOXsGdrsdkVFRkvLSCtBuevdWIAgCzpw6ifjERCQNHCQ5xt4ZRITSkmIUXbp00719f7Hb7TiZdQJx8QkYMHCgrEmy61FZUY6L+fng215YOc6tdBMgCL4EbyVFly6hsqICg4cMRUzfvrLbzvq6OlzIy0VLN8f2e4qiwksou1yKpIGDEBsX51ez0FBfj0sFF68ZyJLz4sqwAD3bC+gKW0sLTmVnITg4GLFxcYiMioLZHHaNMrQ0N6OuthZWaxlamm/+IJZSCIKA3PM5yM/LRUzffoiMioLFYkHwVeMiRARbSwvqamtRXm5Fc1Pnw9eijJGkXu0DXI+W5mbknz+PfLRG5ej1Buj0utbADY+n9SPLAYwAoKy0BGWlJQBaI6v0ej10Oh14nofb7YEoSr+UohIW4Fb1AvyB43ng5k1V3HoEAZ5uOK4CKeADEN/7LICKPEjGEL4MCyD0Gh9AxT8EUsIJFMRe0QtQ8R9RUKIb2It6ASr+IWdPBmkfQBQg9NRsoIqikIyegoyBIBE9FQ+goiyCEk2AKAo9Fw+goihyxgpk+ACCagECFEEJBSBBVH2AAIWU6gXwqgUISBTpBYgCr1qAAEWUUW/ymgDVAgQkijQBPIlqLyBA4ZWYDBLVXkDAokg3UFR7AQGLMnMBgqD2AgIURULCSFQtQKAiJzJKVkSQOhsYmCgSESQKohoRFKAo5wOoFiAgUc4HUC1AQKKMDyCoMYGBikILQ9SYwEBFmaVhai8gYFFmXYDAqz5AgEJKzAaKAqm9gABFlLGLmoyAkI69gKHJKTAYDSi3WlFXW3uNvMFoxNDk5NaFi1arrIxqtVoYjEa4XS5Z/kbysGHQ6/Wd/tbS0oLiwkLJNGL69kV0TIzvb47j4XDYUWG1KrJ/QOqIkXDY7Sguks7L9Rg+ciRYlkVVZSWqq6pkyRYXFvpWQgs3oxfwny++hP5xcSgtKcGr8+dd87AiIiKx+M+v48vd6Vj7yd8lMwAAEybejbnzX8GH763AwW/+T1L+dy+/0qHy2nMqKwvLl74mmcbEe3+OXz4+45rzLpcTX+3Zgy0b0rrt/A5JTsZr/7Mcdrsdv332Gbhc3dtad+HiJTAYjcg7n4MlixZeVy5lWCqWvL4cALD8T0twKjsbgEK9AA/n6RgP0LbBQkJiIh6bOROfrVndQV4QW2VJlB9H4J22lBuBvH3b5wgJCYFWp8MTTz4Np9OJf27ZBACoqqyUlYbXQ977r92obdutNMwSjrHjfoJp03+F2Lg4vLlsabc2lJj88DQAQEhICCb+/F7sSd/ldxpA6+foACAldTgSk5JwqeBip3KTpk71/V9o99w9MvZAklYAl6tDPAABsNts8Hg8mPbLXyHz8GHk5uRcyQDf+mBFItlxBN7KEEV50UdfpqcDAIKCgvHEk0/D5XRi2+bNsu519T2/ObAf+bm5vvNpa9fgrx98iLHjfoIfjb4N2ceP+5VuVHQ0fjp+Aurr6sAwDKY8PA27d+zo9s4koiiCZVk8NO0RrHjrL53eb9yd431yrcv5W5+hR8bWvpK7C7rcLghtcYGCwANtH4lYteJdsCyLl/9rEXQ6re93sZ0FaH9dV0cHBZB5jSDwV6wNkX/XCTyIvPcUOpy321pw4Ku9AIDU4SP8Tnfy1Ieh0WiwJ30n9v4rHf1i++PH4+7wOx3vDOylixdRW1ODCRMnwhxmvkZm0tSp0Gg0OHokA0BbGH/bby63EgrgdEPgBd9BIACEjEOHsH/vl+gXG4vn/uO3V2TaJiCozQLIObyTFmJb/KE/hxd/r/PuniHw196TadtwleM4v9LU6/R4YMpD4DgOe3btwu4dO8BzHB755WN+589bNkHgsWfXTmi1OkyaMrXD7zqtDg9OfggFFy4g5+yZa56hyym9E5qkAjhdLvBtu4XyAg9QqxvACzw+ev89VFdVYcrD0zD6x7eDF3if4yG2tUVyDu8CBqHNB5B9na+tJ7+u49tZnavvOSQ5GY/86jEAQNbxo36l+fMHH0RoaCi+/foAamtrUFNTjYPffoORo0cjadAgv/MIEIgIu3ftAMdxmDLtEbAa1vf7Pfffj1CTCTu/2NZpeZxKNAFeH6CjBWh945obm/CX1/8MAPj9oj8iOCjYpwB+WYCrfAB/3xIi/y2At03u08eMFR/+Lz7+x1ps2ZGOVZ/8A5bwcOzYthUnT2T5ZVEebVOcw99/j+iYvoiO6YvD338PAHj0scf9L1vby1ZXU4tvvz4Ac1gY7v75L3xW85Hpj6GpsRFf79sHarNo7S2AHB9A0gl0up0dI4IIIJDv3Imjmdi+9XNMn/FrzH3l99i4bu2VyhTk9QK8s1b+Rh+1l/U3asmrdPV1NfgyfSdefW0pAODbrw/gX7t24njmEb/SmzDhbvSPiwcA/PnNa521e+77Bf626n3U1tT4la7Xv/ni8y24f9JkTH98Bv61czvG/fROJA4YgI3r18HhsLd7ia6s5na6pbufkgrgcro6xARSqwZ0OPfRyvcw9ic/xf2TJqO0uNiXcbmxhF6/QRBEv+IP+XYBD/7GLXofGM+LSN+xAz+6bQwmT30YcfEJOHHsmN/pPfbETIiiiA/++i7c7o5t74CkJMyY9SSmTX8Mf/9wlew0qe1fnhdw9vRpnD93DqkjRuBHt43B9F8/AVEU8cXnW8C3s6Ltn6HLqYAF8LjdHd6uVstJHc7Z7Tb8efEf8OlnaXh29n8A8M8CXN0LkItX1vuW+MPVvYC3/2cZhqUOx5DkZPxu3sv461/ekJ1W8rBU3Hb7j3Es8wg2p62/5nedTof7HngQj0z/Fdb8/X/9+vJK+7Jt3bwRS5e/iRfnv4KhKcPw/bffwFp2ua0cXkf6igXwuJVwAp2uq9ol6rTNPZ2djfX/WO3b6bInfQCgGz6Ar81s/dvWYsOil+fB6XTisSdmYvxdE2Wn9etZTwIAdmzd2unvLqcL27d+DnNYGB68ypP3x7/Zv2cP6uvrkDwsFQzDYEtaWrvyXPsMnTIsgKxxgPaeqdcJ7Mxr/ej9FTifc86XEfkeeceRwFvVC7hwIQ/L/vuPYBgGS998E5Ex0ZLpWCLC8YtJk1FuLcP+fV9eV+7zTRvB8zxmPvMMRJL3bLwvkvdvh9OBL7ZsAQAUFhQg88jhK8+CvE3AlfLIGQeQ3Hg3wmz+vcjzUSQSSCR4PG6cys7G2VOn4D3nPQReQPbx46isqMDxzCO4XFJyjUxnhyU8HFHRMfh/B79DabG8a0gkiKIIh8OBoxkZONNJfro6eJ5HUWEhso4dg62lxXf+Ql4ejh7JwP999RVamprR1NjYZTpx8QmoKC/H1o0bUVpcfF05u80Ga9lllJaUoLCgAA67QzKPbrcbJ45mIu/8ed8575aw2zZvQlnp5Svl4TiUlpTgxLGjvjwLIrVU1dV91FX9Sm64m5yYYGUhxkqqkkqvQwRbnl9S2r8rGUkn0M25oZPxHXqV3gcnSk9rSypAU7Ot2s3zqgUIQAxabbWUjKQCcLzgcrhu7dc1VLoHa2QkvcAflG1PSkrCpEmTMHz48C7lWJaV/dWyf3tCjcYjQNsUYIAeOp2O0tLSSBRFunDhAuXn59M333xDZrO5U/k//OEP5HK5KCYm5pbn/UaOtrrrkh+EBVi4cCGefPJJvPfee0hOTkZycjLS09OxbNmyTuVjY2NhMBhgsVi6fc+ioiIQke8oKSnB888/3+30bhY/CAUYP348AGBHu8ictWvXwmQyKf7FrqtxuVxwOBxISEjAp59+inHjxgEA4uLi8LOf/QwxbbGNoaGhsFgsMBqN0Ol0vv9rtVpYLBZfPocMGYKJEyciqu2DUF5FDQoKwsiRIxEREaFsATprAu655x5atGgRLViwgCZMmNAj5mzu3Lk0atQo39+pqak0Y8YMWdfu27ePiIjuvPPODudNJhPV1tbS+vXrCQD17duXsrOzKS0tjYiItm/fTmfOnKE1a9ZQdHQ06XQ6WrJkCR07doyOHz9Oy5cvJ5ZlacOGDTR58mRaunQp5ebm0nPPPUdFRUVERLRs2TJiGIby8vKIiOipp56id955h0RRJCIij8dDCxYsoHfffZeIiFatWkWzZ88mIqLVq1fTrFmziIho8ODB9MUXX5AXt9tNc+fOpTlz5hAR0bFjx0gURXrggQf8agK6pQBvv/028TxPr776KjU2NtKYMWPIZDLRQw89RHFxccSyLA0cOJCMRiNZLBaKioqikJAQSkpKIgCk1WopISGBAJDZbKb4+HgaO3YsRUdHE8uylJCQQCzLEgC699576fbbb6fKykqaPXu2Lw8zZ86k/fv30z333EODBg2iqKgoX5rx8fEd2vfrKQAA2r17NxERjR07llauXEnFxcW0atUqIiJKS0ujjz76iIiItm3bRm+88YavEqdOnUpERC+99BIVFBQQEdGBAwcoLS2NRo8e7VOA8vJyysnJISKihoYGeuaZZ4iIqLm5mWbOnEmiKJIgCPSb3/yGiIiys7Np3bp1RESUl5dHH3/8MWVnZ9PcuXN9CvL888/7lGfx4sU+pThw4ECHl+SmKgDHcTRlyhQqLi6m++67j06dOkUej4daWlpo6NChlJ+fTy+88AJt3ryZMjIy6MUXX6RDhw5RUlISZWRkUFNTE61fv54WLFhAjY2NVF9fT8OGDaMTJ05Qbm4uHTp0iO6//34iIuI4jjwezzUKYLPZyOPxkNvtpjlz5pDb7aaYmBhyuVx01113dakAKSkpNH/+fBo4cCA5HA46deoUOZ1OeuONN3wKkJKSQgkJCb7K2Lt3LxER2Ww2amho8FmJgoICKioq6vCMvApQWFhIe/fupXfffZcSExPpzTffJCKiM2fOEACqra0lIqJ58+ZRdXU18TxPly9fpsbGRhJFkYqLi2np0qW0adMmIiKqq6ujwsJCqq+vp/r6evr444+JiOj8+fM96wRqNBr86U9/wt69e2G1WjFq1CiMHTsWX3/9NSZNmoTNmzfjwQcfxKhRozBy5EhMnDgRmzZtwqxZs+DxeJCfn4+ZM2dCo9FAFEXEx8cjNTUVsbGxyMrKwoQJE/Doo4/CarWif//+8HiuDXG+dOkS4uPjodVqYbVakZ+fj6VLl6KhoQEZGRkd5AAgJSXFd27atGkYOXIkCgsL8eGHH2LUqFEwGo3Y3C66mGEYn8/gdeaAVqdy0aJFmD17NhYuXOj7vTM2bNiASZMmYcGCBSgpKUFlZetn6s1mM7RaLcxmMwDAarViz5490Gg0iIuLwwcffACGYZCYmIidO3eisbERAFBZWYnhw4fj9ddfx4oVK5DbFtFc42egiZduKwDHcbjjjjswZ84c1NXVQRRFTJ8+HUOHDsXFixexadMmTJs2DZmZmTh48CCmTJmCbdu2ISQkBKGhodi6dStee+01sCyLmpoa2O12hIaGguM4ZGVlYdmyZcjKyoLJZMLjjz/eqbMWHR2N5557DgzDoKioCMuXL8cLL7yAbdu2dVgU8dZbb6G0tBSrVq3C2rVrsXHjRjz99NNYsmQJAGD79u0AgLNnz+Ls2bO+61asWIF169YBADIyMrBnzx4ArfP7+/btw+rVq1FQUNBBOaRYu3Yt8vLykJCQgJycHGi1WmRkZCA9PR27du3y5eOf//wnAKC0tBSnT5/GunXrYLfbkZqaCofDgRUrViA+Pv6GV25LzgbqtdoXPDzf4XvnSUlJMBqN2LhxI4DWr1/W19fjrrvuwu7du/HZZ5+htrYWHMdh69atyMrKwsmTJ3Hw4EHk5eXhiSeewPTp02G1WnH8+HEYjUbs2rULBQUFuPvuu/Hss8+CYRgsXrwYkZGRiIiIQFVVFQ4ePIiLF1sXR2g0GjgcDhQXFyM9PR379++H3W7HvHnzsHDhQpSWlvry29TUhE8++QSFhYVgGAaZmZl4+eWX0dDQAAB48cUXMX78eMybNw85OTmIjo7Grl27UF9fj9jYWGzZsgVLlizB4cOHcfr0aUyePBkzZsxAbm4uysvLQUTIzMzEsWPHfPc0Go3IysrCwYMHfRYIANxuN9asWYMLFy6grKwMf/vb37Bw4UJwHIfS0lJotVps3LgRhw4dgl6vx4YNG3Du3DlYrVasXr0aRUVFyMrKwjvvvIOVK1dCo9Ggrq4Ohw4dQlZW1tV1V+bh+Y4rd/wlUAaCxo8fT0REe/fuJYZhZF0zZcoUOnnyJBERvf3227e8DEofcnyA7n+otpdx9OhRmEwm2Gw22dfceeedyM3Nxfz58/Hdd9/dvMwFMsEG/VfoBdqsHv4fbXXXJf8fVHAcWcey83MAAAAASUVORK5CYII=",
+            "name": "nitram-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Nitram UPS :\r\n* Battery-Status\r\n* Input-Lines\r\n* Output-Lines"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les UPS Nitram :\r\n* Battery-Status\r\n* Input-Lines\r\n* Output-Lines"
+            }
+        ],
+        "discovery_category": "ups-pdu",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites \r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Ups-Nitram-Snmp\r\n\r\n### SNMP\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the monitoring server\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp)\r\n\r\n## Centreon Configuration\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-UPS-Nitram-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Nitram UPS SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_ups_nitram_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Ups-Nitram-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-ups-nitram-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "UPS",
+            "SNMP",
+            "Nitram",
+            "Hardware"
+        ],
+        "update_date": "1568020656",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les m\u00e9triques de la source d'alimentation.}\r\n\r\n{EN: Check output lines metrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Output-Lines",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Nitram-SNMP-Output-Lines",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /normal/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-UPS-Nitram-Output-Lines-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les m\u00e9triques de la source d'alimentation.}\r\n\r\n{EN: Check input lines metrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Input-Lines",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Nitram-SNMP-Input-Lines",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /normal/"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-UPS-Nitram-Input-Lines-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de la batterie.}\r\n\r\n{EN: Check battery status.}",
+            "active_checks_enabled": 2,
+            "alias": "Battery-Status",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Nitram-SNMP-Battery-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /unknown|notPresent/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /low/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-UPS-Nitram-Battery-Status-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,193 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-Docker-Restapi-Containers-Discover",
+                "command_for_macro": "App-Docker-Restapi-Containers-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-Docker-Restapi"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "App-Docker-Restapi-Containers",
+                "service_display_name": "Container-$name$",
+                "service_template": "App-Docker-Container-Usage-Restapi"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_docker_restapi.pl --plugin=cloud::docker::restapi::plugin --mode=list-containers --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "App-Docker-Restapi-Containers-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_docker_restapi.pl --plugin=cloud::docker::restapi::plugin --mode=list-containers --hostname=$HOSTADDRESS$ --port=\\'$_HOSTDOCKERENGINEPORT$\\'  $_HOSTDOCKERENGINEEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "App-Docker-Restapi-Containers-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_docker_restapi.pl --plugin=cloud::docker::restapi::plugin --mode=node-status --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTDOCKERENGINEPORT$\\'  $_HOSTDOCKERENGINEEXTRAOPTIONS$ --warning-node-status=\\'$_SERVICEWARNINGNODESTATUS$\\' --critical-node-status=\\'$_SERVICECRITICALNODESTATUS$\\' --warning-containers-running=\\'$_SERVICEWARNINGCONTAINERSRUNNING$\\' --critical-containers-running=\\'$_SERVICECRITICALCONTAINERSRUNNING$\\' --warning-containers-stopped=\\'$_SERVICEWARNINGCONTAINERSSTOPPED$\\' --critical-containers-stopped=\\'$_SERVICECRITICALCONTAINERSSTOPPED$\\' --warning-containers-paused=\\'$_SERVICEWARNINGCONTAINERSPAUSED$\\' --critical-containers-paused=\\'$_SERVICECRITICALCONTAINERSPAUSED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Docker-Restapi-Node-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_docker_restapi.pl --plugin=cloud::docker::restapi::plugin --mode=container-usage --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTDOCKERENGINEPORT$\\'  $_HOSTDOCKERENGINEEXTRAOPTIONS$ --container-id=\\'$_SERVICECONTAINERID$\\' --container-name=\\'$_SERVICECONTAINERNAME$\\' --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-container-status=\\'$_SERVICEWARNINGCONTAINERSTATUS$\\' --critical-container-status=\\'$_SERVICECRITICALCONTAINERSTATUS$\\' --warning-read-iops=\\'$_SERVICEWARNINGREADIOPS$\\' --critical-read-iops=\\'$_SERVICECRITICALREADIOPS$\\' --warning-write-iops=\\'$_SERVICEWARNINGWRITEIOPS$\\' --critical-write-iops=\\'$_SERVICECRITICALWRITEIOPS$\\' --warning-cpu=\\'$_SERVICEWARNINGCPU$\\' --critical-cpu=\\'$_SERVICECRITICALCPU$\\' --warning-memory=\\'$_SERVICEWARNINGMEMORY$\\' --critical-memory=\\'$_SERVICECRITICALMEMORY$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Docker-Restapi-Container-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser des containers et noeuds docker via Rest API}\r\n{EN: Template to check Docker nodes and containers using REST API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Docker using Restapi",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "docker-128-2.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Docker-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Docker-Node-Status-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "docker-128-2.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Fix Node-Status missing thresholds macros in command",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin Pack to monitor Docker system using Rest API:**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|App-Docker-Restapi-custom|\r\n|---|\r\n|Container-Usage|\r\n|Node-Status|\r\n\r\nContainers can be automatically discovered by using the Service rule **App-Docker-Restapi-Containers**.\r\n"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin Pack pour superviser les containers et nodes Docker en utilisant la Rest API :**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponibles et services associ\u00e9s:\r\n\r\n|App-Docker-Restapi-custom|\r\n|---|\r\n|Container-Usage|\r\n|Node-Status|\r\n\r\nLes Containers peuvent \u00eatre d\u00e9couverts automatiquement en utilisant la r\u00e8gle\r\nde d\u00e9couverte de Services **App-Docker-Restapi-Containers**."
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n\r\nThe plugin needs to access Docker Engine API >= 1.21 (https://docs.docker.com/engine/api/v1.30/).\r\n\t\r\nPlease create a Centreon service by container (use CONTAINERID service macro). The 'container stats' webservice api is \"slow\" (between 1s and 2s).\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Docker-Restapi\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"37%\" />\r\n<col width=\"62%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Docker-Restapi</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Docker",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_docker_restapi.pl",
+                "package_name": "centreon-plugin-Applications-Docker-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-docker-restapi",
+        "status": "stable",
+        "status_message": "Fix Node-Status macros",
+        "tags": [
+            "Rest",
+            "Docker",
+            "Cloud",
+            "Container",
+            "API",
+            "Restapi",
+            "ServiceDisco"
+        ],
+        "update_date": "1648712743",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le statut des noeuds.}\r\n\r\n{EN: Check node status.}",
+            "active_checks_enabled": 2,
+            "alias": "Node-Status",
+            "check_timeperiod": "",
+            "command_name": "App-Docker-Restapi-Node-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALNODESTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /ready/ || %{manager_status} !~ /reachable|-/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Docker-Node-Status-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des containers.}\r\n\r\n{EN: Check container usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Container-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-Docker-Restapi-Container-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Docker-Container-Usage-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

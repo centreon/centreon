@@ -1,0 +1,947 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "currentStatus": {
+                            "type": "string"
+                        },
+                        "scenarioId": {
+                            "type": "string"
+                        },
+                        "scenarioName": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "App-Monitoring-Iplabel-Ekara-Restapi-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Ekara API username/mail",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "EKARAAPIUSERNAME",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Ekara API password",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "EKARAAPIPASSWORD",
+                                "type": "text",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover IP-Label Ekara scenarios",
+                    "discovery_examples": [
+                        {
+                            "currentStatus": "1",
+                            "scenarioId": "abcd-1234-efgh-5678-ijkl-9012-mnop-3456",
+                            "scenarioName": "My_Scenario_1"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.scenarioName"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.scenarioName"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.scenarioName"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.EKARAAPIHOSTNAME",
+                                "is_password": false,
+                                "source": "discovery.parameters.EKARAAPIHOSTNAME"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.EKARAAPIUSERNAME",
+                                "is_password": false,
+                                "source": "discovery.credentials.EKARAAPIUSERNAME"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.EKARAAPIPASSWORD",
+                                "is_password": false,
+                                "source": "discovery.credentials.EKARAAPIPASSWORD"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.FILTERID",
+                                "is_password": false,
+                                "source": "discovery.results.scenarioId"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "App-Monitoring-Iplabel-Ekara-Restapi-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "IP-Label Ekara",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "API Hostname",
+                                "group": "Ekara",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EKARAAPIHOSTNAME",
+                                "type": "text",
+                                "value": "api.ekara.ip-label.net"
+                            },
+                            {
+                                "description": "API Port",
+                                "group": "Ekara",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EKARAAPIPORT",
+                                "type": "text",
+                                "value": "443"
+                            },
+                            {
+                                "description": "API Protocol",
+                                "group": "Ekara",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EKARAAPIPROTO",
+                                "type": "text",
+                                "value": "https"
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Proxy URL",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "PROXYURL",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "app-monitoring-iplabel-ekara",
+                    "type": "iplabel",
+                    "uuid_attributes": [
+                        "scenarioId",
+                        "scenarioName"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "currentStatus": {
+                            "type": "string"
+                        },
+                        "scenarioId": {
+                            "type": "string"
+                        },
+                        "scenarioName": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "App-Monitoring-Iplabel-Ekara-Restapi-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Ekara API username/mail",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "EKARAAPIUSERNAME",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Ekara API password",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "EKARAAPIPASSWORD",
+                                "type": "text",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover IP-Label Ekara scenarios",
+                    "discovery_examples": [
+                        {
+                            "currentStatus": "1",
+                            "scenarioId": "abcd-1234-efgh-5678-ijkl-9012-mnop-3456",
+                            "scenarioName": "My_Scenario_1"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.scenarioName"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.scenarioName"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.scenarioName"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.EKARAAPIHOSTNAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.EKARAAPIHOSTNAME"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.EKARAAPIUSERNAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.EKARAAPIUSERNAME"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.EKARAAPIPASSWORD",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.EKARAAPIPASSWORD"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.FILTERID",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.scenarioId"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "App-Monitoring-Iplabel-Ekara-Restapi-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "IP-Label Ekara",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "API Hostname",
+                                "group": "Ekara",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EKARAAPIHOSTNAME",
+                                "type": "text",
+                                "value": "api.ekara.ip-label.net"
+                            },
+                            {
+                                "description": "API Port",
+                                "group": "Ekara",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EKARAAPIPORT",
+                                "type": "text",
+                                "value": "443"
+                            },
+                            {
+                                "description": "API Protocol",
+                                "group": "Ekara",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EKARAAPIPROTO",
+                                "type": "text",
+                                "value": "https"
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Proxy URL",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "PROXYURL",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "app-monitoring-iplabel-ekara",
+                    "type": "ekara",
+                    "uuid_attributes": [
+                        "scenarioId",
+                        "scenarioName"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "currentStatus": {
+                            "type": "string"
+                        },
+                        "scenarioId": {
+                            "type": "string"
+                        },
+                        "scenarioName": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "App-Monitoring-Iplabel-Ekara-Restapi-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Ekara API username/mail",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "EKARAAPIUSERNAME",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Ekara API password",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "EKARAAPIPASSWORD",
+                                "type": "text",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover IP-Label Ekara scenarios",
+                    "discovery_examples": [
+                        {
+                            "currentStatus": "1",
+                            "scenarioId": "abcd-1234-efgh-5678-ijkl-9012-mnop-3456",
+                            "scenarioName": "My_Scenario_1"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.scenarioName"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.scenarioName"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.scenarioName"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.EKARAAPIHOSTNAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.EKARAAPIHOSTNAME"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.EKARAAPIUSERNAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.EKARAAPIUSERNAME"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.EKARAAPIPASSWORD",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.EKARAAPIPASSWORD"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.FILTERID",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.scenarioId"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "App-Monitoring-Iplabel-Ekara-Restapi-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "IP-Label Ekara",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "API Hostname",
+                                "group": "Ekara",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EKARAAPIHOSTNAME",
+                                "type": "text",
+                                "value": "api.ekara.ip-label.net"
+                            },
+                            {
+                                "description": "API Port",
+                                "group": "Ekara",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EKARAAPIPORT",
+                                "type": "text",
+                                "value": "443"
+                            },
+                            {
+                                "description": "API Protocol",
+                                "group": "Ekara",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EKARAAPIPROTO",
+                                "type": "text",
+                                "value": "https"
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Proxy URL",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "PROXYURL",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "app-monitoring-iplabel-ekara",
+                    "type": "ekara",
+                    "uuid_attributes": [
+                        "scenarioId",
+                        "scenarioName"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_iplabel_ekara_restapi.pl --plugin=apps::monitoring::iplabel::ekara::restapi::plugin --mode=scenarios --hostname=\\'$_HOSTEKARAAPIHOSTNAME$\\' --api-username=\\'$_HOSTEKARAAPIUSERNAME$\\' --api-password=\\'$_HOSTEKARAAPIPASSWORD$\\' --port=\\'$_HOSTEKARAAPIPORT$\\' --proto=\\'$_HOSTEKARAAPIPROTO$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEKARAAPIEXTRAOPTIONS$ --timeframe=\\'$_SERVICETIMEFRAME$\\' --filter-name=\\'$_HOSTFILTERNAME$\\' --filter-id=\\'$_HOSTFILTERID$\\' --filter-status=\\'$_SERVICEFILTERSTATUS$\\' --filter-type=\\'$_SERVICEFILTERTYPE$\\' --warning-scenario-status=\\'$_SERVICEWARNINGSCENARIOSTATUS$\\' --critical-scenario-status=\\'$_SERVICECRITICALSCENARIOSTATUS$\\' --warning-availability=\\'$_SERVICEWARNINGAVAILABILITY$\\' --critical-availability=\\'$_SERVICECRITICALAVAILABILITY$\\' --warning-time-total-allsteps=\\'$_SERVICEWARNINGTIMETOTALALLSTEPS$\\' --critical-time-total-allsteps=\\'$_SERVICECRITICALTIMETOTALALLSTEPS$\\' --warning-time-interaction=\\'$_SERVICEWARNINGTIMEINTERACTION$\\' --critical-time-interaction=\\'$_SERVICECRITICALTIMEINTERACTION$\\' --warning-time-step=\\'$_SERVICEWARNINGTIMESTEP$\\' --critical-time-step=\\'$_SERVICECRITICALTIMESTEP$\\' --warning-time-total=\\'$_SERVICEWARNINGTIMETOTAL$\\' --critical-time-total=\\'$_SERVICECRITICALTIMETOTAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Monitoring-Iplabel-Ekara-Restapi-Scenarios",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_iplabel_ekara_restapi.pl --plugin=apps::monitoring::iplabel::ekara::restapi::plugin --mode=incidents --hostname=\\'$_HOSTEKARAAPIHOSTNAME$\\' --api-username=\\'$_HOSTEKARAAPIUSERNAME$\\' --api-password=\\'$_HOSTEKARAAPIPASSWORD$\\' --port=\\'$_HOSTEKARAAPIPORT$\\' --proto=\\'$_HOSTEKARAAPIPROTO$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEKARAAPIEXTRAOPTIONS$ --timeframe=\\'$_SERVICETIMEFRAME$\\' --filter-name=\\'$_HOSTFILTERNAME$\\' --filter-id=\\'$_HOSTFILTERID$\\' --warning-trigger-status=\\'$_SERVICEWARNINGTRIGGERSTATUS$\\' --critical-trigger-status=\\'$_SERVICECRITICALTRIGGERSTATUS$\\' --warning-incidents-total=\\'$_SERVICEWARNINGINCIDENTSTOTAL$\\' --critical-incidents-total=\\'$_SERVICECRITICALINCIDENTSTOTAL$\\' --warning-incident-status=\\'$_SERVICEWARNINGINCIDENTSTATUS$\\' --critical-incident-status=\\'$_SERVICECRITICALINCIDENTSTATUS$\\' --warning-incident-severity=\\'$_SERVICEWARNINGINCIDENTSEVERITY$\\' --critical-incident-severity=\\'$_SERVICECRITICALINCIDENTSEVERITY$\\' --warning-incident-duration=\\'$_SERVICEWARNINGINCIDENTDURATION$\\' --critical-incident-duration=\\'$_SERVICECRITICALINCIDENTDURATION$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Monitoring-Iplabel-Ekara-Restapi-Incidents",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_monitoring_iplabel_ekara_restapi.pl --plugin=apps::monitoring::iplabel::ekara::restapi::plugin --statefile-suffix='autodiscovery' --mode=discovery --hostname='$_EKARAAPIHOSTNAME$' --api-username='$_EKARAAPIUSERNAME$' --api-password='$_EKARAAPIPASSWORD$' --port='$_EKARAAPIPORT$' --proto='$_EKARAAPIPROTO$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' $_EXTRAOPTIONS$\"",
+            "name": "App-Monitoring-Iplabel-Ekara-Restapi-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser IP-Label Ekara via Rest API}\r\n{EN: Template to check IP-Label Ekara using Rest API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to monitor IP-Label Ekara using Rest API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "app-ekara-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTEKARAAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTEKARAAPIPORT$",
+                    "value": "443"
+                },
+                {
+                    "key": "$_HOSTEKARAAPIHOSTNAME$",
+                    "value": "api.ekara.ip-label.net"
+                },
+                {
+                    "key": "$_HOSTEKARAAPIUSERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEKARAAPIPASSWORD$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTDUMMYSTATUS$",
+                    "value": "OK"
+                },
+                {
+                    "key": "$_HOSTDUMMYOUTPUT$",
+                    "value": "This is a dummy check"
+                },
+                {
+                    "key": "$_HOSTFILTERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTFILTERID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEKARAAPIEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Iplabel-Ekara-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Monitoring-Iplabel-Ekara-Scenario-Status-Restapi",
+                "App-Monitoring-Iplabel-Ekara-Incidents-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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IHhtbG5zOnRpZmY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vdGlmZi8xLjAvIgogICAgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIgogICB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkQwOUYwNDg4MDNDNDExRUJBMUIyQkY0QjQyMzJDNEVDIgogICB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOmZjOGRhZWNkLWQwOGQtNDQzMi04YzQ5LTA2NzI3NDRjZTZmYiIKICAgeG1wTU06T3JpZ2luYWxEb2N1bWVudElEPSJ4bXAuZGlkOmRiMzljNzhhLTFjZGQtNGNmMy1hZTBmLWZhYTdlYTY5NTcxMiIKICAgZGM6Rm9ybWF0PSJpbWFnZS9wbmciCiAgIEdJTVA6QVBJPSIyLjAiCiAgIEdJTVA6UGxhdGZvcm09IldpbmRvd3MiCiAgIEdJTVA6VGltZVN0YW1wPSIxNjQzMDM3MjkwMTQ2MjYyIgogICBHSU1QOlZlcnNpb249IjIuMTAuMjQiCiAgIHRpZmY6T3JpZW50YXRpb249IjEiCiAgIHhtcDpDcmVhdG9yVG9vbD0iR0lNUCAyLjEwIj4KICAgPHhtcE1NOkhpc3Rvcnk+CiAgICA8cmRmOlNlcT4KICAgICA8cmRmOmxpCiAgICAgIHN0RXZ0OmFjdGlvbj0ic2F2ZWQiCiAgICAgIHN0RXZ0OmNoYW5nZWQ9Ii8iCiAgICAgIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6MzI2MmJhN2QtODY4MS00YjdmLTk2NmUtNWEwZjg2YTg2M2Q1IgogICAgICBzdEV2dDpzb2Z0d2FyZUFnZW50PSJHaW1wIDIuMTAgKFdpbmRvd3MpIgogICAgICBzdEV2dDp3aGVuPSIyMDIyLTAxLTI0VDE2OjE0OjUwIi8+CiAgICA8L3JkZjpTZXE+CiAgIDwveG1wTU06SGlzdG9yeT4KICAgPHhtcE1NOkRlcml2ZWRGcm9tCiAgICBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOkQwOUYwNDg2MDNDNDExRUJBMUIyQkY0QjQyMzJDNEVDIgogICAgc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpEMDlGMDQ4NTAzQzQxMUVCQTFCMkJGNEI0MjMyQzRFQyIvPgogIDwvcmRmOkRlc2NyaXB0aW9uPgogPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgIAo8P3hwYWNrZXQgZW5kPSJ3Ij8+znUbIgAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB+YBGA8OMvkMP8wAACAASURBVHja7V15fFTVvf+ec5eZO/tMMtnDZCUhEKPIoiCbAuKGCkWs4F5Fq1afS6u2+ny+al+tVq321VdxqcWKtSrFBcGKSJFVRFBkycKSkH2fZLZ77znvj2TiJCSQFSbo7/OZD2GWe84953t/++93CE4SuWNjid1ud5tMpp+FQqGyvfv2vTDYYyQmJkq6rrPq6modP9AJI/FkDDoiNVWy2WyXi6L4a0JIliAITw3FOIqizAdwhiRJv/f5fNUNDQ38hy0/BUGVnZnpUEymxwVBuIFzbuCcgwpC6hANF08pvc9oNP5IluUXTCbTG6qqVlZXV2s/bP0pAqrReXnxoii+RAi5kHNOwu8LlKYBkAGEBnM8zrkIgBBCMkRR/B9BEO4zGo2rFEV5T9O0jZzzuqamJrW1tZX9AIVhBqrnnn+efvnFFyN27NjxfwBmd/OVuIT4eFdlVVXlYI5LCAlEAIwCcBNCrpEkaZEkSc2c868VRdmhadrOUCi0l1J6SBCE5mAwqBNCWCAQYKqqAkBYbPKI63XCb3fja5qGUCjU0+f8B1D1k5YuXWrJycm5qbiw8Oec83hCSHdfi3G5XAmDDSoAtQB0AEKX9wUATkLIVABTJUlisiwzzrmfc14timIdIaTZZDL5AIQIIVr7dVg7GDgA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",
+            "name": "app-ekara-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Initial experimental version",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin-Pack to monitor IP-Label Ekara scenarios using RestAPI.**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|App-Monitoring-Iplabel-Ekara-Restapi-custom|\r\n|---|\r\n|Scenario-Status|\r\n|Incidents|\r\n\r\nThis Plugin-Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin-Pack pour superviser les scenarios IP-Label Ekara via RestAPI.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponibles et services associ\u00e9s:\r\n\r\n|App-Monitoring-Iplabel-Ekara-Restapi-custom|\r\n|---|\r\n|Scenario-Status|\r\n|Incidents|\r\n\r\nCe Plugin-Pack fournit un *provider* Host Discovery pour le module d\\'auto-d\u00e9couverte d\\'H\u00f4tes"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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IHhtbG5zOnRpZmY9Imh0dHA6Ly9ucy5hZG9iZS5jb20vdGlmZi8xLjAvIgogICAgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIgogICB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkQwOUYwNDg4MDNDNDExRUJBMUIyQkY0QjQyMzJDNEVDIgogICB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOmZjOGRhZWNkLWQwOGQtNDQzMi04YzQ5LTA2NzI3NDRjZTZmYiIKICAgeG1wTU06T3JpZ2luYWxEb2N1bWVudElEPSJ4bXAuZGlkOmRiMzljNzhhLTFjZGQtNGNmMy1hZTBmLWZhYTdlYTY5NTcxMiIKICAgZGM6Rm9ybWF0PSJpbWFnZS9wbmciCiAgIEdJTVA6QVBJPSIyLjAiCiAgIEdJTVA6UGxhdGZvcm09IldpbmRvd3MiCiAgIEdJTVA6VGltZVN0YW1wPSIxNjQzMDM3MjkwMTQ2MjYyIgogICBHSU1QOlZlcnNpb249IjIuMTAuMjQiCiAgIHRpZmY6T3JpZW50YXRpb249IjEiCiAgIHhtcDpDcmVhdG9yVG9vbD0iR0lNUCAyLjEwIj4KICAgPHhtcE1NOkhpc3Rvcnk+CiAgICA8cmRmOlNlcT4KICAgICA8cmRmOmxpCiAgICAgIHN0RXZ0OmFjdGlvbj0ic2F2ZWQiCiAgICAgIHN0RXZ0OmNoYW5nZWQ9Ii8iCiAgICAgIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6MzI2MmJhN2QtODY4MS00YjdmLTk2NmUtNWEwZjg2YTg2M2Q1IgogICAgICBzdEV2dDpzb2Z0d2FyZUFnZW50PSJHaW1wIDIuMTAgKFdpbmRvd3MpIgogICAgICBzdEV2dDp3aGVuPSIyMDIyLTAxLTI0VDE2OjE0OjUwIi8+CiAgICA8L3JkZjpTZXE+CiAgIDwveG1wTU06SGlzdG9yeT4KICAgPHhtcE1NOkRlcml2ZWRGcm9tCiAgICBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOkQwOUYwNDg2MDNDNDExRUJBMUIyQkY0QjQyMzJDNEVDIgogICAgc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpEMDlGMDQ4NTAzQzQxMUVCQTFCMkJGNEI0MjMyQzRFQyIvPgogIDwvcmRmOkRlc2NyaXB0aW9uPgogPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgIAo8P3hwYWNrZXQgZW5kPSJ3Ij8+znUbIgAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB+YBGA8OMvkMP8wAACAASURBVHja7V15fFTVvf+ec5eZO/tMMtnDZCUhEKPIoiCbAuKGCkWs4F5Fq1afS6u2+ny+al+tVq321VdxqcWKtSrFBcGKSJFVRFBkycKSkH2fZLZ77znvj2TiJCSQFSbo7/OZD2GWe84953t/++93CE4SuWNjid1ud5tMpp+FQqGyvfv2vTDYYyQmJkq6rrPq6modP9AJI/FkDDoiNVWy2WyXi6L4a0JIliAITw3FOIqizAdwhiRJv/f5fNUNDQ38hy0/BUGVnZnpUEymxwVBuIFzbuCcgwpC6hANF08pvc9oNP5IluUXTCbTG6qqVlZXV2s/bP0pAqrReXnxoii+RAi5kHNOwu8LlKYBkAGEBnM8zrkIgBBCMkRR/B9BEO4zGo2rFEV5T9O0jZzzuqamJrW1tZX9AIVhBqrnnn+efvnFFyN27NjxfwBmd/OVuIT4eFdlVVXlYI5LCAlEAIwCcBNCrpEkaZEkSc2c868VRdmhadrOUCi0l1J6SBCE5mAwqBNCWCAQYKqqAkBYbPKI63XCb3fja5qGUCjU0+f8B1D1k5YuXWrJycm5qbiw8Oec83hCSHdfi3G5XAmDDSoAtQB0AEKX9wUATkLIVABTJUlisiwzzrmfc14timIdIaTZZDL5AIQIIVr7dVg7GDgA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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires the version 19.10.1 or later of the Plugin Pack Manager module\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "IP-Label Ekara Rest API",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_monitoring_iplabel_ekara_restapi.pl",
+                "package_name": "centreon-plugin-Applications-Monitoring-Iplabel-Ekara-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-monitoring-iplabel-ekara-restapi",
+        "status": "stable",
+        "status_message": "Initial experimental version",
+        "tags": [
+            "Ekara",
+            "Rest",
+            "Restapi",
+            "APM",
+            "iplabel",
+            "API",
+            "HostDisco"
+        ],
+        "update_date": "1643108135",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les sc\u00e9narios IP-Label Ekara.}\r\n\r\n{EN: Check IP-Label Ekara scenarios.}",
+            "active_checks_enabled": 2,
+            "alias": "Scenario-Status",
+            "check_timeperiod": "",
+            "command_name": "App-Monitoring-Iplabel-Ekara-Restapi-Scenarios",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSCENARIOSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ \"Success\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSCENARIOSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ \"Failure\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Iplabel-Ekara-Scenario-Status-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les incidents IP-Label Ekara.}\r\n\r\n{EN: Check IP-Label Ekara incidents.}",
+            "active_checks_enabled": 2,
+            "alias": "Incidents",
+            "check_timeperiod": "",
+            "command_name": "App-Monitoring-Iplabel-Ekara-Restapi-Incidents",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALTRIGGERSTATUS$",
+                    "password": false,
+                    "value": "%{severity} =~ \"Failure\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALINCIDENTSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ \"Open\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALINCIDENTSEVERITY$",
+                    "password": false,
+                    "value": "%{severity} =~ \"Critical\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--ignore-closed --verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Iplabel-Ekara-Incidents-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

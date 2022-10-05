@@ -1,0 +1,116 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_purestorage_snmp.pl --plugin=storage::purestorage::snmp::plugin --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --mode=stats --filter-counters=\\'$_SERVICEFILTERCOUNTER$\\' --warning-read-bandwidth=$_SERVICEWARNINGREADBANDWIDTH$ --critical-read-bandwidth=$_SERVICECRITICALREADBANDWIDTH$ --warning-write-bandwidth=$_SERVICEWARNINGWRITEBANDWIDTH$ --critical-write-bandwidth=$_SERVICECRITICALWRITEBANDWIDTH$ --warning-read-iops=$_SERVICEWARNINGREADIOPS$ --critical-read-iops=$_SERVICECRITICALREADIOPS$ --warning-write-iops=$_SERVICEWARNINGWRITEIOPS$ --critical-write-iops=$_SERVICECRITICALWRITEIOPS$ --warning-read-latency=$_SERVICEWARNINGREADLATENCY$ --critical-read-latency=$_SERVICECRITICALREADLATENCY$ --warning-write-latency=$_SERVICEWARNINGWRITELATENCY$ --critical-write-latency=$_SERVICECRITICALWRITELATENCY$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Purestorage-SNMP-Stats",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les baies de stockage Pure Storage via SNMP}\r\n{EN: Template to check Pure Storage using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Pure Storage using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Purestorage-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Storage-Purestorage-Stats-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix --filter-coutners option typo",
+        "dependencies": [],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Pure Storage via SNMP:\r\n* I/O stats"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser le stockage Pure Storage via SNMP :\r\n* Statistiques I/O"
+            }
+        ],
+        "discovery_category": "storage",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Storage-Purestorage-Snmp\r\n\r\n## SNMP\r\nConnect to your Pure Storage and configure SNMP.\r\n\r\n## Centreon Configuration\r\n### Create a new Pure Storage host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Storage-Purestorage-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Pure Storage SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_purestorage_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Storage-Purestorage-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-storage-purestorage-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Hardware",
+            "Pure Storage",
+            "Storage",
+            "SNMP",
+            "SAN"
+        ],
+        "update_date": "1584435140",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques des lectures et \u00e9critures.}\r\n\r\n{EN: Check read and write statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Stats",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Purestorage-SNMP-Stats",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Storage-Purestorage-Stats-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

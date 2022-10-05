@@ -1,0 +1,181 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_blockchain_parity_ethpoller_api.pl --plugin=blockchain::parity::ethpoller::plugin --mode=tracking --hostname=$HOSTADDRESS$ --port=\\'$_HOSTETHPOLLERAPIPORT$\\' --proto=\\'$_HOSTETHPOLLERPROTO$\\' --url-path=\\'$_HOSTETHPOLLERAPIURLPATH$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTETHPOLLEREXTRAOPTIONS$ --warning-balance-changes=\\'$_SERVICEWARNINGBALANCECHANGES$\\' --critical-balance-changes=\\'$_SERVICECRITICALBALANCECHANGES$\\' --warning-events-frequency=\\'$_SERVICEWARNINGEVENTSFREQUENCY$\\' --critical-events-frequency=\\'$_SERVICECRITICALEVENTSFREQUENCY$\\' --warning-mining-frequency=\\'$_SERVICEWARNINGMININGFREQUENCY$\\' --critical-mining-frequency=\\'$_SERVICECRITICALMININGFREQUENCY$\\' --warning-mining-prct=\\'$_SERVICEWARNINGMININGPRCT$\\' --critical-mining-prct=\\'$_SERVICECRITICALMININGPRCT$\\'\\\\r\\\\n  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Blockchain-Parity-Ethpoller-Tracking",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_blockchain_parity_ethpoller_api.pl --plugin=blockchain::parity::ethpoller::plugin --mode=stats --hostname=$HOSTADDRESS$ --port=\\'$_HOSTETHPOLLERAPIPORT$\\' --proto=\\'$_HOSTETHPOLLERPROTO$\\' --url-path=\\'$_HOSTETHPOLLERAPIURLPATH$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTETHPOLLEREXTRAOPTIONS$ --warning-fork-frequency=\\'$_SERVICEWARNINGFORKFREQUENCY$\\' --critical-fork-frequency=\\'$_SERVICECRITICALFORKFREQUENCY$\\' --warning-transaction-frequency=\\'$_SERVICEWARNINGTRANSACTIONFREQUENCY$\\' --critical-transaction-frequency=\\'$_SERVICECRITICALTRANSACTIONFREQUENCY$\\' --warning-block-frequency=\\'$_SERVICEWARNINGBLOCKFREQUENCY$\\' --critical-block-frequency=\\'$_SERVICECRITICALBLOCKFREQUENCY$\\'  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Blockchain-Parity-Ethpoller-Stats",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_blockchain_parity_ethpoller_api.pl --plugin=blockchain::parity::ethpoller::plugin --mode=disk --hostname=$HOSTADDRESS$ --port=\\'$_HOSTETHPOLLERAPIPORT$\\' --proto=\\'$_HOSTETHPOLLERPROTO$\\' --url-path=\\'$_HOSTETHPOLLERAPIURLPATH$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTETHPOLLEREXTRAOPTIONS$ --warning-disk-free=\\'$_SERVICEWARNINGDISKFREE$\\' --critical-disk-free=\\'$_SERVICECRITICALDISKFREE$\\' --warning-disk-available=\\'$_SERVICEWARNINGDISKAVAILABLE$\\' --critical-disk-available=\\'$_SERVICECRITICALDISKAVAILABLE$\\' --warning-disk-size=\\'$_SERVICEWARNINGDISKSIZE$\\' --critical-disk-size=\\'$_SERVICECRITICALDISKSIZE$\\' --warning-disk-used=\\'$_SERVICEWARNINGDISKUSED$\\' --critical-disk-used=\\'$_SERVICECRITICALDISKUSED$\\' --warning-disk-usage=\\'$_SERVICEWARNINGDISKUSAGE$\\' --critical-disk-usage=\\'$_SERVICECRITICALDISKUSAGE$\\' --warning-blockchain-dir=\\'$_SERVICEWARNINGBLOCKCHAINDIR$\\' --critical-blockchain-dir=\\'$_SERVICECRITICALBLOCKCHAINDIR$\\'\\\"",
+            "name": "Blockchain-Parity-Ethpoller-Disk",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser l'application Parity via l'API}\r\n{EN: Template to check Parity application using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Partity Ethpoller with API.",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "ethereum-parity-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTETHPOLLERAPIPORT $",
+                    "value": "8000"
+                },
+                {
+                    "key": "$_HOSTETHPOLLERPROTO$",
+                    "value": "http"
+                },
+                {
+                    "key": "$_HOSTETHPOLLERAPIURLPATH$",
+                    "value": "/"
+                },
+                {
+                    "key": "$_HOSTTIMEOUT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTETHPOLLEREXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Blockchain-Parity-Ethpoller-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Blockchain-Parity-Ethpoller-Tracking",
+                "Blockchain-Parity-Ethpoller-Stats",
+                "Blockchain-Parity-Ethpoller-Disk"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "ethereum-parity-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ macros harmonization",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Parity application using API.\r\n* Disk\r\n* Stats\r\n* Tracking\r\n* Info\r\n* Parity\r\n* Eth"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser l\\'application Parity en utilisant l\\'API.\r\n* Disk\r\n* Stats\r\n* Tracking\r\n* Info\r\n* Parity\r\n* Eth"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEwAACxMBAJqcGAAAE0pJREFUeJztnXuYHFWZxt/vdPckmQQTAjEO6alTXd2Z4AgIixhuOosu6sMaxYXFhSQE5L6JSWAVwcUVEAkYhCEhPFxkcVmF9YqiPDyuiEZRUAHlYnCSvp3q5iaQCxCSmen+vv1j0nEY59I903Xpnv3911XnfN87029Xnao65ytg8qKStv3xyoeUlTg5SDFBoYIWEBRJyz5bGEdUPouUr+uc0zkjSE1BMCkNEI/HZzPh6rdsVCq+u3XnFwOSFBiT0gBTVPQqBew3dLuwrEpZVmcQmoJi0hkgpfVhIJw33D6lVKws6ia/NQXJZDMAlZk2YJS/Wykc52h9qo+aAmVSGcDReplSOGrslnTdggUL9vFeUfBMGgM4jjOTWK6ppi0BB/Tv6r3cY0mhYNIYgMrlK6DU3GrbC8nKZHv7u7zUFAYmhQES8cTBAK2opY8CRYVog1eawsKkMACp8noAkZr7kepKaH2aB5JCQ9MbwNH6VCLVNd7+qskHhE1tgIFbu3TdBMO09e/qvaIugkJIUxugt3XnfxBwwETjCMmnnbhzUD00hY2mNYDW+kBmWV2PWAoUhSo15YCwaQ0QBdYppWL1ikek3p+yEkvqFS8sNKUBEpZ1EkDH1zuuiKxNpVJvq3fcIGk6A7S1tbUqwfWeBFd4h/SVmmpA2HQGmBab8nkoZXkVn0lWDNxYag6aygDJeDIlwp/xMocCRVWEm2ZA2FQGAJVvVEpN8SHR+5KWvdT7PN7TNAZItScWQeEE3xIKr3UcZ6Zv+TyiKQygtZ5aVtLta1Kl5lK5fKWvOT2gKQwQEbpYAY7/mWl5IpE4xP+89aPhDaC1tolwSUDpI4obe0DY8AZQQjcAmBacAjo22W6fHlz+idHQBkja9ocV4cSgdQD8lUYdEDasATo7O1vAvC5oHQAApeZKufyloGWMh4Y1wO6dOy8CqY6gdVRQoH+1bfvdQeuolYY0QGpeKg7QZUHrGEIkItgAgIIWUgsNaQCO9n+VgOlB6xiGYxytlwUtohYazgBJrY8j0ClB6xgJYrlWaz0raB3V0lAG6EJXlEHrg9YxKkq9PQI0zICwoQxQ1PmVCgj9Yg0CXTBf60OD1lENDWMArfU7mKVR1u9HSqCGGBA2jAEiwFeUUg0zHUsBRztanxG0jrFoCAM47c6xBGq45+8i4R8QNoIBIoRSQxZtUKTmRIS+HLSO0Qi9AZJW4gIo1XB32CoQ4fykZf1d0DpGItQGSKVSc0DS6JMulIgK7YAw1Abg/tIaAPsGrWOikMKRCa3PDFrHcITWAIlE4r0EfCpoHXVD5BrLskJn5rAaQO2ZaRPKw+Z4UKTmxKBCNyAMpQGSln0WQO8JWkfdIZwXtgFh6Aywp4rnmqB1eIQS4GaE6MgWOgOMVMWzWSBSC5NW4qygdVQIlQFGq+JZd5ifJJIHKx8FuEWAnb6kJl4TlgFhmAxAZdBN8FYTC+Q+QD6QKbiHZoz5RWVH1uRXlITbRfA5Fi54qAEKtH8M6uqxW3pPaM5Fjm0vI8HXvYjNkDcU8J/EvC5dKGTGat+FrmjRNidJGatJ4UgvNA3I4vdmXPdxj+JXRSgM4DjOTOov9dRSyLEqGHkoWS+RyB3ZbHZHZfOBBxywX38sdj4B29LG3AwAjtb3KaKb0vn8/w4OMd+2FzJjNZOcrEDRuuoT/l3GdY8EIHWNWwOhMEBS626AVtUvovxKgO6sMT8EUK5sTVlWJxOtJtASANNE8OWsm79sQINdAhBh4E9KsK6XS/9dLBZ37e07LxWXSGk5COcCmF0/qTg34+Zvr1u8GgncAE7cOUgi5T9M9NfFzH2k6Fsk0p1x3ScG7SJH648QcOHQsjHDGWBvPMgrJHRbTMobegqF5yvb29raWqe1tJxOTKugcOBENA/kwav95VJHsVjcOtFY4yF4A1jWLyZSyJGFX1ZEt5SAm40xL1a2t7W1tU5taVmmmFaO9EWNZoC98Zn7FdR3BOqGbCH72KBdlNT6wyKymkh9CBP4XzLktpwx/lz9DCFQAzhan0qgu8fXW55moJuBu40xuytbU/NScYn2rwDoHIxxqK7GAINh4DcRoe60m/s+Bp1a5mv9ThZZBVKnY3zrFJnLdGSumPv9OPpOiMAM0Dmnc8bu1jd7aizkKIDcLyLdWdf92eAd8217YYn5QhCdVO3ppFYD7IXZgNRNElW3Dx5cxuPx2VMikfMYtFwB86r/swBAfp8x5kgAXFu/iRHYfYBaqngy5A2B3CQltSBjzKLKl9+FrmjStj/ptNuPsOBRReqTdR+pD4dSGoS1Ui4XHW3f5Mxz5gNAsVjcmjFmjWW0LZDTIPy76oPSEUnLPtsrySNm9TshMFDFU7E8NWYhR2YDReslEvna4F+aZVn7RkWdK8TLFan28eoY9xFgmFAjHZmSWh8lwGoCnTRWfAZendLft+DPzz//6jh11Iz3v5bhk67D6F/+r0moO11w78Wgc61t2wsijFUgLAOhlcJzI5MA+igRfTSp9dMkcmM/0TeNMbszxjwC4BHHcSwql1eA6RwoDDtRVAH79cViawCc66Nwf0lY1kmK1HeHbmfmfqXUt4VV95DRNhLtieMV5EIofAR11FzHI8DfsOfq5NYSsGHw1ckhc+dOf3Pq1GUyMGgcbnUzs6KjcrlcDaeP8eOrAdra2lpbo7FnBxdy3HO9fWsJvMF13Rcq27XWU6NCS5mwyqvVQF4aoMJo9ycSlnWCIloN0D8MUfZYxpiF8GFA6Osx9K1VPOUZCJ3DQHvWzV9W+fIty2pzLPsqBRRAuK0RloKNhlKqhUBLQerxpNa/dLT+Jwz83yXnuvdnjDkeXD5IIF8DY8/lLL3H0dqX04BvR4BkPJlCpPwUgIdYqDvn5h58y37LOhykLmTmU+pZ5Xs0/DgCDJsXyCnIesRid6TT6dcq2zvaOvYvt/SeB9ByAFNi/X0dXg8IfTNAqj2xqBxFTy6X2zxocyRhWSfuOQwe65eWCkEZoAIzv64U3Tn0KeXhhx8e2/Hy1k+ykunZfP5WLzUEchnoOM5MKpfPBtMKKNhBaACCN8AgWCA/JqA7Y8zP/Uzs62VgMp5McaS0UsrlMwk0IzxXcYGjCPQxAB9LtltPiqJuFYvdk06nez1P7HUCYKCqh6P1fYiUexTo0wo0w4+8DYlS7ybQndLbZ5JaX55IJOo7R2JoOi+D74Vpjogc6lu+ZkCpuQJ0EpGn1c99+UIyhfy3d/f3HwjIVX+91Pl/RkaeBuS4rDGnZLNZ18tMvv0iX3jhhTczxnwhQtzJgh/4lbfB2ArhFRljDhs8YdVLfD8kb3bdXM7Nf4KZPiSMZ/3OH1IYglti/X0dGdfdgEHPP7wmsHNyrpD7aXtBH0KQi8C8Y+wezYr8SkEOz7j5C/x8Clgh0EHZRmwspY25QWLRDgHugM+TIYKEIUWBnJYx5v1bjPljUDpCMSrPZrN/yZr82cJqoTAeDVqPlzBzrwi+vM/u3QdmjbknaD2BzAcYiT2PgY9OtttLAVwLhXcEramesPAPo4SLtrj5bNBaKvh2IyjV3p6ssrlkCvm7oq1TOgBZy8x9norzA8afifDhnOueuMV1q/3yVbLdPsXrV9f7YgCKxX4jSt2TtOw1h8ydW1WR556entczxlyMaORgMB7wWqMXMPNrgPzbrLfvd8jQFUejkdT6qKTWv5UIpvX09LzupUZfDJBOp3vBfCYEq1+fOq0nYVmLq+2by+U2Zwr5E1hoEUPSXuqsIwLBnYhGOjLGXP/444/3V9PJsqw2R+u7APq1ALlsPv9fXgv1bRCYKRT+JITPKWCeIvWNpLYfTml9WLX9c27ux9OmT3+XQC5lyBteap0IwniUy7Qw4+Y/lcvlXqqmT2dnZ4tj2RdHBD0EWsqQ50oiviwU8fUqIOvm14vwT/Z8PEZAjyW0vrWjrWP/avpv2rSpL2vMNS3MCwB80zul44DxohDOyBbyR9eywMPR+oTenTufIcK1Sql9AAiJLHNdd5uHavfi92WglInOYMgrlfwKdG452rfFseyVXeiq6qqkp1B4PmPyS0T4WAaeGLuHdzBzv0Cui7ZO6dhzyK5qpa8zz5mfbLfvJ9D9AM2vbBfIV7Ou+5Bngofg+30AY8yLiuitCyAUZhHhxqLO/8GxrA9UGyvrur/OmfwREJw3yFT+wXhAIurgrDGfrXaw1jmnc0ZS62tFlZ4Z+qpbYfxx6vTp/+6N2OEJ5EZQJp//oUCGWRJNBxGpnyW1/V3btnWV4Tjj5m9jYD5D1jOkVFexwyWEpFloUaaQPyGfz/dU2Y2Slr20t/XNzQBdrJRqGbJ/lyJevGnTJl8vewO7Ezhj9+4LAdkywu6TIoJnk1pfHo/Hq1psaYzZnjNmJZUjhwHw5BC6Z4napdOmT39Xzs39uNp+Scs6PKHth0G4C0DbsI2ELk677qZ6aa2WwAzw1Esv7eSyWjzKL3YaQF+cQurZlJU4udq42WL2mYzJf5CE/hnMpk5yAeCbLcwLssZcU+2vNJVKzXG0vh2kfqeAo0dsyHgg4+YCqYge6LOAXDH3ewVcPmojpbSQfCfRbj/kxJ2Dqo2ddnPf7RV+JyBXANg1ZocRYOAJCB+TMfklgwtFjEYXuqJOu71KekubCXQ2Rvk/s/DLHKXA6ggH/jAoY8waQB4eq51SOI4i/EdH6/XVllgrFou7MsZcXia8E8D3atHFwi9DcG7O5I/IuO5vqu3nWNYHXW2eJIXukdYADiYikbOqvV/gBYEbAACXgKUDt03HJEKgFRGizY5tn4cq9efzeZMx+ZNF+IOAPDOqGEgJkHVM1LGndk9Vj6i11nay3f4+kXpQAZ3V9IHwrelC7kdVtfWIMBgAxph8hCLLq22vQPuT4JZEu/2YY1nHVNsv67oPxY19mAhWgbF9mCY/U8yHZoxZZYwZbv/fEI/HpyW1vjLK9CwUPlGtFjD3vNnff1HV7T0i8BpBg0la9j0g/EvNHRl3R1H+bLXnaGBgGVYpWjowW8g+DABJrU/MGFPTXMVku30KwGsHL3atSi5zvyIcFXSNQCBkBtBaz4qyPFnrPxTYWwzyaorFrvd6QUUinjgYJOuUwt+PL4J8fmDsEzyhMgAApGy7SwQPYZynJwYyinFRppC/r87SEI/HZ7eo6JdooJ7xuJaRifAvs657HEIy/S2otXAjsnX7djN71szW8S4WJWA2CKfOmjnryFn7znps+/bt9ZhoqRJanx9RkXsVoQvjHTsx70As+qFt27ZVNb7wg9AdAYCB1bFbX3n1UQVM6OUKzNxPUOtirVOuGO/EikR74n0EWUcKE34VLEMW54wZZ1k8bwilAYCBQlJR0BMYX929t8J4UZRcmjWm6qd1e0rDrh3XoHR4DXdnCvmqJ8L4RehOARV27NjxyqxZM7cS6B8nHIwwg0An7jvzbR+Ztc/sJ7e/tn3Eq4VUKjVl3332uUSUfItoYkegvTAbiUUWbdu2zfPVvrUS2iNAhaTWPwLoo3UMKRB8nSN06dA7cEnb/jgLrleAU8d8rAjHbcnnf1nHmHUjFDeCRkMikbPA/Jc6hiQQzkSpvDnVnlhU2Ziw7Acg+EGdv3yI4NqwfvlAAxggm83+han+7w9USr2NSRbu/Uw4frT24+TxfefsF+pX3ofeAACQc937RXBz0Dpq5M0yYXG1M4KDoiEMAAB9XPpMI60mFsJFNcwWCoyGMUCxWNyllCxm5lD/ogBAID/yurpXvWgYAwBA2pg/ENQXgtYxKswvqVgsNO8FHIuGMgAAZAv5tSK8MWgdIyGKzkyn0y8HraNaGs4AAJhisaUjPM8PFAE2ZI1pqHWMjWgAZDKZgii5IGgdgxHGs33l0meD1lErDWkAAMga8z8C+UbQOoCBiuARJacNfs1co9CwBgAAFYstByMftA4idVmQZV4mQkMbIJ1OvyZQS+FjVa2hMOPnWTf/1aDyT5SGNgAAZAvZh0VwTUDpt0U4ejpCMrtnPDS8AQCg3dWXA+L7O/fAOD/9XLroe9460hQG2IiNJSlFFguw06+cDLkrU8h/2698XtEUBgCA7HPZLSS40I9cAuRapk5d4Ucur2kaAwBAxs3f7kMd4jIJL/G6eJNfNJUBACDW33IOgBfGbDhu5Opa1gqGnaYzwOYXNr8CwpmocvJnLYjwb+PGvrLecYOk6QwAAJl8/ieArK9nTIa8QRxbshEbPa9A4idNaQAAKAGfG2slcC1ERFZniplGqVNYNU1rAGPMblZqMTNPfCo24960695RB1mho2kNAAC5XO4ppejzE4khwPOxct859dIUNpraAACQMeYGQB4cu+WwiDCdEcSLHPyi6Q0AQFS5fAaArbX3xI25Qu6ndVcUIiaDAbClWHyOhWt8GbM8TS3RS7xRFB4mhQEAIOe634PgzmraMnMvl9ViP97cGTSTxgAAMGVX60oGMmO1I0WX5Iq5p/3QFDSTygCbXt70RgSyZPRysvLTrDE3+qcqWCaVAQAgbcyjJHTVcPsYeLVfZBk8uI0cViadAQAg6+avYsYjg7cxRAhyjuu6Hj5ICh+T0gAAylHiJQD2FqdUIndkjbk3QE2B8H+yJLKp2Rs0wQAAAABJRU5ErkJggg==",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Blockchain-Parity-Ethpoller-Api\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Blockchaine-Parity-Ethpoller-Restapi-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Ethpoller API",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_blockchain_parity_ethpoller_api.pl",
+                "package_name": "centreon-plugin-Blockchain-Parity-Ethpoller-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "blockchain-parity-ethpoller-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "SNMP",
+            "Parity",
+            "API",
+            "blochain"
+        ],
+        "update_date": "1621590844",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Suivi de Parity par API.}\r\n\r\n{EN: Tracking Parity whith API.}",
+            "active_checks_enabled": 2,
+            "alias": "Tracking",
+            "check_timeperiod": "",
+            "command_name": "Blockchain-Parity-Ethpoller-Tracking",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Blockchain-Parity-Ethpoller-Tracking",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Affiche les statistique de Parity with API.}\r\n\r\n{EN: View Parity statistics whith API.}",
+            "active_checks_enabled": 2,
+            "alias": "Stats",
+            "check_timeperiod": "",
+            "command_name": "Blockchain-Parity-Ethpoller-Stats",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Blockchain-Parity-Ethpoller-Stats",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des disques Parity par API.}\r\n\r\n{EN: Check Parity disk whith API.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk",
+            "check_timeperiod": "",
+            "command_name": "Blockchain-Parity-Ethpoller-Disk",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Blockchain-Parity-Ethpoller-Disk",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

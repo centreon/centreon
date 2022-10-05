@@ -1,0 +1,161 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_haproxy_snmp.pl --plugin=apps::haproxy::snmp::plugin  --mode=frontend-usage --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-total-sessions=\\'$_SERVICEWARNINGTOTALSESSIONS$\\' --critical-total-sessions=\\'$_SERVICECRITICALTOTALSESSIONS$\\' --warning-current-sessions=\\'$_SERVICEWARNINGCURRENTSESSIONS$\\' --critical-current-sessions=\\'$_SERVICECRITICALCURRENTSESSIONS$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Haproxy-SNMP-Frontend-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_haproxy_snmp.pl --plugin=apps::haproxy::snmp::plugin  --mode=backend-usage --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-total-sessions=\\'$_SERVICEWARNINGTOTALSESSIONS$\\' --critical-total-sessions=\\'$_SERVICECRITICALTOTALSESSIONS$\\' --warning-current-sessions=\\'$_SERVICEWARNINGCURRENTSESSIONS$\\' --critical-current-sessions=\\'$_SERVICECRITICALCURRENTSESSIONS$\\' --warning-current-queue=\\'$_SERVICEWARNINGCURRENTQUEUE$\\' --critical-current-queue=\\'$_SERVICECRITICALCURRENTQUEUE$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Haproxy-SNMP-Backend-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Haproxy in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "haproxy-128-2.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Haproxy-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Haproxy-SNMP-Frontend-Usage",
+                "App-Haproxy-SNMP-Backend-Usage"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "haproxy-128-2.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix duplicated service alias",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Haproxy application using SNMP:\r\n* Backend Usage\r\n* Frontend Usage"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller une application Haproxy via SNMP :\r\n* Backend Usage\r\n* Frontend Usage"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Haproxy-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Haproxy-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Haproxy SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_haproxy_snmp.pl",
+                "package_name": "centreon-plugin-Applications-Haproxy-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-haproxy-snmp",
+        "status": "stable",
+        "status_message": "fix duplicated service alias",
+        "tags": [
+            "Haproxy",
+            "SNMP",
+            "Application",
+            "Loadbalancer"
+        ],
+        "update_date": "1551436496",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des 'frontends'.}\r\n{EN: Check frontend usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Frontend-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-Haproxy-SNMP-Frontend-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /OPEN/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Haproxy-SNMP-Frontend-Usage",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des 'backends'.}\r\n{EN: Check backend usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Backend-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-Haproxy-SNMP-Backend-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /UP/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Haproxy-SNMP-Backend-Usage",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

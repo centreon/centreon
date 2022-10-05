@@ -1,0 +1,224 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_socomec_netvision_snmp.pl --plugin=hardware::ups::socomec::netvision::snmp::plugin --mode=output-lines --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-load=\\'$_SERVICEWARNINGLOAD$\\' --critical-load=\\'$_SERVICECRITICALLOAD$\\' --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\' --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\' --unknown-source-status=\\'$_SERVICEUNKNOWNSOURCESTATUS$\\' --warning-source-status=\\'$_SERVICEWARNINGSOURCESTATUS$\\' --critical-source-status=\\'$_SERVICECRITICALSOURCESTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Socomec-Netvision-SNMP-Output-Lines",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_socomec_netvision_snmp.pl --plugin=hardware::ups::socomec::netvision::snmp::plugin --mode=input-lines --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-frequence=\\'$_SERVICEWARNINGFREQUENCE$\\' --critical-frequence=\\'$_SERVICECRITICALFREQUENCE$\\' --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\' --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Socomec-Netvision-SNMP-Input-Lines",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_socomec_netvision_snmp.pl --plugin=hardware::ups::socomec::netvision::snmp::plugin --mode=battery --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-charge-remaining=\\'$_SERVICEWARNINGCHARGEREMAINING$\\' --critical-charge-remaining=\\'$_SERVICECRITICALCHARGEREMAINING$\\' --warning-charge-remaining-minutes=\\'$_SERVICEWARNINGCHARGEREMAININGMINUTES$\\' --critical-charge-remaining-minutes=\\'$_SERVICECRITICALCHARGEREMAININGMINUTES$\\' --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\' --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\' --warning-temperature=\\'$_SERVICEWARNINGTEMPERATURE$\\' --critical-temperature=\\'$_SERVICECRITICALTEMPERATURE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Socomec-Netvision-SNMP-Battery",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_socomec_netvision_snmp.pl --plugin=hardware::ups::socomec::netvision::snmp::plugin --mode=alarms --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-alarms-current=\\'$_SERVICEWARNINGALARMSCURRENT$\\' --critical-alarms-current=\\'$_SERVICECRITICALALARMSCURRENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Socomec-Netvision-SNMP-Alarms",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les onduleurs Socomec Net Vision via SNMP}\r\n{EN: Template to check Socomec Net Vision UPS using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check UPS Socomec Net Vision using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "socomec-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-UPS-Socomec-Netvision-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-UPS-Socomec-Netvision-Output-Lines-SNMP",
+                "HW-UPS-Socomec-Netvision-Input-Lines-SNMP",
+                "HW-UPS-Socomec-Netvision-Battery-SNMP",
+                "HW-UPS-Socomec-Netvision-Alarms-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "socomec-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Socomec Net Vision UPS :\r\n* Alarms\r\n* Battery\r\n* Input-Lines\r\n* Output-Lines"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les UPS Socomec Net Vision en SNMP :\r\n* Alarms\r\n* Battery\r\n* Input-Lines\r\n* Output-Lines"
+            }
+        ],
+        "discovery_category": "ups-pdu",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAABE1SURBVHic7dp7lBxVncDx76+qeyaZScIrTCQhTM8kBBLQqEReEQ0YXsFAuifdMwGi+ACEdVflobuue3bUXRbcNcr6SgJLROUx3emexPAQ1ARFXoEIBAIIYaYnAZQE8iCPmemuuj//mO6eqp6ZgOuq+8f9nNPndN/63Vu36t6qurdug2VZlmVZlmVZlmVZlmVZlmVZlmVZlmVZlmVZlmVZlmVZlmVZlmVZlmVZlmVZlmVZlmVZlmVZlmVZlmVZlmVZlmVZlmVZlmVZlmVZlmVZlvUXJ9UJ+jT1/YVRE+jXaK3Tv11OZcffomLWX0elA+j60ZM9Y25CmQPUBkJ2ovo4Io+g+mjE739MTmNnsJD+9TXHUURqZxeeDaZPW7RmfL9fuExwZoNOAhoU3SfKmyrykohuEBO5tztzwe+C+Y668K5DHK9wCchcRI9GGQfsRnkeh9X1xrttUyZVGO6ApsRzDSbCx1VkDuhUYBywA2QrsFY98+OeXMvvB3OoxJKdZyOkUE5AGI9QxOiriDyII0vzd8bzwX00JnOniKOXBE7i492vH/rDxoadl4vqYhWZJKqvKs5NPZn4/wBMveiecV6h7/MgCxCdoCqvgd7Rg3cjmZRffRwTFt9XX9e3/yIVcy7IdOAgYLfCM6je3pNJrALR4c5BrK0zhuHjonqaCjGgXuENgS4R/YUbGX3r5tvmvVWq+4DCw9ETRZzHhitwGG8gvILiAA3Au4Cro6f0LykHNLdmP2BU7gUOO1BBiv5zT7rlukrlk9lWRJaVDnikTJuUyPyezPndoQNPdn4O0f8ARo+YVWReT0f8XoApbasme8bcLvDBA1SxoCpXlhsSIJbKfQFYEoi5FYgBH67OLMK/O8b9oS/e/SBNQ0oX/UG+o+XKYFJTMnemCj9i4LyOdCRrCr01ba+tmb+/nHLCZcuib+46/OvANYA7Uk5R99jyReeMvIMDGo/yXuA9w1dSxajcSrDxhS6F3yC8APSVkx1hW/l7U6rzYkTuYGjjh6924TjE+2nskhWjykmxVPY6RL/N0MbvBypXipqB/TUtWj3BN2bdMI1ffWepEdHlzans3MD+G6piLmSYxgdQ5Vpf/J8P2/gAKpcfmUxPKv9sTK2cp8LdhM6rbAEeB/YH0uZHRxdvDBb05u6GHwNfYmjj9wV/+FG3cs7/5A6wo3csj26dccCYWEv2GGB6oLLt+Y7ElJ504rR8R2J6Ph2vU+VUEZYg7u8AGhPZIxT9PuFxydJikfGHHbx9DMIiBhpzoEQ4XnoPSgHEkrkPg/xjVTU6VZiRV6++t7Z+LMoclPujrmwDUGOWAFMC8S86oifmZ2wcbXydIrAhsM0xylcrv3RIB4giutwV3i0iZxM+4TVADJHbxTUzjSNzgT3Bsl0nchJAbEHnwYJzCxAtbTMiemk+vSCWTydOVI0cD4MXjMAnY22dMYBYa+clqLYGylVgKY405dPxOgpyiKp+VOChLbeft6scFGGoV0H+ALoLmAQ0AbVbdr2LW586m8yzp3Pu0Y9x8uTnhslaqpgrDcGHk6KTJretnrj1zgteK0VoT4ZHgEcqeSLOZaBjBzPpY/lM4koQfXUg5c7GVO48gYvLIUY5E/gRIl8EDXacn+XT8ZbyM/J12Af8qvThyGR6EqptwSqq6KKujpbfAmyBruZk7vMqPDh4UHLKccn0mE2Z1F6BCVUP31/lO1ouL31/timV26RwQmD7U/mOBReX69OUyv1a4bxK0UbGAUitWawqEwL5ftLd0XJz+UdP5vzuWGvuDpTPlZIcMXomcBPwxVCNRJcGHy35VewC7i59KiodIFozqqtY7DshenLxSZHBW+b0Czs+VBvp+/quvrGnUbo6FTEM3j084EHEWV/O43p0eREqMQKXusa/NJbK7UJ5SkQ2iOgDXca7d3AApPNCB+CwonqQIypPIFrpAAJHTT33nlqPvjODceo4Xx9pgATgEj0HdPDup/JUTzrx22CMqd/9BPtDTyLZ60QmA88r4TuAIDcHfyv4Vb9vDtZHqx4z4ug+AFXnvMDTCmBWY6rz5+Haa3OonsjkKcnVU331jw2FGf9rvAOVDiCz9rwBvAFwXDJds9+JtKnh6l6P9/R60VCmVc9/8CdL5i39Cn1uH5G9e+VUeoPbN+daXmlKdX5L0aur9ncwwhxF56hydSPRJ9xkem5XJrUbOLYq9unqygr4Va3qF8YUpjiDt0wUvOjumg3VeUMcPSZ0nkU3VoccVlPw39wfTnM945Uq0hDM74g+FQpU6kMPMsd5sqr40LipPC5B9Nhw+zND0PDztuoECPjq+NX58vlM6g/VxzSc0CNgajJ9uCeRT+6Dv0eZNPQtQakOKion9m49UMHd6fg1sbbOu1RNi6icCMwkNL0EEZ1liHwGuEGhLrg7Y5zikEJFQ51E4eWI49ebwN1fwN3cO3rItCrIUanXwBmrviIBdu6ccOzAja4S4zn767aUfoTuAH6/vBKuZ3h7tOBvqdo+Idhg6gx0AFXqQ6dceVBF+jkQNRsVp25Iz3iHKh3gqOSqGZ6YDcCoA8SD6sOCbBp6a2JpTzqeDSbk74w/ADwAQHu7M/n5mU2u6t8BXwiEzQAQ2AkcXk6Ugfnr4JU8Z11E2XlOsHwH+ZXn6ZtOeMwrzYfvnt4Fz4x4DKI7g+dLBqZwIb748yV8BTy6+d55/cecv3psP35wptGfXxWvDKpIpl3CU1+tdf1tBBOUhmDJXmGgA4iwE2V85fgcvbqrI/H4iMdR0pzKztVwXY84Mpk+9JVM6m1f4lWeg47LWEZufKPKXeo4s/OZltkqbBN0bvCDamM5uDGZPa+5beWsUAnt7WZrR/xlMPcFkxXZXfr6SDBd1Fx1XDI9phQlsYad/0Z41L69TourtmQT3QqhK9DgL50Uz4XePzS2Zt8fS2ZbAYzR0L6AM5qTucp0sLlt5SxBrgkGOMJNAF4tE6ryhhq3KVI7nvDsalfwpdXE+WvqBMYEthdf7YyXGkofCpalypdKHSpk2qI142Ot2c/HUtkbAEzBeQJCj+HaqLjLJ85fUxfM15jMndHU2nlWMG24WUDQHmCFeLokn2vpeZvYCnFYaIxzSSyV7QZ5RpEeUX1DhSOBZChYBzqEot8WZD7laaDIqfuIvBhLdT6p5KaBTA3mAvncpkxqL4Aj2W+oyn8PVkBOjUTJN6VyTyuyWzHTRGUKIl8F6MH/WYzIc5TuPoBrhF/EUrnHFBxj+ADhx9Xa7ukbfwLgudoQeDKgKq+Hj744oWp2Heog0VFa3YG2VwaIxrkR0YsojWkUaYlJZBOp3H0MvD0dD/q+gl88CSSqyHcA8qviu2KtueWB2QGKtNSMLp4RS+WeAjyQY0CPwpiPBXc+QgfQbpBlFGRZ6Pb2TqnTMPBMkiagSVCQYRYeRG7vScfvAehJt6yLJXNfRriOwdAjQI+ouhUXFK7qScfvKCd0dyS+25jqfLfApZWiYYzCbFAq+bXUGJmUb1pWphzXuR+YWMpSC3xomGHPWke9BO3tBkCMhmcAEm5g8cNT4Mo+y9td04AJpgxuz2fiT8Vac5ejLGNwYHsMcMzA+Qs/551A3shbo77kjembhnBuIOQQ4PRyRQBUNFSfUFcV2CDCx/PbDp2WTydu+F81/sBu0qCrgNeHbBmYNq5XlU/npz+9ODg9ymcS16syF/g5gZc+JW8CPzK+eX9POvG98CbRnnTiMpA4A3P96kFdryi/VMdUXnVvyS7cJK77foQbgdCIWcFD9WFR/Vh+xsYzS7OU0kZTi9BV/ij6XDivOzq4HUdD6yPqm/rQdgjNQPIdiRUqejKQBnYz1GsCtwmyuKjF75cTN987rz9/3MaPKnxKVZ6gaioK7FHlLteJhOo72OHb251yL387sUtWjHJ3HzQumNYf8fa8kkn1VsdOWHxffd2+vePFdccZCtvzmeTrB5qjl009957aQl3vJLdGx7j9smNzLvHqO8kHA9PYvYya5EQKYz2NvtEw7g/bNyy/fOisImBy2+qJUV8PE6TXr9/xSv6Hn+g7UPxfRXu7M3Xjuyf6tXqo2y87al1/20iLYNUmzl9TN3qUmajoaENhex62D7foZFn//zS3rDz6b12HP0t7uzPc6L3a5LbVE6tH6m9naiJ75JHJ9IirnX+qyhjgqJZscyyVe/X/quB3LJl2Y6ncw8EkdZ1//XOLjaVy62OtuRdjqdwLwSneX1ostfLs2HPveTFGZF0s1bnoQLGu8X8QHd0/54DltWZXHJVcVXkb6EecSyLGaTxQnj9FZRagEUdUtSaw42WoTAWZajAXbkm3PNTUmpupkFHldRHZku+IXwQDS7GCnGVUNEpx3uZMantjKneTK6w2huPF0X3dHS3fibVmT0blH4AZqlzVk0msbZJoi6InxlK52/PpxIUAyuBINpbK/VKFzzro1cbQ2ZNpubu5NfdRo3wZcFX0ip7SIs4wrgUuUodzgN80JVcfo+JnGHilfHNPOvG98n8CEJaKciZIt6Jbe9KJWxrbVr5PjLMUVU/ghu5My0+nxHMNfpQngG58c3k+u/CF8C7dmahuFXGWdGvhHiiv0zesAT0I5bV8Jr6wejzT2JpLiHKWQX/sqFybzyQWTGnNHe8r813M5OaWlVd0ZRe+ZFRPIhpZCwP/ufBVbhHFIHJ9Ph2/ozmZPshI5HmQJ1FzWD7TcnLpPP4AdJKKvNDTkagsHI24HCwq9Qq3gWYddWYB+EYiGApRTxeBzg5EX1FU7wIR83vPiXwEwFHSRvkYcLEnkSyAGqkDHQMUHIczALq3HZwDiuXGLxlbXt1T0awol6rKnPGHvHE/gDF8QpF9KLtEJbQQFKJ8Adjhifv9gbLMBQK/xnE+I8plAC/fuWCrwBEoC0APBT3HUfehgXPgpABB2KYi8wD8iOcAB+W3HfKRoY0PeS1+U9DvKeaaJoncCOXXynp0Pp04BeH0qYncpOp8AjUCY1yVyouilzsSzwIviqP/1JVd+BKACHWO8SMAqk6rKBlB/0VUPwVgilEBHZfX4vmIzGTOuvJFnkflYDHsDe73gP8HcJC9Cj6OCb5s39NfEzGoBKfM90fE/S5wvPF0PUD3cRt/qej7EH2pvAwsIrNk4AALqqXVuAdO94AdTa25bw5XB9f4twGfBs2WR/KC3CdoDaIbRPX5keqvytfy6cRnKsvQYn6twln45msq3F+Jg7WiOlEG/nQxqfxvGUHWoRJRnGeC/w9QeKtU7yFiRD+rIglVqVMdeEPZ1+e+DBRiqdytwJbNOw4dslAjRroUPqTCtVWbXjHqtE9btGZ8dR6DvxahVZFrVCRwPNJbGvGbE6a9WGonURzWIYReBFU6wFZTzBvHnVnZUOSq/bV1d3tFrneMvwKgZm/ts556C7f6/a87WjytHJtPx9scX79Y2xeZuSXb0gVAe7uJFGU2BecTg3EL/lOMuaKo3vme+v9VTvfUmyrGq/y7JeJpc/kW2ZVJ7fbUm95bO6ayvNmdiS/3HXeRq5FbujOJNdUnplRm3McLvfLNd7Q8atyak4zRK3rSicqJdtW71vUkXqf+t9TTkyr76Yjf71Gci+gd3erdApCH7a56sxlBPhO/0fj6FXBT+UzieoDX1szfH3lr1HtF3esOO3j7B8qdp8aNfkrq9qwtHdN68fQ0CpIyvi6ulLftkAvFM1e++PsxuwAi6rW5e0Y/BtCTXnhPRL05Dt7F+XT8GwD59z79luPpLADVyPEbll/mAThaXOZCpre2fiaWZVmWZVmWZVmWZVmWZVmWZVmWZVmWZVmWZVmWZVmWZVmWZVmWZVmWZVmWZVmWZVmWZVmWZVmWZVmWZVmWZVmWZVmWZVmWZVmWZVmWZVnWX9cfAcTjQ0ElGrSIAAAAAElFTkSuQmCC",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Socomec Net Vision UPS SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_ups_socomec_netvision_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Ups-Socomec-Netvision-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-ups-socomec-netvision-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "UPS",
+            "SNMP",
+            "Socomec",
+            "Net Vision",
+            "Hardware"
+        ],
+        "update_date": "1611665045",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les m\u00e9triques des lignes de sortie.}\r\n\r\n{EN: Check output lines metrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Output-Lines",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Socomec-Netvision-SNMP-Output-Lines",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSOURCESTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /unknown/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-UPS-Socomec-Netvision-Output-Lines-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les m\u00e9triques de la source d'alimentation.}\r\n\r\n{EN: Check input lines metrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Input-Lines",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Socomec-Netvision-SNMP-Input-Lines",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-UPS-Socomec-Netvision-Input-Lines-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de la batterie.}\r\n\r\n{EN: Check battery status.}",
+            "active_checks_enabled": 2,
+            "alias": "Battery",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Socomec-Netvision-SNMP-Battery",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /unknown/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /low/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /depleted|failure/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-UPS-Socomec-Netvision-Battery-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les alarmes courantes.}\r\n\r\n{EN: Check current alarms.}",
+            "active_checks_enabled": 2,
+            "alias": "Alarms",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Socomec-Netvision-SNMP-Alarms",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-UPS-Socomec-Netvision-Alarms-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

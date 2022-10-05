@@ -1,0 +1,204 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_avaya_mediagateway_snmp.pl --plugin=hardware::telephony::avaya::mediagateway::snmp::plugin --mode=memory --hostname=\\'$HOSTADDRESS$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Telephony-Avaya-Mediagateway-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_avaya_mediagateway_snmp.pl --plugin=hardware::telephony::avaya::mediagateway::snmp::plugin --mode=hardware --hostname=\\'$HOSTADDRESS$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Telephony-Avaya-Mediagateway-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_avaya_mediagateway_snmp.pl --plugin=hardware::telephony::avaya::mediagateway::snmp::plugin --mode=cpu --hostname=\\'$HOSTADDRESS$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Telephony-Avaya-Mediagateway-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_avaya_mediagateway_snmp.pl --plugin=hardware::telephony::avaya::mediagateway::snmp::plugin --mode=controller-status --hostname=\\'$HOSTADDRESS$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' $_HOSTSNMPEXTRAOPTIONS$ --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Telephony-Avaya-Mediagateway-SNMP-Controller-Status",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Avaya media gateway in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "avaya-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Telephony-Avaya-Mediagateway-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Telephony-Avaya-Mediagateway-Memory-SNMP",
+                "HW-Telephony-Avaya-Mediagateway-Hardware-Global-SNMP",
+                "HW-Telephony-Avaya-Mediagateway-Cpu-SNMP",
+                "HW-Telephony-Avaya-Mediagateway-Controller-Status-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "avaya-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Avaya media gateway via SNMP:\r\n* Controller status\r\n* Cpu\r\n* Hardware\r\n* Memory"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un media gateway Avaya via SNMP :\r\n* Controller status\r\n* Cpu\r\n* Hardware\r\n* Memory"
+            }
+        ],
+        "discovery_category": "toip-voip",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Telephony-Avaya-Mediagateway-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Telephony-Avaya-Mediagateway-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Avaya Media Gateway SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_avaya_mediagateway_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Telephony-Avaya-Mediagateway-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-telephony-avaya-mediagateway-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Avaya",
+            "Telephony",
+            "Hardware",
+            "SNMP",
+            "Media gateway"
+        ],
+        "update_date": "1568810186",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire vive (RAM).}\r\n{EN: Check the rate of the utilization of memory (RAM).}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "HW-Telephony-Avaya-Mediagateway-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Telephony-Avaya-Mediagateway-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du mat\u00e9riel.}\r\n{EN: Check hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Telephony-Avaya-Mediagateway-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Telephony-Avaya-Mediagateway-Hardware-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine.}\r\n{EN: Check the rate of utilization of CPU for the machine.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "HW-Telephony-Avaya-Mediagateway-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Telephony-Avaya-Mediagateway-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des contr\u00f4leurs.}\r\n{EN: Check controller status.}",
+            "active_checks_enabled": 2,
+            "alias": "Controller-Status",
+            "check_timeperiod": "",
+            "command_name": "HW-Telephony-Avaya-Mediagateway-SNMP-Controller-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{h248_link_status} =~ /down/i || %{registration_state} =~ /notRegistred/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Telephony-Avaya-Mediagateway-Controller-Status-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

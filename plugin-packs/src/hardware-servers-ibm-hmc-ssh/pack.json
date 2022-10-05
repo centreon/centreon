@@ -1,0 +1,173 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ibm_hmc_ssh.pl --plugin=hardware::server::ibm::hmc::ssh::plugin --mode=led-status --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-virtuallpar-status=\\'$_SERVICEWARNINGVIRTUALLPARSTATUS$\\' --critical-virtuallpar-status=\\'$_SERVICECRITICALVIRTUALLPARSTATUS$\\' --warning-physical-status=\\'$_SERVICEWARNINGPHYSICALSTATUS$\\' --critical-physical-status=\\'$_SERVICECRITICALPHYSICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Ibm-Hmc-SSH-Led-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ibm_hmc_ssh.pl --plugin=hardware::server::ibm::hmc::ssh::plugin --mode=hardware-errors --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --filter-status=\\'$_SERVICEFILTERSTATUS$\\' --filter-problem-nums=\\'$_SERVICEFILTERPROBLEMNUMS$\\' --filter-system=\\'$_SERVICEFILTERSYSTEM$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Ibm-Hmc-SSH-Hardware-Errors",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser IBM HMC via SSH.}\r\n{EN: Template to check IBM HMC using SSH.}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check IBM HMC using SSH",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "ibm-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSSHBACKEND$",
+                    "value": "libssh"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Server-IBM-Hmc-SSH",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Ibm-Hmc-Led-Status-SSH",
+                "HW-Ibm-Hmc-Hardware-Errors-SSH"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAAsSAAALEgHS3X78AAAE50lEQVR42u2cX2gcVRSHy1prt6IhsbaNttmkFlGDJdUQ8SH0QYKClYoggT4UbS2RFpvd1CjFaksfVaLFh4IiCq1iVUREpBCk7qTVIt2XUmMRg9AW/0AeNBVUEOu9OOh02dk9d+bcccl+H/wgD/eec+beX5Izs3dnwQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaDIKxfJezxqvyndvBjmjKhltMOpwXJerPdRyY8q9ulm5nhEb9JJn/VR1ERMZ5KylP42OGt3fs+tTyWIv81DDnpQGOKBcT6WVDBDVlFHv/2CAszc9eSLh5gdX2rXEAHr6zWhLxgawGkj427/BQy0VmiAAgJa+DfzIsw5V5dti9GET6l2jtkidbR5z7Xbco1c91THRyk1gLe3KoAm0+tlosXDzb/FYRwUDXK4TGRnAaqPQAM/5NsApz5qsuqBSBjmT6vPuYvmKsM52z7meFRrgkMcaDtMEAQBAzP+fY0bnBTqrlG+TMJ/VJuEz9E6HmFYPCGs97Ri3ls4ZLY+JP6gQ3+pYmg2ZFnaTc0oG2ObQwW4TGmClY2d8t7DWWaVOvBgT/3Wl+NMYQB7zd6MlGRvgVI3YeaNfmsEA+41eE+gVJQMMCvNZDQoN0O4Qc7dDrS85xG2ktqrYvYqx99PMAEACuktBh9H1Ai1VyrdYmM+HFjrWulQ5fz6Mm1eO25F4Q5q8CdTUN93F8lWOtc4q13A4jPumctxpDFBfF436EtQ66xD/L8G4X+0zAbuWwuNsf2CA9LK3WusT1io1wIzRceHYo8Jx7wiNktoAw0aPC7RVyQC3CvNpqTdFrY8Ic9inmwPKddt12iocO0w3CwDJn8zdJ9CQUr5Vwnxa6kxR6z3CHOv/Gf9ZXqnmJWH+IeH4wTQbMt+bwAtGt/luAu34rp1TOfPzdynr/b5Q+vfE0hx3ATr6wajbtwEin62kqXUiEgsDKOrLnvAsoGcDrBE+E4hTf9YGWGt0l0D9SgZYJsznQ3nHWu8Uxu2rmndHwvoGVj89GY3TL5y3lm4WAJL9SR4xekagcaV864T5rNbJYgbXOsTc7FDrmDDmjhpzNzrUZPVQjRjjwrkj87UJ9HEk7GJhtLzIVxMYmbvZsfl7rEaMOc4E6hvgkrShTWmAa8JP/6QvsmjDANkZ4GHfBgjnvyWcfyRmvn8DdJWmFkqlY4CpnDSfHSuJuXr0uNN1FMbKOd21qX3SqGssEF3rqmKQa4a9AYD5eqv3otEHfhVcF8n3qP98ifVe1+h/j4TDc/VpYx6ss/adDeb21Jn7tsY120AV/8/ag5WRwpv5BRGVqkU+rxBzJm4Te/d9ZXOciZlnvzeYq2OAOY1rxgCXa2+WBghzPBUz74UG89QMcCT8pqtHBcurnmCdbkLZN2asqFrkSYW4nzTYyBti5vU1mHdS47ppggAAWvo28OPwrJpHBSsi+fb4zyfSTL2XRYe1fqGQpyzchwPh+PeF489orEOr3gV8a0/1ChbZ+11AJNeD4fidwvHcBibQ10bbC8IvgmZsgEVGP9pjcVkbYJ/RG34VtEcKHw7ff5OVXg43/fY1T5x0/fc4oXD9zzvkG3IYe1Bjb2iCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJqNvwHNnenmiznmwAAAAABJRU5ErkJggg==",
+            "name": "ibm-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor IBM HMC.**\r\n\r\nAvailable host template and related services:\r\n\r\nHW-Server-IBM-Hmc-SSH-custom|\r\n|---|\r\n|HW-Ibm-Hmc-Hardware-Errors-SSH|\r\n|HW-Ibm-Hmc-Led-Status-SSH|\r\n"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser IBM HMC**\r\n\r\nMod\u00e8le disponible:\r\n\r\nHW-Server-IBM-Hmc-SSH-custom|\r\n|---|\r\n|HW-Ibm-Hmc-Hardware-Errors-SSH|\r\n|HW-Ibm-Hmc-Led-Status-SSH|"
+            }
+        ],
+        "discovery_category": "hardware-server",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAAsSAAALEgHS3X78AAAE50lEQVR42u2cX2gcVRSHy1prt6IhsbaNttmkFlGDJdUQ8SH0QYKClYoggT4UbS2RFpvd1CjFaksfVaLFh4IiCq1iVUREpBCk7qTVIt2XUmMRg9AW/0AeNBVUEOu9OOh02dk9d+bcccl+H/wgD/eec+beX5Izs3dnwQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaDIKxfJezxqvyndvBjmjKhltMOpwXJerPdRyY8q9ulm5nhEb9JJn/VR1ERMZ5KylP42OGt3fs+tTyWIv81DDnpQGOKBcT6WVDBDVlFHv/2CAszc9eSLh5gdX2rXEAHr6zWhLxgawGkj427/BQy0VmiAAgJa+DfzIsw5V5dti9GET6l2jtkidbR5z7Xbco1c91THRyk1gLe3KoAm0+tlosXDzb/FYRwUDXK4TGRnAaqPQAM/5NsApz5qsuqBSBjmT6vPuYvmKsM52z7meFRrgkMcaDtMEAQBAzP+fY0bnBTqrlG+TMJ/VJuEz9E6HmFYPCGs97Ri3ls4ZLY+JP6gQ3+pYmg2ZFnaTc0oG2ObQwW4TGmClY2d8t7DWWaVOvBgT/3Wl+NMYQB7zd6MlGRvgVI3YeaNfmsEA+41eE+gVJQMMCvNZDQoN0O4Qc7dDrS85xG2ktqrYvYqx99PMAEACuktBh9H1Ai1VyrdYmM+HFjrWulQ5fz6Mm1eO25F4Q5q8CdTUN93F8lWOtc4q13A4jPumctxpDFBfF436EtQ66xD/L8G4X+0zAbuWwuNsf2CA9LK3WusT1io1wIzRceHYo8Jx7wiNktoAw0aPC7RVyQC3CvNpqTdFrY8Ic9inmwPKddt12iocO0w3CwDJn8zdJ9CQUr5Vwnxa6kxR6z3CHOv/Gf9ZXqnmJWH+IeH4wTQbMt+bwAtGt/luAu34rp1TOfPzdynr/b5Q+vfE0hx3ATr6wajbtwEin62kqXUiEgsDKOrLnvAsoGcDrBE+E4hTf9YGWGt0l0D9SgZYJsznQ3nHWu8Uxu2rmndHwvoGVj89GY3TL5y3lm4WAJL9SR4xekagcaV864T5rNbJYgbXOsTc7FDrmDDmjhpzNzrUZPVQjRjjwrkj87UJ9HEk7GJhtLzIVxMYmbvZsfl7rEaMOc4E6hvgkrShTWmAa8JP/6QvsmjDANkZ4GHfBgjnvyWcfyRmvn8DdJWmFkqlY4CpnDSfHSuJuXr0uNN1FMbKOd21qX3SqGssEF3rqmKQa4a9AYD5eqv3otEHfhVcF8n3qP98ifVe1+h/j4TDc/VpYx6ss/adDeb21Jn7tsY120AV/8/ag5WRwpv5BRGVqkU+rxBzJm4Te/d9ZXOciZlnvzeYq2OAOY1rxgCXa2+WBghzPBUz74UG89QMcCT8pqtHBcurnmCdbkLZN2asqFrkSYW4nzTYyBti5vU1mHdS47ppggAAWvo28OPwrJpHBSsi+fb4zyfSTL2XRYe1fqGQpyzchwPh+PeF489orEOr3gV8a0/1ChbZ+11AJNeD4fidwvHcBibQ10bbC8IvgmZsgEVGP9pjcVkbYJ/RG34VtEcKHw7ff5OVXg43/fY1T5x0/fc4oXD9zzvkG3IYe1Bjb2iCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJqNvwHNnenmiznmwAAAAABJRU5ErkJggg==",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "IBM HMC SSH",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_ibm_hmc_ssh.pl",
+                "package_name": "centreon-plugin-Hardware-Servers-Ibm-Hmc-Ssh",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-servers-ibm-hmc-ssh",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "IBM",
+            "HMC",
+            "SSH",
+            "Server"
+        ],
+        "update_date": "1614863277",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des LEDs.}\r\n\r\n{EN: Check LED status.}",
+            "active_checks_enabled": 2,
+            "alias": "Led-Status",
+            "check_timeperiod": "",
+            "command_name": "HW-Ibm-Hmc-SSH-Led-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALVIRTUALLPARSTATUS$",
+                    "password": false,
+                    "value": "%{ledstate} =~ /on/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALPHYSICALSTATUS$",
+                    "password": false,
+                    "value": "%{ledstate} =~ /on/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Ibm-Hmc-Led-Status-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les erreurs mat\u00e9rielles.}\r\n\r\n{EN: Check hardware for system managed by HMC.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Errors",
+            "check_timeperiod": "",
+            "command_name": "HW-Ibm-Hmc-SSH-Hardware-Errors",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERSTATUS$",
+                    "password": false,
+                    "value": "open"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Ibm-Hmc-Hardware-Errors-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

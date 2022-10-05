@@ -1,0 +1,175 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_office365_teams_api.pl --plugin=cloud::microsoft::office365::teams::plugin --mode=users-activity --tenant=\\'$_HOSTOFFICE365TENANT$\\' --client-id=\\'$_HOSTOFFICE365CLIENTID$\\' --client-secret=\\'$_HOSTOFFICE365CLIENTSECRET$\\' $_HOSTOFFICE365EXTRAOPTIONS$ --filter-user=\\'$_SERVICEFILTERUSER$\\' --warning-active-users=\\'$_SERVICEWARNINGACTIVEUSERS$\\' --critical-active-users=\\'$_SERVICECRITICALACTIVEUSERS$\\' --warning-total-team-chat=\\'$_SERVICEWARNINGTOTALTEAMCHAT$\\' --critical-total-team-chat=\\'$_SERVICECRITICALTOTALTEAMCHAT$\\' --warning-total-private-chat=\\'$_SERVICEWARNINGTOTALPRIVATECHAT$\\' --critical-total-private-chat=\\'$_SERVICECRITICALTOTALPRIVATECHAT$\\' --warning-total-call=\\'$_SERVICEWARNINGTOTALCALL$\\' --critical-total-call=\\'$_SERVICECRITICALTOTALCALL$\\' --warning-total-meeting=\\'$_SERVICEWARNINGTOTALMEETING$\\' --critical-total-meeting=\\'$_SERVICECRITICALTOTALMEETING$\\' --warning-team-chat=\\'$_SERVICEWARNINGTEAMCHAT$\\' --critical-team-chat=\\'$_SERVICECRITICALTEAMCHAT$\\' --warning-private-chat=\\'$_SERVICEWARNINGPRIVATECHAT$\\' --critical-private-chat=\\'$_SERVICECRITICALPRIVATECHAT$\\' --warning-call=\\'$_SERVICEWARNINGCALL$\\' --critical-call=\\'$_SERVICECRITICALCALL$\\' --warning-meeting=\\'$_SERVICEWARNINGMEETING$\\' --critical-meeting=\\'$_SERVICECRITICALMEETING$\\' --units=$_SERVICEUNITS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Microsoft-Office365-Teams-Api-Users-Activity",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_office365_teams_api.pl --plugin=cloud::microsoft::office365::teams::plugin --mode=devices-usage --tenant=\\'$_HOSTOFFICE365TENANT$\\' --client-id=\\'$_HOSTOFFICE365CLIENTID$\\' --client-secret=\\'$_HOSTOFFICE365CLIENTSECRET$\\' $_HOSTOFFICE365EXTRAOPTIONS$ --filter-user=\\'$_SERVICEFILTERUSER$\\'  --warning-windows=\\'$_SERVICEWARNINGWINDOWS$\\' --critical-windows=\\'$_SERVICECRITICALWINDOWS$\\' --warning-mac=\\'$_SERVICEWARNINGMAC$\\' --critical-mac=\\'$_SERVICECRITICALMAC$\\' --warning-web=\\'$_SERVICEWARNINGWEB$\\' --critical-web=\\'$_SERVICECRITICALWEB$\\' --warning-ios=\\'$_SERVICEWARNINGIOS$\\' --critical-ios=\\'$_SERVICECRITICALIOS$\\' --warning-android-phone=\\'$_SERVICEWARNINGANDROIDPHONE$\\' --critical-android-phone=\\'$_SERVICECRITICALANDROIDPHONE$\\' --warning-windows-phone=\\'$_SERVICEWARNINGWINDOWSPHONE$\\' --critical-windows-phone=\\'$_SERVICECRITICALWINDOWSPHONE$\\' --warning-active-devices=\\'$_SERVICEWARNINGACTIVEDEVICES$\\' --critical-active-devices=\\'$_SERVICECRITICALACTIVEDEVICES$\\' --units=$_SERVICEUNITS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Microsoft-Office365-Teams-Api-Devices-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00c3\u00a8le pour superviser Microsoft Office 365 Teams via l'API}\r\n{EN: Template to check Microsoft Office 365 Teams using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Microsoft Office 365 Teams using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "teams-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTOFFICE365TENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTOFFICE365CLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTOFFICE365CLIENTSECRET$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTOFFICE365EXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Microsoft-Office365-Teams-Api",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Microsoft-Office365-Teams-Users-Activity-Api",
+                "Cloud-Microsoft-Office365-Teams-Devices-Usage-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "teams-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Fixes following the plugin changes (counters name changes, warning-* & critical-* option fixes)",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Microsoft Office 365 Teams :\r\n* Devices usage\r\n* Users activity"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser Microsoft Office 365 Teams :\r\n* Nombre d\\'appareils utilis\u00c3\u00a9s\r\n* Activit\u00c3\u00a9 des utilisateurs"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n\r\n## Prerequisites\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Cloud-Microsoft-Office365-Teams-Api\r\n\r\n### Perl dependencies\r\nBy installing the plugin, some perl depencies will be installed :\r\n\r\n    JSON::XS\r\n    Text::CSV\r\n    DateTime\r\n    Digest::MD5\r\n    Digest::SHA\r\n    LWP::UserAgent\r\n    LWP::Protocol::https\r\n    IO::Socket::SSL\r\n    URI\r\n    Encode\r\n    HTTP::ProxyPAC\r\n\r\n### Register an application\r\nTo connect to the Office 365 Graph API, you must register an application.\r\n\r\nFollow the 'How-to guide' in https://docs.microsoft.com/en-us/graph/auth-register-app-v2?view=graph-rest-1.0 for a complete explanation on how to register an application and get a client ID and secret.\r\n\r\n## Centreon Configuration\r\n\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Cloud-Microsoft-Office365-Teams-Api-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Set host macros\r\nThe following macros must be configured on host.\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>OFFICE365CUSTOMMODE</p></td>\r\n<td align=\"left\"><p>Custom mode 'graphapi'</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>OFFICE365TENANT</p></td>\r\n<td align=\"left\"><p>Office 365 tenant ID</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>OFFICE365CLIENTID</p></td>\r\n<td align=\"left\"><p>Office 365 client ID</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>OFFICE365CLIENTSECRET</p></td>\r\n<td align=\"left\"><p>Office 365 client secret</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Office365 Teams",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_office365_teams_api.pl",
+                "package_name": "centreon-plugin-Cloud-Microsoft-Office365-Teams-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-microsoft-office365-teams",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Cloud",
+            "Microsoft",
+            "Teams",
+            "Office",
+            "Office365",
+            "Restapi"
+        ],
+        "update_date": "1556110219",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00c3\u00b4le l'activit\u00c3\u00a9 des utilisateurs.}\r\n\r\n{EN: Check users activity.}",
+            "active_checks_enabled": 2,
+            "alias": "Users-Activity",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Microsoft-Office365-Teams-Api-Users-Activity",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNITS$",
+                    "password": false,
+                    "value": "%"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTERS$",
+                    "password": false,
+                    "value": "active|total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Microsoft-Office365-Teams-Users-Activity-Api",
+            "normal_check_interval": 60,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00c3\u00b4le le nombre d'utilisateur par type d'appareil.}\r\n\r\n{EN: Check users count per devices type.}",
+            "active_checks_enabled": 2,
+            "alias": "Devices-Usage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Microsoft-Office365-Teams-Api-Devices-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNITS$",
+                    "password": false,
+                    "value": "%"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Microsoft-Office365-Teams-Devices-Usage-Api",
+            "normal_check_interval": 60,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,301 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Aruba-Aoscx-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Aruba-Aoscx-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Aruba-Aoscx-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "INTERFACENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Aruba-Aoscx-SNMP-Interface-Name",
+                "service_display_name": "Interface-$name$",
+                "service_template": "Net-Aruba-Aoscx-Interfaces-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aruba_aoscx_snmp.pl --plugin=network::aruba::aoscx::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Aruba-Aoscx-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aruba_aoscx_snmp.pl --plugin=network::aruba::aoscx::snmp::plugin --mode=list-interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Aruba-Aoscx-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aruba_aoscx_snmp.pl --plugin=network::aruba::aoscx::snmp::plugin --mode=vsx --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-isl-status=\\'$_SERVICEWARNINGISLSTATUS$\\' --critical-isl-status=\\'$_SERVICECRITICALISLSTATUS$\\' --warning-isl-packets-in=\\'$_SERVICEWARNINGISLPACKETSIN$\\' --critical-isl-packets-in=\\'$_SERVICECRITICALISLPACKETSIN$\\' --warning-isl-packets-out=\\'$_SERVICEWARNINGISLPACKETSOUT$\\' --critical-isl-packets-out=\\'$_SERVICECRITICALISLPACKETSOUT$\\' --warning-keepalive-status=\\'$_SERVICEWARNINGKEEPALIVESTATUS$\\' --critical-keepalive-status=\\'$_SERVICECRITICALKEEPALIVESTATUS$\\' --warning-keepalive-packets-in=\\'$_SERVICEWARNINGKEEPALIVEPACKETSIN$\\' --critical-keepalive-packets-in=\\'$_SERVICECRITICALKEEPALIVEPACKETSIN$\\' --warning-keepalive-packets-out=\\'$_SERVICEWARNINGKEEPALIVEPACKETSOUT$\\' --critical-keepalive-packets-out=\\'$_SERVICECRITICALKEEPALIVEPACKETSOUT$\\' --warning-device-status=\\'$_SERVICEWARNINGDEVICESTATUS$\\' --critical-device-status=\\'$_SERVICECRITICALDEVICESTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Aruba-Aoscx-SNMP-Vsx",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aruba_aoscx_snmp.pl --plugin=network::aruba::aoscx::snmp::plugin --mode=vsf --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-cpu-utilization=\\'$_SERVICEWARNINGCPUUTILIZATION$\\' --critical-cpu-utilization=\\'$_SERVICECRITICALCPUUTILIZATION$\\' --warning-memory-usage-prct=\\'$_SERVICEWARNINGMEMORYUSAGEPRCT$\\' --critical-memory-usage-prct=\\'$_SERVICECRITICALMEMORYUSAGEPRCT$\\' --warning-member-status=\\'$_SERVICEWARNINGMEMBERSTATUS$\\' --critical-member-status=\\'$_SERVICECRITICALMEMBERSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-members-total=\\'$_SERVICEWARNINGMEMBERSTOTAL$\\' --critical-members-total=\\'$_SERVICECRITICALMEMBERSTOTAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Aruba-Aoscx-SNMP-Vsf",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aruba_aoscx_snmp.pl --plugin=network::aruba::aoscx::snmp::plugin --mode=hardware --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Aruba-Aoscx-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aruba_aoscx_snmp.pl --plugin=network::aruba::aoscx::snmp::plugin --mode=interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --add-errors --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Aruba-Aoscx-SNMP-Interfaces",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements ArubaOS-CX en SNMP}\r\n{EN: Template to check ArubaOS-CX using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check ArubaOS-CX using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "aruba-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Aruba-Aoscx-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Aruba-Aoscx-Vsx-SNMP",
+                "Net-Aruba-Aoscx-Vsf-SNMP",
+                "Net-Aruba-Aoscx-Hardware-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "aruba-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* add vsf service",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor ArubaOS-CX devices in SNMP.**\r\n\r\nAvailable host template and related services:\r\n\r\n|Net-Aruba-Aoscx-SNMP|\r\n|---|\r\n|Hardware|\r\n|Interfaes|\r\n|Vsf|\r\n|Vsx|"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser les ArubaOS-CX via SNMP.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponible et ses services :\r\n\r\n|Net-Aruba-Aoscx-SNMP|\r\n|---|\r\n|Hardware|\r\n|Interfaces|\r\n|Vsf|\r\n|Vsx|"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "ArubaOS-CX SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_aruba_aoscx_snmp.pl",
+                "package_name": "centreon-plugin-Network-Aruba-Aoscx-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-aruba-aoscx-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Aruba",
+            "Network",
+            "AOS-CX",
+            "ArubaOS-CX",
+            "SNMP"
+        ],
+        "update_date": "1627635936",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le 'virtual switching extension'.}\r\n\r\n{EN: Check virtual switching extension.}",
+            "active_checks_enabled": 2,
+            "alias": "Vsx",
+            "check_timeperiod": "",
+            "command_name": "Net-Aruba-Aoscx-SNMP-Vsx",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALISLSTATUS$",
+                    "password": false,
+                    "value": "%{isl_status} =~ /outSync/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALKEEPALIVESTATUS$",
+                    "password": false,
+                    "value": "%{keepalive_status} =~ /outofSyncEstablished|failed/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Aruba-Aoscx-Vsx-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le 'Virtual Switching Fabric'.}\r\n\r\n{EN: Check virtual switching fabric.}",
+            "active_checks_enabled": 2,
+            "alias": "Vsf",
+            "check_timeperiod": "",
+            "command_name": "Net-Aruba-Aoscx-SNMP-Vsf",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALMEMBERSTATUS$",
+                    "password": false,
+                    "value": "%{role} ne %{roleLast} || %{status} !~ /ready|booting/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /no_split/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Aruba-Aoscx-Vsf-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le mat\u00e9riel.}\r\n\r\n{EN: Check hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware",
+            "check_timeperiod": "",
+            "command_name": "Net-Aruba-Aoscx-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Aruba-Aoscx-Hardware-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces.}\r\n\r\n{EN: Check interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "Net-Aruba-Aoscx-SNMP-Interfaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} !~ /up|dormant/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --no-skipped-counters"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Aruba-Aoscx-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

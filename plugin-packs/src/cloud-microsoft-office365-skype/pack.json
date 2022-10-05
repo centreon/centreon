@@ -1,0 +1,175 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_office365_skype_api.pl --plugin=cloud::microsoft::office365::skype::plugin --mode=users-activity --tenant=\\'$_HOSTOFFICE365TENANT$\\' --client-id=\\'$_HOSTOFFICE365CLIENTID$\\' --client-secret=\\'$_HOSTOFFICE365CLIENTSECRET$\\' $_HOSTOFFICE365EXTRAOPTIONS$ --filter-user=\\'$_SERVICEFILTERUSER$\\' --warning-active-users=\\'$_SERVICEWARNINGACTIVEUSERS$\\' --critical-active-users=\\'$_SERVICECRITICALACTIVEUSERS$\\' --warning-total-peer-to-peer-sessions=\\'$_SERVICEWARNINGTOTALPEERTOPEERSESSIONS$\\' --critical-total-peer-to-peer-sessions=\\'$_SERVICECRITICALTOTALPEERTOPEERSESSIONS$\\' --warning-total-organized-conference=\\'$_SERVICEWARNINGTOTALORGANIZEDCONFERENCE$\\' --critical-total-organized-conference=\\'$_SERVICECRITICALTOTALORGANIZEDCONFERENCE$\\' --warning-total-participated-conference=\\'$_SERVICEWARNINGTOTALPARTICIPATEDCONFERENCE$\\' --critical-total-participated-conference=\\'$_SERVICECRITICALTOTALPARTICIPATEDCONFERENCE$\\' --warning-peer-to-peer-sessions=\\'$_SERVICEWARNINGPEERTOPEERSESSIONS$\\' --critical-peer-to-peer-sessions=\\'$_SERVICECRITICALPEERTOPEERSESSIONS$\\' --warning-organized-conference=\\'$_SERVICEWARNINGORGANIZEDCONFERENCE$\\' --critical-organized-conference=\\'$_SERVICECRITICALORGANIZEDCONFERENCE$\\' --warning-participated-conference=\\'$_SERVICEWARNINGPARTICIPATEDCONFERENCE$\\' --critical-participated-conference=\\'$_SERVICECRITICALPARTICIPATEDCONFERENCE$\\' --units=$_SERVICEUNITS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Microsoft-Office365-Skype-Api-Users-Activity",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_office365_skype_api.pl --plugin=cloud::microsoft::office365::skype::plugin --mode=devices-usage --tenant=\\'$_HOSTOFFICE365TENANT$\\' --client-id=\\'$_HOSTOFFICE365CLIENTID$\\' --client-secret=\\'$_HOSTOFFICE365CLIENTSECRET$\\' $_HOSTOFFICE365EXTRAOPTIONS$ --filter-user=\\'$_SERVICEFILTERUSER$\\' --warning-windows=\\'$_SERVICEWARNINGWINDOWS$\\' --critical-windows=\\'$_SERVICECRITICALWINDOWS$\\' --warning-ipad=\\'$_SERVICEWARNINGIPAD$\\' --critical-ipad=\\'$_SERVICECRITICALIPAD$\\' --warning-iphone=\\'$_SERVICEWARNINGIPHONE$\\' --critical-iphone=\\'$_SERVICECRITICALIPHONE$\\' --warning-android-phone=\\'$_SERVICEWARNINGANDROIDPHONE$\\' --critical-android-phone=\\'$_SERVICECRITICALANDROIDPHONE$\\' --warning-windows-phone=\\'$_SERVICEWARNINGWINDOWSPHONE$\\' --critical-windows-phone=\\'$_SERVICECRITICALWINDOWSPHONE$\\' --warning-active-devices=\\'$_SERVICEWARNINGACTIVEDEVICES$\\' --critical-active-devices=\\'$_SERVICECRITICALACTIVEDEVICES$\\' --units=$_SERVICEUNITS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Microsoft-Office365-Skype-Api-Devices-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00c3\u00a8le pour superviser Microsoft Office 365 Skype via l'API}\r\n{EN: Template to check Microsoft Office 365 Skype using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Microsoft Office 365 Skype using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "skypeforbusiness-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTOFFICE365TENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTOFFICE365CLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTOFFICE365CLIENTSECRET$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTOFFICE365EXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Microsoft-Office365-Skype-Api",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Microsoft-Office365-Skype-Users-Activity-Api",
+                "Cloud-Microsoft-Office365-Skype-Devices-Usage-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "skypeforbusiness-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Fixes following the plugin changes to counters",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Microsoft Office 365 Skype :\r\n* Devices usage\r\n* Users activity"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser Microsoft Office 365 Skype :\r\n* Nombre d\\'appareils utilis\u00c3\u00a9s\r\n* Activit\u00c3\u00a9 des utilisateurs"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n\r\n## Prerequisites\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Cloud-Microsoft-Office365-Skype-Api\r\n\r\n### Perl dependencies\r\nBy installing the plugin, some perl depencies will be installed :\r\n\r\n    JSON::XS\r\n    Text::CSV\r\n    DateTime\r\n    Digest::MD5\r\n    Digest::SHA\r\n    LWP::UserAgent\r\n    LWP::Protocol::https\r\n    IO::Socket::SSL\r\n    URI\r\n    Encode\r\n    HTTP::ProxyPAC\r\n\r\n### Register an application\r\nTo connect to the Office 365 Graph API, you must register an application.\r\n\r\nFollow the 'How-to guide' in https://docs.microsoft.com/en-us/graph/auth-register-app-v2?view=graph-rest-1.0 for a complete explanation on how to register an application and get a client ID and secret.\r\n\r\n## Centreon Configuration\r\n\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Cloud-Microsoft-Office365-Skype-Api-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Set host macros\r\nThe following macros must be configured on host.\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>OFFICE365CUSTOMMODE</p></td>\r\n<td align=\"left\"><p>Custom mode 'graphapi'</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>OFFICE365TENANT</p></td>\r\n<td align=\"left\"><p>Office 365 tenant ID</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>OFFICE365CLIENTID</p></td>\r\n<td align=\"left\"><p>Office 365 client ID</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>OFFICE365CLIENTSECRET</p></td>\r\n<td align=\"left\"><p>Office 365 client secret</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Office365 Skype",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_office365_skype_api.pl",
+                "package_name": "centreon-plugin-Cloud-Microsoft-Office365-Skype-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-microsoft-office365-skype",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Microsoft",
+            "Cloud",
+            "Office",
+            "Office365",
+            "Skype",
+            "Restapi"
+        ],
+        "update_date": "1556110208",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00c3\u00b4le l'activit\u00c3\u00a9 des utilisateurs.}\r\n\r\n{EN: Check users activity.}",
+            "active_checks_enabled": 2,
+            "alias": "Users-Activity",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Microsoft-Office365-Skype-Api-Users-Activity",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNITS$",
+                    "password": false,
+                    "value": "%"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTERS$",
+                    "password": false,
+                    "value": "active|total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Microsoft-Office365-Skype-Users-Activity-Api",
+            "normal_check_interval": 60,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00c3\u00b4le le nombre d'utilisateur par type d'appareil.}\r\n\r\n{EN: Check users count per devices type.}",
+            "active_checks_enabled": 2,
+            "alias": "Devices-Usage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Microsoft-Office365-Skype-Api-Devices-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNITS$",
+                    "password": false,
+                    "value": "%"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Microsoft-Office365-Skype-Devices-Usage-Api",
+            "normal_check_interval": 60,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

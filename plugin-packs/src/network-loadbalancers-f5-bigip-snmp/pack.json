@@ -1,0 +1,689 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-F5-Bigip-SNMP-Virtualservers-Discover",
+                "command_for_macro": "Net-F5-Bigip-SNMP-Virtualservers-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-F5-Bigip-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-F5-Bigip-SNMP-Virtualservers-Name",
+                "service_display_name": "Vserver-$name$",
+                "service_template": "Net-F5-Bigip-Virtualserver-Status-Global-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-F5-Bigip-SNMP-Nodes-Discover",
+                "command_for_macro": "Net-F5-Bigip-SNMP-Nodes-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-F5-Bigip-SNMP"
+                ],
+                "macros": [],
+                "name": "App-F5-Bigip-Node-Status",
+                "service_display_name": "Node-$name$",
+                "service_template": "Net-F5-Bigip-Node-Status-Global-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-F5-Bigip-SNMP-Pools-Discover",
+                "command_for_macro": "Net-F5-Bigip-SNMP-Pools-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-F5-Bigip-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "App-F5-Bigip-Pool-Status",
+                "service_display_name": "Pool-$name$",
+                "service_template": "Net-F5-Bigip-Pool-Status-Global-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_f5_bigip_snmp.pl --plugin=network::f5::bigip::snmp::plugin --mode=list-virtualservers --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-F5-Bigip-SNMP-Virtualservers-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_f5_bigip_snmp.pl --plugin=network::f5::bigip::snmp::plugin --mode=list-virtualservers --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-F5-Bigip-SNMP-Virtualservers-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_f5_bigip_snmp.pl --plugin=network::f5::bigip::snmp::plugin --mode=list-nodes --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-F5-Bigip-SNMP-Nodes-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_f5_bigip_snmp.pl --plugin=network::f5::bigip::snmp::plugin --mode=list-nodes --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-F5-Bigip-SNMP-Nodes-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_f5_bigip_snmp.pl --plugin=network::f5::bigip::snmp::plugin --mode=list-pools --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-F5-Bigip-SNMP-Pools-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_f5_bigip_snmp.pl --plugin=network::f5::bigip::snmp::plugin --mode=list-pools --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-F5-Bigip-SNMP-Pools-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_f5_bigip_snmp.pl --plugin=network::f5::bigip::snmp::plugin --mode=virtualserver-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTER$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-F5-Bigip-SNMP-Virtualserver-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_f5_bigip_snmp.pl --plugin=network::f5::bigip::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-F5-Bigip-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_f5_bigip_snmp.pl --plugin=network::f5::bigip::snmp::plugin --mode=connections --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-client=\\'$_SERVICEWARNINGCLIENT$\\' --critical-client=\\'$_SERVICECRITICALCLIENT$\\' --warning-server=\\'$_SERVICEWARNINGSERVER$\\' --critical-server=\\'$_SERVICECRITICALSERVER$\\' --warning-client-ssl-tps=\\'$_SERVICEWARNINGCLIENTSSLTPS$\\' --critical-client-ssl-tps=\\'$_SERVICECRITICALCLIENTSSLTPS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-F5-Bigip-SNMP-Connections",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_f5_bigip_snmp.pl --plugin=network::f5::bigip::snmp::plugin --mode=failover --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-sync-status=\\'$_SERVICEWARNINGSYNCSTATUS$\\' --critical-sync-status=\\'$_SERVICECRITICALSYNCSTATUS$\\' --warning-failover-status=\\'$_SERVICEWARNINGFAILOVERSTATUS$\\' --critical-failover-status=\\'$_SERVICECRITICALFAILOVERSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-F5-Bigip-SNMP-Failover",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_f5_bigip_snmp.pl --plugin=network::f5::bigip::snmp::plugin --mode=node-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTER$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-current-server-connections=\\'$_SERVICEWARNINGCURRENTSERVERCONNECTIONS$\\' --critical-current-server-connections=\\'$_SERVICECRITICALCURRENTSERVERCONNECTIONS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-F5-Bigip-SNMP-Node-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_f5_bigip_snmp.pl --plugin=network::f5::bigip::snmp::plugin --mode=pool-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTER$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-current-server-connections=\\'$_SERVICEWARNINGCURRENTSERVERCONNECTIONS$\\' --critical-current-server-connections=\\'$_SERVICECRITICALCURRENTSERVERCONNECTIONS$\\' --warning-current-active-members=\\'$_SERVICEWARNINGCURRENTACTIVEMEMBERS$\\' --critical-current-active-members=\\'$_SERVICECRITICALCURRENTACTIVEMEMBERS$\\' --warning-current-total-members=\\'$_SERVICEWARNINGCURRENTTOTALMEMBERS$\\' --critical-current-total-members=\\'$_SERVICECRITICALCURRENTTOTALMEMBERS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-F5-Bigip-SNMP-Pool-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_f5_bigip_snmp.pl --plugin=network::f5::bigip::snmp::plugin --mode=tmm-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-cpu-1m=\\'$_SERVICEWARNINGCPU1M$\\' --critical-cpu-1m=\\'$_SERVICECRITICALCPU1M$\\' --warning-cpu-5m=\\'$_SERVICEWARNINGCPU5M$\\' --critical-cpu-5m=\\'$_SERVICECRITICALCPU5M$\\' --warning-memory-usage=\\'$_SERVICEWARNINGMEMORYUSAGE$\\' --critical-memory-usage=\\'$_SERVICECRITICALMEMORYUSAGE$\\' --warning-total-client-connections=\\'$_SERVICEWARNINGTOTALCLIENTCONNECTIONS$\\' --critical-total-client-connections=\\'$_SERVICECRITICALTOTALCLIENTCONNECTIONS$\\' --warning-current-client-connections=\\'$_SERVICEWARNINGCURRENTCLIENTCONNECTIONS$\\' --critical-current-client-connections=\\'$_SERVICECRITICALCURRENTSERVERCONNECTIONS$\\' --warning-total-server-connections=\\'$_SERVICEWARNINGTOTALSERVERCONNECTIONS$\\' --critical-total-server-connections=\\'$_SERVICECRITICALTOTALSERVERCONNECTIONS$\\' --warning-current-server-connections=\\'$_SERVICEWARNINGCURRENTSERVERCONNECTIONS$\\' --critical-current-server-connections=\\'$_SERVICECRITICALCURRENTSERVERCONNECTIONS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-F5-Bigip-SNMP-Tmm-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_f5_bigip_snmp.pl --plugin=network::f5::bigip::snmp::plugin --mode=trunks --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --units-traffic=\\'$_SERVICEUNITS$\\' --unknown-interface-status=\\'$_SERVICEUNKNOWNINTERFACESTATUS$\\' --warning-interface-status=\\'$_SERVICEWARNINGINTERFACESTATUS$\\' --critical-interface-status=\\'$_SERVICECRITICALINTERFACESTATUS$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' --warning-packets-error-in=\\'$_SERVICEWARNINGPACKETSERRORIN$\\' --critical-packets-error-in=\\'$_SERVICECRITICALPACKETSERRORIN$\\' --warning-packets-error-out=\\'$_SERVICEWARNINGPACKETSERROROUT$\\' --critical-packets-error-out=\\'$_SERVICECRITICALPACKETSERROROUT$\\' --warning-packets-drop-in=\\'$_SERVICEWARNINGPACKETSDROPIN$\\' --critical-packets-drop-in=\\'$_SERVICECRITICALPACKETSDROPIN$\\' --warning-packets-drop-out=\\'$_SERVICEWARNINGPACKETSDROPOUT$\\' --critical-packets-drop-out=\\'$_SERVICECRITICALPACKETSDROPOUT$\\' --warning-interfaces-total=\\'$_SERVICEWARNINGINTERFACESTOTAL$\\' --critical-interfaces-total=\\'$_SERVICECRITICALINTERFACESTOTAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-F5-Bigip-SNMP-Trunk-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_f5_bigip_snmp.pl --plugin=network::f5::bigip::snmp::plugin --mode=apm --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-vs=\\'$_SERVICEVSFILTER$\\' --filter-ap=\\'$_SERVICEAPFILTER$\\'  --warning-sessions-created=\\'$_SERVICECREATEDSESSIONSWARNING$\\' --critical-sessions-created=\\'$_SERVICECREATEDSESSIONSCRITICAL$\\' --warning-sessions-active=\\'$_SERVICEACTIVESESSIONSWARNING$\\' --critical-sessions-active=\\'$_SERVICEACTIVESESSIONSCRITICAL$\\' --warning-sessions-pending=\\'$_SERVICEPENDINGSESSIONSWARNING$\\' --critical-sessions-pending=\\'$_SERVICEPENDINGSESSIONSCRITICAL$\\' --warning-ap-sessions-created=\\'$_SERVICEAPCREATEDSESSIONSWARNING$\\' --critical-ap-sessions-created=\\'$_SERVICEAPCREATEDSESSIONSCRITICAL$\\' --warning-ap-sessions-active=\\'$_SERVICEAPACTIVESESSIONSWARNING$\\' --critical-ap-sessions-active=\\'$_SERVICEAPACTIVESESSIONSCRITICAL$\\' --warning-ap-sessions-pending=\\'$_SERVICEAPPENDINGSESSIONSWARNING$\\' --critical-ap-sessions-pending=\\'$_SERVICEAPPENDINGSESSIONSCRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-F5-Bigip-SNMP-APM-Sessions",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements F5 BIG-IP en SNMP}\r\n{EN: Template to check F5 BIG-IP equipments using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check F5 BIG-IP equipments using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "Network-f5-64.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-F5-Bigip-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-F5-Bigip-Virtualserver-Status-Global-SNMP",
+                "Net-F5-Bigip-Hardware-Global-SNMP",
+                "Net-F5-Bigip-Connections-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "Network-f5-64.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix(pack)missing-icon",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor F5 BigIP loadbalancer via SNMP:\r\n* APM Sessions\r\n* Connections\r\n* Failover\r\n* Fan\r\n* Global\r\n* Node-Status\r\n* Pool-status\r\n* Psu\r\n* Temperature\r\n* Tmm-Usage\r\n* Trunk-Usage\r\n* Virtualserver-status"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un loadbalancer F5 BigIP via SNMP :\r\n* Connections\r\n* Failover\r\n* Fan\r\n* Global\r\n* Node-Status\r\n* Pool-status\r\n* Psu\r\n* Temperature\r\n* Tmm-Usage\r\n* Trunk-Usage\r\n* Virtualserver-status"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Loadbalancers-F5-Bigip-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-F5-Bigip-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "F5 BigIP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_f5_bigip_snmp.pl",
+                "package_name": "centreon-plugin-Network-Loadbalancers-F5-Bigip-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "centreon-plugin-Network-Loadbalancers-F5-Bigip-Snmp",
+                "version": "20180409-1"
+            }
+        ],
+        "slug": "network-loadbalancers-f5-bigip-snmp",
+        "status": "stable",
+        "status_message": "fix(pack)missing-icon",
+        "tags": [
+            "BigIP",
+            "F5",
+            "Hardware",
+            "Loadbalancer",
+            "Network",
+            "SNMP"
+        ],
+        "update_date": "1595930263",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des 'virtual servers'.}\r\n\r\n{EN: Check virtual servers status.}",
+            "active_checks_enabled": 2,
+            "alias": "Virtualserver-Status-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-F5-Bigip-SNMP-Virtualserver-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{state} eq \"enabled\" and %{status} eq \"yellow\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{state} eq \"enabled\" and %{status} eq \"red\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-F5-Bigip-Virtualserver-Status-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'ensemble du mat\u00e9riel ('ventilateur', 'temp\u00e9rature', 'alimentations') de l'\u00e9quipement.}\r\n\r\n{EN: Check hardware status ('fan', 'temperature', 'power supply').}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-F5-Bigip-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-F5-Bigip-Hardware-Global-SNMP",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les connexions courantes.}\r\n\r\n{EN: Check current connections.}",
+            "active_checks_enabled": 2,
+            "alias": "Connections",
+            "check_timeperiod": "",
+            "command_name": "Net-F5-Bigip-SNMP-Connections",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALCLIENT$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALSERVER$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGCLIENT$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGSERVER$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-F5-Bigip-Connections-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du failover.}\r\n\r\n{EN: Check failover status.}",
+            "active_checks_enabled": 2,
+            "alias": "Failover",
+            "check_timeperiod": "",
+            "command_name": "Net-F5-Bigip-SNMP-Failover",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALFAILOVERSTATUS$",
+                    "password": false,
+                    "value": "%{failoverstatus} =~ /unknown/"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALSYNCSTATUS$",
+                    "password": false,
+                    "value": "%{syncstatus} =~ /unknown|syncFailed|syncDisconnected|incompatibleVersion/"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-F5-Bigip-Failover-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des 'nodes'.}\r\n\r\n{EN: Check nodes status.}",
+            "active_checks_enabled": 2,
+            "alias": "Node-Status-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-F5-Bigip-SNMP-Node-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{state} eq \"enabled\" and %{status} eq \"yellow\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{state} eq \"enabled\" and %{status} eq \"red\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-F5-Bigip-Node-Status-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des 'pools'.}\r\n\r\n{EN: Check pools status.}",
+            "active_checks_enabled": 2,
+            "alias": "Pool-Status-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-F5-Bigip-SNMP-Pool-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{state} eq \"enabled\" and %{status} eq \"yellow\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{state} eq \"enabled\" and %{status} eq \"red\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-F5-Bigip-Pool-Status-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les ventilateurs de l'\u00e9quipement.}\r\n\r\n{EN: Check fan status on hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Fan",
+            "check_timeperiod": "",
+            "command_name": "Net-F5-Bigip-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "fan"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-F5-Bigip-Hardware-Fan-SNMP",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les ventilateurs de l'\u00e9quipement.}\r\n\r\n{EN: Check fan status on hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Psu",
+            "check_timeperiod": "",
+            "command_name": "Net-F5-Bigip-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "psu"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-F5-Bigip-Hardware-Psu-SNMP",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les temp\u00e9ratures de l'\u00e9quipement.}\r\n\r\n{EN: Check hardware temperatures.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Temperature",
+            "check_timeperiod": "",
+            "command_name": "Net-F5-Bigip-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "temperature"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-F5-Bigip-Hardware-Temperature-SNMP",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00c3\u00b4le l'utilisation TMM.}\n\n{EN: Check TMM usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Tmm-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-F5-Bigip-SNMP-Tmm-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGMEMORYUSAGE$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALMEMORYUSAGE$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-F5-Bigip-Tmm-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Controle l'utilisation des trunks.}\r\n\r\n{EN: Check trunks usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Trunk-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-F5-Bigip-SNMP-Trunk-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNITS$",
+                    "password": false,
+                    "value": "%"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /uninitialized|down/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-F5-Bigip-Trunk-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les sessions APM.}\r\n\r\n{EN: Check current APM sessions.}",
+            "active_checks_enabled": 2,
+            "alias": "APM-Sessions",
+            "check_timeperiod": "",
+            "command_name": "Net-F5-Bigip-SNMP-APM-Sessions",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEVSFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAPFILTER$",
+                    "password": false,
+                    "value": ".*"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-F5-Bigip-APM-Sessions-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

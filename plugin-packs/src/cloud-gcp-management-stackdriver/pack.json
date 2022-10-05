@@ -1,0 +1,134 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_gcp_management_stackdriver_api.pl --plugin=cloud::google::gcp::management::stackdriver::plugin --mode=get-metrics --proxyurl=\\'$_HOSTPROXYURL$\\' --key-file=\\'$_HOSTGCPKEYFILEPATH$\\' --scope-endpoint=\\'$_HOSTGCPSCOPEENDPOINT$\\' $_HOSTGCPEXTRAOPTIONS$ --dimension-name=\\'$_SERVICEDIMENSIONNAME$\\' --dimension-operator=\\'$_SERVICEDIMENSIONOPERATOR$\\' --dimension-value=\\'$_SERVICEDIMENSIONVALUE$\\' --api=\\'$_SERVICEAPI$\\' --metric=\\'$_SERVICEMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-metric=\\'$_SERVICEWARNINGMETRIC$\\' --critical-metric=\\'$_SERVICECRITICALMETRIC$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Gcp-Management-Stackdriver-Api-Get-Metrics",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Google Cloud Platform via l'API Stackdriver}\r\n{EN: Template to check Google Cloud Platform using Stackdriver API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Google Cloud Platform using Stackdriver API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "gcp-stackdriver-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTGCPEXTRAOPTIONS$",
+                    "value": "--http-backend=curl"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Gcp-Management-Stackdriver",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAD8dJREFUeJztnX+QVNWVx7/3vtfd0zPd84v5IQjMMAgjgkFUFCMa4par2ewiZVmoSTa6G7P89Fdcdo1ZZCpmMVFLMcgAVtyyttxyo9mFRWsVVhIBETdiClYICszAADN09/zu7vnRr997Z/8Yfkzj/Oy+972G3M9/3dX3nNN9z7t977nnngsoFAqFQqFQKBQKhUKhUCgUCoVCoVAoFAqFQqFQKBQKheISgbltwHBMXh8rs4n9OUDTAJS4bc8IaQHYIc2krUcfCTa7bcxQZK0DTHqlp4K4uZoB9wLQ3LYnTUwQfs10/an6Rf4TbhszEFnpAJNqo/MB9gaAoNu2CCLKGH23fkn+u24bciFZ5wBVtZ3fJvDNAHS3bRGMaYPPb1ia957bhvQnqxygYmPXWG7ZBwEUuW2LJNpsjc9oWJR32m1DzsLdNqA/3LSfx6Xb+QBQzC3rObeN6E/WjACVtZ1zGPjHyCKbJEGM6Nb6ZfkfuW0IkC0jABFj0F7Gpd/5AMCIsTWooaz47bPCiMra2AMA3eC2HQ5yXWVZ11+7bQSQBU/c9HWRQDfzfwlgnNu2OAohrFnG1KOPjIm6aYbrI0AXcn+CP7XOBwCGclP3Pem+GS4ysbajSoN2EECOm3a4iMG4PaN+ccERtwxwdQTQSXsBf7qdDwBe2+Y/d9MA10aAyetjt9mE7W7pzyqI3XFsWWCbG6rdGQHeIs0mvOSK7iyEMXppXg25Evp2xQGqmuOLAHzNDd3ZCAFXnSiP/9AN3Y7/BUys7SjSoB3GxbO37xRthk1TG5fntzqp1PERQCOtBqrzB6LYp7GVTit1dASoWBebxhn2A/A4qfciwuQMs+qWBA84pdDREYAzehGq84dCt4E1Tip0zAEmrYv+FcDudErfRQvhz6rWR//SKXWO/AVMf4u83S3xzwFMdULfxQ4BdboZmH70EZaQrcuREaC7JfYoVOePGAZMtrSuhx3SJZe+tG4cBlAgW9clRszWeLXs9DHp0Seb2GqAHOn8eRM1jA1kMKgRgcgGLAt20gQsC929BjYfsaEXFoozdGQEuWX/FIDUAJHUEaBifdcsTvancCCvv6KAY+u9ufAK1vTctjDWbI9ALyxywwlsxvmN9Yvz9spSIHUOwGGvgUOHOlbN9Qnv/MaOJDbubAEAmB3tMDs7cNcEC5ptilU0ONy27ZdBJO1BleYAletj94Fwqyz5/bl5vIZ5E8X72dPvNKEnaZ97Xal3Y9G1ebh9TC9g2UO0FAcDvl5ZG18oS74UBxj/IvkZkSP73BoHnr7ZJ1zuR3VxvHcgNVvr4XljoXGGh+YUIyfaDLJJuN6BYBwvlD8fypMhW4oD6P74PwCsQobsC3lghgdTisV+DdMmrNqSOvm+bWo+rhmfCwAI5mj43qwgzEgYIAecgDDen5f3hAzRwh3gil92j2fEVoiWOxCFPoZl13mFy33941YcCvWee+3VGBbdUpbymbtnFmNing0jEgFBvhMw4MlJr/QIf6iEO4DpsZ4DSMpwdSFP3OhFUY7Y+VF7t4WXtkdS3rvv+hJclp/qaBpnWHxLOeyebpgtLUJtGAQ/cXO1aKFCHaBiQ/QmRrhPpMzBmFLMcd808ftKq98Lob3bOve6JODBd2aPGfCzcyYFcGNlAFY8jmSb/G18Btw/qTZ6i0iZ4hyghji34djpnpU3+6AJHr8ONPXg3/e2p7z3d3PL4PcMrmj5vHLoGoMVjcLs6BBr0FdhAHtZ5KkiYYKqymMPAmy2KHlDcWeVjrnjxS77iICnt5yG1W9mX12Wg9uvHDqIObHIhwUziwGciRVEO4XaNQCzqspiD4gSJsQBql9rDhKxn4mQNRweDvzjHPETv037OvDJsa5zrxkDHvnmWPARjGcPzilBgb8vqm62t8GKx4Xb1x8i9mzVxjYh4XUhDpA0/P8EYKwIWcPxw2u8qCgQO/b3JG08+34o5b3bqwswY5x/RO2DPg1/c9OZLDcCkq0tsLq7hdqYAkM5LO+PRYjK+Je8YmPHZCJ6VIQxw1HiZ1g8S/zEb832CBo7kude+3SOh+aWDdHiq8y/ughVpWcCUkRINjfD7u0dulEGEOjxqleiGW+xZ+wAlqW9CEB8KG4AnrzJi4BX7Byzoc3Aq7tSl3HfvWEMyoOjczSNMzz8jcvOv0E2kpEQbENaToeXNJZxsYmMHGDy+thtAOZnasRImFHKsWCq+Kd/1TunkTDPT/zKgh7ce93Ay77huHZCHuZOPl/XimxCMhwGJZNDtMoAwl2V6+N3ZCIifQeoIe5UAiMDsHKOPqIJ2WjYdSSObX9MjfcvubUcOXr6P8uyb5TDo503lCwLRigEMuXsIDLQ85ksC9NuWFEeuwuEq9NtPxrmV9qYPV7szN+0CaveTY33zxjnxzen5Gckd1yBF/fMSh1ByDJhhE6DLGuQVhlAuHpSWSztJNL0PcdmjkT8fJTE3980stn4aHhtdyu+6Bfv56xvt48JGGW+f2MJxuSlJluRacIIh0G2+G1kYun3RfopYQxz0m47CsoLPFi7qx224P/RLftTAzbfml6IK8vFnFTP9XL84OtleO5/mlLeJyMBIxKCr3wshHjaGRixtPsik5xAR9b9J6LAic4cGOFOacuqsx0mkm9NL8SmfW040pxqM/UmYETC8JaVC3QCSrvCSiarAAl/aIPAOLzll4HnyKklYZiEnqTYr2MToccceJvY7ulBUugOIkt7hpnJCNAAoDqD9iOiJIfh2jFn/PTyy2HGY0Jm1PtOxXE6agDomxDW7oxg9fwJGcs9y1ufteJU++AxAKsrDsY59DHpLTn7w0AN6bbNZA6wEyTfAdoShNnFNsYFzpoqJjN31uUBPPvBiXMJPbvrYvh9Qxw3VAQylt3ebeLfPh1+e9iMRQHOoRdlXBx1Z7oN0/4LYDb9a7ptR4NNwH80iM+4mVySg+snpBYjX7cjnLIbmC6v7o4gnhjZX4rZ2ZHxDqLF0++LtB3gTKnTD9JtPxq+iAIHWgzhchdeUwpvv6SC460JbPm8fYgWw3OkuRfvHxxdXoDZ3gYrFktX5QcNi/P3pNs4o1CwxfEoAEeS5H9zggl5OvtTnKfjjitTh9/Xdjcj2pv+hHDt70IYtZkEJNtaYXV1Df/ZVCyAZZQsmpEDnFgc/CMYXs1ExkhpTgA7TokfBb49vQjFueenQrGEhdc/Se+Wl999GcX+xjS3gYmQbGmG3TOq9huOLQ38X3oK+8h4NzDpsVcCcKSuzX+HNMQNsZE0j8Zx98zSlPc2729HfcvodvESpo0NH0WG/+BQEMGINMNOjCje0e7RqCYzhQIc4NRDBW3E8NNM5YyEHovw7nHxO2tzKoKYUno+3GzZhFd2hoZo8VXe3NuKUFTACEV23w6iMaysVYcX5WccTBCSWlMZDtQCcKSuze5WjlNRsU7AGHD/daUpgbnPGrqw59jIUrta4km8uVfcIEi2DSMcApmDfs9DxVpggwhdQhzgwxpmMps9JkLWcNgAftMgPghZUZSDORWpy8K1H4aQtIaf0W3YFUFvUuxf07lt5AF2EInYjz5bxIQ8BcKS6+qXB7YD7B1R8obiSFzDvpD4fYF7Zpam5AI0dhjYtL9tyDYHT/fggy/lZAKTaSIZDl14EHXL8WWB90XpEJpdqWnm4wCk17UBgP9sZEgKXhYW5uq4c1rqsvD1T5rR1j3wSpeob5SQeTzQNgwYkRCoT4nBbBJ67E6oAxxdVFgHsF+KlDkYrQbHb4/3CJd751XFKMk7n3rWlbDx+p6Bl4XbDnXgUEi8DRdiJxIww2FworX1y/MPi5Qt/Gyg19fzDABHrkXb2qyjM4OgzUB4OMM916QWMn33QAfqm1MHtl7Txq8+du5WWKu3l3qbQ2+IlivcAb78QWkMoKdFyx2IhM3wX/Xi5wKzJwZRXZa6LFy7I9Wn3/jfVkRikpI9B0Dz52xtrJm6T7RcKfUBjkWC/wLQpzJkX8jvo14cH2LbNV3uv7YMvN+68A8nu7HraF+8PhJL4u0/OFjTmXMzluj5jhTRMoSihtmc8Bgg/+A8EfB2vSl8IjahyIebJ6UuC2t3hmFYhHU7wug1nSkRAwCaz/9C58+/ltku1SBIqxFUtyz/Ywb8Wpb8/hw3vNibbgx+CO6eWYpcz/lDqE2dBn72XiM+POLcRV9M19tPsaqfyJIvt0qYqa0A2Ki3uNJhUyNDQvBTmZ+j4S+mpy4LdzjY+WAA0z2LUMOkDTfSz/JXrYvVEMMq2XoAYGyyA35L7HzAtAmHI/KXegPBfb7PG5+plnqzivRKoUYi8AtPTuxBJ4pGneYB9DZ1OFO4STqMyIS08nBnkV4s+tSPWA8jLuQo87BoOvSCS6MkMfd73256tvoL6XpkKwCA+mWBN8HST1wcDVpBIZjmSHFSaTBNS5iB3r91QpdjF0bY4I+hbzNPKowx6IUZZ9m6Cvd4V4VXzHRk8uzonUGV6+KvMUbyPZsIRlMT7KT4FDLZcI/ndOM/T3PsLmVH7wzSOP0YgPQqSmAMWlGxdDXCYQzw+L/npEpHHaBuSTBCRMKLHQ6ElusHzxF/qlgm3Ofb01hT+VtHdTqpDADySoNrAAjd0hwMT/FFNApwbnNu3+O4WqcVHlzIDEBsUsNgMK8XWiDzo15OoPlyfnWy5sqm4T8pFlfuDj62NH8LgK1O6NKLigDmzh3ZI4XpWtep0x3L3dDt2i9jEx4HIH1DnWk6tGBw+A+6CPP5nsCr1zuXXNAP1xygYVnwEAAhqc3D4SnM3uAQ9/nqGlddsdE1/W4pBgAL1ioA8mutc561IWIO3O+yfvc4sbSwHUCNE7q0YD6YLn3va1RoPv+2k89UO5I5NRiuz46OlQQ2gOFz6YoYg55Fy0KmaUld0+912w7XHQALmcUBR04Vabl54DmOVLUdFubz/+J4zSTpFwwMa4fbBpylqja2iYAFsvXYiQSMUJMD2YqDw3y+SNMz1eXuWXAe90eAM5iwngAgr7z2GbjPBy3XkSuNBoFBy/N/30UDUsgaBzixtLCegb3shC69qFhoocbRoOXl7Tn55ERHgmAjIWscAAC6uuLPEFAnWw/T3QkOcV1Pmh7rLscVD0FWOUB4xWVdGsMCAFJy4PujFxSCcQe/PuPE/YGFoaemOHeebARklQMAQN2S4AGLYy4IUvPhmKZBL3DmNnCu6wYryF1wcuXEzY4oHAVZ5wBAX/Epyg3MArEVADsuS4+WLzc4xDTd1Py571uBovFNT1VtkaYoA7JmGTgoROyKdfGrLA3TQYLKhPbDjHZMsXuNarKtQS8k4Jz1Avwrx5CJMYuxAeshtGmM72iwKjbLPNShUCgUCoVCoVAoFAqFQqFQKBQKhUKhUCgUCoVCoVAoFApFP/4fLkAf0P7pi/wAAAAASUVORK5CYII=",
+            "name": "gcp-stackdriver-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Google Stackdriver, allowing you to monitor any metrics from any resources."
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser Google Stackdriver, permettant de surveiller n\\'importe quelles m\u00e9triques de n\\'importe quelles ressources."
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Google Stackdriver",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_gcp_management_stackdriver_api.pl",
+                "package_name": "centreon-plugin-Cloud-Gcp-Management-Stackdriver-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-gcp-management-stackdriver",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Cloud",
+            "Google",
+            "GCP",
+            "Stackdriver"
+        ],
+        "update_date": "1612280191",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier une m\u00e9trique d'une ou plusieurs dimensions.}\r\n\r\n{EN: Check one metric (one or X dimensions).}",
+            "active_checks_enabled": 2,
+            "alias": "Get-Metrics",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Gcp-Management-Stackdriver-Api-Get-Metrics",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Gcp-Management-Stackdriver-Get-Metrics-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

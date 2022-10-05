@@ -1,0 +1,141 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_rrdtool.pl --plugin=database::rrdtool::local::plugin --mode=query --custommode=\\'$_SERVICECUSTOMMODE$\\' --rrd-file=\\'$_SERVICERRDFILE$\\' --ds-name=\\'$_SERVICEDSNAME$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --warning-value-minimum=\\'$_SERVICEWARNINGVALUEMINIMUM$\\' --critical-value-minimum=\\'$_SERVICECRITICALVALUEMINIMUM$\\' --warning-value-average=\\'$_SERVICEWARNINGVALUEAVERAGE$\\' --critical-value-average=\\'$_SERVICECRITICALVALUEAVERAGE$\\' --warning-value-maximum=\\'$_SERVICEWARNINGVALUEMAXIMUM$\\' --critical-value-maximum=\\'$_SERVICECRITICALVALUEMAXIMUM$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Rrdtool-Local-Query",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_rrdtool.pl --plugin=database::rrdtool::local::plugin --mode=query --custommode=\\'$_SERVICECUSTOMMODE$\\' --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --rrd-file=\\'$_SERVICERRDFILE$\\' --ds-name=\\'$_SERVICEDSNAME$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --warning-value-minimum=\\'$_SERVICEWARNINGVALUEMINIMUM$\\' --critical-value-minimum=\\'$_SERVICECRITICALVALUEMINIMUM$\\' --warning-value-average=\\'$_SERVICEWARNINGVALUEAVERAGE$\\' --critical-value-average=\\'$_SERVICECRITICALVALUEAVERAGE$\\' --warning-value-maximum=\\'$_SERVICEWARNINGVALUEMAXIMUM$\\' --critical-value-maximum=\\'$_SERVICECRITICALVALUEMAXIMUM$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Rrdtool-SSH-Query",
+            "type": "2"
+        }
+    ],
+    "host_templates": [],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor RRDtool:\r\n* Query\r\n"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack Plugin pour surveiller RRDtool :\r\n* Query"
+            }
+        ],
+        "discovery_category": "database",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "RRDtool",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_rrdtool.pl",
+                "package_name": "centreon-plugin-Applications-Databases-Rrdtool",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-databases-rrdtool",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Database",
+            "rrdtool",
+            "rrd"
+        ],
+        "update_date": "1607085281",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les aleurs min/max/average d'un DS sur une p\u00e9riode.}\r\n\r\n{EN: Check DS min/max/average on a timeframe.}",
+            "active_checks_enabled": 2,
+            "alias": "Query",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Rrdtool-Local-Query",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECUSTOMMODE$",
+                    "password": false,
+                    "value": "perlmod"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEDSNAME$",
+                    "password": false,
+                    "value": "value"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Rrdtool-Local-Query",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les aleurs min/max/average d'un DS sur une p\u00e9riode.}\r\n\r\n{EN: Check DS min/max/average on a timeframe.}",
+            "active_checks_enabled": 2,
+            "alias": "Query",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Rrdtool-SSH-Query",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECUSTOMMODE$",
+                    "password": false,
+                    "value": "cli"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEDSNAME$",
+                    "password": false,
+                    "value": "value"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Rrdtool-SSH-Query",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

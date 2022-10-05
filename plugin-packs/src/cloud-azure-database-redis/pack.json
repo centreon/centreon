@@ -1,0 +1,1464 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Database-Redis-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Cache for Redis resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Cache/Redis/RED123456ABCD78",
+                            "location": "westeurope",
+                            "name": "RED123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Cache/Redis"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Cache/Redis/RED789012EFGH34",
+                            "location": "westus",
+                            "name": "RED789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Cache/Redis"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": "discovery.results.id"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Database-Redis-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Cache for Redis",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-database-redis",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Database-Redis-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Cache for Redis resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Cache/Redis/RED123456ABCD78",
+                            "location": "westeurope",
+                            "name": "RED123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Cache/Redis"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Cache/Redis/RED789012EFGH34",
+                            "location": "westus",
+                            "name": "RED789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Cache/Redis"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Database-Redis-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Cache for Redis",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-database-redis",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Database-Redis-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Cache for Redis resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Cache/Redis/RED123456ABCD78",
+                            "location": "westeurope",
+                            "name": "RED123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Cache/Redis"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Cache/Redis/RED789012EFGH34",
+                            "location": "westus",
+                            "name": "RED789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Cache/Redis"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Database-Redis-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Cache for Redis",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-database-redis",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_redis_api.pl --plugin=cloud::azure::database::redis::plugin --mode=operations --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-operations-per-second=\\'$_SERVICEWARNINGOPERATIONSPERSECOND$\\' --critical-operations-per-second=\\'$_SERVICECRITICALOPERATIONSPERSECOND$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-Redis-Api-Operations",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_redis_api.pl --plugin=cloud::azure::database::redis::plugin --mode=memory --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-memory-usage-percentage=\\'$_SERVICEWARNINGMEMORYUSAGEPERCENTAGE$\\' --critical-memory-usage-percentage=\\'$_SERVICECRITICALMEMORYUSAGEPERCENTAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-Redis-Api-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_redis_api.pl --plugin=cloud::azure::database::redis::plugin --mode=load --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-server-load-percentage=\\'$_SERVICEWARNINGSERVERLOADPERCENTAGE$\\' --critical-server-load-percentage=\\'$_SERVICECRITICALSERVERLOADPERCENTAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-Redis-Api-Load",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_redis_api.pl --plugin=cloud::azure::database::redis::plugin --mode=health --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --ok-status=\\'$_SERVICEOKSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-Redis-Api-Health",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_redis_api.pl --plugin=cloud::azure::database::redis::plugin --mode=errors --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-errors-count=\\'$_SERVICEWARNINGERRORSCOUNT$\\' --critical-errors-count=\\'$_SERVICECRITICALERRORSCOUNT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-Redis-Api-Errors",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_redis_api.pl --plugin=cloud::azure::database::redis::plugin --mode=cpu --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-cpu-usage-percentage=\\'$_SERVICEWARNINGCPUUSAGEPERCENTAGE$\\' --critical-cpu-usage-percentage=\\'$_SERVICECRITICALCPUUSAGEPERCENTAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-Redis-Api-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_redis_api.pl --plugin=cloud::azure::database::redis::plugin --mode=clients --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-connected-clients=\\'$_SERVICEWARNINGCONNECTEDCLIENTS$\\' --critical-connected-clients=\\'$_SERVICECRITICALCONNECTEDCLIENTS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-Redis-Api-Clients",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_redis_api.pl --plugin=cloud::azure::database::redis::plugin --mode=cache-usage --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-cache-misses=\\'$_SERVICEWARNINGCACHEMISSES$\\' --critical-cache-misses=\\'$_SERVICECRITICALCACHEMISSES$\\' --warning-cache-hits=\\'$_SERVICEWARNINGCACHEHITS$\\' --critical-cache-hits=\\'$_SERVICECRITICALCACHEHITS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-Redis-Api-Cache-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_redis_api.pl --plugin=cloud::azure::database::redis::plugin --mode=cache-throughput --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-cache-read-throughput=\\'$_SERVICEWARNINGCACHEREADTHROUGHPUT$\\' --critical-cache-read-throughput=\\'$_SERVICECRITICALCACHEREADTHROUGHPUT$\\' --warning-cache-write-throughput=\\'$_SERVICEWARNINGCACHEWRITETHROUGHPUT$\\' --critical-cache-write-throughput=\\'$_SERVICECRITICALCACHEWRITETHROUGHPUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-Redis-Api-Cache-Throughput",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_redis_api.pl --plugin=cloud::azure::database::redis::plugin --mode=cache-latency --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-cache-latency=\\'$_SERVICEWARNINGCACHELATENCY$\\' --critical-cache-latency=\\'$_SERVICECRITICALCACHELATENCY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-Redis-Api-Cache-Latency",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_database_redis_api.pl --statefile-suffix='autodiscovery' --plugin=cloud::azure::database::redis::plugin --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Database-Redis-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les instances Azure Cache for Redis via l'API}\r\n{EN: Template to check Azure Cache for Redis resources service using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Cache for Redis service using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-database-redis-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-Redis",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Database-Redis-Operations-Api",
+                "Cloud-Azure-Database-Redis-Memory-Api",
+                "Cloud-Azure-Database-Redis-Load-Api",
+                "Cloud-Azure-Database-Redis-Health-Api",
+                "Cloud-Azure-Database-Redis-Errors-Api",
+                "Cloud-Azure-Database-Redis-Cpu-Api",
+                "Cloud-Azure-Database-Redis-Clients-Api",
+                "Cloud-Azure-Database-Redis-Cache-Usage-Api",
+                "Cloud-Azure-Database-Redis-Cache-Throughput-Api",
+                "Cloud-Azure-Database-Redis-Cache-Latency-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-database-redis-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ add proper tag management",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin Pack to monitor Azure Cache for Redis service using RestAPI or AZCLI.**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|Cloud-Azure-Database-Redis-custom|\r\n|---|\r\n|Cache-Latency|\r\n|Cache-Throughput|\r\n|Cache-Usage|\r\n|Clients|\r\n|Cpu|\r\n|Errors|\r\n|Health|\r\n|Load|\r\n|Memory|\r\n|Operations|\r\n\r\nThis Plugin-Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin Pack pour superviser les ressources Azure Cache for Redis via RestAPI ou AZCLI.**\r\n\r\nMod\u00e8le d\\'H\u00f4te disponible et Services associ\u00e9s:\r\n\r\n|Cloud-Azure-Database-Redis-custom|\r\n|---|\r\n|Cache-Latency|\r\n|Cache-Throughput|\r\n|Cache-Usage|\r\n|Clients|\r\n|Cpu|\r\n|Errors|\r\n|Health|\r\n|Load|\r\n|Memory|\r\n|Operations|\r\n\r\nCe Plugin-Pack fournit un *provider* Host Discovery pour le module d\\'auto-d\u00e9couverte d\\'H\u00f4tes"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module >= 19.10.1\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure Cache for Redis",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_database_redis_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Database-Redis-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-database-redis",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Cloud",
+            "Microsoft",
+            "Azure",
+            "Restapi",
+            "API",
+            "Database",
+            "Cache",
+            "Redis",
+            "HostDisco"
+        ],
+        "update_date": "1636823244",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques des op\u00e9rations en cours de l'instance Azure Redis.}\r\n\r\n{EN: Check Azure Redis operations statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Operations",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-Redis-Api-Operations",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Maximum"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-Redis-Operations-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques m\u00e9moire de l'instance Azure Redis.}\r\n\r\n{EN: Check Azure Redis memory statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-Redis-Api-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Maximum"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-Redis-Memory-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques de charge serveur de l'instance Azure Redis.}\r\n\r\n{EN: Check Azure Redis load statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Load",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-Redis-Api-Load",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Maximum"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-Redis-Load-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la sant\u00e9 des ressources Azure Redis.}\r\n\r\n{EN: Check Azure Redis health.}",
+            "active_checks_enabled": 2,
+            "alias": "Health",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-Redis-Api-Health",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEOKSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^Available$/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^Unavailable$/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^Unknown$/"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-Redis-Health-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques d'erreurs de l'instance Azure Redis.}\r\n\r\n{EN: Check Azure Redis errors statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Errors",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-Redis-Api-Errors",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-Redis-Errors-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques CPU de l'instance Azure Redis.}\r\n\r\n{EN: Check Azure Redis CPU statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-Redis-Api-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Maximum"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-Redis-Cpu-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques clients de l'instance Azure Redis.}\r\n\r\n{EN: Check Azure Redis clients statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Clients",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-Redis-Api-Clients",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-Redis-Clients-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques d'utilisation du cache de l'instance Azure Redis.}\r\n\r\n{EN: Check Azure Redis Cache usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Cache-Usage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-Redis-Api-Cache-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-Redis-Cache-Usage-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques de trafic du cache de l'instance Azure Redis.}\r\n\r\n{EN: Check Azure Redis Cache throughput.}",
+            "active_checks_enabled": 2,
+            "alias": "Cache-Throughput",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-Redis-Api-Cache-Throughput",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Maximum"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-Redis-Cache-Throughput-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques de latence du cache de l'instance Azure Redis.}\r\n\r\n{EN: Check Azure Redis Cache latency.}",
+            "active_checks_enabled": 2,
+            "alias": "Cache-Latency",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-Redis-Api-Cache-Latency",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-Redis-Cache-Latency-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

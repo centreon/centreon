@@ -1,0 +1,132 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hibernate_jmx.pl --plugin=apps::java::hibernate::jmx::plugin --mode=stats --custommode=jolokia --url=\\'$_HOSTJOLOKIAURL$\\' --username=\\'$_HOSTJOLOKIAUSERNAME$\\' --password=\\'$_HOSTJOLOKIAPASSWORD$\\' $_HOSTJOLOKIAEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-connect-count=\\'$_SERVICEWARNINGCONNECTCOUNT$\\' --critical-connect-count=\\'$_SERVICECRITICALCONNECTCOUNT$\\' --warning-query-count=\\'$_SERVICEWARNINGQUERYCOUNT$\\' --critical-query-count=\\'$_SERVICECRITICALQUERYCOUNT$\\' --warning-insert-count=\\'$_SERVICEWARNINGINSERTCOUNT$\\' --critical-insert-count=\\'$_SERVICECRITICALINSERTCOUNT$\\' --warning-update-count=\\'$_SERVICEWARNINGUPDATECOUNT$\\' --critical-update-count=\\'$_SERVICECRITICALUPDATECOUNT$\\' --warning-close-count=\\'$_SERVICEWARNINGCLOSECOUNT$\\' --critical-close-count=\\'$_SERVICECRITICALCLOSECOUNT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Hibernate-JMX-Stats",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Hibernate using JMX",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "app-hibernate-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTJOLOKIAEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTJOLOKIAPASSWORD$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTJOLOKIAURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTJOLOKIAUSERNAME$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Hibernate-JMX",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Hibernate-Stats-JMX"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "app-hibernate-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor a Java Hibernate:\r\n* Stats"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser Java Hibernate :\r\n* Stats"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Hibernate-Jmx\r\n\r\nPlease install jolokia agent on your java application server\r\n[Jolikia download page](https://jolokia.org/download.html). Ask to\r\nyour admin to deploy it and give you the URL.\r\n\r\n# Centreon Configuration\r\n## Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Hibernate-JMX-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Hibernate",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_hibernate_jmx.pl",
+                "package_name": "centreon-plugin-Applications-Hibernate-Jmx",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-hibernate-jmx",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Java",
+            "Hibernate",
+            "JMX",
+            "ORM"
+        ],
+        "update_date": "1502280952",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques hibernate.}\r\n\r\n{EN: Check hibernate statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Hibernate-Stats",
+            "check_timeperiod": "",
+            "command_name": "App-Hibernate-JMX-Stats",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Hibernate-Stats-JMX",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

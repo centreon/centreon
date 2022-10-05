@@ -1,0 +1,452 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": null,
+                "changes": [],
+                "command_for_discovery": "Net-Sonus-Sbc-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Sonus-Sbc-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Sonus-Sbc-SNMP"
+                ],
+                "macros": [],
+                "name": "Net-Sonus-Sbc-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Sonus-Sbc-Traffic-Global-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sonus_sbc_snmp.pl --plugin=network::sonus::sbc::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Sonus-Sbc-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sonus_sbc_snmp.pl --plugin=network::sonus::sbc::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Sonus-Sbc-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sonus_sbc_snmp.pl --plugin network::sonus::sbc::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Sonus-Sbc-SNMP-Traffic-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sonus_sbc_snmp.pl --plugin network::sonus::sbc::snmp::plugin --mode=swap --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage-prct=\\'$_SERVICEWARNING$\\' --critical-usage-prct=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Sonus-Sbc-SNMP-Swap",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sonus_sbc_snmp.pl --plugin network::sonus::sbc::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Sonus-Sbc-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sonus_sbc_snmp.pl --plugin network::sonus::sbc::snmp::plugin --mode=load --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Sonus-Sbc-SNMP-Load",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sonus_sbc_snmp.pl --plugin network::sonus::sbc::snmp::plugin --mode=\\'dsp-stats\\' --hostname=$HOSTADDRESS$ $_HOSTSNMPEXTRAOPTIONS$ --warning-cpu=\\'$_SERVICEWARNINGCPU$\\' --critical-cpu=\\'$_SERVICECRITICALCPU$\\' --warning-channels=\\'$_SERVICEWARNINGCHANNELS$\\' --critical-channels=\\'$_SERVICECRITICALCHANNELS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Sonus-Sbc-SNMP-Dsp-Stats",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sonus_sbc_snmp.pl --plugin network::sonus::sbc::snmp::plugin --mode=storage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --storage=\\'$_SERVICEFILTER$\\' --name --regexp --display-transform-src=\\'$_SERVICETRANSFORMSRC$\\' --display-transform-dst=\\'$_SERVICETRANSFORMDST$\\' --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Sonus-Sbc-SNMP-Disks",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sonus_sbc_snmp.pl --plugin=network::sonus::sbc::snmp::plugin --mode=cpu-detailed --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-idle=\\'$_SERVICEWARNINGIDLE$\\'  --critical-idle=\\'$_SERVICECRITICALIDLE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Sonus-Sbc-SNMP-Cpu-Detailed",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sonus_sbc_snmp.pl --plugin=network::sonus::sbc::snmp::plugin --mode=channels --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-total=\\'$_SERVICEWARNINGTOTAL$\\' --critical-total=\\'$_SERVICECRITICALTOTAL$\\' --warning-total-outofservice=\\'$_SERVICEWARNINGOUTOFSERVICE$\\' --critical-total-outofservice=\\'$_SERVICECRITICALOUTOFSERVICE$\\' --warning-total-idle=\\'$_SERVICEWARNINGIDLE$\\' --critical-total-idle=\\'$_SERVICECRITICALIDLE$\\' --warning-total-pending=\\'$_SERVICEWARNINGPENDING$\\' --critical-total-pending=\\'$_SERVICECRITICALPENDING$\\' --warning-total-waitingforroute=\\'$_SERVICEWARNINGWAITINGFORROUTE$\\' --critical-total-waitingforroute=\\'$_SERVICECRITICALWAITINGFORROUTE$\\' --warning-total-actionlist=\\'$_SERVICEWARNINGACTIONLIST$\\' --critical-total-actionlist=\\'$_SERVICECRITICALACTIONLIST$\\' --warning-total-waitingfordigits=\\'$_SERVICEWARNINGWAITINGFORDIGITS$\\' --critical-total-waitingfordigits=\\'$_SERVICECRITICALWAITINGFORDIGITS$\\' --warning-total-remotesetup=\\'$_SERVICEWARNINGREMOTESETUP$\\' --critical-total-remotesetup=\\'$_SERVICECRITICALREMOTESETUP$\\' --warning-total-peersetup=\\'$_SERVICEWARNINGPEERSETUP$\\' --critical-total-peersetup=\\'$_SERVICECRITICALPEERSETUP$\\' --warning-total-alerting=\\'$_SERVICEWARNINGALERTING$\\' --critical-total-alerting=\\'$_SERVICECRITICALALERTING$\\' --warning-total-inbandinfo=\\'$_SERVICEWARNINGINBANDINFO$\\' --critical-total-inbandinfo=\\'$_SERVICECRITICALINBANDINFO$\\' --warning-total-connected=\\'$_SERVICEWARNINGCONNECTED$\\' --critical-total-connected=\\'$_SERVICECRITICALCONNECTED$\\' --warning-total-tonegeneration=\\'$_SERVICEWARNINGTONEGENERATION$\\' --critical-total-tonegeneration=\\'$_SERVICECRITICALTONEGENERATION$\\' --warning-total-releasing=\\'$_SERVICEWARNINGRELEASING$\\' --critical-total-releasing=\\'$_SERVICECRITICALRELEASING$\\' --warning-total-aborting=\\'$_SERVICEWARNINGABORTING$\\' --critical-total-aborting=\\'$_SERVICECRITICALABORTING$\\' --warning-total-resetting=\\'$_SERVICEWARNINGRESETTING$\\' --critical-total-resetting=\\'$_SERVICECRITICALRESETTING$\\' --warning-total-up=\\'$_SERVICEWARNINGUP$\\' --critical-total-up=\\'$_SERVICECRITICALUP$\\' --warning-total-down=\\'$_SERVICEWARNINGDOWN$\\' --critical-total-down=\\'$_SERVICECRITICALDOWN$\\' --warning-seconds=\\'$_SERVICEWARNINGSECONDS$\\' --critical-seconds=\\'$_SERVICECRITICALSECONDS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Sonus-Sbc-SNMP-Channels",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sonus_sbc_snmp.pl --plugin=network::sonus::sbc::snmp::plugin --mode=call-statistics --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$  --warning-total-per-sec=\\'$_SERVICEWARNINGTOTALPERSEC$\\' --critical-total-per-sec=\\'$_SERVICECRITICALTOTALPERSEC$\\' --warning-connected-per-sec=\\'$_SERVICEWARNINGCONNECTEDPERSEC$\\' --critical-connected-per-sec=\\'$_SERVICECRITICALCONNECTEDPERSEC$\\' --warning-refused-per-sec=\\'$_SERVICEWARNINGREFUSEDPERSEC$\\' --critical-refused-per-sec=\\'$_SERVICECRITICALREFUSEDPERSEC$\\' --warning-errored-per-sec=\\'$_SERVICEWARNINGERROREDPERSEC$\\' --critical-errored-per-sec=\\'$_SERVICECRITICALERROREDPERSEC$\\' --warning-blocked-per-sec=\\'$_SERVICEWARNINGBLOCKEDPERSEC$\\' --critical-blocked-per-sec=\\'$_SERVICECRITICALBLOCKEDPERSEC$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Sonus-Sbc-SNMP-Call-Statistics",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sonus_sbc_snmp.pl --plugin=network::sonus::sbc::snmp::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-average=\\'$_SERVICEWARNING$\\'  --critical-average=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Sonus-Sbc-SNMP-Cpu",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Sonus SBC en SNMP}\r\n{EN: Template to check Sonus SBC equipments using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to monitor Sonus Session Border Controller through SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "sonus.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Sonus-Sbc-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Sonus-Sbc-Traffic-Global-SNMP",
+                "Net-Sonus-Sbc-Swap-SNMP",
+                "Net-Sonus-Sbc-Memory-SNMP",
+                "Net-Sonus-Sbc-Load-SNMP",
+                "Net-Sonus-Sbc-Dsp-Statistics-SNMP",
+                "Net-Sonus-Sbc-Disks-SNMP",
+                "Net-Sonus-Sbc-Cpu-Detailed-SNMP",
+                "Net-Sonus-Sbc-Channels-SNMP",
+                "Net-Sonus-Sbc-Call-Statistics-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "sonus.png"
+        }
+    ],
+    "information": {
+        "author": "centreon",
+        "changelog": "+ fix service disco command",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Sonus Session Border Controller using SNMP:\r\n* Cpu\r\n* Cpu-Detailed\r\n* Memory\r\n* Swap\r\n* Disks\r\n* Call-Statistics\r\n* Dsp-Statistics\r\n* Channels\r\n* Traffic"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour contr\u00f4les les \u00e9quipemnts Sonus Session Border Controller avec SNMP:\r\n* Cpu\r\n* Cpu-Detailed\r\n* Memory\r\n* Swap\r\n* Disks\r\n* Call-Statistics\r\n* Dsp-Statistics\r\n* Channels\r\n* Traffic"
+            }
+        ],
+        "discovery_category": "toip-voip",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n##Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Sonus-Sbc-Snmp\r\n\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n## Centreon Configuration\r\n### Create a new Sonus SBC host definition\r\nGo to \"Configuration &gt; Hosts\" and click \"Add\". Then, fill the form as\r\nshown by the following table :\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Sonus-Sbc-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick \"Save\" button.",
+        "name": "Sonus SBC ",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_sonus_sbc_snmp.pl",
+                "package_name": "centreon-plugin-Network-Sonus-SBC-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-sonus-sbc-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Voice gateway",
+            "Sonus"
+        ],
+        "update_date": "1560437487",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le la bande passante des interfaces r\u00e9seaux du Sonus .}\r\n\r\n{EN: Check the bandwidth utilization on the Sonus.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Sonus-Sbc-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-Sonus-Sbc-Traffic-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la SWAP du Sonus .}\r\n\r\n{EN: Check the rate of utilization of SWAP memory on the Sonus.}",
+            "active_checks_enabled": 2,
+            "alias": "Swap",
+            "check_timeperiod": "",
+            "command_name": "Net-Sonus-Sbc-SNMP-Swap",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "15"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "20"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Sonus-Sbc-Swap-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation m\u00e9moire sur l'\u00e9quipement Sonus SBC.}\r\n\r\n{EN: Check the memory usage on the Sonus SBC equipment.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Sonus-Sbc-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Sonus-Sbc-Memory-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la charge actuelle de l'\u00e9quipement (loadaverage).}\r\n\r\n{EN: Check the load average of the equipment.}",
+            "active_checks_enabled": 2,
+            "alias": "Load",
+            "check_timeperiod": "",
+            "command_name": "Net-Sonus-Sbc-SNMP-Load",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-Sonus-Sbc-Load-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques li\u00e9s au traitement du signal effectu\u00e9 par la SBC Sonus.}\r\n\r\n{EN: Check the statistics related to the digital signal processing module of the SBC Sonus.}",
+            "active_checks_enabled": 2,
+            "alias": "Dsp-Statistics",
+            "check_timeperiod": "",
+            "command_name": "Net-Sonus-Sbc-SNMP-Dsp-Stats",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Sonus-Sbc-Dsp-Statistics-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du stockage.}\r\n\r\n{EN: Check storage usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Disks",
+            "check_timeperiod": "",
+            "command_name": "Net-Sonus-Sbc-SNMP-Disks",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Sonus-Sbc-Disks-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine. Ce contr\u00f4le pourra remonter d'avantage de d\u00e9tails sur son utilisation (syst\u00e8me, utilisateur, en attente ...).}\r\n\r\n{EN: Check the rate of utilization of CPU for the machine. This check can give further details on its utilization (system, idle, user ...).}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu-Detailed",
+            "check_timeperiod": "",
+            "command_name": "Net-Sonus-Sbc-SNMP-Cpu-Detailed",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIDLE$",
+                    "password": false,
+                    "value": "20:"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIDLE$",
+                    "password": false,
+                    "value": "10:"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Sonus-Sbc-Cpu-Detailed-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat et le statut des channels configur\u00e9s sur l'\u00e9quipement .}\r\n\r\n{EN: Check state and status of channels configured on the equipment .}",
+            "active_checks_enabled": 2,
+            "alias": "Channels",
+            "check_timeperiod": "",
+            "command_name": "Net-Sonus-Sbc-SNMP-Channels",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Sonus-Sbc-Channels-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques li\u00e9s aux appels pass\u00e9s au travers de l'\u00e9quipement (total, en erreur, bloqu\u00e9s...) .}\r\n\r\n{EN: Check statistics of calls managed through this equipement (errored, blocked, total...).}",
+            "active_checks_enabled": 2,
+            "alias": "Call-Statistics",
+            "check_timeperiod": "",
+            "command_name": "Net-Sonus-Sbc-SNMP-Call-Statistics",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Sonus-Sbc-Call-Statistics-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine. Ce contr\u00f4le pourra remonter la moyenne du taux d'utilisation des CPU ainsi que le taux par CPU pour les CPU multi-coeur.}\r\n\r\n{EN: Check the rate of utilization of CPU for the machine. This check can give the average CPU utilization rate and the rate per CPU for multi-core CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Sonus-Sbc-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Sonus-Sbc-Cpu-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

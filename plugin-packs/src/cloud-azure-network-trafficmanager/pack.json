@@ -1,0 +1,819 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-TrafficManager-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Azure Traffic Manager Profiles",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGUS001/providers/Microsoft.Network/trafficManagerProfiles/PROFILE01",
+                            "location": "westus",
+                            "name": "PROFILE01",
+                            "resourceGroup": "RGUS001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Network/trafficManagerProfiles"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-TrafficManager-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Traffic Manager",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-trafficmanager",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-TrafficManager-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Azure Traffic Manager Profiles",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/8bade50c-809a-11ea-bc55-0242ac130003/resourceGroups/RGUS001/providers/Microsoft.Network/trafficManagerProfiles/PROFILE01",
+                            "location": "westus",
+                            "name": "PROFILE01",
+                            "resourceGroup": "RGUS001",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Network/trafficManagerProfiles"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-TrafficManager-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Traffic Manager",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-trafficmanager",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_trafficmanager_api.pl --plugin=cloud::azure::network::trafficmanager::plugin --mode=health --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --ok-status=\\'$_SERVICESTATUSOK$\\' --warning-status=\\'$_SERVICESTATUSWARNING$\\' --critical-status=\\'$_SERVICESTATUSCRITICAL$\\' --unknown-status=\\'$_SERVICESTATUSUNKNOWN$\\' $_HOSTEXTRAOPTIONS$  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-TrafficManager-Api-Health",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_trafficmanager_api.pl --plugin=cloud::azure::network::trafficmanager::plugin --mode=queries --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-queries-persecond=\\'$_SERVICEWARNINGQUERIES$\\' --critical-queries-persecond=\\'$_SERVICECRITICALQUERIES$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-TrafficManager-Api-Queries",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_trafficmanager_api.pl --plugin=cloud::azure::network::trafficmanager::plugin --mode=endpointstatus --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-endpoint-status=\\'$_SERVICEWARNINGENDPOINTSTATUS$\\' --critical-endpoint-status=\\'$_SERVICECRITICALENDPOINTSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-TrafficManager-Api-EndpointStatus",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_trafficmanager_api.pl --plugin=cloud::azure::network::trafficmanager::plugin --custommode=\\'api\\' --mode=discovery --statefile-suffix=\\'autodiscovery\\' --subscription=\\'$_AZURESUBSCRIPTION$\\' --tenant=\\'$_AZURETENANT$\\' --client-id=\\'$_AZURECLIENTID$\\' --client-secret=\\'$_AZURECLIENTSECRET$\\' --timeout=\\'$_TIMEOUT$\\' --proxyurl=\\'$_PROXYURL$\\' --resource-group=\\'$_RESOURCEGROUP$\\' --location=\\'$_LOCATION$\\' $_EXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-TrafficManager-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Azure Network Traffic Manager via l&#39;API}\r\n{EN: Template to check Azure Network Traffic Manager using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Network Traffic Manager using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 0,
+            "command_name": "Cloud-Azure-Network-TrafficManager-Api-Health",
+            "icon": "az-network-traffic-manager-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-TrafficManager",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Network-TrafficManager-Queries-Api",
+                "Cloud-Azure-Network-TrafficManager-Health-Api",
+                "Cloud-Azure-Network-TrafficManager-EndpointStatus-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-network-traffic-manager-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "fix disco name and htpl exclusion",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin Pack to monitor Azure Traffic Manager using RestAPI or AZCLI**\r\n\r\nAvailable host template and related services:\r\n\r\n|Cloud-Azure-Network-TrafficManager-custom|\r\n|---|\r\n|Endpoint-Status|\r\n|Health|\r\n|Queries|\r\n\r\nThis Plugin Pack provides a host discovery *provider* to be used with the host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser Azure Traffic Manager en utilisant l\\'API d\\'Azure ou AZCLI .**\r\n\r\nMod\u00e8les d\\'h\u00f4te disponibles et leurs services :\r\n\r\n|Cloud-Azure-Network-TrafficManager-custom|\r\n|---|\r\n|Endpoint-Status|\r\n|Health|\r\n|Queries|\r\n\r\nCe pack fournit une r\u00e8gle de d\u00e9couverte d\\'h\u00f4te \u00e0 utiliser avec le module de d\u00e9couverte d\\'h\u00f4te."
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "",
+        "name": "Azure Traffic Manager",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_network_trafficmanager_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Network-TrafficManager-Api",
+                "package_version": "20220616"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-network-trafficmanager",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Azure",
+            "Network",
+            "API",
+            "Microsoft",
+            "HostDisco"
+        ],
+        "update_date": "1653407710",
+        "version": "22.06.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de requ\u00eates par secondes par Endpoint pour un Profile Azure Traffic Manager.}\r\n\r\n{EN: Check queries number per second per Endpoint for a Azure Traffic Manager Profile.}",
+            "active_checks_enabled": 2,
+            "alias": "Queries",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-TrafficManager-Api-Queries",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-TrafficManager-Queries-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la disponibilit\u00e9 du Profile Traffic Manager.}\r\n\r\n{EN: Check Traffic Manager Profile availability.}",
+            "active_checks_enabled": 2,
+            "alias": "Health",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-TrafficManager-Api-Health",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATUSOK$",
+                    "password": false,
+                    "value": "%{status} =~ /^Available$/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATUSCRITICAL$",
+                    "password": false,
+                    "value": "%{status} =~ /^Unavailable$/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATUSUNKNOWN$",
+                    "password": false,
+                    "value": "%{status} =~ /^Unknown$/"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-TrafficManager-Health-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des Endpoints pour un Profile Azure Traffic Manager.}\r\n\r\n{EN: Check Endpoints state for an Azure Traffic Manager Profile.}",
+            "active_checks_enabled": 2,
+            "alias": "Endpoint-Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-TrafficManager-Api-EndpointStatus",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Maximum"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-TrafficManager-EndpointStatus-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

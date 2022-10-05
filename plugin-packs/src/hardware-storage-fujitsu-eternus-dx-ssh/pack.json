@@ -1,0 +1,269 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_fujitsu_eternus_dx.pl --plugin=storage::fujitsu::eternus::dx::ssh::plugin --mode=volume-stats --hostname=$HOSTADDRESS$ $_HOSTSSHEXTRAOPTIONS$ --warning-read-iops=\\'$_SERVICEWARNINGREADIOPS$\\' --warning-write-iops=\\'$_SERVICEWARNINGWRITEIOPS$\\' --warning-read-traffic=\\'$_SERVICEWARNINGREADTRAFFIC$\\' --warning-write-traffic=\\'$_SERVICEWARNINGWRTIETRAFFIC$\\' --warning-read-response-time=\\'$_SERVICEWARNINGREADREPTIME$\\' --warning-write-response-time=\\'$_SERVICEWARNINGWRITEREPTIME$\\' --warning-read-processing-time=\\'$_SERVICEWARNINGREADPROCTIME$\\' --warning-write-processing-time=\\'$_SERVICEWARNINGWRITEPROCTIME$\\' --warning-read-cache-hit-rate=\\'$_SERVICEWARNINGREADCACHEHITRATE$\\' --warning-write-cache-hit-rate=\\'$_SERVICEWARNINGWRITECACHEHITRATE$\\' --critical-read-iops=\\'$_SERVICECRITICALREADIOPS$\\' --critical-write-iops=\\'$_SERVICECRITICALWRITEIOPS$\\' --critical-read-traffic=\\'$_SERVICECRITICALREADTRAFFIC$\\' --critical-write-traffic=\\'$_SERVICECRITICALWRITETRAFFIC$\\' --critical-read-response-time=\\'$_SERVICECRITICALREADREPTIME$\\' --critical-write-response-time=\\'$_SERVICECRITICALWRITEREPTIME$\\' --critical-read-processing-time=\\'$_SERVICECRITICALREADPROCTIME$\\' --critical-write-processing-time=\\'$_SERVICECRITICALWRITEPROCTIME$\\' --critical-read-cache-hit-rate=\\'$_SERVICECRITICALREADCACHEHITRATE$\\' --critical-write-cache-hit-rate=\\'$_SERVICECRITICALWRITECACHEHITRATE$\\'\\\"",
+            "name": "HW-Storage-Fujitsu-Eternus-DX-SSH-Volume-Stats",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_fujitsu_eternus_dx.pl --plugin=storage::fujitsu::eternus::dx::ssh::plugin --mode=raid-groups --hostname=$HOSTADDRESS$ $_HOSTSSHEXTRAOPTIONS$ --warning-usage=$_SERVICEWARNING$ --critical-usage=$_SERVICECRITICAL$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Fujitsu-Eternus-DX-SSH-Raid-Groups",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_fujitsu_eternus_dx.pl --plugin=storage::fujitsu::eternus::dx::ssh::plugin --mode=psu --hostname=$HOSTADDRESS$ $_HOSTSSHEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Fujitsu-Eternus-DX-SSH-Psu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_fujitsu_eternus_dx.pl --plugin=storage::fujitsu::eternus::dx::ssh::plugin --mode=port-stats --hostname=$HOSTADDRESS$ $_HOSTSSHEXTRAOPTIONS$ --warning-read-iops=\\'$_SERVICEWARNINGREADIOPS$\\' --warning-write-iops=\\'$_SERVICEWARNINGWRITEIOPS$\\' --critical-read-iops=\\'$_SERVICECRITICALREADIOPS$\\' --critical-write-iops=\\'$_SERVICECRITICALWRITEIOPS$\\' --warning-read-traffic=\\'$_SERVICEWARNINGREADTRAFFIC$\\' --warning-write-traffic=\\'$_SERVICEWARNINGWRTIETRAFFIC$\\' --critical-read-traffic=\\'$_SERVICECRITICALREADTRAFFIC$\\' --critical-write-traffic=\\'$_SERVICECRITICALWRITETRAFFIC$\\'\\\"",
+            "name": "HW-Storage-Fujitsu-Eternus-DX-SSH-Port-Stats",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_fujitsu_eternus_dx.pl --plugin=storage::fujitsu::eternus::dx::ssh::plugin --mode=physicaldisk --hostname=$HOSTADDRESS$ $_HOSTSSHEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Fujitsu-Eternus-DX-SSH-Physical-Disk",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_fujitsu_eternus_dx.pl --plugin=storage::fujitsu::eternus::dx::ssh::plugin --mode=cpu --hostname=$HOSTADDRESS$ $_HOSTSSHEXTRAOPTIONS$ --warning-usage=$_SERVICEWARNING$ --critical-usage=$_SERVICECRITICAL$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Fujitsu-Eternus-DX-SSH-Cpu",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to monitor Fujitsu Eternus DX by SSH",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "fujitsu-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSSHEXTRAOPTIONS$",
+                    "value": "--ssh-option='-l=centreon'"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Fujitsu-Eternus-DX-SSH",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Storage-Fujitsu-Eternus-DX-SSH-Stats",
+                "HW-Storage-Fujitsu-Eternus-DX-SSH-Raid-Groups",
+                "HW-Storage-Fujitsu-Eternus-DX-SSH-Psu",
+                "HW-Storage-Fujitsu-Eternus-DX-SSH-Port-Stats",
+                "HW-Storage-Fujitsu-Eternus-DX-SSH-Physical-Disk",
+                "HW-Storage-Fujitsu-Eternus-DX-SSH-Cpu"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "fujitsu-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Update Fujitsu logo",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Fujitsu Eternus DX storage using SSH:\r\n* Cpu\r\n* Physical-Disck\r\n* Port-Status\r\n* Psu\r\n* Raid-Groups\r\n* Volume-Stats"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un stockage Fujitsu Eternus DX via SSH :\r\n* Cpu\r\n* Physical-Disck\r\n* Port-Status\r\n* Psu\r\n* Raid-Groups\r\n* Volume-Stats"
+            }
+        ],
+        "discovery_category": "storage",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAxPSURBVHic7d19cBx3ecDx77N3smz5Tbcny6eTHZs4HkgDnUI6aUNIaRleQgkkDSQNJaVDoAS3TMcNg0taIAm0CTDDhAQKTXkzhFAYQ4YhKQ2OC3Fqj2GK45BgyAuNk0i3J9nSneR3vew+/eNO8mlv73Sy70465/nMeM7+7bO/e3b3d/vy29+uwRhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGNMC5D5TqAZ+nHXOHC1IucJrFA066A7j5LfsRHG5ju/+XRWN4DnWZloI3YHcB0QiwjpB/1Imvy9TU5twThrG0CWzvWK8zCwDvAVdgrsUwgEzgPeACwrhn8uTe7v5ytX0wAeib0ermZw92Rxfyc8vZ/lyQzu1z1cLf7ZPB95mgbxcPs8Ej85wPrF1eIyJL5QbABHDtHV06z8FgpnvhNooOEYbe98Cc+drBYUsPTDQAZYNo7/7uaktnC0fAPwSHcM0r1aQyd5Cnet5uDgbPOvpf8E8F0AQV7foDQXrJZsAAdYv9jDvdHD3Q8nj/lMDmRxj3q4D3gkXgNwnNxczuyfLH6uqX+2C1vLNYCDrEq1M7ob+CxQenK3GHgLyCNZ3I/P8fq+o/Chx+uWaItoqQagEJ/E/yHIq4AJ0NtBzhfGuwXndQJ7AFG41SN50xyq/qPCh/ObBqRt6iWDe33xjD3wcN8Unq7geLh3l8S8b7Y6B0i8wsOdKMyTvKoxmZu68HC3Fzfu1koxCjEPd1sxbtIj8ReVYjO4az3cp4ux+7TF9oj10GoL/NLCh+6oFCDgHyN3ncJPgBjItzzcrR5dr9Jiz+cAq7s93M0CjwIbgVGBdwkETViGBaXVGsAkgCKLqgWdB5PKxDXA9yhs9L+CYG+W5AkP93DAxCBwB9AF9IHz+h5yv2508gtRizUAfRxAoOqxeoDEjcqixWlyVytyJbAb8EHbgeXFsOcVbm2Hl6cZ+kVj8zZ1kSF5xVTffZbEpqgYj8S7PNzJftwZ1/R9rHA9ui70SLxmkJXnNifjha/l7gZ6JH4AckXxn99X9BtCzFP8jQLXFqcFcWK93RwamM9cW0HLNYABVi8NmLgH+LMKIcdBb0iT/1Yz82pVLdcApmRIvFXgvSAXUTiuvwA8CMFdaUaen+f0jGkN03uAQbpXw9jSM6lsjLaTDmNjbTgrq8V1M/q8gB8uP0BnZwfqVpt3iNH+Djo7aolbBLKClb3V4tpwhhPkjxxk5fpqcbWaIDa+hlx/aZmCk6XrlaCXCMHGAOmWwro/DoxSuCJ5Ik3upwKTCrGDrFxX7Xt8gsNpjgyFyxVkgM51DlrlCq/92NSd0vhU0TiLDseZ+KgiH5zTEpdoI9iT4shrsyRvAP2XiJBnQS6P2vgA6xk5ksW9Bvg3yg9Pg+BcfgE8q4z4s8S95QJ4FiBLPKnoA0B3KM5X9C+7yX/XI3GxILvmvMARHOReCmMQixvefV8W2QLBhkKZRB53Bcji3gG5GwX8ftriDsEDFDqqwrE35xn9VNT3C2gGx1fkPtBXlk/Xz5+kY8upfIvW0n8iRf5GCoMjTksAIjCRZvg2YG9Ech9JM1zxhouAnyb378CDEYl/Yup6vSTuxxXipr+7h+H/BW6L+K5tveT/QyBwcN5W6zLORtH7AYZxV2RJ7ADuBt1Q4+zTYxrWMPS0Ih+OiPllitwnL4DxSpX0kusL0L+NmJRJkf9Q6SCZeOlUgQkPngB6Z5bLZwCt9IUKK0DDgyn2AheWFjj4ZY2igr3Am0M5PBrxzXtBList8ZF94SgheExDfV6K/rLk728V9LcB/NjBORr6jjcr/O7MeeWLDhwpmT9FoXOqfQn6oEIsC98B+ZNQKrsUvqYE+9qJD55EnTiyUQmuAN4fsXxlyyzwqFTZFlNOkHt0KWVHyScEJkoL4uEIRSYlVH+K4Ztm6ydXaMvifqwkVT+cp49E7voj6vLDu0mNmLeQ60yx6Liy3LW4PH2s2gj+gyny/xBeOQAebpJQAwjgtl6GMzPjkp8Wgk+55EeLnVQzGrDCJ9LkbonYeBng4SzuVwj1cPo4fjy02rXYHT6b82AyGypTpGzeunUFF1bexF31qq+Zesh9KGrjz0Wa4d8ExLYoiCJbSqcJ7Kmw8Utz2H+U3GfOJIfTUdd7AVFnpQvdWg49U8sutZQikfG9DD01UBiCvn5mPN+r5Tvm4ymlFrsZtPAFOBEnfHKo+ZnUppENoGV7Gc+EQ9BeXqq/1/xMamN7gDpT5FcRxZs8ki9rejI1sAZQZ4V+jrLLtyWgOz2SlW5gzZuyy8Ao/azaMMh4lUu4U12LBgKcLQ66nZk/sG7Q+zzc/1H0pl7yu0+z+roeWmvaA8Twn/aJ/V/lP5P/Ws+kWt0ahv8b5KMVJl8qyK4MyfsHSLyiWj2CNvw8yg4BDZJm+HZgMxU6bgS9PEAe80jek6VzfVOTK1HTIaBSV3CxC/hPo+dqfOtd6NLk7szQ+YjgfJlQt3iRA3qd4lzl4X6sh9ydlW6UNUpNDSDF8D9WSswj3QFj9mx9Bb2M7FO4aAD37YrcXuHGUAfw2SyJS58hf20zO4TO+BCQxjseMH53PZI5WwkEPeS2HWP4AmBz5Y4huXIp7uebmVutDaBqN+YajgzXIZe6kAXcAbURxtLk7mxDNijcChyNCPvrAZKva1ZOdhI4D1YxdKSX3C1aeLr55+HpPjTtfUVNbQAL+dc5H3rJ9Tm0vQ3Il5YL+lqtvK6a3w9wOgQZCZdN0lbjVYe2lc/rlNV3NkgxeBC4L1S8HIi1EY9Y5vJ1E+U51pfFCZTV17AGEEB/uMwhWF/LvIKEn9wJoL2svrNI+IcxJDCZYvAYob0DOFUHi05ZzOGIq42gL1zSwEOAPFRWgl4921w5EisVLgsV7y6+y2fB2w9VH1wNO8iqZSChvhSdHqCqEFqP+urwY29RFP48XCbEyrZJwxpAL0NPAeGRtu8ZIPkH1eY7iXwa6CwtE+SrdU6vYZIk3pghcUktsQri498FumrmFJm+rBYIL3ubA3dWOUegeOdxxomkoL9NMfRIOLahJ4F+YWRq6VCrtgD9zwzuG8KxfaxZ4uF+DrghNGlXiuF7GplnPZ1AdwmyI4v71X46K44D6GPVxizuAwrvKS0X9IdpctOjotPktgPbQrNflSWx9RBdy0Pl9ONeDPoQp96CCqABzqaozryIkzLtCpcMsCwJR+c8qmUt+cc9kteCfgeYOilJCmz3SDwMzkMCo4pugOPXEBqNDPw6RvwdZ/7iBqervCtDypYzmnaFf2yL8JOAFxX9EkZGPNydCtc7ONd7uC8o/EyQxwQdD5BzBf198C+KmH23suSd4cN+nNj1k/gp4NKS/N89QXBZhsQ2cJ6EoEMKo5DfxMyEVdAPpslFvlRjxpJ5dF0Iwc8JvXNP4OM95D4ZVUEtMiQuEeQrwBwGReg9Pv7mtRzOVa7XvUXg5tIyB/nDFMPT19bFhzN+RGHFlOpfjL7cJT9aqf5BVp7rE/sVsGTmFPlSmuG/qTSfh/t+YC69o+PAF8ZY8U+VXmxZ6HI/+c/A3xH94usoGUU39ZK/v1LAdAPwSJwDziaiH7lShW+mye2Z6wDKKfthUSeJtzvIexVeTdlKBSAr8F+K88XShzsqma0BPAPtHSSuEuSPK1Tx5AT+1nWM5sMTDtHVM05wg0Dk62MF/UGK/Pao3eog3at9Jn8KnF8l/Ulgr8CPFN2aJv9CldhpGbpeKgQfAK4kNPi0aELgF4p+I0783m4ORfU2lizHPFBo6ydxfpxYMsBfJpB3CDIpRg/MpZ4s7s0Kt5SWOXBxitzP6prwaepneVKInQOxpEOwSJFACE4ExAdGGDpQ7emeWrxAV9ohWBdHkz4ypgSHlGVPzeWKqaaOmXorjMHPP36m9RQfRQvRY2dab70U75E07D7JOQx5lJ2LzK2/rNXvBZRtf2XC3goyBy3dABxYGyp6tuc0rlZezFq6AShcHCr69rwk0sJa9u5c4apFnuPUMgwFTLxsIY1NaAWtvAf4AKc2/oTgXG0b/0WiH3eNV/j/AdTDPbwQH7gwDbIfFnm4uwovi3R3eCSrdbaYWbTUOUDhHYHjXwLHEfwv9zCyc75zMk00wOqlL8ZXuhtjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjXkz+H3JJEP77swEUAAAAAElFTkSuQmCC",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\nThis chapter describes the prerequisites installation needed by plugins\r\nto run.\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Storage-Fujitsu-Eternus-Dx-Ssh\r\n\r\n\r\nSSH key exchange must be done between poller and monitored server.\r\nCreate a user centreon on your Fujitsu Eternus DX equipment.\r\n\r\nGenerate key for centreon-engine user with command:\r\n\r\n    # su - centreon-engine\r\n    # ssh-keygen -N \"\" -f ~/.ssh/identity\r\n    # ssh-keygen -e -f .ssh/identity.pub > identity.pub.ietf\r\n    # telnet <FUJITSU_IP>\r\n    CLI> import ssh-public-key -server <POLLER_IP> -port maintenance -user <ADMIN_USER> -filename identity.pub.ietf -account-name centreon\r\n    Password:\r\n    importing ./identity.pub.ietf from ...\r\n    CLI> exit\r\n\r\nYou can now try to connect you without password\r\n\r\n    # su - centreon-engine\r\n    # ssh -l centreon <FUJITSU_IP>\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Storage-Fujitsu-Eternus-DX-SSH-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Fujitsu Eternus DX",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_fujitsu_eternus_dx.pl",
+                "package_name": "centreon-plugin-Hardware-Storage-Fujitsu-Eternus-Dx-Ssh",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Hardware-Storage-Fujitsu-Eternus-Dx-Ssh",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "hardware-storage-fujitsu-eternus-dx-ssh",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "DX",
+            "Eternus",
+            "Fujitsu",
+            "Hardware",
+            "SAN",
+            "Storage"
+        ],
+        "update_date": "1570113533",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR:Contr\u00f4le de l'\u00e9tat g\u00e9n\u00e9ral de la baie.}\r\n{EN:Check global health of the bay.}",
+            "active_checks_enabled": 2,
+            "alias": "Volume-Stats",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Fujitsu-Eternus-DX-SSH-Volume-Stats",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Fujitsu-Eternus-DX-SSH-Stats",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR:Conr\u00f4le de l'espace disques.}\r\n{EN:Check the disks capacity.}",
+            "active_checks_enabled": 2,
+            "alias": "Raid-Groups",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Fujitsu-Eternus-DX-SSH-Raid-Groups",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Fujitsu-Eternus-DX-SSH-Raid-Groups",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de l'alimentation.}\r\n{EN: Check the state of the power supply.}",
+            "active_checks_enabled": 2,
+            "alias": "Psu",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Fujitsu-Eternus-DX-SSH-Psu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Fujitsu-Eternus-DX-SSH-Psu",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des ports.}\r\n{EN: Check the state of the ports.}",
+            "active_checks_enabled": 2,
+            "alias": "Port-Stats",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Fujitsu-Eternus-DX-SSH-Port-Stats",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Fujitsu-Eternus-DX-SSH-Port-Stats",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des disques.}\r\n{EN: Check the state of the disks.}",
+            "active_checks_enabled": 2,
+            "alias": "Physical-Disk",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Fujitsu-Eternus-DX-SSH-Physical-Disk",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Fujitsu-Eternus-DX-SSH-Physical-Disk",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation CPU de la baie.}\r\n\r\n{EN: Check the rate of utilization of CPU of the bay.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Fujitsu-Eternus-DX-SSH-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Fujitsu-Eternus-DX-SSH-Cpu",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,292 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_database_firebird.pl --plugin=database::firebird::plugin --host=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTSYFIREBIRDPORT$\\' --username=\\'$_HOSTFIREBIRDUSERNAME$\\' --password=\\'$_HOSTFIREBIRDPASSWORD$\\' --database=\\'$_HOSTFIREBIRDDATABASE$\\' $_HOSTFIREBIRDEXTRAOPTIONS$ --mode=users --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Firebird-Users",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_database_firebird.pl --plugin=database::firebird::plugin --host=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTSYFIREBIRDPORT$\\' --username=\\'$_HOSTFIREBIRDUSERNAME$\\' --password=\\'$_HOSTFIREBIRDPASSWORD$\\' --database=\\'$_HOSTFIREBIRDDATABASE$\\' $_HOSTFIREBIRDEXTRAOPTIONS$ --mode=queries --warning-total=\\'$_SERVICEWARNINGTOTAL$\\' --critical-total=\\'$_SERVICECRITICALTOTAL$\\' --warning-seq-reads=\\'$_SERVICEWARNINGSEQREADS$\\' --critical-seq-reads=\\'$_SERVICECRITICALSEQREADS$\\' --warning-inserts=\\'$_SERVICEWARNINGINSERTS$\\' --critical-inserts=\\'$_SERVICECRITICALINSERTS$\\' --warning-updates=\\'$_SERVICEWARNINGUPDATES$\\' --critical-updates=\\'$_SERVICECRITICALUPDATES$\\' --warning-deletes=\\'$_SERVICEWARNINGDELETES$\\' --critical-deletes=\\'$_SERVICECRITICALDELETES$\\' --warning-backouts=\\'$_SERVICEWARNINGBACKOUTS$\\' --critical-backouts=\\'$_SERVICECRITICALBACKOUTS$\\' --warning-purges=\\'$_SERVICEWARNINGPURGES$\\' --critical-purges=\\'$_SERVICECRITICALPURGES$\\' --warning-expunges=\\'$_SERVICEWARNINGEXPUNGES$\\' --critical-expunges=\\'$_SERVICECRITICALEXPUNGES$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Firebird-Queries",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_database_firebird.pl --plugin=database::firebird::plugin --host=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTSYFIREBIRDPORT$\\' --username=\\'$_HOSTFIREBIRDUSERNAME$\\' --password=\\'$_HOSTFIREBIRDPASSWORD$\\' --database=\\'$_HOSTFIREBIRDDATABASE$\\' $_HOSTFIREBIRDEXTRAOPTIONS$ --mode=pages --warning-reads=\\'$_SERVICEWARNINGREADS$\\' --critical-reads=\\'$_SERVICECRITICALREADS$\\' --warning-writes=\\'$_SERVICEWARNINGWRITES$\\' --critical-writes=\\'$_SERVICECRITICALWRITES$\\' --warning-fetches=\\'$_SERVICEWARNINGFETCHES$\\' --critical-fetches=\\'$_SERVICECRITICALFETCHES$\\' --warning-marks=\\'$_SERVICEWARNINGMARKS$\\' --critical-marks=\\'$_SERVICECRITICALMARKS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Firebird-Pages",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_database_firebird.pl --plugin=database::firebird::plugin --host=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTSYFIREBIRDPORT$\\' --username=\\'$_HOSTFIREBIRDUSERNAME$\\' --password=\\'$_HOSTFIREBIRDPASSWORD$\\' --database=\\'$_HOSTFIREBIRDDATABASE$\\' $_HOSTFIREBIRDEXTRAOPTIONS$ --mode=memory --warning-used=\\'$_SERVICEWARNINGUSED$\\' --critical-used=\\'$_SERVICECRITICALUSED$\\' --warning-attachment=\\'$_SERVICEWARNINGATTACHMENT$\\' --critical-attachment=\\'$_SERVICECRITICALATTACHMENT$\\' --warning-transaction=\\'$_SERVICEWARNINGTRANSACTION$\\' --critical-transaction=\\'$_SERVICECRITICALTRANSACTION$\\' --warning-statement=\\'$_SERVICEWARNINGSTATEMENT$\\' --critical-statement=\\'$_SERVICECRITICALSTATEMENT$\\' --warning-call=\\'$_SERVICEWARNINGCALL$\\' --critical-call=\\'$_SERVICECRITICALCALL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Firebird-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_database_firebird.pl --plugin=database::firebird::plugin --host=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTSYFIREBIRDPORT$\\' --username=\\'$_HOSTFIREBIRDUSERNAME$\\' --password=\\'$_HOSTFIREBIRDPASSWORD$\\' --database=\\'$_HOSTFIREBIRDDATABASE$\\' $_HOSTFIREBIRDEXTRAOPTIONS$ --mode=connection-time --warning=\\'$_SERVICEWARNING$\\'  --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Firebird-Connection-Time",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_database_firebird.pl --plugin=database::firebird::plugin --host=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTSYFIREBIRDPORT$\\' --username=\\'$_HOSTFIREBIRDUSERNAME$\\' --password=\\'$_HOSTFIREBIRDPASSWORD$\\' --database=\\'$_HOSTFIREBIRDDATABASE$\\' $_HOSTFIREBIRDEXTRAOPTIONS$ --mode=sql --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' --format=\\'$_SERVICEFORMAT$\\' --sql-statement=\\\\\\\"$_SERVICESQLSTATEMENT$\\\\\\\" --perfdata-name=\\'$_SERVICEPERFDATANAME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Firebird-Sql",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_database_firebird.pl --plugin=database::firebird::plugin --host=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTSYFIREBIRDPORT$\\' --username=\\'$_HOSTFIREBIRDUSERNAME$\\' --password=\\'$_HOSTFIREBIRDPASSWORD$\\' --database=\\'$_HOSTFIREBIRDDATABASE$\\' $_HOSTFIREBIRDEXTRAOPTIONS$ --mode=long-queries --filter-user=\\'$_SERVICEFILTERUSER$\\' --filter-state=\\'$_SERVICEFILTERSTATE$\\' --seconds=\\'$_SERVICESECONDS$\\' --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Firebird-Long-Queries",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Firebird Database",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "DB-firebird.png",
+            "macros": [
+                {
+                    "key": "$_HOSTFIREBIRDPORT$",
+                    "value": "3051"
+                },
+                {
+                    "key": "$_HOSTFIREBIRDUSERNAME$",
+                    "value": "USERNAME"
+                },
+                {
+                    "key": "$_HOSTFIREBIRDPASSWORD$",
+                    "value": "PASSWORD"
+                },
+                {
+                    "key": "$_HOSTFIREBIRDDATABASE$",
+                    "value": "/opt/firebird/examples/empbuild/employee.fdb"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Firebird",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-DB-Firebird-Users",
+                "App-DB-Firebird-Queries",
+                "App-DB-Firebird-Pages",
+                "App-DB-Firebird-Memory",
+                "App-DB-Firebird-Connection-Time"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "DB-firebird.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Firebird DBMS using SQL request:\r\n* Connection-Time\r\n* Memory\r\n* Pages\r\n* Queries\r\n* Long Queries\r\n* Sql\r\n* Users"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack Plugin pour surveiller les SGBD Firebird en utilisant des requ\u00eates SQL.\r\n* Connection-Time\r\n* Memory\r\n* Pages\r\n* Queries\r\n* Long Queries\r\n* Sql\r\n* Users"
+            }
+        ],
+        "discovery_category": "database",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n##Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Databases-Firebird\r\n\r\n### Dependencies\r\n\r\nPlease install perl module DBD::Firebird: https://metacpan.org/release/DBD-Firebird\r\nFollow the readme, because you need to install the Firebird C library also.\r\n\r\n## Centreon Configuration\r\n### Create a new Firebird database server\r\nGo to \"Configuration &gt; Hosts\" and click \"Add\". Then, fill the form as\r\nshown by the following table :\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-DB-Firebird-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick \"Save\" button.",
+        "name": "Firebird",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_database_firebird.pl",
+                "package_name": "centreon-plugin-Applications-Databases-Firebird",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-databases-firebird",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Database",
+            "Firebird",
+            "SNMP"
+        ],
+        "update_date": "1502112755",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les utilisateurs connect\u00e9s.}\r\n{EN: Check current users connected.}",
+            "active_checks_enabled": 2,
+            "alias": "Users",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Firebird-Users",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Firebird-Users",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les statistiques des requ\u00eates.}\r\n{EN: Check queries statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Queries",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Firebird-Queries",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Firebird-Queries",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les statistiques du paging.}\r\n{EN: Check page statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Pages",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Firebird-Pages",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Firebird-Pages",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation m\u00e9moire.}\r\n{EN: Check memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Firebird-Memory",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Firebird-Memory",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier la dur\u00e9e de connexion au serveur.}\r\n{EN: Check the connection time to the server.}",
+            "active_checks_enabled": 2,
+            "alias": "Connection-Time",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Firebird-Connection-Time",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Firebird-Connection-Time",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant d'utiliser une requ\u00eate SQL personnalis\u00e9e.}\r\n{EN: Check using a custom SQL request.}",
+            "active_checks_enabled": 2,
+            "alias": "Sql-Generic",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Firebird-Sql",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFORMAT$",
+                    "password": false,
+                    "value": "value: %i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERFDATANAME$",
+                    "password": false,
+                    "value": "value"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Firebird-Sql-Generic",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le nombre de requ\u00eates longues courantes.}\r\n{EN: Check current number of long queries.}",
+            "active_checks_enabled": 2,
+            "alias": "Long-Queries",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Firebird-Long-Queries",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERSTATE$",
+                    "password": false,
+                    "value": "^(?!(0)$)"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICESECONDS$",
+                    "password": false,
+                    "value": "60"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Firebird-Long-Queries",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

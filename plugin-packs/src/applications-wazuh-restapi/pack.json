@@ -1,0 +1,166 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_wazuh_restapi.pl --plugin=apps::wazuh::restapi::plugin --mode=manager --hostname=\\'$HOSTADDRESS$\\' --username=\\'$_HOSTWAZUHAPIUSERNAME$\\' --password=\\'$_HOSTWAZUHAPIPASSWORD$\\' --port=\\'$_HOSTWAZUHAPIPORT$\\' --proto=\\'$_HOSTWAZUHAPIPROTO$\\' $_HOSTWAZUHAPIEXTRAOPTIONS$ --filter-process=\\'$_SERVICEFILTERPROCESS$\\' --filter-log=\\'$_SERVICEFILTERLOG$\\' --warning-processes-stopped=\\'$_SERVICEWARNINGPROCESSESSTOPPED$\\' --critical-processes-stopped=\\'$_SERVICECRITICALPROCESSESSTOPPED$\\' --warning-processes-running=\\'$_SERVICEWARNINGPROCESSESRUNNING$\\' --critical-processes-running=\\'$_SERVICECRITICALPROCESSESRUNNING$\\' --warning-log-error=\\'$_SERVICEWARNINGLOGERROR$\\' --critical-log-error=\\'$_SERVICECRITICALLOGERROR$\\' --warning-log-critical=\\'$_SERVICEWARNINGLOGCRITICAL$\\' --critical-log-critical=\\'$_SERVICECRITICALLOGCRITICAL$\\' --warning-log-warning=\\'$_SERVICEWARNINGLOGWARNING$\\' --critical-log-warning=\\'$_SERVICECRITICALLOGWARNING$\\' --warning-process-status=\\'$_SERVICEWARNINGPROCESSSTATUS$\\' --critical-process-status=\\'$_SERVICECRITICALPROCESSSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Wazuh-Restapi-Manager",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_wazuh_restapi.pl --plugin=apps::wazuh::restapi::plugin --mode=agents --hostname=\\'$HOSTADDRESS$\\' --username=\\'$_HOSTWAZUHAPIUSERNAME$\\' --password=\\'$_HOSTWAZUHAPIPASSWORD$\\' --port=\\'$_HOSTWAZUHAPIPORT$\\' --proto=\\'$_HOSTWAZUHAPIPROTO$\\' $_HOSTWAZUHAPIEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-active=\\'$_SERVICEWARNINGACTIVE$\\' --critical-active=\\'$_SERVICECRITICALACTIVE$\\' --warning-pending=\\'$_SERVICEWARNINGPENDING$\\' --critical-pending=\\'$_SERVICECRITICALPENDING$\\' --warning-neverconnected=\\'$_SERVICEWARNINGNEVERCONNECTED$\\' --critical-neverconnected=\\'$_SERVICECRITICALNEVERCONNECTED$\\' --warning-disconnected=\\'$_SERVICEWARNINGDISCONNECTED$\\' --critical-disconnected=\\'$_SERVICECRITICALDISCONNECTED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Wazuh-Restapi-Agents",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Wazuh software using RestAPI",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "wazuh-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTWAZUHAPIUSERNAME$",
+                    "value": "user"
+                },
+                {
+                    "key": "$_HOSTWAZUHAPIPORT$",
+                    "value": "55000"
+                },
+                {
+                    "key": "$_HOSTWAZUHAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTWAZUHAPIPASSWORD$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Wazuh-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Wazuh-Manager-Restapi",
+                "App-Wazuh-Agents-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAA/uSURBVHic7Z17kFT1lcc/5zbDMKglUcGhezAiazYY3VUrvnDR4IOniGLsHlyLxI2JpnxF19UYUyu7SUXZ3cjGR6JlfFHidF/BBxBExDKJiWtWsnHdVSvrKoaZvo1jVDYowjB9z/7RggN9u+f2fXa3/anij+nfved36N+37/09zu/8oEWLFi3ixSyM5Yl39ovbjcjoKRwatwu7MOJ2AADbPovtO66K241IMAtHYNjfj9uNXdSHAAyZBca1mL0HxO1K6Nj2jcAsntURcbsC9SAAUxOong66P7bxd3G7Eyor3j4MIQ0cQL91QtzuQD0IgMJJQOmXL1yB2d8Zrz8hMrjzOqD0y1eZFa8zJeIXgNpDv4h90J03xOZLmJj9nSBf2f23obNj9GY38QtAyn4Jl2JunhiLL2Gig9cCoz75m6Mxe1PxOVQiXgGY/Z0oR+/16Ujs4o2x+BMWZu8BoN/Y61PBTsT+Goj5CTAwE5Cyj4Wvstz6fPT+hIQaVwLl8xyG/SkXQOWOUIKi3hSpL2GxdPM+wGWOZSrTWfN6e7QO7Ul8AjA1AZxR5YoMZt/er4fGo33wUuCgCqX78kHHyVG6szfxCUCtE9k1/HNGUPmHqNwJhTWvt4NcXfUaNWIdDcQoAFfj4LMx+04K3Zew+FPHV4FhevrxDgfjE4Coyw6QfC9cR0LC1ATI37q4cjLZTZNC96cC8QigNNt3jKtrldMx+04L16EwKGQQDnd1qSRmhuxMReIRgA7MwGn4V/F6bkHV/fVxoyoo33Z/g8T2GohJALXOg8tx5PJzwnEmBB6x5oIe5f4GncYqa3R4DlUmegGYmkCqDv+cEeMHLNL4p67dcX2N13ewrfilMBwZjui/0KJ1AnBg7TfqURxhnR+4P0GT65uGMqX2G+MZDkYvAMPHMqjN9+olkKIy4nU181MiANwO/xwQDqffWhigM8HSkz+G6rOb1ZhI1pocpDtuiFYAj24eh9vhX2Vuinv+vCIJ/S61jG72RuzInwLRCmDn4KwA6jyED0Z/PQh3AmW59XlUzvFnJPrhYLQCCCoMSrnx41W2+qHIDfj+PmUq5hv7B+KPS6ITgNfhnzOdtBcvD8iWf3ryE0C7/RvSNuyO0/3bcU90AvA8/KvIt1n2h88EaM87BtcDIwOx5XqNJBiiE4Cf4Z8zY0iM+FbANmun1LH9m+AMypwop70j7AOEoGzhmo8bID4GilcDHcEZ1PE8kv/L4OxVJxoBmIWx+B/+ObEvO+3rQrDrDvON/REuDcFyZOse0QjALgYx/KuAXsaKvq5wbA9XdfsVwJjg7Ua3aSQaAZTH/gfJKAaN6MPIV1mjQa4MyfqJPNoXZIe5IuELoBT8eWbItXwt8qiaj/g6MDYk6wl2yvSQbO9BBAsr+eNBQlaztiGJZ8nl+8OtZ2iV6i7axztzgJ6Q64hAAGrMAg29GmDCx/+ahRmYmiAtxTArCf8VEPHERhNxEHb+uLArCVcAZmEsyrGh1tHMSPhBIiE/AXRm+HU0M+HvGQi3cbT1+PfJsfRsSoZZQXgCKA3/IhnKNDGCJGaEWUGIT4D88QS7+vfpRMINEglPADFvemwizuTuDW1hGQ9HAD35KaBu9sW1GBbdn88kAwg2cSb4defspklI4nkg3mXa5mIAlbl0J9cFbThYATxsHURCfw18LlC7LQC2ovIlupP/EaTR4F4BZm8HCV1Jq/HDYj9E12Lm/zxIo8EIYJEaIA8BjZvMoTEYi61rWPHW+KAMBiOAydYSVOYHYqtFdUQOY3DkU0EFxPoXQC5/LRBWYEQLR/QoRiQe4/6No4a/tjr+BJDtOx9Y7NeJFl6QUxk9Mud3s6x3AZi9xyPygC8bLfxyNv2Fe/2EkXtrvOymSaixGoglq0WLoehCcgXPibRqV87D1kEY+rzrBEgtIkKvIdO1pNa7ahOA2duBGs/QGu7VIwp6EZmuB2u5yf0rwNQEaiyj1fj1ioBxD6ZVU8o59wJQawlwbq1etYgSbUN1RWkxzh3uBJDLXwdc4dWtFpEyGoOVbtPNDN8HyPadj0iW1nCv0ehD5GTSyU3VLqougB5rKoauY+hRJy0aB+UVDPsU0hPeq3RJ5V/18t7DMfRxWo3fuAhfAGNVtSyklacRt7VZtBdfBEINSvyU0wvyHdTeUVYi8lngZvzu3lIOZUcxBbzuVFz9FWC+MhId8yDgLyRJuAnkZ45ltj0ekXv59EUQvYrNTBakestKlvceTtFYDxzis47fYxszWTD+rUoXDN8JVBXMwg9Bq598UZ1B0IsrTlKYmydiF9cgNM9BUdUQ+Q2DnMUFyT+WlWWtyYiuB/ztBxA2gDGb9Ph3ql02fM9eRMkkr4Fa0p+XMQLkfrKWc06fdOdGDPtkhOd81NEorKKD0xwbvyd/DKK/wH/jP0P7yNOGa3yoZWiXSS1GuQywPbsluoRc/hbH0vSE99h325lA1qP9+kd5gHHJ+cxNbisryxaOw2A9/nMOLOP9wizmjd3q5uLaF4NM61xUewA/6VpvJ528CpHyfeOqgmndBDTHsXGfsJh08gbH/3POOgV0NU5nC9bGbbyWvJpF4vpH6m0d2ew7DZXH8eWwLGXc+K8xTQYdi3PWlaBLaPwJqCKiV5Du+oljqWnNRPVR/GUaU+AfyaQW1Xqj97DwbOE4xF5D5TPx3NT+BB8OdHPRxO2O5TnrHNBlNG7cwQ7QhWS6TMfSbN9ZiDyCv7mWIiqX0p38qZeb/e0LKPVYn8JXZg55llFt8yq+s3p6T8AwVtJ4w8QtIPPIJH/pWJrNdyOyFNTPtq9tiKZJdzkPsV3gf2OIaR2C6jrAR7y6vkgbs5jf9a5j8Yq3D2Nw8EkaZs+BFBB7NumulxyLc9aFoA8ACR+VvA/MJZP6tQ8bAbxf08lNiD0FeMG7ETmOnfLLisepn3fwm7TpFOBX3uuICnkDHZxasfHNvm+CPoi/xrcQ+1S/jQ9BdbDSE95jR+IMBD97145Ajecqpnub3/Uu2wbOBJzfp3WBvojISXQf8oZjcS5/HSo/xt/3/io2J5Ke8F8+bOwmuB72ws4PYctc/DXQRGTEc5i9zkeuXTRxO5K8ALjdRx1h8TSj2k+vOPmSy1+P3xB6kd9QlFMdp4+9mgzK0G5MTaD5O0Eu8WHlfUTnkO76t8r1WFeheit1MUyUpWyxLuaSL+4sKypNpf9zANvlVzFauh0nkXwQTlpyVcHMfx/kOz6sbAWdR6br2YpX5PrSIA/ifhhlA1ei6pxQ0pCDUX5ETaLSm0mnbnSc4FmkBpMLd4L6Syit3MvByUsrzpn4INy89Gb+8tq/0D3YAfLXZJIrKl6R7TsRkZW4m0K9nUyq+ja2XH4x4CYDuQLXkUn9i2OpqQnUuge4yIWtatxGOvktR4EFQLiPz3TqDlQWgpQ/Gt3RDpojl698IEN31wuIPQV1Xu8ewiZGjRw+qfSWwndBXxzmqgGUCyo2/t0b2qDQg7/GV9BryaScp8wDIpqTKcy+OaiYeJ/RU0SvJd11a8UrHu07kEFZWeXUzrPJpFa5qq00wfVbnKdnP0DlvIrZOkoxFDnAzwliAyhfoTsV+sJYNB2odNfPEJlBafLCC4LKD8nlKy8Qze96l+2J6Qirywv1IcfGv3tDm+MpXd3J1xDHE0A3Izq1YuMv3bwPOmY1/hp/K7bOjqLxIcoedDr5K4rGVCDvw8oicvk7Kh4ivbDzQ0ieA9w55NM/0jbCuQc+Jvn3aMePHMvOH38byJrdf6u+ScI+pfIET/++tBdX4i81/tuITGNB1zM+bNREZIcT7aancChir/O3t1AfYlzqoqq94k+GiReSSZWnXc9axyK8UNpMwTl0p54o93VTEiPxMsJGRiTmML/TefTw2MYxDIx8EjjR6/8I2IjqTLq7/seHjZqJXgAAD799MInBtcDRPqw8zn7bupl9eHlA5S56rKksSJZHGZX2OP4W2LV5og/ZfiTpSf9XbiM/hUTby6THfeBYx6Obx7GzuA7wftCT8Dtom0163GbPNjxXHRdm/77ozsfwftgyiPycgfZ5XHjgn2q6L2fdWhbjqNxLd+rimuyY/Z3owNMgR9Z031BEfg4fneMovgiITwAAa15vZ2vHMpDzPNsQNjAosxxj7JzI5U8GfoHTYozILNLJta7srLA+y6CuB/7MvbNlPM62gQUV4yEiIF4BwK4Jk7uA2n59e/IaI3Q653X1Vb1q6eZ9aC++ROVGyzNy4EjOnbilqp1s3+cQWY+/E0ru5LXklbWEb4VB/PPoaSmSTn4DfwslkxmU51jeW71j2V5cQvVfbIqB9pur2shakxF5Fn+Nv5hM6vK4Gx/q4QkwlNIu5Fvw7JcUUGM63Z3/XW67dzYYq13YVmA6mdT6spKsdezHEVBew+CKIN8kk7zH4/2BE/8TYCiZ1D9RehV4PChJxyP2Okzrr/b4OFuYBYmHcScsAbL09O15incufwaia/He+NtBvlxPjQ/19gTYRSkYtAd/wZKvIhRQJgGHerKg+iYibwGHebZRYgu2nO04JI2Z+hQAgFk4FdUnQMunahuKYeIDY6Z+BQCQ3XwkUnwKv1ulYkPeQAdnVAwRqwPqWwBQ2jiqxXX4G2/HgL6IJOa42Z8XJ/XVCXQi3bkRu3gqUDXVSZ2xlh0jptV740MjCABgwSEWIpVjAeqLXmTLvNLKZP3TGAIAaG+7DySW+fKaEL2b9BcG4nbDLY0jgHljt368oaKeGWCwzdMevbhoHAEAiH073vMThI+ynAsOfjtuN2qhsQSQnvC/gOeNkKGje0QiNQSNJQAAW51DuOLnP1mQej5uJ2ql8QSwoOsZhJfjdqMcabhfPzSiAABU7ojbhb3Ywg7j4bid8EJjCkCKDwHOuQRiQR9olHH/3jSmANITPkKpl2VVReSuuJ3wSmMKAMCw7/Cx5Sw4hKdJp34ftxteaVwBpCfkQR+L2w1ovKHfUBpXAAA2cQ8JN0GyfuclXNDYAliQeh7k3+NzQO4iLR7D1+qDxhZAibjSxQxQTNwXU92B0fgC2GLl8Lfh1CNqNtq8vxONL4BLvrgT9O7I623AeX8nGl8AAJK4C4hye9VLdHf5yItYPzSHANLj30EjTTNfj2nqPNEcAgAw7KhCxrYwWprmTIPmEUApc6ZzYuYgUbkv6Fx9cdI8AgBQCXtiSMGOvsMZIs0lAGP8E8DGEGt4KuoULmHTXAIozcr9ODT7qk0x9BtKcwkAYOTATwHnfD5+UP6AkXoycLsx03wCKGX3WBq4XeEnjT7v70TzCQAgYf8rwYaP76AtcX+A9uqG5hTAlye8Dr4Or9gLyVXMEdjgNKcAACTAIaEUm67zt4v63x7uldIBlK/wSTJIbwi/I506Nhin6o9mfgIoSgDh43qbfxv1i7+z6esdo20pOvAXqMcnnRg22LmAvWrRokWLOuH/AVsnm1dSlfGDAAAAAElFTkSuQmCC",
+            "name": "wazuh-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Wazuh software using RestAPI :\r\n* Agents\r\n* Manager processes and logs"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser l\\'application Wazuh via l\\'API Rest :\r\n* Agents\r\n* Les processus et les logs du manager"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Wazuh-Restapi\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Wazuh-Restapi-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Host Macro Configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"23%\" />\r\n<col width=\"53%\" />\r\n<col width=\"24%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>WAZUHAPIPORT</p></td>\r\n<td align=\"left\"><p>Port of the Wazuh API instance</p></td>\r\n<td align=\"left\"><p>55000</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>WAZUHAPIPROTO</p></td>\r\n<td align=\"left\"><p>Protocol used by the Wazuh API</p></td>\r\n<td align=\"left\"><p>https</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>WAZUHAPIUSERNAME</p></td>\r\n<td align=\"left\"><p>Username to access Wazuh API</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>WAZUHAPIPASSWORD</p></td>\r\n<td align=\"left\"><p>Password to access Wazuh API</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Wazuh Rest API",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_wazuh_restapi.pl",
+                "package_name": "centreon-plugin-Applications-Wazuh-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-wazuh-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Wazuh",
+            "Restapi",
+            "Application",
+            "SIEM"
+        ],
+        "update_date": "1565253675",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les processus et les logs du manager.}\r\n\r\n{EN: Check manager processes and logs.}",
+            "active_checks_enabled": 2,
+            "alias": "Manager",
+            "check_timeperiod": "",
+            "command_name": "App-Wazuh-Restapi-Manager",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Wazuh-Manager-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des agents.}\r\n\r\n{EN: Check agents.}",
+            "active_checks_enabled": 2,
+            "alias": "Agents",
+            "check_timeperiod": "",
+            "command_name": "App-Wazuh-Restapi-Agents",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Wazuh-Agents-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

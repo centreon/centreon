@@ -1,0 +1,126 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_adic_tape_snmp.pl --plugin=storage::adic::tape::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Adic-Tape-SNMP-Hardware",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Adic Tape Library en SNMP}\r\n{EN: Template to check Adic Tape Library using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Adic Tape Library using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "adic-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Adic-Tape-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Storage-Adic-Tape-Hardware-Global-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "adic-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix command attached to the service hardware",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Adic Tape Library via SNMP:\r\n* Hardware-Global"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller Adic Tape Library via SNMP :\r\n* Hardware-Global"
+            }
+        ],
+        "discovery_category": "storage",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Storage-Adic-Tape-Snmp\r\n\r\n## SNMP\r\nSNMP must be configured on the monitored host\r\n\r\n## Centreon Configuration\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Storage-Adic-Tape-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Adic Tape SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_adic_tape_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Storage-Adic-Tape-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-storage-adic-tape-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Adic",
+            "Tape",
+            "Library",
+            "SNMP",
+            "Storage"
+        ],
+        "update_date": "1619430015",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'ensemble du mat\u00e9riel.}\r\n\r\n{EN: Check all hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Adic-Tape-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Adic-Tape-Hardware-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

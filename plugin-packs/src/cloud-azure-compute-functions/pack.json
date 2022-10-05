@@ -1,0 +1,1540 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Compute-Functions-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Compute Functions resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Web/sites/FRT123456ABCD78",
+                            "location": "westeurope",
+                            "name": "FRT123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Web/sites"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Web/sites/FRT789012EFGH34",
+                            "location": "westus",
+                            "name": "FRT789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Web/sites"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": "discovery.results.id"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Compute-Functions-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Functions",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-compute-functions",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Compute-Functions-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Compute Functions resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Web/sites/FRT123456ABCD78",
+                            "location": "westeurope",
+                            "name": "FRT123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Web/sites"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Web/sites/FRT789012EFGH34",
+                            "location": "westus",
+                            "name": "FRT789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Web/sites"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Compute-Functions-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Functions",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-compute-functions",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Compute-Functions-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Compute Functions resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Web/sites/FRT123456ABCD78",
+                            "location": "westeurope",
+                            "name": "FRT123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Web/sites"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Web/sites/FRT789012EFGH34",
+                            "location": "westus",
+                            "name": "FRT789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Web/sites"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Compute-Functions-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Functions",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-compute-functions",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_compute_functions_api.pl --plugin=cloud::azure::compute::functions::plugin --mode=status --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Compute-Functions-Api-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_compute_functions_api.pl --plugin=cloud::azure::compute::functions::plugin --mode=response-time --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-response-time=\\'$_SERVICEWARNINGRESPONSETIME$\\' --critical-response-time=\\'$_SERVICECRITICALRESPONSETIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Compute-Functions-Api-Response-Time",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_compute_functions_api.pl --plugin=cloud::azure::compute::functions::plugin --mode=memory --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\'  --warning-app-average-memory=\\'$_SERVICEWARNINGAPPAVERAGEMEMORY$\\' --critical-app-average-memory=\\'$_SERVICECRITICALAPPAVERAGEMEMORY$\\' --warning-app-memory=\\'$_SERVICEWARNINGAPPMEMORY$\\' --critical-app-memory=\\'$_SERVICECRITICALAPPMEMORY$\\' --warning-app-private-bytes=\\'$_SERVICEWARNINGAPPPRIVATEBYTES$\\' --critical-app-private-bytes=\\'$_SERVICECRITICALAPPPRIVATEBYTES$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Compute-Functions-Api-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_compute_functions_api.pl --plugin=cloud::azure::compute::functions::plugin --mode=io-operations --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\'  --warning-write-bytes=\\'$_SERVICEWARNINGWRITEBYTES$\\' --critical-write-bytes=\\'$_SERVICECRITICALWRITEBYTES$\\' --warning-write-operations=\\'$_SERVICEWARNINGWRITEOPERATIONS$\\' --critical-write-operations=\\'$_SERVICECRITICALWRITEOPERATIONS$\\' --warning-other-operations=\\'$_SERVICEWARNINGOTHEROPERATIONS$\\' --critical-other-operations=\\'$_SERVICECRITICALOTHEROPERATIONS$\\' --warning-read-bytes=\\'$_SERVICEWARNINGREADBYTES$\\' --critical-read-bytes=\\'$_SERVICECRITICALREADBYTES$\\' --warning-other-bytes=\\'$_SERVICEWARNINGOTHERBYTES$\\' --critical-other-bytes=\\'$_SERVICECRITICALOTHERBYTES$\\' --warning-read-operations=\\'$_SERVICEWARNINGREADOPERATIONS$\\' --critical-read-operations=\\'$_SERVICECRITICALREADOPERATIONS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Compute-Functions-Api-Io-operations",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_compute_functions_api.pl --plugin=cloud::azure::compute::functions::plugin --mode=http-requests --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-http-401=\\'$_SERVICEWARNINGHTTP401$\\' --critical-http-401=\\'$_SERVICECRITICALHTTP401$\\' --warning-http-3xx=\\'$_SERVICEWARNINGHTTP3XX$\\' --critical-http-3xx=\\'$_SERVICECRITICALHTTP3XX$\\' --warning-http-101=\\'$_SERVICEWARNINGHTTP101$\\' --critical-http-101=\\'$_SERVICECRITICALHTTP101$\\' --warning-http-406=\\'$_SERVICEWARNINGHTTP406$\\' --critical-http-406=\\'$_SERVICECRITICALHTTP406$\\' --warning-requests-queue=\\'$_SERVICEWARNINGREQUESTSQUEUE$\\' --critical-requests-queue=\\'$_SERVICECRITICALREQUESTSQUEUE$\\' --warning-http-2xx=\\'$_SERVICEWARNINGHTTP2XX$\\' --critical-http-2xx=\\'$_SERVICECRITICALHTTP2XX$\\' --warning-requests=\\'$_SERVICEWARNINGREQUESTS$\\' --critical-requests=\\'$_SERVICECRITICALREQUESTS$\\' --warning-http-404=\\'$_SERVICEWARNINGHTTP404$\\' --critical-http-404=\\'$_SERVICECRITICALHTTP404$\\' --warning-http-5xx=\\'$_SERVICEWARNINGHTTP5XX$\\' --critical-http-5xx=\\'$_SERVICECRITICALHTTP5XX$\\' --warning-http-4xx=\\'$_SERVICEWARNINGHTTP4XX$\\' --critical-http-4xx=\\'$_SERVICECRITICALHTTP4XX$\\' --warning-http-403=\\'$_SERVICEWARNINGHTTP403$\\' --critical-http-403=\\'$_SERVICECRITICALHTTP403$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Compute-Functions-Api-Http-Requests",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_compute_functions_api.pl --plugin=cloud::azure::compute::functions::plugin --mode=health --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --ok-status=\\'$_SERVICEOKSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Compute-Functions-Api-Health",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_compute_functions_api.pl --plugin=cloud::azure::compute::functions::plugin --mode=gc-usage --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-gc-gen0=\\'$_SERVICEWARNINGGCGEN0$\\' --critical-gc-gen0=\\'$_SERVICECRITICALGCGEN0$\\' --warning-gc-gen2=\\'$_SERVICEWARNINGGCGEN2$\\' --critical-gc-gen2=\\'$_SERVICECRITICALGCGEN2$\\' --warning-gc-gen2=\\'$_SERVICEWARNINGGCGEN2$\\' --critical-gc-gen2=\\'$_SERVICECRITICALGCGEN2$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Compute-Functions-Api-Gc-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_compute_functions_api.pl --plugin=cloud::azure::compute::functions::plugin --mode=filesystem-usage --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Compute-Functions-Api-File-System",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_compute_functions_api.pl --plugin=cloud::azure::compute::functions::plugin --mode=app-usage --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-app-domains=\\'$_SERVICEWARNINGAPPDOMAINS$\\' --critical-app-domains=\\'$_SERVICECRITICALAPPDOMAINS$\\' --warning-assemblies=\\'$_SERVICEWARNINGASSEMBLIES$\\' --critical-assemblies=\\'$_SERVICECRITICALASSEMBLIES$\\' --warning-handle=\\'$_SERVICEWARNINGHANDLE$\\' --critical-handle=\\'$_SERVICECRITICALHANDLE$\\' --warning-app-domain-unloaded=\\'$_SERVICEWARNINGAPPDOMAINUNLOADED$\\' --critical-app-domain-unloaded=\\'$_SERVICECRITICALAPPDOMAINUNLOADED$\\' --warning-connections=\\'$_SERVICEWARNINGCONNECTIONS$\\' --critical-connections=\\'$_SERVICECRITICALCONNECTIONS$\\' --warning-thread=\\'$_SERVICEWARNINGTHREAD$\\' --critical-thread=\\'$_SERVICECRITICALTHREAD$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Compute-Functions-Api-App-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_compute_functions_api.pl --plugin=cloud::azure::compute::functions::plugin --mode=data --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-data-in=\\'$_SERVICEWARNINGDATAIN$\\' --critical-data-in=\\'$_SERVICECRITICALDATAIN$\\' --warning-data-out=\\'$_SERVICEWARNINGDATAOUT$\\' --critical-data-out=\\'$_SERVICECRITICALDATAOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Compute-Functions-Api-Data",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_compute_functions_api.pl --plugin=cloud::azure::compute::functions::plugin --mode=cpu-time --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\'  --warning-cpu-time=\\'$_SERVICEWARNINGCPUTIME$\\' --critical-cpu-time=\\'$_SERVICECRITICALCPUTIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Compute-Functions-Api-Cpu-Time",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_compute_functions_api.pl --statefile-suffix='autodiscovery' --plugin=cloud::azure::compute::functions::plugin --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Compute-Functions-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Azure Functions via l'API}\r\n{EN: Template to check Azure Functions using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Functions Instance using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-compute-functions-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Compute-Functions",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Compute-Functions-Status-Api",
+                "Cloud-Azure-Compute-Functions-Response-Time-Api",
+                "Cloud-Azure-Compute-Functions-Memory-Api",
+                "Cloud-Azure-Compute-Functions-IO-Operations-Api",
+                "Cloud-Azure-Compute-Functions-Http-Requests-Api",
+                "Cloud-Azure-Compute-Functions-Health-Api",
+                "Cloud-Azure-Compute-Functions-Gc-Usage-Api",
+                "Cloud-Azure-Compute-Functions-FIle-System-Api",
+                "Cloud-Azure-Compute-Functions-Executions-Api",
+                "Cloud-Azure-Compute-Functions-Data-Api",
+                "Cloud-Azure-Compute-Functions-Cpu-Time-Api",
+                "Cloud-Azure-Compute-Functions-App-Usage-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-compute-functions-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ add proper tags management",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Azure Functions service using RestAPI or AZCLI.**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|Cloud-Azure-Compute-Functions-custom|\r\n|---|\r\n|App-Usage|\r\n|Cpu-Time|\r\n|Data|\r\n|File-System|\r\n|Gc-Usage|\r\n|Health|\r\n|Http-Requests|\r\n|IO-Operations|\r\n|Memory|\r\n|Response-Time|\r\n|Status|\r\n\r\nThis Plugin-Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin-Pack pour superviser les resources Azure Functions via RestAPI ou AZCLI.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponibles et services associ\u00e9s:\r\n\r\n|Cloud-Azure-Compute-Functions-custom|\r\n|---|\r\n|App-Usage|\r\n|Cpu-Time|\r\n|Data|\r\n|File-System|\r\n|Gc-Usage|\r\n|Health|\r\n|Http-Requests|\r\n|IO-Operations|\r\n|Memory|\r\n|Response-Time|\r\n|Status|\r\n\r\nCe Plugin-Pack fournit un *provider* Host Discovery pour le module d\\'auto-d\u00e9couverte d\\'H\u00f4tes"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure Functions",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_compute_functions_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Compute-Functions-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-compute-functions",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Cloud",
+            "Microsoft",
+            "Azure",
+            "Functions",
+            "HostDisco",
+            "Rest",
+            "API",
+            "Restapi"
+        ],
+        "update_date": "1636822628",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de l'application Azure Functions.}\r\n\r\n{EN: Check Azure Functions app status.}",
+            "active_checks_enabled": 2,
+            "alias": "Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Compute-Functions-Api-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Compute-Functions-Status-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le temps de r\u00e9ponse de l'application Azure Functions.}\r\n\r\n{EN: Check Azure Functions app response time.}",
+            "active_checks_enabled": 2,
+            "alias": "Response-Time",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Compute-Functions-Api-Response-Time",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Compute-Functions-Response-Time-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation de la m\u00e9moire utilis\u00e9e par l'application Azure Functions.}\r\n\r\n{EN: Check Azure Functions app memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Compute-Functions-Api-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Compute-Functions-Memory-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les op\u00e9ration E/S de l'application Azure Functions.}\r\n\r\n{EN: Check Azure Functions I/O op\u00e9rations.}",
+            "active_checks_enabled": 2,
+            "alias": "IO-Operations",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Compute-Functions-Api-Io-operations",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Compute-Functions-IO-Operations-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les requ\u00eates HTTP de l'application Azure Functions.}\r\n\r\n{EN: Check Azure Functions HTTP requests.}",
+            "active_checks_enabled": 2,
+            "alias": "Http-Requests",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Compute-Functions-Api-Http-Requests",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Compute-Functions-Http-Requests-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la disponibilit\u00e9 des ressources Azure Functions.}\r\n\r\n{EN: Check Azure Functions.}",
+            "active_checks_enabled": 2,
+            "alias": "Health",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Compute-Functions-Api-Health",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEOKSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^Available$/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^Unavailable$/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^Unknown$/"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Compute-Functions-Health-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du r\u00e9cup\u00e9rateur de m\u00e9moire de l'application Azure Functions.}\r\n\r\n{EN: Check Azure Functions garbage collector usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Gc-Usage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Compute-Functions-Api-Gc-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Compute-Functions-Gc-Usage-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du syst\u00e8me de fichiers de l'application Azure Functions.}\r\n\r\n{EN: Check Azure Functions file system.}",
+            "active_checks_enabled": 2,
+            "alias": "File-System",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Compute-Functions-Api-File-System",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT6H"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Compute-Functions-FIle-System-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre d'ex\u00e9cutions de fonctions.}\r\n\r\n{EN: Check functions executions.}",
+            "active_checks_enabled": 2,
+            "alias": "Executions",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Compute-Functions-Api-App-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Compute-Functions-Executions-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation de la bande passante de l'application Azure Functions.}\r\n\r\n{EN: Check Azure Functions app bandwith usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Data",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Compute-Functions-Api-Data",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Compute-Functions-Data-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le temps processeur utilis\u00e9 l'application Azure Functions.}\r\n\r\n{EN: Check Azure Functions Cpu time consumed by the app.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu-Time",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Compute-Functions-Api-Cpu-Time",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Compute-Functions-Cpu-Time-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation de l'application Azure Functions.}\r\n\r\n{EN: Check Azure Functions app usage.}",
+            "active_checks_enabled": 2,
+            "alias": "App-Usage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Compute-Functions-Api-App-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Compute-Functions-App-Usage-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

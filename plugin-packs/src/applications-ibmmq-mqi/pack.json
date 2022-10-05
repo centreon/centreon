@@ -1,0 +1,208 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ibmmq_mqi.pl --plugin=apps::mq::ibmmq::mqi::plugin --mode=queues --hostname=\\'$HOSTADDRESS$\\' --channel=\\'$_HOSTIBMMQMQICHANNEL$\\' --port=\\'$_HOSTIBMMQMQIPORT$\\' $_HOSTIBMMQMQIEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-connections-input=\\'$_SERVICEWARNINGCONNECTIONSINPUT$\\' --critical-connections-input=\\'$_SERVICECRITICALCONNECTIONSINPUT$\\' --warning-messages-depth=\\'$_SERVICEWARNINGMESSAGESDEPTH$\\' --critical-messages-depth=\\'$_SERVICECRITICALMESSAGESDEPTH$\\' --warning-message-oldest=\\'$_SERVICEWARNINGMESSAGEOLDEST$\\' --critical-message-oldest=\\'$_SERVICECRITICALMESSAGEOLDEST$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Ibmmq-Mqi-Queues",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ibmmq_mqi.pl --plugin=apps::mq::ibmmq::mqi::plugin --mode=queue-manager --hostname=\\'$HOSTADDRESS$\\' --channel=\\'$_HOSTIBMMQMQICHANNEL$\\' --port=\\'$_HOSTIBMMQMQIPORT$\\' $_HOSTIBMMQMQIEXTRAOPTIONS$ --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-connections=\\'$_SERVICEWARNINGCONNECTIONS$\\' --critical-connections=\\'$_SERVICECRITICALCONNECTIONS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Ibmmq-Mqi-Queue-Manager",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ibmmq_mqi.pl --plugin=apps::mq::ibmmq::mqi::plugin --mode=channels --hostname=\\'$HOSTADDRESS$\\' --channel=\\'$_HOSTIBMMQMQICHANNEL$\\' --port=\\'$_HOSTIBMMQMQIPORT$\\' $_HOSTIBMMQMQIEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Ibmmq-Mqi-Channels",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser IBM MQ (version <= 7.5) via MQI}\r\n{EN: Template to check IBM MQ (version <= 7.5) using MQI}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check IBM MQ using MQI (version <= 7.5)",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "ibm-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTIBMMQMQIPORT$",
+                    "value": "1414"
+                },
+                {
+                    "key": "$_HOSTIBMMQMQIEXTRAOPTIONS$",
+                    "value": "--runas=centreon"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Ibmmq-Mqi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Ibmmq-Queues-Mqi",
+                "App-Ibmmq-Queue-Manager-Mqi",
+                "App-Ibmmq-Channels-Mqi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAAsSAAALEgHS3X78AAAE50lEQVR42u2cX2gcVRSHy1prt6IhsbaNttmkFlGDJdUQ8SH0QYKClYoggT4UbS2RFpvd1CjFaksfVaLFh4IiCq1iVUREpBCk7qTVIt2XUmMRg9AW/0AeNBVUEOu9OOh02dk9d+bcccl+H/wgD/eec+beX5Izs3dnwQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaDIKxfJezxqvyndvBjmjKhltMOpwXJerPdRyY8q9ulm5nhEb9JJn/VR1ERMZ5KylP42OGt3fs+tTyWIv81DDnpQGOKBcT6WVDBDVlFHv/2CAszc9eSLh5gdX2rXEAHr6zWhLxgawGkj427/BQy0VmiAAgJa+DfzIsw5V5dti9GET6l2jtkidbR5z7Xbco1c91THRyk1gLe3KoAm0+tlosXDzb/FYRwUDXK4TGRnAaqPQAM/5NsApz5qsuqBSBjmT6vPuYvmKsM52z7meFRrgkMcaDtMEAQBAzP+fY0bnBTqrlG+TMJ/VJuEz9E6HmFYPCGs97Ri3ls4ZLY+JP6gQ3+pYmg2ZFnaTc0oG2ObQwW4TGmClY2d8t7DWWaVOvBgT/3Wl+NMYQB7zd6MlGRvgVI3YeaNfmsEA+41eE+gVJQMMCvNZDQoN0O4Qc7dDrS85xG2ktqrYvYqx99PMAEACuktBh9H1Ai1VyrdYmM+HFjrWulQ5fz6Mm1eO25F4Q5q8CdTUN93F8lWOtc4q13A4jPumctxpDFBfF436EtQ66xD/L8G4X+0zAbuWwuNsf2CA9LK3WusT1io1wIzRceHYo8Jx7wiNktoAw0aPC7RVyQC3CvNpqTdFrY8Ic9inmwPKddt12iocO0w3CwDJn8zdJ9CQUr5Vwnxa6kxR6z3CHOv/Gf9ZXqnmJWH+IeH4wTQbMt+bwAtGt/luAu34rp1TOfPzdynr/b5Q+vfE0hx3ATr6wajbtwEin62kqXUiEgsDKOrLnvAsoGcDrBE+E4hTf9YGWGt0l0D9SgZYJsznQ3nHWu8Uxu2rmndHwvoGVj89GY3TL5y3lm4WAJL9SR4xekagcaV864T5rNbJYgbXOsTc7FDrmDDmjhpzNzrUZPVQjRjjwrkj87UJ9HEk7GJhtLzIVxMYmbvZsfl7rEaMOc4E6hvgkrShTWmAa8JP/6QvsmjDANkZ4GHfBgjnvyWcfyRmvn8DdJWmFkqlY4CpnDSfHSuJuXr0uNN1FMbKOd21qX3SqGssEF3rqmKQa4a9AYD5eqv3otEHfhVcF8n3qP98ifVe1+h/j4TDc/VpYx6ss/adDeb21Jn7tsY120AV/8/ag5WRwpv5BRGVqkU+rxBzJm4Te/d9ZXOciZlnvzeYq2OAOY1rxgCXa2+WBghzPBUz74UG89QMcCT8pqtHBcurnmCdbkLZN2asqFrkSYW4nzTYyBti5vU1mHdS47ppggAAWvo28OPwrJpHBSsi+fb4zyfSTL2XRYe1fqGQpyzchwPh+PeF489orEOr3gV8a0/1ChbZ+11AJNeD4fidwvHcBibQ10bbC8IvgmZsgEVGP9pjcVkbYJ/RG34VtEcKHw7ff5OVXg43/fY1T5x0/fc4oXD9zzvkG3IYe1Bjb2iCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJqNvwHNnenmiznmwAAAAABJRU5ErkJggg==",
+            "name": "ibm-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* add filter channel name option",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor IBM MQ (version <= 7.5) using MQI:\r\n* Channels\r\n* Queues\r\n* Queue manager"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser IBM MQ (version <= 7.5) via MQI :\r\n* Channels\r\n* Queues\r\n* Queue manager"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAAsSAAALEgHS3X78AAAE50lEQVR42u2cX2gcVRSHy1prt6IhsbaNttmkFlGDJdUQ8SH0QYKClYoggT4UbS2RFpvd1CjFaksfVaLFh4IiCq1iVUREpBCk7qTVIt2XUmMRg9AW/0AeNBVUEOu9OOh02dk9d+bcccl+H/wgD/eec+beX5Izs3dnwQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaDIKxfJezxqvyndvBjmjKhltMOpwXJerPdRyY8q9ulm5nhEb9JJn/VR1ERMZ5KylP42OGt3fs+tTyWIv81DDnpQGOKBcT6WVDBDVlFHv/2CAszc9eSLh5gdX2rXEAHr6zWhLxgawGkj427/BQy0VmiAAgJa+DfzIsw5V5dti9GET6l2jtkidbR5z7Xbco1c91THRyk1gLe3KoAm0+tlosXDzb/FYRwUDXK4TGRnAaqPQAM/5NsApz5qsuqBSBjmT6vPuYvmKsM52z7meFRrgkMcaDtMEAQBAzP+fY0bnBTqrlG+TMJ/VJuEz9E6HmFYPCGs97Ri3ls4ZLY+JP6gQ3+pYmg2ZFnaTc0oG2ObQwW4TGmClY2d8t7DWWaVOvBgT/3Wl+NMYQB7zd6MlGRvgVI3YeaNfmsEA+41eE+gVJQMMCvNZDQoN0O4Qc7dDrS85xG2ktqrYvYqx99PMAEACuktBh9H1Ai1VyrdYmM+HFjrWulQ5fz6Mm1eO25F4Q5q8CdTUN93F8lWOtc4q13A4jPumctxpDFBfF436EtQ66xD/L8G4X+0zAbuWwuNsf2CA9LK3WusT1io1wIzRceHYo8Jx7wiNktoAw0aPC7RVyQC3CvNpqTdFrY8Ic9inmwPKddt12iocO0w3CwDJn8zdJ9CQUr5Vwnxa6kxR6z3CHOv/Gf9ZXqnmJWH+IeH4wTQbMt+bwAtGt/luAu34rp1TOfPzdynr/b5Q+vfE0hx3ATr6wajbtwEin62kqXUiEgsDKOrLnvAsoGcDrBE+E4hTf9YGWGt0l0D9SgZYJsznQ3nHWu8Uxu2rmndHwvoGVj89GY3TL5y3lm4WAJL9SR4xekagcaV864T5rNbJYgbXOsTc7FDrmDDmjhpzNzrUZPVQjRjjwrkj87UJ9HEk7GJhtLzIVxMYmbvZsfl7rEaMOc4E6hvgkrShTWmAa8JP/6QvsmjDANkZ4GHfBgjnvyWcfyRmvn8DdJWmFkqlY4CpnDSfHSuJuXr0uNN1FMbKOd21qX3SqGssEF3rqmKQa4a9AYD5eqv3otEHfhVcF8n3qP98ifVe1+h/j4TDc/VpYx6ss/adDeb21Jn7tsY120AV/8/ag5WRwpv5BRGVqkU+rxBzJm4Te/d9ZXOciZlnvzeYq2OAOY1rxgCXa2+WBghzPBUz74UG89QMcCT8pqtHBcurnmCdbkLZN2asqFrkSYW4nzTYyBti5vU1mHdS47ppggAAWvo28OPwrJpHBSsi+fb4zyfSTL2XRYe1fqGQpyzchwPh+PeF489orEOr3gV8a0/1ChbZ+11AJNeD4fidwvHcBibQ10bbC8IvgmZsgEVGP9pjcVkbYJ/RG34VtEcKHw7ff5OVXg43/fY1T5x0/fc4oXD9zzvkG3IYe1Bjb2iCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJqNvwHNnenmiznmwAAAAABJRU5ErkJggg==",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Ibmmq-Mqi\r\n\r\n## IBM MQ Client SDK:\r\nGo to download \"MQSeries.tar.gz\" on IBM website.\r\n\r\nInstall with the following procedure::\r\n1. Copy archive on the poller\r\n2. Validate the licence\r\n\r\n\r\n    # bash mqlicense.sh\r\n\r\n3. Install rpm::\r\n\r\n\r\n    # yum install MQSeriesClient-7.5.0-2.x86_64.rpm MQSeriesRuntime-7.5.0-2.x86_64.rpm MQSeriesSDK-7.5.0-2.x86_64.rpm\r\n\r\n4. Create '/etc/sudoers.d/centreon-mq'::\r\n\r\n\r\n    User_Alias      CENTREONENGINE=%centreon-engine\r\n    Defaults:CENTREONENGINE !requiretty\r\n    # Plugin MQ\r\n    CENTREONENGINE   ALL = (centreon) NOPASSWD: /usr/lib/centreon/plugins/centreon_ibmmq_mqi.pl\r\n\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Ibmmq-Mqi-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Host Macro Configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"23%\" />\r\n<col width=\"53%\" />\r\n<col width=\"24%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IBMMQMQIPORT</p></td>\r\n<td align=\"left\"><p>Port of the IBM MQ instance</p></td>\r\n<td align=\"left\"><p>1414</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>IBMMQMQICHANNEL</p></td>\r\n<td align=\"left\"><p>Channel of the IBM MQ instance</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "IBM MQ MQI",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_ibmmq_mqi.pl",
+                "package_name": "centreon-plugin-Applications-Ibmmq-Mqi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-ibmmq-mqi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "MQ",
+            "IBM",
+            "MQI",
+            "Application"
+        ],
+        "update_date": "1582882999",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les queues.}\r\n\r\n{EN: Check queues.}",
+            "active_checks_enabled": 2,
+            "alias": "Queues",
+            "check_timeperiod": "",
+            "command_name": "App-Ibmmq-Mqi-Queues",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": "^(?!(SYSTEM|PERL.COMMAND))"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Ibmmq-Queues-Mqi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la queue manager.}\r\n\r\n{EN: Check queue manager.}",
+            "active_checks_enabled": 2,
+            "alias": "Queue-Manager",
+            "check_timeperiod": "",
+            "command_name": "App-Ibmmq-Mqi-Queue-Manager",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{mgr_status} !~ /running/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Ibmmq-Queue-Manager-Mqi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les canaux.}\r\n\r\n{EN: Check channels.}",
+            "active_checks_enabled": 2,
+            "alias": "Channels",
+            "check_timeperiod": "",
+            "command_name": "App-Ibmmq-Mqi-Channels",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{channel_status} !~ /running|idle/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Ibmmq-Channels-Mqi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

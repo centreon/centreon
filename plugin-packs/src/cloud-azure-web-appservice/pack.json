@@ -1,0 +1,1507 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Web-AppService-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Web App Service resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Web/sites/FRT123456ABCD78",
+                            "location": "westeurope",
+                            "name": "FRT123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Web/sites"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Web/sites/FRT789012EFGH34",
+                            "location": "westus",
+                            "name": "FRT789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Web/sites"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": "discovery.results.id"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Web-AppService-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure App Service",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-web-appservice",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Web-AppService-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Web App Service resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Web/sites/FRT123456ABCD78",
+                            "location": "westeurope",
+                            "name": "FRT123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Web/sites"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Web/sites/FRT789012EFGH34",
+                            "location": "westus",
+                            "name": "FRT789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Web/sites"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Web-AppService-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure App Service",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-web-appservice",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Web-AppService-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Web App Service resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Web/sites/FRT123456ABCD78",
+                            "location": "westeurope",
+                            "name": "FRT123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Web/sites"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Web/sites/FRT789012EFGH34",
+                            "location": "westus",
+                            "name": "FRT789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Web/sites"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Web-AppService-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure App Service",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-web-appservice",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_web_appservice_api.pl --plugin=cloud::azure::web::appservice::plugin --mode=status --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Web-AppService-Api-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_web_appservice_api.pl --plugin=cloud::azure::web::appservice::plugin --mode=response-time --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-response-time=\\'$_SERVICEWARNINGRESPONSETIME$\\' --critical-response-time=\\'$_SERVICECRITICALRESPONSETIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Web-AppService-Api-Response-Time",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_web_appservice_api.pl --plugin=cloud::azure::web::appservice::plugin --mode=memory --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\'  --warning-app-average-memory=\\'$_SERVICEWARNINGAPPAVERAGEMEMORY$\\' --critical-app-average-memory=\\'$_SERVICECRITICALAPPAVERAGEMEMORY$\\' --warning-app-memory=\\'$_SERVICEWARNINGAPPMEMORY$\\' --critical-app-memory=\\'$_SERVICECRITICALAPPMEMORY$\\' --warning-app-private-bytes=\\'$_SERVICEWARNINGAPPPRIVATEBYTES$\\' --critical-app-private-bytes=\\'$_SERVICECRITICALAPPPRIVATEBYTES$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Web-AppService-Api-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_web_appservice_api.pl --plugin=cloud::azure::web::appservice::plugin --mode=io-operations --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\'  --warning-write-bytes=\\'$_SERVICEWARNINGWRITEBYTES$\\' --critical-write-bytes=\\'$_SERVICECRITICALWRITEBYTES$\\' --warning-write-operations=\\'$_SERVICEWARNINGWRITEOPERATIONS$\\' --critical-write-operations=\\'$_SERVICECRITICALWRITEOPERATIONS$\\' --warning-other-operations=\\'$_SERVICEWARNINGOTHEROPERATIONS$\\' --critical-other-operations=\\'$_SERVICECRITICALOTHEROPERATIONS$\\' --warning-read-bytes=\\'$_SERVICEWARNINGREADBYTES$\\' --critical-read-bytes=\\'$_SERVICECRITICALREADBYTES$\\' --warning-other-bytes=\\'$_SERVICEWARNINGOTHERBYTES$\\' --critical-other-bytes=\\'$_SERVICECRITICALOTHERBYTES$\\' --warning-read-operations=\\'$_SERVICEWARNINGREADOPERATIONS$\\' --critical-read-operations=\\'$_SERVICECRITICALREADOPERATIONS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Web-AppService-Api-Io-operations",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_web_appservice_api.pl --plugin=cloud::azure::web::appservice::plugin --mode=http-requests --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-http-401=\\'$_SERVICEWARNINGHTTP401$\\' --critical-http-401=\\'$_SERVICECRITICALHTTP401$\\' --warning-http-3xx=\\'$_SERVICEWARNINGHTTP3XX$\\' --critical-http-3xx=\\'$_SERVICECRITICALHTTP3XX$\\' --warning-http-101=\\'$_SERVICEWARNINGHTTP101$\\' --critical-http-101=\\'$_SERVICECRITICALHTTP101$\\' --warning-http-406=\\'$_SERVICEWARNINGHTTP406$\\' --critical-http-406=\\'$_SERVICECRITICALHTTP406$\\' --warning-requests-queue=\\'$_SERVICEWARNINGREQUESTSQUEUE$\\' --critical-requests-queue=\\'$_SERVICECRITICALREQUESTSQUEUE$\\' --warning-http-2xx=\\'$_SERVICEWARNINGHTTP2XX$\\' --critical-http-2xx=\\'$_SERVICECRITICALHTTP2XX$\\' --warning-requests=\\'$_SERVICEWARNINGREQUESTS$\\' --critical-requests=\\'$_SERVICECRITICALREQUESTS$\\' --warning-http-404=\\'$_SERVICEWARNINGHTTP404$\\' --critical-http-404=\\'$_SERVICECRITICALHTTP404$\\' --warning-http-5xx=\\'$_SERVICEWARNINGHTTP5XX$\\' --critical-http-5xx=\\'$_SERVICECRITICALHTTP5XX$\\' --warning-http-4xx=\\'$_SERVICEWARNINGHTTP4XX$\\' --critical-http-4xx=\\'$_SERVICECRITICALHTTP4XX$\\' --warning-http-403=\\'$_SERVICEWARNINGHTTP403$\\' --critical-http-403=\\'$_SERVICECRITICALHTTP403$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Web-AppService-Api-Http-Requests",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_web_appservice_api.pl --plugin=cloud::azure::web::appservice::plugin --mode=health --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --ok-status=\\'$_SERVICEOKSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Web-AppService-Api-Health",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_web_appservice_api.pl --plugin=cloud::azure::web::appservice::plugin --mode=gc-usage --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-gc-gen0=\\'$_SERVICEWARNINGGCGEN0$\\' --critical-gc-gen0=\\'$_SERVICECRITICALGCGEN0$\\' --warning-gc-gen2=\\'$_SERVICEWARNINGGCGEN2$\\' --critical-gc-gen2=\\'$_SERVICECRITICALGCGEN2$\\' --warning-gc-gen2=\\'$_SERVICEWARNINGGCGEN2$\\' --critical-gc-gen2=\\'$_SERVICECRITICALGCGEN2$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Web-AppService-Api-Gc-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_web_appservice_api.pl --plugin=cloud::azure::web::appservice::plugin --mode=filesystem-usage --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Web-AppService-Api-File-System",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_web_appservice_api.pl --plugin=cloud::azure::web::appservice::plugin --mode=data --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-data-in=\\'$_SERVICEWARNINGDATAIN$\\' --critical-data-in=\\'$_SERVICECRITICALDATAIN$\\' --warning-data-out=\\'$_SERVICEWARNINGDATAOUT$\\' --critical-data-out=\\'$_SERVICECRITICALDATAOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Web-AppService-Api-Data",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_web_appservice_api.pl --plugin=cloud::azure::web::appservice::plugin --mode=cpu-time --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\'  --warning-cpu-time=\\'$_SERVICEWARNINGCPUTIME$\\' --critical-cpu-time=\\'$_SERVICECRITICALCPUTIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Web-AppService-Api-Cpu-Time",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_web_appservice_api.pl --plugin=cloud::azure::web::appservice::plugin --mode=app-usage --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-app-domains=\\'$_SERVICEWARNINGAPPDOMAINS$\\' --critical-app-domains=\\'$_SERVICECRITICALAPPDOMAINS$\\' --warning-assemblies=\\'$_SERVICEWARNINGASSEMBLIES$\\' --critical-assemblies=\\'$_SERVICECRITICALASSEMBLIES$\\' --warning-handle=\\'$_SERVICEWARNINGHANDLE$\\' --critical-handle=\\'$_SERVICECRITICALHANDLE$\\' --warning-app-domain-unloaded=\\'$_SERVICEWARNINGAPPDOMAINUNLOADED$\\' --critical-app-domain-unloaded=\\'$_SERVICECRITICALAPPDOMAINUNLOADED$\\' --warning-connections=\\'$_SERVICEWARNINGCONNECTIONS$\\' --critical-connections=\\'$_SERVICECRITICALCONNECTIONS$\\' --warning-thread=\\'$_SERVICEWARNINGTHREAD$\\' --critical-thread=\\'$_SERVICECRITICALTHREAD$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Web-AppService-Api-App-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_web_appservice_api.pl --statefile-suffix='autodiscovery' --plugin=cloud::azure::web::appservice::plugin --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Web-AppService-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les instances Azure App Service via l'API}\r\n{EN: Template to check Azure App Service resources service using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure App Service service using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-web-appservice-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Web-AppService",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Web-AppService-Status-Api",
+                "Cloud-Azure-Web-AppService-Response-Time-Api",
+                "Cloud-Azure-Web-AppService-Memory-Api",
+                "Cloud-Azure-Web-AppService-IO-Operations-Api",
+                "Cloud-Azure-Web-AppService-Http-Requests-Api",
+                "Cloud-Azure-Web-AppService-Health-Api",
+                "Cloud-Azure-Web-AppService-Gc-Usage-Api",
+                "Cloud-Azure-Web-AppService-FIle-System-Api",
+                "Cloud-Azure-Web-AppService-Data-Api",
+                "Cloud-Azure-Web-AppService-Cpu-Time-Api",
+                "Cloud-Azure-Web-AppService-App-Usage-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-web-appservice-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ add proper tags management",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Azure App Service service using RestAPI or AZCLI.**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|Cloud-Azure-Web-AppService-custom|\r\n|---|\r\n|App-Usage|\r\n|Cpu-Time|\r\n|Data|\r\n|File-System|\r\n|Gc-Usage|\r\n|Health|\r\n|Http-Requests|\r\n|IO-Operations|\r\n|Memory|\r\n|Response-Time|\r\n|Status|\r\n\r\nThis Plugin-Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin-Pack pour superviser les resources Azure App Service via RestAPI ou AZCLI.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponibles et services associ\u00e9s:\r\n\r\n|Cloud-Azure-Web-AppService-custom|\r\n|---|\r\n|App-Usage|\r\n|Cpu-Time|\r\n|Data|\r\n|File-System|\r\n|Gc-Usage|\r\n|Health|\r\n|Http-Requests|\r\n|IO-Operations|\r\n|Memory|\r\n|Response-Time|\r\n|Status|\r\n\r\nCe Plugin-Pack fournit un *provider* Host Discovery pour le module d\\'auto-d\u00e9couverte d\\'H\u00f4tes"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure App Service",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_web_appservice_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Web-AppService-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-web-appservice",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Cloud",
+            "Azure",
+            "Restapi",
+            "API",
+            "Rest",
+            "HostDisco",
+            "App",
+            "Web",
+            "Microsoft"
+        ],
+        "update_date": "1636825741",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de l'application Azure App Service.}\r\n\r\n{EN: Check Azure App Service app status.}",
+            "active_checks_enabled": 2,
+            "alias": "Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Web-AppService-Api-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Web-AppService-Status-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le temps de r\u00e9ponse de l'application Azure App Service.}\r\n\r\n{EN: Check Azure App Service app response time.}",
+            "active_checks_enabled": 2,
+            "alias": "Response-Time",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Web-AppService-Api-Response-Time",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Web-AppService-Response-Time-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation de la m\u00e9moire utilis\u00e9e par l'application Azure App Service.}\r\n\r\n{EN: Check Azure App Service app memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Web-AppService-Api-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Web-AppService-Memory-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les op\u00e9ration E/S de l'application Azure App Service.}\r\n\r\n{EN: Check Azure App Service I/O op\u00e9rations.}",
+            "active_checks_enabled": 2,
+            "alias": "IO-Operations",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Web-AppService-Api-Io-operations",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Web-AppService-IO-Operations-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les requ\u00eates HTTP de l'application Azure App Service.}\r\n\r\n{EN: Check Azure App Service HTTP requests.}",
+            "active_checks_enabled": 2,
+            "alias": "Http-Requests",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Web-AppService-Api-Http-Requests",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Web-AppService-Http-Requests-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la disponibilit\u00e9 des ressources Azure App Service.}\r\n\r\n{EN: Check Azure App Service.}",
+            "active_checks_enabled": 2,
+            "alias": "Health",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Web-AppService-Api-Health",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEOKSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^Available$/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^Unavailable$/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^Unknown$/"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Web-AppService-Health-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du r\u00e9cup\u00e9rateur de m\u00e9moire de l'application Azure App Service.}\r\n\r\n{EN: Check Azure App Service garbage collector usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Gc-Usage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Web-AppService-Api-Gc-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Web-AppService-Gc-Usage-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du syst\u00e8me de fichiers l'application Azure App Service.}\r\n\r\n{EN: Check Azure App Service file system.}",
+            "active_checks_enabled": 2,
+            "alias": "File-System",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Web-AppService-Api-File-System",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT6H"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Web-AppService-FIle-System-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation de la bande passante de l'application Azure App Service.}\r\n\r\n{EN: Check Azure App Service app bandwith usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Data",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Web-AppService-Api-Data",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Web-AppService-Data-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le temps processeur utilis\u00e9 l'application Azure App Service.}\r\n\r\n{EN: Check Azure App Service Cpu time consumed by the app.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu-Time",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Web-AppService-Api-Cpu-Time",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Web-AppService-Cpu-Time-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation de l'application Azure App Service.}\r\n\r\n{EN: Check Azure App Service app usage.}",
+            "active_checks_enabled": 2,
+            "alias": "App-Usage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Web-AppService-Api-App-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Web-AppService-App-Usage-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

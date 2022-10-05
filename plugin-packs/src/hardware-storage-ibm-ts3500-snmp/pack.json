@@ -1,0 +1,126 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ibm_ts3500.pl --plugin=storage::ibm::ts3500::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-IBM-Ts3500-SNMP-Hardware",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check IBM TS3500 Tape Library using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "Hardware-IBM-64.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-IBM-Ts3500-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Storage-IBM-Ts3500-Hardware-Global-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAACxIAAAsSAdLdfvwAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuOWwzfk4AAASXSURBVGhD7VddbxtFFOX3QYV44RWk8o4QoIJ4aiilAkooFUhQ2gYFFGgJidsiRKuQ2m2JE0rz0Xz4I45tYqd27NiOvf6M7ZiTmcn13cnuEqqgVao9Og/ee4+v5+ze2bl+rnfM4RlwG54Bt+EZcBueAbfhGXAbngG34RlwG54Bt+EZcBvPkIFbM+lLv8Uc+DhZqjY7WtCSw5OJPyNb7XZXlRa4aV9/s9RQIoZ41tBkRCxVibiBU1fnnj8dcODYVCq33dCCDnzl0+B0eEtV7/XeujyrCYgj/qQSMXzmC2syIpaqRNzAdrW1VW46sN5qd3d3+5EKIwXNLFSaqjrVt9KXay0lYigZtutBKSXiBvyLm6N/rDswulFpNNta8DBM5Wv/Wj9T2NMQYk8qmoATpZTuf20h4sVbEdR/076FQHS2XIbEmR+XNAGndQul8lXcYwcWjWanu6sFD8ONQh3113PVSLpiR2TlMiQSWafFYKlKxw0QVta37z7OEqvNtkqYMRXKTy5kJe8t9Z8pUDRalAL5VgZQn2eJ1EWJTYMvgBhJl6WAw8LAJz+v8OeFm6ESZrw6GCTNy+ceqKjA3FqRUuAbl2ZVQmBwPMSzxAu+sBS8N7ygpSS/EK2owcLA6pPKVChHrNk8gblYiTQPo6Z7jLcEpUDtzmGD8iwRtqUAZwgug6E8iKcniA95y1t5NAYcOB9XyyLYGQCxW3B+aUFiPGOoEgxH00L29KO51Rf2obXQaxdn6PPAyOLrXz+iy5Of91Pgl79EVQkGCwPhVDmwuEm028QzkS0us+RCoqTUDBFzfTQYfX6wnKPPIE+BeP+oEgwWBjKFBjwQmzsdlTBjLWNwmSU3zMeTRKZY5xqMTKsbFR6RRP1Wu8MjWauRycLA+bEja6EXz9z7K6bvAa2FcDgOjFgcW2evLWWLdR45bAs9Wi34gmmi5aAC3JnNcJkdJ+Yy6gv7wO7nAown2NZjU+vjQcHplC8IpvEEqo0drjz4PgAsDGzXWphviZ3OrkqYgaGKy1RUAF/hKYxlKiFQru3wLAZEBDHh8aCcAtudLg8aDYvdeGQtpKIC+ApPnbwwrRICB1sIwY9Gl3lw0BdC8Clb6P5SbuhOjIi5QCXMuH7/76GJOFFFBXD/Lt+OEYcm1lRCAHMHry/fcnjDiMu1K4LoHwSNepsrca6JAib0DaAQTlAH4nXU7e6dsv+V+B8n6ne0uCRqSlTqOzJS3W8Vu5/jb/a+gbevOI27IPbW043TH4+uoL7dOC1bCMCoIyPf3FajtdZCROtx+kYw9dWvUQcuJku4SVrwMJQHEPxrcUnUlAvApCAjNFpju5OM88a01X/iY4q+gXe+nX/htF/yxEDgxPv+PnE5ELg5k8bjJo2Jml7wpQ8CPwSS4iW5h1NX+/U5qYWA4cnE93cT6kKc2ZpY8t2heaXgBr6bTJ69tnzuJ0V81vgwWsAz1YIH+eH15cHxMA6mfNl0OAz/HteUkqipFOJfW1r8gZYoVVuaWJKbfIZa6JjCM+A2PANuwzPgNjwDbsMz4DY8A27DM+A2PANuwzPgLnq9fwA6R9kjCHBwCAAAAABJRU5ErkJggg==",
+            "name": "Hardware-IBM-64.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ fix hardcoded snmp community and version",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor IBM TS3500 tape library via SNMP :\r\n* Hardware"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les librairies IBM TS3500 en SNMP:\r\n* Hardware"
+            }
+        ],
+        "discovery_category": "storage",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Storage-Ibm-Ts3500-Snmp\r\n\r\n## SNMP\r\nSNMP must be configured on the monitored host\r\n\r\n## Centreon Configuration\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Storage-IBM-Ts3500-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "IBM TS3500",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_ibm_ts3500.pl",
+                "package_name": "centreon-plugin-Hardware-Storage-Ibm-Ts3500-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "centreon-plugin-Hardware-Storage-Ibm-Ts3500-Snmp",
+                "version": "20170329-2"
+            }
+        ],
+        "slug": "hardware-storage-ibm-ts3500-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "IBM",
+            "Hardware",
+            "Storage",
+            "SNMP"
+        ],
+        "update_date": "1503583533",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'ensemble du mat\u00e9riel.}\r\n\r\n{EN: Check all hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-IBM-Ts3500-SNMP-Hardware",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Storage-IBM-Ts3500-Hardware-Global-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,283 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_informix_snmp.pl --plugin=database::informix::snmp::plugin --mode=sessions --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-sessions=\\'$_SERVICEWARNINGSESSIONS$\\' --critical-sessions=\\'$_SERVICECRITICALSESSIONS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Informix-SNMP-Sessions",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_informix_snmp.pl --plugin=database::informix::snmp::plugin --mode=logfile-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Informix-SNMP-Logfile-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_informix_snmp.pl --plugin=database::informix::snmp::plugin --mode=lock-stats --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-lock-dead=\\'$_SERVICEWARNINGLOCKDEAD$\\' --critical-lock-dead=\\'$_SERVICECRITICALLOCKDEAD$\\' --warning-lock-wait=\\'$_SERVICEWARNINGLOCKWAIT$\\' --critical-lock-wait=\\'$_SERVICECRITICALLOCKWAIT$\\' --warning-lock-request=\\'$_SERVICEWARNINGLOCKREQUEST$\\' --critical-lock-request=\\'$_SERVICECRITICALLOCKREQUEST$\\' --warning-lock-timeout=\\'$_SERVICEWARNINGLOCKTIMEOUT$\\' --critical-lock-timeout=\\'$_SERVICECRITICALLOCKTIMEOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Informix-SNMP-Lock-Stats",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_informix_snmp.pl --plugin=database::informix::snmp::plugin --mode=global-cache --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-read=\\'$_SERVICEWARNINGREAD$\\' --critical-read=\\'$_SERVICECRITICALREAD$\\' --warning-write=\\'$_SERVICEWARNINGWRITE$\\' --critical-write=\\'$_SERVICECRITICALWRITE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Informix-SNMP-Global-Cache",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_informix_snmp.pl --plugin=database::informix::snmp::plugin --mode=dbspace-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Informix-SNMP-Dbspace-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_informix_snmp.pl --plugin=database::informix::snmp::plugin --mode=chunk-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Informix-SNMP-Chunk-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_informix_snmp.pl --plugin=database::informix::snmp::plugin --mode=archivelevel0 --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --timezone=\\'$HOSTTIMEZONE$\\' --warning-time=\\'$_SERVICEWARNINGTIME$\\' --critical-time=\\'$_SERVICECRITICALTIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Informix-SNMP-Archivelevel0",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser une base de donn\u00e9es Informix en SNMP}\r\n{EN: Template to check Informix Database in SNMP}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Informix Database in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "informix-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Informix-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-DB-Informix-Sessions-SNMP",
+                "App-DB-Informix-Logfile-Usage-SNMP",
+                "App-DB-Informix-Lock-Stats-SNMP",
+                "App-DB-Informix-Global-Cache-SNMP",
+                "App-DB-Informix-Dbspace-Usage-SNMP",
+                "App-DB-Informix-Chunk-Status-SNMP",
+                "App-DB-Informix-Archivelevel0-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "informix-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* add disco capabilities",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor IBM Informix DBMS using SNMP:\r\n* Archivelevel0\r\n* Chunk-Status\r\n* Dbspace-Usage\r\n* Global-Cache\r\n* Lock-Stats\r\n* Logfile-Usage\r\n* Sessions"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack Plugin pour surveiller les SGBD IBM Informix en utilisant SNMP.\r\n* Archivelevel0\r\n* Chunk-Status\r\n* Dbspace-Usage\r\n* Global-Cache\r\n* Lock-Stats\r\n* Logfile-Usage\r\n* Sessions"
+            }
+        ],
+        "discovery_category": "database",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Databases-Informix-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-DB-Informix-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Informix DB SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_informix_snmp.pl",
+                "package_name": "centreon-plugin-Applications-Databases-Informix-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-databases-informix-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "IBM",
+            "Informix",
+            "SGBD",
+            "SNMP"
+        ],
+        "update_date": "1572008222",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les sessions courantes.} {EN: Check current sessions.}",
+            "active_checks_enabled": 2,
+            "alias": "Sessions",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Informix-SNMP-Sessions",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Informix-Sessions-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des fichiers de log.} {EN: Check log files usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Logfile-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Informix-SNMP-Logfile-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Informix-Logfile-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les verrous.} {EN: Check instance locks.}",
+            "active_checks_enabled": 2,
+            "alias": "Lock-Stats",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Informix-SNMP-Lock-Stats",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Informix-Lock-Stats-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation du cache.} {EN: Check write/read cached.}",
+            "active_checks_enabled": 2,
+            "alias": "Global-Cache",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Informix-SNMP-Global-Cache",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Informix-Global-Cache-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des dbspaces.} {EN: Check dbspaces usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Dbspace-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Informix-SNMP-Dbspace-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Informix-Dbspace-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le statut des 'chunk'.} {EN: Check chunk status.}",
+            "active_checks_enabled": 2,
+            "alias": "Chunk-Status",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Informix-SNMP-Chunk-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /inconsistent/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Informix-Chunk-Status-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier la derni\u00e8re sauvegarde} {EN: Check last full backup.}",
+            "active_checks_enabled": 2,
+            "alias": "Archivelevel0",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Informix-SNMP-Archivelevel0",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Informix-Archivelevel0-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

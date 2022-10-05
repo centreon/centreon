@@ -1,0 +1,262 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_skype_2015_sql.pl --plugin=database::mssql::plugin --dyn-mode=centreon::common::microsoft::skype::mssql::mode::videoqoe --hostname=$HOSTADDRESS$ --username=\\'$_HOSTMSSQLUSERNAME$\\' --password=\\'$_HOSTMSSQLPASSWORD$\\' --port=$_HOSTMSSQLPORT$ --timeframe=\\'$_SERVICETIMEFRAME$\\' --warning-recv-frame=\\'$_SERVICEWARNINGRECEIVEFRAME$\\' --critical-recv-frame=\\'$_SERVICECRITICALRECEIVEFRAME$\\' --warning-local-frame-loss=\\'$_SERVICEWARNINGFRAMELOSS$\\' --critical-local-frame-loss=\\'$_SERVICECRITICALFRAMELOSS$\\' --warning-post-fecplr=\\'$_SERVICEWARNINGPOSTFECPLR$\\' --critical-post-fecplr=\\'$_SERVICECRITICALPOSTFECPLR$\\' --warning-packet-loss=\\'$_SERVICEWARNINGPCKTLOSS$\\' --critical-packet-loss=\\'$_SERVICECRITICALPACKETLOSS$\\' --warning-inbound-frame=\\'$_SERVICEWARNINGINBOUNDFRAME$\\' --critical-inbound-frame=\\'$_SERVICECRITICALINBOUNDFRAME$\\' --warning-outbound-frame=\\'$_SERVICEWARNINGOUTBOUNDFRAME$\\' --critical-outbound-frame=\\'$_SERVICECRITICALOUTBOUNDFRAME$\\' --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Skype-2015-Mssql-Video-Qoe",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_skype_2015_sql.pl --plugin=database::mssql::plugin --dyn-mode=centreon::common::microsoft::skype::mssql::mode::sessionstypes --hostname=$HOSTADDRESS$ --username=\\'$_HOSTMSSQLUSERNAME$\\' --password=\\'$_HOSTMSSQLPASSWORD$\\' --port=$_HOSTMSSQLPORT$ --timeframe=\\'$_SERVICETIMEFRAME$\\' --warning-instant-messaging=\\'$_SERVICEWARNINGIM$\\' --critical-instant-messaging $_SERVICECRITICALIM$ --warning-file-transfer=\\'$_SERVICEWARNINGFILETRANSFER$\\' --critical-file-transfer=\\'$_SERVICECRITICALFILETRANSFER$\\' --warning-remote-assistance=\\'$_SERVICEWARNINGREMOTEASSISTANCE$\\' --critical-remote-assistance=\\'$_SERVICECRITICALREMOTEASSISTANCE$\\' --warning-app-sharing=\\'$_SERVICEWARNINGAPPSHARING$\\' --critical-app-sharing=\\'$_SERVICECRITICALAPPSHARING$\\' --warning-audio=\\'$_SERVICEWARNINGAUDIO$\\' --critical-audio=\\'$_SERVICECRITICALAUDIO$\\' --warning-video=\\'$_SERVICEWARNINGVIDEO$\\' --critical-video=\\'$_SERVICECRITICALVIDEO$\\' --warning-app-invite=\\'$_SERVICEWARNINGAPPINVITE$\\' --critical-app-invite=\\'$_SERVICECRITICALAPPINVITE$\\' --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Skype-2015-Mssql-Sessions-Types",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_skype_2015_sql.pl --plugin=database::mssql::plugin --dyn-mode=centreon::common::microsoft::skype::mssql::mode::poorcalls --hostname=$HOSTADDRESS$ --username=\\'$_HOSTMSSQLUSERNAME$\\' --password=\\'$_HOSTMSSQLPASSWORD$\\' --port=\\'$_HOSTMSSQLPORT$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --warning-global=\\'$_SERVICEWARNINGGLOBAL$\\' --critical-global=\\'$_SERVICECRITICALGLOBAL$\\' --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Skype-2015-Mssql-Poor-Calls",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_skype_2015_sql.pl --plugin=database::mssql::plugin --dyn-mode=centreon::common::microsoft::skype::mssql::mode::audioqoe --hostname=$HOSTADDRESS$ --username=\\'$_HOSTMSSQLUSERNAME$\\' --password=\\'$_HOSTMSSQLPASSWORD$\\' --port=$_HOSTMSSQLPORT$ --timeframe=\\'$_SERVICETIMEFRAME$\\' --warning-jitter-min=\\'$_SERVICEWARNINGJITTERMIN$\\' --critical-jitter-min=\\'$_SERVICECRITICALJITTERMIN$\\' --warning-jitter-max=\\'$_SERVICEWARNINGJITTERMAX$\\' --critical-jitter-max=\\'$_SERVICECRITICALJITTERMAX$\\' --warning-jitter-avg=\\'$_SERVICEWARNINGJITTERAVG$\\' --critical-jitter-avg=\\'$_SERVICECRITICALJITTERAVG$\\' --warning-loss-min=\\'$_SERVICEWARNINGLOSSMIN$\\' --critical-loss-min=\\'$_SERVICECRITICALLOSSMIN$\\' --warning-loss-max=\\'$_SERVICEWARNINGLOSSMAX$\\' --critical-loss-max=\\'$_SERVICECRITICALLOSSMAX$\\' --warning-loss-avg=\\'$_SERVICEWARNINGLOSSAVG$\\' --critical-loss-avg=\\'$_SERVICECRITICALLOSSAVG$\\' --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Skype-2015-Mssql-Audio-Qoe",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_skype_2015_sql.pl --plugin=database::mssql::plugin --dyn-mode=centreon::common::microsoft::skype::mssql::mode::appsharingqoe --hostname=$HOSTADDRESS$ --username=\\'$_HOSTMSSQLUSERNAME$\\' --password=\\'$_HOSTMSSQLPASSWORD$\\' --port=$_HOSTMSSQLPORT$ --timeframe=\\'$_SERVICETIMEFRAME$\\' --warning-spoiled-tile-prct-total-avg=\\'$_SERVICEWARNINGSPOILEDPRCT$\\' --critical-spoiled-tile-prct-total-avg=\\'$_SERVICECRITICALSPOILEDPRCT$\\' --warning-rdp-tile-processing-latency-avg=\\'$_SERVICEWARNINGRDPPROCESSINGLATENCY$\\' --critical-rdp-tile-processing-latency-avg=\\'$_SERVICECRITICALRDPPROCESSINGLATENCY$\\' --warning-relative-one-way-average=\\'$_SERVICEWARNINGRELATIVEONEWAY$\\' --critical-relative-one-way-average=\\'$_SERVICECRITICALRELATIVEONEWAY$\\' --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Skype-2015-Mssql-App-Sharing-Qoe",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Microsoft Skype For Business 2015 using the SQL database",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "skype-64.png",
+            "macros": [
+                {
+                    "key": "$_HOSTMSSQLUSERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTMSSQLPASSWORD$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTMSSQLPORT$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Skype-2015-Mssql",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Skype-2015-Video-Qoe-Mssql",
+                "App-Skype-2015-Session-Types-Mssql",
+                "App-Skype-2015-Poor-Calls-Mssql",
+                "App-Skype-2015-Audio-Qoe-Mssql",
+                "App-Skype-2015-App-Sharing-Qoe-Mssql"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "skype-64.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* stable version",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Microsoft Skype For Business 2015:\r\n* Audio-Qoe\r\n* Video-Qoe\r\n* App-Sharing-Qoe\r\n* Poor-Calls\r\n* Session-Types"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser Microsoft Skype For Business 2015:\r\n* Audio-Qoe\r\n* Video-Qoe\r\n* App-Sharing-Qoe\r\n* Poor-Calls\r\n* Session-Types"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Skype-2015-Mssql\r\n\r\n## Username\r\nThe username string should not be longer than 32 chararacters. Username\r\nmust be in the following form: [Servername|Domainname]\r\nIn order for the plugin to operate correctly, a database user with specific privileges is required.\r\nThe most simple way is to assign the Nagios-user the role \u201cserveradmin\u201d. As an alternative you can use the sa-User for the database connection. Alas, this opens a serious security hole, as the (cleartext) administrator password can be found in the nagios configuration files\r\nBirk Bohne wrote the following script which allows the automated creation of a minimal, yet sufficient privileged monitoring-user.\r\n\r\n    declare @dbname varchar(255)\r\n    declare @check_mssql_health_USER varchar(255)\r\n    declare @check_mssql_health_PASS varchar(255)\r\n    declare @check_mssql_health_ROLE varchar(255)\r\n    declare @source varchar(255)\r\n    declare @options varchar(255)\r\n    declare @backslash int\r\n    \r\n    /*******************************************************************/\r\n    SET @check_mssql_health_USER = '\"[Servername|Domainname]\\Username\"'\r\n    SET @check_mssql_health_PASS = 'Password'\r\n    SET @check_mssql_health_ROLE = 'Rolename'\r\n    /******************************************************************\r\n    \r\n    PLEASE CHANGE THE ABOVE VALUES ACCORDING TO YOUR REQUIREMENTS\r\n    \r\n    - Example for Windows authentication:\r\n      SET @check_mssql_health_USER = '\"[Servername|Domainname]\\Username\"'\r\n      SET @check_mssql_health_ROLE = 'Rolename'\r\n    \r\n    - Example for SQL Server authentication:\r\n      SET @check_mssql_health_USER = 'Username'\r\n      SET @check_mssql_health_PASS = 'Password'\r\n      SET @check_mssql_health_ROLE = 'Rolename'\r\n    \r\n    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\r\n    It is strongly recommended to use Windows authentication. Otherwise\r\n    you will get no reliable results for database usage.\r\n    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\r\n    \r\n    *********** NO NEED TO CHANGE ANYTHING BELOW THIS LINE *************/\r\n    \r\n    SET @options = 'DEFAULT_DATABASE=MASTER, DEFAULT_LANGUAGE=English'\r\n    SET @backslash = (SELECT CHARINDEX('\\', @check_mssql_health_USER))\r\n    IF @backslash > 0\r\n      BEGIN\r\n        SET @source = ' FROM WINDOWS'\r\n        SET @options = ' WITH ' + @options\r\n      END\r\n    ELSE\r\n      BEGIN\r\n        SET @source = ''\r\n        SET @options = ' WITH PASSWORD=''' + @check_mssql_health_PASS + ''',' + @options\r\n      END\r\n    \r\n    PRINT 'create Nagios plugin user ' + @check_mssql_health_USER\r\n    EXEC ('CREATE LOGIN ' + @check_mssql_health_USER + @source + @options)\r\n    EXEC ('USE MASTER GRANT VIEW SERVER STATE TO ' + @check_mssql_health_USER)\r\n    EXEC ('USE MASTER GRANT ALTER trace TO ' + @check_mssql_health_USER)\r\n    EXEC ('USE MSDB GRANT SELECT ON sysjobhistory TO ' + @check_mssql_health_USER)\r\n    EXEC ('USE MSDB GRANT SELECT ON sysjobschedules TO ' + @check_mssql_health_USER)\r\n    EXEC ('USE MSDB GRANT SELECT ON sysjobs TO ' + @check_mssql_health_USER)\r\n    PRINT 'User ' + @check_mssql_health_USER + ' created.'\r\n    PRINT ''\r\n    \r\n    declare dblist cursor for\r\n      select name from sysdatabases WHERE name NOT IN ('master', 'tempdb', 'msdb') open dblist\r\n        fetch next from dblist into @dbname\r\n        while @@fetch_status = 0 begin\r\n          EXEC ('USE [' + @dbname + '] print ''Grant permissions in the db '' + ''\"'' + DB_NAME() + ''\"''')\r\n          EXEC ('USE [' + @dbname + '] CREATE ROLE ' + @check_mssql_health_ROLE)\r\n          EXEC ('USE [' + @dbname + '] GRANT EXECUTE TO ' + @check_mssql_health_ROLE)\r\n          EXEC ('USE [' + @dbname + '] GRANT VIEW DATABASE STATE TO ' + @check_mssql_health_ROLE)\r\n          EXEC ('USE [' + @dbname + '] GRANT VIEW DEFINITION TO ' + @check_mssql_health_ROLE)\r\n          EXEC ('USE [' + @dbname + '] CREATE USER ' + @check_mssql_health_USER + ' FOR LOGIN ' + @check_mssql_health_USER)\r\n          EXEC ('USE [' + @dbname + '] EXEC sp_addrolemember ' + @check_mssql_health_ROLE + ' , ' + @check_mssql_health_USER)\r\n          EXEC ('USE [' + @dbname + '] print ''Permissions in the db '' + ''\"'' + DB_NAME() + ''\" granted.''')\r\n          fetch next from dblist into @dbname\r\n        end\r\n    close dblist\r\n    deallocate dblist\r\n\r\nPlease keep in mind that check_mssql_health\u2019s functionality is limited when using SQL Server authentication. This method is strongly discouraged . Normally there is already a Nagios-(Windows-)-user which can be used for the Windows authentication method.\r\n\r\n### RPM\r\nIn order to use this template, the following RPM are needed:\r\n* freetds-0.82-6.el6.$ARCH\r\n* perl-DBD-Sybase-1.10-1.el6.rf.$ARCH\r\n* unixODBC-2.2.14-14.el6.$ARCH\r\n* unixODBC-devel-2.2.14-14.el6.$ARCH\r\n\r\n#### Configuration of freetds.conf file\r\nThe /etc/freetds.conf file have to be modified in order to encrypt the\r\npassword. To do that :\r\n\r\n    vi /etc/freetds.conf\r\nModify line tds 'version = 4.2' to 'tds version = 8.0'.\r\nThen remove comment symbol at the beginning of this line.\r\n\r\n## Centreon Configuration\r\n### Create a new Lync MSSQL instance\r\nGo to \"Configuration &gt; Hosts\" and click \"Add\". Then, fill the form as\r\nshown by the following table :\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Skype-2015-Mssql-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick \"Save\" button.\r\n\r\n#### Host Macro Configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"25%\" />\r\n<col width=\"50%\" />\r\n<col width=\"25%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>MSSQLUSERNAME</p></td>\r\n<td align=\"left\"><p>MSSQL username</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>MSSQLPASSWORD</p></td>\r\n<td align=\"left\"><p>MSSQL password</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>MSSQLPORT</p></td>\r\n<td align=\"left\"><p>Port Of the MSSQL instance (need to check in the SQL Studio if dynamic)</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n</tbody>\r\n</table>",
+        "name": "Skype 2015",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_skype_2015_sql.pl",
+                "package_name": "centreon-plugin-Applications-Skype-2015-Mssql",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-skype-2015-mssql",
+        "status": "stable",
+        "status_message": "stable version",
+        "tags": [
+            "Call",
+            "Communication",
+            "Skype",
+            "Lync",
+            "Microsoft",
+            "Windows",
+            "Office365",
+            "Video",
+            "Audio",
+            "Messaging",
+            "Conference"
+        ],
+        "update_date": "1547720180",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les metriques QoE concernant les flux vid\u00e9os.} {EN: Check video streams QoE metrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Video-Qoe",
+            "check_timeperiod": "",
+            "command_name": "App-Skype-2015-Mssql-Video-Qoe",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Skype-2015-Video-Qoe-Mssql",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de sessions de chaque types.} {EN: Check number of sessions of each types.}",
+            "active_checks_enabled": 2,
+            "alias": "Session-Types",
+            "check_timeperiod": "",
+            "command_name": "App-Skype-2015-Mssql-Sessions-Types",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Skype-2015-Session-Types-Mssql",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre d'appels de basse qualit\u00e9.} {EN: Check number of poor calls.}",
+            "active_checks_enabled": 2,
+            "alias": "Poor-Calls",
+            "check_timeperiod": "",
+            "command_name": "App-Skype-2015-Mssql-Poor-Calls",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Skype-2015-Poor-Calls-Mssql",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les metriques QoE concernant les flux audios.} {EN: Check audio streams QoE metrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Audio-Qoe",
+            "check_timeperiod": "",
+            "command_name": "App-Skype-2015-Mssql-Audio-Qoe",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Skype-2015-Audio-Qoe-Mssql",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les metriques QoE concernant les partages d'applications.} {EN: Check application sharing QoE metrics.}",
+            "active_checks_enabled": 2,
+            "alias": "App-Sharing-Qoe",
+            "check_timeperiod": "",
+            "command_name": "App-Skype-2015-Mssql-App-Sharing-Qoe",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Skype-2015-App-Sharing-Qoe-Mssql",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

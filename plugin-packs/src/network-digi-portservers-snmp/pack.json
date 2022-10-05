@@ -1,0 +1,252 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Digi-Portserverts-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Digi-Portserverts-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Digi-Portserverts-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Digi-Portserverts-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Digi-Portserverts-Traffic-Global-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_digi_portservers.pl --plugin=network::digi::portserverts::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Digi-Portserverts-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_digi_portservers.pl --plugin=network::digi::portserverts::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Digi-Portserverts-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_digi_portservers.pl --plugin=network::digi::portserverts::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Digi-Portserverts-SNMP-Traffic-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_digi_portservers.pl --plugin=network::digi::portserverts::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Digi-Portserverts-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_digi_portservers.pl --plugin=network::digi::portserverts::snmp::plugin --mode=cpu --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\'  --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Digi-Portserverts-SNMP-Cpu",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Digi PortServer TS en SNMP}\r\n{EN: Template to check Digi PortServer TS devices using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Digi PortServer TS devices using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "Network-Digi-64.jpg",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Digi-Portserverts-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Digi-Portserverts-Traffic-Global-SNMP",
+                "Net-Digi-Portserverts-Memory-SNMP",
+                "Net-Digi-Portserverts-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "Network-Digi-64.jpg"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Deprecated in favour of network-digi-portserverts-snmp",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**DEPRECATED** Please use Stable version of Digi PortServers TS.\r\n\r\nPlugin pack to monitor Digi Port Servers equipment via SNMP:\r\n* Cpu\r\n* Memory\r\n* Traffic"
+            },
+            {
+                "lang": "fr",
+                "value": "Ce Pack est **d\u00e9pr\u00e9ci\u00e9**, merci d\\'utiliser le Pack Digi PortServers TS en version Stable.\r\n\r\nPlugin pack pour superviser les \u00e9quipements Digi Port Servers via SNMP\r\n* Cpu\r\n* Memory\r\n* Traffic"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Digi-Portserverts-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your equipment\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Digi-Portserverts-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Digi PortServers TS (DEPRECATED)",
+        "plugins_requirements": [],
+        "requirement": [
+            {
+                "name": "ces-plugins-Network-Digi-Portserverts-Snmp",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "network-digi-portservers-snmp",
+        "status": "deprecated",
+        "status_message": "deprecated",
+        "tags": [
+            "Digi",
+            "Hardware",
+            "Network",
+            "PortServers",
+            "SNMP"
+        ],
+        "update_date": "1649250351",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau de plusieurs interfaces r\u00e9seau.}\r\n\r\n{EN: Check traffic of multiple network interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Digi-Portserverts-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --oid-display=ifdesc --oid-filter=ifdesc"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Digi-Portserverts-Traffic-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire vive (RAM)..}\r\n\r\n{EN: Check the rate of the utilization of memory (RAM).}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Digi-Portserverts-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGUSAGE$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALUSAGE$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Digi-Portserverts-Memory-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine (entre 0 et 255).}\r\n\r\n{EN: Check the rate of utilization of CPU (between 0 and 255).}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Digi-Portserverts-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-Digi-Portserverts-Cpu-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

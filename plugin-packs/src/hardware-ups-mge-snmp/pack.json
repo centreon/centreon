@@ -1,0 +1,366 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_mge_snmp.pl --plugin=hardware::ups::mge::snmp::plugin --mode=output-source --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Mge-SNMP-Output-Source",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_mge_snmp.pl --plugin=hardware::ups::mge::snmp::plugin --mode=output-lines --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-load=\\'$_SERVICEWARNINGLOAD$\\' --critical-load=\\'$_SERVICECRITICALLOAD$\\'  --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\'  --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\'  --warning-frequence=\\'$_SERVICEWARNINGFREQUENCE$\\' --critical-frequence=\\'$_SERVICECRITICALFREQUENCE$\\'  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Mge-SNMP-Output-Lines",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_mge_snmp.pl --plugin=hardware::ups::mge::snmp::plugin --mode=input-lines --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-frequence=\\'$_SERVICEWARNINGFREQUENCE$\\' --critical-frequence=\\'$_SERVICECRITICALFREQUENCE$\\'  --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\'  --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Mge-SNMP-Input-Lines",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_mge_snmp.pl --plugin=hardware::ups::mge::snmp::plugin --mode=environment --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-temperature=\\'$_SERVICEWARNINGTEMPERATURE$\\' --critical-temperature=\\'$_SERVICECRITICALTEMPERATURE$\\' --warning-humidity=\\'$_SERVICEWARNINGHUMIDITY$\\' --critical-humidity=\\'$_SERVICECRITICALHUMIDITY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Mge-SNMP-Environment",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_mge_snmp.pl --plugin=hardware::ups::mge::snmp::plugin --mode=battery-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Mge-SNMP-Battery-Status",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check UPS Mge using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-UPS-Mge-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-UPS-Mge-Output-Source-SNMP",
+                "HW-UPS-Mge-Output-Lines-SNMP",
+                "HW-UPS-Mge-Input-Lines-SNMP",
+                "HW-UPS-Mge-Environment-SNMP",
+                "HW-UPS-Mge-Battery-Status-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ remove hardcoded snmp community and version",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor MGE UPS System via SNMP:\r\n* Battery\r\n* Input-Lines\r\n* Output-Lines\r\n* Output-sources\r\n* Environment"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller les onduleurs MGE UPS System via SNMP :\r\n* Battery\r\n* Input-Lines\r\n* Output-Lines\r\n* Output-sources\r\n* Environment"
+            }
+        ],
+        "discovery_category": "ups-pdu",
+        "email": "imp@centreon.com",
+        "icon": "/9j/4AAQSkZJRgABAQEAYABgAAD/4QOWRXhpZgAATU0AKgAAAAgACAEaAAUAAAABAAAAbgEbAAUAAAABAAAAdgEoAAMAAAABAAIAAAExAAIAAAAQAAAAflEAAAQAAAABAAAAAFEBAAMAAAABAAEAAFECAAEAAAMAAAAAjlEDAAEAAAABAAAAAAAAAAAAAABgAAAAAQAAAGAAAAABcGFpbnQubmV0IDQuMC45AAQCBISChMQCBHx6fMTCxMwiJOSChNRCRNxiZOTi5Dw+POSipMQSFMwyNOzCxNRSXNxydFxeXOSSlPTy9KSipMQKDOyytMQaHCQiJMwqLMw6PPTS1NRKTPzi5ExOTNx6fJSSlOSKjNxqbMwSJOSanMQCFNTS1OyqrNRaXGxubBQSFNQyRLSytMwuPPTa3NRKXMwiNPTKzPz6/MQKHOy6xDQyNNQ6TPTu9FRWVOSClNRCVMwSHORyfGRmZMwaLOR6fNxaZIyKjNxidOzq7ERGRNQyPOySnPzy9JyanNxqfOyapMwGHNza3OyuvNxKXAwKDMQGBMzKzMwmJOSGhOyirMQWFMw2NPTCxKyqrCwqLMwuLNQ6RPTW1OSOnMwWJMQGFOyurBwaHLy6vNQqPPze5MwOHPS6xPzq7FxWVOR+jNxeZIR+hNRGTNxmbOzm7NxSZNx2dGReZOSWnMQOFOy2vMwaJNROVPzm5FROVJyWnOSOlNxudNzW3HR2dNQ2RPTe3MwmNDw6PERCRHRydGxmbJSOlExGTMw+RNx+hNReZPTO1NQ+TNRGVOR2hMweLOR+hOyWpPz29OyepNxOXOymrPTGzNQuPPzu7FxaXAQGBISGhHx+fMTGxOTm5PT29KSmpCQmJJSWlNTW1BQWFLS2tNROXPz+/MQOHOy+xDQ2NOSGlMwWHIyOjNxmdOzu7JyenNxufNze3AwODMzOzKyurCwuLNQ+RBweHLy+vPS+xNxWZGRiZMweJFRSVGxqbExKTMQCDMwiLOSCjNRCTNxibMQSHMwyPNxyfOSSnMQKFOyyvMwqNPTS3NRKVOSKlNxqdMwSLOSapMQCHOyqtMwiPPTK1ORyhOR6hNxabMQGDMwmLOSGjMQWHMw2PPTCzMwuNPTW3MwWLMQGHOyutMwOJFxWXNxebPzm7NQ2TPTe5NQ+VNRGXMweNPz2/OyerNxOZOymtNQuRPzu9AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/bAEMAAgEBAgEBAgICAgICAgIDBQMDAwMDBgQEAwUHBgcHBwYHBwgJCwkICAoIBwcKDQoKCwwMDAwHCQ4PDQwOCwwMDP/bAEMBAgICAwMDBgMDBgwIBwgMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDP/AABEIAIAAgAMBIgACEQEDEQH/xAAfAAABBQEBAQEBAQAAAAAAAAAAAQIDBAUGBwgJCgv/xAC1EAACAQMDAgQDBQUEBAAAAX0BAgMABBEFEiExQQYTUWEHInEUMoGRoQgjQrHBFVLR8CQzYnKCCQoWFxgZGiUmJygpKjQ1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4eLj5OXm5+jp6vHy8/T19vf4+fr/xAAfAQADAQEBAQEBAQEBAAAAAAAAAQIDBAUGBwgJCgv/xAC1EQACAQIEBAMEBwUEBAABAncAAQIDEQQFITEGEkFRB2FxEyIygQgUQpGhscEJIzNS8BVictEKFiQ04SXxFxgZGiYnKCkqNTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqCg4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2dri4+Tl5ufo6ery8/T19vf4+fr/2gAMAwEAAhEDEQA/AP30ooorMzCiiigAooooAKKKKACiiigAooooAKKKKACiiigAorw//god+2V/wwX+zDqnxH/4R3/hKv7Nu7W1/s/7f9i8zzpRHu83y5Mbc5xtOfavL/8Agln/AMFatM/4KWS+LLP/AIRP/hC9Y8LiCYWZ1X+0PtkEm4GQN5MW3aygEYP3hzXLLGUY1lh2/eeqVn+e3Q+nw/BucV8mqcQUaN8LTlyynzR0fu/ZvzfaWqjbXfc+wKKK+If+Con/AAWf07/gnB8T/D3hKHwO3jbVNY01tUuh/bI05bGIyGOL/lhLvLlJf7uAg654vEYmnQh7Sq7L7/yOTh3hvMs9xscuyql7SrJNpXS0Su3eTSXzflufb1FcT+zZ8Yv+GhPgB4N8df2d/ZH/AAlukW2q/YvtH2j7L50YfZ5m1d2M4ztGfSu2rWMlKKlHZnlYrDVMPWnh6ytKDcWt7NOzV1pv2Ciivi39vj/gtr8O/wBi/wAYP4N0nTb74jfEFWEb6Ppcwjhs5SQFjnmw22Q5+4iO3qFyKzxGIp0Y89V2R6mQcOZlneKWCyqi6tTey2S7tuyivNtI+0qK/Mi0/wCCnn7a/iSzGo6b+yl5enTDfEk8N2Jih5GQzI2cf7I+lUIf+C+fxT+DXiXT9N+MP7Nuu+GY767W2+2xXE9mi5OPlSeErIRkdJRXD/bGHXxXS7uLt+R9vHwe4iqXjhvZVZreMK9GUtN9Of8AI/UaiiivUPy0KKyPiB4q/wCEG8Ba5rYt/tR0ewnvhDv8vzvKjZ9u7B2524zg4z0NfmJ8Nf8Ag478bfGZLxvCH7LfibxSunlBdHSdemvfsxfds3+Xp7bd21sZ64Poa48Vj6GHajVdm9tG/wAkz67hvgXO8/o1cRldJThSaUm504JOV7fHKO9uh+qVFfmr/wAPzPjR/wBGX/Ev/wADL3/5W193fsyfFzVfjv8AAfw14u1vwrfeCdV1y1+0XOh3rs1xpzbmXy3LRxtnAB5RevSjD4+hXly0m2/Rr80g4g4GznJKEcRmNOMYyfKuWpSm72b2hOTWierVvM+W/wDg4b/5Ri+Jv+wvpf8A6VJX50/8E/8AVbj/AIJ5f8FAvglrc0n2bwn8YvDFj5zu3yBLxBG+Sf7l1GG9gwr9F/8Ag4b/AOUYvib/ALC+l/8ApUlfIX/BQX9nCbxz/wAEUf2e/iZpUMq6v8OdIsvOmiz5kdpcBFLZHTZKsTZ7ZJrwc0hL61KrDeEYyXybv+B/QHhVjqC4SoZRjH+5x2IrUJeTnRhyP1U0rep+zNxcR2lvJNKyxxxqXdmOAoHJJr+c79uq+uf2ztQ+OH7RU0k7aDa+MrDwp4eD9JIPLnxgdtsMELEf3rgnqDn9JP2lf+Clkd1/wQ6s/iNY6isPinxxpEXhiIxkiRNQcNDdFe4KrHO4Pb5ec4r55/bq/Zg/4ZN/4N/vhv4curNbPXNR8SWGt6ypUCT7Xcw3EjK/q0aeXFn0iFVnFRYmNofDGPO/V6R/VnD4P5dV4bxntsUuWviMTHCxXVRhLnrteTahC/mz9Kv+Cbn/ACYF8G/+xQ03/wBJ0r2yvE/+Cbv/ACYF8G/+xQ03/wBJ0r2yvocL/Bh6L8j+e+Jv+Rxi/wDr7U/9LZ4X/wAFKP2m7j9kL9ifx546sNv9safYi20ssMqt3O6wwsR3Cu4cjuFIr4O/4Nw/2QtO8aaR4p+PfiyH+3PEl7qsun6Tc32JngZQr3FzlsnzXZwu/qAG/vGvof8A4OGLCe9/4Ji+KGhVmW31bTJZdoPCfakGT+LCnf8ABvZr1jrH/BMzwzBZqqzaZqmoWt3jvL55kyf+ASJ+VeVWXtMzjCe0Y3S87/19x+tZTUll3hdisZg9KmIxKpTkt/ZqCko37N3v35mnofblVtX0ez1/T5LS+tba+tZhiSG4iEkbjryrAg/jVmvC/wBqT/go38J/2N/HWi+G/H2vXWl6t4ggFxZRRafNcCRDJ5eSUUgfNxg17FSpCnHmqNJeZ+M5XluNx+IWHy+nKpU1aUE3LTVtJa6bnulFFFaHnnI/H/8A5IR42/7AN9/6TyV+Xf8Awar/APIF+Nn/AF10b+V9X6ifH7/khHjb/sA33/pPJX4S/wDBF7/gn/q37cOm/EKTS/il4o+HH/CNyaesi6Ruxf8AnC4wX2yJ9zyzjr9814OYSlHHUJQjzO0tNundn794c4TCYngXPKOOr+wpueHvNxc7Wnde7HV3dlpte5/QRRX54/Dr/ghl4o8CfELQdcm/aS+I+pw6LqVtfvZzeZ5d2IpVkMbfvz8rBdp4PBr9DhXrYerVmn7WHL80/wAj8j4iyvK8FOEcsxqxKad2qc6fL2Xv738tj4f/AODhv/lGL4m/7C+l/wDpUldt+xx8HtP/AGgf+CQPgbwTqio1j4o8BxafIWXcIzJCQr/VWww91Fe9fHT4B+Ef2lvh3ceE/HGi2/iDw9dyxzTWczuqO8bBkOUIPDAHrWt8Ofh3ovwk8C6V4Z8O2Mel6HolutpY2kZLLbxLwqgsSePc1j9UbxMq0rcrjy2+bPajxdTp8MUMnoKUa9LESrKWnLZwjFWd78yavtbzP59v2FP2efHnxy/aw8B/s9+KrW/XwX4D8YX2uanC1uwjQw7BcAtgqVc26oP+uzYPIr9Hf+DlFRH/AME7rFVG1V8W2AAHb9zc1+gaW8cchZY0Vj1YLya4r9oD9m7wT+1N4FXwz4+0C18R6HHdJeraTu6KJkDBXyjKcgM3fvXDTyf2eGqUYyu5dX2Wy67H2mY+MCzPifL87xWH9nSwr5nCDTvJycpzV1FXm7aPtucX/wAE3P8AkwL4N/8AYoab/wCk6V7ZWR4B8CaT8L/BOk+HNBs49O0XQ7WOysbVCStvDGoVEBJJwAAOTWvXsUYOFOMH0SR+QZvjI4vH1sVBNKc5SV97Sk2r+epwv7TXwD0f9qL4BeK/h/rqn+zfFGnyWbyL963c8xyr/tJIEce6ivyD/wCCb37WOtf8EXP2j/FfwY+OFjeaX4T1m7FxFqkcLyw20w+RLyPAzJbTIFBKgspUZGQwr9tq4D9oH9ln4e/tUeGF0f4g+EtH8UWUJLQ/a4f3tuT1Mci4eMn1VhXDjMFKpONei7TjtfZrsz7fgvjbDZdgsTkWc0nWwWIs5KLSnCa2qQb05lZXT0dld2TTg8Kftf8Awp8c6DDqmk/EnwNf2Fwu5Jotbtip9j8+QR3BwRX48/8ABwP8avB/xo/bP+GEvhDxRoHiiHS9MjtryTSr+O8S2lN6zeW7RsQrY52k5wR6ivubWv8Ag3a/Zo1bVZLiLRPFGnxu2RbW2tyeUnsN4ZsfVjXffC7/AIIrfs0/Ca/t7yx+Gmn6je27K6T6rdz33zA5DbJHKZz6LXLjMPjcTT9jNRSutbt7fI+v4N4j4K4WzNZxhKuJrTUZKMHTpxS5k170vaO9r9FufVFFFFe4fhByPx+/5IR42/7AN9/6TyV+QP8AwbfftPfDr9nTRvi2vjzxv4X8HnVpdJNkNX1GK0N15YvN+zeRu271zjpuHrX7Ra3o1r4j0a80+9hW4s76F7eeJukkbqVZTj1BIr5m/wCHLP7MP/RJdE/8Crr/AOO15eMwteeIp16Nvdvvfrp0P1TgvizJcHkGYZDnMavLinSalSUG17OXN9qS3du+lzr/APh5x+zv/wBFs+Gf/hQW3/xVepfC34ueF/jd4Ph8QeD/ABBpPibQ7h3jiv8ATbpLm3kZGKsA6kgkEEH0NfP3/Dlr9mH/AKJLon/gVdf/AB2vc/gX8AvCP7NPw7t/CfgfRbfw/wCH7SWSaKzhd3RHkYs5y5J5Yk9a6KH1rm/fctvK9/xPmc9jwusOv7GliHVuv4qpqPLZ3+GTd72t03I/jh8evD/7PXh/R9T8SSXUVrrmvad4ctTBD5pN3fXKW0AYdlMki5bsOafY/HXw/qPx61D4bxy3P/CUaXokHiCeMwnyRazTSQoQ/QtvibI9MGvGv+CrPgfxH4t/Zn0fUfDHh/UvFV94J8b+HPFlxpWmp5l7eWlhqkFzcLAn/LSQRIxCDlsYGTgHF/ZX12f9ob9vv4gfFnStB8XaP4KTwbpXhWwuvEOgXeiTardJdXVzO0Vvdxxz+XGJEQs0YDMx2kgZrt6HyXQ3/jF/wVS+FvwI+LHibwr4kj8YW6+C7nT7TX9at9BnudJ0aS+RHtvPnjDbFYOvzFdqk8kV3P7Rn7Yfh39nDxB4Z0G50fxZ4s8VeMEup9I0Hw1pv26/uoLURm5nwWREij86IFncZMihdxOK+W5/+Ceep/tOft8ftHN441Pxtovwq8Qaj4Zujo9nFBbaf4z+y2EJKyXDRGdoo5owrJDIgJGG716H/wAFRvD/AIJ1OPwjdaxb/GTQfHGiwX9z4N8afDvw/f6pe6FckQrJav8AZYpRsuRsBiuI/IkWI7mUqpDGfU3grxTF448H6XrUFrqFjDq1pFdpb39s1tdQLIoYJLE3zRuM4ZTyCCKzPjN8YPD37P8A8K9e8aeLNQXS/Dfhmze+1C6MbSeVEg5wqgszHgBVBLEgAEkVz37IOu+OvE/7LngHUPidZx6f8QLzQ7WbX7dYRD5d2YwZN0akiNieWQEhWJAJABp/7Wml+F9c/Zt8ZWPjXwvq/jTwnf6c9rq2i6XYyX15f28hCOscMZEjsAd3yfMNuV5AqSR37Pf7Q0P7Qmj6hdx+EPHng59PlSM23ijSP7PmuEdN6SxYZ1dCPRtykYYKa424/wCCi3wxs/hp458TT3+pQL8PPETeFNX0x7MjUxqfmJHDbRW+d0jTmSMxbeHVwRxnHmP/AASs1Pxha658SfD8d58Rtc+B+gy6dH8PtX8e6Xc6drp3Qv8AbbLbdRRXU1tbsIVjmuIw5Luu+ULuGX4//Yth1/8A4LT+FfiB/wAI7rDeFJfB0usarNHvXSLnxDZzLbWFxOg+R7qO1ublULZIUAj7oNUUfRv7Q37Uvh39mrwnomoa5Z69qGoeJr+PStG0TSbL7XqmqXbo0ggiiDAbgiOzFmCqFJLCr+kfHaHWfgZ/wnUfhbxtFGLd5zoU2klNbBRyhj+zFuXyCQAxBHIJBFeU/wDBS7w38PvF/wAK/D9j8QtF+J01smrC70nxF4E0q+vtV8IX8cT+VfIbJJJ4yNzKCIpEYth1Kk1sf8E1vE3xH8W/sjaHd/FL+2pvEi3uoQW13rOmrpuq6jpsd5Mlhc3lsvyw3EtqsLugAwW5AORS6C6EHwL/AOCh/h39oL4m6h4V0XwP8VLW+0TUf7J1a41Hw6ba10i6+zpcCOeQudhMUsTdD/rFrU+OX7dnhf4GfGzT/h3L4f8AHXijxbqWjPr8dj4d0Y37JZpMIWkc7l24kZR+IrB/Yl+HuueCvjx+0xfatpN9p1n4l+I0Wo6VNcRFE1C2Gh6XCZYifvJ5kUiZHdGHavCv23/hpqR/4KleGPGV+PjVo/g+H4aXOktrPw/0u8vJTeNqUcq20ptoJmCmNWbBAHA5zin1H1Pr344ftLeHP2dv2btc+KniyPVdP8M+HNJ/tnUI/sha8t4doYqYs58wZwVzwciuR8cf8FD/AIW/D/4XfCfxhe61NJonxr1LTNK8Jvb25kkv5tQUPBuTqihSN5P3Oh54rI/4KH+H9S+Nv/BObx5Y+HNF1nVtQ8QaFEbPTXspFvpt0kTbHgYB1cLncrAEYIIr4X1b9gH4vaN4ps/Dt94TvZfh18C/iNocXwzW0b7Qb7TL7xNZaldXJjDEothax/ZgzAYjD8/eJECP0m/aS/aj8O/swaJos2sWevazqnibURpOiaLodl9s1LV7kxvIY4o8qPljjd2ZmVVC5JHFdJ8JPiVD8Xvh9p/iGHSfEGhR6gH/ANA1uwaxv7ZkdkZZImyVOVOCCQRggkEGvFP+ClPhz4f+KPhj4ft/H2kfE1lh1X7Vo3iPwJpN/fav4Rvkify7xDYpJPHkFkyI3Rt211Kk1uf8E4vEXxI8Ufsj+Hrr4rf2pJ4rFxewpc6ppy6bqOoWKXUqWVzdWynENxLbLE7x8bWY5AORS6C6HudFeF/8FGP2ndc/ZD/Zf1Hxr4ds9MvtUtb60tUiv0d4SssoRiQjKcgHjmvz0/4f+fGAf8y38P8A/wABLr/4/RYLH6/0V+QH/D/z4wf9C38P/wDwDuv/AI/Sf8P/AH4v/wDQt/D/AP8AAO6/+P0+Vj5WfsBRX5Af8P8Az4wf9C38P/8AwEuv/j9H/D/z4wf9C38P/wDwEuv/AI/RysOVn6/0V+QH/D/z4wYz/wAI38P+v/Pndf8Ax+gf8F/PjAf+Zb+H/wD4CXX/AMfo5WHKz9f6K/H/AP4f+/GD/oW/h/8A+Al1/wDH6X/h/wCfGDH/ACLfw/4/6dLr/wCP0crDlZ+v9FfkB/w/8+MH/Qt/D/8A8A7r/wCP0f8AD/z4wf8AQt/D/wD8BLr/AOP0crDlZ+v9FfkB/wAP/PjB/wBC38P/APwEuv8A4/R/w/8APjB/0Lfw/wD/AADuv/j9HKw5Wfr/AEV+QH/D/v4wf9C38P8A/wABLr/4/X6P/sG/tAax+1F+yx4Z8ca9bafZ6prQnM0VkjLAnlzyRjaGZj0QdSeaVhWOf/4Kafs4+Jv2qv2UdS8H+EksJNautQs7mMXlx5EO2KYO2Wwew9K/Nz/hxh8fCP8Aj38F8/8AUab/AONV+0dFHMHMfi7/AMOMvj4P+XfwX/4Om/8AjVH/AA4x+PuP+PfwX/4Om/8AjVftFRT5mPmZ+Lp/4IZ/HzP/AB7+C/8AwdN/8ao/4cZfHwf8u/gv/wAHTf8Axqv2ioo5mHMz8XT/AMEMvj5/z7+C/wDwdN/8aoP/AAQy+Pv/AD7+C+v/AEGm/wDjVftFRRzMOZn4uj/ghl8fP+ffwX/4Om/+NUH/AIIZfHz/AJ9/Bf8A4Om/+NV+0VFHMw5mfi7/AMOMvj7n/j38F/8Ag6b/AONUf8OMvj4B/wAe3gv/AMHTf/Gq/aKijmYczPxd/wCHGXx8/wCffwX3/wCY0f8A41R/w4y+Pn/Pv4L/APB03/xqv2ioo5mHMz8XT/wQy+Pn/Pv4L/8AB03/AMar9Of+Ce3wK179mv8AZJ8K+DPEy2a61o4uBcC1m86L57iSRcNgZ+Vh2r2mijmDmuFFFFSSFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAH//2Q==",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Ups-Mge-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-UPS-Mge-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "MGE UPS System",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_ups_mge_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Ups-Mge-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Hardware-Ups-Mge-Snmp",
+                "version": "20160220-1"
+            }
+        ],
+        "slug": "hardware-ups-mge-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Hardware",
+            "MGE",
+            "Psu",
+            "SNMP",
+            "Supply",
+            "UPS"
+        ],
+        "update_date": "1499675511",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de la source d'alimentation.}\r\n\r\n{EN: Check output source status.}",
+            "active_checks_enabled": 2,
+            "alias": "Output-Source",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Mge-SNMP-Output-Source",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-UPS-Mge-Output-Source-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les m\u00e9triques de la source d'alimentation.}\r\n\r\n{EN: Check output lines metrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Output-Lines",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Mge-SNMP-Output-Lines",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALCURRENT$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALLOAD$",
+                    "password": false,
+                    "value": "95"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALFREQUENCE$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALVOLTAGE$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGCURRENT$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGLOAD$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGFREQUENCE$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGVOLTAGE$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-UPS-Mge-Output-Lines-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les m\u00e9triques de l'alimentation.}\r\n\r\n{EN: Check input lines metrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Input-Lines",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Mge-SNMP-Input-Lines",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALCURRENT$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALFREQUENCE$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALVOLTAGE$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGCURRENT$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGFREQUENCE$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGVOLTAGE$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-UPS-Mge-Input-Lines-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le taux d'humidit\u00e9 et la t\u00e9mperature.}\r\n\r\n{EN: Check humidity and temperature.}",
+            "active_checks_enabled": 2,
+            "alias": "Environment",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Mge-SNMP-Environment",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGTEMPERATURE$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALTEMPERATURE$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGHUMIDITY$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALHUMIDITY$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-UPS-Mge-Environment-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de la batterie et la charge restante.}\r\n\r\n{EN: Check battery status and battery charge remaining.}",
+            "active_checks_enabled": 2,
+            "alias": "Battery-Status",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Mge-SNMP-Battery-Status",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "20:"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "50:"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-UPS-Mge-Battery-Status-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

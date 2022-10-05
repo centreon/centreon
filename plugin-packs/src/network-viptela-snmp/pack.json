@@ -1,0 +1,424 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Viptela-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Viptela-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Viptela-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "INTERFACENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Viptela-SNMP-Interface-Name",
+                "service_display_name": "Interface-$name$",
+                "service_template": "Net-Viptela-Interfaces-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Viptela-SNMP-Gre-Tunnels-Discover",
+                "command_for_macro": "Net-Viptela-SNMP-Gre-Tunnels-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$adminState$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Viptela-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERDESTIP",
+                        "value": "^$destIp$$"
+                    },
+                    {
+                        "is_empty": null,
+                        "name": "FILTERSRCIP",
+                        "value": "^$sourceIp$$"
+                    }
+                ],
+                "name": "Net-Viptela-SNMP-Gre-Tunnel-Name",
+                "service_display_name": "Gre-Tunnel-$sourceIp$-$destIp$",
+                "service_template": "Net-Viptela-Gre-Tunnels-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_viptela_snmp.pl --plugin=network::viptela::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Viptela-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_viptela_snmp.pl --plugin=network::viptela::snmp::plugin --mode=list-interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Viptela-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_viptela_snmp.pl --plugin=network::viptela::snmp::plugin --mode=list-gre-tunnels --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Viptela-SNMP-Gre-Tunnels-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_viptela_snmp.pl --plugin=network::viptela::snmp::plugin --mode=list-gre-tunnels --hostname=\\'$HOSTADDRESS$\\' --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Viptela-SNMP-Gre-Tunnels-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_viptela_snmp.pl --plugin=network::viptela::snmp::plugin --mode=uptime --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-uptime=\\'$_SERVICEWARNINGUPTIME$\\' --critical-uptime=\\'$_SERVICECRITICALUPTIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Viptela-SNMP-Uptime",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_viptela_snmp.pl --plugin=network::viptela::snmp::plugin --mode=memory --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' --warning-buffer=\\'$_SERVICEWARNINGBUFFER$\\' --critical-buffer=\\'$_SERVICECRITICALBUFFER$\\' --warning-cached=\\'$_SERVICEWARNINGCACHED$\\' --critical-cached=\\'$_SERVICECRITICALCACHED$\\' --warning-shared=\\'$_SERVICEWARNINGSHARED$\\' --critical-shared=\\'$_SERVICECRITICALSHARED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Viptela-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_viptela_snmp.pl --plugin=network::viptela::snmp::plugin --mode=hardware --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Viptela-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_viptela_snmp.pl --plugin=network::viptela::snmp::plugin --mode=disk --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Viptela-SNMP-Disk",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_viptela_snmp.pl --plugin=network::viptela::snmp::plugin --mode=cpu --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-cpu-utilization=\\'$_SERVICEWARNINGCPUUTILIZATION$\\' --critical-cpu-utilization=\\'$_SERVICECRITICALCPUUTILIZATION$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Viptela-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_viptela_snmp.pl --plugin=network::viptela::snmp::plugin --mode=interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --add-errors --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Viptela-SNMP-Interfaces",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_viptela_snmp.pl --plugin=network::viptela::snmp::plugin --mode=gre-tunnels --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-dest-ip=\\'$_SERVICEFILTERDESTIP$\\' --filter-src-ip=\\'$_SERVICEFILTERSRCIP$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-gretunnels-detected=\\'$_SERVICEWARNINGGRETUNNELSDETECTED$\\' --critical-gretunnels-detected=\\'$_SERVICECRITICALGRETUNNELSDETECTED$\\' --warning-gretunnels-up=\\'$_SERVICEWARNINGGRETUNNELSUP$\\' --critical-gretunnels-up=\\'$_SERVICECRITICALGRETUNNELSUP$\\' --warning-gretunnels-down=\\'$_SERVICEWARNINGGRETUNNELSDOWN$\\' --critical-gretunnels-down=\\'$_SERVICECRITICALGRETUNNELSDOWN$\\' --warning-gretunnels-invalid=\\'$_SERVICEWARNINGGRETUNNELSINVALID$\\' --critical-gretunnels-invalid=\\'$_SERVICECRITICALGRETUNNELSINVALID$\\' --warning-gretunnel-packets-in=\\'$_SERVICEWARNINGGRETUNNELPACKETSIN$\\' --critical-gretunnel-packets-in=\\'$_SERVICECRITICALGRETUNNELPACKETSIN$\\' --warning-gretunnel-packets-out=\\'$_SERVICEWARNINGGRETUNNELPACKETSOUT$\\' --critical-gretunnel-packets-out=\\'$_SERVICECRITICALGRETUNNELPACKETSOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Viptela-SNMP-Gre-Tunnels",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_viptela_snmp.pl --plugin=network::viptela::snmp::plugin --mode=control-connections --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-public-ip=\\'$_SERVICEFILTERPUBLICIP$\\' --filter-private-ip=\\'$_SERVICEFILTERPRIVATEIP$\\' --filter-type=\\'$_SERVICEFILTERTYPE$\\' --warning-connnections-detected=\\'$_SERVICEWARNINGCONNNECTIONSDETECTED$\\' --critical-connnections-detected=\\'$_SERVICECRITICALCONNNECTIONSDETECTED$\\' --warning-connections-trying=\\'$_SERVICEWARNINGCONNECTIONSTRYING$\\' --critical-connections-trying=\\'$_SERVICECRITICALCONNECTIONSTRYING$\\' --warning-connections-up=\\'$_SERVICEWARNINGCONNECTIONSUP$\\' --critical-connections-up=\\'$_SERVICECRITICALCONNECTIONSUP$\\' --warning-connections-down=\\'$_SERVICEWARNINGCONNECTIONSDOWN$\\' --critical-connections-down=\\'$_SERVICECRITICALCONNECTIONSDOWN$\\' --warning-connections-challengeack=\\'$_SERVICEWARNINGCONNECTIONSCHALLENGEACK$\\' --critical-connections-challengeack=\\'$_SERVICECRITICALCONNECTIONSCHALLENGEACK$\\' --warning-connections-handshake=\\'$_SERVICEWARNINGCONNECTIONSHANDSHAKE$\\' --critical-connections-handshake=\\'$_SERVICECRITICALCONNECTIONSHANDSHAKE$\\' --warning-connections-connect=\\'$_SERVICEWARNINGCONNECTIONSCONNECT$\\' --critical-connections-connect=\\'$_SERVICECRITICALCONNECTIONSCONNECT$\\' --warning-connections-teardown=\\'$_SERVICEWARNINGCONNECTIONSTEARDOWN$\\' --critical-connections-teardown=\\'$_SERVICECRITICALCONNECTIONSTEARDOWN$\\' --warning-connections-challengeresp=\\'$_SERVICEWARNINGCONNECTIONSCHALLENGERESP$\\' --critical-connections-challengeresp=\\'$_SERVICECRITICALCONNECTIONSCHALLENGERESP$\\' --warning-connections-challenge=\\'$_SERVICEWARNINGCONNECTIONSCHALLENGE$\\' --critical-connections-challenge=\\'$_SERVICECRITICALCONNECTIONSCHALLENGE$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Viptela-SNMP-Control-Connections",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Viptela en SNMP}\r\n{EN: Template to check Viptela equipments using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Viptela using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "viptela-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Viptela-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Viptela-Uptime-SNMP",
+                "Net-Viptela-Memory-SNMP",
+                "Net-Viptela-Hardware-SNMP",
+                "Net-Viptela-Disk-SNMP",
+                "Net-Viptela-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "viptela-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Viptela equipment via SNMP:\r\n* Control connections\r\n* Cpu\r\n* Disk\r\n* GRE tunnels\r\n* Hardware\r\n* Interfaces\r\n* Memory\r\n* Uptime"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser un \u00e9quipement Viptela via SNMP :\r\n* Control connections\r\n* Cpu\r\n* Disk\r\n* GRE tunnels\r\n* Hardware\r\n* Interfaces\r\n* Memory\r\n* Uptime"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Viptela SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_viptela_snmp.pl",
+                "package_name": "centreon-plugin-Network-Viptela-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-viptela-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Network",
+            "SNMP",
+            "Viptela",
+            "SD-WAN",
+            "Security"
+        ],
+        "update_date": "1644327461",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Dur\u00e9e depuis laquelle le serveur tourne sans interruption.}\r\n\r\n{EN: Time since the server has been working and available.}",
+            "active_checks_enabled": 2,
+            "alias": "Uptime",
+            "check_timeperiod": "",
+            "command_name": "Net-Viptela-SNMP-Uptime",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Viptela-Uptime-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire vive.}\r\n\r\n{EN: Check the rate of the utilization of memory.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Viptela-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Viptela-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du mat\u00e9riel.}\r\n\r\n{EN: Check hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware",
+            "check_timeperiod": "",
+            "command_name": "Net-Viptela-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Viptela-Hardware-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du disque de la machine.}\r\n\r\n{EN: Check system disk usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk",
+            "check_timeperiod": "",
+            "command_name": "Net-Viptela-SNMP-Disk",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Viptela-Disk-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine.}\r\n\r\n{EN: Check the rate of utilization of CPU for the machine.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Viptela-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Viptela-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces.}\r\n\r\n{EN: Check interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "Net-Viptela-SNMP-Interfaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} !~ /up|dormant/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Viptela-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les tunnels GRE.}\r\n\r\n{EN: Check GRE tunnels.}",
+            "active_checks_enabled": 2,
+            "alias": "Gre-Tunnels",
+            "check_timeperiod": "",
+            "command_name": "Net-Viptela-SNMP-Gre-Tunnels",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{adminState} eq \"up\" and %{operState} ne \"up\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Viptela-Gre-Tunnels-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les connexions de contr\u00f4le.}\r\n\r\n{EN: Check control connections.}",
+            "active_checks_enabled": 2,
+            "alias": "Control-Connections",
+            "check_timeperiod": "",
+            "command_name": "Net-Viptela-SNMP-Control-Connections",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /up|connect/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Viptela-Control-Connections-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

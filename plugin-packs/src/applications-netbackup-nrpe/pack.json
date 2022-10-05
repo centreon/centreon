@@ -1,0 +1,327 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::backup::netbackup::local::plugin\\' \\'job-status\\'  \\' --filter-policy-name=\\\\\\\"$_SERVICEFILTERPOLICYNAME$\\\\\\\" --filter-start-time=\\\\\\\"$_SERVICEFILTERSTARTTIME$\\\\\\\" --filter-end-time=\\\\\\\"$_SERVICEFILTERENDTIME$\\\\\\\" --filter-counters=\\\\\\\"$_SERVICEFILTERCOUNTERS$\\\\\\\" --ok-status=\\\\\\\"$_SERVICEOKSTATUS$\\\\\\\" --warning-status=\\\\\\\"$_SERVICEWARNINGSTATUS$\\\\\\\" --critical-status=\\\\\\\"$_SERVICECRITICALSTATUS$\\\\\\\" --warning-long=\\\\\\\"$_SERVICEWARNINGLONG$\\\\\\\" --critical-long=\\\\\\\"$_SERVICECRITICALLONG$\\\\\\\" --warning-frozen=\\\\\\\"$_SERVICEWARNINGFROZEN$\\\\\\\" --critical-frozen=\\\\\\\"$_SERVICECRITICALFROZEN$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Netbackup-NRPE-Job-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::backup::netbackup::local::plugin\\' \\'drive-status\\'  \\'  --warning-status=\\\\\\\"$_SERVICEWARNINGSTATUS$\\\\\\\" --critical-status=\\\\\\\"$_SERVICECRITICALSTATUS$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Netbackup-NRPE-Drive-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::backup::netbackup::local::plugin\\' \\'drive-cleaning\\'  \\' --warning-cleaning=\\\\\\\"$_SERVICEWARNINGCLEANING$\\\\\\\" --critical-cleaning=\\\\\\\"$_SERVICECRITICALCLEANING$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Netbackup-NRPE-Drive-Cleaning",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::backup::netbackup::local::plugin\\' \\'dedup-status\\'  \\'  --warning-status=\\\\\\\"$_SERVICEWARNINGSTATUS$\\\\\\\" --critical-status=\\\\\\\"$_SERVICECRITICALSTATUS$\\\\\\\" --warning-usage=\\\\\\\"$_SERVICEWARNINGUSAGE$\\\\\\\" --critical-usage=\\\\\\\"$_SERVICECRITICALUSAGE$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Netbackup-NRPE-Dedup-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::backup::netbackup::local::plugin\\' \\'tape-usage\\'  \\'  --filter-scratch=\\\\\\\"$_SERVICEFILTERSCRATCH$\\\\\\\" --warning-usage=\\\\\\\"$_SERVICEWARNINGUSAGE$\\\\\\\" --critical-usage=\\\\\\\"$_SERVICECRITICALUSAGE$\\\\\\\" --units=\\\\\\\"$_SERVICEUNITS$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Netbackup-NRPE-Tape-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Netbackup using NRPE protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "App-Netbackup-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTNRPECLIENT$",
+                    "value": "check_centreon_nrpe"
+                },
+                {
+                    "key": "$_HOSTNRPEEXTRAOPTIONS$",
+                    "value": "-u -m 8192"
+                },
+                {
+                    "key": "$_HOSTNRPEPORT$",
+                    "value": "5666"
+                },
+                {
+                    "key": "$_HOSTNRPETIMEOUT$",
+                    "value": "55"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Netbackup-NRPE",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Netbackup-Job-Status-NRPE",
+                "App-Netbackup-Drive-Status-NRPE",
+                "App-Netbackup-Drive-Cleaning-NRPE",
+                "App-Netbackup-Dedup-Status-NRPE"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "App-Netbackup-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* update nsclient link",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Symantec Netbackup application:\r\n* Deduplication-Status\r\n* Drive-Cleaning\r\n* Drive-Status\r\n* Job-Status\r\n* Tape-Usage"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser l\\'application Symantec Netbackup :\r\n* Deduplication-Status\r\n* Drive-Cleaning\r\n* Drive-Status\r\n* Job-Status\r\n* Tape-Usage"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAAB8CAIAAAAuDC/+AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAOwgAADsIBFShKgAAAAAd0SU1FB9oKBhAoF9ICWokAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuOWwzfk4AABanSURBVHhe7Z13fBTV2sfHUCJVCCVKEVREeQ02Ir0G7kUgUpQqUcp9aSqiCEqMBBuoNzQBNYiUjwgK8QKCJISSQhDTgEBiSIAAoSSkkEIghCRz9j6z58kwOTOzO5udyUbufj/PHztnzsw+8/zOnDLlDGdyYjv8ES9+b1Mwcv0IJlUVpwBVwSmAg3EK4Bj69OlT30zsnxGmsiLBSDmuqypOAWzghRde4MxER0djkt04BbABpwDVys6dOxtWJiwsrMBM6ZEX+dC2YCTvT8xdVZwCqBIUFETLu8iff2K4nY1wdeAUwDFkZ2c3MTOmf5PsXwTLifko10xZWRlmupNjup0hGH8HU6qKUwCWrKwsWt5H9ayDxTx1Ca4zAKcALE4BJJQVktzD5EIgSZpH4sbyUf34sKf5A4/xoe0EO9iRj/Dkjw4mx6eQlI/JlZ9NhYkmUlFLaGbChAmdzRQWFsLiXQFGDjeV3wT77FP/+82MHj2abqIjNU8AUkpyIkiyHx/Vmw9uRsugDbavDYl5maStNt08izu0hqenJ414fn4+LN4VYNQommHRokU0ZcSIETRFR2qSAPnxJPFdfv+jbEyrbId7kbRVppJs3L8KgwcPdjeTkpKSkZGRmJhIF8ePHw+LgL+/P02ZNGkSbqMfNUAAUk6uBvFHBrDh08tC3EnCDKF2skajRo2gmDdv3pwuit3QhQsX0hQjcKwARAh9RBc2ZIaYG4n3MRWdxn9W4n9MgPxj/B8DZWEy2IKbQ3tuKhXqeiAhIeGABKiLvLy8hg4dShdXrVoFi8CGDRtofiNwhADlxeQv36o0sHrZwSdI5m5wZOTIkbSMU9QaYUOpdgEKT/GRXdmIVK8V/tokekWj6KAZ/fr1o7Gm3PsCkMtb+JCHmHBUvx0OEOp6OcuXLw8MDAwICKCL95YAhCenFzKBcJSpCcBwDwkAY6sT/89EofotKbDx2L51wWYMcf3p/QZg/xrsisFW4l4RAKIf78PEwiEW/hUW/B5P1qYpa9+uT1MYPDw8evbs6evri4dgJAYLADXP8X+JIai6HXiMjx5OEt8hZ74iF9aS9E0kfSM5v4akfEJOTBOuEYW4s5vITLsAUVFR6L/xGCuA0N2sHAUbLLgFiX2FXFxvvqpDcI9q8CXk+lGS+hkf2Y3dT4WJAtR3vc+jXS2wVs1caArDPSIAFFImBFrt0FPk3Aqr13BUyT9GTr4hnhO3f2t6ZGkjsG/eUC7vIgOern36B/eUEweKi4txV8ZjmAD58VqqBdYOdiQXf7D/NpPA7Svk1BwY+l7e/AAG2Bre3cw3AI4M0McBbRgjQNkNPvzZSpG1bs1I0nxTmXBFXk8KT13Z3R8DbA0UYG9Tkvwhbm48hghATr0tiawGO/gkyY3EjXVl3bp1AQH/xgBX0MrNZfoQV7C+nWvTlG5P1J78j7orZ9SvcMmN5FZTM6C/ACT3MBzA3eBatT/+YSq5hhvrDY0vQ/+nsRf0wxxsFVZMF0NfYRFdoGHHvRiJ3gKQMj6yO3sw6kbixpvKDWzxaHwZ5AIsm1ZPdEk0cvbfuBcj0VkA6DUyh2HBSNwEE1+KW+pKWlra+2ZofBnau7t8NOF+av6vCvbHskaMb4Lta2PcqSmiqwDlxVCbs4ehZkeHmPjbuKGuEEIGDhyIwbbIpEF1Wa8qG0l6H3dqGHoKQC5+zxyAqoV1Nt3Jxc30ZuvWrRhga1gVgA95yFSShfs1Bv0EIDwf/hx7AIoW3MKUH4tb6U1RUVHr1q0xwCq4ubmNeLH7iB51JN0eVSOpi3HXxqCbACQrlHFdzUjKZ7iNAfj5+WGY1enRowfUfnzEC4xjynawo0ENFUU/AY69xrquaOHPyav+S5cuQeB8fX1jY+06M9LT0+vVq4dhVkcQABzOjWR9UzGSuYfu3wh0EqC0QOOFB5KxEzepoLS0tH379hgbjuvZs+fBgwdxnY1MnDgR96LCfWbgL2h+6IYx7ikaOfY6zW8E+ghArmxjnFa2w70gL25TwdmzZzE8EsaMGZOVZVvrFx8fD8HF7VUIDAzkeR66SbhN4UlNY8Z9rYwbrOgkwPGprNNKRi5vxQ0klJSUNGnSBCMkwd3d/dChQ5hJA1q6nmvXrsXcFfAxIxknFQ1aONxAb3QRgPAHOjAeK9j+9mod/6+++gojVJnatWuvXr0aM1kkNDQUt1Ghbdu2jz76KPRQcYMKSOYu1k8lI38ZdXdMDwGKUhh3FY2cehvzy4BqgXlER8qCBQswnwpQpTz//POYW4ULFy5gbga+RHjQWuYta0cGYH690UEAqFhYd5XM8llcXFzcq1cvjJaMOXPmYD4ltm/fjvnUURVAqD813DQNaWnQtTk9BEj2Y92VGxxA+S3cQIXc3NwOHTpgwGSonQfl5eWdOnXCTOpYEuDyZtZbJYMWGzfQFT0EiB3L+KpgRwZiboskJyc3btwYYyZj+fLlmE/C5s2bcbU6np6ed1/vknPzDOutkpGrv2J+XdFBAAv3wUUjie9gbmvs2rVLrTfp4uKyY8cOzGcGin/Hjh1xtQqurq5JSUm4gSKE5/e1ZhyWGzm3DPPrih4ChD7M+Co3cn4N5tbA/PnzMXgyGjRokJCQgPlMpi1btuAKdRYtWoS51eGj+jIOy024Y2oAdgvA39EylpEPgC0AY+OuXbti/GRAbzIvLw+yQefHw8MDU1WA8wPGGXS3FiBx4xmH5QZtNebWFbsFKM1jHFU0W2/5pqam1q+v+hSJt7c3RH/Pnj24rE5ISAju0SLCYywynxkjcWMxt67YLUBJJuOoopnybL7KtmLFCoyiEkuXLvXy8sIFFV566SXclzVI0nuMw3IjMYY8KlpdAth+AwAaWHF2Ejl16tSxfOUHMqSkpOC+rEGS5jEOy43EjMTcumJ/FXSdcVTRqvbUSVxcHPR8MKI2MmvWLNyLBsjJNxmH5Qa9bcytK7o0wqyvciMZuzC/jUydOhUjagvQfmRkZOAuNEDiX2Uclhs5PhVz64rdAgjd0DaMr3Ij57/F3DZy9epVC62xGtCRxe21wUf1ZxyWm/B2nwHoIYCGe3skcS7mtp0PPvgA46oNGCtkZ9v0YC8RZl+S+cwYObsUs+uKDgKQ2NGMrwr2xz8xt+3k5OQ0bNgQo6uBuXNtFPvWedZbJSNXt2N+XdFDgL8WML4qWMiD9jwFNG/ePIyuNVxdXa9cuYKbaYNc+Zn1VslMBSdwA13RQwBtVxNJjg23txggpnXr1sUYW2TKlCm4jWZIwgzGVQULbmHQXUkdBDDd+It1V8lgsIP5q4SPjw/GWB0YGSQmWp8TohJ8qabpQaL6YH690UMAwvP7H2E9ltuBDva8+BAbG4thVmfQoEGYWzPkWjDrp5IZdCUO0EMAOIxjrzMeK5qdl9QtXKGj7Npl82hDmAdK5qfcyLXfcQO90UmAyz8xHiubfXdWN27ciJFWom3btuXlNk4kXHRa02Mp0IMoK8JN9EYfAUx3cqGZYv1WMpKl6fKkIsXFxW5ubhhvGR9//DHm0ww5PoVxT9GEx+gNQycBhHN5HOO3skV2s+dRS+jjY7wr4+Likp6ejpk0khej8U0ekvEf3MQA9BMgczfjt5rZc28vIyOjZcuWGHUJ3t7emEMj0Pk53JtxTNn2P2rQewwU3QQQXk465MF6r2gh7lomEFMjNTW1f/9KLz727t07MzMTV2uDpHzGeqVi5LQ/bmMM+gkAR5W2mvFe1SI87Xwj9dy5c0FBQVu3bpXeItYIyT6odbqokJam27aNq21FTwGgq6DpGUWzkdhXqjDHpw4UpfD72zPOqJmFp/n0QlcBoHCdX8McgwUjJ6bb/wUK2yhO11pPgkHvs/gybmgYOgsgPGoZ/jx7JOpGTkwz9P2TStw8x4d1ZhywYCTlE9zQSPQWAE4Cze8qURNudldMY2gg149qrx4FC+sszFtsPPoLANg8P1b4c6aC47ix/hChYgxpyf6pRSNZ+3FrgzFEAOFO/aH/Yw7JigW3FN5H1L3HfTONjx7O/pc1I6csPYytL8YIAKUuN4oPbs4cmHULf1a4YEd43Is9lF6HLjw0pOxfWLXIHlYf5NYRowQASNoq9tg0WmQ3kr6x6te/bp4jyR9quc2rYKHtTDfP4H6qBQMFALQ8b6Nq+1pDW0Ku/kf4Xoh1iOlGMjm/mj862La5WqQW3IJkV/22XdUwVgBhykRtF9wtmhsf3oUce134SsOFteTKNpL5G8nYSS5vIWlfk6T5fPQITXeErJib8AmIasdgAYDy2xrfRHSouZH09ehw9WK8AED5ba0Xqx1iwc3JpR/R1WqnWgQASBk5NZs98ppg0NJc24tOOoLqEsAMOf+Nxhtn1WRhzxj06p12qlUAgFw/asPlMCONxE80lQpv2jiW6hZAoLSAJMxiwlGtFtrOgZU+gyMEMENywh3xJQc3GFuYbtt2+8xQHCaAAIwSLq6zYZo5O+1Pb1NeDP51jcGhAlCgkwoyhBv2LaXgZjAYtP+zpwZRAwSgEJ5kHxQe1NnXio1glS2ss3BT5dZ5/IsaSY0RQKSsiGTsEi4ihVWpsxTcnD/iJUxLlx8HquI+azA1TwApxZdJ5m5y5kvhDs/Rf0K3XXgrX7zKHeIufNghshuJGSl82+H8t8KEz4Y9Q2gQNVsANYQbBn+D0q2Fv6cA9xBOARyMUwAH4xTAwTgFcDCVBCCEJCQkbNiw4YsvvliyZMk333zz+++/X7tm+Bz6/8vcFeDXX3994okn8IlvCffdd1/37t23bt3K83o8LeKkMiiA+N16Ndzc3G7cuEEz33t4e3sPNHP8uHEP6CkjCHDo0CEMsxko8s2aNWvRokWtWrUwqUpvYP1dyMzMxIPkuCrPG15lBAFAf/x/jps5c6b4tsmdO3eio6MXLFggTtN2TyItf44RAMo7/fsOHTrcnVlcwr1d+69Zs4YePuAYAWrXxu+Z9e/fn6aqERMTs70C+YRgiYmJuG779osXL+bk5NDfV69epRmysrJWrFjx2muv+fj4wA9po3L48OF58+aNGzdu1qxZ+/btw1QJZWVlYWFhn3766eTJk8eOHTt16tRly5adP89eas7OzqZ/Kk7YlJubC925KVOmjB8/3s/PT+p2UFAQ5Bw2bBg9fMDf359uzjQG4OrGjRuheoC/njZt2nfffQdHh+tklJeX7927Fw5ngpn33nsPOji3bys/dywI0KpVK/r3DRs2FIOlyLfffktzAhMnTsTUCkaNGoXrOC45ORliSn/TWYdXrVrVoEEDmkKBThdEJz09XT7z/Lvvvkv3CYDrAQEBil+GgaLj6+srPWvDw8PpqoULF8IilO5GjSp9P7tu3brbtm2DVbCVtJFjmD17tnl/Aj///LNYSYhArAIDAzGHhLi4OMWplMH/3377DTNJEASAooG5OO6RRx4B/dUm+oUiLDrdsmVLadUEv0UvH3/8cUgRBYBFKDv0N8OQIUPc3d1xoTLiN2VBOUxS4csvv6Q5AVGAp556Ck4m+psBJLl+/bpGAWBUZGF2QDi3aDYK1BBMIZPy7LPPyitzQYDY2FjGFQjKG2+8ERERId9g0KBBmInj4uPjMdVkOnnyJKZyHJx0kCIKINK4cePBgwc/+eSTuCwBzgYQQzox04wZM+ieb926Rc9RFxeXbt26QVjfeecd6YSKsFvIQzOLAojUq1cPzrBevXpJ47hu3ToQACocOFGkkx9D3QgpAIxAYW9QxYkfpYEQzZ8/f+fOnbBWnDsH1l6+jO+RwZn62GOP0XTggQceeOWVV6DKoomurq6nTp2iOaUIAgArV65U1Bn6P1AAoTtEswHff/89ruO4xYvvfuLp66+/xlSOi4wU5khkBIBauKCgANJLS0uljsIIA+pi8z5McJJiKsd17dqVJgKbNm2Cekz6LjyUDE9PT8zKcQcOHKDpjADQ3oiVNciGqRwHxYsmAsOHD8dUWSMsPYekHXE45zCV4z78ED+9unbtWkwyVyRiIwRKQxugWF8BKACwZ88e6cd0pHh4eKSmptJsUGvXqVOHpvft25cmAi+//DJNhIqITpohFaB37940G2X06NG4guPE6APSLjkcA6aqIA0olGiaKBVA6h6we/duXMFxUDAxVV0A0Lh58+Y0HU4+6Tdtrl27RtOBzp0708R+/fphEsdt3ryZJlrlrgAAlPQff/wR+kLy2TofeughsX2GuoImghKFhcL71iCy6Ovrr+M3h6QCvPjiizSRAn0DXMFx9GSngLqYynEPP/wwpkqAP4LmHTok0EpLqw6xLpYKwMxfEBISgis4DioHTFUXAPpLmKpUGsQGD6qmkpISOK2hkqEpABwI5rNGJQFELl26tGTJknbt2uH+zIjdHum0MVAnQgrUbrgsKdH6CgB9XKg3oBzg6soYIQD0hjGV4+6//37QW4rYdwegqQBwgeOaNGmCu9CAsgAUOCGggsO9mpuRoiLhlnd+fr6oNm0qxY4KpIu9e70EgAptzpw58pNSmmKEAFBxY6o1kpKSEhIScIHj2rRpg7vQgCUBKNKqDbpZNFF0mp6bYgMgDbReAkjnDYWgDx06FGr8M2fOSD8zYIQA4BimmjtaEAc1oPhDG4lZza0g7kID1gWAEx93zHHih71++uknTOK406dPiw0AjNRoBkAXAW7evCl2BKEegH3SnIDRAkg71tBtw1QVoB8snpHQn6RNoxYEAWDcDM7RZTk9evSg+wXAJ5oI9YwYFxia0x/wx2KnGNBFABhY4jLHwRiCZqMYLQC0q+IoGg4tLS0NV0iATgH+MplgnEUzA9KuHUWaUwoHFTod5sDhQUdNeskCVJV+lBo67NIRsljtiM1Rly5dcJ0ZXQSIjo7GZY6DURjNBoAn0r6sPQLAb0yt6FOIQI8OV3DcsGHDpB/jgEHJ5MmT33rrLVw2maDbglnNX+4Qu60QeuhbDhgwQPFbHtz06dNxIzPQij7zzDNeXl7du3dnRtUwAsSNzGzbtg1XVPDJJ5Vmt9BFADiXpd07GBlt2bLl888/Z4bT9gggPZNgxBMQEODn57d0qTBTNNSu0gljwaVJkybBGd+nTx9a7KDaOXr0KN0PFOUWLVrQnEDTpk1htAFdR/HbXLAhZDt37lxERAScT9CtF5puCKs4sLIANDWMgFA7MwoxVxB1EQCAUoZJMkQH7BFAepKJwDCbroXxreI1AhEoEzQnAH9hIZj169eH/j2cGbNnz4Z+hK+vL5woQhsAOsPZpHYVCTaDikjxauq4ceMwkzleTDWnlwDw12PGjMHUCqCswamwbNkyumiPAAAUeSbK0MKJk2BChf7ggw/iCgnQ9YD+N3O5LCwsDHqGmEMC1CvHjh2jeaCqgEoJ6jehGqdJANT4MPRYvHgxdO0hQLAa+n+//PILnFmYQ8aOHTtw9xz35ptvYmoFMF5fX0FoaKXvGEKYcMX69VAoMNX8ZVVMXb+eXjQWiYqKAn9effXVmTNnbtq0iY5ICgoKaGYYHtNsGRkZNAXYv7/SjCfQQcAV69fLv9MaGxsLgx4fHx84cH9/f4ijtDxBIQAZ5s6dCw5AhgULFsCxFxcrzyYNrTe0plBqof6BzB999BH8nVSnvLw88P+6GevdUAtImwH5ITnRgs0CQOufnZ0NxRbOevHqcadOneQXrp1owWYB5B+OhdpT8SaiEy3YJgBUi0xbXatWrZUrV+JqJ7ZjmwDQIENrDjUP9IJbt24NbTW0XbjOSRUwmf4L5sYK6dk//QgAAAAASUVORK5CYII=",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-nrpe-plugin\r\n\r\n### NetBackup cli\r\nThis plugin pack requires the use of: \r\n* the Netbackup plugin provided [here](https://github.com/centreon/centreon-plugins)\r\n* the Netbackup cli (Linux or Windows)\r\n\r\nNote: If you use the NSClient++ installer provided by Centreon, the\r\nplugin is already included in centreon\\_plugins.exe configured in\r\nNSClient++\r\n\r\nYou can download it [here](https://download.centreon.com/?action=product&product=agent-nsclient&version=0.51&secKey=59d646114079212e03ec09454456a938)\r\n\r\nIf you have some problems with the centreon\\_plugins.exe, you can build it using [following procedure](https://documentation.centreon.com/docs/centreon-nsclient/en/latest/windows_agent.html#build-your-own-executable)\r\n\r\nWarning: If you use Netbackup on Windows, add options\r\n`--statefile-concat-cwd --statefile-dir=\"scripts/centreon/tmp\"` in macro\r\n`EXTRAOPTIONS` of service `App-Netbackup-Job-Status-NRPE-Custom`\r\nPowershell and `Microsoft.Exchange.Management.PowerShell.E2010` snap-in\r\nhave to be installed on Exchange Server\r\n\r\nWarning: Set service macro `MAILBOX` with the following syntax:\r\nDOMAIN\\username\r\n\r\nWarning: Don't use '!' character in centreon macro configuration!!!\r\n\r\n## Centreon Configuration\r\n### Create a new Netbackup server\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Netbackup-NRPE-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Symantec Netbackup",
+        "plugins_requirements": [],
+        "requirement": [],
+        "slug": "applications-netbackup-nrpe",
+        "status": "stable",
+        "status_message": "update nsclient link",
+        "tags": [
+            "Backup",
+            "Netbackup",
+            "Symantec",
+            "Veritas"
+        ],
+        "update_date": "1522138828",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'\u00e9tat de des jobs de sauvegarde.}\r\n\r\n{EN: Check job status.}",
+            "active_checks_enabled": 2,
+            "alias": "Job-Status",
+            "check_timeperiod": "",
+            "command_name": "App-Netbackup-NRPE-Job-Status",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERPOLICYNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERENDTIME$",
+                    "password": false,
+                    "value": "86400"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOKSTATUS$",
+                    "password": false,
+                    "value": "%{status} == 0"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} == 1"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} > 1"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALFROZEN$",
+                    "password": false,
+                    "value": "%{state} =~ /active|queue/ && %{kb} == 0"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Netbackup-Job-Status-NRPE",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'\u00e9tat de des lecteurs.}\r\n\r\n{EN: Check drive status.}",
+            "active_checks_enabled": 2,
+            "alias": "Drive-Status",
+            "check_timeperiod": "",
+            "command_name": "App-Netbackup-NRPE-Drive-Status",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "not %{status} =~ /up/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Netbackup-Drive-Status-NRPE",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier si les lecteurs doivent \u00eatre nettoy\u00e9s.}\r\n\r\n{EN: Check drive cleaning.}",
+            "active_checks_enabled": 2,
+            "alias": "Drive-Cleaning",
+            "check_timeperiod": "",
+            "command_name": "App-Netbackup-NRPE-Drive-Cleaning",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGCLEANING$",
+                    "password": false,
+                    "value": "1"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALCLEANING$",
+                    "password": false,
+                    "value": "2"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Netbackup-Drive-Cleaning-NRPE",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'\u00e9tat de la d\u00e9duplication.}\r\n\r\n{EN: Check deduplication status.}",
+            "active_checks_enabled": 2,
+            "alias": "Dedup-Status",
+            "check_timeperiod": "",
+            "command_name": "App-Netbackup-NRPE-Dedup-Status",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "not %{status} =~ /up/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Netbackup-Dedup-Status-NRPE",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des bandes.}\r\n\r\n{EN: Check tapes available in library.}",
+            "active_checks_enabled": 2,
+            "alias": "Tape-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-Netbackup-NRPE-Tape-Usage",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERSCRATCH$",
+                    "password": false,
+                    "value": "scratch"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGUSAGE$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALUSAGE$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNITS$",
+                    "password": false,
+                    "value": "%"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Netbackup-Tape-Usage-NRPE",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

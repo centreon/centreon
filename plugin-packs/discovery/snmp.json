@@ -1,0 +1,149 @@
+{
+    "name": "SNMP Agents",
+    "description": "Discover hosts by requesting their SNMP agents",
+    "command": {
+        "name": "SNMP-Resources-Discovery",
+        "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_linux_local.pl --plugin=os::linux::local::plugin --mode=discovery-snmp --subnet='$_SUBNET$' --snmp-community='$_SNMPCOMMUNITY$' --snmp-version='$_SNMPVERSION$' --snmp-port='$_SNMPPORT$' --snmp-timeout='$_SNMPTIMEOUT$' $_DISCOVERYEXTRAOPTIONS$\\\"",
+        "parameters": [
+            {
+                "name": "SUBNET",
+                "description": "Network Subnet (<IP>/<CIDR>)",
+                "mandatory": true,
+                "type": "text",
+                "value": null,
+                "locked": false,
+                "hidden": false
+            },
+            {
+                "name": "SNMPCOMMUNITY",
+                "description": "SNMP Community",
+                "mandatory": true,
+                "type": "text",
+                "value": "public",
+                "locked": false,
+                "hidden": false
+            },
+            {
+                "name": "SNMPVERSION",
+                "description": "SNMP Version",
+                "mandatory": true,
+                "type": "text",
+                "value": "2c",
+                "locked": false,
+                "hidden": false
+            },
+            {
+                "name": "SNMPPORT",
+                "description": "SNMP Port",
+                "mandatory": true,
+                "type": "text",
+                "value": 161,
+                "locked": false,
+                "hidden": false
+            },
+            {
+                "name": "SNMPTIMEOUT",
+                "description": "SNMP Timeout",
+                "mandatory": true,
+                "type": "text",
+                "value": 1,
+                "locked": false,
+                "hidden": false
+            },
+            {
+                "name": "DISCOVERYEXTRAOPTIONS",
+                "description": "Extra Options",
+                "mandatory": false,
+                "type": "text",
+                "value": null,
+                "locked": false,
+                "hidden": false
+            }
+        ]
+    },
+    "mapping": {
+        "key": "type",
+        "entries": {
+            "linux": {
+                "name": "linux",
+                "pretty_name": "Linux Server",
+                "attributs": {
+                    "hostname": {
+                        "default": {
+                            "key": "hostname",
+                            "ref": "string"
+                        },
+                        "others": []
+                    },
+                    "description": {
+                        "default": {
+                            "key": "hostname",
+                            "ref": "string"
+                        },
+                        "others": []
+                    },
+                    "ip": {
+                        "default": {
+                            "key": "ip",
+                            "ref": "string"
+                        },
+                        "others": []
+                    }
+                },
+                "templates": [
+                    {
+                        "name": "OS-Linux-SNMP-custom",
+                        "is_in_pp": false,
+                        "order": 0,
+                        "is_default": true,
+                        "macros": []
+                    }
+                ],
+                "extra_attributs": {
+                    "hostgroups": [],
+                    "categories": []
+                }
+            },
+            "windows": {
+                "name": "windows",
+                "pretty_name": "Windows Server",
+                "attributs": {
+                    "hostname": {
+                        "default": {
+                            "key": "hostname",
+                            "ref": "string"
+                        },
+                        "others": []
+                    },
+                    "description": {
+                        "default": {
+                            "key": "hostname",
+                            "ref": "string"
+                        },
+                        "others": []
+                    },
+                    "ip": {
+                        "default": {
+                            "key": "ip",
+                            "ref": "string"
+                        },
+                        "others": []
+                    }
+                },
+                "templates": [
+                    {
+                        "name": "OS-Windows-SNMP-custom",
+                        "is_in_pp": false,
+                        "order": 0,
+                        "is_default": true,
+                        "macros": []
+                    }
+                ],
+                "extra_attributs": {
+                    "hostgroups": [],
+                    "categories": []
+                }
+            }
+        }
+    }
+}

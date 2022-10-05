@@ -1,0 +1,397 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_tomcat_jmx.pl --plugin=apps::tomcat::jmx::plugin --mode=webapps-sessions --custommode=jolokia --url=\\'$_HOSTJOLOKIAURL$\\' --username=\\'$_HOSTJOLOKIAUSERNAME$\\' --password=\\'$_HOSTJOLOKIAPASSWORD$\\' --target-url=\\'$_HOSTJOLOKIATARGETURL$\\' --target-username=\\'$_HOSTJOLOKIATARGETUSERNAME$\\' --target-password=\\'$_HOSTJOLOKIATARGETPASSWORD$\\' $_HOSTJOLOKIAEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --units=\\'$_SERVICEUNITS$\\' --warning-sessions-count=\\'$_SERVICEWARNINGSESSIONSCOUNT$\\' --critical-sessions-count=\\'$_SERVICECRITICALSESSIONSCOUNT$\\' --warning-sessions-active=\\'$_SERVICEWARNINGSESSIONSACTIVE$\\' --critical-sessions-active=\\'$_SERVICECRITICALSESSIONSACTIVE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Webserver-Tomcat-Webapps-Sessions-JMX",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_tomcat_jmx.pl --plugin=apps::tomcat::jmx::plugin --mode=threads --custommode=jolokia --url=\\'$_HOSTJOLOKIAURL$\\' --username=\\'$_HOSTJOLOKIAUSERNAME$\\' --password=\\'$_HOSTJOLOKIAPASSWORD$\\' --target-url=\\'$_HOSTJOLOKIATARGETURL$\\' --target-username=\\'$_HOSTJOLOKIATARGETUSERNAME$\\' --target-password=\\'$_HOSTJOLOKIATARGETPASSWORD$\\' $_HOSTJOLOKIAEXTRAOPTIONS$ --warning-active=\\'$_SERVICEWARNINGACTIVE$\\' --critical-active=\\'$_SERVICECRITICALACTIVE$\\'  --warning-started=\\'$_SERVICEWARNINGSTARTED$\\' --critical-started=\\'$_SERVICECRITICALSTARTED$\\'  --warning-daemon=\\'$_SERVICEWARNINGDAEMON$\\' --critical-daemon=\\'$_SERVICECRITICALDAEMON$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Webserver-Tomcat-Threads-JMX",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_tomcat_jmx.pl --plugin=apps::tomcat::jmx::plugin --mode=memory --custommode=jolokia --url=\\'$_HOSTJOLOKIAURL$\\' --username=\\'$_HOSTJOLOKIAUSERNAME$\\' --password=\\'$_HOSTJOLOKIAPASSWORD$\\' --target-url=\\'$_HOSTJOLOKIATARGETURL$\\' --target-username=\\'$_HOSTJOLOKIATARGETUSERNAME$\\' --target-password=\\'$_HOSTJOLOKIATARGETPASSWORD$\\' $_HOSTJOLOKIAEXTRAOPTIONS$ --units=\\'$_SERVICEUNITS$\\' --warning-heap=\\'$_SERVICEWARNINGHEAP$\\' --critical-heap=\\'$_SERVICECRITICALHEAP$\\' --warning-nonheap=\\'$_SERVICEWARNINGNONHEAP$\\' --critical-nonheap=\\'$_SERVICECRITICALNONHEAP$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Webserver-Tomcat-Memory-JMX",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_tomcat_jmx.pl --plugin=apps::tomcat::jmx::plugin --mode=memory-detailed --custommode=jolokia --url=\\'$_HOSTJOLOKIAURL$\\' --username=\\'$_HOSTJOLOKIAUSERNAME$\\' --password=\\'$_HOSTJOLOKIAPASSWORD$\\' --target-url=\\'$_HOSTJOLOKIATARGETURL$\\' --target-username=\\'$_HOSTJOLOKIATARGETUSERNAME$\\' --target-password=\\'$_HOSTJOLOKIATARGETPASSWORD$\\' $_HOSTJOLOKIAEXTRAOPTIONS$ --warning-eden=\\'$_SERVICEWARNINGEDEN$\\' --critical-eden=\\'$_SERVICECRITICALEDEN$\\'  --warning-survivor=\\'$_SERVICEWARNINGSURVIVOR$\\' --critical-survivor=\\'$_SERVICECRITICALSURVIVOR$\\' --warning-permanent=\\'$_SERVICEWARNINGPERMANENT$\\' --critical-permanent=\\'$_SERVICECRITICALPERMANENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Webserver-Tomcat-Memory-Detailed-JMX",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_tomcat_jmx.pl --plugin=apps::tomcat::jmx::plugin --mode=load-average --custommode=jolokia --url=\\'$_HOSTJOLOKIAURL$\\' --username=\\'$_HOSTJOLOKIAUSERNAME$\\' --password=\\'$_HOSTJOLOKIAPASSWORD$\\' --target-url=\\'$_HOSTJOLOKIATARGETURL$\\' --target-username=\\'$_HOSTJOLOKIATARGETUSERNAME$\\' --target-password=\\'$_HOSTJOLOKIATARGETPASSWORD$\\' $_HOSTJOLOKIAEXTRAOPTIONS$ --warning-load1=\\'$_SERVICEWARNINGLOAD1$\\' --critical-load1=\\'$_SERVICECRITICALLOAD1$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Webserver-Tomcat-Load-Average-JMX",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_tomcat_jmx.pl --plugin=apps::tomcat::jmx::plugin --mode=fd-usage --custommode=jolokia --url=\\'$_HOSTJOLOKIAURL$\\' --username=\\'$_HOSTJOLOKIAUSERNAME$\\' --password=\\'$_HOSTJOLOKIAPASSWORD$\\' --target-url=\\'$_HOSTJOLOKIATARGETURL$\\' --target-username=\\'$_HOSTJOLOKIATARGETUSERNAME$\\' --target-password=\\'$_HOSTJOLOKIATARGETPASSWORD$\\' $_HOSTJOLOKIAEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Webserver-Tomcat-Fd-Usage-JMX",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_tomcat_jmx.pl --plugin=apps::tomcat::jmx::plugin --mode=cpu-load --custommode=jolokia --url=\\'$_HOSTJOLOKIAURL$\\' --username=\\'$_HOSTJOLOKIAUSERNAME$\\' --password=\\'$_HOSTJOLOKIAPASSWORD$\\' --target-url=\\'$_HOSTJOLOKIATARGETURL$\\' --target-username=\\'$_HOSTJOLOKIATARGETUSERNAME$\\' --target-password=\\'$_HOSTJOLOKIATARGETPASSWORD$\\' $_HOSTJOLOKIAEXTRAOPTIONS$ --warning-system=\\'$_SERVICEWARNINGSYSTEM$\\' --critical-system=\\'$_SERVICECRITICALSYSTEM$\\' --warning-process=\\'$_SERVICEWARNINGPROCESS$\\' --critical-process=\\'$_SERVICECRITICALPROCESS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Webserver-Tomcat-Cpu-Load-JMX",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_tomcat_jmx.pl --plugin=apps::tomcat::jmx::plugin --mode=class-count --custommode=jolokia --url=\\'$_HOSTJOLOKIAURL$\\' --username=\\'$_HOSTJOLOKIAUSERNAME$\\' --password=\\'$_HOSTJOLOKIAPASSWORD$\\' --target-url=\\'$_HOSTJOLOKIATARGETURL$\\' --target-username=\\'$_HOSTJOLOKIATARGETUSERNAME$\\' --target-password=\\'$_HOSTJOLOKIATARGETPASSWORD$\\' $_HOSTJOLOKIAEXTRAOPTIONS$ --warning-loaded=\\'$_SERVICEWARNINGLOADED$\\' --critical-loaded=\\'$_SERVICECRITICALLOADED$\\' --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Webserver-Tomcat-Class-Count-JMX",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_tomcat_jmx.pl --plugin=apps::tomcat::jmx::plugin --mode=connector-usage --custommode=jolokia --url=\\'$_HOSTJOLOKIAURL$\\' --username=\\'$_HOSTJOLOKIAUSERNAME$\\' --password=\\'$_HOSTJOLOKIAPASSWORD$\\' --target-url=\\'$_HOSTJOLOKIATARGETURL$\\' --target-username=\\'$_HOSTJOLOKIATARGETUSERNAME$\\' --target-password=\\'$_HOSTJOLOKIATARGETPASSWORD$\\' $_HOSTJOLOKIAEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --units=\\'$_SERVICEUNITS$\\' --warning-threads-count=\\'$_SERVICEWARNINGTHREADSCOUNT$\\' --critical-threads-count=\\'$_SERVICECRITICALTHREADSCOUNT$\\' --warning-threads-busy=\\'$_SERVICEWARNINGTHREADSBUSY$\\' --critical-threads-busy=\\'$_SERVICECRITICALTHREADSBUSY$\\'  --warning-request-count=\\'$_SERVICEWARNINGREQUESTCOUNT$\\' --critical-request-count=\\'$_SERVICECRITICALREQUESTCOUNT$\\'  --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\'  --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Webserver-Tomcat-Connector-Usage-JMX",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_tomcat_jmx.pl --plugin=apps::tomcat::jmx::plugin --mode=datasource-usage --custommode=jolokia --url=\\'$_HOSTJOLOKIAURL$\\' --username=\\'$_HOSTJOLOKIAUSERNAME$\\' --password=\\'$_HOSTJOLOKIAPASSWORD$\\' --target-url=\\'$_HOSTJOLOKIATARGETURL$\\' --target-username=\\'$_HOSTJOLOKIATARGETUSERNAME$\\' --target-password=\\'$_HOSTJOLOKIATARGETPASSWORD$\\' $_HOSTJOLOKIAEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --units=\\'$_SERVICEUNITS$\\' --warning-num-active=\\'$_SERVICEWARNINGNUMACTIVE$\\' --critical-num-active=\\'$_SERVICECRITICALNUMACTIVE$\\' --warning-num-idle=\\'$_SERVICEWARNINGNUMIDLE$\\' --critical-num-idle=\\'$_SERVICECRITICALNUMIDLE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Webserver-Tomcat-Datasource-Usage-JMX",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser un serveur Tomcat via JMX}\r\n{EN: Template to check Tomcat Server using JMX}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Tomcat Server using JMX",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "tomcat-64.png",
+            "macros": [
+                {
+                    "key": "$_HOSTJOLOKIAEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTJOLOKIAPASSWORD$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTJOLOKIAURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTJOLOKIAUSERNAME$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Webserver-Tomcat-JMX",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Webserver-Tomcat-Webapps-Sessions-JMX",
+                "App-Webserver-Tomcat-Threads-JMX",
+                "App-Webserver-Tomcat-Memory-JMX",
+                "App-Webserver-Tomcat-Memory-Detailed-JMX",
+                "App-Webserver-Tomcat-Load-Average-JMX",
+                "App-Webserver-Tomcat-Fd-Usage-JMX",
+                "App-Webserver-Tomcat-Cpu-Load-JMX",
+                "App-Webserver-Tomcat-Class-Count-JMX"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "tomcat-64.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* break: change threshold macros for service fd-usage and load-average",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor a Tomcat application server using JMX/Jolokia protocol.\r\nSeveral indicators are available but not linked to the template of host.\r\nYou have to use them manually:\r\n* Memory & Memory-Detailed\r\n* Threads\r\n* Load-Average\r\n* Fd-Usage\r\n* Cpuload\r\n* Class-Count\r\n* Webapps sessions\r\n* Connector usage\r\n* Datasource usage"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack Plugin pour surveiller les serveurs d\\'application Tomcat en utilisant le protocole JMX/Jolokia .\r\nDe nombreux indicateurs sont disponibles mais ne sont pas associ\u00e9s au mod\u00e8le d\\'h\u00f4te.\r\nIls doivent \u00eatre d\u00e9ploy\u00e9s manuellement :\r\n* Memory & Memory-Detailed\r\n* Threads\r\n* Load-Average\r\n* Fd-Usage\r\n* Cpuload\r\n* Class-Count\r\n* Webapps sessions\r\n* Connector usage\r\n* Datasource usage"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Webservers-Tomcat-Jmx\r\n\r\nPlease install jolokia agent on your java application server\r\n[Jolokia download page](https://jolokia.org/download.html). Ask to\r\nyour admin to deploy it and give you the URL.\r\n\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Webserver-Tomcat-JMX-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Tomcat JMX",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_tomcat_jmx.pl",
+                "package_name": "centreon-plugin-Applications-Webservers-Tomcat-Jmx",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Applications-Webservers-Tomcat-Jmx",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "applications-webservers-tomcat-jmx",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "HTTP",
+            "HTTPS",
+            "Java",
+            "Jolokia",
+            "Tomcat",
+            "Web",
+            "Web server"
+        ],
+        "update_date": "1548840901",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les sessions des applications webs.}\r\n\r\n{EN: Check webapps usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Webapps-Sessions",
+            "check_timeperiod": "",
+            "command_name": "App-Webserver-Tomcat-Webapps-Sessions-JMX",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNITS$",
+                    "password": false,
+                    "value": "%"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Webserver-Tomcat-Webapps-Sessions-JMX",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les threads.}\r\n\r\n{EN: Check threads.}",
+            "active_checks_enabled": 2,
+            "alias": "Tomcat-Threads",
+            "check_timeperiod": "",
+            "command_name": "App-Webserver-Tomcat-Threads-JMX",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Webserver-Tomcat-Threads-JMX",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier la m\u00e9moire Java ('NonHeap' et 'Heap').}\r\n\r\n{EN: Check Java Heap and NonHeap Memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Tomcat-Memory",
+            "check_timeperiod": "",
+            "command_name": "App-Webserver-Tomcat-Memory-JMX",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNITS$",
+                    "password": false,
+                    "value": "%"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Webserver-Tomcat-Memory-JMX",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les pools de m\u00e9moire Java.}\r\n\r\n{EN: Check Java Memory Pools.}",
+            "active_checks_enabled": 2,
+            "alias": "Tomcat-Memory-Detailed",
+            "check_timeperiod": "",
+            "command_name": "App-Webserver-Tomcat-Memory-Detailed-JMX",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Webserver-Tomcat-Memory-Detailed-JMX",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier la 'load' syst\u00e8me.}\r\n\r\n{EN: Check system load average.}",
+            "active_checks_enabled": 2,
+            "alias": "Tomcat-Load-Average",
+            "check_timeperiod": "",
+            "command_name": "App-Webserver-Tomcat-Load-Average-JMX",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Webserver-Tomcat-Load-Average-JMX",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des file descriptors.}\r\n\r\n{EN: Check number/percentage of file descriptors.}",
+            "active_checks_enabled": 2,
+            "alias": "Tomcat-Fd-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-Webserver-Tomcat-Fd-Usage-JMX",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Webserver-Tomcat-Fd-Usage-JMX",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation cpu de la JVM.}\r\n\r\n{EN: Check JVM SystemCpuLoad and ProcessCpuLoad.}",
+            "active_checks_enabled": 2,
+            "alias": "Tomcat-Cpu-Load",
+            "check_timeperiod": "",
+            "command_name": "App-Webserver-Tomcat-Cpu-Load-JMX",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Webserver-Tomcat-Cpu-Load-JMX",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des classes de la JVM.}\r\n\r\n{EN: Check Java Class usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Tomcat-Class-Count",
+            "check_timeperiod": "",
+            "command_name": "App-Webserver-Tomcat-Class-Count-JMX",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Webserver-Tomcat-Class-Count-JMX",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des connecteurs.}\r\n\r\n{EN: Check connector usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Connector-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-Webserver-Tomcat-Connector-Usage-JMX",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNITS$",
+                    "password": false,
+                    "value": "%"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Webserver-Tomcat-Connector-Usage-JMX",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des datasources.}\r\n\r\n{EN: Check datasources usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Datasource-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-Webserver-Tomcat-Datasource-Usage-JMX",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNITS$",
+                    "password": false,
+                    "value": "%"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Webserver-Tomcat-Datasource-Usage-JMX",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

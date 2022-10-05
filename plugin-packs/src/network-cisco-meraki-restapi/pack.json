@@ -1,0 +1,2013 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v1.0": [
+                {
+                    "command": "Net-Cisco-Meraki-Restapi-HostDiscovery-Devices",
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Cisco Meraki Devices using RestAPI",
+                    "mapping": {
+                        "meraki-devices": {
+                            "association": {
+                                "description": [
+                                    "${name}",
+                                    "${lan_ip}"
+                                ],
+                                "hostname": [
+                                    "${name}",
+                                    "${lan_ip}"
+                                ],
+                                "ip": [
+                                    "${lan_ip}"
+                                ]
+                            },
+                            "attributes": {
+                                "lan_ip": {
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "type": "string"
+                                }
+                            },
+                            "filters": {},
+                            "macros": [
+                                {
+                                    "from": "parameters",
+                                    "name": "MERAKIAPITOKEN",
+                                    "type": "password",
+                                    "value": "MERAKIAPITOKEN"
+                                },
+                                {
+                                    "from": "results",
+                                    "name": "MERAKIDEVICENAME",
+                                    "type": "text",
+                                    "value": "name"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "MERAKIAPIEXTRAOPTIONS",
+                                    "type": "text",
+                                    "value": "MERAKIAPIEXTRAOPTIONS"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "PROXYURL",
+                                    "type": "text",
+                                    "value": "PROXYURL"
+                                }
+                            ],
+                            "object": "host",
+                            "templates": [
+                                "Net-Cisco-Meraki-Device-Restapi-custom"
+                            ]
+                        }
+                    },
+                    "name": "Meraki Devices",
+                    "parameters": [
+                        {
+                            "description": "Meraki API Token",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "MERAKIAPITOKEN",
+                            "type": "password",
+                            "value": null
+                        },
+                        {
+                            "description": "Meraki API Hostname",
+                            "hidden": false,
+                            "locked": true,
+                            "mandatory": true,
+                            "name": "MERAKIAPIHOSTNAME",
+                            "type": "text",
+                            "value": "api.meraki.com"
+                        },
+                        {
+                            "description": "Meraki API Port",
+                            "hidden": false,
+                            "locked": true,
+                            "mandatory": true,
+                            "name": "MERAKIAPIPORT",
+                            "type": "text",
+                            "value": "443"
+                        },
+                        {
+                            "description": "Meraki API Protocol",
+                            "hidden": false,
+                            "locked": true,
+                            "mandatory": true,
+                            "name": "MERAKIAPIPROTO",
+                            "type": "text",
+                            "value": "https"
+                        },
+                        {
+                            "description": "Organization Name",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "FILTERORGANIZATIONNAME",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Organization ID",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "FILTERORGANIZATIONID",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Network ID",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "FILTERNETWORKID",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Tag",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "FILTERTAGS",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Proxy URL",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "PROXYURL",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Timeout",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "TIMEOUT",
+                            "type": "text",
+                            "value": "10"
+                        },
+                        {
+                            "description": "Extra Options",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "MERAKIAPIEXTRAOPTIONS",
+                            "type": "text",
+                            "value": "--http-backend=\"curl\""
+                        }
+                    ],
+                    "type": "meraki"
+                },
+                {
+                    "command": "Net-Cisco-Meraki-Restapi-HostDiscovery-Networks",
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Cisco Meraki Networks using RestAPI",
+                    "mapping": {
+                        "meraki-devices": {
+                            "association": {
+                                "description": [
+                                    "${name}"
+                                ],
+                                "hostname": [
+                                    "${name}"
+                                ],
+                                "ip": [
+                                    "${name}"
+                                ]
+                            },
+                            "attributes": {
+                                "name": {
+                                    "type": "string"
+                                }
+                            },
+                            "filters": {},
+                            "macros": [
+                                {
+                                    "from": "parameters",
+                                    "name": "MERAKIAPITOKEN",
+                                    "type": "password",
+                                    "value": "MERAKIAPITOKEN"
+                                },
+                                {
+                                    "from": "results",
+                                    "name": "MERAKINETWORKNAME",
+                                    "type": "text",
+                                    "value": "name"
+                                },
+                                {
+                                    "from": "results",
+                                    "name": "MERAKINETWORKID",
+                                    "type": "text",
+                                    "value": "id"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "MERAKIAPIEXTRAOPTIONS",
+                                    "type": "text",
+                                    "value": "MERAKIAPIEXTRAOPTIONS"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "PROXYURL",
+                                    "type": "text",
+                                    "value": "PROXYURL"
+                                }
+                            ],
+                            "object": "host",
+                            "templates": [
+                                "Net-Cisco-Meraki-Network-Restapi-custom"
+                            ]
+                        }
+                    },
+                    "name": "Meraki Network",
+                    "parameters": [
+                        {
+                            "description": "Meraki API Token",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "MERAKIAPITOKEN",
+                            "type": "password",
+                            "value": null
+                        },
+                        {
+                            "description": "Meraki API hostname",
+                            "hidden": false,
+                            "locked": true,
+                            "mandatory": true,
+                            "name": "MERAKIAPIHOSTNAME",
+                            "type": "text",
+                            "value": "api.meraki.com"
+                        },
+                        {
+                            "description": "Meraki API Port",
+                            "hidden": false,
+                            "locked": true,
+                            "mandatory": true,
+                            "name": "MERAKIAPIPORT",
+                            "type": "text",
+                            "value": "443"
+                        },
+                        {
+                            "description": "Meraki API Proto",
+                            "hidden": false,
+                            "locked": true,
+                            "mandatory": true,
+                            "name": "MERAKIAPIPROTO",
+                            "type": "text",
+                            "value": "https"
+                        },
+                        {
+                            "description": "Organization Name",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "FILTERORGANIZATIONNAME",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Organization ID",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "FILTERORGANIZATIONID",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Network ID",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "FILTERNETWORKID",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Tag",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "FILTERTAGS",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Proxy URL",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "PROXYURL",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Timeout",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "TIMEOUT",
+                            "type": "text",
+                            "value": "10"
+                        },
+                        {
+                            "description": "Extra Options",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "MERAKIAPIEXTRAOPTIONS",
+                            "type": "text",
+                            "value": "--http-backend=\"curl\""
+                        }
+                    ],
+                    "type": "meraki"
+                }
+            ],
+            "v2.0": [
+                {
+                    "attributes": {
+                        "address": {
+                            "type": "string"
+                        },
+                        "lan_ip": {
+                            "type": "string"
+                        },
+                        "mac": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "network_id": {
+                            "type": "string"
+                        },
+                        "network_name": {
+                            "type": "string"
+                        },
+                        "organization_name": {
+                            "type": "string"
+                        },
+                        "public_ip": {
+                            "type": "string"
+                        },
+                        "serial": {
+                            "type": "string"
+                        },
+                        "tags": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Net-Cisco-Meraki-Restapi-HostDiscovery-Devices",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Meraki API Token",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "MERAKIAPITOKEN",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Cisco Meraki Devices using RestAPI",
+                    "discovery_examples": [
+                        {
+                            "address": "",
+                            "configuration_updated_at": "2020-08-12T10:23:18Z",
+                            "firmware": "wireless-19-6-1",
+                            "lan_ip": "10.30.2.101",
+                            "last_reported_at": "2020-08-12 10:22:59.514",
+                            "latitude": 48.8255562,
+                            "longitude": 2.3723545,
+                            "mac": "00:50:56:8b:d3:a0",
+                            "model": "MR42",
+                            "name": "AP_SD_POS01",
+                            "network_id": "L_117492573579423633",
+                            "network_name": "Centreon-Corporate",
+                            "notes": "",
+                            "organization_name": "Centreon",
+                            "public_ip": "40.79.38.193",
+                            "serial": "A2CR-KDMC-ME4E",
+                            "status": "online",
+                            "tags": "ServiceDesk POS01",
+                            "type": "device",
+                            "url": ""
+                        },
+                        {
+                            "address": "",
+                            "configuration_updated_at": "2020-03-23T00:23:18Z",
+                            "firmware": "wireless-26-6-1",
+                            "lan_ip": "10.30.2.102",
+                            "last_reported_at": "2020-08-12 10:23:59.514",
+                            "latitude": 48.8255562,
+                            "longitude": 2.3723545,
+                            "mac": "00:50:56:8b:d3:a1",
+                            "model": "MR42",
+                            "name": "AP_SD_POS02",
+                            "network_id": "L_117492573579423633",
+                            "network_name": "Centreon-Corporate",
+                            "notes": "",
+                            "organization_name": "Centreon",
+                            "public_ip": "40.79.38.193",
+                            "serial": "C03D-K20D-P200",
+                            "status": "online",
+                            "tags": "ServiceDesk POS02",
+                            "type": "device",
+                            "url": ""
+                        },
+                        {
+                            "address": "",
+                            "configuration_updated_at": "2019-07-19T11:25:18Z",
+                            "firmware": "wireless-26-6-1",
+                            "lan_ip": "10.30.2.103",
+                            "last_reported_at": "2020-08-12 10:25:59.514",
+                            "latitude": 48.8255562,
+                            "longitude": 2.3723545,
+                            "mac": "00:50:56:8b:d3:a2",
+                            "model": "MR42",
+                            "name": "AP_SD_POS03",
+                            "network_id": "L_117492573579423633",
+                            "network_name": "Centreon-Corporate",
+                            "notes": "",
+                            "organization_name": "Centreon",
+                            "public_ip": "40.79.38.193",
+                            "serial": "V9EK-KCLC-DM4E",
+                            "status": "online",
+                            "tags": "ServiceDesk POS01",
+                            "type": "device",
+                            "url": ""
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.lan_ip"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.MERAKIAPITOKEN",
+                                "is_password": true,
+                                "source": "discovery.credentials.MERAKIAPITOKEN"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.MERAKIDEVICENAME",
+                                "is_password": false,
+                                "source": "discovery.results.name"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.MERAKIAPIEXTRAOPTIONS",
+                                "is_password": false,
+                                "source": "discovery.parameters.MERAKIAPIEXTRAOPTIONS"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Net-Cisco-Meraki-Device-Restapi-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Cisco Meraki Devices",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Meraki API Hostname",
+                                "group": "Meraki API Information",
+                                "hidden": false,
+                                "locked": true,
+                                "mandatory": true,
+                                "name": "MERAKIAPIHOSTNAME",
+                                "type": "text",
+                                "value": "api.meraki.com"
+                            },
+                            {
+                                "description": "Meraki API port",
+                                "group": "Meraki API Information",
+                                "hidden": false,
+                                "locked": true,
+                                "mandatory": true,
+                                "name": "MERAKIAPIPORT",
+                                "type": "text",
+                                "value": "443"
+                            },
+                            {
+                                "description": "Meraki API proto",
+                                "group": "Meraki API Information",
+                                "hidden": false,
+                                "locked": true,
+                                "mandatory": true,
+                                "name": "MERAKIAPIPROTO",
+                                "type": "text",
+                                "value": "https"
+                            },
+                            {
+                                "description": "Organization Name",
+                                "group": "Meraki Filters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "FILTERORGANIZATIONNAME",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Organization ID",
+                                "group": "Meraki Filters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "FILTERORGANIZATIONID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Network ID",
+                                "group": "Meraki Filters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "FILTERNETWORKID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Tag",
+                                "group": "Meraki Filters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "FILTERTAGS",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additionnal Parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additionnal Parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "MERAKIAPIEXTRAOPTIONS",
+                                "type": "text",
+                                "value": "--http-backend=\"curl\""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "meraki-devices",
+                    "type": "meraki",
+                    "uuid_attributes": [
+                        "mac"
+                    ]
+                },
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "organization_id": {
+                            "type": "string"
+                        },
+                        "organization_name": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Net-Cisco-Meraki-Restapi-HostDiscovery-Networks",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Meraki API Token",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "MERAKIAPITOKEN",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Cisco Meraki Networks using RestAPI",
+                    "discovery_examples": [
+                        {
+                            "disable_my_meraki_com": false,
+                            "disable_remote_status_page": true,
+                            "id": "N_665489098319830981",
+                            "name": "Archimede Corporate",
+                            "organization_id": "986104",
+                            "organization_name": "Archimede Inc.",
+                            "product_types": [
+                                "wireless"
+                            ],
+                            "tags": null,
+                            "timezone": "Europe/Paris",
+                            "type": "combined"
+                        },
+                        {
+                            "disable_my_meraki_com": false,
+                            "disable_remote_status_page": true,
+                            "id": "N_665489098319830873",
+                            "name": "Archimede Toronto",
+                            "organization_id": "986104",
+                            "organization_name": "Archimede Inc.",
+                            "product_types": [
+                                "wireless"
+                            ],
+                            "tags": null,
+                            "timezone": "America/Toronto",
+                            "type": "wireless"
+                        },
+                        {
+                            "disable_my_meraki_com": false,
+                            "disable_remote_status_page": true,
+                            "id": "N_749409874944030456",
+                            "name": "Archimede Guest",
+                            "organization_id": "986104",
+                            "organization_name": "Archimede Inc.",
+                            "product_types": [
+                                "wireless"
+                            ],
+                            "tags": null,
+                            "timezone": "Europe/Paris",
+                            "type": "wireless"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.MERAKIAPITOKEN",
+                                "is_password": true,
+                                "source": "discovery.credentials.MERAKIAPITOKEN"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.MERAKINETWORKNAME",
+                                "is_password": false,
+                                "source": "discovery.results.name"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.MERAKINETWORKID",
+                                "is_password": false,
+                                "source": "discovery.results.id"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.MERAKIAPIEXTRAOPTIONS",
+                                "is_password": false,
+                                "source": "discovery.parameters.MERAKIAPIEXTRAOPTIONS"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Net-Cisco-Meraki-Network-Restapi-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Cisco Meraki Networks",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Meraki API Hostname",
+                                "group": "Meraki API Information",
+                                "hidden": false,
+                                "locked": true,
+                                "mandatory": true,
+                                "name": "MERAKIAPIHOSTNAME",
+                                "type": "text",
+                                "value": "api.meraki.com"
+                            },
+                            {
+                                "description": "Meraki API port",
+                                "group": "Meraki API Information",
+                                "hidden": false,
+                                "locked": true,
+                                "mandatory": true,
+                                "name": "MERAKIAPIPORT",
+                                "type": "text",
+                                "value": "443"
+                            },
+                            {
+                                "description": "Meraki API proto",
+                                "group": "Meraki API Information",
+                                "hidden": false,
+                                "locked": true,
+                                "mandatory": true,
+                                "name": "MERAKIAPIPROTO",
+                                "type": "text",
+                                "value": "https"
+                            },
+                            {
+                                "description": "Organization Name",
+                                "group": "Meraki Filters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "FILTERORGANIZATIONNAME",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Organization ID",
+                                "group": "Meraki Filters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "FILTERORGANIZATIONID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Network ID",
+                                "group": "Meraki Filters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "FILTERNETWORKID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Tag",
+                                "group": "Meraki Filters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "FILTERTAGS",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additionnal Parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additionnal Parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "MERAKIAPIEXTRAOPTIONS",
+                                "type": "text",
+                                "value": "--http-backend=\"curl\""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "meraki-networks",
+                    "type": "meraki",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "address": {
+                            "type": "string"
+                        },
+                        "lan_ip": {
+                            "type": "string"
+                        },
+                        "mac": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "network_id": {
+                            "type": "string"
+                        },
+                        "network_name": {
+                            "type": "string"
+                        },
+                        "organization_name": {
+                            "type": "string"
+                        },
+                        "public_ip": {
+                            "type": "string"
+                        },
+                        "serial": {
+                            "type": "string"
+                        },
+                        "tags": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Net-Cisco-Meraki-Restapi-HostDiscovery-Devices",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Meraki API Token",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "MERAKIAPITOKEN",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Cisco Meraki Devices using RestAPI",
+                    "discovery_examples": [
+                        {
+                            "address": "",
+                            "configuration_updated_at": "2020-08-12T10:23:18Z",
+                            "firmware": "wireless-19-6-1",
+                            "lan_ip": "10.30.2.101",
+                            "last_reported_at": "2020-08-12 10:22:59.514",
+                            "latitude": 48.8255562,
+                            "longitude": 2.3723545,
+                            "mac": "00:50:56:8b:d3:a0",
+                            "model": "MR42",
+                            "name": "AP_SD_POS01",
+                            "network_id": "L_117492573579423633",
+                            "network_name": "Centreon-Corporate",
+                            "notes": "",
+                            "organization_name": "Centreon",
+                            "public_ip": "40.79.38.193",
+                            "serial": "A2CR-KDMC-ME4E",
+                            "status": "online",
+                            "tags": "ServiceDesk POS01",
+                            "type": "device",
+                            "url": ""
+                        },
+                        {
+                            "address": "",
+                            "configuration_updated_at": "2020-03-23T00:23:18Z",
+                            "firmware": "wireless-26-6-1",
+                            "lan_ip": "10.30.2.102",
+                            "last_reported_at": "2020-08-12 10:23:59.514",
+                            "latitude": 48.8255562,
+                            "longitude": 2.3723545,
+                            "mac": "00:50:56:8b:d3:a1",
+                            "model": "MR42",
+                            "name": "AP_SD_POS02",
+                            "network_id": "L_117492573579423633",
+                            "network_name": "Centreon-Corporate",
+                            "notes": "",
+                            "organization_name": "Centreon",
+                            "public_ip": "40.79.38.193",
+                            "serial": "C03D-K20D-P200",
+                            "status": "online",
+                            "tags": "ServiceDesk POS02",
+                            "type": "device",
+                            "url": ""
+                        },
+                        {
+                            "address": "",
+                            "configuration_updated_at": "2019-07-19T11:25:18Z",
+                            "firmware": "wireless-26-6-1",
+                            "lan_ip": "10.30.2.103",
+                            "last_reported_at": "2020-08-12 10:25:59.514",
+                            "latitude": 48.8255562,
+                            "longitude": 2.3723545,
+                            "mac": "00:50:56:8b:d3:a2",
+                            "model": "MR42",
+                            "name": "AP_SD_POS03",
+                            "network_id": "L_117492573579423633",
+                            "network_name": "Centreon-Corporate",
+                            "notes": "",
+                            "organization_name": "Centreon",
+                            "public_ip": "40.79.38.193",
+                            "serial": "V9EK-KCLC-DM4E",
+                            "status": "online",
+                            "tags": "ServiceDesk POS01",
+                            "type": "device",
+                            "url": ""
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.lan_ip"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.MERAKIAPITOKEN",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.MERAKIAPITOKEN"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.MERAKIDEVICENAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.MERAKIAPIEXTRAOPTIONS",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.MERAKIAPIEXTRAOPTIONS"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Net-Cisco-Meraki-Device-Restapi-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Cisco Meraki Devices",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Meraki API Hostname",
+                                "group": "Meraki API Information",
+                                "hidden": false,
+                                "locked": true,
+                                "mandatory": true,
+                                "name": "MERAKIAPIHOSTNAME",
+                                "type": "text",
+                                "value": "api.meraki.com"
+                            },
+                            {
+                                "description": "Meraki API port",
+                                "group": "Meraki API Information",
+                                "hidden": false,
+                                "locked": true,
+                                "mandatory": true,
+                                "name": "MERAKIAPIPORT",
+                                "type": "text",
+                                "value": "443"
+                            },
+                            {
+                                "description": "Meraki API proto",
+                                "group": "Meraki API Information",
+                                "hidden": false,
+                                "locked": true,
+                                "mandatory": true,
+                                "name": "MERAKIAPIPROTO",
+                                "type": "text",
+                                "value": "https"
+                            },
+                            {
+                                "description": "Organization Name",
+                                "group": "Meraki Filters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "FILTERORGANIZATIONNAME",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Organization ID",
+                                "group": "Meraki Filters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "FILTERORGANIZATIONID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Network ID",
+                                "group": "Meraki Filters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "FILTERNETWORKID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Tag",
+                                "group": "Meraki Filters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "FILTERTAGS",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additionnal Parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additionnal Parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "MERAKIAPIEXTRAOPTIONS",
+                                "type": "text",
+                                "value": "--http-backend=\"curl\""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "meraki-devices",
+                    "type": "meraki",
+                    "uuid_attributes": [
+                        "mac"
+                    ]
+                },
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "organization_id": {
+                            "type": "string"
+                        },
+                        "organization_name": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "wireless"
+                        }
+                    },
+                    "command": "Net-Cisco-Meraki-Restapi-HostDiscovery-Networks",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Meraki API Token",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "MERAKIAPITOKEN",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Cisco Meraki Networks using RestAPI",
+                    "discovery_examples": [
+                        {
+                            "disable_my_meraki_com": false,
+                            "disable_remote_status_page": true,
+                            "id": "N_665489098319830981",
+                            "name": "Archimede Corporate",
+                            "organization_id": "986104",
+                            "organization_name": "Archimede Inc.",
+                            "product_types": [
+                                "wireless"
+                            ],
+                            "tags": null,
+                            "timezone": "Europe/Paris",
+                            "type": "combined"
+                        },
+                        {
+                            "disable_my_meraki_com": false,
+                            "disable_remote_status_page": true,
+                            "id": "N_665489098319830873",
+                            "name": "Archimede Toronto",
+                            "organization_id": "986104",
+                            "organization_name": "Archimede Inc.",
+                            "product_types": [
+                                "wireless"
+                            ],
+                            "tags": null,
+                            "timezone": "America/Toronto",
+                            "type": "wireless"
+                        },
+                        {
+                            "disable_my_meraki_com": false,
+                            "disable_remote_status_page": true,
+                            "id": "N_749409874944030456",
+                            "name": "Archimede Guest",
+                            "organization_id": "986104",
+                            "organization_name": "Archimede Inc.",
+                            "product_types": [
+                                "wireless"
+                            ],
+                            "tags": null,
+                            "timezone": "Europe/Paris",
+                            "type": "wireless"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.MERAKIAPITOKEN",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.MERAKIAPITOKEN"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.MERAKINETWORKNAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.MERAKINETWORKID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.MERAKIAPIEXTRAOPTIONS",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.MERAKIAPIEXTRAOPTIONS"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Net-Cisco-Meraki-Network-Restapi-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Cisco Meraki Networks",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Meraki API Hostname",
+                                "group": "Meraki API Information",
+                                "hidden": false,
+                                "locked": true,
+                                "mandatory": true,
+                                "name": "MERAKIAPIHOSTNAME",
+                                "type": "text",
+                                "value": "api.meraki.com"
+                            },
+                            {
+                                "description": "Meraki API port",
+                                "group": "Meraki API Information",
+                                "hidden": false,
+                                "locked": true,
+                                "mandatory": true,
+                                "name": "MERAKIAPIPORT",
+                                "type": "text",
+                                "value": "443"
+                            },
+                            {
+                                "description": "Meraki API proto",
+                                "group": "Meraki API Information",
+                                "hidden": false,
+                                "locked": true,
+                                "mandatory": true,
+                                "name": "MERAKIAPIPROTO",
+                                "type": "text",
+                                "value": "https"
+                            },
+                            {
+                                "description": "Organization Name",
+                                "group": "Meraki Filters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "FILTERORGANIZATIONNAME",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Organization ID",
+                                "group": "Meraki Filters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "FILTERORGANIZATIONID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Network ID",
+                                "group": "Meraki Filters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "FILTERNETWORKID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Tag",
+                                "group": "Meraki Filters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "FILTERTAGS",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additionnal Parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additionnal Parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "MERAKIAPIEXTRAOPTIONS",
+                                "type": "text",
+                                "value": "--http-backend=\"curl\""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "meraki-networks",
+                    "type": "meraki",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Cisco-Meraki-RestAPI-Devices-Discover",
+                "command_for_macro": "Net-Cisco-Meraki-RestAPI-Devices-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Cisco-Meraki-Network-Restapi"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERDEVICENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Cisco-Meraki-RestAPI-Device",
+                "service_display_name": "Device-$name$",
+                "service_template": "Net-Cisco-Meraki-Cloudcontroller-Devices-Restapi"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Cisco-Meraki-RestAPI-Tags-Discover",
+                "command_for_macro": "Net-Cisco-Meraki-RestAPI-Tags-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Cisco-Meraki-Network-Restapi"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERTAGS",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Cisco-Meraki-RestAPI-Tag",
+                "service_display_name": "Tag-$name$",
+                "service_template": "Net-Cisco-Meraki-Cloudcontroller-Devices-Restapi"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cisco_meraki_restapi.pl --plugin=network::cisco::meraki::cloudcontroller::restapi::plugin --mode=list-devices --api-token=\\'discovery\\' --disco-format\\\"",
+            "name": "Net-Cisco-Meraki-RestAPI-Devices-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cisco_meraki_restapi.pl --plugin=network::cisco::meraki::cloudcontroller::restapi::plugin --mode=list-devices  --hostname=\\'$_HOSTMERAKIAPIHOSTNAME$\\' --api-token=\\'$_HOSTMERAKIAPITOKEN$\\' --port=\\'$_HOSTMERAKIAPIPORT$\\' --proto=\\'$_HOSTMERAKIAPIPROTO$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTMERAKIAPIEXTRAOPTIONS$ --filter-network-id=\\'^$_HOSTMERAKINETWORKID$$$\\' --statefile-suffix=\\'autodiscovery\\' --disco-show\\\"",
+            "name": "Net-Cisco-Meraki-RestAPI-Devices-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cisco_meraki_restapi.pl --plugin=network::cisco::meraki::cloudcontroller::restapi::plugin --mode=list-tags --api-token=\\'discovery\\' --disco-format\\\"",
+            "name": "Net-Cisco-Meraki-RestAPI-Tags-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cisco_meraki_restapi.pl --plugin=network::cisco::meraki::cloudcontroller::restapi::plugin --mode=list-tags  --hostname=\\'$_HOSTMERAKIAPIHOSTNAME$\\' --api-token=\\'$_HOSTMERAKIAPITOKEN$\\' --port=\\'$_HOSTMERAKIAPIPORT$\\' --proto=\\'$_HOSTMERAKIAPIPROTO$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTMERAKIAPIEXTRAOPTIONS$ --filter-network-id=\\'^$_HOSTMERAKINETWORKID$$$\\' --statefile-suffix=\\'autodiscovery\\' --disco-show\\\"",
+            "name": "Net-Cisco-Meraki-RestAPI-Tags-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cisco_meraki_restapi.pl --plugin=network::cisco::meraki::cloudcontroller::restapi::plugin --mode=api-requests --hostname=\\'$_HOSTMERAKIAPIHOSTNAME$\\' --api-token=\\'$_HOSTMERAKIAPITOKEN$\\' --port=\\'$_HOSTMERAKIAPIPORT$\\' --proto=\\'$_HOSTMERAKIAPIPROTO$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTMERAKIAPIEXTRAOPTIONS$ --filter-organization-name=\\'$_SERVICEFILTERORGANIZATIONNAME$\\' --warning-api-requests-200=\\'$_SERVICEWARNINGAPIREQUESTS200$\\' --critical-api-requests-200=\\'$_SERVICECRITICALAPIREQUESTS200$\\' --warning-api-requests-404=\\'$_SERVICEWARNINGAPIREQUESTS404$\\' --critical-api-requests-404=\\'$_SERVICECRITICALAPIREQUESTS404$\\' --warning-api-requests-429=\\'$_SERVICEWARNINGAPIREQUESTS429$\\' --critical-api-requests-429=\\'$_SERVICECRITICALAPIREQUESTS429$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Cisco-Meraki-Cloudcontroller-Restapi-Api-Requests",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cisco_meraki_restapi.pl --plugin=network::cisco::meraki::cloudcontroller::restapi::plugin --mode=devices --hostname=\\'$_HOSTMERAKIAPIHOSTNAME$\\' --api-token=\\'$_HOSTMERAKIAPITOKEN$\\' --port=\\'$_HOSTMERAKIAPIPORT$\\' --proto=\\'$_HOSTMERAKIAPIPROTO$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTMERAKIAPIEXTRAOPTIONS$ --filter-device-name=\\'^$_HOSTMERAKIDEVICENAME$$$\\' --warning-total-online=\\'$_SERVICEWARNINGTOTALONLINE$\\' --critical-total-online=\\'$_SERVICECRITICALTOTALONLINE$\\' --warning-total-online-prct=\\'$_SERVICEWARNINGTOTALONLINEPRCT$\\' --critical-total-online-prct=\\'$_SERVICECRITICALTOTALONLINEPRCT$\\' --warning-total-offline=\\'$_SERVICEWARNINGTOTALOFFLINE$\\' --critical-total-offline=\\'$_SERVICECRITICALTOTALOFFLINE$\\' --warning-total-offline-prct=\\'$_SERVICEWARNINGTOTALOFFLINEPRCT$\\' --critical-total-offline-prct=\\'$_SERVICECRITICALTOTALOFFLINEPRCT$\\' --warning-total-alerting=\\'$_SERVICEWARNINGTOTALALERTING$\\' --critical-total-alerting=\\'$_SERVICECRITICALTOTALALERTING$\\' --warning-port-status=\\'$_SERVICEWARNINGPORTSTATUS$\\' --critical-port-status=\\'$_SERVICECRITICALPORTSTATUS$\\' --warning-port-traffic-in=\\'$_SERVICEWARNINGPORTTRAFFICIN$\\' --critical-port-traffic-in=\\'$_SERVICECRITICALPORTTRAFFICIN$\\' --warning-port-traffic-out=\\'$_SERVICEWARNINGPORTTRAFFICOUT$\\' --critical-port-traffic-out=\\'$_SERVICECRITICALPORTTRAFFICOUT$\\' --warning-link-status=\\'$_SERVICEWARNINGLINKSTATUS$\\' --critical-link-status=\\'$_SERVICECRITICALLINKSTATUS$\\' --warning-link-latency=\\'$_SERVICEWARNINGLINKLATENCY$\\' --critical-link-latency=\\'$_SERVICECRITICALLINKLATENCY$\\' --warning-link-loss=\\'$_SERVICEWARNINGLINKLOSS$\\' --critical-link-loss=\\'$_SERVICECRITICALLINKLOSS$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' --warning-load=\\'$_SERVICEWARNINGLOAD$\\' --critical-load=\\'$_SERVICECRITICALLOAD$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-connections-success=\\'$_SERVICEWARNINGCONNECTIONSSUCCESS$\\' --critical-connections-success=\\'$_SERVICECRITICALCONNECTIONSSUCCESS$\\' --warning-connections-auth=\\'$_SERVICEWARNINGCONNECTIONSAUTH$\\' --critical-connections-auth=\\'$_SERVICECRITICALCONNECTIONSAUTH$\\' --warning-connections-assoc=\\'$_SERVICEWARNINGCONNECTIONSASSOC$\\' --critical-connections-assoc=\\'$_SERVICECRITICALCONNECTIONSASSOC$\\' --warning-connections-dhcp=\\'$_SERVICEWARNINGCONNECTIONSDHCP$\\' --critical-connections-dhcp=\\'$_SERVICECRITICALCONNECTIONSDHCP$\\' --warning-connections-dns=\\'$_SERVICEWARNINGCONNECTIONSDNS$\\' --critical-connections-dns=\\'$_SERVICECRITICALCONNECTIONSDNS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Cisco-Meraki-Cloudcontroller-Device-Restapi-Devices",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cisco_meraki_restapi.pl --plugin=network::cisco::meraki::cloudcontroller::restapi::plugin --mode=devices --hostname=\\'$_HOSTMERAKIAPIHOSTNAME$\\' --api-token=\\'$_HOSTMERAKIAPITOKEN$\\' --port=\\'$_HOSTMERAKIAPIPORT$\\' --proto=\\'$_HOSTMERAKIAPIPROTO$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTMERAKIAPIEXTRAOPTIONS$ --filter-device-name=\\'$_SERVICEFILTERDEVICENAME$\\' --filter-network-id=\\'$_SERVICEFILTERNETWORKID$\\' --filter-tags=\\'$_SERVICEFILTERTAGS$\\' --filter-organization-name=\\'$_SERVICEFILTERORGANIZATIONNAME$\\' --filter-organization-id=\\'$_SERVICEFILTERORGANIZATIONID$\\' --warning-total-online=\\'$_SERVICEWARNINGTOTALONLINE$\\' --critical-total-online=\\'$_SERVICECRITICALTOTALONLINE$\\' --warning-total-online-prct=\\'$_SERVICEWARNINGTOTALONLINEPRCT$\\' --critical-total-online-prct=\\'$_SERVICECRITICALTOTALONLINEPRCT$\\' --warning-total-offline=\\'$_SERVICEWARNINGTOTALOFFLINE$\\' --critical-total-offline=\\'$_SERVICECRITICALTOTALOFFLINE$\\' --warning-total-offline-prct=\\'$_SERVICEWARNINGTOTALOFFLINEPRCT$\\' --critical-total-offline-prct=\\'$_SERVICECRITICALTOTALOFFLINEPRCT$\\' --warning-total-alerting=\\'$_SERVICEWARNINGTOTALALERTING$\\' --critical-total-alerting=\\'$_SERVICECRITICALTOTALALERTING$\\' --warning-port-status=\\'$_SERVICEWARNINGPORTSTATUS$\\' --critical-port-status=\\'$_SERVICECRITICALPORTSTATUS$\\' --warning-port-traffic-in=\\'$_SERVICEWARNINGPORTTRAFFICIN$\\' --critical-port-traffic-in=\\'$_SERVICECRITICALPORTTRAFFICIN$\\' --warning-port-traffic-out=\\'$_SERVICEWARNINGPORTTRAFFICOUT$\\' --critical-port-traffic-out=\\'$_SERVICECRITICALPORTTRAFFICOUT$\\' --warning-link-status=\\'$_SERVICEWARNINGLINKSTATUS$\\' --critical-link-status=\\'$_SERVICECRITICALLINKSTATUS$\\' --warning-link-latency=\\'$_SERVICEWARNINGLINKLATENCY$\\' --critical-link-latency=\\'$_SERVICECRITICALLINKLATENCY$\\' --warning-link-loss=\\'$_SERVICEWARNINGLINKLOSS$\\' --critical-link-loss=\\'$_SERVICECRITICALLINKLOSS$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' --warning-load=\\'$_SERVICEWARNINGLOAD$\\' --critical-load=\\'$_SERVICECRITICALLOAD$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-connections-success=\\'$_SERVICEWARNINGCONNECTIONSSUCCESS$\\' --critical-connections-success=\\'$_SERVICECRITICALCONNECTIONSSUCCESS$\\' --warning-connections-auth=\\'$_SERVICEWARNINGCONNECTIONSAUTH$\\' --critical-connections-auth=\\'$_SERVICECRITICALCONNECTIONSAUTH$\\' --warning-connections-assoc=\\'$_SERVICEWARNINGCONNECTIONSASSOC$\\' --critical-connections-assoc=\\'$_SERVICECRITICALCONNECTIONSASSOC$\\' --warning-connections-dhcp=\\'$_SERVICEWARNINGCONNECTIONSDHCP$\\' --critical-connections-dhcp=\\'$_SERVICECRITICALCONNECTIONSDHCP$\\' --warning-connections-dns=\\'$_SERVICEWARNINGCONNECTIONSDNS$\\' --critical-connections-dns=\\'$_SERVICECRITICALCONNECTIONSDNS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Cisco-Meraki-Cloudcontroller-Restapi-Devices",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cisco_meraki_restapi.pl --plugin=network::cisco::meraki::cloudcontroller::restapi::plugin --mode=networks --hostname=\\'$_HOSTMERAKIAPIHOSTNAME$\\' --api-token=\\'$_HOSTMERAKIAPITOKEN$\\' --port=\\'$_HOSTMERAKIAPIPORT$\\' --proto=\\'$_HOSTMERAKIAPIPROTO$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTMERAKIAPIEXTRAOPTIONS$ --filter-network-name=\\'^$_HOSTMERAKINETWORKNAME$$$\\' --warning-connections-success=\\'$_SERVICEWARNINGCONNECTIONSSUCCESS$\\' --critical-connections-success=\\'$_SERVICECRITICALCONNECTIONSSUCCESS$\\' --warning-connections-auth=\\'$_SERVICEWARNINGCONNECTIONSAUTH$\\' --critical-connections-auth=\\'$_SERVICECRITICALCONNECTIONSAUTH$\\' --warning-connections-assoc=\\'$_SERVICEWARNINGCONNECTIONSASSOC$\\' --critical-connections-assoc=\\'$_SERVICECRITICALCONNECTIONSASSOC$\\' --warning-connections-dhcp=\\'$_SERVICEWARNINGCONNECTIONSDHCP$\\' --critical-connections-dhcp=\\'$_SERVICECRITICALCONNECTIONSDHCP$\\' --warning-connections-dns=\\'$_SERVICEWARNINGCONNECTIONSDNS$\\' --critical-connections-dns=\\'$_SERVICECRITICALCONNECTIONSDNS$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Cisco-Meraki-Cloudcontroller-Network-Restapi-Networks",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cisco_meraki_restapi.pl --plugin=network::cisco::meraki::cloudcontroller::restapi::plugin --mode=networks --hostname=\\'$_HOSTMERAKIAPIHOSTNAME$\\' --api-token=\\'$_HOSTMERAKIAPITOKEN$\\' --port=\\'$_HOSTMERAKIAPIPORT$\\' --proto=\\'$_HOSTMERAKIAPIPROTO$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTMERAKIAPIEXTRAOPTIONS$ --filter-network-name=\\'$_SERVICEFILTERNETWORKNAME$\\' --filter-tags=\\'$_SERVICEFILTERTAGS$\\' --filter-organization-name=\\'$_SERVICEFILTERORGANIZATIONNAME$\\' --filter-organization-id=\\'$_SERVICEFILTERORGANIZATIONID$\\' --warning-connections-success=\\'$_SERVICEWARNINGCONNECTIONSSUCCESS$\\' --critical-connections-success=\\'$_SERVICECRITICALCONNECTIONSSUCCESS$\\' --warning-connections-auth=\\'$_SERVICEWARNINGCONNECTIONSAUTH$\\' --critical-connections-auth=\\'$_SERVICECRITICALCONNECTIONSAUTH$\\' --warning-connections-assoc=\\'$_SERVICEWARNINGCONNECTIONSASSOC$\\' --critical-connections-assoc=\\'$_SERVICECRITICALCONNECTIONSASSOC$\\' --warning-connections-dhcp=\\'$_SERVICEWARNINGCONNECTIONSDHCP$\\' --critical-connections-dhcp=\\'$_SERVICECRITICALCONNECTIONSDHCP$\\' --warning-connections-dns=\\'$_SERVICEWARNINGCONNECTIONSDNS$\\' --critical-connections-dns=\\'$_SERVICECRITICALCONNECTIONSDNS$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Cisco-Meraki-Cloudcontroller-Restapi-Networks",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cisco_meraki_restapi.pl --plugin=network::cisco::meraki::cloudcontroller::restapi::plugin --mode=cache --hostname=\\'$_HOSTMERAKIAPIHOSTNAME$\\' --api-token=\\'$_HOSTMERAKIAPITOKEN$\\' --port=\\'$_HOSTMERAKIAPIPORT$\\' --proto=\\'$_HOSTMERAKIAPIPROTO$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTMERAKIAPIEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Cisco-Meraki-Cloudcontroller-Restapi-Cache",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_cisco_meraki_restapi.pl --plugin network::cisco::meraki::cloudcontroller::restapi::plugin --mode=discovery --hostname='$_MERAKIAPIHOSTNAME$' --port='$_MERAKIAPIPORT$' --proto='$_MERAKIAPIPROTO$' --api-token='$_MERAKIAPITOKEN$' --proxyurl='$_PROXYURL$' --timeout='$_TIMEOUT$' $_MERAKIAPIEXTRAOPTIONS$ --filter-network-id='$_FILTERNETWORKID$' --filter-tags='$_FILTERTAGS$' --filter-organization-name='$_FILTERORGANIZATIONNAME$' --filter-organization-id='$_FILTERORGANIZATIONID$' --resource-type=device --statefile-suffix='autodiscovery'\"",
+            "name": "Net-Cisco-Meraki-Restapi-HostDiscovery-Devices",
+            "type": "4"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_cisco_meraki_restapi.pl --plugin network::cisco::meraki::cloudcontroller::restapi::plugin --mode=discovery --hostname='$_MERAKIAPIHOSTNAME$' --port='$_MERAKIAPIPORT$' --proto='$_MERAKIAPIPROTO$' --api-token='$_MERAKIAPITOKEN$' --proxyurl='$_PROXYURL$' --timeout='$_TIMEOUT$' --filter-network-id='$_FILTERNETWORKID$' --filter-tags='$_FILTERTAGS$' --filter-organization-name='$_FILTERORGANIZATIONNAME$' --filter-organization-id='$_FILTERORGANIZATIONID$' $_MERAKIAPIEXTRAOPTIONS$ --resource-type=network --statefile-suffix='autodiscovery'\"",
+            "name": "Net-Cisco-Meraki-Restapi-HostDiscovery-Networks",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Cisco Meraki Cloud Controller avec la Rest API}\r\n{EN: Template to check Cisco Meraki Cloud Controller using Rest API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Cisco Meraki Cloud Controller using Rest API protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "network-meraki-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTMERAKIAPIHOSTNAME$",
+                    "value": "api.meraki.com"
+                },
+                {
+                    "key": "$_HOSTMERAKIAPIPORT$",
+                    "value": "443"
+                },
+                {
+                    "key": "$_HOSTMERAKIAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTMERAKIAPITOKEN$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTMERAKIAPIEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Cisco-Meraki-Cloudcontroller-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Cisco-Meraki-Cloudcontroller-Api-Requests-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Cisco Meraki avec la Rest API}\r\n{EN: Template to check Cisco Meraki device using Rest API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Cisco Meraki Device using Rest API protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "network-meraki-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTMERAKIAPIHOSTNAME$",
+                    "value": "api.meraki.com"
+                },
+                {
+                    "key": "$_HOSTMERAKIAPIPORT$",
+                    "value": "443"
+                },
+                {
+                    "key": "$_HOSTMERAKIAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTMERAKIDEVICENAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTMERAKIAPIEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Cisco-Meraki-Device-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Cisco-Meraki-Cloudcontroller-Device-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les r\u00e9seaux Cisco Meraki avec la Rest API}\r\n{EN: Template to check Cisco Meraki network using Rest API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Cisco Meraki Network using Rest API protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "network-meraki-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTMERAKIAPIHOSTNAME$",
+                    "value": "api.meraki.com"
+                },
+                {
+                    "key": "$_HOSTMERAKIAPIPORT$",
+                    "value": "443"
+                },
+                {
+                    "key": "$_HOSTMERAKIAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTMERAKINETWORKNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTMERAKIAPIEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Cisco-Meraki-Network-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Cisco-Meraki-Cloudcontroller-Network-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "network-meraki-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* add cache service",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Cisco Meraki Cloud Controller (networks, devices) via Rest API."
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un Cloud Contr\u00f4leur Cisco Meraki (r\u00e9seaux et \u00e9quipements) via l\\'API Rest."
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Cisco-Meraki-Restapi\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only Meraki API Token\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Cisco-Meraki-Cloudcontroller-Restapi-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Cisco Meraki Rest API",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_cisco_meraki_restapi.pl",
+                "package_name": "centreon-plugin-Network-Cisco-Meraki-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-cisco-meraki-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Network",
+            "Cisco",
+            "Meraki",
+            "Restapi",
+            "Wireless"
+        ],
+        "update_date": "1644241358",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation de l'API meraki.}\r\n\r\n{EN: Check meraki API usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Api-Requests",
+            "check_timeperiod": "",
+            "command_name": "Net-Cisco-Meraki-Cloudcontroller-Restapi-Api-Requests",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Cisco-Meraki-Cloudcontroller-Api-Requests-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des \u00e9quipements.}\r\n\r\n{EN: Check devices usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Device",
+            "check_timeperiod": "",
+            "command_name": "Net-Cisco-Meraki-Cloudcontroller-Device-Restapi-Devices",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Cisco-Meraki-Cloudcontroller-Device-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "Net-Cisco-Meraki-Cloudcontroller-Devices-Restapi",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des \u00e9quipements.}\r\n\r\n{EN: Check devices usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Devices",
+            "check_timeperiod": "",
+            "command_name": "Net-Cisco-Meraki-Cloudcontroller-Restapi-Devices",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /alerting/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALLINKSTATUS$",
+                    "password": false,
+                    "value": "%{link_status} =~ /failed/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Cisco-Meraki-Cloudcontroller-Devices-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des r\u00e9seaux.}\r\n\r\n{EN: Check networks usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Network",
+            "check_timeperiod": "",
+            "command_name": "Net-Cisco-Meraki-Cloudcontroller-Network-Restapi-Networks",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Cisco-Meraki-Cloudcontroller-Network-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "Net-Cisco-Meraki-Cloudcontroller-Networks-Restapi",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des r\u00e9seaux.}\r\n\r\n{EN: Check networks usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Networks",
+            "check_timeperiod": "",
+            "command_name": "Net-Cisco-Meraki-Cloudcontroller-Restapi-Networks",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Cisco-Meraki-Cloudcontroller-Networks-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Service permettant de g\u00e9n\u00e9rer les fichiers de cache.}\r\n\r\n{EN: Generate cache files.}",
+            "active_checks_enabled": 2,
+            "alias": "Cache",
+            "check_timeperiod": "",
+            "command_name": "Net-Cisco-Meraki-Cloudcontroller-Restapi-Cache",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Cisco-Meraki-Cloudcontroller-Cache-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

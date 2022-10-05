@@ -1,0 +1,904 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-DB-Oracle-ASM-Diskgroup-Discover",
+                "command_for_macro": "App-DB-Oracle-ASM-Diskgroup-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-DB-Oracle"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "App-DB-Oracle-ASM-Diskgroup-Usage-Name",
+                "service_display_name": "ASM-Diskgroup-Usage-$name$",
+                "service_template": "App-DB-Oracle-ASM-Diskgroup-Usage-Global"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-DB-Oracle-Tablespaces-Discover",
+                "command_for_macro": "App-DB-Oracle-Tablespaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-DB-Oracle"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "EXCLUDEREGEXP",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "App-DB-Oracle-Tablespaces-Usage-Name",
+                "service_display_name": "Tablespace-Usage-$name$",
+                "service_template": "App-DB-Oracle-Tablespace-Usage-Global"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle.pl --plugin=database::oracle::plugin --mode=list-asm-diskgroups --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "App-DB-Oracle-ASM-Diskgroup-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle.pl --plugin=database::oracle::plugin --mode=list-asm-diskgroups --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTORACLEPORT$\\' --sid=\\'$_HOSTORACLESID$\\' --servicename=\\'$_HOSTORACLESERVICENAME$\\' --username=\\'$_HOSTORACLEUSERNAME$\\' --password=\\'$_HOSTORACLEPASSWORD$\\' --disco-show\\\"",
+            "name": "App-DB-Oracle-ASM-Diskgroup-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle.pl --plugin=database::oracle::plugin --mode=\\'list-tablespaces\\' --hostname=\\'127.0.0.1\\' --disco-format\\\"",
+            "name": "App-DB-Oracle-Tablespaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle.pl --plugin=database::oracle::plugin --mode=\\'list-tablespaces\\' --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTORACLEPORT$\\' --sid=\\'$_HOSTORACLESID$\\' --servicename=\\'$_HOSTORACLESERVICENAME$\\' --username=\\'$_HOSTORACLEUSERNAME$\\' --password=\\'$_HOSTORACLEPASSWORD$\\' --disco-show\\\"",
+            "name": "App-DB-Oracle-Tablespaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle.pl --plugin=database::oracle::plugin --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTORACLEPORT$\\' --servicename=\\'$_HOSTORACLESERVICENAME$\\' --sid=\\'$_HOSTORACLESID$\\' --mode=\\'tnsping\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Oracle-Tnsping",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle.pl --plugin=database::oracle::plugin --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTORACLEPORT$\\' --sid=\\'$_HOSTORACLESID$\\' --servicename=\\'$_HOSTORACLESERVICENAME$\\' --username=\\'$_HOSTORACLEUSERNAME$\\' --password=\\'$_HOSTORACLEPASSWORD$\\' --mode=\\'tablespace-usage\\' --warning-tablespace=\\'$_SERVICEWARNING$\\' --critical-tablespace=\\'$_SERVICECRITICAL$\\' --filter-tablespace=\\'$_SERVICEEXCLUDEREGEXP$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Oracle-Tablespace-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle.pl --plugin=database::oracle::plugin --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTORACLEPORT$\\' --sid=\\'$_HOSTORACLESID$\\' --servicename=\\'$_HOSTORACLESERVICENAME$\\' --username=\\'$_HOSTORACLEUSERNAME$\\' --password=\\'$_HOSTORACLEPASSWORD$\\' --mode=\\'session-usage\\' --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Oracle-Session-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle.pl --plugin=database::oracle::plugin --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTORACLEPORT$\\' --sid=\\'$_HOSTORACLESID$\\' --servicename=\\'$_HOSTORACLESERVICENAME$\\' --username=\\'$_HOSTORACLEUSERNAME$\\' --password=\\'$_HOSTORACLEPASSWORD$\\'  --mode=\\'rman-backup-problems\\' --warning-completed=\\'$_SERVICEWARNINGCOMPLETED$\\' --critical-completed=\\'$_SERVICECRITICALCOMPLETED$\\' --warning-failed=\\'$_SERVICEWARNINGFAILED$\\' --critical-failed=\\'$_SERVICECRITICALFAILED$\\' --warning-completed-warnings=\\'$_SERVICEWARNINGCOMPLETEDWARNINGS$\\' --critical-completed-warnings=\\'$_SERVICECRITICALCOMPLETEDWARNINGS$\\' --warning-completed-errors=\\'$_SERVICEWARNINGCOMPLETEDERRORS$\\' --critical-completed-errors=\\'$_SERVICECRITICALCOMPLETEDERRORS$\\' --retention=\\'$_SERVICERETENTION$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Oracle-Rman-Backup-Problems",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle.pl --plugin=database::oracle::plugin --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTORACLEPORT$\\' --sid=\\'$_HOSTORACLESID$\\' --servicename=\\'$_HOSTORACLESERVICENAME$\\' --username=\\'$_HOSTORACLEUSERNAME$\\' --password=\\'$_HOSTORACLEPASSWORD$\\' --mode=\\'process-usage\\' --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Oracle-Process-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle.pl --plugin=database::oracle::plugin --hostname=$HOSTADDRESS$ --port=\\'$_HOSTORACLEPORT$\\' --sid=\\'$_HOSTORACLESID$\\' --servicename=\\'$_HOSTORACLESERVICENAME$\\' --username=\\'$_HOSTORACLEUSERNAME$\\' --password=\\'$_HOSTORACLEPASSWORD$\\' --mode=\\'datacache-hitratio\\' --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Oracle-Datacache-Hitratio",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle.pl --plugin=database::oracle::plugin --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTORACLEPORT$\\' --sid=\\'$_HOSTORACLESID$\\' --servicename=\\'$_HOSTORACLESERVICENAME$\\' --username=\\'$_HOSTORACLEUSERNAME$\\' --password=\\'$_HOSTORACLEPASSWORD$\\'  --mode=\\'$_SERVICEMODE$\\' --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Oracle",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle.pl --plugin=database::oracle::plugin --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTORACLEPORT$\\' --sid=\\'$_HOSTORACLESID$\\' --servicename=\\'$_HOSTORACLESERVICENAME$\\' --username=\\'$_HOSTORACLEUSERNAME$\\' --password=\\'$_HOSTORACLEPASSWORD$\\' --mode=\\'asm-diskgroup-usage\\' --filter-name=\\'$_SERVICEFILTER$\\' --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' --warning-usage-failure=\\'$_SERVICEWARNINGUSAGEFAILURE$\\' --critical-usage-failure=\\'$_SERVICECRITICALUSAGEFAILURE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Oracle-ASM-Diskgroup-Usage-Generic-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle.pl --plugin=database::oracle::plugin --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTORACLEPORT$\\' --sid=\\'$_HOSTORACLESID$\\' --servicename=\\'$_HOSTORACLESERVICENAME$\\' --username=\\'$_HOSTORACLEUSERNAME$\\' --password=\\'$_HOSTORACLEPASSWORD$\\' --mode=\\'asm-diskgroup-usage\\' --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' --warning-usage-failure=\\'$_SERVICEWARNINGUSAGEFAILURE$\\' --critical-usage-failure=\\'$_SERVICECRITICALUSAGEFAILURE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Oracle-ASM-Diskgroup-Usage-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle.pl --plugin=database::oracle::plugin --hostname=$HOSTADDRESS$ --port=\\'$_HOSTORACLEPORT$\\' --sid=\\'$_HOSTORACLESID$\\' --servicename=\\'$_HOSTORACLESERVICENAME$\\' --username=\\'$_HOSTORACLEUSERNAME$\\' --password=\\'$_HOSTORACLEPASSWORD$\\' --mode=\\'data-files-status\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-online-status=\\'$_SERVICEWARNINGONLINESTATUS$\\' --critical-online-status=\\'$_SERVICECRITICALONLINESTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Oracle-Data-Files-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle.pl --plugin=database::oracle::plugin --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTORACLEPORT$\\' --sid=\\'$_HOSTORACLESID$\\' --servicename=\\'$_HOSTORACLESERVICENAME$\\' --username=\\'$_HOSTORACLEUSERNAME$\\' --password=\\'$_HOSTORACLEPASSWORD$\\' --mode=\\'rman-backup-age\\' --timezone=\\'$HOSTTIMEZONE$\\' --warning-archivelog=\\'$_SERVICEWARNINGARCHIVELOG$\\' --critical-archivelog=\\'$_SERVICECRITICALARCHIVELOG$\\' --warning-db-incr=\\'$_SERVICEWARNINGDBINCR$\\' --critical-db-incr=\\'$_SERVICECRITICALDBINCR$\\' --warning-db-full=\\'$_SERVICEWARNINGDBFULL$\\' --critical-db-full=\\'$_SERVICECRITICALDBFULL$\\' --warning-controlfile=\\'$_SERVICEWARNINGCONTROLFILE$\\' --critical-controlfile=\\'$_SERVICECRITICALCONTROLFILE$\\'  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Oracle-Rman-Backup-Age",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle.pl --plugin=database::oracle::plugin --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTORACLEPORT$\\' --sid=\\'$_HOSTORACLESID$\\' --servicename=\\'$_HOSTORACLESERVICENAME$\\' --username=\\'$_HOSTORACLEUSERNAME$\\' --password=\\'$_HOSTORACLEPASSWORD$\\' --mode=\\'rman-online-backup-age\\' --timezone=\\'$HOSTTIMEZONE$\\' --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Oracle-Rman-Online-Backup-Age",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle.pl --plugin=database::oracle::plugin --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTORACLEPORT$\\' --sid=\\'$_HOSTORACLESID$\\' --servicename=\\'$_HOSTORACLESERVICENAME$\\' --username=\\'$_HOSTORACLEUSERNAME$\\' --password=\\'$_HOSTORACLEPASSWORD$\\'  --mode=\\'sql\\' --sql-statement=\\'$_SERVICESQLCOMMAND$\\' --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Oracle-Sql",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle.pl --plugin=database::oracle::plugin --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTORACLEPORT$\\' --sid=\\'$_HOSTORACLESID$\\' --servicename=\\'$_HOSTORACLESERVICENAME$\\' --username=\\'$_HOSTORACLEUSERNAME$\\' --password=\\'$_HOSTORACLEPASSWORD$\\' --mode=event-waits-usage --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-total-waits-sec=\\'$_SERVICEWARNINGTOTALWAITSSEC$\\' --critical-total-waits-sec=\\'$_SERVICECRITICALTOTALWAITSSEC$\\' --warning-total-waits-time=\\'$_SERVICEWARNINGTOTALWAITSTIME$\\' --critical-total-waits-time=\\'$_SERVICECRITICALTOTALWAITSTIME$\\' --warning-event-count=\\'$_SERVICEWARNINGEVENTCOUNT$\\' --critical-event-count=\\'$_SERVICECRITICALEVENTCOUNT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Oracle-Event-Waits-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle.pl --plugin=database::oracle::plugin --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTORACLEPORT$\\' --sid=\\'$_HOSTORACLESID$\\' --servicename=\\'$_HOSTORACLESERVICENAME$\\' --username=\\'$_HOSTORACLEUSERNAME$\\' --password=\\'$_HOSTORACLEPASSWORD$\\' --mode=rollback-segment-usage --warning-extends=\\'$_SERVICEWARNINGEXTENDS$\\' --critical-extends=\\'$_SERVICECRITICALEXTENDS$\\' --warning-wraps=\\'$_SERVICEWARNINGWRAPS$\\' --critical-wraps=\\'$_SERVICECRITICALWRAPS$\\' --warning-hit-ratio=\\'$_SERVICEWARNINGHITRATIO$\\' --critical-hit-ratio=\\'$_SERVICECRITICALHITRATIO$\\' --warning-block-contention=\\'$_SERVICEWARNINGBLOCKCONTENTION$\\' --critical-block-contention=\\'$_SERVICECRITICALBLOCKCONTENTION$\\'  --warning-header-contention=\\'$_SERVICEWARNINGHEADERCONTENTION$\\' --critical-header-contention=\\'$_SERVICECRITICALHEADERCONTENTION$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Oracle-Rollback-Segment-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle.pl --plugin=database::oracle::plugin --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTORACLEPORT$\\' --sid=\\'$_HOSTORACLESID$\\' --servicename=\\'$_HOSTORACLESERVICENAME$\\' --username=\\'$_HOSTORACLEUSERNAME$\\' --password=\\'$_HOSTORACLEPASSWORD$\\' --mode=long-queries --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Oracle-Long-Queries",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle.pl --plugin=database::oracle::plugin --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTORACLEPORT$\\' --sid=\\'$_HOSTORACLESID$\\' --servicename=\\'$_HOSTORACLESERVICENAME$\\' --username=\\'$_HOSTORACLEUSERNAME$\\' --password=\\'$_HOSTORACLEPASSWORD$\\' --mode=invalid-object --filter-message=\\'$_SERVICEFILTERMESSAGE$\\' --retention-objects=\\'$_SERVICERETENTIONOBJECTS$\\' --warning-objects=\\'$_SERVICEWARNINGOBJECTS$\\' --critical-objects=\\'$_SERVICECRITICALOBJECTS$\\' --warning-indexes=\\'$_SERVICEWARNINGINDEXES$\\' --critical-indexes=\\'$_SERVICECRITICALINDEXES$\\' --warning-ind-partitions=\\'$_SERVICEWARNINGINDPARTITIONS$\\' --critical-ind-partitions=\\'$_SERVICECRITICALINDPARTITIONS$\\' --warning-ind-subpartitions=\\'$_SERVICEWARNINGINDSUBPARTITIONS$\\' --critical-ind-subpartitions=\\'$_SERVICECRITICALINDSUBPARTITIONS$\\' --warning-registry-components=\\'$_SERVICEWARNINGREGISTRYCOMPONENTS$\\' --critical-registry-components=\\'$_SERVICECRITICALREGISTRYCOMPONENTS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Oracle-Invalid-Object",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle.pl --plugin=database::oracle::plugin --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTORACLEPORT$\\' --sid=\\'$_HOSTORACLESID$\\' --servicename=\\'$_HOSTORACLESERVICENAME$\\' --username=\\'$_HOSTORACLEUSERNAME$\\' --password=\\'$_HOSTORACLEPASSWORD$\\' --mode=\\'sql-string\\' --sql-statement=\\'$_SERVICESQLSTATEMENT$\\' --value-column=\\'$_SERVICEVALUE$\\' --warning-string=\\'$_SERVICEWARNING$\\' --critical-string=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Oracle-Sql-String",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle.pl --plugin=database::oracle::plugin --hostname=$HOSTADDRESS$ --port=\\'$_HOSTORACLEPORT$\\' --sid=\\'$_HOSTORACLESID$\\' --servicename=\\'$_HOSTORACLESERVICENAME$\\' --username=\\'$_HOSTORACLEUSERNAME$\\' --password=\\'$_HOSTORACLEPASSWORD$\\' --mode=\\'dictionary-cache-usage\\' --warning-get-hits=\\'$_SERVICEWARNINGGETHITS$\\' --critical-get-hits=\\'$_SERVICECRITICALGETHITS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Oracle-Dictionary-Cache-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle.pl --plugin=database::oracle::plugin --hostname=$HOSTADDRESS$ --port=\\'$_HOSTORACLEPORT$\\' --sid=\\'$_HOSTORACLESID$\\' --servicename=\\'$_HOSTORACLESERVICENAME$\\' --username=\\'$_HOSTORACLEUSERNAME$\\' --password=\\'$_HOSTORACLEPASSWORD$\\' --mode=\\'fra-usage\\' --filter-type=\\'$_SERVICEFILTERTYPE$\\' --warning-space-usage=\\'$_SERVICEWARNINGSPACEUSAGE$\\' --critical-space-usage=\\'$_SERVICECRITICALSPACEUSAGE$\\' --warning-space-reclaimable=\\'$_SERVICEWARNINGSPACERECLAIMABLE$\\' --critical-space-reclaimable=\\'$_SERVICECRITICALSPACERECLAIMABLE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Oracle-Fra-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle.pl --plugin=database::oracle::plugin --hostname=$HOSTADDRESS$ --port=\\'$_HOSTORACLEPORT$\\' --sid=\\'$_HOSTORACLESID$\\' --servicename=\\'$_HOSTORACLESERVICENAME$\\' --username=\\'$_HOSTORACLEUSERNAME$\\' --password=\\'$_HOSTORACLEPASSWORD$\\' --mode=\\'library-cache-usage\\' --warning-get-hits=\\'$_SERVICEWARNINGGETHITS$\\' --critical-get-hits=\\'$_SERVICECRITICALGETHITS$\\' --warning-pin-hits=\\'$_SERVICEWARNINGPINHITS$\\' --critical-pin-hits=\\'$_SERVICECRITICALPINHITS$\\' --warning-reloads=\\'$_SERVICEWARNINGRELOADS$\\' --critical-reloads=\\'$_SERVICECRITICALRELOADS$\\' --warning-invalids=\\'$_SERVICEWARNINGINVALIDS$\\' --critical-invalids=\\'$_SERVICECRITICALINVALIDS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Oracle-Library-Cache-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle.pl --plugin=database::oracle::plugin --hostname=$HOSTADDRESS$ --port=\\'$_HOSTORACLEPORT$\\' --sid=\\'$_HOSTORACLESID$\\' --servicename=\\'$_HOSTORACLESERVICENAME$\\' --username=\\'$_HOSTORACLEUSERNAME$\\' --password=\\'$_HOSTORACLEPASSWORD$\\' --mode=\\'redolog-usage\\' --warning-retry-ratio=\\'$_SERVICEWARNINGRETRYRATIO$\\' --critical-retry-ratio=\\'$_SERVICECRITICALRETRYRATIO$\\' --warning-traffic-io=\\'$_SERVICEWARNINGTRAFFICIO$\\' --critical-traffic-io=\\'$_SERVICECRITICALTRAFFICIO$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Oracle-Redolog-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser une base de donn\u00e9es Oracle}\r\n{EN: Template to check Oracle Database}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Oracle Database",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "oracle-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTORACLEPASSWORD$",
+                    "value": "PASSWORD"
+                },
+                {
+                    "key": "$_HOSTORACLEPORT$",
+                    "value": "1521"
+                },
+                {
+                    "key": "$_HOSTORACLESID$",
+                    "value": "SID"
+                },
+                {
+                    "key": "$_HOSTORACLEUSERNAME$",
+                    "value": "USERNAME"
+                },
+                {
+                    "key": "$_HOSTORACLESERVICENAME$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Oracle",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-DB-Oracle-Tnsping",
+                "App-DB-Oracle-Tablespace-Usage-Global",
+                "App-DB-Oracle-Session-Usage",
+                "App-DB-Oracle-Rman-Backup-Problems",
+                "App-DB-Oracle-Process-Usage",
+                "App-DB-Oracle-Datacache-Hitratio",
+                "App-DB-Oracle-Corrupted-Blocks",
+                "App-DB-Oracle-Connection-Time",
+                "App-DB-Oracle-Connection-Number"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAAsSAAALEgHS3X78AAAF1ElEQVR42u2aaWxUVRTHu1ihamsRodIZaDtto5USQAzEWKWIGI0mpiZK1KQxJgouREwMBj/4QY2iiX5wixCqdYmGLwQXooaICFFwIwZiRKMSBGOZMUXABUUZz23v6JnrezNvM/TD75f80+bde8+7y7nnLm8qKgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOB4kW3K1OVSmcYgyqbaGvam0yXtSb6aoPb+az8zJlZbUplm0RxRTRw7+1OZarExIVTd062mTHXxs0xl4uOVypwSsl8bvIzMEK0WfS/Kh1RO9LKo26eC3RFsFvSnaLPosggds0z0l7WzSzQxZPkxokWiLaIjIeu9VSZSlfydop/n0q11CQ16p+hp0Z4IfXq1NnSi6HHVUXFlHKEuQQfQuj9EB51rnUeXXxOy/FcR6/m7qMvaSdQBJOKaqPKg6GjEuq3Nq0bWiNZ7ZNon+lj0URmZPLs9yn+oncBxgKMB7Bb0qehXX+/1HzzTrs98OuDKAOUvEP3ilDMRYGfAet+lbCXmADaivOLRph9EnwSo1/uiSbqhjziGjDNMjxCO2kUvuZHAxwGGQto+XbRJlf88QJl7VP4/RO85zn1qibJn2CWtkP+gaIlZZyOG6uQcoLhdRu+KZg9lMpGMdThh5EnxsMqY69Jyp4LdcR3Alm8RHVM20iXynin6TeV9wHi96IB69kyJ8qt0XUXTYvZJIg5g26Cj4YsyXtVxKqZnvwltJ8TdmAw2thm7G9woENcBrI2DysYMn/Wxym4YC/m+FI215W9Rz40zzfV4R53TyX0JbNaScgA9+3fLaaI2bsW2K4OLEjySXK7sZvPJRICpTmRp9Mm32Bnknn/SJrUb5/hApZsNXq1T/lKVvj+JSZGgA2xUdl4TXR9R87xm1MwEHWCCM1h1MfcA5rizQ28wffKlnTat9sgzze4JCnlWOOm3qrQ3E+qPpBxgTwKnKDMpLikYPKwSuhJ0gHHOSxu8HED+TranhaySmXWDSjnHljmqXuS+M1/RY+y9qvKZsuN86rfCOZHMVGlL9CwbZQ6wLwEHGNAGv1AJ1yboABcqu4eyTVMq/SKAuZgRbQtYeTNzb/J55zVO3oUl6neS6BuVd3suPRLq5f9evc7mmptHkwNsVXY227uAsDpNG1ypDG4sd50boqIv6GNluU1gbmRA1noM+BF7Fv9O9Lzfbtw0ys74Qrk37D7kvhJ623nX3coh9eXRglHkAA8XOe3ktqq4FZvjdMLtCTS21zmuXRXkFJBLD+/eH/U4444P8M4BVeaw7fBW0c8hQqPZ+XdYe+vU86/DXh//jw7Q6dzW3pvEbF3jbBCMl9VHsDPWzCJng7Ulm2qtDHMMlLTbnBloBqCzRP4FjsPdodKWhlwfNw02tZvl6mzn3t/UYV7+ODuAR9Q2eqoorEcw2GDvALRRM3PeEj0n6i+jZ0WvO5csRnvNJi/KTaCkX+FsUH/y+hAkz04WfatPB7lUa7VzZ94nurGEljkOdLO13efxbWSXvYbtD6EO1wHsEtkfQTfYNm/ziF4bAo5XQcvdY9s7CX2sydv7+5YSH4OGAjjmOc5XSRMVluZnzdJ5HnM2iNMjToIBx9lS9vnC4U1s9H5Yf6ClpXDaidunZlJmbL3q7T1AnKNgT/G37nSrCX3XWe86FtGwOasvFls1ZT4HD4UInTucd6yyH3pmO0vFQzGi4ER75VuwtS7/b1pK9ITox5B9cagQAbMjvyPYGdMB7iyq84hj9drTQNivuCvLdch40XmiiwPqfPMBpaTN9PBSU8g/N8Tg1Hu8r8luiPSz2ph7oalF9tLFP0LJjSwnZ5m9QMA+6fJYrnpC9KnWfPNjlDLLuNnQzw9oL5HfIwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBJ/gaOzwlDxneVtQAAAABJRU5ErkJggg==",
+            "name": "oracle-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* break: change threshold options for rman-backup-problems",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Oracle DBMS using SQL request.\r\nSeveral indicators are available but not linked to the template of host.\r\nYou have to use them manually:\r\n* ASM-Diskgroup-Usage (by name or global)\r\n* Connection-Number\r\n* Connection-Time\r\n* Corrupted-Blocks\r\n* Data-Files-Status\r\n* Datacache-Hitratio\r\n* Dictionary-Cache-Usage\r\n* Fra-Usage\r\n* Event-Waits-Usage\r\n* Library-Cache-Usage\r\n* Process-Usage\r\n* Redolog-Usage\r\n* Rman-Backup-Age\r\n* Rman-Backup-Online-Age\r\n* Rman-Backup-Problems\r\n* Session-Usage\r\n* Tablespace-Usage\r\n* Tnsping"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack Plugin pour surveiller les SGBD Oracle en utilisant des requ\u00eates SQL.\r\nDe nombreux indicateurs sont disponibles mais ne sont pas associ\u00e9s au mod\u00e8le d\\'h\u00f4te.\r\nIls doivent \u00eatre d\u00e9ploy\u00e9s manuellement:\r\n* ASM-Diskgroup-Usage (by name or global)\r\n* Connection-Number\r\n* Connection-Time\r\n* Corrupted-Blocks\r\n* Data-Files-Status\r\n* Datacache-Hitratio\r\n* Dictionary-Cache-Usage\r\n* Fra-Usage\r\n* Event-Waits-Usage\r\n* Library-Cache-Usage\r\n* Process-Usage\r\n* Redolog-Usage\r\n* Rman-Backup-Age\r\n* Rman-Backup-Online-Age\r\n* Rman-Backup-Problems\r\n* Session-Usage\r\n* Tablespace-Usage\r\n* Tnsping"
+            }
+        ],
+        "discovery_category": "database",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAAsSAAALEgHS3X78AAAF1ElEQVR42u2aaWxUVRTHu1ihamsRodIZaDtto5USQAzEWKWIGI0mpiZK1KQxJgouREwMBj/4QY2iiX5wixCqdYmGLwQXooaICFFwIwZiRKMSBGOZMUXABUUZz23v6JnrezNvM/TD75f80+bde8+7y7nnLm8qKgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOB4kW3K1OVSmcYgyqbaGvam0yXtSb6aoPb+az8zJlZbUplm0RxRTRw7+1OZarExIVTd062mTHXxs0xl4uOVypwSsl8bvIzMEK0WfS/Kh1RO9LKo26eC3RFsFvSnaLPosggds0z0l7WzSzQxZPkxokWiLaIjIeu9VSZSlfydop/n0q11CQ16p+hp0Z4IfXq1NnSi6HHVUXFlHKEuQQfQuj9EB51rnUeXXxOy/FcR6/m7qMvaSdQBJOKaqPKg6GjEuq3Nq0bWiNZ7ZNon+lj0URmZPLs9yn+oncBxgKMB7Bb0qehXX+/1HzzTrs98OuDKAOUvEP3ilDMRYGfAet+lbCXmADaivOLRph9EnwSo1/uiSbqhjziGjDNMjxCO2kUvuZHAxwGGQto+XbRJlf88QJl7VP4/RO85zn1qibJn2CWtkP+gaIlZZyOG6uQcoLhdRu+KZg9lMpGMdThh5EnxsMqY69Jyp4LdcR3Alm8RHVM20iXynin6TeV9wHi96IB69kyJ8qt0XUXTYvZJIg5g26Cj4YsyXtVxKqZnvwltJ8TdmAw2thm7G9woENcBrI2DysYMn/Wxym4YC/m+FI215W9Rz40zzfV4R53TyX0JbNaScgA9+3fLaaI2bsW2K4OLEjySXK7sZvPJRICpTmRp9Mm32Bnknn/SJrUb5/hApZsNXq1T/lKVvj+JSZGgA2xUdl4TXR9R87xm1MwEHWCCM1h1MfcA5rizQ28wffKlnTat9sgzze4JCnlWOOm3qrQ3E+qPpBxgTwKnKDMpLikYPKwSuhJ0gHHOSxu8HED+TranhaySmXWDSjnHljmqXuS+M1/RY+y9qvKZsuN86rfCOZHMVGlL9CwbZQ6wLwEHGNAGv1AJ1yboABcqu4eyTVMq/SKAuZgRbQtYeTNzb/J55zVO3oUl6neS6BuVd3suPRLq5f9evc7mmptHkwNsVXY227uAsDpNG1ypDG4sd50boqIv6GNluU1gbmRA1noM+BF7Fv9O9Lzfbtw0ys74Qrk37D7kvhJ623nX3coh9eXRglHkAA8XOe3ktqq4FZvjdMLtCTS21zmuXRXkFJBLD+/eH/U4444P8M4BVeaw7fBW0c8hQqPZ+XdYe+vU86/DXh//jw7Q6dzW3pvEbF3jbBCMl9VHsDPWzCJng7Ulm2qtDHMMlLTbnBloBqCzRP4FjsPdodKWhlwfNw02tZvl6mzn3t/UYV7+ODuAR9Q2eqoorEcw2GDvALRRM3PeEj0n6i+jZ0WvO5csRnvNJi/KTaCkX+FsUH/y+hAkz04WfatPB7lUa7VzZ94nurGEljkOdLO13efxbWSXvYbtD6EO1wHsEtkfQTfYNm/ziF4bAo5XQcvdY9s7CX2sydv7+5YSH4OGAjjmOc5XSRMVluZnzdJ5HnM2iNMjToIBx9lS9vnC4U1s9H5Yf6ClpXDaidunZlJmbL3q7T1AnKNgT/G37nSrCX3XWe86FtGwOasvFls1ZT4HD4UInTucd6yyH3pmO0vFQzGi4ER75VuwtS7/b1pK9ITox5B9cagQAbMjvyPYGdMB7iyq84hj9drTQNivuCvLdch40XmiiwPqfPMBpaTN9PBSU8g/N8Tg1Hu8r8luiPSz2ph7oalF9tLFP0LJjSwnZ5m9QMA+6fJYrnpC9KnWfPNjlDLLuNnQzw9oL5HfIwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBJ/gaOzwlDxneVtQAAAABJRU5ErkJggg==",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Databases-Oracle\r\n\r\n## RPM\r\nIn order to use this template, the following RPM is needed to compile\r\nPerl library:\r\n*  gcc\r\n\r\n### Oracle instant client\r\nGo to [Instant Client Downloads](http://www.oracle.com/technetwork/database/features/instant-client/index-097480.html), choose the right OS (the one running monitoring engine, probably Linux x86-64) and download the following packages:\r\n* oracle-instantclient-basic\r\n* oracle-instantclient-sqlplus\r\n* oracle-instantclientdevel\r\n\r\nInstall them:\r\n\r\n    $ rpm -ivh oracle-*.rpm\r\n\r\n### Perl library for oracle\r\n\r\n<aside class=\"notice\">\r\nReplace 12.1 by the version of instantclient installed\r\n</aside>\r\n\r\nAs root, run:\r\n\r\n    $ cd /usr/local/src \r\n    $ wget http://www.cpan.org/modules/by-module/DBD/DBD-Oracle-1.64.tar.gz \r\n    $ tar xzf DBD-Oracle-1.64.tar.gz \r\n    $ cd DBD-Oracle-1.64 \r\n    $ export ORACLE_HOME=/usr/lib/oracle/12.1/client64/ \r\n    $ export LD_LIBRARY_PATH=$ORACLE_HOME/lib \r\n    $ perl Makefile.PL -m /usr/share/oracle/12.1/client64/demo/demo.mk\r\n\r\n<aside class=\"notice\">\r\nIf `DBD::Oracle-1.28` is used, the last command line should be:\r\n</aside>\r\n\r\n    $ perl Makefile.PL -V 12.1\r\n\r\nThe following message should appear:\r\n\r\n    LD_RUN_PATH=/usr/lib/oracle/12.1/client64/lib*\r\n    Using DBD::Oracle 1.64. \r\n    Using DBD::Oracle 1.64. \r\n    Using DBI 1.52 (for perl 5.008008 on x86_64-linux-thread-multi) installed in /usr/lib64/perl5/vendor_perl/5.8.8/x86\\_64-linux-thread-multi/auto/DBI/\r\n    Writing Makefile for DBD::Oracle\r\n\r\nCompile the library:\r\n\r\n    $ make\r\n\r\nThen install it:\r\n\r\n    $ make install\r\n\r\nThen create the file : /etc/ld.so.conf.d/oracle.conf and link to the Oracle Perl Library:\r\n\r\n    $ touch /etc/ld.so.conf.d/oracle.conf\r\n    $ vi /etc/ld.so.conf.d/oracle.conf\r\n\r\nYou just have to enter in the file : /usr/lib/oracle/12.1/client64/lib/\r\n\r\nThen :\r\n\r\n    /sbin/ldconfig\r\n\r\n### user account\r\nThe safest way to retrieve information from the Oracle server is to\r\ncreate a dedicated user for Centreon.\r\n\r\nThis user account must have the read permission on following tables:\r\n\r\n-   dba\\_free\\_space\r\n-   dba\\_data\\_files\r\n-   dba\\_temp\\_files\r\n-   dba\\_segments\r\n-   dba\\_jobs\r\n-   v$sysstat\r\n-   v$sgastat\r\n-   v$parameter\r\n-   v$process\r\n-   v$session\r\n-   v$filestat\r\n-   v$log\r\n-   v$instance\r\n\r\n## Centreon Configuration\r\n### Create a new Oracle server\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-DB-Oracle-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\nThose services were automatically created for this host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"24%\" />\r\n<col width=\"75%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Service</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>ping</p></td>\r\n<td align=\"left\"><p>Monitor host response time</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Connection-Number</p></td>\r\n<td align=\"left\"><p>Check connection number to the Oracle server</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Connection-Time</p></td>\r\n<td align=\"left\"><p>Check the time to connect to the server</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Corrupted-Blocks</p></td>\r\n<td align=\"left\"><p>Check the number of corrupted blocks in database</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Datacache-Hitratio</p></td>\r\n<td align=\"left\"><p>Check the 'Data Buffer Cache Hit Ratio' of the server.</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Tablespace-Usage</p></td>\r\n<td align=\"left\"><p>Check the used space in tablespaces</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Rman-Backup-Problems</p></td>\r\n<td align=\"left\"><p>Check RMAN backup errors of the server during the last three days</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Tnsping</p></td>\r\n<td align=\"left\"><p>Check the connection to a remote listener</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\n### Host macro configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"21%\" />\r\n<col width=\"47%\" />\r\n<col width=\"18%\" />\r\n<col width=\"12%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n<th align=\"left\">Example</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>ORACLEPORT</p></td>\r\n<td align=\"left\"><p>Port used to connect to the DB server</p></td>\r\n<td align=\"left\"><p>1521</p></td>\r\n<td align=\"left\"><p>1521</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>ORACLESID</p></td>\r\n<td align=\"left\"><p>The name of the oracle instance</p></td>\r\n<td align=\"left\"><p>SID</p></td>\r\n<td align=\"left\"><p>ORCLB55</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>ORACLEUSERNAME</p></td>\r\n<td align=\"left\"><p>the oracle user</p></td>\r\n<td align=\"left\"><p>USERNAME</p></td>\r\n<td align=\"left\"><p>root</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>ORACLEPASSWORD</p></td>\r\n<td align=\"left\"><p>the oracle user's password</p></td>\r\n<td align=\"left\"><p>PASSWORD</p></td>\r\n<td align=\"left\"><p>p@ssw0rd</p></td>\r\n</tr>\r\n</tbody>\r\n</table>",
+        "name": "Oracle Database",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_oracle.pl",
+                "package_name": "centreon-plugin-Applications-Databases-Oracle",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Applications-Databases-Oracle",
+                "version": "20180409-1"
+            }
+        ],
+        "slug": "applications-databases-oracle",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Database",
+            "DB",
+            "DBMS",
+            "Oracle",
+            "SGBD"
+        ],
+        "update_date": "1636981141",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier la connexion \u00e0 un 'listener' distant.}\r\n\r\n{EN: Check the connection to a remote listener.}",
+            "active_checks_enabled": 2,
+            "alias": "Tnsping",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Oracle-Tnsping",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Oracle-Tnsping",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des 'tablespaces' du serveur.}\r\n\r\n{EN: Check the tablespace usage of the server.}",
+            "active_checks_enabled": 2,
+            "alias": "Tablespace-Usage-Global",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Oracle-Tablespace-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "98"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXCLUDEREGEXP$",
+                    "password": false,
+                    "value": "^(?!(SYSTEM|SYSAUX))"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --notemp"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Oracle-Tablespace-Usage-Global",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des sessions.}\r\n\r\n{EN: Check session used.}",
+            "active_checks_enabled": 2,
+            "alias": "Session-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Oracle-Session-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "App-DB-Oracle-Session-Usage",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les erreurs de sauvegarde 'RMAN' du serveur durant les 3 derniers jours.}\r\n\r\n{EN: Check RMAN backup errors of the server during the last three days.}",
+            "active_checks_enabled": 2,
+            "alias": "Rman-Backup-Problems",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Oracle-Rman-Backup-Problems",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICERETENTION$",
+                    "password": false,
+                    "value": "3"
+                }
+            ],
+            "max_check_attempts": 1,
+            "name": "App-DB-Oracle-Rman-Backup-Problems",
+            "normal_check_interval": 720,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des 'process' Oracle.}\r\n\r\n{EN: Check Oracle process used.}",
+            "active_checks_enabled": 2,
+            "alias": "Process-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Oracle-Process-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "App-DB-Oracle-Process-Usage",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le 'Data Buffer Cache Hit Ratio' du serveur. Aucunes alertes par d\u00e9faut.}\r\n\r\n{EN: Check the 'Data Buffer Cache Hit Ratio' of the server. No alerts by default.}",
+            "active_checks_enabled": 2,
+            "alias": "Datacache-Hitratio",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Oracle-Datacache-Hitratio",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Oracle-Datacache-Hitratio",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le nombre de blocks corrompus du serveur. }\r\n\r\n{EN: Check the number of corrupted blocks on the server.}",
+            "active_checks_enabled": 2,
+            "alias": "Corrupted-Blocks",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Oracle",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEMODE$",
+                    "password": false,
+                    "value": "corrupted-blocks"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "1"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "10"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-DB-Oracle-Corrupted-Blocks",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier la dur\u00e9e de connexion au serveur. Ce temps est donn\u00e9 en secondes.}\r\n\r\n{EN: Check the connection time to the server. This time is given in seconds.}",
+            "active_checks_enabled": 2,
+            "alias": "Connection-Time",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Oracle",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEMODE$",
+                    "password": false,
+                    "value": "connection-time"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "1000"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "5000"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-DB-Oracle-Connection-Time",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le nombre de connexions au serveur Oracle.}\r\n\r\n{EN: Check connection number to the Oracle server.}",
+            "active_checks_enabled": 2,
+            "alias": "Connection-Number",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Oracle",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEMODE$",
+                    "password": false,
+                    "value": "connected-users"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "50"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "100"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-DB-Oracle-Connection-Number",
+            "normal_check_interval": 20,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation et le statut des groupes de disques ASM sur un serveur Oracle.}\r\n\r\n{EN: Check ASM groupdisk usage and status to the Oracle server.}",
+            "active_checks_enabled": 2,
+            "alias": "ASM-Diskgroup-Usage-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Oracle-ASM-Diskgroup-Usage-Generic-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-DB-Oracle-ASM-Diskgroup-Usage-Generic-Name",
+            "normal_check_interval": 20,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation et le statut des groupes de disques ASM sur un serveur Oracle.}\r\n\r\n{EN: Check ASM groupdisk usage and status to the Oracle server.}",
+            "active_checks_enabled": 2,
+            "alias": "ASM-Diskgroup-Usage-Global",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Oracle-ASM-Diskgroup-Usage-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-DB-Oracle-ASM-Diskgroup-Usage-Global",
+            "normal_check_interval": 20,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le statut des fichiers de donn\u00e9es Oracle.}\r\n\r\n{EN: Check Oracle data files status.}",
+            "active_checks_enabled": 2,
+            "alias": "Data-Files-Status",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Oracle-Data-Files-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGONLINESTATUS$",
+                    "password": false,
+                    "value": "%{online_status} =~ /sysoff/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALONLINESTATUS$",
+                    "password": false,
+                    "value": "%{online_status} =~ /offline|recover/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-DB-Oracle-Data-Files-Status",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'anciennet\u00e9 des sauvegardes 'RMAN'.}\r\n\r\n{EN: Check RMAN backup age.}",
+            "active_checks_enabled": 2,
+            "alias": "Rman-Backup-Age",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Oracle-Rman-Backup-Age",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 1,
+            "name": "App-DB-Oracle-Rman-Backup-Age",
+            "normal_check_interval": 720,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'anciennet\u00e9 des sauvegardes 'RMAN' en mode online.}\r\n\r\n{EN: Check RMAN backup age in online mode.}",
+            "active_checks_enabled": 2,
+            "alias": "Rman-Backup-Online-Age",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Oracle-Rman-Online-Backup-Age",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 1,
+            "name": "App-DB-Oracle-Rman-Backup-Online-Age",
+            "normal_check_interval": 720,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant d'ex\u00e9cuter une requ\u00eate SQL personnalis\u00e9e renvoyant une donn\u00e9e num\u00e9rique.}\r\n\r\n{EN: Check allowing to execute a custom SQL request with a digital answer.}",
+            "active_checks_enabled": 2,
+            "alias": "Sql",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Oracle-Sql",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "App-DB-Oracle-Sql-Statement-Generic",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des 'event waits'. }\r\n{EN: Check event wait usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Event-Waits-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Oracle-Event-Waits-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --filter-perfdata=noperfdata"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Oracle-Event-Waits-Usage",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des 'rollback segment'. }\r\n{EN: Check rollback segment usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Rollback-Segment-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Oracle-Rollback-Segment-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Oracle-Rollback-Segment-Usage",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les longues requ\u00eates. }\r\n{EN: Check long queries.}",
+            "active_checks_enabled": 2,
+            "alias": "Long-Queries",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Oracle-Long-Queries",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Oracle-Long-Queries",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des objets invalides. }\r\n{EN: Check invalid objects.}",
+            "active_checks_enabled": 2,
+            "alias": "Invalid-Object",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Oracle-Invalid-Object",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICERETENTIONOBJECTS$",
+                    "password": false,
+                    "value": "3"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Oracle-Invalid-Object",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant d'ex\u00e9cuter une requ\u00eate SQL personnalis\u00e9e renvoyant une chaine de caract\u00e8res.}\r\n\r\n{EN: Check allowing to execute a custom SQL request with a string answer.}",
+            "active_checks_enabled": 2,
+            "alias": "Sql-String",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Oracle-Sql-String",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "App-DB-Oracle-Sql-Statement-String-Generic",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le 'dictionary cache'.}\r\n\r\n{EN: Check dictionary cache usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Dictionary-Cache-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Oracle-Dictionary-Cache-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Oracle-Dictionary-Cache-Usage",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le 'fast recovery area space'.}\r\n\r\n{EN: Check fast recovery area space usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Fra-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Oracle-Fra-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Oracle-Fra-Usage",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le 'library cache'.}\r\n\r\n{EN: Check library cache usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Library-Cache-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Oracle-Library-Cache-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Oracle-Library-Cache-Usage",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le 'redo log'.}\r\n\r\n{EN: Check redo log usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Redolog-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Oracle-Redolog-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Oracle-Redolog-Usage",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

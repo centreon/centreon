@@ -1,0 +1,1160 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Integration-EventGrid-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Integration EventGrid resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.EventGrid/namespaces/SVC123456ABCD78",
+                            "location": "westeurope",
+                            "name": "SVC123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.EventGrid/namespaces"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.EventGrid/namespaces/SVC789012EFGH34",
+                            "location": "westus",
+                            "name": "SVC789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.EventGridService/EventGrid"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": "discovery.results.id"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCETYPE",
+                                "is_password": false,
+                                "source": "discovery.results.type"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Integration-EventGrid-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure EventGrid",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-integration-eventgrid",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Integration-EventGrid-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Integration EventGrid resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.EventGrid/namespaces/SVC123456ABCD78",
+                            "location": "westeurope",
+                            "name": "SVC123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.EventGrid/namespaces"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.EventGrid/namespaces/SVC789012EFGH34",
+                            "location": "westus",
+                            "name": "SVC789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.EventGridService/EventGrid"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCETYPE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.type"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Integration-EventGrid-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure EventGrid",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-integration-eventgrid",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Integration-EventGrid-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Integration EventGrid resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.EventGrid/namespaces/SVC123456ABCD78",
+                            "location": "westeurope",
+                            "name": "SVC123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.EventGrid/namespaces"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.EventGrid/namespaces/SVC789012EFGH34",
+                            "location": "westus",
+                            "name": "SVC789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.EventGridService/EventGrid"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCETYPE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.type"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Integration-EventGrid-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure EventGrid",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-integration-eventgrid",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_integration_eventgrid_api.pl --plugin=cloud::azure::integration::eventgrid::plugin --mode=events-stats --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --resource-type=\\'$_HOSTAZURERESOURCETYPE$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\'  --warning-publish-failed=\\'$_SERVICEWARNINGPUBLISHFAILED$\\' --critical-publish-failed=\\'$_SERVICECRITICALPUBLISHFAILED$\\' --warning-publish-latency=\\'$_SERVICEWARNINGPUBLISHLATENCY$\\' --critical-publish-latency=\\'$_SERVICECRITICALPUBLISHLATENCY$\\' --warning-delivery-successful=\\'$_SERVICEWARNINGDELIVERYSUCCESSFUL$\\' --critical-delivery-successful=\\'$_SERVICECRITICALDELIVERYSUCCESSFUL$\\' --warning-publish-successful=\\'$_SERVICEWARNINGPUBLISHSUCCESSFUL$\\' --critical-publish-successful=\\'$_SERVICECRITICALPUBLISHSUCCESSFUL$\\' --warning-delivery-failed=\\'$_SERVICEWARNINGDELIVERYFAILED$\\' --critical-delivery-failed=\\'$_SERVICECRITICALDELIVERYFAILED$\\' --warning-processing-duration=\\'$_SERVICEWARNINGPROCESSINGDURATION$\\' --critical-processing-duration=\\'$_SERVICECRITICALPROCESSINGDURATION$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Integration-EventGrid-Api-Events-Stats",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_integration_eventgrid_api.pl --plugin=cloud::azure::integration::eventgrid::plugin --mode=events --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --resource-type=\\'$_HOSTAZURERESOURCETYPE$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-matched-events=\\'$_SERVICEWARNINGMATCHEDEVENTS$\\' --critical-matched-events=\\'$_SERVICECRITICALMATCHEDEVENTS$\\' --warning-deadlettered-events=\\'$_SERVICEWARNINGDEADLETTEREDEVENTS$\\' --critical-deadlettered-events=\\'$_SERVICECRITICALDEADLETTEREDEVENTS$\\' --warning-unmatched-events=\\'$_SERVICEWARNINGUNMATCHEDEVENTS$\\' --critical-unmatched-events=\\'$_SERVICECRITICALUNMATCHEDEVENTS$\\' --warning-dropped-events=\\'$_SERVICEWARNINGDROPPEDEVENTS$\\' --critical-dropped-events=\\'$_SERVICECRITICALDROPPEDEVENTS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Integration-EventGrid-Api-Events",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_integration_eventgrid_api.pl --statefile-suffix='autodiscovery' --plugin=cloud::azure::integration::eventgrid::plugin --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Integration-Eventgrid-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les instances Azure Event Grid via l'API}\r\n{EN: Template to check Azure Event Grid resources service using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Integration Event Grid API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-integration-eventgrid-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCETYPE$",
+                    "value": "topics"
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Integration-EventGrid",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Integration-EventGrid-Events-Stats-Api",
+                "Cloud-Azure-Integration-EventGrid-Events-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-integration-eventgrid-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ add proper tags management",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Azure Event Grid resources using RestAPI or AZCLI.**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|Cloud-Azure-Integration-EventGrid-custom|\r\n|---|\r\n|Events|\r\n|Events Stats|\r\n\r\n\r\nThis Plugin-Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin-Pack pour superviser les ressources Azure Event Grid via RestAPI ou AZCLI.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponibles et services associ\u00e9s:\r\n\r\n|Cloud-Azure-Integration-EventGrid-custom|\r\n|---|\r\n|Events|\r\n|Events Stats|\r\n\r\nCe Plugin-Pack fournit un *provider* Host Discovery pour le module d\\'auto-d\u00e9couverte d\\'H\u00f4tes"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure Event Grid",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_integration_eventgrid_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Integration-EventGrid-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-integration-eventgrid",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Cloud",
+            "Azure",
+            "Microsoft",
+            "EventGrid",
+            "API",
+            "Restapi",
+            "HostDisco",
+            "NameSpaces"
+        ],
+        "update_date": "1636823570",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques des \u00e9v\u00e8nements Azure Event Grid.}\r\n\r\n{EN: Check Azure Event Grid events statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Events-Stats",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Integration-EventGrid-Api-Events-Stats",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Integration-EventGrid-Events-Stats-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les \u00e9v\u00e8nnements de Azure Event Grid.}\r\n\r\n{EN: Check Azure Event Grid events.}",
+            "active_checks_enabled": 2,
+            "alias": "Events",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Integration-EventGrid-Api-Events",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Integration-EventGrid-Events-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

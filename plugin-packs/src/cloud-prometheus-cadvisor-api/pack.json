@@ -1,0 +1,383 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_prometheus_cadvisor_api.pl --plugin=cloud::prometheus::exporters::cadvisor::plugin --mode=task-state --hostname=$_HOSTPROMETHEUSAPIHOSTNAME$ --url-path=\\'$_HOSTPROMETHEUSAPIURL$\\' --port=\\'$_HOSTPROMETHEUSAPIPORT$\\' --proto=\\'$_HOSTPROMETHEUSAPIPROTO$\\' $_HOSTEXTRAOPTIONS$ --container=\\'$_SERVICECONTAINER$\\' --pod=\\'$_SERVICEPOD$\\' --state=\\'$_SERVICESTATE$\\' --warning-sleeping=\\'$_SERVICEWARNINGSLEEPING$\\' --critical-sleeping=\\'$_SERVICECRITICALSLEEPING$\\' --warning-running=\\'$_SERVICEWARNINGRUNNING$\\' --critical-running=\\'$_SERVICECRITICALRUNNING$\\' --warning-stopped=\\'$_SERVICEWARNINGSTOPPED$\\' --critical-stopped=\\'$_SERVICECRITICALSTOPPED$\\' --warning-uninterruptible=\\'$_SERVICEWARNINGUNINTERRUPTIBLE$\\' --critical-uninterruptible=\\'$_SERVICECRITICALUNINTERRUPTIBLE$\\' --warning-iowaiting=\\'$_SERVICEWARNINGIOWAITING$\\' --critical-iowaiting=\\'$_SERVICECRITICALIOWAITING$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Prometheus-cAdvisor-Api-Task-State",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_prometheus_cadvisor_api.pl --plugin=cloud::prometheus::exporters::cadvisor::plugin --mode=storage --hostname=$_HOSTPROMETHEUSAPIHOSTNAME$ --url-path=\\'$_HOSTPROMETHEUSAPIURL$\\' --port=\\'$_HOSTPROMETHEUSAPIPORT$\\' --proto=\\'$_HOSTPROMETHEUSAPIPROTO$\\' $_HOSTEXTRAOPTIONS$ --container=\\'$_SERVICECONTAINER$\\' --pod=\\'$_SERVICEPOD$\\' --device=\\'$_SERVICEDEVICE$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --units=\\'$_SERVICEUNITS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Prometheus-cAdvisor-Api-Storage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_prometheus_cadvisor_api.pl --plugin=cloud::prometheus::exporters::cadvisor::plugin --mode=memory --hostname=$_HOSTPROMETHEUSAPIHOSTNAME$ --url-path=\\'$_HOSTPROMETHEUSAPIURL$\\' --port=\\'$_HOSTPROMETHEUSAPIPORT$\\' --proto=\\'$_HOSTPROMETHEUSAPIPROTO$\\' $_HOSTEXTRAOPTIONS$ --container=\\'$_SERVICECONTAINER$\\' --pod=\\'$_SERVICEPOD$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-working=\\'$_SERVICEWARNINGWORKING$\\' --critical-working=\\'$_SERVICECRITICALWORKING$\\' --warning-cache=\\'$_SERVICEWARNINGCACHE$\\' --critical-cache=\\'$_SERVICECRITICALCACHE$\\' --warning-rss=\\'$_SERVICEWARNINGRSS$\\' --critical-rss=\\'$_SERVICECRITICALRSS$\\' --warning-swap=\\'$_SERVICEWARNINGSWAP$\\' --critical-swap=\\'$_SERVICECRITICALSWAP$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Prometheus-cAdvisor-Api-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_prometheus_cadvisor_api.pl --plugin=cloud::prometheus::exporters::cadvisor::plugin --mode=load --hostname=$_HOSTPROMETHEUSAPIHOSTNAME$ --url-path=\\'$_HOSTPROMETHEUSAPIURL$\\' --port=\\'$_HOSTPROMETHEUSAPIPORT$\\' --proto=\\'$_HOSTPROMETHEUSAPIPROTO$\\' $_HOSTEXTRAOPTIONS$ --container=\\'$_SERVICECONTAINER$\\' --pod=\\'$_SERVICEPOD$\\' --warning-load=\\'$_SERVICEWARNINGLOAD$\\' --critical-load=\\'$_SERVICECRITICALLOAD$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Prometheus-cAdvisor-Api-Load",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_prometheus_cadvisor_api.pl --plugin=cloud::prometheus::exporters::cadvisor::plugin --mode=cpu --hostname=$_HOSTPROMETHEUSAPIHOSTNAME$ --url-path=\\'$_HOSTPROMETHEUSAPIURL$\\' --port=\\'$_HOSTPROMETHEUSAPIPORT$\\' --proto=\\'$_HOSTPROMETHEUSAPIPROTO$\\' $_HOSTEXTRAOPTIONS$ --container=\\'$_SERVICECONTAINER$\\' --pod=\\'$_SERVICEPOD$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-throttled=\\'$_SERVICEWARNINGTHROTTLED$\\' --critical-throttled=\\'$_SERVICECRITICALTHROTTLED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Prometheus-cAdvisor-Api-Cpu",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check cAdvisor metrics through Prometheus",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "cadvisor-2-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROMETHEUSAPIURL$",
+                    "value": "/api/v1"
+                },
+                {
+                    "key": "$_HOSTPROMETHEUSAPIPORT$",
+                    "value": "9090"
+                },
+                {
+                    "key": "$_HOSTPROMETHEUSAPIPROTO$",
+                    "value": "http"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Prometheus-cAdvisor-Api",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Prometheus-cAdvisor-Task-State-Api",
+                "Cloud-Prometheus-cAdvisor-Storage-Api",
+                "Cloud-Prometheus-cAdvisor-Memory-Api",
+                "Cloud-Prometheus-cAdvisor-Load-Api",
+                "Cloud-Prometheus-cAdvisor-Cpu-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAM8AAADVCAYAAADwzKSiAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjEuMvojzfEAADMMSURBVHhe7Z33fxXHtcDzJ728JE7iAu7didOcOMWOE6e9JC956bbpvfeORK9CgJAEEhJIFAHqjWoDBhcw7tjY2NR5853LitXqXGn73bu6P3w/ujo7uztz5pzpM/sVpVSBAgV8IAoLFCgwMKIwVzS3tOg/8rUCg4fmllb9R76WJERhrpg+c7aaNWeuam1r1//KYQqkl7b2DjV7zjw1ddoM/a8cJkmIwlxRV1evXh42wjBr9lzV0tqmxXLYAumBwpJCk3x/RVNdU6vFctgkIQpzycjRY9Urw0f2MFM7UVNzoTmXRmie4TT2/B4xcrS+JIdPGqIwl6xZuz5TAtkUyv+Tp05X+xsO6CDyfQXyh4YDB01+OvMZlq9YpYPI9yUNUZhrJKUC8im6PVy7a7cOJt9bILns2l2npk6fKTqNlb9dXd06qHx/0hCFuQYHkZRrZ9yESaq8olIHl59RIDlUVG5X4ydOEvPRzsTJU3Rw+RlJRBTmmq1lZVlLJzuEGTFqjFq/oUTfJj+rQO7YsHGTyR+3eVlSulnfJj8riYjCJCApOBsvDxuphuuO5uIlRaq9o1PfLj+zQPR0dHapxUuLTH64cRo73d2H9SPk5yYRUZgEJk6aIip4IMiwCfrenXky3JkWamp3Gb17dRgLmuHOZyYdUZgEVq5aIyrZLWTiqDHj1MpVq1VnV5d+pPyeAv7p6u5WK1evMXr26zQWxcuW60fK70kqojAJHGpsVC+9MlxUtB8mTZmqtm4r14+W3xclnV3d6sDBQ4rSeVt5haIvQOGwtGiZWrBwsZozb76aPXeemjUH5pq/zLTPmTtfzV+4SC3R4VboQmDDxhJVtq3CPOfAgYM5KxTKtB7Rp6RnP+B4+/Y36EfL70sqojApSIoOChnFMqDK7Tv0K+T3eqWpuVlt31Gl1qxbrx1hgZo4eapishfn/4+Gv7w3aOlsYT2L51rwPkareD9zZZU6Po1NzTp6cpy9gr7QW1hpsEP8ne/LB0RhUpg0ZZqo7DDACIaNGGUm61bppofbCdjqnTVq+cpVasas2WrMuAnmGZYxR2FYfrDHh/gRTwyfeBN/Z5okGg4c0HpZq6Zo/VhplN4VBgxjO9+fD4jCpEDmScqOAsvYGCWaNn2mWrBoiSoqXq6WLC0yE3tWGOd9+YiVDubTGBkr0v0N0jttxsyeUbI401q0bIXObtkGkowoTArMSL/0SjoMtoAMTlpVvVNnt2wDSUYUJoXuw4fVK8NkpRdIBzhPe0eHzm7ZBpKMKEwSzFBLSi+QDuhPOfM8XxCFSWL8xMmi0gukg7HjJ+pslvM+6YjCJDFj1hxR6QXSAYMWzjzPF0Rhkpi/cLGo9ALpgAliZ57nC6IwSRQvWyEqvUA6YKjcmef5gihMEixLkZReIB1QODrzPF8QhUmCWXFJ6QXSQVHxMp3Nct4nHVGYJNijIym9QDqgT+vM83xBFCaJmbMLo21phqVPzjzPF0RhkmBRo6T0Aulg9NjxOpvlvE86ojApsKWXLdaS0gukA5bntOTJ8bpORGFSYFVznKt7C+SGhYuX6OyWbSDJiMIksHff/oLjDBLI59119TrbZVtIKqIw17BVmQWDkqILpBPye8vWMp39sk0kEVGYS5YUFYvKLTA4WLh4qTYD2TaShijMFSwCjbKpxrOdSOEK9CZOvfHsaTNmaXOQbSRJiMJcwKEZYWYKh0rwd9z4iWr+gkXmcA6ag5znxg5VzrveUVWtSjdvMYeLs8ffOrQjSuNIMqSbA0vQAwa8bPlKtUnrBz2hL/SG/tDj2vUbzMk/nLfGvZa+w4B4sBXFaSNJQxTGTVhzOcN1u5lJt42bSlVHZ6e6cOFddeXKFXX9+nV148YNdfPmTRGuXbt2TX322efq7Nmzqn7PXnN+AXtNpPekjbFa/xyDVVe/R505c1br4TOjj4F0hl6vXL2i3n3vPcXxWptKNxun4xyEV4YHL4CYAzpy9Kg2Edluco0ojJOgBkopRelHDfLaayfV5ctfmIy1kDI+G/b74IMPPlCNjU3asIpTOYDB0qeDhw6p999/v0/aJf1kw37fF198oU6eOqU2684/tUfQWjzJDiQK4yJojcORvLvr6tTFixcHrF38YBnE1atX1etnzpjz0DKlqhyffID4cyrRqdOnda18NZPGm+Hrjfz45JNPTC0e9IDEpK5CEIVxQB9HUtRAvKybA9RWNbW16tKlS6E7TDYsR3rjjTdU8fIVeVkTcfIohYCVFimdYcN7aAbSX6KF4LcmSmIfSBRGzUyfW6tRPJ3Yc+fOxWoAdnjnl7of1dbeHsgYYkPHjz4NXxr/8ssvc6YzeOedd8zZ4X51xnl6TlvKJaIwSvwuuaHqZtXBQB3ZuCAOH374oVqR8P1GHGho79NIaYkL3k/+8VlFP0127IZ+mtOmcoUojAqGPCWl9AcK48jX106eiqRfEwTiQmnOoX1JbMZxvjQd+KTpjHw8/frr5oRSzwWpDl9enowvAorCKDhy5KjnzjaK5WvY7777bqIMwA7xojTlqw4jE3LGHGfdcfb21avJqKWdECegRuRgeq8OhB0xNO60sbgRhVEwYbK3j1WhUCbhPvzoo8Q6jh3iyCc/cn1II4bV2tambujSXYpnkkBnH3/8sWmKeXWgJHwMSxSGDZNnXpXDVwjoU+SD41gQVzrmw0fmpglH0/HgwUMmHvmit4wDXTTfI/JiIy9r1q3fqM1Ltrk4EIVh46W5hgKZF3jnnQt55TgWtOeZ28hFH4glNDQhpXglGfL5vffeMwcgSunKBjruyuF3TEVhmNCmlRKejVFjxqrjx09E5jg8144UJgg8k0nVjSWbPNe2fuE9rN1jKVJUabIjhQkKzz158pT5RKOUxmxwxoXT5uJCFIYFX0zzVBXrsJSelN6Sgv1gZTijYkyqvnvhgnrrrbfU22+/bZbfXL582Ri7FQ6k53iBZ/CuuI4KZj0fs/lhxN2CZ6GXy59/bmqFt958U71x9g11/tx58y70GfboJ8/bs3evJ5thQSpD307biwNRGBbWR6HcgMLYjht26clQbU31TvXbF19UDz3woLr723eqb37jDvXtO76pht59j3rq8SfUn/7nj6p4aZE6cviIcaYw3s8zWOPFCmUpvWHBAMXxE+HW1DzrtI772NFj1BOPPa7uuesu9c2vf0Pd8bWvqzu/+S31wL33qx//6Bk1WvftqnZUmQIpDEfifhyWRapeHGjy1Gna3GQbjBJRGAZNzS1iQrMxShuZtXREUqxfeB4OefzYMfXXv/zFGIEEhnHPnXepF57/pTaIHYFn47n32rXramvZNk+G4AWeW1K6OZKJY55HzbxxwwZ17z1DsuqMv48/+piaMG68WbrEfUH19qZuGTApLqU5G7mofURhGMxbsFBMZDb4UnWYzTUnZAq10Px589S3dM3jNAQnP3v2p6pFNzuDGCb30cSx9ryEDbP0H338cSBj7Q+eS54cOXJEfeeJp0Q92aEmnzNrthl+DhIn3skEr5dCh9E6pw1GjSgMAymB2aCU+SCGYWmeTy30yksv95Sa/UFNtGjBgkBNOe5jn0zYtQ/PY2Na1DoD3tGsC5Ihd90t6skOev3Fz36ua/rjgXT28cWLaux4L0t4Rmizk20xKkRhUNhb49ZYCMd3/eMwAuA9b+rO7wP33idmvhNqqf/861/qc91x9hNHYwi6JPa7ijwb43VtFkeBY0FtMH7sOFeFDjz60MPq4IEDvvtC3MPn+b3Y0boN8c77iMKgeCkx6PCy2jYuI4Drui8yeuRI14ZAuH/+/R++t0BwD+v63BrCQPActkL7beYSH6/pIPzx48dF/WSDZlxTY5NvnbFD1cvQNWGdthglojAobvezYwTLVqw0IyySAvsD5bIC4fLnl8Xr/cG928rKXDuPxdTJU3zH9e23z4W2dIdJ57NnM51z6X39QfytLR3S9WwQnn05jE5KusnGE48+pk6dPOkrrvQ3V61Z67rQwe7i3HUqCoNQXlEpJiwbHLXqJyNpRk0YN05d1E0iKUx/cD9NCjcDB725w4zE+TWEhYuWiDrwytz5C3w78c7qalVZ4a+ZzAjk8z//hUMn/UMB9eILv1Kffvqp53cSniOXJR1ko3TLVm2Gsm2GjSgMwvyFi8RESdC889NuJ/wW3a968vHHfY3sEH7f3n1iZg/Ek489rt7zscqb8Hv0O4OeMkMpzESyn/d/8P4HpubYXLrZV5OP0cqfPfusqJf+wIFW6RaGnziTv/TvJF1IzJkb32caRWEQvAzLsprWayaiUIZ/MQJGfzjtxk+mrFm92nOzDbhn7pw5vuJ97tz5wP0enM+aT5Hekw3iu2DefBP/mdOn+4o/Z0U8eN/9ol4G4uEHH+zZlCc9PxuEZ0OfpAsJhu+dNhkVojAIbhdEYkTVO2t8KXP92nXGCL7x319TJRs2en4GzY8//O73vpwHHn34EXXeY7+BsLx30pRpoj7cMn7iJPW5x6FzwjIoQ//jm1//uvrpj39iBj+ksNngGfV1dUbnkk4GAl0XLVnqKd5AeK9D/U6bjApR6Jdm3X9xm8j/vDxMHTvubS6AsMy5vPDc8z2Z8oPvfd/TKBglbktzi1meY89cL2BAm0tLPZfe9HuCbttm6QrPkZ6fDXSzbWvvAZLqqmrX8ed+HP+3L/6mlx688pNnfux5DR5hT506bexF0ocT7O/goUZtjrKNhoko9AsnpHgpId7XbXCvijxx4oSZvLQyBIOYMmmyq+U0XL9w4YL60fd/0CtT/fCH3/3Os/Nc1++ntvWiIzvcV1G53ZPOgHiyfs/uPMzDuGn+cZ3BieKiIrMm0K4Dr7AurqO93VP8CUu/Z9gId9ta0BHTAk7bjAJR6BcmO90aBqsKmO2XFJYNjIBmmrO5RS0yfdq0nhrImTmW7PTp0+pXz/+yz/1+oL/FiJ/9PQNBHJqavK00t8N9B25tdpOeL0FY9HLfkKF90sDiTpbeoFdLR/b7gEJpWXGxuutb3+5zv1eosVcsX97rPQNBWOyEo6cknThBR2y+dNpmFIhCvzDD69Ywps+Y5bn5QSaPGzM2q/EzjFpbU6MufnzRKPzqlasm88+9/bZapkvORx58KBTHAQzhyOHDng3hxIlXRX24Ad0yj+H5nbp5/LX/+mqfNNyh+z/333ufWY/2xtmzRlfUMugOh2vYv9/UsN6H9GXQ/X/+9W/PNfZVbSezZs8VdeIEHXGoo9M2o0AU+mXlqjVigiTYfuBZiTpjf/OrX4sZY4FR3z/0XvWs7hS/8Pzz6gdPf880F8JyGguMsdbjgAdhWTEcZJfpmTNnxGdng3fS0ZecxwLdUHs//Z3vmpr558/+VD38wIPqG1/9bzF8EBis8NPiWFq8TNSHBKNzTtuMAlHolxUrV4uJkShetsKT4QFKf+YHP3RVElphwio1nXxdGxbL9b2m4dz5855PEbLgPjbySc/NBvEr3bTJ0yhZVDrjuWxfoIaT4poN+oqrVq9x3arB0Zy2GQWi0C+r16wTEyPBZz38OM/3n346ssz1AsboZ+KPsxn8LtMZMWq0evvcOfG52SB+a9esCb3m9QtNZ6/OQxrYZi7pRGK5zhenbUaBKPRLyaZS16VD1DVP1ORVzVPireaJikzN86jPmsfdGjfCrF23QZujbKNhIgr9sn2H+w1Mfvs8Lw7Q54kL+hA1O3d6ch7CBu3zsNtWenY2eOdAfZ44ibrPg/2xsdJpm1EgCv3i5QvWUYy2xck3vvo1dTgPRtvQWbbRtrgJNNo2x/1oW+2uOm2Oso2GiSj0S7c2JilBEn7neTau35AI52Gehy/JSfHMBvHnbAe3BYwT7gtzniduaDouX7bMc/yxEy/zPO0dHdocZRsNE1EYBC+dYa8LBQn76quv9lphkCv+5/d/8FyC3rjOCoOdgZynvLLS83sJ/+c//innhY5ZYaAN22uec06D26Yu/UKnTUaFKAzClGnTxUQ5Ya0SOxO9KpJzxH753HNi5sQFJegm3Qn3asSZtW3uh/OdvDwsMwzrZ23b1q1bcz5o8JMfPWPWtklxzAZxZ2WI27VtbHd32mRUiMIgLHe58JFS1M+qagx2/dq1OS1FH2NV9fnznh2fUabgq6onez6QhLDvnH9HPf7Io2J64oD8Wrp4ief8JryXVdVxzfGAKAzCvv0NrhMadD+PlEmRo42A/Tx+jCC8/Txv+no/+3nENMUAKxai3s+Dblmc7LTJqBCFQXFrIHxb1M+XEAhfuqk0J7UPpbef7wURntHIMHaSYiB+3o/xPvHo42K6ooTmotcFoUB4s5PUw2CB0xajRBQGxe2w4iu6Dd/c3OJLqRz88Zc//zlWB2KSr7qqynN8gX7KgkWLZT14ZI6uQfyeYcDcVJC9TH5gPaKXPVcWhO/o7BR1IDFtxixtfrJNRoEoDAqf2HjplYFrH0qKZStW+TYE9qM8/dR3xAyLgskTJ3keXgfiSpMtrC/HsUzHz+k5hEfXnAIkpS8KqKlfe/U1z3EFChyWfLlpyRCmpmaXNj/ZJqNAFIaB27OGR44eYzao+VEu93R3dZll9VLGhQW12z/+9jdfJ8AA94R5bhtsq/A+ZA3E5ZJOxz/+/vfIa23mwpoaG33rjK8zuD23jQP1nTYYNaIwDDZsdPd9GsKUlfk/MZT72J341BNPihkYBv/+Z9ATQy+qiR4/KzkQHLTi98RQ7iE9zPZL6Q0DRiQ53stP/ID73J4YSpjVa9dps5NtMSpEYVi4XQA5RtdSH37o/9uj3Hfq5CmzfyfM0pRJvYXzF5jD/oLEjWZsmLUO8Lya2l2B4vW5TtfCBQtMOqX0+wH9//QnP1HHjh0z7/ATP+7hpB4GlKS0Oxk+YpQ2N9kGo0QUhoXbCUEMgU9xeJ38s4PCMXLmEh66/4FATsTAwC9++jPV2tJqmkZ+DAC4L/OVBHdG4BWaxh8F+OAx95E+0kl6g6xWR9/3D83sSvV6yIcT4sRZDVKanWA7cW1+cyIKw8Rt7UPb9oyPM9jscC9wkDtnGjz5+BNmmNSNIxGGEpjaq1L3J4LUNhYYQVl5Rei1jgXP5VD9IIUOkE7SW6Hj+stfPOd65y1h0O+jDz9svs/DSgArD6T3uIF72Xbhts/Msh2nzcWFKAyTTaXuvphAmLC+DMf9GO4H77+v6urq1Phx48zSEA7sM1+G0xlPKUuHltGg3//mt+Z0mKNHj/b0bcKIA0cmxfFlOFZqhxFfIP2czUAN/ptf/9qcsoPOLEdhmPu+ofeaI79GDh9hjrDiy3A4cBhxYDRwafFy1zazPuYvI9gRhWHjdkkKygjzm6SWQVi/P7v0mTn8j29rUjsxaUhm2cPY7/cLz2Feg2+SujGCoIT9TVK7Pq58+aUZDT175ox6Xdcs1Ar0R7hmx/kMP/CczDSHu4nkCRMna/OSbS4ORGHYNHo4bonm2/EQStJs2DM8qndQCnvZVRsU3rNu/YZeBUGYOHUW1Tuoqd0210hzrj7kayEKo2DlqtWujYmVsefPx/vNnrCg1qyv3yOmK2pqd+261XyS45ZUyGeWPE2Z6m5FPnaUq0ECO6IwKqZMmyEqoy8jzM7BICNJuYC4cuQwKwDkdEULQ7aHfE5K5griSjNwzrwFrgvXSVPi23bQH6IwStxulkORCxYujvSDtWFCHDu7unyfjBMWvL+1rT1vdHZR99VYXS+lRWLEyNGq+/ARbUqyfcWJKIyS/Q0HRKVI4EAzZ89VF3ysYo4L4kVTicPFc+04FkwPoOcwRsCigngxYMMiV7c1DrC3x2lTuUIURs2WrdtcK4xwU3Vz79StOQQpI3IF8WFonU192Q4iH6aboKNHvRI6w0f0PyLF/EfljiqzAS+JeuPk0+kzZ3myAwZhnLaUS0RhHKxZ6261rAWjcHv37QtlHigovB8oOTlgT4pvhhFq1KiX1Tu7H1GfNjygLoUAz3mv/iE1bcI/zPPl996mqHi5+TCuFWcpPXHB+xkRZJRs9Fj3H+rFThhwctpQrhGFcUHGenEgwrLkx9oCnQtj4J04cJvuV0yYNGXA+HO9YtkL6nrzEHWjeai62RKMG/o5+zc8q15yqTfezwexmltaclbwWHn1zoULnj7QC4RdvLRIm4tsQ7lEFMbJkqJiUWn9wbdMWRTJ0U9xGYNlAEwSMkzq/uDCEWrM6JfU+d2PBnYe7v+04X41Yey/zXPl98kQX3TNFm6G0+PQm6UzzlzYXVevvHxyE3AcVp04bSYpiMI42V2/V02cPM1TaQSEp+SnA/nRR5kRubANwnomTY3Tr79uJiLdO81tiOu6Bb9T15pkp3DL9aYhavvyX3rWlZ1hGpbvMyFpTapGpbePL140HzGeNHmqz/ydqp1urzYT2XZyjSiMkw0lm9W6DSVq8tQZvowio+QpZoHkSW0QNE3sGejM2P5w3sP+eQ4p5EQWRrD8G+0I3cEfpk5XP+m79uG+d+oeUWN1Lea11nHysob0LF5arA41NmXm07LowA32e65c0QXN6dfVlq1lZrLbb56ypGvt+hKFfThtJimIwrjYtLlMbdy0xSho/cZSNXP2PFGZXpg8dboq2bTZfL+fNjYLHa/0U8IioxnzxRdfmvVhZ86cNQMTOIzbpSJueFkb/OIZ/2tqHz8ORJ9p46LfBnBgGRyJwRiadKwr4yzsixc/MZ+N7695h5yaC/1euPCu6uzqVpt0AcZEuJ/a2Q5rAtdt2GTsAvvATpy2kwREYRzsqtvToxzLgWD+wiW6VAymfGBxIaUrTYZFS5aaJte28gozrMzpMyxAZWv05i1bFR/lmj13nulLYZxhG2gGnjlcdZZ9XzvPENFBskH4szWP6yYXw9NRxC2DlXY+x84KjxWrVpsafXtVlVn6g96qd9aqbRUV2rg3mslNagj0HPRUIMDp5i1Y1GMLlm3ArgQ230RhHNgVY2EprXj5Std7191iGYaEFD4aRqg5U/9PfX7wPte1D+GorYpn/8ncLz83OiR9WUjh/cLWjaXFK/o4jR2nDeUaURg1W8oqROVYoMA16zYGPl0ziWB0+9c/68F5hqguXVtlah35mfkOfSPyuz/HAezGaUu5RBRGSXNL+4BKAsLQD5q3YLGpzsMu6XLHCDPUfOnA/QM7kL5+WddSc3VtlYtaJ2rI17nzF5l8dmsTLa3t2oxk24obURgl1iCBW1DYilVrXZ8amQ9QEOxY8bwZBBCd5hbUOgdLfpyiguM2zPksX7nGldPYKd2SnMEDURgVDQcOeVYWcI9VCyVl8WUwRpghZ4aes9U+yKmdJo7zPiGaZIaPHGNqG/tomhe4p+FgozYn2cbiRBRGRUmpt1rHDkqDlavXmeFQKWPyCWqTTUteVNey1D7UOjWrfpGqWoe5vJWr1/bkpZTPbkjK0LUojIJ9+w8GUpiF9QxG5PK7KZeZOD1T/USf2of/L9Q/osaNCT4hmgRoohUtWxnYaSw2bNqs9jfkdgs2iMIoKBGUEAQyYf3GTWrRkmIzL5GPJTQTp0Wz/9Sn78P/m3WtlM+1DnFnknnh4iLXAwJeKCndqs1KtrW4EIVh09zSJiogKFZJRvt54eKlxomkjEw2w9WR8u+ZZppV67xV+1jkE6JRgtMsWLTEd7/GDRtKtijsymlrcSIKw2brtkpRAWFhORElHCWd19W7OUWX0AxFMySN4zAhunzOH/Oy1kHv6D9Kp7FTVl6pzUu2uTgQhWEThyLt4ETMVufNJOuw4apx0zOmuXas4rumLySGSyhMcqJvmtFWQSblS9jwHqetxYkoDJOqnbViwuNi1Zp1ZsFpmIs8w2eEGZL+cN+Dat60v5raSA6XHFg+xfkSjH6i57gLSIvqnfF+k8eOKAyTXCnVIvP+zWZ5++Kly8wwd7DtBdHw0rCRauGMv+jfyXQc9MU5DaxaR4/o87Z+Zd3HQS5rH1EYFs2tbTlXrh3iAqyjom1OcwNHkoylQAb0w6a0BYuW9qw/S1qe5mrJjigMi/KKHWKCc43dANas26AWLSnSNdLMnpXc+TxEHAQr3axwpoamgFm9dkMfnSWN8sod2txkG4wSURgWUkKTiGUYNEWWrVitZs9dYCZg07UgVSbTHBulxk2YrGbNna+Kl6/q2cGZZIexwxyi0/biQBSGAWPw+aB4J3aDYcgVY5ozb6EZuWPQwTqfLd+cyoovjjJqzHjdZJ1mjrglfaTTnn7rd77AnE8umm6iMAy279gpJjTfsIyJvxgZo0tLipYZw6PzzKf/aOZgnHacxhsHzjgQLyaOiSe1KR194m+fh8lHZ5HYXrVTm51si1EhCsNASmBawODsHDzUpFgxvrNml+I01FWr15oZ9hkzZ5tBCQyY1eB0vin5XwHB+GEgx+N+nsPzeC7Pn67fw7neLLrcvKXMxIP4EC8rjla8nWlJE04bjBpRGAZpzygLVvi2d3Spru4jPXQfPqoOHzlm/nZ2HTbXacaylH7P3v2qdne9qqquUZXbq9S28kq1tazcGH3p5q36eVvNX/7fouVcJxzha3fVqXp9P8/heTyX59vfZ72fv1xnDZgU77SxoST+o3hFYVA4a0tKYBrZvLXcnByDwWbD6VhBsTuI85qdjs5uXROWi/FOI5wB6LTFKBGFQSndsk1MXBrZVrEjNKcIG+JF/KR4p5G4d5mKwqCs3zg4mmywQzenkuw826tqxHinEboKTluMElEYlMHS3yGdtbvqE+08xG8w5YfTFqNEFAZh7/4DYsLSCJm1Z1+DaLhJAOchfoPFeWCftj+nTUaFKAxC5Y5qMVFpheFgyXCTAM5z4GCTGO+0UrkjvvkeURgEOm1SotIIw8CcQ5fUZhsQv7C3wCcZBqucNhkVojAIUoLSChllzfFIhpsEiN9gGv0Ep01GhSgMwmBqX5eVb0+04wDxi3obfJKIc9BAFPqlsbl1UHVOGQbOB+cZbMPVTdoOnbYZBaLQL3w2REpQGiGTduv0SgabJHCewZQvQHqdthkFotAvbEqSEpNGOGTkwMHGvKh5WAs3mFoE5ZVV2hxlGw0TUegXFjVKiUkjGGNLa4dosEkC52Gvy2BynrhG3EShXwZTBjFM3dWdWdGcZHCejs7DatMgWV0N67UdOm0zCkShX9aXlIqJSSPbKpI/0mZnW/l2MR1phCa10zajQBT6hUhLiUkb1LA7a3eLRppEcHLiK6UljZA/TtuMAlHol8GymprM2ddwMG9qHuIZ1lcq8oG8cx4+3T5YMgeaWtr6OA//s7PTi1MR1sIut57j9VnS+/mfuQ8pHWkEO0QPThsNG1Hoh0NNzWJC0gi7R1n2YjdQy0hb2zo1Ha6NnnCHmlr6hCfzDzVm5G6eRRhG1draO8Xw7Z3dOt6DY5kOzhPHRKko9ANLwaWEpJGK7dVZDRqj37O3YcA1b1wDmlOSs/F/U3ObOcijv+cA13GavfsasoYlXsRbSk8a2a/15rTRsBGFfqjfs09MRBphBjubkSKnBqCDzu/+wh1sbFac99BfmJraOlOK9hems+uIqtq5K2utY4XbtXuP+aqalKa0Uaft0WmjYSMK/TBYloDQJDh4qDmrkQLXarWh7q7fJ4ZDhoNxvkB7R/8GT61EuGyOgQwHq9+zP+tzgGvWUVRSutJGza56bZayrYaFKPQD232lRKQN+1FTkpEC1whD38i5hIffnGqDQwxk8MB1CqZK3eRyDgbwm527rJrmmf09i2vEabAcRbVTFyhOGw0bUeiHwTKP4Pa0HMJwxhrORi3D/4AD8E0ZNwYPXKfWwRGt8xIsaM7hDG6HzQkzWE7T2VmzW5ulbKthIQr9MBichyZPf/0dO4RhhAsnYd+PVVvRN+Q5LNZ08xwgHIMB3Ld33wHzP6N6W8oqzBcCcEjpPifcZ/o9g6DpVl0T/UevRKEfBovzWMPHknE6IRyjPtzHEVUHdJ+DLdF8esXtM4CwOAiOSE3D0DYjZ5n49N//skM4whecJxxEoR/otEqJSBOZbdcDN7XsENZ8p+iWweI8XhzQgvD0n6y44AAcbu71OdSAg+GcCQpzp42GjSj0A+cvS4lIE36MlfCU9txv1UBum1lOuM+aq6EGYh7IT3zS8gWL/qAwd9po2IhCP3BOsJSItIDhcwaaV2MFjB6nweCtwQMp3EBwX6NushEfRpP8PId7BsNZbnHsJhWFfiBDpESkhSCGzz181cDtYEN/cH/NrjpPS4DscA/pID1SOtMCAyxOGw0bUegHlpFIiUgL7Ifx29wCjNZCuu4F4hHkOdzPCKCUzrTA4IzTRsNGFPqB0iytTQHSRbM0DMNPAqSD9KQ5v1rbO7RZyrYaFqLQD2RKmjMjSF8laZCO5pQXdoePHNVmKdtqWIhCv6R1JynzK2lxHAvSQ7qk9OY7OI/TNqNAFPoljc5DRtRlWeCZz5CetDbd8tJ50pgRjEoxUpZG5yFdUprznbw8AERKSL7DpKQ1upVxIPdOZN2TuU8OE4SgzyddFZVVYrrzHadtRoEo9AsLFaWE5CvUpNZCTBhoK4ITP/d4gee2+YyTVSBYC06l9Ocr9OWcthkFotAvVTtrxcTkK87PxDMx2d+uTjuEYSsBKwLchPcDz2UU0G2z0hknIH2kU0p/vrKjulabo2yjYSIK/cJ+fCkx+QilMStz7UbJb7b3trb2P7vPNUp2DoJnz44UJix4T53u+Pe3BRu4RlzYkmDVOpacdEo6yEfIt/0NB7U5yjYaJqLQL51d3alpApAOPpliN0h+Y6R8siObUxAGWCgbx0HwPJ8akTjZncIJ11gP51zRze/GpvR8GoZ0kDdO24wCURiEtGRCeUWVMTi7AVrGRu3DgRv8dhor/9NP4tuYzmv2MNmuZaO/e5DvqttrnCNbnNnyTXNGegb3sKkuDXlHGpw2GRWiMAglpXKi8gkygKpfMjRk9BMYHOGIKXsYftOfYN+Ps9ayg7F6WbFgvTPb4IB1fcvW8l4DHBbUNuzhydY3QpaWE0WZWnDaZFSIwiCkYcEhjtHf+QLIcS4yihNp+B+sswacfSUnXKNJ52ZlNNeJC+fiDfRMVrYTJ/uAAJ9B4bBD9rdkux95x60CQdJHPoH9OW0yKkRhEPJ9UxylLwd3ZDM0C66TUdQy1CIYeMX2ql4Hfkj3gTFWHR6D7s9Joasrc+6A22cSpy1l5cYxqY3YxUqcBhrS5hpNu3yvfdCV0yajQhQGgUyWEpUvYGgDGTRwnVqHe9iuwGktGB6ZN9C9QJj9DYfMdmF+S/cgoxlGgeT2mQ0HMl+BY/KzSvdx+O1meRHXSXe+D1tjf06bjApRGJR8XeOGoWU7qFCCvgujXFZpTS3kxvGAMJmOepXuO/Wt6fif7ds0pbxMhBIOx9lwK01MGLo9d4Ew+bzeLa5lORaiMChSwvKBUt03GGi+xA7hOEeAfgYG53WbNmE5Ccf0nWyn4PC3RTe76D+5aULaIay1VZs4MRDg9n7CkX4KAadu8gWnLUaJKAwKw7RSwpKM11rHgvA02crK3R1i6ITwnG+AwVoDCDyHvspWXeswd+bnmaz24IBDajcv9xM2X2sfWgFOW4wSURgUdvHlm/Ktz4b4MVRKa2vUTQrTH9zDEDJ9DYydODBah/7cfCFBgnto+/tZGkR44oA+JD0lFfTVpgsfpy1GiSgMg3xyHuLq92Qc6OrOIF1zA+/lUA/iUXZrgxp9IWoNKbxb/Kcn/07YIa5OG4waURgGNGOkRCYRRss6PDZvwoT3UtqX2ka6/NQaYYI+8ukjwBQ6ThuMGlEYBhw+ni8ll98mV5jw/rpb8yy03ZMQH06gkfSVROJaDGpHFIZF0p2H+DEXErR5FBbUPnyivrklGYeNEAcGM/KhEHTaXhyIwrBgpltKaFIwM+8ehqajhngkMT5JnzhlLsxpe3EgCsOCDy9JiU0ClKZBBgkGC+gn6YMHrPtz2l4ciMIwSaLSiROHnSeluZZkcB70hL6SmJdxryqwIwrDxHxeQ0h0LjGLOV2saHYyWGsp0o2+krjyAPty2lxciMIwYbY8WSUWe3W8Tz4S3usKAj/3eCHOOBGeES1Zp7kBu2IFhtPm4kIUhk1SSiyUnW235UBgPBz+4XYVAmH49GGUZ77xXDbdeYtTh684ER69sQo8KYUhduW0tTgRhWGzryEZAwdm+YvPmsAynt11e83f/p5hheVgDj+O6gVqEbYcuIkTYTMH1vubEOYeazhd0m/cMJfotLU4EYVRkMvSinfbF15KhuEG7mWbAPtrsjkFYbr0NTa69bcVOyx4Pnt4cOps70JOfKtrdgeeQ+Je9Jjz1oTOU6eNxY0ojIJdOdxhmtku7f7Dt/2BEbICINu2aGQM7VoHhDivW2H8xCXb+4hT5fZq8/HgbGGonayNd87rXuEZrMpAr5K+o4bCMI4vvw2EKIwKSRFxwHxTGEYDPIe+DyVvk6PvwG9qJq5l2zaNjKaPl077QPcgYy0cZxU4+zP8ZpnN5hBqXjs8hwJE0nccOG0rF4jCqODIpribb7wzLIOx4Hns4WFmm0EB/gerOTPQVmyusUltoH4KcB3HyVarWNCPYQ8PcbIGEABnIk6Zvk74eqBGk/QeHZtVvc5Tp23lAlEYJXEeTdVf3yQIGE2bdhqaLZU7MgfBUyuwjYASfqAlNpZRuzlbgGfjjO6e2a426TjtuHUAounc3zqkxEtN5xaex3tqd8XXJEfnTpvKFaIwSihBo659eL7lOGEbjAXPtXZcMvxNH4ff9Y6z3LJBTYHRMWKULTxyak5OtXH3zCPmmZn07+k5X2Gvh63YXuG5xoG0vnmXlB9hwfMZHHHaVK4QhVHDAXyScsICA/I7HOsWnk3Jbl/8SpPJrcMShtqEe6TD4/mfvoqX7d2EIU72hZwMK0dR69jh2XHUQNSgTlvKJaIwavjGTVSllDWP4eU7On7BaMwnOnQ7nHcP1C9xQlhqFhzI3izjLwMOGIvX1RCEtZ+/Fsd52cA7cCD0b8+PsCA95KnTlnKJKIyDat3MkZTkF9rCA52qGTaWwXDQIMc98VsKlw3up1bAeewf0eroyBxe6PcAD57JkVP0x5hzksJFAe8GzpoLexibcx2cNpRrRGFcSEryCiUSJXSudoPyTuaQGKL2837usc6JptnT2ZU5+Ya0BTlUhMNDOBbLz/1B4Z3EnXwJq4XhtJ0kIArjor2zK7ByKZ3DnL/wA+/2+37uo3bhKwWkhxqIv3T2vdZkdoLEKQx4N/lC/jC8bM8zL2Af1KRO20kCojBO/HYyaRaQOTwjl0YSBsSfQw/t6YtyQWlcEH/yh/6bn2Ycp54yisczkogojBsO95OUJ0FJROnsfEYaDI3DIkkfE7CJSg9x4Wgtj3Fy5hEH4Ut5mg3swvmMJCEKc0GJoDw7GBVtaIZinfdaSBmYFW0I5qw1yzBiGJ3rD5yF2sZ84WCACdE4IR6nOreqC+3j1Rsdxepwd7srJ3LmjQX5x1TFQM31JE2GZkMU5gIyKZtCkTMb77wnG1Jm9kK/63B3mzrXPkN93PZH9XbHHC3jM4m5NVj6OIlqrul4nOwsU9eaH1A3W4aoGy1D1Setv1VHuxqzOpAzL7JBfvaX30kblpYQhbmCJfzWnIkFTRhnODdIGWvQmX6066C61PqcutE81BjEjeYhxpGCnPoZFolwHEsP3Ye1s/zG6OjmLdDVJ22/09f6FjbOPHADK73t+U0/h0ljZ7gkIgpzCcv5UWJYS857G6P+rTP9YusfjRH0GITmy5bv2pokukl3+Jjm+G1DSjM6zSe6atX59mm3mmZtRkYhc6XlsV7Ok3Gge9SbHUt6HN2pcz+Q3+T73v0N+l85TNIQhWnDMhIy+2zHclPj2I0Brrfcp17t2mGM5kh3szrfMV191PZXdaZztZbFN9EYP0fU8a467SRPaCfJNM2olY91NWh9VKtrLTTZeuuKMJdbfmSczKnrwYQoTCvULJ+1/qxPSZoxiCHq9c6N2mj2q8utz/QY0vXme7UDrTJOZTc4Z5Ml+dDP69Q1zG51tNvqs2QGTT5o+1efmhgHOtW5xRQqdj31hNEF0KW3cndyTRIQhWnlg7N1xhkkY6BDfLZjpfq09dfGcSx5xpB+nukPaYOj9qJUPt25WRthk5Y5jTSJZGrTi61/0DXJQ+qLlqfVWx3zM80u7VBftHzPpNOuD5zjg7Z/6vAP9pLfRhcuZyZrtcq6HgyIwrRy482F6qZur0vGcKPlXt1M+1OfJl2m9hmqS+0WbWjdZmABg8LBvmx5Sjdtqm6V4pLRJgOchKFmq3YhTfx+u3226ddca3m4V5qtMNeaH9Rpv9/8dl43YQ4/p9Uq63owIArTSHNTk/q4+XnRCOCGrpEsp+hzXTvcia5dxtgIZxkTjkZpnvQ+Ec5DbWN3AuMcuhaiT5etdiFMpjARdKK53PigVq2s78GAKEwrb++8+5Yx9MUYikN2m7vVGx1F6qouofsYYPNDuvl2QDTaZJAZNbve3LfvQu1zqeXn6mpz73TZr19v0s0zW3/IzmcH7tFqlXU9GBCFaeWTfVmabAMYCfLPdL9Hus6w7Wtd2wWjTQqMpu0x8ewTdw19QBxLdB7NlUND1BcaZ9ophArOIwjTykd77jGZ3tsIhhgD+byBa4JzaDIGdru51pt71KlOZsQlw00CDHDsE9MGpAmdZEv7FV2oNKy4U/92Os8Q9V59wXkGDcfL7upjJPxfX/RtdWm/bFxgDCxLu58S/WRXhWC0SSGzFInmpRz//mvd6+1DtOrUV96sosl7Owy/D62801wbrIjCtLJu8rfVdZsTYABvVd+tL6mvfNaQzTmGqGuN2riEa0CNdKxrr2C0yaGz+6i63PpjMQ2k7/LBe9Sn++Wa13IeeK8uEwZoyv3rxTt6rg1GRGGa+UAbAEPPNFXer79tGJLzYCSf6n7SZxiW41rm+lB16dBTqrXl9uk0/LV+55rDR46p106eUkePHVd71+I8cgFxSTtCxVxdsBjHuC0n/dc0lo6gauGdqrP0LjXh/77VSz4YEYVpp7H0h+pASe85ik/3912GguFsm/Mt9e4ueaABY9s2J3vTxTrUwzhTyA5121kzTuJ8t8QXh+Ta5TNds3L9xFZn02yoemtnb+cpcBtROBi5fuJv6mavUneo+qL1h2r2hD+rj/bcKxrdlVtGFwQM3ziB7ptYjtbjcFru1jHc0Ly2b5/vpv7/U9uo2fu7CZO5RthPTy7quVagN6JwsHKj9Vbto43mRtcPteiWvOtHvQ3ulmF1ldzVEyZf+Fw7Su/aZYhiMMC63tlYoW6cGqFuHH5e3Xyr4Dj9IQoHMzdPDVc335yvf96W3Tjxl16OAwzh2sPkEzRHLQfi77Ga32uxHLZAdkRhgd7ceL+y15o4lugc2vKiviSHzwc+2ZdxoBtHXtD/ymEK9I8oLNAXVhDfaH9SN+eeUTfe2ahFcrgCgwX1lf8HX4fdaqgsuuMAAAAASUVORK5CYII=",
+            "name": "cadvisor-2-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "- stable version",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor cAdvisor with Prometheus :\r\n\r\n* Cpu\r\n* Load\r\n* Memory\r\n* Storage\r\n* Task State"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser cAdvisor avec Prometheus :\r\n\r\n* Cpu\r\n* Charge\r\n* M\u00e9moire\r\n* Stockage\r\n* Etat des T\u00e2ches"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Cloud-Prometheus-cAdvisor-Api\r\n\r\n## Centreon Configuration\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Cloud-Prometheus-cAdvisor-Api-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Host Macro Configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"23%\" />\r\n<col width=\"53%\" />\r\n<col width=\"24%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>PROMETHEUSAPIHOSTNAME</p></td>\r\n<td align=\"left\"><p>Hostname of the Prometheus Server</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>PROMETHEUSAPIURL</p></td>\r\n<td align=\"left\"><p>URL of the API</p></td>\r\n<td align=\"left\"><p>/api/v1</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>PROMETHEUSAPIPORT</p></td>\r\n<td align=\"left\"><p>Port of the API</p></td>\r\n<td align=\"left\"><p>9090</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>PROMETHEUSAPIPROTO</p></td>\r\n<td align=\"left\"><p>Protocol used by API</p></td>\r\n<td align=\"left\"><p>http</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "cAdvisor",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_prometheus_cadvisor_api.pl",
+                "package_name": "centreon-plugin-Cloud-Prometheus-cAdvisor-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-prometheus-cadvisor-api",
+        "status": "stable",
+        "status_message": "stable version",
+        "tags": [
+            "Prometheus",
+            "cAdvisor",
+            "Restapi",
+            "Docker",
+            "Kubernetes",
+            "Swarm"
+        ],
+        "update_date": "1547199256",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les t\u00e2ches en cours du conteneur.}\r\n\r\n{EN: Check container tasks state.}",
+            "active_checks_enabled": 2,
+            "alias": "Container-Task-State",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Prometheus-cAdvisor-Api-Task-State",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECONTAINER$",
+                    "password": false,
+                    "value": "container_name!~\".*POD.*\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPOD$",
+                    "password": false,
+                    "value": "pod_name=~\".*\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATE$",
+                    "password": false,
+                    "value": "state=~\".*\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Prometheus-cAdvisor-Task-State-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la consommation du stockage du conteneur.}\r\n\r\n{EN: Check container storage usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Container-Storage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Prometheus-cAdvisor-Api-Storage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECONTAINER$",
+                    "password": false,
+                    "value": "container_name!~\".*POD.*\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPOD$",
+                    "password": false,
+                    "value": "pod_name=~\".*\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEDEVICE$",
+                    "password": false,
+                    "value": "device=~\".*\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGUSAGE$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALUSAGE$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNITS$",
+                    "password": false,
+                    "value": "%"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Prometheus-cAdvisor-Storage-Api",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la consommation m\u00e9moire du conteneur.}\r\n\r\n{EN: Check container memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Container-Memory",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Prometheus-cAdvisor-Api-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECONTAINER$",
+                    "password": false,
+                    "value": "container_name!~\".*POD.*\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPOD$",
+                    "password": false,
+                    "value": "pod_name=~\".*\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGUSAGE$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALUSAGE$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Prometheus-cAdvisor-Memory-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la charge du conteneur.}\r\n\r\n{EN: Check container load.}",
+            "active_checks_enabled": 2,
+            "alias": "Container-Load",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Prometheus-cAdvisor-Api-Load",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECONTAINER$",
+                    "password": false,
+                    "value": "container_name!~\".*POD.*\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPOD$",
+                    "password": false,
+                    "value": "pod_name=~\".*\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Prometheus-cAdvisor-Load-Api",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation CPU du conteneur.}\r\n\r\n{EN: Check container CPU usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Container-Cpu",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Prometheus-cAdvisor-Api-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECONTAINER$",
+                    "password": false,
+                    "value": "container_name!~\".*POD.*\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPOD$",
+                    "password": false,
+                    "value": "pod_name=~\".*\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGUSAGE$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALUSAGE$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGTHROTTLED$",
+                    "password": false,
+                    "value": "10"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALTHROTTLED$",
+                    "password": false,
+                    "value": "20"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Prometheus-cAdvisor-Cpu-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

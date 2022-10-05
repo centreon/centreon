@@ -1,0 +1,148 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_biztalk.pl --plugin=database::mssql::plugin --dyn-mode=apps::biztalk::sql::mode::rlocationdisabled --hostname=$HOSTADDRESS$ --port=$_HOSTMSSQLPORT$ --username=\\'$_HOSTMSSQLUSERNAME$\\' --password=\\'$_HOSTMSSQLPASSWORD$\\' --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Biztalk-Received-Locations-Disabled",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Biztalk application",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "App-MSBiztalk-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTMSSQLPASSWORD$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTMSSQLPORT$",
+                    "value": "1433"
+                },
+                {
+                    "key": "$_HOSTMSSQLUSERNAME$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Biztalk",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Biztalk-Received-Locations-Disabled"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "App-MSBiztalk-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Compatibility with Centreon Plugin Packs Manager v2.2.0",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Microsoft Biztalk server:\r\n* Received-Locations"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser un serveur Microsoft Biztalk :\r\n* Received-Locations"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Biztalk\r\n\r\nYou need a read access to the MSSQL database :\r\n* BizTalkMgmtDb.\r\n\r\nPlease read the monitoring procedure of plugin-pack MSSQL.\r\n\r\n## Centreon Configuration\r\n### Create a new Biztalk server\r\nGo to \"Configuration &gt; Hosts\" and click \"Add\". Then, fill the form as\r\nshown by the following table :\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Biztalk-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Onglet <em>Relations</em> &gt; Parent Hostgroups</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick \"Save\" button.",
+        "name": "MS Biztalk",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_biztalk.pl",
+                "package_name": "centreon-plugin-Applications-Biztalk",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Applications-Biztalk",
+                "version": "20160324-2"
+            }
+        ],
+        "slug": "applications-biztalk",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Application",
+            "Biztalk",
+            "BPM",
+            "Business Process",
+            "Microsoft",
+            "Server",
+            "Windows"
+        ],
+        "update_date": "1486389225",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre des emplacements de r\u00e9ception activ\u00e9s.}\r\n{EN: Check the number of biztalk received locations disabled.}",
+            "active_checks_enabled": 2,
+            "alias": "Received-Locations-Disabled",
+            "check_timeperiod": "",
+            "command_name": "App-Biztalk-Received-Locations-Disabled",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Biztalk-Received-Locations-Disabled",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

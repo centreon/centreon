@@ -1,0 +1,144 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_health_api.pl --plugin=cloud::aws::health::plugin --mode=events --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-service=\\'$_SERVICEFILTERSERVICE$\\' --filter-region=\\'$_SERVICEFILTERREGION$\\' --filter-entity-value=\\'$_SERVICEFILTERENTITYVALUE$\\' --filter-event-status=\\'$_SERVICEFILTEREVENTSTATUS$\\' --filter-event-category=\\'$_SERVICEFILTEREVENTCATEGORY$\\' --warning-total=\\'$_SERVICEWARNINGTOTAL$\\' --critical-total=\\'$_SERVICECRITICALTOTAL$\\' --warning-open=\\'$_SERVICEWARNINGOPEN$\\' --critical-open=\\'$_SERVICECRITICALOPEN$\\' --warning-closed=\\'$_SERVICEWARNINGCLOSED$\\' --critical-closed=\\'$_SERVICECRITICALCLOSED$\\' --warning-upcoming=\\'$_SERVICEWARNINGUPCOMING$\\' --critical-upcoming=\\'$_SERVICECRITICALUPCOMING$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Health-Api-Events",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser AWS Health via l'API}\r\n{EN: Template to check AWS Health using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check AWS Health using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "aws-health-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSSECRETKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSACCESSKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSCUSTOMMODE$",
+                    "value": "awscli"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Health",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "aws-health-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix(pack)missing-icon",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Amazon Health.**\r\n\r\nAvailable host templates and related services:\r\n\r\n|Cloud-Aws-Health|\r\n|---|\r\n|Cloud-Aws-Health-Events-Api|\r\n"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser le service Amazon Health.**\r\n\r\nMod\u00e8les d\\'h\u00f4te disponibles et leurs services :\r\n\r\n|Cloud-Aws-Health|\r\n|---|\r\n|Cloud-Aws-Health-Events-Api|\r\n"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAS5gAAEuYBzb9AqAAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAABYESURBVHic7Z15fBTl/cc/M7P3mc19kYQQCBAODSq3ICqoWLygasWjWrWV9ld9tVbxvlqvYvvrwc/jVYuIaIsnl9ByqICRW5CbkLBJyLXJZu97Z35/TJjZCUuOzc5mw+z7r53Z2ed5dvczz/F9vt/vEHtKf8YghWQhB7oBKQaWlAAkTkoAEiclAImTEoDESQlA4qQEIHFSApA4KQFInJQAJE5KABInJQCJkxKAxEkJQOKkBCBxUgKQOCkBSJyUACROSgASJyUAiZMSgMRJCUDiyAa6AQIIApReDfXwfOgnlUM9shCqYXlQ5JpAKIVNDbU5EWjpgK+mGd7jZ+DeWw2f2YKwwwMwInm6EwQogwaq4ixoJ5RBU14IZWkOFLkmyDL0gksZfxCBZht8p5rgOdYA13fH4T3ZiLDTAySRIz6RDHEBhIyCZkwxMm6aBMP0MVAWZQIE0bdCGAaBJiscO47CtmEfnLtOgPb449I+UqOEfuIIpF0zAYYpo6DIM8XUPn+dBY5th9H+aRU8h+vAhMJxaV9/GHABaCuHIW/RXOgvGwFSo4xLmUwoDF91E1qXbYZ19U7Q/mBM5ZBKOdJvmIjsu6+EqiwPhIyKS/tojx/OnSfQtHQd3PtOxaXMWBkwAcizjMj/9Txk3DoNBHnuVIT2BhCyueA/3Qp/fRvCLi/3HiGjoMhJg7IoG7IsAyi9GqRSfm4lDAPP0XqceeUTOKqOAnQvvypJwDBlFAoemw/NqMKodzvtDyLs9CJkccBf14pAi01wR1M6NZRDMqEsyYEsTQtSrTi3eWEabf/ahqa/rEHQYu9d2+LMgAjAMG00hjx9G1RleYLzTCgMz+E62DcfgGPbYXirm3rsxmXpeqhKc6C7ZDgMl1dAd1EpiC5ioP1BtL67CU1L1/VYHqVTIfehuci+58pzREX7g3Dvr4Hjm0Nw7amGr7YZIaur2/JIjRLqsjwYplfAeOV4aMYUg6CEgvdVN6H+hY/g2HGk27LEIOECyLhlCoY8ezsorUpw3rW3Gk1/WwvX7mrQ3tjGbkIhg3pEAbIWzkTGDZNAKCImjjQD29aDOP3oPxG2u6N+XpamRcnr98J4xVjBXU8HgrB+sROWFVvhPdEIJhCKqX2kRgndJcOR96vroascJngv7Pah/rmVaP+0KqayYyVhAiBIElkLZ6Bw8Y8Ff4y/oQ1nXvsUtg17wYTpuNWnLMpC4ePzYZw1HoScH7tdu0+g+sGl54hAlqbFsDcXQXfpcO4cEwzDvvkAGl79GP46S9zaRlAk0q6dgMJHb4aiMJOvLxBE/e9XoW3l12Do+P0W3UE9YKp8LhEVZS6YisKnbhN0q45th1Hz0P+xE6E4L93Cdg9sG/chZLFDN6EMpIodgxUFGVAVZ8O+9SA3ZpNqJUpe/ykMl1dwnw/Z3Gj4w7/RuOQzhGzRe4yYYRj4TjTC9p/9UA8vgLI4CwBAUBT0U0Yi2GKD50hdfOs8DwkRgG5CGUreuA+UunOWzzBoW7UD5sXLEWp3ilcxzcBzuA7uH8wwzhwDsrN+VWkOGH8Irj3VAEEg98FrkPWTGVy3H2p3ouZ/3oJt477eTxxjIOz0wr75AOQZBmhGDwEIAoSMgn7SSLh2nUCgqUO0us8iugDkOWkYtvQXUOSkcecsH36D+uc+BO0LiFk1R6C+DZ5DZqRdOZ7tCQgCmrElcO44CkWeCUUvLeR6prDdjZpFb8L53fGEtI0JhGD/+hDkWQZoxhQDAEiFDLoJZbD9Zz9ot0/U+kUVAEGRyP/NTTDOHMudc3xzCObfLYt5IhUrgTPtCLt8MEyvAEGSIBUyKPLToZ9cDnVZPgB2zG94eRU6Nu5LaNtA03B+ewzacSVQFmcDAGTpOhAyGZzbj4hn2YTIewGaiiJk/ngadxxosqLuuZUxG2b6BcOgbdV2wZ1tmDYahmmjuWNn1TG0fbxD1B/8fNC+AOqeXSno9jNvnQ716CGi1iuqAHIXXc91rUwojMYln8Nvjt9suq8wgRAa//QFv9ogCW7cZ0JhNP75i4T3TJH4za1ofONzfnKqkiNv0fWi1imaAFSluTBGzKo9h8zoWL9HrOp6jfv7Gri/r4l+/kDtALRISMe63YIVgOHyCqiG5ohWn2gCSP/RZYL1fvPbGwem649CNCEmgzgB1trY8tZG7phUymH60WWi1SeKAEilHMarxnPHgTPtsG89KEZVMeH89pjA6MSE2UlYsmDfehCBM+3ccdpV46PvdcQBUQSgLM6GsiibO7b99/sBHVu7Emx3CDZfgq02BNsdA9giIXQgCNvmA9wx+3tmiVKXKAJQDcsFpeNt/Y5th8WoJmZojx8hC/+HhywO0N7ubRKG6RWo2PgCRq99BtpxJeI2kAEc3/C/GaVTQzksV5SqRBGAemQh9zrs8sFX0yxGNbFDM4KtWzoYAsLnX/qRKgXyH7kBqrI8qEcNQe5D152zoxdvfDXNCLt4I5Am4jeNJ6J8C0VBBvc61GZn3bSSCDoQQrCN7wGCFgcrgvOgKs2BuryAO9aOL+XMymIRdngQihiW5LnpotQjik/g2Y0XAAi7/aD9yTP+AwAYBs1L10Nm1IIBg+al67o1/hhnjRd8J3m2EeryArj2VovWRNofRNjNb4tTWnEEF38BdG5ocDDMgFjWesJ9sBbHb3+tx+sIOYW02Refc94wbbSoAkgU8R8CGOH4CoLouwNlEqEszoZ61Lnjr37SSNHrTsTPJsocIFIApEoucMgYbJjmVEb1WVSPKoQ80yBavYScEri2iWVEE0UAkUYMWQbrtDkYISgSpmsn8CcihjJSo4T2olLR6pbpNYJYg2CzOL4BogjAV93EvZYZtVAWZnRzdfKiHlkIZQlvh7d/9QPXuxEUCf2kctHqVgzJhMyg5Y69J5u6uTp2RBGA92Qj7+xBAPopo8SoRnSMV4zj3bkZBq3Lt8B7spF7X3dJmWgmWv2UkUDnHID2BuCLqDeeiNMD1LYIhgHTNRPiFlSRKEiVAsYrxnHH/joL3Ptq4Np1gjunLMkROHXGC0Iug2l2JV93Qxt85pa41wOIJADa7RM4XqiG5UJ7sXjjpRgoS7IFFk3HtiMId/lelF4N7djiuNetvbgUqgjTr+ObQ6Dd8Qlz64po9sz2z6r41QBBIG/R3EHVC6RdfRFIFe/M0rFxLxtpdKRO4MiqnzIqrus1giSR+8Ac3lElEIJ17e64ld8V0QTg3l8D937e8UI/eSTreUuKu7ilDGoYpo6CekQ+N4b2FYIiBcYff50FnkOsk0aw2QZvxCRXNyG+8wDDjDGCOZNr3yl4Dp6OW/ldEXVHo2npejCdNnZCRiH/4Rugjwi8iDskgZJX7sHw9x5B+b8fh25CbHUpS7KhGcn74jmrjnH7GUwoDNeek/y1RVlQDonPPEBm0iH/4Xm8oGgGzW9tiEvZ50NUATh3HEHLu5s433rKqEHJH++FPDuth0/Ghml2JYxXXcTlGcj/9byYehzTtZdwn2PCNDo27BW87/z2KJhg5/BGEtBP7r9VkKBINhh1DD+nsK7fA2fV0X6X3R2iCoAJ02j621o4tvN724r8DJS8cnfcd9NkRi1yF80VbNNqK0uhqyzrUzkERSJtDt/9By12uHYLbf6ew3VsoodOIj2LYyXz1unIXDCVr7fFhqa/rOGFJhKip4ihPX6Yn1iOQJOVO6efPhp5D10X1cQaKxnzp56zZ06qFMi8bXqfegH1yEKoIo0/mw5ww9hZwk4v3AfN3LFm/FCBA0xf0U8eiYJHb+ZP0DQaXl4F3ylxjD+RJCRHUKCpA6d/+y7CTjbGnyBJ5Nw/B6a5l8SlfEV+OnIemBP1jzbNqYR6eEGUT0XHOGscn6iCYdCxPvoMPLJXkxk1gq67LyiHZKL493eCMmjYKsM0Gv+8Gta1u2Iqr68kLEmUc9cJNP11DW9KlVMoev4OqIfn97vs3F9cx2/MMAzc39dyTp+kRoms2y/v1VKNVCkEUUx+swWeI/VRr3VWHeP2Bgi5DLqJI/rcblKlQPHLd3PRQGAA6+qdaH5nY8LyCCUuSxjNoHX5VljX8HcUZdSg5LWfQpam7eaD3aMZW4yMGydxx/4z7ah9+B34a3nLWfpNkyBL1/VYlrI4C+pR/OzfseOIIDNJJP46C/z1bdyx/tIRfXMTIwnkPzxPMIH0HK3HmVc/TqgDbULTxDHBEOqeel8Q+KAZV4Ihz9we01qaUMqR/8iNEV020PjG5/DXW9C6fAt3h1I6NbLvvrLH8tLmVAoimTq+3HveO5H2Btjo4k5Uw/MhzzX1suEEMm+Zgux7+DaF7W7UPvwOgpbEeicnPE0c7Qvg1IN/h3oEPy4zNB3Tci1t1jgYpvB3kGvvSXRsYAM7rat3Im/RXMg7o5IzbpqM1vc2nz8cnSRgijD+BOrb4Dlsjn4tADAMnDuPIePmyQAAeYYe6vICwR7I+SAIAr5TzTj186V8fS22hEz6ujIgeQIDjVYEGq09X9gNlFaFvF9eD0LOfgXaF0Djn1eD6XScCDu9aFu1HXm/ZGPrFHkmpM+9lO0ZoqAqyYG6PML2/+1RhB3Ru/+zeA6cRtjlBaVTAwQB/eRRsG/pOQCGoWm4Bjg72FkGbabQzDtmCDZrrGt2wbnzhOAay8qv+TueIJD1kxncbLsrprkRxh+a7lWomL/eIgh21U8q5wQ5WBCltZoxxZBnGwEAoQ6XcE9gYjnIfnq4kioFcu6bzR2HrE40v7kB6JJXJ2ixw7pmFzfWqsryYJw5FtbVOwXXETIKaVfz3X/I4uiVwyftC8K1txqaiiIAgHpEPkzXVgr8+eNFsMXe/ZAUI6IIIPfn13KuVM6qYzixcAn3XtGLCwVbnfHAsuIr+E9H2S+nGbR9vAMZt0xh3dIIAjk/m82usSNSv6jLCwQRuLb/7u+1Bc5ZdQxZC2eCIEkQMgpD/3R/v79PNDrW70HNr96Ke7mDdgg4i6+2BS3v/ve873uP1gvi7DQVRTBMFZpujbPGdzH+9D5S2L2/Jm4paQeCQS2AsMODxj9+xlkYz0frsk2CaOCcn17FrdlZ488Y7j2/uRWeow29bkPQYkf7J1VxTXGXSETJEygz6ThfOtofFCy95NnGuDmGMMEQgu3OnjN5EcDw9x7h7nzaF8DJu/4E195qqMsLMOrzp7hcBpYVX6HuuQ/6ZIkj5DLIM/WiOvLT3gBCHd1nJY0FUeYAoQ4XcB4v5mDrAOTEZYCWtzdCP2kkCIoEqVIg684r4P6+BmmzK7k/nwme9fzpY/HBUEJSuonBoB4C+oJrT7UgNYzxinFQlebCdA3vfBk40w7PD/GfaSczSbloZTdwZggiipxVx/qVw4f2BWD54CtoLyoFQZGgdCoULF4giPp1bD/S43yiNygKM2G6bgK/3c0wsK7bjUBDz1bCRJOUAqC9AVB6FZshq9M4E2yx4fjtr8Nvbo25XPvmA/BVN3F/unEGP/kDw6Djy/7nCaIMGgxdci90l/DuaB1rd7M7fElIcg4BDIPmtzfCtoVfvslz0lD88t39eqhE2OVD20ffRH0vaLELNndigiRQ+LubBX++55AZ9S9+JGrK2f6QnAIA60lU9/QKwQaJ/rLhKPjtzf3KztH28Y6oD2ewbdzfv0e4EAQyb52OjAV8YsyQ1Qnz4uWCZBTJRtIKAGBXDJGeRKw9/3JkzJ8a85KL9vhh+eCrLicZduu3H+gnjkDhY/O5JS4TDKHu2ZUJy/odK0ktAABw/2DGmdc+4QwthFyGwsfm9ysip/3TKsGamjX+RPf86Q3yXBOKXrqTj4JmGLS8u6nfokoESS8AMAza/r0dbR9+zTt4dLqXd31UW28JNFrR9q9tYGgaDE3Dun5PzHmMCIUcJa/eI9hLsG/9AU1/7z7tTLKQsAdG9AuagWvPSWgry7hQc1m6HsrCTMGDH/qCe2813AdPo2Ptblg/+TYmUy4ho1DwmxtZl7TOIclX24yaX76JsAhWOzFI/h6gk7DLh7qn3kew1cadS5t9MbstHIM3Ee0Pwr75AOybD8ScfSP9+kuRddcs7s8Pu30wP/Yegi22Hj6ZPAwaAQBs7jzzUyu43TeCIpG3aK7AkzdRaCqKUPj0bQIfwjMvr0oaT5/eMqgEAAD2LQfZmMNO5w9CIUPxS3dCVSpOJs1oyLONKFlyH+/NzDCwrPwabasG5lkD/WHQCQAMg5Z//Af2Td9zp1gj0V2g9NHdveIJqZSj8Mkfc08ZAQDX7pNoXPJ5UjwKtq8MPgGAjZk3P7lCmK5lwnAULp4vbg4CgkDOA9cgfe6lXOh5oKkDpx9bdt74gWRnUAoA6LSyPb4MIetZp08gc8E0ZEZY4uJN2lXjkbfoOm7SR7vZuMd4PlMw0QxaAQCA+0AtGl5exXe9JIH8R28SJR2NqjQXRS/cwXn9MjSNxr+uEcQIDkYGtQDAAO2ffQfLiq+4UzIj+/hXRV78kivLMvQoeV2Y16Bj7W60/nNT0m7y9JbBLQAAYBg0vvE5G6zZiWpoDopeXMjl+OkPhIxC4eIF0F40lDvnOWRG/fMfDcpJX1cGvwDAGmDqnl4Bfz0/FhtnjkHug9f2u+ysO2Yifd5E7jjY5oD5ieUI2QaHpa8nLggBAKx7uPmJ93kXbYJAzoPXsOleYvTVNFxegYJH+e1n2h9E/TMfwHM4uXf4+sIFIwCAzd3T+L+rOWMMqZRjyLO3CULIeotqaA6Knr+DzxQKoOWdjYl/qqjIXFACAIDW5VtgXcfnIJBnGfvsSUQoZCj6w12CBzXZtx5E85tfxrWtycAFJwAmEEL98x8Jcutpx5ag6Pmf9CptPSEjUfTM7dBfxmf88J1shPmJ5T0+WGowcsEJAGCNRKcXv4eQzc2dS583UfCI+KgQQMYtU5Exfwp3Kuz04vRjywYmniEBXJACAADvsQbUP/8ht04nZBTyH7kR+m5y+egqy1Dwu1v4EG+aQcMrHyfFI2XF4oIVAABY1+5C89sb+ESVejVKltzHZQ2JRJ6Tds4OX+vyLWhftT2RTU44F7QAQLNPB7NvO8SdUuSazpkUkholil+6U5Dy1fHtMfZp4oM06LO3XNgCQKeR6In3BSlpjNMr2PQyFAmCJJH3i+sETiXBVjvMi9+LS5RQsnPBCwAAAs0dqP3NP/gtW5JAzr1Xw3T9pTDNuww59/NJJmmPH7WPvNOrZE8XAqKEhyclBIHsu2ehcPECzmcg7PCAYRjIjOy4z4TCOPPqJ2hZNvg3eXqLJHoAAJzblnUNn4KVMmi4Px8AOtbtRuuKrZL58wEpCQCskaju6RXwHDo3BNxzyIy6pz9IqsfcJwJJCQBgI4+7GnaCrTbWrcsd/+xeyY7kBAAA3uMNMD/1PoLNHQg0d8D85PvwHu99XqALCelMAlNERZI9QAqelAAkTkoAEiclAImTEoDESQlA4qQEIHFSApA4KQFInJQAJE5KABInJQCJkxKAxEkJQOKkBCBxUgKQOCkBSJyUACROSgASJyUAiZMSgMRJCUDi/D/XlHenCVPWTQAAAABJRU5ErkJggg==",
+        "monitoring_procedure": "",
+        "name": "AWS Health",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_aws_health_api.pl",
+                "package_name": "centreon-plugin-Cloud-Aws-Health-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-aws-health",
+        "status": "stable",
+        "status_message": "fix(pack)missing-icon",
+        "tags": [
+            "AWS",
+            "Amazon",
+            "Cloud",
+            "Health"
+        ],
+        "update_date": "1596116385",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les \u00e9v\u00e9nements.}\r\n\r\n{EN: Check events.}",
+            "active_checks_enabled": 2,
+            "alias": "Health-Events",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Health-Api-Events",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTEREVENTCATEGORY$",
+                    "password": false,
+                    "value": "issue"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Health-Events-Api",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,204 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_pdu_emerson_snmp.pl --plugin=hardware::pdu::emerson::snmp::plugin --mode=receptacles --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-total-accumulated-energy=\\'$_SERVICEWARNINGTOTALACCUMULATEDENERGY$\\' --critical-total-accumulated-energy=\\'$_SERVICECRITICALTOTALACCUMULATEDENERGY$\\' --warning-line2neutral-real-power=\\'$_SERVICEWARNINGLINE2NEUTRALREALPOWER$\\' --critical-line2neutral-real-power=\\'$_SERVICECRITICALLINE2NEUTRALREALPOWER$\\' --warning-line2neutral-apparent-power=\\'$_SERVICEWARNINGLINE2NEUTRALAPPARENTPOWER$\\' --critical-line2neutral-apparent-power=\\'$_SERVICECRITICALLINE2NEUTRALAPPARENTPOWER$\\' --warning-current-neutral=\\'$_SERVICEWARNINGCURRENTNEUTRAL$\\' --critical-current-neutral=\\'$_SERVICECRITICALCURRENTNEUTRAL$\\' --warning-potential-neutral=\\'$_SERVICEWARNINGPOTENTIALNEUTRAL$\\' --critical-potential-neutral=\\'$_SERVICECRITICALPOTENTIALNEUTRAL$\\' --unknown-rcp-status=\\'$_SERVICEUNKNOWNRCPSTATUS$\\' --warning-rcp-status=\\'$_SERVICEWARNINGRCPSTATUS$\\' --critical-rcp-status=\\'$_SERVICECRITICALRCPSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Pdu-Emerson-SNMP-Receptacles",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_pdu_emerson_snmp.pl --plugin=hardware::pdu::emerson::snmp::plugin --mode=ps-usage --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-line-load=\\'$_SERVICEWARNINGLINELOAD$\\' --critical-line-load=\\'$_SERVICECRITICALLINELOAD$\\' --warning-line-current=\\'$_SERVICEWARNINGLINECURRENT$\\' --critical-line-current=\\'$_SERVICECRITICALLINECURRENT$\\' --warning-power=\\'$_SERVICEWARNINGPOWER$\\' --critical-power=\\'$_SERVICECRITICALPOWER$\\' --warning-energy=\\'$_SERVICEWARNINGENERGY$\\' --critical-energy=\\'$_SERVICECRITICALENERGY$\\' --warning-current-neutral=\\'$_SERVICEWARNINGCURRENTNEUTRAL$\\' --critical-current-neutral=\\'$_SERVICECRITICALCURRENTNEUTRAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Pdu-Emerson-SNMP-Ps-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_pdu_emerson_snmp.pl --plugin=hardware::pdu::emerson::snmp::plugin --mode=global-status --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Pdu-Emerson-SNMP-Global-Status",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Emerson PDU through SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Pdu-Emerson-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Pdu-Emerson-Receptacles-SNMP",
+                "HW-Pdu-Emerson-Power-Source-Usage-SNMP",
+                "HW-Pdu-Emerson-Global-Status-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Change rb-usage by receptacles",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Emerson PDU:\r\n* Global Status\r\n* Power source usage\r\n* Receptacles"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un PDU Emerson :\r\n* Global Status\r\n* Power source usage\r\n* Receptacles"
+            }
+        ],
+        "discovery_category": "ups-pdu",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Pdu-Emerson-Snmp\r\n\r\n## SNMP\r\nConnect to your PDU Emerson and configure SNMP.\r\n\r\n## Centreon Configuration\r\n### Create a new PDU Raritan host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Pdu-Emerson-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Emerson PDU",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_pdu_emerson_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Pdu-Emerson-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Hardware-Pdu-Emerson-Snmp",
+                "version": "20160220-1"
+            }
+        ],
+        "slug": "hardware-pdu-emerson-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Emerson",
+            "PDU",
+            "SNMP",
+            "UPS"
+        ],
+        "update_date": "1570182058",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des 'receptacles'.}\r\n\r\n{EN: Check receptacles.}",
+            "active_checks_enabled": 2,
+            "alias": "Receptacles",
+            "check_timeperiod": "",
+            "command_name": "HW-Pdu-Emerson-SNMP-Receptacles",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGRCPSTATUS$",
+                    "password": false,
+                    "value": "%{oper_state} =~ /warning|alarm/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALRCPSTATUS$",
+                    "password": false,
+                    "value": "%{oper_state} =~ /abnormal/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Pdu-Emerson-Receptacles-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des sources de courant.}\r\n\r\n{EN: Check power source usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Power-Source-Usage",
+            "check_timeperiod": "",
+            "command_name": "HW-Pdu-Emerson-SNMP-Ps-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Pdu-Emerson-Power-Source-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut global.}\r\n\r\n{EN: Check global status.}",
+            "active_checks_enabled": 2,
+            "alias": "Global-Status",
+            "check_timeperiod": "",
+            "command_name": "HW-Pdu-Emerson-SNMP-Global-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /normalWithAlarm|abnormalOperation/i"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /normalWithWarning/i"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Pdu-Emerson-Global-Status-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

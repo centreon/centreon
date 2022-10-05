@@ -1,0 +1,534 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Kemp-SNMP-Vs-Discover",
+                "command_for_macro": "Net-Kemp-SNMP-Vs-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Kemp-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Kemp-SNMP-VS-Name",
+                "service_display_name": "Vs-$name$",
+                "service_template": "Net-Kemp-Virtualserver-Status-Global-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Kemp-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Kemp-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Kemp-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Kemp-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Kemp-Traffic-Global-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kemp_loadbalancers.pl --plugin=network::kemp::snmp::plugin --mode=list-vs --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Kemp-SNMP-Vs-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kemp_loadbalancers.pl --plugin=network::kemp::snmp::plugin --mode=list-vs --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Kemp-SNMP-Vs-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kemp_loadbalancers.pl --plugin=network::kemp::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Kemp-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kemp_loadbalancers.pl --plugin=network::kemp::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Kemp-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kemp_loadbalancers.pl --plugin=network::kemp::snmp::plugin --mode=vs-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTER$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-active=\\'$_SERVICEWARNINGACTIVE$\\' --critical-active=\\'$_SERVICECRITICALACTIVE$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTRAFFIC$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Kemp-SNMP-Virtualserver-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kemp_loadbalancers.pl --plugin=network::kemp::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Kemp-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kemp_loadbalancers.pl --plugin=network::kemp::snmp::plugin --mode=load --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Kemp-SNMP-Load",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kemp_loadbalancers.pl --plugin=network::kemp::snmp::plugin --mode=cpu-detailed --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-idle=\\'$_SERVICEWARNINGIDLE$\\'  --critical-idle=\\'$_SERVICECRITICALIDLE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Kemp-SNMP-Cpu-Detailed",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kemp_loadbalancers.pl --plugin=network::kemp::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACEID$\\' --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Kemp-SNMP-Traffic-Id",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kemp_loadbalancers.pl --plugin=network::kemp::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$$$\\' --name --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Kemp-SNMP-Traffic-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kemp_loadbalancers.pl --plugin=network::kemp::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Kemp-SNMP-Traffic-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kemp_loadbalancers.pl --plugin=network::kemp::snmp::plugin --mode=rs-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTER$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-active=\\'$_SERVICEWARNINGACTIVE$\\' --critical-active=\\'$_SERVICECRITICALACTIVE$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTRAFFIC$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Kemp-SNMP-Realserver-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kemp_loadbalancers.pl --plugin=network::kemp::snmp::plugin --mode=ha-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-ha-status=\\'$_SERVICEWARNINGHASTATUS$\\' --critical-ha-status=\\'$_SERVICECRITICALHASTATUS$\\'  --warning-sync-status=\\'$_SERVICEWARNINGSYNCSTATUS$\\' --critical-sync-status=\\'$_SERVICECRITICALSYNCSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Kemp-SNMP-Ha-Status",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Kemp en SNMP}\r\n{EN: Template to check Kemp devices using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Kemp devices using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "kemp-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Kemp-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Kemp-Virtualserver-Status-Global-SNMP",
+                "Net-Kemp-Memory-SNMP",
+                "Net-Kemp-Load-SNMP",
+                "Net-Kemp-Cpu-Detailed-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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3Mc/6PpT5FLIVQEjxzw2oEF2/eB/8Ltbqzg54SVF4kD3i+N8DAOhXaBZd5zvY8dpngDBZ+BKb/s3GsDMJ+n1thY9Avq2gYvrtqbsAZc7wMCTIZuyKwVpCsUi8H5G35QH+m+BnlWvt9Y+Th+ALHW1dAMcHAIjJcpe83l3uLO3f8+0+vsBbY9ypQT94QYAAA0YaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49Iu+7vyIgaWQ9Ilc1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCI/Pgo8eDp4bXBtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIiB4OnhtcHRrPSJYTVAgQ29yZSA0LjQuMC1FeGl2MiI+CiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogIDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiCiAgICB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIKICAgIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiCiAgICB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iCiAgICB4bWxuczpHSU1QPSJodHRwOi8vd3d3LmdpbXAub3JnL3htcC8iCiAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyIKICAgIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIKICAgeG1wTU06RG9jdW1lbnRJRD0iZ2ltcDpkb2NpZDpnaW1wOjg5NTk5ZWVmLTI0YTYtNGU4MS05YzNjLTZkOGU3YzA2YjYwOCIKICAgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo3Yjc2YjFmNC0yYzZlLTQ2OTQtYWU0ZC1lNGY3ZGRkYjBjMDEiCiAgIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDoyZDM4MDM2ZS0yNzQ3LTRjZGUtODJkOS03MmFmMzU2ZWIwZGMiCiAgIGRjOkZvcm1hdD0iaW1hZ2UvcG5nIgogICBHSU1QOkFQST0iMi4wIgogICBHSU1QOlBsYXRmb3JtPSJXaW5kb3dzIgogICBHSU1QOlRpbWVTdGFtcD0iMTYyODc5OTEwNzgxMTU4NSIKICAgR0lNUDpWZXJzaW9uPSIyLjEwLjI0IgogICB0aWZmOk9yaWVudGF0aW9uPSIxIgogICB4bXA6Q3JlYXRvclRvb2w9IkdJTVAgMi4xMCI+CiAgIDx4bXBNTTpIaXN0b3J5PgogICAgPHJkZjpTZXE+CiAgICAgPHJkZjpsaQogICAgICBzdEV2dDphY3Rpb249InNhdmVkIgogICAgICBzdEV2dDpjaGFuZ2VkPSIvIgogICAgICBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOmEzMDY2N2FhLThiOTctNDBmZS1iNTU0LTYwM2Y4Y2ZkNGVjMSIKICAgICAgc3RFdnQ6c29mdHdhcmVBZ2VudD0iR2ltcCAyLjEwIChXaW5kb3dzKSIKICAgICAgc3RFdnQ6d2hlbj0iMjAyMS0wOC0xMlQyMjoxMTo0NyIvPgogICAgPC9yZGY6U2VxPgogICA8L3htcE1NOkhpc3Rvcnk+CiAgPC9yZGY6RGVzY3JpcHRpb24+CiA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgCjw/eHBhY2tldCBlbmQ9InciPz4gY7pjAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5QgMFAsvo/E71gAAE3JJREFUeF7tnXtUVWXawH97AyqCKFcVEQELMtBxRHMcxzWt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",
+            "name": "kemp-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ HTPL logo / doc update",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Kemp loadbalancer via SNMP:\r\n* Cpu\r\n* HA-Status\r\n* Load\r\n* Memory\r\n* Realserver-Status-Global\r\n* Traffic (by interface name, ID or all interfaces)\r\n* Virtualserver-Status-Global"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller les loadbalancers Kemp via SNMP :\r\n* Cpu\r\n* HA-Status\r\n* Load\r\n* Memory\r\n* Realserver-Status-Global\r\n* Traffic (by interface name, ID or all interfaces)\r\n* Virtualserver-Status-Global"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAXa3pUWHRSYXcgcHJvZmlsZSB0eXBlIGV4aWYAAHja3ZpXlmU3ckX/MQoNAQGP4cCupRlo+NoHL7OaLBa7KTW/urLSvbwGCHNM3OfO//z3df/Fv2I5uZRrK70Uz7/UUw+DH5r//Bvvq/n0vr5/33/i99+97n78IfBS5Hv8OqF8Hf/9uv24wOfb4Kf82wutrz/M3/+hp6/rt58uFD7folakn/fXhfrXhWL4/MG+LjA+2/Klt/rbLczz+b6/d9I+n05fUvv9sv/weyV6O3OfGMKJFj1fQ0yfBUR9mouDHxpfjYP0Ung/G19T/N4SAflVnPxvVuV+zsqPn+xPXv8pKbF8Xne88Ptglh/ff/m65Z9e/7qgeyH+zZ3j+nHn372+mpWft/P9ee9u7t7z2d1IhZCWr019b+X9xIGTkMd3WuGj8pn5ub6PzkdzVO8i5dsvP/lY1i2QlmvJtg27dt73ZYslpnBC5XsIi0TptRZr6GFF78hP0ofdUGOPmwyGuEhv5NXwYy327tvf7ZY1bryNI4NxMVOu3Uv43/Dxpxe6VyVv5tuPWLGuoKZgGcqcvnIUCbH7XUf5Bfj74+d/ymskg/mFubHB4efnEjPbV22pjuJLdOTAzPdPr1ndXxcgRNw7sxjqPZkvFrMV8zWEakYcG/kZXKjRNGGSAss5bFYZaI1CclrQvTmn2js25PB5GcwiETmWWElNj4NcCdion5oaNTRyzCnnXHLNLfc8Siyp5FJKLQK/UWNNNddSa22119FiSy230mprrvU2eugRcMy99Npb730Mbjq48uDswQFjzDDjTDPPMutss8+xKJ+VVl5l1dXc6mvssOMGJ3bZdbfd9zh2KKWTTj7l1NNOP+NSajfedPMtt952+x0/smbuk9Y/fPz1rNl31sLLlA6sP7LGqbV+X8IEJ1k5I2MhGRmvyoAATDnzzVIKTqlTznwPdEUOrDIrOduUMTKYjoV87Ufu/pG53+XNpfRv5S18Z84pdX9H5pxS9yeZ+2PefpG1LbZZPrqXIbWhguoj7cdBIzT+w0l//bv7v57wn3yhVg4sEYQe/HrXqoB6rQR7n1FyyEY+42kxjXNWGgtK4ITlpTqW+DdXjp9Uj9VIdqKdDqBH5bOn66COQ0XULhy6oNylMvy6+Zwyj06zHWq+u98QT97j7nJPvzvy+9wn33DS3NflOINKr+W9T/A7hLJK3BlKWZkCvSn1TXnZ8jv33d4mRwk/b9v9HYEe7VSXO9BTcuu3xH7abusEWmX3fHY1AqOOv7YS6FCWxbPK4MdIV7Avjgpp33my2ytdusT6XWMWepdGWrOy0TjPbvfODjVvekvI5mcfuYzdWqULUx5pDhom3+tE55yWab9gaQMBRHntgGQYkbsRr3Pmhi46+qvorJNKfH18qhqSpIyy3Q6zHJHhaAt4mK0ulpJbnbRo2PNcU6AXNTIBKaOlF/ue+bRLdk66g8/b3dnpAAqJT2Kxafpte53U7427zKY/sp+dZ01pz0pXAyJnz9wbd0LU7R3OXo4YEGQETp1+LNC2z4IWIaqlC/JG7YSgd+AMhC5mExQmdN7n7fPcu1I6M3RitM8+E1CqII1lJMdYysWca3VyuQc1GqjDU5qtcmeO3Vg6woo13DxWS+AdvAYiB2K65h0FHwBItk24ge68NnmYvRatoFH4cUx/6Zga2PCNs+8Ips7sCTZG4hISlBGtRsbzAK9ryQM9VddFklW759y0Km3jQdD2MPFQ9dl6TdNqGNldot2DkHPdYaeUYHRwYO1+pmwsEQj3+kFS/s+/u391wPf3nEGFW2zGtED4FjduhbSfmxtUNdzddHvzi0CFRhpt0dsZuIfl4oqImATDUNmBomgD4hldZDU2m+tr+hQyqzbH3k+YHEpF0wQn7V6lws+ayy4vhpnHhp+hh1XpKui01Z0UfqIAbUF3pwAjiS7s5JRkLriGJhiqs7rKscF5g6tRfbdkirqOocQho0cKo87tISUu2c0R9kxHXTXAUpt2ZWk0yzUcipmetVib0TuwW+RPu66544LPw1i2oWibCcFOF6tgKxGkn8gkZYPJeg0LlJXmbyhG4ukdcsnC6eFldEE7CfeZ/MGILdyRrVxAUqjb0l29IsWpiXogXD/o5xEkH/KLitj7JhYO5V48lTXQa5ds19EsF7wqvAYG17YSuTyWQDEKLHtQBDFK05QYDxIV90BTXlC8ahPTq4VoOVcBMHQo+Nj6quREMmnRxYYBaKMSU9I7gvQE2c2Esgb2e9gDMQSACnpgHEdBlBtszrQ3C+OWMNIEBPrBiLR5aznrzrjpEG6fQ6dvCfTjgEuA6ge93b/PsxG0qgOERHaFQhFGcHtU0NCgAgDQp0JNEI6UYNcoDX4o/VuFipQQVVBK75bOWIA/Z8Q565gvK6nUQUqp0Qar0csV6USjlcLRnJ0KJDybbVJP1YyL7EPowQQurx45Djg9sn6EVKJqpgWe7DR8IxJYbPoq7C+UiZv+LLTTBeE8NA8iFzdySJRYJk/+kBt6jlLiCrQNIQb84RoPBq8r00al9whzQHjd4BMqE6Rl5+62WQ3UpuIKsZtCVZo/H5oKtNsSCvA0fZQfqGQRH/GlJtnmhA71pzhc5fiAPw0TkaxaGWdxKVreb0qCFqYokIXQCRh6fBuT/h3wHKqbrt8n3qMBAi0NfM5npKlY5AzNHxRBQkZqKvFDTFSCDWRbFKmPcMzfufIrgHlGu8GtT2lpmvJvfXeU5lyEG6IDg/B0A8FV11r70r5L0n4V1NNA01MUVzwcC/yMrJgzWI+QDctz2wpcpAgsQGh7dtLaBZWOv6SfpOWqSgiQ0YBWSHvPefdGiA3+BQ3jHnM5yLgP1tIUR0T2gKsMftsDvUf0UIYXaM0TrcANo6hxUXUxI2qEn42zYUTXc2M/dkunwskbwuIM2CnHUPE5V9VAO0/EX6TaVCu5QRAlIOy7NVQV8NPMqS4RirkFEEnh37lBxxgl4IPa70iOJR8BFjbuh4CiUneklIjHpF8m9UevYX/GnOKFxmZmu/7MInDtsV3kB0WCKAXt+kJZnh4F+GjUE9SfwLvHBsUN+AM/7NNg27rxY+imD0MVoq2LHhIYsI7sWW3tIwEWVxgYVxZZKe3SAy7Bl42Lo2OBY3Hbwr0XYJWehw3XAksux8BmUkAPueuNTwYc1PpQGWTvCgC19i4VChxcPYIh7IUeIrT7aihzAzoUHSmpYlWVEQgjYKE2ikSlD3/cgYAuQQO1QqIIkt0FXExk1Yt/Vvw5ERETyemUWMkQAmS6ZFD5SxrEwNGjfdCcyBesA83ahG31VTKZ6Srur7JHwOATtHa0FC/yF1JwoqapFTUCcC2Dw1NdHaFE3RD90j+VjZCCiKVEKCm88jocm4m7lATJmk2mZszh1mo3r/8//s+2N4wZXMEu44YQ0dx0ne7RrezWxHfwUIUhkOm3ocZbjxw3EURxsaoFXxKO09aK8BonkiuEzPkZHmDDa6HC/Zxsvr3xFDuiR/OaUaK97OVroiPOcOO1KooJyDy+70wMKZ4bU5U2oUegpIjCnL5QzFgmRCd9s1fpAA29R51R6Q5orQJVI2jtPP0MTg58VSbW0y96+lRqI9PISL/RaQkkE3xLD5K2Ax3WmhxlQ5KgxXj7pmjRQhg7jpEellN4tRyu2LPfOfiSoA8kCKJro9Zw+R0x7kCNpk0Ukz2dueI0YM4GUkKdFXlHpBHhbKtiSCr2Eh3an7aHs6Tet2LsYKgJGZYF1baGwYo0SbKttkR/R7mCRQ32a6gwD4+F8KjOo6gWZAjSFTgcNXJDwzDYEk2OPGJ5q5lSQlQyq1nwJn0zNAtFlYAuMSEQsDQXZsx4OODZTXUBZTFNO6Wx5bYu7k4IWzlzIAZaR1VYg9CmHTKf0+HaJYD6uPOhtnMeVREuyieCAojQWTen0kOQNOYbzKTuloHospjbG/BiqK+2NNU3YkFyqCa4nzs39K3CjJLAfedO0VUgLTyBSbf/BXvgfvWHYIdWSOBd9h6lqIGrYIuKepUGI/P1JNIDX/sXekcIyUug3ughOBrEQlFeMPTSPUtTOSwsFYb8fiZHDyp+8d1lTZlrLN0jUlJB7MaKS9qiol633AVGugl7xRHhUNhsPj5ZtjW9kMCsxVVdk+CWKRUEVpVD0Z/9so6/GanFD04PmGAjXTFIDZnjw6s3Xygxesjl0cffoCG8C93LRQxqWAr1yBRebosIFd/W12lwvvGDBu5UEyVlvwn/Bq+suUDki3+d9HhLweeCs3TKjtDgSbAakm9LJIJao1dg1sod8XK7XVoq2nT4eZRNe3AA7NQIYp9gFz45A4EHoChIgzaDFlflbuB0hGF8W+Ylk5FarOii5lH7XVPXsqmaaeOzbDhb5qQEzkI2s0hWugPeXRNhMBOCDvqEPcgaeHMm7ICaKjQ7yoWOu3Kw6vko5oe69x6ta8qCe2ZFnbboswOtgS6pm9JzQboTFmx5JmyohaP2qZvN474AvSfLt2iXwiC46Oc090RPQex+CljxUNN5tYMHnApy1QpqBkEHr1BDLYm6JcMR8xpsQMEYDmAL+mlNpPrxtqyLytZgGllbW6A5NtYWkJnyDoJ0jXlBzXKoBYEGkoP/+FQNqoANoB1gJNwo/yppQlLXoc+2nwJuulF4D4n0liCVxP7ZJChf4FUNdfh1eJEyDh52RmeTENCDe6FeQRK4CBC/qBUDoLmUEHHLvB79J+ngWWUHm70bmWDrm6YbjnyBgIg06BAgtD45ltw01TEFAyhhvo01nLTBJ3KIH+M/wHo8+DmmXGZ1GjYRX+qBCOJkUA5JK3geE2IqPYOQ2T7ufh1iePz7bSB3ANBG/2AJ3KvFqInnKFKiWGxiiG3JoBCKm17S0zsyUi8MVBRI2oWuQ+g/SFOuNvIY54rbyFMmEoC6lNWtXIfQVAgRPhRYD3Qj2IEJTMuDeVwOQn/dueiM3lgRsj1aNXnxRAGhfC+xogLQ7pEUngX4AuswBz4A8BpIy63bQ+moeAx7VYzoZE1UsaxHrInhZCVBj1iu6o7y4whanH6+hcJAyCyWgqroVKOcW76pbhfzldkQFyYN+3GH+MxIMYQeIUXAlqoncVBqS5VirMDJkZJfeNQ1uWYHeBxGkmoE6tEbmiEbvUlspUlBOSwbXJc0xri+0cV+SjTJfXZNIGQxD+lq00EwNN5o2jxHHVo5PqqjpVE7GBZhWZ+gF9y74UwNYnzNCEopTuCBmsBCoFTHm+1MyXhkqdQGBERBCX+OpgNVYEdyDG9HOdY+z9OjUZLt5IZBaC7KYaddWXG9OVCRBwUCibyhpQwLtopAadZasnqRl6nz5ekk1ppw1RXUd7cf3XkcCXr2NEoKdDs9TQ64XHsXBKSSzA7hwM2gy/Aur4a20sjaaFoAcnJDj2Y+kmITT6LBphSM4AN9dxL+z1pD5WJHMxR8NI5HGNESJ08JDYc60myNcHFFEC58EARBkTUq48SJDel3gz2qJ5aQvjAkTQ02NGNCa7jRZf2O5hfYfHxoQB1p+Mp9SlKVQtMJTAFKF2KcPkFbVM0Z8P5s9U7gOV9UrYyOl2r2NCg8gnthZWz4TzWDZAqt/wFptoQ1OY7ggPEEemMrC6SZKvgA6gRakVxfDXNedTXqULDtv5VL7nRpryLjdhzFqLKpe9L/5BGJoDEd/oF6AwrAECQ8FCX2azMHbbtYIwcVd4SO9GzYd2ear1wEjWZ4mDFCLb6JbGyx6Hc5rAcphEeoeUxXBxc1b4XrUq1I7TtLBmqPB/IIE64G20+rjfhMWqAcsXZFzwDRp+hS+nTi9tiwx6T5j6CLIEoObA2haXQqNE4HUPiIpwQPemjgig8vJY+dofVYw0JOsSleQkCv9/TySMTs5YQQqmhs8NkW9CQAfUvTYQMx3rhhtfUGMCFjagWLK/S+/L5qAJFOwLNpeuz1XKDoHQxvkj6eIrIq+A9Dz0XQY7yIsO5fwCq5Ct51LvEcKvhUOk3bBSQgP/XTaIWELthJRAeQswC8WYZkNjSJ8cFXdeDnOXvcBX+hr6A3VsRdcGNE4sPjKBawC4IB4KGXDa2hUZDxMR6kynyNV3Hltnu7Q3IXzELVsugEvz9NhN1EOoDpWJUmvRo4Wu8HeXJ0YAXy256lP57l/tlp6hQJGuKE49iZeqOzZKypePIBma4CpkfNjw5JuwS2ceq7vun62bRmIFAPNqIvlP2WvUJrI+At6pJ07uxD78JoVIv7x8mayiA6vcSiZY2JN1UBHhs5JWAsVG9gyBoJQYHYw5dF1CSJbo5lAA1B+CSXXLbeWARl1ISAzJy8NLgMWYqNjSNekMyfS0DZ0Kuqm2Q5EeGFhfSg6uM8QtT8Q2PoX/5FgeNahgGfdGhYsG86enhQn+OhkBuUTYFE4gPzHD08T1ZBqqUHRTljKaAUEGbl+WwZVkITI7w2W4t6JBRwFrBMz/k9m31q/zO5azWmHPyzXf/UkLk/OrKKuwmGVVmW8TkBEkfVIXjpv7sEfBzws88I7stmyNqLsLAaCgImnuYn7cobHUSc0HJSA3AkjoP2m9AMEjhi9tgS+kjtMPCyLV2M/GtZLPD10KiJRKsQME/RHAIGGJTZmrmtDqKmx3OrpOIeMYggqhgG24dGp1WnxNQZDWVIgy9wAntwEEsoEIvLCypQDLTpjEvP6pxptLkM8YOmgRzpbQ3zF8lKTU9lpP6ATUAD5YyPRLvqKZ3paYWA/uohdT14EbzEwm+jzAYZ05xz690yh4WdN25H2IDTVBUshuSAx9Fz3uB8eBS8xG8m72wDjywWaJ74TK5U3jPjKSc2OxFCXWfoGptYE5Jfjx86BZbKmwaMDbYAbm4MxOVkGYMQAnLA6f0Q33tIemOSfwpvfBJzYKG4dMw4BFFQzZ1eA842BIlsu/QY+0EXYEZMD4wboe5L2o1IU+/+Y1SJnGQl/Q6rPW0sc4oUH8JsiQY69KHQUv4TmmVqkv/rU359hntkoifqvwemH7AkAq+duORPC6fflq9/sCNEtAe14cfQQW/Iks61/Y1aQhxw6/vSP0CLL3+OR+T5flC5+/QOu7Id27eHhg95y2dU9g1L36BUnYavAq/+AiHkvgKyT96wg1AYVvvqDWE4ClQAPlOCOnRN52Ak9CPSv7oMCs34nmGh9+m7tdG/r/jA/IEsoDFrHkvuA/mT9ZYFamnHQjI0O1OjjOVk0mjeVjOlAvsie8AM/0zOpkao+MzRkA6FHLC7lB1KFZPLstW74RRU4XWkS1OItjViRQYjYAt/rPk9J6yA1nyTM70fRI0UKv2cAJhNkdHX5hPwlEFIQX3kILUERE3Op3b/nqd4zer/xXRlEXJ0EgRJ1vtnILjkwXEQVeMd5JG6aNKImq1+TXd+DHfQWpvmEZnrnQ3RWblo2dcJeCKY69BV4/tWcF6q716SMm/S9bkXq2nTsDDZcL99v4lW4UwNrPQemgIPA4Hk7l1mx1TFqjARCSgBXVQqFjEIv15F3Y7zpxYd4mPc93DTBz1Qz8fu9AKD59uqUDNoJrKxj3oGh4QJPidT/wyWkkUqmBok+dKbSAg6YI+b3UnvD0BxN8TBrknvFQsaempkoivr4Mu+kXHrM2bXg2QnT17HME0d9wG7bpe3Zj/whG5XytAIuAS0BNW1jKbBEcy7ZGrfxF547vQo1vREB1GVsqT2Cpqhvyzq/WWaBSLDQMLP093Gz8lE5A19EthiBeGnm3oPcvqIgpQ1LMavSiKjNUV8ehMTZCjwgfQQc/GZzW13VEwoX/DyNIIjqHvCaAg70lqynkwCByInpBgWAVfBebLAnyJAQnwk4ngSEfkcNJL7jT7CCFPXKgpIA+c6yuvRQWlpek8QMfIITXAKSPl5Wuv+4rs9/uX3X17IlmQNvQEyTmnK01/xnbZYG4GGfA0FAQQ0kl5yT9FdvbmAPUC0U6PNKwLU2GqHp8wxgltGECVnLSTpK5QJZ2lUoGHX1yMb9ze81es/80KUKQXm/hewov/hLeMqtAAAAYRpQ0NQSUNDIHByb2ZpbGUAAHicfZE9SMNAHMVfU6VFKg5mEHHIUF20ICriKFUsgoXSVmjVweTSL2hiSFJcHAXXgoMfi1UHF2ddHVwFQfADxM3NSdFFSvxfUmgR48FxP97de9y9A4RGlWlW1zig6baZTsSlXH5FCr0ijAhEhDAqM8tIZhay8B1f9wjw9S7Gs/zP/Tl61YLFgIBEPMsM0yZeJ57etA3O+8QiK8sq8TnxmEkXJH7kuuLxG+eSywLPFM1seo5YJJZKHax0MCubGvEUcVTVdMoXch6rnLc4a9Uaa92TvzBS0JczXKc5hAQWkUQKEhTUUEEVNmK06qRYSNN+3Mc/6PpT5FLIVQEjxzw2oEF2/eB/8Ltbqzg54SVF4kD3i+N8DAOhXaBZd5zvY8dpngDBZ+BKb/s3GsDMJ+n1thY9Avq2gYvrtqbsAZc7wMCTIZuyKwVpCsUi8H5G35QH+m+BnlWvt9Y+Th+ALHW1dAMcHAIjJcpe83l3uLO3f8+0+vsBbY9ypQT94QYAAA0YaVRYdFhNTDpjb20uYWRvYmUueG1wAAAAAAA8P3hwYWNrZXQgYmVnaW49Iu+7vyIgaWQ9Ilc1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCI/Pgo8eDp4bXBtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIiB4OnhtcHRrPSJYTVAgQ29yZSA0LjQuMC1FeGl2MiI+CiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgogIDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiCiAgICB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIKICAgIHhtbG5zOnN0RXZ0PSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VFdmVudCMiCiAgICB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iCiAgICB4bWxuczpHSU1QPSJodHRwOi8vd3d3LmdpbXAub3JnL3htcC8iCiAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWRvYmUuY29tL3RpZmYvMS4wLyIKICAgIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyIKICAgeG1wTU06RG9jdW1lbnRJRD0iZ2ltcDpkb2NpZDpnaW1wOjg5NTk5ZWVmLTI0YTYtNGU4MS05YzNjLTZkOGU3YzA2YjYwOCIKICAgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo3Yjc2YjFmNC0yYzZlLTQ2OTQtYWU0ZC1lNGY3ZGRkYjBjMDEiCiAgIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDoyZDM4MDM2ZS0yNzQ3LTRjZGUtODJkOS03MmFmMzU2ZWIwZGMiCiAgIGRjOkZvcm1hdD0iaW1hZ2UvcG5nIgogICBHSU1QOkFQST0iMi4wIgogICBHSU1QOlBsYXRmb3JtPSJXaW5kb3dzIgogICBHSU1QOlRpbWVTdGFtcD0iMTYyODc5OTEwNzgxMTU4NSIKICAgR0lNUDpWZXJzaW9uPSIyLjEwLjI0IgogICB0aWZmOk9yaWVudGF0aW9uPSIxIgogICB4bXA6Q3JlYXRvclRvb2w9IkdJTVAgMi4xMCI+CiAgIDx4bXBNTTpIaXN0b3J5PgogICAgPHJkZjpTZXE+CiAgICAgPHJkZjpsaQogICAgICBzdEV2dDphY3Rpb249InNhdmVkIgogICAgICBzdEV2dDpjaGFuZ2VkPSIvIgogICAgICBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOmEzMDY2N2FhLThiOTctNDBmZS1iNTU0LTYwM2Y4Y2ZkNGVjMSIKICAgICAgc3RFdnQ6c29mdHdhcmVBZ2VudD0iR2ltcCAyLjEwIChXaW5kb3dzKSIKICAgICAgc3RFdnQ6d2hlbj0iMjAyMS0wOC0xMlQyMjoxMTo0NyIvPgogICAgPC9yZGY6U2VxPgogICA8L3htcE1NOkhpc3Rvcnk+CiAgPC9yZGY6RGVzY3JpcHRpb24+CiA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgCjw/eHBhY2tldCBlbmQ9InciPz4gY7pjAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH5QgMFAsvo/E71gAAE3JJREFUeF7tnXtUVWXawH97AyqCKFcVEQELMtBxRHMcxzWt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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Kemp Loadbalancer",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_kemp_loadbalancers.pl",
+                "package_name": "centreon-plugin-Network-Loadbalancers-Kemp-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Network-Loadbalancers-Kemp-Snmp",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "network-loadbalancers-kemp-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Hardware",
+            "Kemp",
+            "Loadbalancer",
+            "Network",
+            "SNMP",
+            "ServiceDisco"
+        ],
+        "update_date": "1628799140",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des 'virtual servers'.}\r\n\r\n{EN: Check virtual servers status.}",
+            "active_checks_enabled": 2,
+            "alias": "Virtualserver-Status-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Kemp-SNMP-Virtualserver-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /inService|disabled|redirect/i"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Kemp-Virtualserver-Status-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire vive (RAM)..}\r\n\r\n{EN: Check the rate of the utilization of memory (RAM).}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Kemp-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Kemp-Memory-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la charge serveur.}\r\n\r\n{EN: Check the server load average.}",
+            "active_checks_enabled": 2,
+            "alias": "Load",
+            "check_timeperiod": "",
+            "command_name": "Net-Kemp-SNMP-Load",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Kemp-Load-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation d\u00e9taill\u00e9 CPU de la machine. Ce contr\u00f4le pourra remonter la moyenne du taux d'utilisation des CPU ainsi que le taux par CPU pour les CPU multi-coeur.}\r\n\r\n{EN: Check the detailed rate of utilization of CPU for the machine. This check can give the average CPU utilization rate and the rate per CPU for multi-core CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu-Detailed",
+            "check_timeperiod": "",
+            "command_name": "Net-Kemp-SNMP-Cpu-Detailed",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Kemp-Cpu-Detailed-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante de l'interface. Pour chaque contr\u00f4le appara\u00eetra le nom de l'interface (\u00ab\u00a0label\u00a0\u00bb raccourci d\u00e9crivant l'interface).}\r\n\r\n{EN: Check the bandwidth of the interface. For each checks the name of the interface will appear (\u00ab label \u00bb shortcut describing the interface).}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Id",
+            "check_timeperiod": "",
+            "command_name": "Net-Kemp-SNMP-Traffic-Id",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Kemp-Traffic-Generic-Id-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante de l'interface. Pour chaque contr\u00f4le appara\u00eetra le nom de l'interface (\u00ab\u00a0label\u00a0\u00bb raccourci d\u00e9crivant l'interface).}\r\n\r\n{EN: Check the bandwidth of the interface. For each checks the name of the interface will appear (\u00ab label \u00bb shortcut describing the interface).}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-Kemp-SNMP-Traffic-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Kemp-Traffic-Generic-Name-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante des interfaces. Pour chaque contr\u00f4le appara\u00eetra le nom de l'interface (\u00ab\u00a0label\u00a0\u00bb raccourci d\u00e9crivant l'interface).}\r\n\r\n{EN: Check the bandwidth of interfaces. For each checks the name of the interface will appear (\u00ab label \u00bb shortcut describing the interface).}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Kemp-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} ne \"up\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Kemp-Traffic-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des 'real servers'.}\r\n\r\n{EN: Check real servers status.}",
+            "active_checks_enabled": 2,
+            "alias": "Reallserver-Status-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Kemp-SNMP-Realserver-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /inService|disabled/i"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Kemp-Realserver-Status-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut de la haute disponibilit\u00e9.}\r\n\r\n{EN: Check HA status.}",
+            "active_checks_enabled": 2,
+            "alias": "Ha-Status",
+            "check_timeperiod": "",
+            "command_name": "Net-Kemp-SNMP-Ha-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Kemp-Ha-Status-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

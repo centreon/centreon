@@ -1,0 +1,445 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_bluecoat.pl --plugin=network::bluecoat::snmp::plugin --mode=server-connections --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Bluecoat-SNMP-Server-Connections",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_bluecoat.pl --plugin=network::bluecoat::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Bluecoat-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_bluecoat.pl --plugin=network::bluecoat::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Bluecoat-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_bluecoat.pl --plugin=network::bluecoat::snmp::plugin --mode=disk --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Bluecoat-SNMP-Disk",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_bluecoat.pl --plugin=network::bluecoat::snmp::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Bluecoat-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_bluecoat.pl --plugin=network::bluecoat::snmp::plugin --mode=client-traffic --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-received=\\'$_SERVICEWARNINGRECEIVED$\\' --critical-received=\\'$_SERVICECRITICALRECEIVED$\\' --warning-delivered=\\'$_SERVICEWARNINGDELIVERED$\\' --critical-delivered=\\'$_SERVICECRITICALDELIVERED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Bluecoat-SNMP-Client-Traffic",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_bluecoat.pl --plugin=network::bluecoat::snmp::plugin --mode=client-requests --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-errors=\\'$_SERVICEWARNINGERRORS$\\' --critical-errors=\\'$_SERVICECRITICALERRORS$\\' --warning-misses=\\'$_SERVICEWARNINGMISSES$\\' --critical-misses=\\'$_SERVICECRITICALMISSES$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Bluecoat-SNMP-Client-Requests",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_bluecoat.pl --plugin=network::bluecoat::snmp::plugin --mode=client-connections --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Bluecoat-SNMP-Client-Connections",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Bluecoat en SNMP}\r\n{EN: Template to check Bluecoat using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Bluecoat using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Bluecoat-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Bluecoat-Server-Connections-SNMP",
+                "Net-Bluecoat-Memory-SNMP",
+                "Net-Bluecoat-Hardware-SNMP",
+                "Net-Bluecoat-Disk-SNMP",
+                "Net-Bluecoat-Cpu-SNMP",
+                "Net-Bluecoat-Client-Traffic-SNMP",
+                "Net-Bluecoat-Client-Requests-SNMP",
+                "Net-Bluecoat-Client-Connections-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ tag / dep / doc update",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Bluecoat network equipment via SNMP:\r\n* Client-Connections\r\n* Client-Requests\r\n* Client-Traffic\r\n* Cpu\r\n* Disk\r\n* Hardware\r\n* Memory* Server-Connections"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les \u00e9quipements r\u00e9seau Bluecoat via SNMP :\r\n* Client-Connections\r\n* Client-Requests\r\n* Client-Traffic\r\n* Cpu\r\n* Disk\r\n* Hardware\r\n* Memory* Server-Connections"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Bluecoat generic",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_bluecoat.pl",
+                "package_name": "centreon-plugin-Network-Generic-Bluecoat-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-generic-bluecoat-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Bluecoat",
+            "Hardware",
+            "Network",
+            "SNMP",
+            "Security"
+        ],
+        "update_date": "1628799415",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le nombre de connexions serveurs sur un Bluecoat.}{EN: Check current server connections on Bluecoat.}",
+            "active_checks_enabled": 2,
+            "alias": "Server-Connections",
+            "check_timeperiod": "",
+            "command_name": "Net-Bluecoat-SNMP-Server-Connections",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Bluecoat-Server-Connections-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation de la m\u00e9moire sur un Bluecoat.}{EN: Check memory usage on Bluecoat.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Bluecoat-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--nocache"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Bluecoat-Memory-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les indicateurs hardware sur un Bluecoat.}{EN: Check hardware sensors on Bluecoat.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware",
+            "check_timeperiod": "",
+            "command_name": "Net-Bluecoat-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Bluecoat-Hardware-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 5
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation du disque sur un Bluecoat.}{EN: Check disk usage on Bluecoat.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk",
+            "check_timeperiod": "",
+            "command_name": "Net-Bluecoat-SNMP-Disk",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "95"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Bluecoat-Disk-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation CPU sur un Bluecoat.}{EN: Check CPU usage on Bluecoat.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Bluecoat-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Bluecoat-Cpu-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les octets re\u00e7us/\u00e9mis aux clients sur un Bluecoat.}{EN: Check bytes/s received/delivered to clients on Bluecoat.}",
+            "active_checks_enabled": 2,
+            "alias": "Client-Traffic",
+            "check_timeperiod": "",
+            "command_name": "Net-Bluecoat-SNMP-Client-Traffic",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGRECEIVED$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALRECEIVED$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGDELIVERED$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALDELIVERED$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Bluecoat-Client-Traffic-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le nombre de requ\u00eates http clientes sur un Bluecoat.}{EN: Check current http client requests on Bluecoat.}",
+            "active_checks_enabled": 2,
+            "alias": "Client-Requests",
+            "check_timeperiod": "",
+            "command_name": "Net-Bluecoat-SNMP-Client-Requests",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGERRORS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALERRORS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGMISSES$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALMISSES$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Bluecoat-Client-Requests-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le nombre de connexions clientes sur un Bluecoat.}{EN: Check current client connections on Bluecoat.}",
+            "active_checks_enabled": 2,
+            "alias": "Client-Connections",
+            "check_timeperiod": "",
+            "command_name": "Net-Bluecoat-SNMP-Client-Connections",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Bluecoat-Client-Connections-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

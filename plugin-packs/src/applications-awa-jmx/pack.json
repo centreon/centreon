@@ -1,0 +1,156 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_awa_jmx.pl --plugin=apps::java::awa::jmx::plugin --mode=server --custommode=jolokia --url=\\'$_HOSTAWAURL$\\' --username=\\'$_HOSTAWAUSERNAME$\\' --password=\\'$_HOSTAWAPASSWORD$\\' $_HOSTAWAEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Awa-Server-JMX",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_awa_jmx.pl --plugin=apps::java::awa::jmx::plugin --mode=queue --custommode=jolokia --url=\\'$_HOSTAWAURL$\\' --username=\\'$_HOSTAWAUSERNAME$\\' --password=\\'$_HOSTAWAPASSWORD$\\' $_HOSTAWAEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Awa-Queue-JMX",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_awa_jmx.pl --plugin=apps::java::awa::jmx::plugin --mode=agent --custommode=jolokia --url=\\'$_HOSTAWAURL$\\' --username=\\'$_HOSTAWAUSERNAME$\\' --password=\\'$_HOSTAWAPASSWORD$\\' $_HOSTAWAEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Awa-Agent-JMX",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser un serveur Awa via JMX}\r\n{EN: Template to check Awa Server using JMX}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Awa using JMX",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Awa-JMX",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Awa-Server-JMX",
+                "App-Awa-Queue-JMX",
+                "App-Awa-Agent-JMX"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Fix the $_SERVICEFILTERNAME$ macro in all service templates",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor a Awa application server using JMX/Jolokia protocol.\r\nSeveral indicators are available but not linked to the template of host.\r\nYou have to use them manually:\r\n* Agent\r\n* Queue\r\n* Server"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack Plugin pour surveiller les serveurs d\\'application Awa en utilisant le protocole JMX/Jolokia .\r\nDe nombreux indicateurs sont disponibles mais ne sont pas associ\u00e9s au mod\u00e8le d\\'h\u00f4te.\r\nIls doivent \u00eatre d\u00e9ploy\u00e9s manuellement :\r\n* Agent\r\n* Queue\r\n* Server"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Awa-Jmx\r\n\r\nPlease install jolokia agent on your java application server\r\n[Jolikia download page](https://jolokia.org/download.html). Ask to\r\nyour admin to deploy it and give you the URL.\r\n\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Awa-JMX-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Awa JMX",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_awa_jmx.pl",
+                "package_name": "centreon-plugin-Applications-Awa-Jmx",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-awa-jmx",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Awa",
+            "JMX",
+            "webserver",
+            "Application",
+            "Java"
+        ],
+        "update_date": "1596632180",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les server.}\r\n\r\n{EN: Check server.}",
+            "active_checks_enabled": 2,
+            "alias": "Awa-Server",
+            "check_timeperiod": "",
+            "command_name": "App-Awa-Server-JMX",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Awa-Server-JMX",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les queue.}\r\n\r\n{EN: Check queue.}",
+            "active_checks_enabled": 2,
+            "alias": "Awa-Queue",
+            "check_timeperiod": "",
+            "command_name": "App-Awa-Queue-JMX",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Awa-Queue-JMX",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'utilisation des agent de Awa.}\r\n\r\n{EN: Check Java agent usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Awa-Agent",
+            "check_timeperiod": "",
+            "command_name": "App-Awa-Agent-JMX",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Awa-Agent-JMX",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

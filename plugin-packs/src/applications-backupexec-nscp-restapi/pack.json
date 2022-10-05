@@ -1,0 +1,238 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-Backupexec-Nscp-Restapi-Disks-Discover",
+                "command_for_macro": "App-Backupexec-Nscp-Restapi-Disks-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-Backupexec-Nscp-Restapi"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "App-Backupexec-Nscp-Restapi-Disk-Name",
+                "service_display_name": "Disk-$name$",
+                "service_template": "App-Backupexec-Disks-Nscp-Restapi"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_protocol_nrpe.pl none\\\"",
+            "name": "App-Backupexec-Nscp-Restapi-Disks-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_protocol_nrpe.pl --plugin=apps::protocols::nrpe::plugin --custommode=nsclient --mode=query --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNSCPRESTAPIPORT$\\' --proto=\\'$_HOSTNSCPRESTAPIPROTO$\\' --username=\\'$_HOSTNSCPRESTAPIUSERNAME$\\' --password=\\'$_HOSTNSCPRESTAPIPASSWORD$\\' --legacy-password=\\'$_HOSTNSCPRESTAPILEGACYPASSWORD$\\' $_HOSTNSCPRESTAPIEXTRAOPTIONS$ --command=check_centreon_plugins --arg=\\'apps::backup::backupexec::local::plugin\\' --arg=\\'list-disks\\' --arg=\\'  --bemcli-file=\\\\\\\"$_HOSTBEMCLIFILE$\\\\\\\" --disco-show\\'\\\"",
+            "name": "App-Backupexec-Nscp-Restapi-Disks-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_protocol_nrpe.pl --plugin=apps::protocols::nrpe::plugin --custommode=nsclient --mode=query --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNSCPRESTAPIPORT$\\' --proto=\\'$_HOSTNSCPRESTAPIPROTO$\\' --username=\\'$_HOSTNSCPRESTAPIUSERNAME$\\' --password=\\'$_HOSTNSCPRESTAPIPASSWORD$\\' --legacy-password=\\'$_HOSTNSCPRESTAPILEGACYPASSWORD$\\' $_HOSTNSCPRESTAPIEXTRAOPTIONS$ --command=check_centreon_plugins --arg=\\'apps::backup::backupexec::local::plugin\\' --arg=\\'alerts\\' --arg=\\'  --bemcli-file=\\\\\\\"$_HOSTBEMCLIFILE$\\\\\\\" --filter-category=\\\\\\\"$_SERVICEFILTERCATEGORY$\\\\\\\" --filter-source=\\\\\\\"$_SERVICEFILTERSOURCE$\\\\\\\" --filter-severity=\\\\\\\"$_SERVICEFILTERSEVERITY$\\\\\\\" --warning-severity-none=\\\\\\\"$_SERVICEWARNINGSEVERITYNONE$\\\\\\\" --critical-severity-none=\\\\\\\"$_SERVICECRITICALSEVERITYNONE$\\\\\\\" --warning-severity-information=\\\\\\\"$_SERVICEWARNINGSEVERITYINFORMATION$\\\\\\\" --critical-severity-information=\\\\\\\"$_SERVICECRITICALSEVERITYINFORMATION$\\\\\\\" --warning-severity-question=\\\\\\\"$_SERVICEWARNINGSEVERITYQUESTION$\\\\\\\" --critical-severity-question=\\\\\\\"$_SERVICECRITICALSEVERITYQUESTION$\\\\\\\" --warning-severity-warning=\\\\\\\"$_SERVICEWARNINGSEVERITYWARNING$\\\\\\\" --critical-severity-warning=\\\\\\\"$_SERVICECRITICALSEVERITYWARNING$\\\\\\\" --warning-severity-error=\\\\\\\"$_SERVICEWARNINGSEVERITYERROR$\\\\\\\" --critical-severity-error=\\\\\\\"$_SERVICECRITICALSEVERITYERROR$\\\\\\\" --warning-status=\\\\\\\"$_SERVICEWARNINGSTATUS$\\\\\\\" --critical-status=\\\\\\\"$_SERVICECRITICALSTATUS$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Backupexec-Nscp-Restapi-Alerts",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_protocol_nrpe.pl --plugin=apps::protocols::nrpe::plugin --custommode=nsclient --mode=query --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNSCPRESTAPIPORT$\\' --proto=\\'$_HOSTNSCPRESTAPIPROTO$\\' --username=\\'$_HOSTNSCPRESTAPIUSERNAME$\\' --password=\\'$_HOSTNSCPRESTAPIPASSWORD$\\' --legacy-password=\\'$_HOSTNSCPRESTAPILEGACYPASSWORD$\\' $_HOSTNSCPRESTAPIEXTRAOPTIONS$ --command=check_centreon_plugins --arg=\\'apps::backup::backupexec::local::plugin\\' --arg=\\'disks\\' --arg=\\'  --bemcli-file=\\\\\\\"$_HOSTBEMCLIFILE$\\\\\\\" --filter-name=\\\\\\\"$_SERVICEFILTERNAME$\\\\\\\" --filter-type=\\\\\\\"$_SERVICEFILTERTYPE$\\\\\\\" --warning-space-usage=\\\\\\\"$_SERVICEWARNINGSPACEUSAGE$\\\\\\\" --critical-space-usage=\\\\\\\"$_SERVICECRITICALSPACEUSAGE$\\\\\\\" --warning-space-usage-free=\\\\\\\"$_SERVICEWARNINGSPACEUSAGEFREE$\\\\\\\" --critical-space-usage-free=\\\\\\\"$_SERVICECRITICALSPACEUSAGEFREE$\\\\\\\" --warning-space-usage-prct=\\\\\\\"$_SERVICEWARNINGSPACEUSAGEPRCT$\\\\\\\" --critical-space-usage-prct=\\\\\\\"$_SERVICECRITICALSPACEUSAGEPRCT$\\\\\\\" --warning-status=\\\\\\\"$_SERVICEWARNINGSTATUS$\\\\\\\" --critical-status=\\\\\\\"$_SERVICECRITICALSTATUS$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Backupexec-Nscp-Restapi-Disks",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_protocol_nrpe.pl --plugin=apps::protocols::nrpe::plugin --custommode=nsclient --mode=query --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNSCPRESTAPIPORT$\\' --proto=\\'$_HOSTNSCPRESTAPIPROTO$\\' --username=\\'$_HOSTNSCPRESTAPIUSERNAME$\\' --password=\\'$_HOSTNSCPRESTAPIPASSWORD$\\' --legacy-password=\\'$_HOSTNSCPRESTAPILEGACYPASSWORD$\\' $_HOSTNSCPRESTAPIEXTRAOPTIONS$ --command=check_centreon_plugins --arg=\\'apps::backup::backupexec::local::plugin\\' --arg=\\'jobs\\' --arg=\\'  --bemcli-file=\\\\\\\"$_HOSTBEMCLIFILE$\\\\\\\" --filter-name=\\\\\\\"$_SERVICEFILTERNAME$\\\\\\\" --filter-type=\\\\\\\"$_SERVICEFILTERTYPE$\\\\\\\" --filter-start-time=\\\\\\\"$_SERVICEFILTERSTARTTIME$\\\\\\\" --filter-end-time=\\\\\\\"$_SERVICEFILTERENDTIME$\\\\\\\" --warning-status=\\\\\\\"$_SERVICEWARNINGSTATUS$\\\\\\\" --critical-status=\\\\\\\"$_SERVICECRITICALSTATUS$\\\\\\\" --warning-long=\\\\\\\"$_SERVICEWARNINGLONG$\\\\\\\" --critical-long=\\\\\\\"$_SERVICECRITICALLONG$\\\\\\\" --warning-detected=\\\\\\\"$_SERVICEWARNINGDETECTED$\\\\\\\" --critical-detected=\\\\\\\"$_SERVICECRITICALDETECTED$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Backupexec-Nscp-Restapi-Jobs",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Veritas Backup Exec via la restapi NSClient}\r\n{EN: Template to check Veritas Backup Exec using NSClient restapi protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Vertias Backup Exec using NSClient restapi protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "icon": "",
+            "macros": [
+                {
+                    "key": "$_HOSTNSCPRESTAPIPORT$",
+                    "value": "8443"
+                },
+                {
+                    "key": "$_HOSTNSCPRESTAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTNSCPRESTAPIEXTRAOPTIONS$",
+                    "value": "--http-backend=curl --insecure"
+                },
+                {
+                    "key": "$_HOSTBEMCLIFILE$",
+                    "value": "C:/Program Files/Veritas/Backup Exec/Modules/BEMCLI/bemcli"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Backupexec-Nscp-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Veritas Backup Exec using NSClient Rest API protocol:\r\n* Alerts\r\n* Disks\r\n* Jobs"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack Plugin pour surveiller Veritas Backup Exec en utilisant le protocole NSClient Rest API:\r\n* Alerts\r\n* Disks\r\n* Jobs"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Veritas Backup Exec NSCP API",
+        "plugins_requirements": [],
+        "requirement": [],
+        "slug": "applications-backupexec-nscp-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "NSCP",
+            "Veritas",
+            "Backup Exec",
+            "Application",
+            "Backup"
+        ],
+        "update_date": "1651233107",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les alertes.}\r\n\r\n{EN: Check alerts.}",
+            "active_checks_enabled": 2,
+            "alias": "Alerts",
+            "check_timeperiod": "",
+            "command_name": "App-Backupexec-Nscp-Restapi-Alerts",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{severity} =~ /warning/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{severity} =~ /error/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Backupexec-Alerts-Nscp-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les disques.}\r\n\r\n{EN: Check disks.}",
+            "active_checks_enabled": 2,
+            "alias": "Disks",
+            "check_timeperiod": "",
+            "command_name": "App-Backupexec-Nscp-Restapi-Disks",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Backupexec-Disks-Nscp-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les jobs.}\r\n\r\n{EN: Check jobs.}",
+            "active_checks_enabled": 2,
+            "alias": "Jobs",
+            "check_timeperiod": "",
+            "command_name": "App-Backupexec-Nscp-Restapi-Jobs",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERENDTIME$",
+                    "password": false,
+                    "value": "86400"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "not %{status} =~ /succeeded/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Backupexec-Jobs-Nscp-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,357 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c  check_service -a \\\\\\\"filter=$_SERVICEFILTER$\\\\\\\" \\\\\\\"service=$_SERVICESERVICE$\\\\\\\"  \\\\\\\"exclude=$_SERVICEEXCLUDE$\\\\\\\" \\\\\\\"ok=$_SERVICEOK$\\\\\\\" \\\\\\\"warning=$_SERVICEWARNING$\\\\\\\" \\\\\\\"critical=$_SERVICECRITICAL$\\\\\\\" \\'top-syntax=$_SERVICETOPSYNTAX$\\'  \\'detail-syntax=$_SERVICEDETAILSYNTAX$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Windows-NSClient05-NRPE-Services-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_files -a \\\\\\\"paths=$_SERVICEPATHS$\\\\\\\" \\\\\\\"pattern=$_SERVICEPATTERN$\\\\\\\" \\\\\\\"warning=$_SERVICEWARNING$\\\\\\\" \\\\\\\"critical=$_SERVICECRITICAL$\\\\\\\" top-syntax=\\'$_SERVICETOPSYNTAX$\\' detail-syntax=\\'$_SERVICEDETAILSYNTAX$\\' filter=\\\\\\\"$_SERVICEFILTER$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Windows-NSClient05-NRPE-Files",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser un serveur Dynamics AX via NRPE}\r\n{EN: Template to check Microsoft Dynamics AX server using NRPE protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Microsoft Dynamics AX using NRPE protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "app-dynamics-ax-nrpe-64.png",
+            "macros": [
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTNRPECLIENT$",
+                    "value": "check_centreon_nrpe3"
+                },
+                {
+                    "key": "$_HOSTNRPEEXTRAOPTIONS$",
+                    "value": "-2 -P 8192"
+                },
+                {
+                    "key": "$_HOSTNRPEPORT$",
+                    "value": "5666"
+                },
+                {
+                    "key": "$_HOSTNRPETIMEOUT$",
+                    "value": "30"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Dynamics-AX-NRPE",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Dynamics-AX-Service-RIS-NRPE",
+                "App-Dynamics-AX-RIS-Import-ProcessingErrors-NRPE",
+                "App-Dynamics-AX-RIS-Import-Input-NRPE"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "app-dynamics-ax-nrpe-64.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* put generic monitoring procedure",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            },
+            {
+                "name": "operatingsystems-windows-nsclient-05-nrpe",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Microsoft Dynamics Ax Server via NSClient++ 0.5.x using client:\r\n* Service-RIS\r\n* RIS-Import-ProcessingErrors\r\n* RIS-Import-Input"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un serveur Microsoft Dynamics AX Server via NSClient++ 0.5.x using client:\r\n* Service-RIS\r\n* RIS-Import-ProcessingErrors\r\n* RIS-Import-Input"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\\r\\n\\r\\n* 19.04.2 or later\\r\\n* 19.10.1 or later\\r\\n* 20.04.0 or later\\r\\n\\r\\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' \",\r\n",
+        "name": "Dynamics NSClient",
+        "plugins_requirements": [],
+        "requirement": [],
+        "slug": "applications-dynamics-ax-nsclient-05-nrpe",
+        "status": "stable",
+        "status_message": "put generic monitoring procedure",
+        "tags": [
+            "Dynamics",
+            "AX",
+            "Windows",
+            "Microssoft",
+            "Application"
+        ],
+        "update_date": "1639584816",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'\u00e9tat du service RecurringIntegrationsScheduler.}\r\n\r\n{EN: Check state of the RecurringIntegrationsScheduler service.}",
+            "active_checks_enabled": 2,
+            "alias": "Service-RIS",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESERVICE$",
+                    "password": false,
+                    "value": "RecurringIntegrationsScheduler"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Dynamics-AX-Service-RIS-NRPE",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Windows-NSClient05-Services-Generic-Name-NRPE",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'\u00e9tat des services Windows.}\r\n\r\n{EN: Check windows services states.}",
+            "active_checks_enabled": 2,
+            "alias": "Services-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NSClient05-NRPE-Services-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": "none"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICESERVICE$",
+                    "password": false,
+                    "value": "nscp"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOK$",
+                    "password": false,
+                    "value": "state_is_ok()"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "none"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "not state_is_ok()"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETOPSYNTAX$",
+                    "password": false,
+                    "value": "${problem_list}"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEDETAILSYNTAX$",
+                    "password": false,
+                    "value": "${name}=${state} (${start_type})"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "'perf-config=none'"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-Windows-NSClient05-Services-Generic-Name-NRPE",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les fichier import\u00e9 en \u00e9chec.}\r\n\r\n{EN: Check files importation failure.}",
+            "active_checks_enabled": 2,
+            "alias": "RIS-Import-ProcessingErrors",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPATHS$",
+                    "password": false,
+                    "value": "C:/RIS/Import/RIS General Ledger/ProcessingErrors"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPATTERN$",
+                    "password": false,
+                    "value": "*.xlsx"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "count > 5"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "age > -1d or count > 20"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": "none"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "\"empty-state=ok\" show-all"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Dynamics-AX-RIS-Import-ProcessingErrors-NRPE",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Windows-NSClient05-Files-Generic-NRPE",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier des fichiers/r\u00e9pertoires (taille, dernier acc\u00e8s,..).}\r\n\r\n{EN: Check files/directories (size, last access,...).}",
+            "active_checks_enabled": 2,
+            "alias": "Files-Generic",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NSClient05-NRPE-Files",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETOPSYNTAX$",
+                    "password": false,
+                    "value": "${status}: ${problem_count}/${count} files (${problem_list})"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEDETAILSYNTAX$",
+                    "password": false,
+                    "value": "${name}"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "show-all"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-Windows-NSClient05-Files-Generic-NRPE",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le presence de fichiers \u00e0 importer.}\r\n\r\n{EN: Check import files presence.}",
+            "active_checks_enabled": 2,
+            "alias": "RIS-Import-Input",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPATHS$",
+                    "password": false,
+                    "value": "C:/RIS/Import/RIS General Ledger/Input"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPATTERN$",
+                    "password": false,
+                    "value": "*.xlsx"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "count > 5"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "age > -1d or count > 20"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": "none"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "\"empty-state=ok\" show-all"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Dynamics-AX-RIS-Import-Input-NRPE",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Windows-NSClient05-Files-Generic-NRPE",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

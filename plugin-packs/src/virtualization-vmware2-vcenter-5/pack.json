@@ -1,0 +1,158 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check VCenter 5 using centreon-vmware connector",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "vmware-vsphere-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Virt-VMWare2-VCenter-5",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "Virt-VMWare2-VCenter"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Virt-VMWare2-Vc5-Snapshot-Global"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "vmware-vsphere-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix pack note",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            },
+            {
+                "name": "virtualization-vmware2-vcenter-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor VMware vCenter v5 via VMware Perl SDK:\r\n\r\nAvailable services :\r\n* Limit-Global\r\n* Snapshot-Global\r\n\r\nAvailable discovery rules :\r\n* Datacenters alarms\r\n* Datastores IO\r\n* Datastores IOPS\r\n* Datastores usage\r\n* Datastores VM count\r\n\r\nThis pack uses \\\"VMware vCenter\\\" pack to extend monitored indicators (virtualization-vmware2-vcenter-generic).\r\n\r\n(Compatibility with VMware Connector version >= 3)"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser VMware vCenter v5 via VMware Perl SDK :\r\n\r\nServices disponibles :\r\n* Limit-Global\r\n* Snapshot-Global\r\n\r\nR\u00e8gles de d\u00e9couverte disponibles :\r\n* Datacenters alarms\r\n* Datastores IO\r\n* Datastores IOPS\r\n* Datastores usage\r\n* Datastores VM count\r\n\r\nCe pack utilise le pack \\\"VMware vCenter\\\" pour \u00e9tendre les indicateurs supervis\u00e9s (virtualization-vmware2-vcenter-generic).\r\n\r\n(Compatibilit\u00e9 avec la version du Connecteur VMware >= 3)"
+            }
+        ],
+        "discovery_category": "virtualization",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\nThis chapter describes the prerequisites installation needed by plugins to run.\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Virtualization-Vmware2-Connector-Plugin\r\n\r\n### Installation of the VMware daemon\r\nInstall this daemon on each needed poller:\r\n\r\n    # yum install centreon-plugin-Virtualization-VMWare-daemon\r\n\r\n### Configuration of the VMware daemon\r\nThe daemon \"centreon-vmware\" has a configuration file \"/etc/centreon/centreon\\_vmware.pm\" of the following structure:\r\n\r\n    %centreon_vmware_config =   \r\n        vsphere_server => {\r\n                        'default' => {'url' => 'https://vcenter/sdk',\r\n                                     'username' => 'XXXXXXX',\r\n                                     'password' => 'XXXXXX'}\r\n                        }, \r\n        port => 5700\r\n    };  \r\n\r\nThen start daemon with command:\r\n\r\n    # service centreon_vmware start\r\n\r\nYou can configure multiple vCenter / vSphere / ESX connections using this structure:\r\n\r\n    %centreon_vmware_config = (\r\n        vsphere_server => {\r\n                        'default' => {'url' => 'https://vcenter/sdk',\r\n                                     'username' => 'XXXXXXX',\r\n                                     'password' => 'XXXXXX'},\r\n                        'other' => {'url' => 'https://other_vcenter/sdk',\r\n                                     'username' => 'XXXXXXX',\r\n                                     'password' => 'XXXXXX'},\r\n                        },\r\n        port => 5700\r\n    );\r\n    1;\r\n\r\nNotice: use \"CENTREONVMWARECONTAINER\" host macro definition to select your configuration.\r\n\r\n* The \"vsphere\\_server\" attribute allows you to configure access to\r\ndifferent VirtualCenter. It is necessary to have at least the entry\r\n'default'. So, if you have only one vcenter, you can configure it with\r\nthe name \"default\".\r\n* The \"url\" attribute allows you to configure the URL of the vcenter.\r\n* The \"username\" attribute allows you to configure the user who can\r\nconnect to the vcenter. This user must have at least \"read only\" access\r\nto the vcenter.\r\n* The \"password\" attribute allows you to configure the password of the\r\nuser.\r\n* The \"port\" attribute allows you to configure the listening port of\r\n\"centreon-vmware\" connector.\r\n\r\n\r\n### System configuration\r\nThe daemon \"centreon_vmware\" is a system service that must be started by default.\r\nAfter installation and configuration, you will have to perform the following procedure.\r\n\r\n#### With SysV (Enterprise Linux 6 compatible distributions)\r\n\r\n    chkconfig centreon_vmware on\r\n    service centreon_vmware start\r\n\r\n#### With SystemD (Enterprise Linux 7 compatible distributions)\r\n\r\n    systemctl enable centreon_vmware\r\n    systemctl start centreon_vmware\r\n\r\n#### Checking the daemon configuration \r\n\r\nPlease make sure that the daemon configuration works fine, by looking for errors in /var/log/centreon/centreon_vmware.log.\r\n\r\n## Centreon configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"52%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Virt-VMWare2-ESX-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick the *Save* button.\r\n\r\n### Host macro configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"25%\" />\r\n<col width=\"44%\" />\r\n<col width=\"18%\" />\r\n<col width=\"12%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n<th align=\"left\">Example</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>CENTREONVMWAREPORT</p></td>\r\n<td align=\"left\"><p>Port of Centreon-Vmware daemon</p></td>\r\n<td align=\"left\"><p>5700</p></td>\r\n<td align=\"left\"><p>570</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>CENTREONVMWARECONTAINER</p></td>\r\n<td align=\"left\"><p>Container to use</p></td>\r\n<td align=\"left\"><p>default</p></td>\r\n<td align=\"left\"><p>default</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>CENTREONVMWAREHOST</p></td>\r\n<td align=\"left\"><p>Host of Centreon-Vmware daemon</p></td>\r\n<td align=\"left\"><p>localhost</p></td>\r\n<td align=\"left\"><p>localhost</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>ESXNAME</p></td>\r\n<td align=\"left\"><p>Name of the ESX to monitor</p></td>\r\n<td align=\"left\"></td>\r\n<td align=\"left\"><p>srvi-esx</p></td>\r\n</tr>\r\n</tbody>\r\n</table>",
+        "name": "VMware vCenter v5",
+        "plugins_requirements": [],
+        "requirement": [
+            {
+                "name": "ces-plugins-Virtualization-Vmware2-Connector-Plugin",
+                "version": "20160524-1"
+            }
+        ],
+        "slug": "virtualization-vmware2-vcenter-5",
+        "status": "stable",
+        "status_message": "fix pack note",
+        "tags": [
+            "vCenter",
+            "Virtual",
+            "Virtual Machine",
+            "Virtualization",
+            "VMware",
+            "vSphere"
+        ],
+        "update_date": "1555580720",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'\u00e2ge des snapshosts sur plusieurs machine virtuelle (Vsphere 5).}{EN: Check snapshot age of multiple virtual machines (Vsphere 5).}",
+            "active_checks_enabled": 2,
+            "alias": "Vm-Snapshot-Global",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--disconnect-status='ok' --nopoweredon-skip --check-consolidation --verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Virt-VMWare2-Vc5-Snapshot-Global",
+            "normal_check_interval": 20,
+            "notification_timeperiod": "",
+            "parent_template": "Virt-VMWare2-Vm-Snapshot-Global",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier la d\u00e9finition de limites (cpu, m\u00e9moire, disques) sur plusieurs machines virtuelles.}{EN: Check limit definition (cpu, memory, disk) on multiple virtual machines.}",
+            "active_checks_enabled": 2,
+            "alias": "Vm-Limit-Global",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALDISKSTATUS$",
+                    "password": false,
+                    "value": "%{connection_state} !~ /^connected$/i || %{limit} != -1"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALMEMORYSTATUS$",
+                    "password": false,
+                    "value": "%{connection_state} !~ /^connected$/i || %{limit} != -1"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALCPUSTATUS$",
+                    "password": false,
+                    "value": "%{connection_state} !~ /^connected$/i || %{limit} != -1"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": " --check-disk-limit --verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Virt-VMWare2-Vc5-Limit-Global",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "Virt-VMWare2-Vm-Limit-Global",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

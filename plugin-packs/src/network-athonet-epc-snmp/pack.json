@@ -1,0 +1,536 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Athonet-Epc-SNMP-Interfaces-Lte-Discover",
+                "command_for_macro": "Net-Athonet-Epc-SNMP-Interfaces-Lte-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Athonet-Epc-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Athonet-Epc-SNMP-Interface-Lte-Name",
+                "service_display_name": "Interface-Lte-$name$",
+                "service_template": "Net-Athonet-Epc-Interfaces-Lte-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Athonet-Epc-SNMP-Interfaces-Diameter-Discover",
+                "command_for_macro": "Net-Athonet-Epc-SNMP-Interfaces-Diameter-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Athonet-Epc-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Athonet-Epc-SNMP-Interface-Diameter-Name",
+                "service_display_name": "Interface-Diameter-$name$",
+                "service_template": "Net-Athonet-Epc-Interfaces-Diameter-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Athonet-Epc-SNMP-Interfaces-Ga-Discover",
+                "command_for_macro": "Net-Athonet-Epc-SNMP-Interfaces-Ga-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Athonet-Epc-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Athonet-Epc-SNMP-Interface-Ga-Name",
+                "service_display_name": "Interface-Ga-$name$",
+                "service_template": "Net-Athonet-Epc-Interfaces-Ga-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Athonet-Epc-SNMP-Interfaces-Gtpc-Discover",
+                "command_for_macro": "Net-Athonet-Epc-SNMP-Interfaces-Gtpc-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Athonet-Epc-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTESOURCEADDRESS",
+                        "value": "^$source_address$$"
+                    },
+                    {
+                        "is_empty": null,
+                        "name": "FILTERDESTINATIONADDRESS",
+                        "value": "^$destination_address$$"
+                    },
+                    {
+                        "is_empty": null,
+                        "name": "FILTERTYPE",
+                        "value": "^$type$$"
+                    }
+                ],
+                "name": "Net-Athonet-Epc-SNMP-Interface-Gtpc-Source-Destination-Type",
+                "service_display_name": "Interface-Gtpc-$source_address$-$destination_address$-$type$",
+                "service_template": "Net-Athonet-Epc-Interfaces-Gtpc-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Athonet-Epc-SNMP-Apns-Discover",
+                "command_for_macro": "Net-Athonet-Epc-SNMP-Apns-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Athonet-Epc-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Athonet-Epc-SNMP-Apn-Name",
+                "service_display_name": "Apn-$name$",
+                "service_template": "Net-Athonet-Epc-Apns-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_athonet_epc_snmp.pl --plugin=network::athonet::epc::snmp::plugin --mode=list-interfaces-lte --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Athonet-Epc-SNMP-Interfaces-Lte-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_athonet_epc_snmp.pl --plugin=network::athonet::epc::snmp::plugin --mode=list-interfaces-lte --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Athonet-Epc-SNMP-Interfaces-Lte-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_athonet_epc_snmp.pl --plugin=network::athonet::epc::snmp::plugin --mode=list-interfaces-diameter --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Athonet-Epc-SNMP-Interfaces-Diameter-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_athonet_epc_snmp.pl --plugin=network::athonet::epc::snmp::plugin --mode=list-interfaces-diameter --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Athonet-Epc-SNMP-Interfaces-Diameter-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_athonet_epc_snmp.pl --plugin=network::athonet::epc::snmp::plugin --mode=list-interfaces-ga --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Athonet-Epc-SNMP-Interfaces-Ga-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_athonet_epc_snmp.pl --plugin=network::athonet::epc::snmp::plugin --mode=list-interfaces-ga --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Athonet-Epc-SNMP-Interfaces-Ga-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_athonet_epc_snmp.pl --plugin=network::athonet::epc::snmp::plugin --mode=list-interfaces-gtpc --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Athonet-Epc-SNMP-Interfaces-Gtpc-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_athonet_epc_snmp.pl --plugin=network::athonet::epc::snmp::plugin --mode=list-interfaces-gtpc --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Athonet-Epc-SNMP-Interfaces-Gtpc-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_athonet_epc_snmp.pl --plugin=network::athonet::epc::snmp::plugin --mode=list-apns --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Athonet-Epc-SNMP-Apns-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_athonet_epc_snmp.pl --plugin=network::athonet::epc::snmp::plugin --mode=list-apns --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Athonet-Epc-SNMP-Apns-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_athonet_epc_snmp.pl --plugin=network::athonet::epc::snmp::plugin --mode=license --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --unit=\\'$_SERVICEUNIT$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-expires=\\'$_SERVICEWARNINGEXPIRES$\\' --critical-expires=\\'$_SERVICECRITICALEXPIRES$\\' --warning-license-users-usage=\\'$_SERVICEWARNINGLICENSEUSERSUSAGE$\\' --critical-license-users-usage=\\'$_SERVICECRITICALLICENSEUSERSUSAGE$\\' --warning-license-users-free=\\'$_SERVICEWARNINGLICENSEUSERSFREE$\\' --critical-license-users-free=\\'$_SERVICECRITICALLICENSEUSERSFREE$\\' --warning-license-users-usage-prct=\\'$_SERVICEWARNINGLICENSEUSERSUSAGEPRCT$\\' --critical-license-users-usage-prct=\\'$_SERVICECRITICALLICENSEUSERSUSAGEPRCT$\\' --warning-license-sessions-usage=\\'$_SERVICEWARNINGLICENSESESSIONSUSAGE$\\' --critical-license-sessions-usage=\\'$_SERVICECRITICALLICENSESESSIONSUSAGE$\\' --warning-license-sessions-free=\\'$_SERVICEWARNINGLICENSESESSIONSFREE$\\' --critical-license-sessions-free=\\'$_SERVICECRITICALLICENSESESSIONSFREE$\\' --warning-license-sessions-usage-prct=\\'$_SERVICEWARNINGLICENSESESSIONSUSAGEPRCT$\\' --critical-license-sessions-usage-prct=\\'$_SERVICECRITICALLICENSESESSIONSUSAGEPRCT$\\' --warning-license-usim-usage=\\'$_SERVICEWARNINGLICENSEUSIMUSAGE$\\' --critical-license-usim-usage=\\'$_SERVICECRITICALLICENSEUSIMUSAGE$\\' --warning-license-usim-free=\\'$_SERVICEWARNINGLICENSEUSIMFREE$\\' --critical-license-usim-free=\\'$_SERVICECRITICALLICENSEUSIMFREE$\\' --warning-license-usim-usage-prct=\\'$_SERVICEWARNINGLICENSEUSIMUSAGEPRCT$\\' --critical-license-usim-usage-prct=\\'$_SERVICECRITICALLICENSEUSIMUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Athonet-Epc-SNMP-License",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_athonet_epc_snmp.pl --plugin=network::athonet::epc::snmp::plugin --mode=interfaces-diameter --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --filter-owner=\\'$_SERVICEFILTEROWNER$\\' --warning-total=\\'$_SERVICEWARNINGTOTAL$\\' --critical-total=\\'$_SERVICECRITICALTOTAL$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-transport-status=\\'$_SERVICEWARNINGTRANSPORTSTATUS$\\' --critical-transport-status=\\'$_SERVICECRITICALTRANSPORTSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Athonet-Epc-SNMP-Interfaces-Diameter",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_athonet_epc_snmp.pl --plugin=network::athonet::epc::snmp::plugin --mode=interfaces-lte --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-users-connected=\\'$_SERVICEWARNINGUSERSCONNECTED$\\' --critical-users-connected=\\'$_SERVICECRITICALUSERSCONNECTED$\\' --warning-users-idle=\\'$_SERVICEWARNINGUSERSIDLE$\\' --critical-users-idle=\\'$_SERVICECRITICALUSERSIDLE$\\' --warning-sessions-active=\\'$_SERVICEWARNINGSESSIONSACTIVE$\\' --critical-sessions-active=\\'$_SERVICECRITICALSESSIONSACTIVE$\\' --warning-requests-pdn-context-activation=\\'$_SERVICEWARNINGREQUESTSPDNCONTEXTACTIVATION$\\' --critical-requests-pdn-context-activation=\\'$_SERVICECRITICALREQUESTSPDNCONTEXTACTIVATION$\\' --warning-requests-pdn-context-activation-prct=\\'$_SERVICEWARNINGREQUESTSPDNCONTEXTACTIVATIONPRCT$\\' --critical-requests-pdn-context-activation-prct=\\'$_SERVICECRITICALREQUESTSPDNCONTEXTACTIVATIONPRCT$\\' --warning-requests-ue-context-release-total=\\'$_SERVICEWARNINGREQUESTSUECONTEXTRELEASETOTAL$\\' --critical-requests-ue-context-release-total=\\'$_SERVICECRITICALREQUESTSUECONTEXTRELEASETOTAL$\\' --warning-requests-ue-context-release-radio-lost=\\'$_SERVICEWARNINGREQUESTSUECONTEXTRELEASERADIOLOST$\\' --critical-requests-ue-context-release-radio-lost=\\'$_SERVICECRITICALREQUESTSUECONTEXTRELEASERADIOLOST$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' --warning-requests-attach-success=\\'$_SERVICEWARNINGREQUESTSATTACHSUCCESS$\\' --critical-requests-attach-success=\\'$_SERVICECRITICALREQUESTSATTACHSUCCESS$\\' --warning-requests-attach-success-prct=\\'$_SERVICEWARNINGREQUESTSATTACHSUCCESSPRCT$\\' --critical-requests-attach-success-prct=\\'$_SERVICECRITICALREQUESTSATTACHSUCCESSPRCT$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-requests-pdn-context-rej-insufres=\\'$_SERVICEWARNINGREQUESTSPDNCONTEXTREJINSUFRES$\\' --critical-requests-pdn-context-rej-insufres=\\'$_SERVICECRITICALREQUESTSPDNCONTEXTREJINSUFRES$\\' --warning-requests-pdn-context-rej-noapn=\\'$_SERVICEWARNINGREQUESTSPDNCONTEXTREJNOAPN$\\' --critical-requests-pdn-context-rej-noapn=\\'$_SERVICECRITICALREQUESTSPDNCONTEXTREJNOAPN$\\' --warning-requests-pdn-context-rej-nosub=\\'$_SERVICEWARNINGREQUESTSPDNCONTEXTREJNOSUB$\\' --critical-requests-pdn-context-rej-nosub=\\'$_SERVICECRITICALREQUESTSPDNCONTEXTREJNOSUB$\\' --warning-total=\\'$_SERVICEWARNINGTOTAL$\\' --critical-total=\\'$_SERVICECRITICALTOTAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Athonet-Epc-SNMP-Interfaces-Lte",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_athonet_epc_snmp.pl --plugin=network::athonet::epc::snmp::plugin --mode=interfaces-ga --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --filter-local-address=\\'$_SERVICEFILTERLOCALADDRESS$\\' --filter-peer-address=\\'$_SERVICEFILTERPEERADDRESS$\\'  --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-total=\\'$_SERVICEWARNINGTOTAL$\\' --critical-total=\\'$_SERVICECRITICALTOTAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Athonet-Epc-SNMP-Interfaces-Ga",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_athonet_epc_snmp.pl --plugin=network::athonet::epc::snmp::plugin --mode=interfaces-gtpc --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-source-address=\\'$_SERVICEFILTESOURCEADDRESS$\\' --filter-destination-address=\\'$_SERVICEFILTERDESTINATIONADDRESS$\\' --filter-type=\\'$_SERVICEFILTERTYPE$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-total=\\'$_SERVICEWARNINGTOTAL$\\' --critical-total=\\'$_SERVICECRITICALTOTAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Athonet-Epc-SNMP-Interfaces-Gtpc",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_athonet_epc_snmp.pl --plugin=network::athonet::epc::snmp::plugin --mode=lte --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' --warning-requests-pdn-context-rej-insufres=\\'$_SERVICEWARNINGREQUESTSPDNCONTEXTREJINSUFRES$\\' --critical-requests-pdn-context-rej-insufres=\\'$_SERVICECRITICALREQUESTSPDNCONTEXTREJINSUFRES$\\' --warning-requests-pdn-context-rej-noapn=\\'$_SERVICEWARNINGREQUESTSPDNCONTEXTREJNOAPN$\\' --critical-requests-pdn-context-rej-noapn=\\'$_SERVICECRITICALREQUESTSPDNCONTEXTREJNOAPN$\\' --warning-requests-pdn-context-rej-nosub=\\'$_SERVICEWARNINGREQUESTSPDNCONTEXTREJNOSUB$\\' --critical-requests-pdn-context-rej-nosub=\\'$_SERVICECRITICALREQUESTSPDNCONTEXTREJNOSUB$\\' --warning-requests-ue-context-release-total=\\'$_SERVICEWARNINGREQUESTSUECONTEXTRELEASETOTAL$\\' --critical-requests-ue-context-release-total=\\'$_SERVICECRITICALREQUESTSUECONTEXTRELEASETOTAL$\\' --warning-requests-ue-context-release-radio-lost=\\'$_SERVICEWARNINGREQUESTSUECONTEXTRELEASERADIOLOST$\\' --critical-requests-ue-context-release-radio-lost=\\'$_SERVICECRITICALREQUESTSUECONTEXTRELEASERADIOLOST$\\' --warning-requests-pdn-context-activation=\\'$_SERVICEWARNINGREQUESTSPDNCONTEXTACTIVATION$\\' --critical-requests-pdn-context-activation=\\'$_SERVICECRITICALREQUESTSPDNCONTEXTACTIVATION$\\' --warning-requests-pdn-context-activation-prct=\\'$_SERVICEWARNINGREQUESTSPDNCONTEXTACTIVATIONPRCT$\\' --critical-requests-pdn-context-activation-prct=\\'$_SERVICECRITICALREQUESTSPDNCONTEXTACTIVATIONPRCT$\\' --warning-requests-attach-success=\\'$_SERVICEWARNINGREQUESTSATTACHSUCCESS$\\' --critical-requests-attach-success=\\'$_SERVICECRITICALREQUESTSATTACHSUCCESS$\\' --warning-requests-attach-success-prct=\\'$_SERVICEWARNINGREQUESTSATTACHSUCCESSPRCT$\\' --critical-requests-attach-success-prct=\\'$_SERVICECRITICALREQUESTSATTACHSUCCESSPRCT$\\' --warning-users-connected=\\'$_SERVICEWARNINGUSERSCONNECTED$\\' --critical-users-connected=\\'$_SERVICECRITICALUSERSCONNECTED$\\' --warning-users-idle=\\'$_SERVICEWARNINGUSERSIDLE$\\' --critical-users-idle=\\'$_SERVICECRITICALUSERSIDLE$\\' --warning-sessions-active=\\'$_SERVICEWARNINGSESSIONSACTIVE$\\' --critical-sessions-active=\\'$_SERVICECRITICALSESSIONSACTIVE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Athonet-Epc-SNMP-Lte",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_athonet_epc_snmp.pl --plugin=network::athonet::epc::snmp::plugin --mode=aggregate --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' --warning-users-roaming-connected=\\'$_SERVICEWARNINGUSERSROAMINGCONNECTED$\\' --critical-users-roaming-connected=\\'$_SERVICECRITICALUSERSROAMINGCONNECTED$\\' --warning-requests-authentication=\\'$_SERVICEWARNINGREQUESTSAUTHENTICATION$\\' --critical-requests-authentication=\\'$_SERVICECRITICALREQUESTSAUTHENTICATION$\\' --warning-location-updates=\\'$_SERVICEWARNINGLOCATIONUPDATES$\\' --critical-location-updates=\\'$_SERVICECRITICALLOCATIONUPDATES$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Athonet-Epc-SNMP-Aggregate",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_athonet_epc_snmp.pl --plugin=network::athonet::epc::snmp::plugin --mode=apns --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' --warning-pdp-contexts=\\'$_SERVICEWARNINGPDPCONTEXTS$\\' --critical-pdp-contexts=\\'$_SERVICECRITICALPDPCONTEXTS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Athonet-Epc-SNMP-Apns",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Athonet ePC en SNMP}\r\n{EN: Template to check Athonet ePC equipments using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Athonet ePC using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Athonet-Epc-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Athonet-Epc-License-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "- change macros threshold (lte, aggregate, interfaces-lte, license)",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Athonet ePC equipments via SNMP:\r\n* Aggregate\r\n* APNs\r\n* Interfaces Diameter\r\n* Interfaces LTE\r\n* Interfaces GA\r\n* Interfaces GTPC\r\n* License\r\n* Lte\r\n* Traffic (by interface name)\r\n* Uptime"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller les \u00e9quipements Athonet ePC via SNMP :\r\n* Aggregate\r\n* APNs\r\n* Interfaces Diameter\r\n* Interfaces LTE\r\n* Interfaces GA\r\n* Interfaces GTPC\r\n* License\r\n* Lte"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Athonet ePC SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_athonet_epc_snmp.pl",
+                "package_name": "centreon-plugin-Network-Athonet-Epc-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-athonet-epc-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Network",
+            "Athonet",
+            "ePC",
+            "SNMP",
+            "LT",
+            "4G"
+        ],
+        "update_date": "1617096114",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le la licence.}\r\n\r\n{EN: Check license.}",
+            "active_checks_enabled": 2,
+            "alias": "License",
+            "check_timeperiod": "",
+            "command_name": "Net-Athonet-Epc-SNMP-License",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /expired|invalid/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Athonet-Epc-License-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces diameter.}\r\n\r\n{EN: Check diameter interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces-Diameter",
+            "check_timeperiod": "",
+            "command_name": "Net-Athonet-Epc-SNMP-Interfaces-Diameter",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /down/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALTRANSPORTSTATUS$",
+                    "password": false,
+                    "value": "%{transport_status} =~ /down/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Athonet-Epc-Interfaces-Diameter-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces LTE.}\r\n\r\n{EN: Check LTE interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces-Lte",
+            "check_timeperiod": "",
+            "command_name": "Net-Athonet-Epc-SNMP-Interfaces-Lte",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{sctp_status} =~ /down/i || %{s1ap_status} =~ /down/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Athonet-Epc-Interfaces-Lte-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces GA.}\r\n\r\n{EN: Check GA interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces-Ga",
+            "check_timeperiod": "",
+            "command_name": "Net-Athonet-Epc-SNMP-Interfaces-Ga",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /down/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Athonet-Epc-Interfaces-Ga-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces GTP control.}\r\n\r\n{EN: Check GTP control interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces-Gtpc",
+            "check_timeperiod": "",
+            "command_name": "Net-Athonet-Epc-SNMP-Interfaces-Gtpc",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /down/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Athonet-Epc-Interfaces-Gtpc-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques LTE.}\r\n\r\n{EN: Check LTE statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Lte",
+            "check_timeperiod": "",
+            "command_name": "Net-Athonet-Epc-SNMP-Lte",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Athonet-Epc-Lte-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques aggr\u00e9g\u00e9s.}\r\n\r\n{EN: Check aggregate statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Aggregate",
+            "check_timeperiod": "",
+            "command_name": "Net-Athonet-Epc-SNMP-Aggregate",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Athonet-Epc-Aggregate-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les APNs.}\r\n\r\n{EN: Check APNs.}",
+            "active_checks_enabled": 2,
+            "alias": "Apns",
+            "check_timeperiod": "",
+            "command_name": "Net-Athonet-Epc-SNMP-Apns",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Athonet-Epc-Apns-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,198 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "HW-Device-Camera-Mobotix-SNMP-Interfaces-Discover",
+                "command_for_macro": "HW-Device-Camera-Mobotix-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "HW-Device-Camera-Mobotix-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "INTERFACENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "HW-Device-Camera-Mobotix-SNMP-Interface-Name",
+                "service_display_name": "Interface-$name$",
+                "service_template": "HW-Device-Camera-Mobotix-Interfaces-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_camera_mobotix_snmp.pl  --plugin=hardware::devices::camera::mobotix::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "HW-Device-Camera-Mobotix-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_camera_mobotix_snmp.pl  --plugin=hardware::devices::camera::mobotix::snmp::plugin --mode=list-interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "HW-Device-Camera-Mobotix-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_camera_mobotix_snmp.pl  --plugin=hardware::devices::camera::mobotix::snmp::plugin --mode=system --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$   $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Camera-Mobotix-SNMP-System",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_camera_mobotix_snmp.pl  --plugin=hardware::devices::camera::mobotix::snmp::plugin --mode=interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --add-errors --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Camera-Mobotix-SNMP-Interfaces",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les cameras Mobotix en SNMP}\r\n{EN: Template to check Mobtix camera using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Mobotix Camera using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Camera-Mobotix-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Device-Camera-Mobotix-System-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* break: rename host/services/commands name\r\n* add service interfaces\r\n* add service discovery interface rule",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor camera Mobotix:\r\n* Interfaces\r\n* System\r\n"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour contr\u00f4ler les cam\u00e9ras Mobotix via SNMP :\r\n* Interfaces\r\n* System\r\n"
+            }
+        ],
+        "discovery_category": "hardware-server",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Mobotix Camera",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_camera_mobotix_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Devices-Camera-Mobotix-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-devices-camera-mobotix-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Hardware",
+            "Device",
+            "SNMP",
+            "Camera",
+            "Video"
+        ],
+        "update_date": "1622640886",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le statut du mat\u00e9riel.}\r\n\r\n{EN: Check hardware status.}",
+            "active_checks_enabled": 2,
+            "alias": "System",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Camera-Mobotix-SNMP-System",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Camera-Mobotix-System-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces.}\r\n\r\n{EN: Check interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Camera-Mobotix-SNMP-Interfaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} !~ /up|dormant/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --use-new-perfdata"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Camera-Mobotix-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

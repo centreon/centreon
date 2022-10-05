@@ -1,0 +1,354 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "HW-Storage-Lenovo-Iomega-SNMP-Storages-Discover",
+                "command_for_macro": "HW-Storage-Lenovo-Iomega-SNMP-Storages-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$name$",
+                        "order": 0,
+                        "pattern": "(/dev.*|/run.*|/sys.*|/boot)",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "HW-Storage-Lenovo-Iomega-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "HW-Storage-Lenovo-Iomega-SNMP-Disk-Name",
+                "service_display_name": "Disk-$name$",
+                "service_template": "HW-Storage-Lenovo-Iomega-Disks-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "HW-Storage-Lenovo-Iomega-SNMP-Interfaces-Discover",
+                "command_for_macro": "HW-Storage-Lenovo-Iomega-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$name$",
+                        "order": 0,
+                        "pattern": "^[Ll]o",
+                        "type": "exclusion"
+                    },
+                    {
+                        "object": "$status$",
+                        "order": 1,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "HW-Storage-Lenovo-Iomega-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "INTERFACENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "HW-Storage-Lenovo-Iomega-SNMP-Interface-Name",
+                "service_display_name": "Interface-$name$",
+                "service_template": "HW-Storage-Lenovo-Iomega-Interfaces-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_lenovo_iomega_snmp.pl --plugin=storage::lenovo::iomega::snmp::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "HW-Storage-Lenovo-Iomega-SNMP-Storages-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_lenovo_iomega_snmp.pl --plugin=storage::lenovo::iomega::snmp::plugin --mode=list-storages --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "HW-Storage-Lenovo-Iomega-SNMP-Storages-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_lenovo_iomega_snmp.pl --plugin=storage::lenovo::iomega::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "HW-Storage-Lenovo-Iomega-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_lenovo_iomega_snmp.pl --plugin=storage::lenovo::iomega::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "HW-Storage-Lenovo-Iomega-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_lenovo_iomega_snmp.pl --plugin=storage::lenovo::iomega::snmp::plugin --mode=memory  --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' \\'$_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "HW-Storage-Lenovo-Iomega-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_lenovo_iomega_snmp.pl  --plugin=storage::lenovo::iomega::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Lenovo-Iomega-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_lenovo_iomega_snmp.pl --plugin=storage::lenovo::iomega::snmp::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-average=\\'$_SERVICEWARNINGAVERAGE$\\'  --critical-average=\\'$_SERVICECRITICALAVERAGE$\\' --warning-core=$_SERVICEWARNINGCORE$ --critical-core=$_SERVICECRITICALCORE$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Lenovo-Iomega-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_lenovo_iomega_snmp.pl --plugin=storage::lenovo::iomega::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --add-errors --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Lenovo-Iomega-SNMP-Interfaces",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_lenovo_iomega_snmp.pl --plugin=storage::lenovo::iomega::snmp::plugin --mode=storage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --storage=\\'$_SERVICEFILTER$\\' --name --regexp --display-transform-src=\\'$_SERVICETRANSFORMSRC$\\' --display-transform-dst=\\'$_SERVICETRANSFORMDST$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-access=$_SERVICEWARNINGACCESS$ --critical-access=$_SERVICECRITICALACCESS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Lenovo-Iomega-SNMP-Disks",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser le stockage Lenovo Iomega via SNMP}\r\n{EN: Template to check Lenovo Storage Iomega using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Lenovo Storage Iomega using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "lenovo-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Lenovo-Iomega-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Storage-Lenovo-Iomega-Memory",
+                "HW-Storage-Lenovo-Iomega-Hardware-SNMP",
+                "HW-Storage-Lenovo-Iomega-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "lenovo-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* set option --use-new-perfdata\r\n* use interfaces service name (remove traffic)",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Lenovo Iomega storage:\r\n* Cpu\r\n* Disks\r\n* Hardware\r\n* Interfaces\r\n* Memory"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser le stockage Lenovo Iomega :\r\n* Cpu\r\n* Disks\r\n* Hardware\r\n* Interfaces\r\n* Memory"
+            }
+        ],
+        "discovery_category": "storage",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Lenovo Iomega",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_lenovo_iomega_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Storage-Lenovo-Iomega-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-storage-lenovo-iomega-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "SNMP",
+            "Storage",
+            "Lenovo",
+            "ServiceDisco",
+            "Iomega"
+        ],
+        "update_date": "1628582787",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Lenovo-Iomega-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Lenovo-Iomega-Memory",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le mat\u00e9riel.}\r\n\r\n{EN: Check hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Lenovo-Iomega-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Lenovo-Iomega-Hardware-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine. Ce contr\u00f4le pourra remonter la moyenne du taux d'utilisation des CPU ainsi que le taux par CPU pour les CPU multi-coeur.}\r\n\r\n{EN: Check the rate of utilization of CPU for the machine. This check can give the average CPU utilization rate and the rate per CPU for multi-core CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Lenovo-Iomega-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--use-new-perfdata"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Lenovo-Iomega-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau de plusieurs interfaces r\u00e9seau.}\r\n\r\n{EN: Check traffic of multiple network interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Lenovo-Iomega-SNMP-Interfaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "'%{admstatus} eq \"up\" and %{opstatus} ne \"up\"'"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "ifdesc"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "ifdesc"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --use-new-perfdata"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Lenovo-Iomega-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'espace libre disponible des disques. Pour chaque contr\u00f4le appara\u00eetra le point de montage des disques (\u00ab\u00a0label\u00a0\u00bb). Les seuils pourront \u00eatre en pourcentage, en espace libre restant.}\r\n\r\n{EN: Check the rate of free space on disks. For each checks the mount point of disks will appear (\u00ab label \u00bb). Thresholds can be in percentage or in free space remaining.}",
+            "active_checks_enabled": 2,
+            "alias": "Disks",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Lenovo-Iomega-SNMP-Disks",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --use-new-perfdata"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Lenovo-Iomega-Disks-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

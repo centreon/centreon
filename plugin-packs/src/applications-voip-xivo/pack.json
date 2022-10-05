@@ -1,0 +1,466 @@
+{
+    "commands": [],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check XiVO VoIP Application",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "App-VoIP-XiVo-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-VoIP-XiVO",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "OS-Linux-SNMP",
+                "App-Protocol-HTTP",
+                "App-VoIP-Asterisk-SNMP",
+                "App-Protocol-NTP"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-VoIP-XiVO-Process-xivo-ctid",
+                "App-VoIP-XiVO-Process-xivo-confgend",
+                "App-VoIP-XiVO-Process-xivo-amid",
+                "App-VoIP-XiVO-Process-xivo-agid",
+                "App-VoIP-XiVO-Process-xivo-agentd",
+                "App-VoIP-XiVO-Process-postgres",
+                "App-VoIP-XiVO-Process-nginx"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "App-VoIP-XiVo-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* changed the dependency to the right asterisk pp (not the deprecated one)\r\n* added missing exclusions of host and service templates (nothing was excluded, so this pp was technically impossible to uninstall)\r\n* updated monitoring procedure: adding all the needed rpms",
+        "dependencies": [
+            {
+                "name": "operatingsystems-linux-snmp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "applications-protocol-ntp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "applications-protocol-http",
+                "version": "22.05.0"
+            },
+            {
+                "name": "applications-voip-asterisk-snmp",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor XiVO VoIP server via SNMP:\r\n* Process-nginx\r\n* Process-postgress\r\n* Process-xivo-agentd\r\n* Process-xivo-agid\r\n* Process-xivo-amid\r\n* Process-xivo-call-logd\r\n* Process-xivo-confd\r\n* Process-xivo-confgend\r\n* Process-xivo-ctid\r\n* Process-xivo-dxtora\r\n* Process-xivo-provd\r\n* Process-xivo-sysconfd"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin Pack pour surveiller un serveur VoIP XiVO via SNMP :\r\n* Process-nginx\r\n* Process-postgress\r\n* Process-xivo-agentd\r\n* Process-xivo-agid\r\n* Process-xivo-amid\r\n* Process-xivo-call-logd\r\n* Process-xivo-confd\r\n* Process-xivo-confgend\r\n* Process-xivo-ctid\r\n* Process-xivo-dxtora\r\n* Process-xivo-provd\r\n* Process-xivo-sysconfd"
+            }
+        ],
+        "discovery_category": "toip-voip",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\nThis chapter describes the prerequisites installation needed by plugins\r\nto run.\r\n\r\n### Dependencies\r\nThis plugin pack is dependent of \"NTP Server\" \"HTTP Server\" and \"Asterisk VoIP Server SNMP\", so you might have to install these packages before being able to add this plugin pack:\r\n\r\n    # yum install centreon-pack-applications-protocol-ntp centreon-pack-applications-protocol-http centreon-pack-applications-voip-asterisk-snmp\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Operatingsystems-Linux-Snmp centreon-plugin-Applications-Protocol-Ntp centreon-plugin-Applications-Voip-Asterisk-Snmp centreon-plugin-Applications-Protocol-Http\r\n\r\n\r\n### Remote server\r\nThe remote server must have a XiVO Appliance running and available.\r\n\r\n## Centreon Configuration\r\n### Create a XiVO server\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-VoIP-XiVO-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Onglet <em>Relations</em> &gt; Parent Hostgroups</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\nThis service was automatically created for this host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"39%\" />\r\n<col width=\"60%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Service</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>XiVO-process-nginx</p></td>\r\n<td align=\"left\"><p>Monitor nginx processus</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>XiVO-process-postgres</p></td>\r\n<td align=\"left\"><p>Monitor postgres processus</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>XiVO-process-xivo-agentd</p></td>\r\n<td align=\"left\"><p>Monitor xivo-agentd processus</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>XiVO-process-xivo-agid</p></td>\r\n<td align=\"left\"><p>Monitor xivo-agid processus</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>XiVO-process-xivo-amid</p></td>\r\n<td align=\"left\"><p>Monitor xivo-amid processus</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>XiVO-process-xivo-confgend</p></td>\r\n<td align=\"left\"><p>Monitor xivo-confgend processus</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>XiVO-process-xivo-ctid</p></td>\r\n<td align=\"left\"><p>Monitor xivo-ctid processus</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"38%\" />\r\n<col width=\"61%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Optionnal Service</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>XiVO-process-xivo-call-logd</p></td>\r\n<td align=\"left\"><p>Monitor xivo-call-logd processus</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>XiVO-process-xivo-confd</p></td>\r\n<td align=\"left\"><p>Monitor xivo-confd processus</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>XiVO-process-xivo-dxtora</p></td>\r\n<td align=\"left\"><p>Monitor xivo-dxtora processus</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>XiVO-process-xivo-provd</p></td>\r\n<td align=\"left\"><p>Monitor xivo-provd processus</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n",
+        "name": "XiVO VoIP Server",
+        "plugins_requirements": [],
+        "requirement": [
+            {
+                "name": "ces-plugins-Operatingsystems-Linux-Snmp",
+                "version": "20160220-1"
+            }
+        ],
+        "slug": "applications-voip-xivo",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Server",
+            "ToIP",
+            "Voice",
+            "VoIP",
+            "Xivo",
+            "Call"
+        ],
+        "update_date": "1519228270",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le fonctionnement du processus xivo-ctid.}\r\n\r\n{EN: Check xivo-ctid process.}",
+            "active_checks_enabled": 2,
+            "alias": "XiVO-process-xivo-ctid",
+            "check_timeperiod": "",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSNAME$",
+                    "password": false,
+                    "value": "xivo-ctid"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "1:1"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-VoIP-XiVO-Process-xivo-ctid",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Linux-Process-Generic-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le fonctionnement du processus xivo-confgend.}\r\n\r\n{EN: Check xivo-confgend process.}",
+            "active_checks_enabled": 2,
+            "alias": "XiVO-process-xivo-confgend",
+            "check_timeperiod": "",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSARGS$",
+                    "password": false,
+                    "value": "xivo-confgend"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "1:1"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-VoIP-XiVO-Process-xivo-confgend",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Linux-Process-Generic-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le fonctionnement du processus xivo-amid.}\r\n\r\n{EN: Check xivo-amid process.}",
+            "active_checks_enabled": 2,
+            "alias": "XiVO-process-xivo-amid",
+            "check_timeperiod": "",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSNAME$",
+                    "password": false,
+                    "value": "xivo-amid"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "1:1"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-VoIP-XiVO-Process-xivo-amid",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Linux-Process-Generic-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le fonctionnement du processus xivo-agid.}\r\n\r\n{EN: Check xivo-agid process.}",
+            "active_checks_enabled": 2,
+            "alias": "XiVO-process-xivo-agid",
+            "check_timeperiod": "",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSNAME$",
+                    "password": false,
+                    "value": "xivo-agid"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "1:1"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-VoIP-XiVO-Process-xivo-agid",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Linux-Process-Generic-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le fonctionnement du processus xivo-agentd.}\r\n\r\n{EN: Check xivo-agentd process.}",
+            "active_checks_enabled": 2,
+            "alias": "XiVO-process-xivo-agentd",
+            "check_timeperiod": "",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSNAME$",
+                    "password": false,
+                    "value": "xivo-agentd"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "1:1"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-VoIP-XiVO-Process-xivo-agentd",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Linux-Process-Generic-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le fonctionnement du processus postgres.}\r\n\r\n{EN: Check postgres process. }",
+            "active_checks_enabled": 2,
+            "alias": "XiVO-process-postgres",
+            "check_timeperiod": "",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSNAME$",
+                    "password": false,
+                    "value": "postgres"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "5:"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-VoIP-XiVO-Process-postgres",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Linux-Process-Generic-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le fonctionnement du processus nginx.}\r\n\r\n{EN: Check nginx process.}",
+            "active_checks_enabled": 2,
+            "alias": "XiVO-process-nginx",
+            "check_timeperiod": "",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSNAME$",
+                    "password": false,
+                    "value": "nginx"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "5:5"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-VoIP-XiVO-Process-nginx",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Linux-Process-Generic-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le fonctionnement du processus xivo-call-logd.}\r\n\r\n{EN: Check xivo-call-logd process.}",
+            "active_checks_enabled": 2,
+            "alias": "XiVO-process-xivo-call-logd",
+            "check_timeperiod": "",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSNAME$",
+                    "password": false,
+                    "value": "xivo-call-logd"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "1:1"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-VoIP-XiVO-Process-xivo-call-logd",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Linux-Process-Generic-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le fonctionnement du processus xivo-confd.}\r\n\r\n{EN: Check xivo-confd process.}",
+            "active_checks_enabled": 2,
+            "alias": "XiVO-process-xivo-confd",
+            "check_timeperiod": "",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSNAME$",
+                    "password": false,
+                    "value": "xivo-confd"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "1:1"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-VoIP-XiVO-Process-xivo-confd",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Linux-Process-Generic-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le fonctionnement du processus xivo-dxtora.}\r\n\r\n{EN: Check xivo-dxtora process.}",
+            "active_checks_enabled": 2,
+            "alias": "XiVO-process-xivo-dxtora",
+            "check_timeperiod": "",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSNAME$",
+                    "password": false,
+                    "value": "xivo-dxtora"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "1:1"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-VoIP-XiVO-Process-xivo-dxtora",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Linux-Process-Generic-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le fonctionnement du processus xivo-provd.}\r\n\r\n{EN: Check xivo-provd process.}",
+            "active_checks_enabled": 2,
+            "alias": "XiVO-process-xivo-provd",
+            "check_timeperiod": "",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSARGS$",
+                    "password": false,
+                    "value": "xivo-provd"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "1:1"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-VoIP-XiVO-Process-xivo-provd",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Linux-Process-Generic-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le fonctionnement du processus xivo-sysconfd.}\r\n\r\n{EN: Check xivo-sysconfd process.}",
+            "active_checks_enabled": 2,
+            "alias": "XiVO-process-xivo-sysconfd",
+            "check_timeperiod": "",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSNAME$",
+                    "password": false,
+                    "value": "xivo-sysconfd"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "1:1"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-VoIP-XiVO-Process-xivo-sysconfd",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Linux-Process-Generic-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

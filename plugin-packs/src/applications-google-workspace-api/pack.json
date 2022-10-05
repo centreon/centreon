@@ -1,0 +1,181 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-Google-Workspace-Api-Services-Discover",
+                "command_for_macro": "App-Google-Workspace-Api-Services-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-Google-Workspace-Api"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "App-Google-Workspace-Services-Name",
+                "service_display_name": "Service-$name$",
+                "service_template": "App-Google-Workspace-Api-Services"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_google_workspace_api.pl --plugin=apps::google::workspace::plugin --mode=list-services --hostname=\\'127.0.0.1\\' --port=443--verbose --disco-format\\\"",
+            "name": "App-Google-Workspace-Api-Services-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_google_workspace_api.pl --plugin=apps::google::workspace::plugin --mode=list-services --hostname=127.0.0.1 --port=443 --proto=https --verbose --disco-show\\\"",
+            "name": "App-Google-Workspace-Api-Services-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_google_workspace_api.pl --plugin=apps::google::workspace::plugin --mode=services --hostname=\\'$_HOSTGOOGLEWORKSPACESTATUSHOSTNAME$\\' --port=\\'$_HOSTGOOGLEWORKSPACESTATUSPORT$\\' --proto=\\'$_HOSTGOOGLEWORKSPACESTATUSPROTO$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTGOOGLEWORKSPACESTATUSEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-services=\\'$_SERVICEWARNINGSERVICES$\\' --critical-services=\\'$_SERVICECRITICALSERVICES$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Google-Workspace-Api-Services",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les services Google Workspace}\r\n{EN: Template to check Google Workspace services}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Google Workspace services status using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "app-google-logo-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTGOOGLEWORKSPACESTATUSHOSTNAME$",
+                    "value": "www.google.com"
+                },
+                {
+                    "key": "$_HOSTGOOGLEWORKSPACESTATUSPORT$",
+                    "value": "443"
+                },
+                {
+                    "key": "$_HOSTGOOGLEWORKSPACESTATUSPROTO$",
+                    "value": "https"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Google-Workspace-Api",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Google-Workspace-Api-Services"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "app-google-logo-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin-pack to check Google Workspace service status through API:\r\n* Services\r\n\r\nThis Plugin-Pack includes a service discovery rule."
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin-pack pour superviser le statut des services Google Workspace par API:\r\n* Services\r\n\r\nCe Plugin-Pack comprend une r\u00e8gle de d\u00e9couverte de services."
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Google Workspace",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_google_workspace_api.pl",
+                "package_name": "centreon-plugin-Applications-Google-Workspace-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-google-workspace-api",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Google",
+            "SNMP",
+            "Workspace",
+            "API",
+            "Gmail",
+            "Meet"
+        ],
+        "update_date": "1627909827",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le du statut des services Google Workspace.}\r\n\r\n{EN: Check Google Workspace services.}",
+            "active_checks_enabled": 2,
+            "alias": "Services",
+            "check_timeperiod": "",
+            "command_name": "App-Google-Workspace-Api-Services",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} eq \"disruption\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} eq \"outage\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Google-Workspace-Api-Services",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

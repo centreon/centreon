@@ -1,0 +1,115 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_qsan_nas_snmp.pl --plugin=storage::qsan::nas::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Qsan-Nas-SNMP-Hardware",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Qsan Nas using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "storage-qsan-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Qsan-Nas-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Storage-Qsan-Nas-Hardware-Global-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "storage-qsan-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ fix hardcoded snmp community and version",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor QSAN Nas via SNMP:\r\n* Hardware"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller le Nas QSAN via SNMP :\r\n* Hardware"
+            }
+        ],
+        "discovery_category": "storage",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Storage-Qsan-Nas-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Storage-Qsan-Nas-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "QSAN NAS",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_qsan_nas_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Storage-Qsan-Nas-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-storage-qsan-nas-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Storage",
+            "QSAN",
+            "NAS",
+            "SNMP"
+        ],
+        "update_date": "1502193691",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le mat\u00e9riel.}\r\n\r\n{EN: Check hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Qsan-Nas-SNMP-Hardware",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --subsettable=10 --snmp-force-getnext --snmp-timeout=15"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Qsan-Nas-Hardware-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

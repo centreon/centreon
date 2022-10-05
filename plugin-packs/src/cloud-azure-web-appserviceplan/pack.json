@@ -1,0 +1,1334 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Web-AppServicePlan-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Web App Service Plan resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Web/serverFarms/PLAN123456ABCD78",
+                            "location": "westeurope",
+                            "name": "PLAN123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Web/serverFarms"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Web/serverFarms/PLAN789012EFGH34",
+                            "location": "westus",
+                            "name": "PLAN789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Web/serverFarms"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": "discovery.results.id"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Web-AppServicePlan-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure App Service Plan",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-web-appserviceplan",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Web-AppServicePlan-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Web App Service Plan resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Web/serverFarms/PLAN123456ABCD78",
+                            "location": "westeurope",
+                            "name": "PLAN123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Web/serverFarms"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Web/serverFarms/PLAN789012EFGH34",
+                            "location": "westus",
+                            "name": "PLAN789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Web/serverFarms"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Web-AppServicePlan-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure App Service Plan",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-web-appserviceplan",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Web-AppServicePlan-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Web App Service Plan resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Web/serverFarms/PLAN123456ABCD78",
+                            "location": "westeurope",
+                            "name": "PLAN123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Web/serverFarms"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Web/serverFarms/PLAN789012EFGH34",
+                            "location": "westus",
+                            "name": "PLAN789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Web/serverFarms"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Web-AppServicePlan-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure App Service Plan",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-web-appserviceplan",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_web_appserviceplan_api.pl --plugin=cloud::azure::web::appserviceplan::plugin --mode=tcp-connections --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-tcp-syn-received=\\'$_SERVICEWARNINGTCPSYNRECEIVED$\\' --critical-tcp-syn-received=\\'$_SERVICECRITICALTCPSYNRECEIVED$\\' --warning-tcp-ack-last=\\'$_SERVICEWARNINGTCPACKLAST$\\' --critical-tcp-ack-last=\\'$_SERVICECRITICALTCPACKLAST$\\' --warning-tcp-fin-wait2=\\'$_SERVICEWARNINGTCPFINWAIT2$\\' --critical-tcp-fin-wait2=\\'$_SERVICECRITICALTCPFINWAIT2$\\' --warning-tcp-fin-wait1=\\'$_SERVICEWARNINGTCPFINWAIT1$\\' --critical-tcp-fin-wait1=\\'$_SERVICECRITICALTCPFINWAIT1$\\' --warning-tcp-closewait=\\'$_SERVICEWARNINGTCPCLOSEWAIT$\\' --critical-tcp-closewait=\\'$_SERVICECRITICALTCPCLOSEWAIT$\\' --warning-tcp-closing=\\'$_SERVICEWARNINGTCPCLOSING$\\' --critical-tcp-closing=\\'$_SERVICECRITICALTCPCLOSING$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Web-AppServicePlan-Api-Tcp-Connections",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_web_appserviceplan_api.pl --plugin=cloud::azure::web::appserviceplan::plugin --mode=socket --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-socket-loopback=\\'$_SERVICEWARNINGSOCKETLOOPBACK$\\' --critical-socket-loopback=\\'$_SERVICECRITICALSOCKETLOOPBACK$\\' --warning-socket-outbound-established=\\'$_SERVICEWARNINGSOCKETOUTBOUNDESTABLISHED$\\' --critical-socket-outbound-established=\\'$_SERVICECRITICALSOCKETOUTBOUNDESTABLISHED$\\' --warning-socket-inbound-all=\\'$_SERVICEWARNINGSOCKETINBOUNDALL$\\' --critical-socket-inbound-all=\\'$_SERVICECRITICALSOCKETINBOUNDALL$\\' --warning-socket-outbound-all=\\'$_SERVICEWARNINGSOCKETOUTBOUNDALL$\\' --critical-socket-outbound-all=\\'$_SERVICECRITICALSOCKETOUTBOUNDALL$\\' --warning-socket-outbound-timewait=\\'$_SERVICEWARNINGSOCKETOUTBOUNDTIMEWAIT$\\' --critical-socket-outbound-timewait=\\'$_SERVICECRITICALSOCKETOUTBOUNDTIMEWAIT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Web-AppServicePlan-Api-Socket",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_web_appserviceplan_api.pl --plugin=cloud::azure::web::appserviceplan::plugin --mode=queue --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-http-queue-length=\\'$_SERVICEWARNINGHTTPQUEUELENGTH$\\' --critical-http-queue-length=\\'$_SERVICECRITICALHTTPQUEUELENGTH$\\' --warning-disk-queue-length=\\'$_SERVICEWARNINGDISKQUEUELENGTH$\\' --critical-disk-queue-length=\\'$_SERVICECRITICALDISKQUEUELENGTH$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Web-AppServicePlan-Api-Queue",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_web_appserviceplan_api.pl --plugin=cloud::azure::web::appserviceplan::plugin --mode=memory --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-memory-percentage=\\'$_SERVICEWARNINGMEMORYPERCENTAGE$\\' --critical-memory-percentage=\\'$_SERVICECRITICALMEMORYPERCENTAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Web-AppServicePlan-Api-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_web_appserviceplan_api.pl --plugin=cloud::azure::web::appserviceplan::plugin --mode=health --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --ok-status=\\'$_SERVICEOKSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Web-AppServicePlan-Api-Health",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_web_appserviceplan_api.pl --plugin=cloud::azure::web::appserviceplan::plugin --mode=data --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-data-in=\\'$_SERVICEWARNINGDATAIN$\\' --critical-data-in=\\'$_SERVICECRITICALDATAIN$\\' --warning-data-out=\\'$_SERVICEWARNINGDATAOUT$\\' --critical-data-out=\\'$_SERVICECRITICALDATAOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Web-AppServicePlan-Api-Data",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_web_appserviceplan_api.pl --plugin=cloud::azure::web::appserviceplan::plugin --mode=cpu --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-cpu-usage-percentage=\\'$_SERVICEWARNINGCPUUSAGEPERCENTAGE$\\' --critical-cpu-usage-percentage=\\'$_SERVICECRITICALCPUUSAGEPERCENTAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Web-AppServicePlan-Api-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_web_appserviceplan_api.pl --statefile-suffix='autodiscovery' --plugin=cloud::azure::web::appserviceplan::plugin --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Web-AppServicePlan-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les instances Azure App Service Plan via l'API}\r\n{EN: Template to check Azure App Service Plan resources service using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure App Service Plan service using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-web-appserviceplan-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Web-AppServicePlan",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Web-AppServicePlan-Tcp-Connections-Api",
+                "Cloud-Azure-Web-AppServicePlan-Socket-Api",
+                "Cloud-Azure-Web-AppServicePlan-Queue-Api",
+                "Cloud-Azure-Web-AppServicePlan-Memory-Api",
+                "Cloud-Azure-Web-AppServicePlan-Health-Api",
+                "Cloud-Azure-Web-AppServicePlan-Data-Api",
+                "Cloud-Azure-Web-AppServicePlan-Cpu-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-web-appserviceplan-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ add proper tags management\r\n",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin Pack to monitor Azure App Service Plan service using RestAPI or AZCLI.**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|Cloud-Azure-Web-AppServicePlan-custom|\r\n|---|\r\n|Cpu|\r\n|Data|\r\n|Health|\r\n|Memory|\r\n|Socket|\r\n|Tcp-Connections|\r\n\r\nThis Plugin-Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin Pack pour superviser les ressources Azure App Service Plan via RestAPI ou AZCLI.**\r\n\r\nMod\u00e8le d\\'H\u00f4te disponible et Services associ\u00e9s:\r\n\r\n|Cloud-Azure-Web-AppServicePlan-custom|\r\n|---|\r\n|Cpu|\r\n|Data|\r\n|Health|\r\n|Memory|\r\n|Socket|\r\n|Tcp-Connections|\r\n\r\nCe Plugin-Pack fournit un *provider* Host Discovery pour le module d\\'auto-d\u00e9couverte d\\'H\u00f4tes"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module >= 19.10.1\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure App Service Plan",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_web_appserviceplan_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Web-AppServicePlan-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-web-appserviceplan",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Cloud",
+            "Azure",
+            "Microsoft",
+            "Restapi",
+            "API",
+            "Web",
+            "HostDisco",
+            "App"
+        ],
+        "update_date": "1636825805",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques de connexions TCP de l'instance Azure App Service Plan.}\r\n\r\n{EN: Check Azure App Service Plan TCP connections statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Tcp-Connections",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Web-AppServicePlan-Api-Tcp-Connections",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Web-AppServicePlan-Tcp-Connections-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques socket de l'instance Azure App Service Plan.}\r\n\r\n{EN: Check Azure App Service Plan socket statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Socket",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Web-AppServicePlan-Api-Socket",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Web-AppServicePlan-Socket-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques des files d'attente de l'instance Azure App Service Plan.}\r\n\r\n{EN: Check Azure App Service Plan queue statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Queue",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Web-AppServicePlan-Api-Queue",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Web-AppServicePlan-Queue-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques m\u00e9moire de l'instance Azure App Service Plan.}\r\n\r\n{EN: Check Azure App Service Plan memory statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Web-AppServicePlan-Api-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Web-AppServicePlan-Memory-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la disponibilit\u00e9 des ressources Azure App Service Plan.}\r\n\r\n{EN: Check Azure App Service Plan health.}",
+            "active_checks_enabled": 2,
+            "alias": "Health",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Web-AppServicePlan-Api-Health",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEOKSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^Available$/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^Unavailable$/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^Unknown$/"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Web-AppServicePlan-Health-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques de donn\u00e9es de l'instance Azure App Service Plan.}\r\n\r\n{EN: Check Azure App Service Plan data statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Data",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Web-AppServicePlan-Api-Data",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Web-AppServicePlan-Data-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques CPU de l'instance Azure App Service Plan.}\r\n\r\n{EN: Check Azure App Service Plan CPU statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Web-AppServicePlan-Api-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Web-AppServicePlan-Cpu-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

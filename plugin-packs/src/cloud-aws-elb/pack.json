@@ -1,0 +1,2632 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v1.0": [
+                {
+                    "command": "Cloud-Aws-Elb-Api-HostDiscovery",
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Amazon AWS ELB instances",
+                    "mapping": {
+                        "aws_elb": {
+                            "association": {
+                                "description": [
+                                    "${dns_name}",
+                                    "${name}"
+                                ],
+                                "hostname": [
+                                    "${name}",
+                                    "${dns_name}"
+                                ],
+                                "ip": [
+                                    "${dns_name}",
+                                    "${name}"
+                                ]
+                            },
+                            "attributes": {
+                                "availability_zones": {
+                                    "type": "array"
+                                },
+                                "dns_name": {
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "security_groups": {
+                                    "type": "array"
+                                },
+                                "type": {
+                                    "type": "string"
+                                },
+                                "vpc_id": {
+                                    "type": "string"
+                                }
+                            },
+                            "filters": {
+                                "type": "classic"
+                            },
+                            "macros": [
+                                {
+                                    "from": "parameters",
+                                    "name": "AWSSECRETKEY",
+                                    "type": "password",
+                                    "value": "AWSSECRETKEY"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AWSACCESSKEY",
+                                    "type": "text",
+                                    "value": "AWSACCESSKEY"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AWSREGION",
+                                    "type": "text",
+                                    "value": "REGION"
+                                },
+                                {
+                                    "from": "results",
+                                    "name": "AWSINSTANCENAME",
+                                    "type": "text",
+                                    "value": "name"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "PROXYURL",
+                                    "type": "text",
+                                    "value": "PROXYURL"
+                                }
+                            ],
+                            "object": "host",
+                            "templates": [
+                                "Cloud-Aws-Elb-LoadBalancer"
+                            ]
+                        }
+                    },
+                    "name": "Amazon AWS ELB",
+                    "parameters": [
+                        {
+                            "description": "AWS Access Key",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AWSACCESSKEY",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "AWS Secret Key",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AWSSECRETKEY",
+                            "type": "password",
+                            "value": null
+                        },
+                        {
+                            "description": "Region",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "REGION",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Timeout",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "TIMEOUT",
+                            "type": "text",
+                            "value": 10
+                        },
+                        {
+                            "description": "Proxy URL",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "PROXYURL",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Extra Options",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "EXTRAOPTIONS",
+                            "type": "text",
+                            "value": null
+                        }
+                    ],
+                    "test_option": null,
+                    "type": "aws"
+                },
+                {
+                    "command": "Cloud-Aws-Elb-Application-Api-HostDiscovery",
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Amazon AWS Application ELB instances",
+                    "mapping": {
+                        "aws_elb_application": {
+                            "association": {
+                                "description": [
+                                    "${dns_name}",
+                                    "${name}"
+                                ],
+                                "hostname": [
+                                    "${name}",
+                                    "${dns_name}"
+                                ],
+                                "ip": [
+                                    "${dns_name}",
+                                    "${name}"
+                                ]
+                            },
+                            "attributes": {
+                                "availability_zones": {
+                                    "type": "array"
+                                },
+                                "dns_name": {
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "security_groups": {
+                                    "type": "array"
+                                },
+                                "state": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                },
+                                "vpc_id": {
+                                    "type": "string"
+                                }
+                            },
+                            "filters": {
+                                "type": "application"
+                            },
+                            "macros": [
+                                {
+                                    "from": "parameters",
+                                    "name": "AWSSECRETKEY",
+                                    "type": "password",
+                                    "value": "AWSSECRETKEY"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AWSACCESSKEY",
+                                    "type": "text",
+                                    "value": "AWSACCESSKEY"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AWSREGION",
+                                    "type": "text",
+                                    "value": "REGION"
+                                },
+                                {
+                                    "from": "results",
+                                    "name": "AWSINSTANCENAME",
+                                    "type": "text",
+                                    "value": "name"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "PROXYURL",
+                                    "type": "text",
+                                    "value": "PROXYURL"
+                                }
+                            ],
+                            "object": "host",
+                            "templates": [
+                                "Cloud-Aws-Elb-Application-LoadBalancer"
+                            ]
+                        }
+                    },
+                    "name": "Amazon AWS ELB (Application)",
+                    "parameters": [
+                        {
+                            "description": "AWS Access Key",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AWSACCESSKEY",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "AWS Secret Key",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AWSSECRETKEY",
+                            "type": "password",
+                            "value": null
+                        },
+                        {
+                            "description": "Region",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "REGION",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Timeout",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "TIMEOUT",
+                            "type": "text",
+                            "value": 10
+                        },
+                        {
+                            "description": "Proxy URL",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "PROXYURL",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Extra Options",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "EXTRAOPTIONS",
+                            "type": "text",
+                            "value": null
+                        }
+                    ],
+                    "test_option": null,
+                    "type": "aws"
+                },
+                {
+                    "command": "Cloud-Aws-Elb-Network-Api-HostDiscovery",
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Amazon AWS Network ELB instances",
+                    "mapping": {
+                        "aws_elb_network": {
+                            "association": {
+                                "description": [
+                                    "${dns_name}",
+                                    "${name}"
+                                ],
+                                "hostname": [
+                                    "${name}",
+                                    "${dns_name}"
+                                ],
+                                "ip": [
+                                    "${dns_name}",
+                                    "${name}"
+                                ]
+                            },
+                            "attributes": {
+                                "availability_zones": {
+                                    "type": "array"
+                                },
+                                "dns_name": {
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "security_groups": {
+                                    "type": "array"
+                                },
+                                "state": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                },
+                                "vpc_id": {
+                                    "type": "string"
+                                }
+                            },
+                            "filters": {
+                                "type": "network"
+                            },
+                            "macros": [
+                                {
+                                    "from": "parameters",
+                                    "name": "AWSSECRETKEY",
+                                    "type": "password",
+                                    "value": "AWSSECRETKEY"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AWSACCESSKEY",
+                                    "type": "text",
+                                    "value": "AWSACCESSKEY"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "AWSREGION",
+                                    "type": "text",
+                                    "value": "REGION"
+                                },
+                                {
+                                    "from": "results",
+                                    "name": "AWSINSTANCENAME",
+                                    "type": "text",
+                                    "value": "name"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "PROXYURL",
+                                    "type": "text",
+                                    "value": "PROXYURL"
+                                }
+                            ],
+                            "object": "host",
+                            "templates": [
+                                "Cloud-Aws-Elb-Network-LoadBalancer"
+                            ]
+                        }
+                    },
+                    "name": "Amazon AWS ELB (Network)",
+                    "parameters": [
+                        {
+                            "description": "AWS Access Key",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AWSACCESSKEY",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "AWS Secret Key",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "AWSSECRETKEY",
+                            "type": "password",
+                            "value": null
+                        },
+                        {
+                            "description": "Region",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "REGION",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Timeout",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "TIMEOUT",
+                            "type": "text",
+                            "value": 10
+                        },
+                        {
+                            "description": "Proxy URL",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "PROXYURL",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Extra Options",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "EXTRAOPTIONS",
+                            "type": "text",
+                            "value": null
+                        }
+                    ],
+                    "test_option": null,
+                    "type": "aws"
+                }
+            ],
+            "v2.0": [
+                {
+                    "attributes": {
+                        "availability_zones": {
+                            "type": "array"
+                        },
+                        "dns_name": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "security_groups": {
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "vpc_id": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Aws-Elb-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "AWS Access Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSACCESSKEY",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "AWS Secret Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSSECRETKEY",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Amazon AWS ELB instances",
+                    "discovery_examples": [],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSACCESSKEY",
+                                "is_password": false,
+                                "source": "discovery.credentials.AWSACCESSKEY"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSSECRETKEY",
+                                "is_password": true,
+                                "source": "discovery.credentials.AWSSECRETKEY"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSREGION",
+                                "is_password": false,
+                                "source": "discovery.parameters.REGION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSINSTANCENAME",
+                                "is_password": false,
+                                "source": "discovery.results.name"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Aws-Elb-LoadBalancer-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Amazon AWS ELB (Classic)",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Region",
+                                "group": "AWS",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "REGION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "amazon-elb-classic",
+                    "type": "aws",
+                    "uuid_attributes": [
+                        "vpc_id",
+                        "availability_zones",
+                        "name"
+                    ]
+                },
+                {
+                    "attributes": {
+                        "availability_zones": {
+                            "type": "array"
+                        },
+                        "dns_name": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "security_groups": {
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "vpc_id": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Aws-Elb-Application-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "AWS Access Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSACCESSKEY",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "AWS Secret Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSSECRETKEY",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Amazon AWS Application ELB instances",
+                    "discovery_examples": [],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSACCESSKEY",
+                                "is_password": false,
+                                "source": "discovery.credentials.AWSACCESSKEY"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSSECRETKEY",
+                                "is_password": true,
+                                "source": "discovery.credentials.AWSSECRETKEY"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSREGION",
+                                "is_password": false,
+                                "source": "discovery.parameters.REGION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSINSTANCENAME",
+                                "is_password": false,
+                                "source": "discovery.results.name"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Aws-Elb-Application-LoadBalancer-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Amazon AWS ELB (Application)",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Region",
+                                "group": "AWS",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "REGION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "amazon-elb-application",
+                    "type": "aws",
+                    "uuid_attributes": [
+                        "vpc_id",
+                        "availability_zones",
+                        "name"
+                    ]
+                },
+                {
+                    "attributes": {
+                        "availability_zones": {
+                            "type": "array"
+                        },
+                        "dns_name": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "security_groups": {
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "vpc_id": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Aws-Elb-Network-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "AWS Access Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSACCESSKEY",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "AWS Secret Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSSECRETKEY",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Amazon AWS Network ELB instances",
+                    "discovery_examples": [],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSACCESSKEY",
+                                "is_password": false,
+                                "source": "discovery.credentials.AWSACCESSKEY"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSSECRETKEY",
+                                "is_password": true,
+                                "source": "discovery.credentials.AWSSECRETKEY"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSREGION",
+                                "is_password": false,
+                                "source": "discovery.parameters.REGION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSINSTANCENAME",
+                                "is_password": false,
+                                "source": "discovery.results.name"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Aws-Elb-Network-LoadBalancer-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Amazon AWS ELB (Network)",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Region",
+                                "group": "AWS",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "REGION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "amazon-elb-network",
+                    "type": "aws",
+                    "uuid_attributes": [
+                        "vpc_id",
+                        "arn"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "availability_zones": {
+                            "type": "array"
+                        },
+                        "dns_name": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "security_groups": {
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "vpc_id": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Aws-Elb-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "AWS Access Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSACCESSKEY",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "AWS Secret Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSSECRETKEY",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Amazon AWS ELB instances",
+                    "discovery_examples": [],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSACCESSKEY",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSACCESSKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSSECRETKEY",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSSECRETKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSREGION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.REGION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSINSTANCENAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Aws-Elb-LoadBalancer-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Amazon AWS ELB (Classic)",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Region",
+                                "group": "AWS",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "REGION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "amazon-elb-classic",
+                    "type": "aws",
+                    "uuid_attributes": [
+                        "vpc_id",
+                        "availability_zones",
+                        "name"
+                    ]
+                },
+                {
+                    "attributes": {
+                        "availability_zones": {
+                            "type": "array"
+                        },
+                        "dns_name": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "security_groups": {
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "vpc_id": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Aws-Elb-Application-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "AWS Access Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSACCESSKEY",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "AWS Secret Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSSECRETKEY",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Amazon AWS Application ELB instances",
+                    "discovery_examples": [],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSACCESSKEY",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSACCESSKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSSECRETKEY",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSSECRETKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSREGION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.REGION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSINSTANCENAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Aws-Elb-Application-LoadBalancer-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Amazon AWS ELB (Application)",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Region",
+                                "group": "AWS",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "REGION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "amazon-elb-application",
+                    "type": "aws",
+                    "uuid_attributes": [
+                        "vpc_id",
+                        "availability_zones",
+                        "name"
+                    ]
+                },
+                {
+                    "attributes": {
+                        "availability_zones": {
+                            "type": "array"
+                        },
+                        "dns_name": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "security_groups": {
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "vpc_id": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Aws-Elb-Network-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "AWS Access Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSACCESSKEY",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "AWS Secret Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSSECRETKEY",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Amazon AWS Network ELB instances",
+                    "discovery_examples": [],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSACCESSKEY",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSACCESSKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSSECRETKEY",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSSECRETKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSREGION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.REGION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSINSTANCENAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Aws-Elb-Network-LoadBalancer-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Amazon AWS ELB (Network)",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Region",
+                                "group": "AWS",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "REGION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "amazon-elb-network",
+                    "type": "aws",
+                    "uuid_attributes": [
+                        "vpc_id",
+                        "arn"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "availability_zones": {
+                            "properties": [
+                                "ZoneName",
+                                "LoadBalancerAddresses",
+                                "SubnetId"
+                            ],
+                            "type": "array"
+                        },
+                        "dns_name": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "security_groups": {
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "vpc_id": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Aws-Elb-Network-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "AWS Access Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSACCESSKEY",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "AWS Secret Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSSECRETKEY",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Amazon AWS Network ELB instances",
+                    "discovery_examples": [],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSACCESSKEY",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSACCESSKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSSECRETKEY",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSSECRETKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSREGION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.REGION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSINSTANCENAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Aws-Elb-Network-LoadBalancer-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Amazon AWS ELB (Network)",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Region",
+                                "group": "AWS",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "REGION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "amazon-elb-network",
+                    "type": "aws",
+                    "uuid_attributes": [
+                        "vpc_id",
+                        "arn"
+                    ]
+                }
+            ]
+        },
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Cloud-Aws-Elb-Network-Api-Health-Target-Groups-Discover",
+                "command_for_macro": "Cloud-Aws-Elb-Network-Api-Health-Target-Groups-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$availability_zone$",
+                        "order": 0,
+                        "pattern": "(^$)",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Cloud-Aws-Elb-Network-LoadBalancer"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "AVAILABILITYZONE",
+                        "value": "$availability_zone$"
+                    },
+                    {
+                        "is_empty": null,
+                        "name": "TARGETGROUP",
+                        "value": "$target_group$"
+                    }
+                ],
+                "name": "Cloud-Aws-Elb-Network-Targets-Health-Per-AZ",
+                "service_display_name": "Target-Health-$target_group_display_name$-[$availability_zone$]",
+                "service_template": "Cloud-Aws-Elb-Network-Targets-Health-Api"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Cloud-Aws-Elb-Network-Api-Health-Target-Groups-Discover",
+                "command_for_macro": "Cloud-Aws-Elb-Network-Api-Health-Target-Groups-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$availability_zone$",
+                        "order": 0,
+                        "pattern": "(^$)",
+                        "type": "inclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Cloud-Aws-Elb-Network-LoadBalancer"
+                ],
+                "macros": [
+                    {
+                        "is_empty": "1",
+                        "name": "AVAILABILITYZONE",
+                        "value": ""
+                    },
+                    {
+                        "is_empty": null,
+                        "name": "TARGETGROUP",
+                        "value": "$target_group$"
+                    }
+                ],
+                "name": "Cloud-Aws-Elb-Network-Targets-Health",
+                "service_display_name": "Target-Health-$target_group_display_name$",
+                "service_template": "Cloud-Aws-Elb-Network-Targets-Health-Api"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_elb_network_api.pl --plugin=cloud::aws::elb::network::plugin --mode=list-health-target-groups --custommode=\\'awscli\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'eu-west-1\\' --elb-name=\\'$_HOSTAWSINSTANCENAME$\\' --verbose --disco-format\\\"",
+            "name": "Cloud-Aws-Elb-Network-Api-Health-Target-Groups-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_elb_network_api.pl --plugin=cloud::aws::elb::network::plugin --mode=list-health-target-groups --custommode=\\'awscli\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'eu-west-1\\' --elb-name=\\'$_HOSTAWSINSTANCENAME$\\' --verbose --disco-show\\\"",
+            "name": "Cloud-Aws-Elb-Network-Api-Health-Target-Groups-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_elb_api.pl --plugin=cloud::aws::elb::classic::plugin --mode=targets-health --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --type=\\'$_HOSTAWSINSTANCETYPE$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-unhealthyhostcount=\\'$_SERVICEWARNINGUNHEALTHYHOSTCOUNT$\\' --critical-unhealthyhostcount=\\'$_SERVICECRITICALUNHEALTHYHOSTCOUNT$\\' --warning-healthyhostcount=\\'$_SERVICEWARNINGHEALTHYHOSTCOUNT$\\' --critical-healthyhostcount=\\'$_SERVICECRITICALHEALTHYHOSTCOUNT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Elb-Api-Targets-Health",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_elb_api.pl --plugin=cloud::aws::elb::classic::plugin --mode=queues --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --type=\\'$_HOSTAWSINSTANCETYPE$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-spillovercount=\\'$_SERVICEWARNINGSPILLOVERCOUNT$\\' --critical-spillovercount=\\'$_SERVICECRITICALSPILLOVERCOUNT$\\' --warning-surgequeuelength=\\'$_SERVICEWARNINGSURGEQUEUELENGTH$\\' --critical-surgequeuelength=\\'$_SERVICECRITICALSURGEQUEUELENGTH$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Elb-Api-Queues",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_elb_api.pl --plugin=cloud::aws::elb::classic::plugin --mode=performances --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --type=\\'$_HOSTAWSINSTANCETYPE$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-latency=\\'$_SERVICEWARNINGLATENCY$\\' --critical-latency=\\'$_SERVICECRITICALLATENCY$\\' --warning-requestcount=\\'$_SERVICEWARNINGREQUESTCOUNT$\\' --critical-requestcount=\\'$_SERVICECRITICALREQUESTCOUNT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Elb-Api-Performances",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_elb_api.pl --plugin=cloud::aws::elb::classic::plugin --mode=http-codes --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --type=\\'$_HOSTAWSINSTANCETYPE$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-httpcode-elb-5xx=\\'$_SERVICEWARNINGHTTPCODEELB5XX$\\' --critical-httpcode-elb-5xx=\\'$_SERVICECRITICALHTTPCODEELB5XX$\\' --warning-httpcode-backend-4xx=\\'$_SERVICEWARNINGHTTPCODEBACKEND4XX$\\' --critical-httpcode-backend-4xx=\\'$_SERVICECRITICALHTTPCODEBACKEND4XX$\\' --warning-httpcode-backend-3xx=\\'$_SERVICEWARNINGHTTPCODEBACKEND3XX$\\' --critical-httpcode-backend-3xx=\\'$_SERVICECRITICALHTTPCODEBACKEND3XX$\\' --warning-backendconnectionerrors=\\'$_SERVICEWARNINGBACKENDCONNECTIONERRORS$\\' --critical-backendconnectionerrors=\\'$_SERVICECRITICALBACKENDCONNECTIONERRORS$\\' --warning-httpcode-backend-2xx=\\'$_SERVICEWARNINGHTTPCODEBACKEND2XX$\\' --critical-httpcode-backend-2xx=\\'$_SERVICECRITICALHTTPCODEBACKEND2XX$\\' --warning-httpcode-elb-4xx=\\'$_SERVICEWARNINGHTTPCODEELB4XX$\\' --critical-httpcode-elb-4xx=\\'$_SERVICECRITICALHTTPCODEELB4XX$\\' --warning-httpcode-backend-5xx=\\'$_SERVICEWARNINGHTTPCODEBACKEND5XX$\\' --critical-httpcode-backend-5xx=\\'$_SERVICECRITICALHTTPCODEBACKEND5XX$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Elb-Api-Http-Codes",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_elb_application_api.pl --plugin=cloud::aws::elb::application::plugin --mode=targets-health --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-unhealthyhostcount=\\'$_SERVICEWARNINGUNHEALTHYHOSTCOUNT$\\' --critical-unhealthyhostcount=\\'$_SERVICECRITICALUNHEALTHYHOSTCOUNT$\\' --warning-healthyhostcount=\\'$_SERVICEWARNINGHEALTHYHOSTCOUNT$\\' --critical-healthyhostcount=\\'$_SERVICECRITICALHEALTHYHOSTCOUNT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Elb-Application-Api-Targets-Health",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_elb_application_api.pl --plugin=cloud::aws::elb::application::plugin --mode=http-codes --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-httpcode-target-2xx=\\'$_SERVICEWARNINGHTTPCODETARGET2XX$\\' --critical-httpcode-target-2xx=\\'$_SERVICECRITICALHTTPCODETARGET2XX$\\' --warning-http-redirect=\\'$_SERVICEWARNINGHTTPREDIRECT$\\' --critical-http-redirect=\\'$_SERVICECRITICALHTTPREDIRECT$\\' --warning-httpcode-elb-4xx=\\'$_SERVICEWARNINGHTTPCODEELB4XX$\\' --critical-httpcode-elb-4xx=\\'$_SERVICECRITICALHTTPCODEELB4XX$\\' --warning-httpcode-elb-3xx=\\'$_SERVICEWARNINGHTTPCODEELB3XX$\\' --critical-httpcode-elb-3xx=\\'$_SERVICECRITICALHTTPCODEELB3XX$\\' --warning-httpcode-target-4xx=\\'$_SERVICEWARNINGHTTPCODETARGET4XX$\\' --critical-httpcode-target-4xx=\\'$_SERVICECRITICALHTTPCODETARGET4XX$\\' --warning-httpcode-target-5xx=\\'$_SERVICEWARNINGHTTPCODETARGET5XX$\\' --critical-httpcode-target-5xx=\\'$_SERVICECRITICALHTTPCODETARGET5XX$\\' --warning-httpcode-target-3xx=\\'$_SERVICEWARNINGHTTPCODETARGET3XX$\\' --critical-httpcode-target-3xx=\\'$_SERVICECRITICALHTTPCODETARGET3XX$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Elb-Application-Api-Http-Codes",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_elb_application_api.pl --plugin=cloud::aws::elb::application::plugin --mode=connections --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-connection-new=\\'$_SERVICEWARNINGCONNECTIONNEW$\\' --critical-connection-new=\\'$_SERVICECRITICALCONNECTIONNEW$\\' --warning-target-connection-error=\\'$_SERVICEWARNINGTARGETCONNECTIONERROR$\\' --critical-target-connection-error=\\'$_SERVICECRITICALTARGETCONNECTIONERROR$\\' --warning-connection-active=\\'$_SERVICEWARNINGCONNECTIONACTIVE$\\' --critical-connection-active=\\'$_SERVICECRITICALCONNECTIONACTIVE$\\' --warning-connection-rejected=\\'$_SERVICEWARNINGCONNECTIONREJECTED$\\' --critical-connection-rejected=\\'$_SERVICECRITICALCONNECTIONREJECTED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Elb-Application-Api-Connections",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_elb_network_api.pl --plugin=cloud::aws::elb::network::plugin --mode=targets-health --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --name=\\'$_HOSTAWSINSTANCENAME$\\' --availability-zone=\\'$_SERVICEAVAILABILITYZONE$\\' --target-group=\\'$_SERVICETARGETGROUP$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-unhealthyhostcount=\\'$_SERVICEWARNINGUNHEALTHYHOSTCOUNT$\\' --critical-unhealthyhostcount=\\'$_SERVICECRITICALUNHEALTHYHOSTCOUNT$\\' --warning-healthyhostcount=\\'$_SERVICEWARNINGHEALTHYHOSTCOUNT$\\' --critical-healthyhostcount=\\'$_SERVICECRITICALHEALTHYHOSTCOUNT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Elb-Network-Api-Targets-Health",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_elb_api.pl --plugin=cloud::aws::elb::classic::plugin --custommode=\\'awscli\\' --mode=discovery --aws-access-key=\\'$_AWSACCESSKEY$\\' --aws-secret-key=\\'$_AWSSECRETKEY$\\' --proxyurl=\\'$_PROXYURL$\\' --timeout=\\'$_TIMEOUT$\\' --region=\\'$_REGION$\\' $_EXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Elb-Api-HostDiscovery",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_elb_application_api.pl --plugin=cloud::aws::elb::application::plugin --custommode=\\'awscli\\' --mode=discovery --aws-access-key=\\'$_AWSACCESSKEY$\\' --aws-secret-key=\\'$_AWSSECRETKEY$\\' --proxyurl=\\'$_PROXYURL$\\' --timeout=\\'$_TIMEOUT$\\' --region=\\'$_REGION$\\' $_EXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Elb-Application-Api-HostDiscovery",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_elb_network_api.pl --plugin=cloud::aws::elb::network::plugin --custommode=\\'awscli\\' --mode=discovery --aws-access-key=\\'$_AWSACCESSKEY$\\' --aws-secret-key=\\'$_AWSSECRETKEY$\\' --proxyurl=\\'$_PROXYURL$\\' --timeout=\\'$_TIMEOUT$\\' --region=\\'$_REGION$\\' $_EXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Elb-Network-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Amazon Elastic Load Balancing (Amazon ELB) via l&#39;API}\r\n{EN: Template to check Amazon Elastic Load Balancing (Amazon ELB) using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Amazon Classic Elastic Load Balancing (Amazon Classic ELB) load balancer using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "icon": "aws-elb-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAWSCUSTOMMODE$",
+                    "value": "awscli"
+                },
+                {
+                    "key": "$_HOSTAWSINSTANCETYPE$",
+                    "value": "loadbalancer"
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSSECRETKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSACCESSKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSREGION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSINSTANCENAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Elb-LoadBalancer",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Aws-Elb-Targets-Health-Api",
+                "Cloud-Aws-Elb-Queues-Api",
+                "Cloud-Aws-Elb-Performances-Api",
+                "Cloud-Aws-Elb-Http-Codes-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Amazon Elastic Load Balancing (Amazon ELB) via l&#39;API}\r\n{EN: Template to check Amazon Elastic Load Balancing (Amazon ELB) using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Amazon Classic Elastic Load Balancing (Amazon Classic ELB) availability zone using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "icon": "aws-elb-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAWSCUSTOMMODE$",
+                    "value": "awscli"
+                },
+                {
+                    "key": "$_HOSTAWSINSTANCETYPE$",
+                    "value": "availabilityzone"
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSSECRETKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSACCESSKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSINSTANCENAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSREGION$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Elb-AvailabilityZone",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Aws-Elb-Targets-Health-Api",
+                "Cloud-Aws-Elb-Queues-Api",
+                "Cloud-Aws-Elb-Performances-Api",
+                "Cloud-Aws-Elb-Http-Codes-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Amazon Application Elastic Load Balancing (Amazon Application ELB) via l&#39;API}\r\n{EN: Template to check Amazon Application Elastic Load Balancing (Amazon Application ELB) using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Amazon Application Elastic Load Balancing (Amazon Application ELB) load balancer using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "icon": "aws-elb-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAWSCUSTOMMODE$",
+                    "value": "awscli"
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSSECRETKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSREGION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSINSTANCENAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSACCESSKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Elb-Application-LoadBalancer",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Aws-Elb-Application-Targets-Health-Api",
+                "Cloud-Aws-Elb-Application-Http-Codes-Api",
+                "Cloud-Aws-Elb-Application-Connections-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Amazon Network Elastic Load Balancing (Amazon Network ELB) via l&#39;API}\r\n{EN: Template to check Amazon Network Elastic Load Balancing (Amazon Network ELB) using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Amazon Network Elastic Load Balancing (Amazon Network ELB) load balancer using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "icon": "aws-elb-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAWSCUSTOMMODE$",
+                    "value": "awscli"
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSSECRETKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSACCESSKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSREGION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSINSTANCENAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Elb-Network-LoadBalancer",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAH4AAAB+CAYAAADiI6WIAAAF5klEQVR42u3cb0wbZRwH8L7ghQm+MwQ2J9bRQhBhhf5xrGAgW0AgUmIWok2GbG5EwWRudmPoqKUtY4NFUqZBspJFs9SNZFlITBbYRvfCxRhf9YUzor7RLLC+YYF2DPbi7HPdHUdtKX+O9u6e7y/5viBAAvf59u65611VKgwGg8FgMBgMRu7jbcwzey2aB0G7/uG802DGFqECXBsYbdIyJOFeE5tQrymAAlAAHguPAlACnggeBVA4eDJ4FECmkwx8vfAoAOXwKADl8CgA5fAoQBoWbROthZPBbv2Zha7SrHTDowApXKXfOVK0aoOHXYb6WVtJZjrhUQCRZ7hJrY4A+YRYQvhVG91t9HAbPV3wK3+LyTfn0KkhKAJ4MnhBAWbSDY8CbMPiLBk8iVTguQAf8BjAU3oMDxwvaSGLMb9DlQF4ihZt0zbdnHARRE7LuHNzmuAdVaqModrXTD+3FZZRsUp/cFKX8FxY6fBDdZosr0VrFW6TR3a9ss4CvBaNPd5GTwSfDE7O8AR81KKJe7pJ4BV1GpjofJxG+Od7PiYZvCIKAPjNwwuvSsZelpbEDNRkZ15vzj8/5zSMh5wmq7ClgN86PB+30S6JAhBw7hh+rbkg7q7qxvsFvwJeJHgpFCB20RYPnuT2kdcZwIsMLyhAvOsgKb26Bvg13qzpKavdFvh0XBwC/Mbfq/+7c48d8JTBkxBcwAMe8IAHPOABD3jAAx7wgAc84AEPeMADHvCABzzgAQ94wAMe8IAHPOABD3jAAx7wgAc84AEPeEnAf/tOHjPwtpqNY38uc7b6FaarahdzomInm459O9ic3b+LTX/Dq8zlg3lsfmovYvNXpw7wcoLnNvK/X5Sx4SBJONzBRjWPv56IURDApwB+I5l3GfmS/PbZHh7UZ9XyyJ3VL6+7IOfqcpmbHxQwk8cK2cz1GAAvRfiNhiuJMKQ8yX5v+pRu1SGIxHUgehi6+p6WL9xstx7wUoQXqzx/ntaNt5VnF39cnm2NJsfeXr7DF03OzKeVO9k9iKs2l9/zTBwtXHV4+efUG3mAl1nI08Tr2daHS3OyPtqboyY5VJKd3sekAZ86eKl90gXgAQ94wAMe8IAHPOABD3jAAx7wgAc84AEPeMADHvBKh/c7HBmLtwbVJM+mLpmXpjzW2ISunTg8P9JS4XdUvQB4iWfBbWIeuSuZ4IUaZnGkmVm80np/eWrIE4mP5Jn/ErN8q4/N0ng383TsJBv2ZyN5MliD9+PTkguVTPhiNZsn3zTxICxK5Gvue3z69q2+9crxJu7AkQQ8geEghxpWIL/7kH+1LU/0M+SVmCjLkwPRV+iPzsSv0HPluPUqFfBkdzp/8cAK5OghHmXp5udrQvKgd77id7vc7z79/lgU9OtG3GUrh/vqbxzdy9w93cDm/pcHmT+GP2ETHrNFQX0dfEnC/W/hvno8UAF4wAMe8IAHPOABD3jAAx7wgAc84AEPeMADHvCABzzgAQ94wAMe8IAHPOABD3jAAx7wgAc84AEP+BQ8KmUIht1Gu78tvwLwFME/dkU/fXK4Sa2WPbzXorEDfmM4YsKH3MaZkNNk9TtUGSl/YnagJjuTK0AsPPuHuY2eH5oL7gFePPi0gscrwPXm/POPewzueafBPGsryRQcEnyAFwk+sk4QblupP0cP+K3Cywkc8CLAyxF8ZRGotQI+Cj9Up8katWhmksLLGTzRIjAZfKjXFFAqPDekAJctu+tHLVoPVwQWXingaxVg2qabE67+hYtCpcP/b6/YWKT5pcP0kkrpQwoQOF7SkmiD0AaPATzgAQ94wNMyz893fZuBJ4tFqcCTDzAEukgFSARPzgxCTn1xsj1GKuABvg0FEMJHsG+HXYb62Dcs0gVPrkGQ01KIiTwjlt3FE62Fk8Fu/ZmFrtKszawRtgMe4DJYHIoJD3DK4AFOGTzAKYMHuEzG25hn9lq0ga3CA1yhBQA4pQUAOKUFADiFBbjybsHvC33mhwCnbBxVqoyx9qIXafzf/wM8u2NSY/0QSQAAAABJRU5ErkJggg==",
+            "name": "aws-elb-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Adding missing host template macro ",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Amazon Load Balancing service (ELB).**\r\n\r\nAvailable host templates and related services:\r\n\r\n|Cloud-Aws-Elb-AvailabilityZone|\r\n|---|\r\n|Elb-Http-Codes|\r\n|Elb-Performances|\r\n|Elb-Queues|\r\n|Elb-Targets-Health|\r\n\r\n|Cloud-Aws-Elb-LoadBalancer|\r\n|---|\r\n|Elb-Http-Codes|\r\n|Elb-Performances|\r\n|Elb-Queues|\r\n|Elb-Targets-Health|\r\n\r\n|Cloud-Aws-Elb-Application-LoadBalancer|\r\n|---|\r\n|Elb-Connections|\r\n|Elb-Http-Codes|\r\n|Elb-Targets-Health|\r\n\r\n|Cloud-Aws-Elb-Network-LoadBalancer|\r\n|---|\r\n|Elb-Targets-Health|\r\n\r\nThis pack provides multiple host discovery rules and a service discovery rule for ELB network health check..\r\n\r\n*Since version 3.3.0, thresholds in custom macros have been aligned to new performance data format of plugin.*"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser les m\u00e9triques des load balancers Amazon ELB.**\r\n\r\nMod\u00e8les d\\'h\u00f4te disponibles et leurs services :\r\n\r\n|Cloud-Aws-Elb-AvailabilityZone|\r\n|---|\r\n|Elb-Http-Codes|\r\n|Elb-Performances|\r\n|Elb-Queues|\r\n|Elb-Targets-Health|\r\n\r\n|Cloud-Aws-Elb-LoadBalancer|\r\n|---|\r\n|Elb-Http-Codes|\r\n|Elb-Performances|\r\n|Elb-Queues|\r\n|Elb-Targets-Health|\r\n\r\n|Cloud-Aws-Elb-Application-LoadBalancer|\r\n|---|\r\n|Elb-Connections|\r\n|Elb-Http-Codes|\r\n|Elb-Targets-Health|\r\n\r\n|Cloud-Aws-Elb-Network-LoadBalancer|\r\n|---|\r\n|Elb-Targets-Health|\r\n\r\nCe pack fournit plusieurs r\u00e8gles de d\u00e9couverte d\\'h\u00f4te ainsi qu'une r\u00e8gle de d\u00e9couverte de service Elb-Targets-Health pour les ELB Network.\r\n\r\n*Depuis la version 3.3.0, les macros personnalis\u00e9es de seuils ont \u00e9t\u00e9 modifi\u00e9es pour correspondre aux nouvelles donn\u00e9es de performance du plugin.*"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAH4AAAB+CAYAAADiI6WIAAAF5klEQVR42u3cb0wbZRwH8L7ghQm+MwQ2J9bRQhBhhf5xrGAgW0AgUmIWok2GbG5EwWRudmPoqKUtY4NFUqZBspJFs9SNZFlITBbYRvfCxRhf9YUzor7RLLC+YYF2DPbi7HPdHUdtKX+O9u6e7y/5viBAAvf59u65611VKgwGg8FgMBgMRu7jbcwzey2aB0G7/uG802DGFqECXBsYbdIyJOFeE5tQrymAAlAAHguPAlACnggeBVA4eDJ4FECmkwx8vfAoAOXwKADl8CgA5fAoQBoWbROthZPBbv2Zha7SrHTDowApXKXfOVK0aoOHXYb6WVtJZjrhUQCRZ7hJrY4A+YRYQvhVG91t9HAbPV3wK3+LyTfn0KkhKAJ4MnhBAWbSDY8CbMPiLBk8iVTguQAf8BjAU3oMDxwvaSGLMb9DlQF4ihZt0zbdnHARRE7LuHNzmuAdVaqModrXTD+3FZZRsUp/cFKX8FxY6fBDdZosr0VrFW6TR3a9ss4CvBaNPd5GTwSfDE7O8AR81KKJe7pJ4BV1GpjofJxG+Od7PiYZvCIKAPjNwwuvSsZelpbEDNRkZ15vzj8/5zSMh5wmq7ClgN86PB+30S6JAhBw7hh+rbkg7q7qxvsFvwJeJHgpFCB20RYPnuT2kdcZwIsMLyhAvOsgKb26Bvg13qzpKavdFvh0XBwC/Mbfq/+7c48d8JTBkxBcwAMe8IAHPOABD3jAAx7wgAc84AEPeMADHvCABzzgAQ94wAMe8IAHPOABD3jAAx7wgAc84AEPeEnAf/tOHjPwtpqNY38uc7b6FaarahdzomInm459O9ic3b+LTX/Dq8zlg3lsfmovYvNXpw7wcoLnNvK/X5Sx4SBJONzBRjWPv56IURDApwB+I5l3GfmS/PbZHh7UZ9XyyJ3VL6+7IOfqcpmbHxQwk8cK2cz1GAAvRfiNhiuJMKQ8yX5v+pRu1SGIxHUgehi6+p6WL9xstx7wUoQXqzx/ntaNt5VnF39cnm2NJsfeXr7DF03OzKeVO9k9iKs2l9/zTBwtXHV4+efUG3mAl1nI08Tr2daHS3OyPtqboyY5VJKd3sekAZ86eKl90gXgAQ94wAMe8IAHPOABD3jAAx7wgAc84AEPeMADHvBKh/c7HBmLtwbVJM+mLpmXpjzW2ISunTg8P9JS4XdUvQB4iWfBbWIeuSuZ4IUaZnGkmVm80np/eWrIE4mP5Jn/ErN8q4/N0ng383TsJBv2ZyN5MliD9+PTkguVTPhiNZsn3zTxICxK5Gvue3z69q2+9crxJu7AkQQ8geEghxpWIL/7kH+1LU/0M+SVmCjLkwPRV+iPzsSv0HPluPUqFfBkdzp/8cAK5OghHmXp5udrQvKgd77id7vc7z79/lgU9OtG3GUrh/vqbxzdy9w93cDm/pcHmT+GP2ETHrNFQX0dfEnC/W/hvno8UAF4wAMe8IAHPOABD3jAAx7wgAc84AEPeMADHvCABzzgAQ94wAMe8IAHPOABD3jAAx7wgAc84AEP+BQ8KmUIht1Gu78tvwLwFME/dkU/fXK4Sa2WPbzXorEDfmM4YsKH3MaZkNNk9TtUGSl/YnagJjuTK0AsPPuHuY2eH5oL7gFePPi0gscrwPXm/POPewzueafBPGsryRQcEnyAFwk+sk4QblupP0cP+K3Cywkc8CLAyxF8ZRGotQI+Cj9Up8katWhmksLLGTzRIjAZfKjXFFAqPDekAJctu+tHLVoPVwQWXingaxVg2qabE67+hYtCpcP/b6/YWKT5pcP0kkrpQwoQOF7SkmiD0AaPATzgAQ94wNMyz893fZuBJ4tFqcCTDzAEukgFSARPzgxCTn1xsj1GKuABvg0FEMJHsG+HXYb62Dcs0gVPrkGQ01KIiTwjlt3FE62Fk8Fu/ZmFrtKszawRtgMe4DJYHIoJD3DK4AFOGTzAKYMHuEzG25hn9lq0ga3CA1yhBQA4pQUAOKUFADiFBbjybsHvC33mhwCnbBxVqoyx9qIXafzf/wM8u2NSY/0QSQAAAABJRU5ErkJggg==",
+        "monitoring_procedure": "# Monitoring procedure\r\n\r\n## Prerequisites\r\n\r\n### Centreon Plugin\r\n\r\nInstall this plugins on each needed poller:\r\n\r\n    # yum install centreon-plugin-Cloud-Aws-Elb-Api\r\n    # yum install centreon-plugin-Cloud-Aws-Elb-Application-Api\r\n    # yum install centreon-plugin-Cloud-Aws-Elb-Network-Api\r\n\r\nTo use it, you can either install 'awscli' (AWS Command Line Interface) or 'paws' (Perl AWS SDK).\r\n\r\n### Install awscli\r\n\r\nOn CentOS, install with following commands:\r\n\r\n    # yum install awscli\r\n\r\n## Centreon Configuration\r\n\r\n### Create a host using the appropriate template\r\n\r\n#### For an Availability Zone (Classic ELB)\r\n\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Field</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>Name</p></td>\r\n            <td align=\"left\"><p><em>Name of the host</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Alias</p></td>\r\n            <td align=\"left\"><p><em>Description</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>IP Address / DNS</p></td>\r\n            <td align=\"left\"><p><em>Can be localhost</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Monitored from</p></td>\r\n            <td align=\"left\"><p><em>Poller used to monitor</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Templates</p></td>\r\n            <td align=\"left\"><p>Cloud-Aws-Elb-AvailabilityZone-custom</p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nThe following host macros should be set as shown:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Macro</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSACCESSKEY</p></td>\r\n            <td align=\"left\"><p><em>AWS access key</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSSECRETKEY</p></td>\r\n            <td align=\"left\"><p><em>AWS secret key</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSREGION</p></td>\r\n            <td align=\"left\"><p><em>AWS region</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSCUSTOMMODE</p></td>\r\n            <td align=\"left\"><p><em>Plugin custom mode: awscli or paws</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSINSTANCETYPE</p></td>\r\n            <td align=\"left\"><p>availabilityzone</p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSINSTANCENAME</p></td>\r\n            <td align=\"left\"><p><em>Name of the availability zone</em></p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nCheck the *Create Services linked to the Template too* box and click on the *Save* button.\r\n\r\nThe following services will be created:\r\n\r\n* Elb-Http-Codes\r\n* Elb-Performances\r\n* Elb-Queues\r\n* Elb-Targets-Health\r\n\r\n#### For a load balancer (Classic ELB)\r\n\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Field</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>Name</p></td>\r\n            <td align=\"left\"><p><em>Name of the host</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Alias</p></td>\r\n            <td align=\"left\"><p><em>Description</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>IP Address / DNS</p></td>\r\n            <td align=\"left\"><p><em>Can be localhost</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Monitored from</p></td>\r\n            <td align=\"left\"><p><em>Poller used to monitor</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Templates</p></td>\r\n            <td align=\"left\"><p>Cloud-Aws-Elb-LoadBalancer-custom</p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nThe following host macros should be set as shown:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Macro</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSACCESSKEY</p></td>\r\n            <td align=\"left\"><p><em>AWS access key</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSSECRETKEY</p></td>\r\n            <td align=\"left\"><p><em>AWS secret key</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSREGION</p></td>\r\n            <td align=\"left\"><p><em>AWS region</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSCUSTOMMODE</p></td>\r\n            <td align=\"left\"><p><em>Plugin custom mode: awscli or paws</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSINSTANCETYPE</p></td>\r\n            <td align=\"left\"><p>loadbalancer</p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSINSTANCENAME</p></td>\r\n            <td align=\"left\"><p><em>Name of the load balancer</em></p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nCheck the *Create Services linked to the Template too* box and click on the *Save* button.\r\n\r\nThe following services will be created:\r\n\r\n* Elb-Http-Codes\r\n* Elb-Performances\r\n* Elb-Queues\r\n* Elb-Targets-Health\r\n",
+        "name": "AWS ELB",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_aws_elb_api.pl",
+                "package_name": "centreon-plugin-Cloud-Aws-Elb-Api",
+                "package_version": "20220518"
+            },
+            {
+                "executable_name": "centreon_aws_elb_application_api.pl",
+                "package_name": "centreon-plugin-Cloud-Aws-Elb-Application-Api",
+                "package_version": "20220518"
+            },
+            {
+                "executable_name": "centreon_aws_elb_network_api.pl",
+                "package_name": "centreon-plugin-Cloud-Aws-Elb-Network-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-aws-elb",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "AWS",
+            "Amazon",
+            "ELB",
+            "Loadbalancer",
+            "API"
+        ],
+        "update_date": "1650631076",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le la sant\u00e9 des instances cibles.}\r\n\r\n{EN: Check targets health.}",
+            "active_checks_enabled": 2,
+            "alias": "Elb-Targets-Health",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Elb-Api-Targets-Health",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Elb-Targets-Health-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la file d'attente.}\r\n\r\n{EN: Check queues.}",
+            "active_checks_enabled": 2,
+            "alias": "Elb-Queues",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Elb-Api-Queues",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "sum"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--statistic='maximum' --verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Elb-Queues-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les performances.}\r\n\r\n{EN: Check performances.}",
+            "active_checks_enabled": 2,
+            "alias": "Elb-Performances",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Elb-Api-Performances",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "sum"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--statistic='average' --verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Elb-Performances-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de codes retour HTTP.}\r\n\r\n{EN: Check HTTP return codes.}",
+            "active_checks_enabled": 2,
+            "alias": "Elb-Http-Codes",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Elb-Api-Http-Codes",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "sum"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Elb-Http-Codes-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la sant\u00e9 des instances cibles.}\r\n\r\n{EN: Check targets health.}",
+            "active_checks_enabled": 2,
+            "alias": "Elb-Targets-Health",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Elb-Application-Api-Targets-Health",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "sum"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Elb-Application-Targets-Health-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de codes retour HTTP.}\r\n\r\n{EN: Check HTTP return codes.}",
+            "active_checks_enabled": 2,
+            "alias": "Elb-Http-Codes",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Elb-Application-Api-Http-Codes",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "sum"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Elb-Application-Http-Codes-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques de connexions.}\r\n\r\n{EN: Check connections statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Elb-Connections",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Elb-Application-Api-Connections",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "sum"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Elb-Application-Connections-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la sant\u00e9 des instances cibles.}\r\n\r\n{EN: Check targets health.}",
+            "active_checks_enabled": 2,
+            "alias": "Elb-Targets-Health",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Elb-Network-Api-Targets-Health",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "sum"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Elb-Network-Targets-Health-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

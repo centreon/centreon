@@ -1,0 +1,190 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_warp10_sensision.pl --plugin=database::warp10::sensision::plugin --mode=script-statistics --custommode=\\'web\\' --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTWARP10SENSISIONPORT$\\' --proto=\\'$_HOSTWARP10SENSISIONPROTO$\\' --urlpath=\\'$_HOSTWARP10SENSISIONURLPATH$\\' --username=\\'$_HOSTWARP10SENSISIONUSERNAME$\\' --password=\\'$_HOSTWARP10SENSISIONPASSWORD$\\' $_HOSTWARP10SENSISIONEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERAPPNAME$\\' --warning-calls-count=\\'$_SERVICEWARNINGCALLSCOUNT$\\' --critical-calls-count=\\'$_SERVICECRITICALCALLSCOUNT$\\' --warning-calls-persecond=\\'$_SERVICEWARNINGCALLSPERSECOND$\\' --critical-calls-persecond=\\'$_SERVICECRITICALCALLSPERSECOND$\\' --warning-bytes-values-count=\\'$_SERVICEWARNINGBYTESVALUESCOUNT$\\' --critical-bytes-values-count=\\'$_SERVICECRITICALBYTESVALUESCOUNT$\\' --warning-time=\\'$_SERVICEWARNINGTIME$\\' --critical-time=\\'$_SERVICECRITICALTIME$\\' --warning-uses-count=\\'$_SERVICEWARNINGUSESCOUNT$\\' --critical-uses-count=\\'$_SERVICECRITICALUSESCOUNT$\\' --warning-uses-persecond=\\'$_SERVICEWARNINGUSESPERSECOND$\\' --critical-uses-persecond=\\'$_SERVICECRITICALUSESPERSECOND$\\' --warning-time-total=\\'$_SERVICEWARNINGTIMETOTAL$\\' --critical-time-total=\\'$_SERVICECRITICALTIMETOTAL$\\' --warning-requests-count=\\'$_SERVICEWARNINGREQUESTSCOUNT$\\' --critical-requests-count=\\'$_SERVICECRITICALREQUESTSCOUNT$\\' --warning-requests-persecond=\\'$_SERVICEWARNINGREQUESTSPERSECOND$\\' --critical-requests-persecond=\\'$_SERVICECRITICALREQUESTSPERSECOND$\\' --warning-ops-count=\\'$_SERVICEWARNINGOPSCOUNT$\\' --critical-ops-count=\\'$_SERVICECRITICALOPSCOUNT$\\' --warning-ops-persecond=\\'$_SERVICEWARNINGOPSPERSECOND$\\' --critical-ops-persecond=\\'$_SERVICECRITICALOPSPERSECOND$\\' --warning-errors-count=\\'$_SERVICEWARNINGERRORSCOUNT$\\' --critical-errors-count=\\'$_SERVICECRITICALERRORSCOUNT$\\' --warning-errors-persecond=\\'$_SERVICEWARNINGERRORSPERSECOND$\\' --critical-errors-persecond=\\'$_SERVICECRITICALERRORSPERSECOND$\\' --warning-bootstrap-loads-count=\\'$_SERVICEWARNINGBOOTSTRAPLOADSCOUNT$\\' --critical-bootstrap-loads-count=\\'$_SERVICECRITICALBOOTSTRAPLOADSCOUNT$\\' --warning-bootstrap-loads-persecond=\\'$_SERVICEWARNINGBOOTSTRAPLOADSPERSECOND$\\' --critical-bootstrap-loads-persecond=\\'$_SERVICECRITICALBOOTSTRAPLOADSPERSECOND$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Warp10-Sensision-Web-Script-Statistics",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_warp10_sensision.pl --plugin=database::warp10::sensision::plugin --mode=fetch-statistics --custommode=\\'web\\' --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTWARP10SENSISIONPORT$\\' --proto=\\'$_HOSTWARP10SENSISIONPROTO$\\' --urlpath=\\'$_HOSTWARP10SENSISIONURLPATH$\\' --username=\\'$_HOSTWARP10SENSISIONUSERNAME$\\' --password=\\'$_HOSTWARP10SENSISIONPASSWORD$\\' $_HOSTWARP10SENSISIONEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERAPPNAME$\\' --warning-calls-count=\\'$_SERVICEWARNINGCALLSCOUNT$\\' --critical-calls-count=\\'$_SERVICECRITICALCALLSCOUNT$\\' --warning-calls-persecond=\\'$_SERVICEWARNINGCALLSPERSECOND$\\' --critical-calls-persecond=\\'$_SERVICECRITICALCALLSPERSECOND$\\' --warning-bytes-values-count=\\'$_SERVICEWARNINGBYTESVALUESCOUNT$\\' --critical-bytes-values-count=\\'$_SERVICECRITICALBYTESVALUESCOUNT$\\' --warning-bytes-values-persecond=\\'$_SERVICEWARNINGBYTESVALUESPERSECOND$\\' --critical-bytes-values-persecond=\\'$_SERVICECRITICALBYTESVALUESPERSECOND$\\' --warning-bytes-keys-count=\\'$_SERVICEWARNINGBYTESKEYSCOUNT$\\' --critical-bytes-keys-count=\\'$_SERVICECRITICALBYTESKEYSCOUNT$\\' --warning-bytes-keys-persecond=\\'$_SERVICEWARNINGBYTESKEYSPERSECOND$\\' --critical-bytes-keys-persecond=\\'$_SERVICECRITICALBYTESKEYSPERSECOND$\\' --warning-datapoints-count=\\'$_SERVICEWARNINGDATAPOINTSCOUNT$\\' --critical-datapoints-count=\\'$_SERVICECRITICALDATAPOINTSCOUNT$\\' --warning-datapoints-persecond=\\'$_SERVICEWARNINGDATAPOINTSPERSECOND$\\' --critical-datapoints-persecond=\\'$_SERVICECRITICALDATAPOINTSPERSECOND$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Warp10-Sensision-Web-Fetch-Statistics",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Warp10 through Sensision metrics web page",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "warp10-icon-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTWARP10SENSISIONPORT$",
+                    "value": "80"
+                },
+                {
+                    "key": "$_HOSTWARP10SENSISIONPROTO$",
+                    "value": "http"
+                },
+                {
+                    "key": "$_HOSTWARP10SENSISIONURLPATH$",
+                    "value": "/metrics"
+                },
+                {
+                    "key": "$_HOSTWARP10SENSISIONUSERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTWARP10SENSISIONPASSWORD$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTWARP10SENSISIONEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Warp10-Sensision-Web",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-DB-Warp10-Sensision-Script-Statistics-Web",
+                "App-DB-Warp10-Sensision-Fetch-Statistics-Web"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAACAASURBVHic7Z15fBXV+f/f565JIAECCYSwZIEYQgJUqAIqgqDWBTes1IXayu+nUOvW2taWb4F+Xaql+lOp2II/6/YVBdS6oBYUZSmiRgKETSGEfQuJCUnIcpfz/ePm3syZmbsl9wZQPq/XfcGcOXNmMueZ5zznWeEMvtcQJ/sB4g0pZQaQ1fLrDSS3/DprujUDVS2/bzX/PwTsFkLIjnvijsV3ggCklAIYAAwHRgCDaZ30hHYOXw9sA7YAW1v+/UoIcbid454SOG0JQErZH7gUGNfy69mRtwc2Ax+1/FYKIeo78P4xw2lFAFLKAuAG4CrgByf5cbRoBj4D3gAWCiGOneTniRinPAFIKVOBW4Ap+Nh7RPB6vZSXl7N9+3bKysqoqqqiqqqKb7/9NvD/zp1bxYCkpCScTifp6en07t2bPn36BH45OTnYbLZIb90MLAVeBN4XQrgi/mNPAk5ZApBSDgV+CdwEJIXq6/V62bRpEytWrODLL79k+/btbN++ncbGxpg8S2JiIkOHDmX48OGBX2FhIRaLJdylFcDLwP8TQuyPycN81yGlPE9K+a6U0itDoKysTM6dO1ded911snv37hLfutxhv7S0NDllyhS5cOFCWVVVFepRpZSyWUr5kpQyr2Pe4mkIKeVIKeUnod7ikSNH5Ny5c+WoUaNky9asTb+EhATZtWtX2a1bN5mcnCwTExNlYmKitNvtbRrParXKCy64QD777LOyuro61J/gklK+KKXM76DXGhYnfQmQUg4EHgEmYfI8Xq+XN998k+eff57ly5fjdrtDjieEoEePHhQUFDBw4EB69epFp06dAmO5XKGXZJvNhtVqxePxUF9fT1VVFaWlpWzcuJH6+vCCflJSEj/+8Y+ZOnUqF1xwQbBuXmA+8AchxLdhB40jThoBSCkTgd8BDwBO/fmmpiZefPFF/vrXv7Jjx46g41gsFrKzsxkzZgw5OTlYLJawk9xWOBwOXC4Xu3btYvny5Rw8eDBk//z8fB544AFuvvnmYEJkFfDfwFwhhDcOjxwWJ4UApJQXA88Cufpzx48f59lnn+XJJ5/k8GFzXYvFYmHkyJFcdNFFJCQkhOUK8YLT6aSyspJVq1ZRXFyM12s+h7m5ucyYMYNbbrkFu91u1mU18AshxOZ4Pq8ZOpQApJSdgL8A0/X39nq9/POf/2TGjBkcOXLE9PrBgwdz+eWX07Vr16i/8s6dO9OpUyeSkpJISEggMTHR/0y43W48Hg9ut5uamhoqKyujJiq73c7hw4dZtGhR0OfPyclh9uzZ3HLLLQhhePUu4EHg4Y7kBh1GAFLKs4HXgIH6c2vWrOHee+/lq6++MlxnsViYMGECY8eOpbm5Oex9kpKSyMnJITU1FafTicViCUxwNLDZbNhsNjweD3V1dVRUVLBv3z6amppCXieEwGq1smLFCj755BOkNJoRxowZw7x58xg8eLDZEMuBW4QQR6N64DaiQwhASvlTfCxf2c8fPXqUe++9l9dee83woux2O9dddx1Dhw4NOfE2m438/HzS09Ox2+00NzebvvRYQAiBw+GgqamJvXv3Ul5eHvJeDoeDjz/+mI8//thwzm6386tf/Yo//vGPASFVg6PAzUKIj2L6B5ggrgQgpXQA84Cp+nPvv/8+t912mym7vPLKKxk9enTQibdYLAwaNIjMzEw8Hk/UX3es4F/P9+zZwzfffBO0n8PhYMWKFXz0kXE++/fvz8svv2y2Y3ADs4A/x9MaGTcCkD4V7hJ8hpoAGhsbmT17NnPmzDEITYWFhUyePDnohKampjJs2LAAW48UTqeTxMREHA5HgLXb7XYsFkvgXn5CampqoqmpicbGxoiWHO096urq2LRpE7W1taZ9bDYb8+fPZ+/evUq71Wrlv/7rv5g5c6aZdvENYIoQoiHih4kCcSEA6bPULQMUzdfmzZv5yU9+wpYtW5T+nTp14p577sHhcJiO179/f/Ly8nC73WHZe2JiIl26dKFr16506tSJxMRErFZrm/4Or9dLXV0dtbW11NbWcvz4cRoaQs+DxWLBYrGwceNGKioqDOetVisHDhxgwYIFBkK/+OKLefnll+nZ02DYXAVcEw+dQcwJoEXLtQzoq23/4IMPmDx5suHrGDlyJNdcc42p3r53794UFRWFFLyEEKSmppKWlkbXrl1xOg0qhZiisbGRY8eOUVlZSU1NTVCC9AuDJSUlVFZWGs4nJCTw6quvsmnTJqU9IyODN954g1GjRukv2QpMEEIcis1f0vKcsRxMSlkEfAykadufe+45fvGLXyhbN7vdzrRp0+jevbthnJSUFM455xw8Hk/QF9ytWzfS09Pp0aNHNJa6mMLtdnP06FEOHjwYVEtosViQUvLZZ58ZiNxisbBr1y5eeOEFpd3pdPLKK69w/fXX64fbho8IQmugokDMCKDF0LES6OVv83q9/OY3v+GJJ55Q+mZkZHDXXXeZrrGjRo0iKSnJVA6wWCykp6fTp08fM8n5pKK6uppDhw5RUVFhSrR2u50DBw6wdetW0+vnzJmjEJHVamXevHncfvvt+q47gAuEEObKhigREwKQUubg02b19rd5PB6mTJnCwoULlb7Dhg1j8uTJBrbevXt3RowYYcruLRYLmZmZ9O3bN5gm7ZRBQ0MDe/bsCaoMcjgcrFu3juPHjyvtiYmJLFiwgJ07dyrtM2fO5E9/+pN+mBJgnBCipr3P224CaJH21wJnadq44447WLBggdL3sssu47zzzjNI8GeffTbdunUz/ep79uxJdnZ23Nf2WKO+vp7du3dz7JjROchms7Fv3z6+/vprQ/t7773HunXrlPbf//73PPLII/phVgKXCCEi36qYoF0EIKV04tNcXaBpY9q0acyfP1/pO3XqVPr2VeRCbDYbY8eONd3SJScnk5eXp3jtnI6oqqpix44dhvVfCEFzczP/+c9/lHar1cqqVatYvny50j5nzhzuv/9+/fAvAT9rj56gvQTwLDBN23bPPffw9NNPK/3uuOMOMjIylLbOnTtz3nnnGVi+EII+ffqQnZ1tpi8/LeH1etm9ezf79+83yAdOp5NVq1Yp20uLxUJpaSmLFy8OtAkhWLBgAVOnGnRqM4QQBvYQKdr8hqWUNwCva9vmzJnDb3/7W6Wf2ZefmZlJQUGBwaDTqVMn8vPzT/uvPhhqamrYunWrQfgNJhds3LiRt956K3BstVp5/fXXmTRpkrabF7hcCPHvtjxTmwigxYmjGEjxty1fvpzLLrtMWcd/9rOfkZWVpVyblZXFgAEDDGw/LS2Ns846q81Km9MFLpeLrVu3Ul1drbTb7XZKSkoUmUEIwerVqxUVckJCAmvWrGH48OHay6uA4UKI3dE+T9QE0OLIsQ4Y4m/bsWMH5557Lt9+26qouv766yksLFSuzcrKIjc31yDsZWdn069fv2gf5bSFlJKysjIOHDigtNvtdjZv3syhQ626HqvVyttvv01xcXGgLTc3l+LiYrp27aq9fBW+nUFUpuSwbq0meBrN5B8/fpyrr75amfzhw4czZMgQ5aKsrCxycnKUybdYLBQWFn6vJh98X/aAAQMYMGCA0u5yuSgsLCQ9PT3Q5vF4uPbaa8nNbfWdKSsr49Zbb9XLE2OAX0X7LFERgJTyInSWvTvvvJNt27YFjtPT05k0aZJi6OnTpw+5ublKm3/yzTSB3xdkZmaSn5+vCLsul4thw4aRnJystE2dOjXgxALwzjvv8Nhjj+mHfEhKaepkEAwRLwEtpt0NwCB/29tvv80111wT6ONwOJg9e7Yi5CQnJzN69GhF2rdarRQWFupZ2PcWFRUVbNu2TfmiExISWLFihfIu3W43Dz30UODYarWyZs0aRo4cqR3uc2B0pEtBNBzgfjSTX1lZybRpyg6Q++67T3lgq9VqmHyLxUJRUdGZydfALwBr0djYyLhx4xTuYLPZuPHGGwPHHo+H22+/Xb+bOhe4LdJ7R0QAUsosYIa27a677lKcNs8//3yFRQGMGzfOsM/Pz8+nS5cukT7f9wZ+jacWTU1NjB49WmkbNGgQ+fmtYQWlpaX89a9/1Q/3WIuGNiwi5QBPo3HnevfddxUdf6dOnbj88suVC0aMGGHY6mVnZ5OWphgKz0CDfv36kZmZqbQ5HA5FAPR6vUyZMkXZLj/44IN61/lUdB9sMIQlACnlKGCi/9jtdhuUPXfffbfC+rt37274ynv27Pm9k/bbgtzcXOXdSSnJzc1VlGMul4ubb745cNzQ0GBYjoFfSikNbvd6RMIBZmoPFixYwPbt2wPHI0eOVAw1QghGjBihbPeSkpLIyzsTFhcJhBAMGjRIsXo2NzcbHET8UU9+rFixgnfffVfbxYFu7swQkgBaXLkv9R/X1tYqpkkhBFdffbVyzahRo5R1XwhBfn5+JJG0Z9ACp9NpEApdLheDBgVkcDweD9OnT1f6zJo1S68buLlFaxsU4WZlFpqt4pw5cxQ791VXXaVMdpcuXUhKUiO5s7KylD3tGUSG7t2707t3b6WtX79+CmeQUnLuuecGjktKShTbAWAFfhPqPkEJQPri8wNrf21trWLls9vtys0BzjnnHEXwS05ONhiCziBy5OTkKI6yZruCiRMnKsczZ87Ue1vfKqXsRRCE4gD3o/n6n3/+eWpqWh1QpkyZogh+ffv2NUj9AwYM+M6YdE8GrFarsgPwt2mFRLfbrSiCtmzZwpIlS7SXOID/G+wepgQgpUwBrvMfe71e5s6dqzzEwIHq0lJQUKCsPz179iQlJYXIIWHnQnj/EliUD+9fCmWv+dpPV3hdsG0+vDceFg2Cf18FB1dENUR6ejrdunVrHdLr5eyzz1b66LnA3/72N/0w06WUpr50wTjAj9Hs+9955x3KysoCJ3/0ox8pa39OTo5B1atXaoSE9MCKKbDiJti/HKq/hv3L4OMb4dOfRz7OqQRPE3xwGay+wzfp1dthz7vw3gTYYNDhh0ROTo5ybLFYFC7gcrkYMaI1fdLq1av1sRcZgKqo8Y8V5J63ag+eeuop5aR+HdJbtTIzM6Pz4St9Cnb+j/m5b16EvUsjH+tUwbb5cMAYEwgSvngA9n0Y8VCdO3emR48egWOPx2PgAnpFnN4fE1+SLQMMBCClzAbO9x/v27ePlStXBs4PGzZM0T2npaUpxxaLhT59+oT4c0zwzT9Dn9/+/6Mb71TA12Geedv80Od16N+/v3JssVgU1bvNZlOW3BdffJETJ05oL5kopTSYXs04wK1ohL9FixYpa7ue0oqKigxrf9Su23VhEmjt/xBcddGNeTJRswMqN4buU7c39HkdOnfurJjOPR6P4nPh9XoVV7Hq6mrefPNN7RAOfPkVFZgRwDXag9dfb3X7s9lsyj7fH2CpRZu2fZ3DqIjdDafXMlC+JHyfztG/J71eQCscAgZtq44AAK7WNyizJ6VMR+Pts2vXLsUVSe/TP2jQIOU4NTXVYBGMCJnjw/eJ5KWeKti1OHyfzAlRD+tPeuFHY2Oj8sE1NTUp8tiyZcv07uiXtGRpCUDPASagYf+LFy9W2PuYMWOUzlpdNGAW1RoZcieH77P3fXCfBul4j++CYyWh+wgLZF/bpuH171y/HZ8woZWw6uvrFfkNSEQTwwFGArhYe7BiReue1Wq1KtTndDqVr99qtbbdvSv9XEgJY7hyn/ARwamOXYvC98kYC0m9w3Yzg54A9IGxeovre++9px9CydegJ4AAL3a73Xz22WeBEwUFBQb2r1U5du/evX0u3dmTwvfZFcNlwNMER9b6tmp1+2I3bvkb4fvk3tDm4RMSEhTTcHNzs0IULpdLsb0sXWqQnS7SHgQIQEp5FpqY/vXr1yux/HpzpHZfanYcNSJZBva97xMI24sDH8PrA+Ht82DpBHgtBz67z6eQag9qd0OFMdGVAosNsq8L3ScM9JxWqy6WUirLQHl5ueJmDgyTUgYkeS0HUNKvr1q1SrmJnrXopf92+/j1OBu6hLRc+raC+z5o332qSuGDy9Wv3uuG0idhXUjDWXiULyGs6rr3RZDQPq+o1FTV20tvbdW6jAGKIA/Y0My1dhYVd+I1a9YE/u9PcuBHSkqKYgjq1KlTbMK2cyJgje3dDXz+W/AGCajd/LRPiGsrIlmiIuF0YZCcnKy8b5fLpRjd9ARhkn4voDcOSgBaXXLfvn0VDx+9bjpmHr6RvJw977Z9GTi+02djCAbpge3PtW3sun1w9IvQfSx2yLomdJ8IIIRQJtnj8Sg7MLfbrchjOg4AUBR4JE1jgACam5spLy9vPaFLaKif8Jh5+aYWQbeC0H1cdaEnMRS2PAMyjLv8N//0WfGixa7FhGX/fS4FZ0TOumGh/8q1SiKv16sY40w4QMDdyAIgpUxAk7d3586dyhevD/DUG3pimq4lXsuAuwG+eSl8vxOHfVwmWkTyTDFg/37oI6j1H+UPftAq0h0+fJi6OkWVrhIAvvStAZ6hz1wRypVbCNE27V8w5P4kfJ/db4MnymogO/8Hmqoi67vdYEkLjfoDcGRd6D7WBOg/MXSfKKAnAL0MplfK7dunbHXTpJSdoZUAlOwN+qyXeq9frfUvMTExtl4/Xc+C1CGh+7hqfX4D0WDr3yPvu+/fcLwsfD8/IpH++14GjtgFxCQkJIR0tNVzhP37DQa33tBKAMrCdPRo8DzFqampigIopl+/H5GwykgULn4cWQvHwuzPFUj45oXIu3eQ9K+H1l9Q746XkKCWS9RxAIBMaCUAxaykDfXWD65f74Nl92wXIl0Ggm3n9NgyL/pn2P5cZMLgicM+AgsFWxL0uyL6ZwgDLWf2eDzKsV4ra0IAadBKAIpqSZuqxG63h/zi45KkMSXHpxgKheZq2B9BMu3Giui4hR8nDkdmgi5fEn5n0e8KsMc+7Y3+49Oah/VJOPQZSfCVzzXnANrO+gnXs5a4ZemMaBmIgPVuWxC9wOhHJMLgSWL/YBT8tAShT8RtUmBDIQBFYtASgD7Qo+MI4CeETV9Q/lboZUB6opfotdj3IdTtCX6+4QgcXhP8PPi+/L6m/pjthl741s6FngBMsrImQisBKCKsln2Em+C4+f137uczE4dCczUc/CT4+b1LfQaaYEgZAEkZwc9LL2x/Pvj58rfCG5D6TwRbHARlE+jnQnscLOG2nwCUs1pWok9wqM9zF6/qHEBkZtNQLHjLM6GvHXIfFPwidJ+vnw8+yZF4/kQi0LYR+gnXC37abaLJEiAgCAFo2bx+e6EXLoJVyooJcif7vGdCYfdbPmueHsd3woEQQqKzGwz8KRRMC/2F1u83d0RpPAaHVxnbtXCkQJ9LQveJI8JwZxcEIQDtdkI/wXoCiCsHSOoNPUeH7tNYCYc+NbZvmRdaOh90h299TugBA24O3g/M5YjyN8wJT4usa30awDhB/3Hqs41rz+sdSPHlFgxPAPqb6FlJ3Gv2RSJB65cBd4MvoCQYLHaV9RfdS0iBc+/7RjfuiDx/4iP9+6GfC326WS1MCOBbaCUAZaHXWpoaGhqUwfQVP8KVUWs3sq8HEcbVTP81htP759ygumV3Gwx9QnjpSg98rQleaawMLXyCb4mJxNu5HdATgFZ/oycAE4ttNbQSgJLTXOv9I6VU9ptVVeqLjTsBJPWCjDGh+zQeg8OrW4/D6f0L7zZpuzf0NdufaxUGg8kdWmRPAksctKQaaAlAz/L1S7eJz0YltBKAUoJE7/6lXefr6uoUaTPuBADRLQNHPgut9+91AaSfY2zvdxl0HWRs96N+f2s83ynA/qWUyg5Nv13Xz4uJRVdZAkISgH4rqL1ZU1NTfAVBaPmawiicyt/wfaGRbP1MIaDwrtDXbl/g0z0cCBPinZDmc/2OIxoaGpT3rp8DfaEKXcoZD77ilAECUBzh9IGIej2ydnvh9XojKqveLiT08DlThkLDEdj9r9BfZ3I29DeEx7Ui71ZICBHbsHcpbP5beCNUzvXhCbad0L9zvaZP69Fls9n0iSZ2CSEaoYUAhBDHgUDWx6ysLGWStbkBAEPtPJ23SXwQCUtddXtovX/RPaEFSlsS5AdNpuFb99f/d/jniMSrqZ3QE4BeONf6dOpTzeArQQeoPoEBNyB/uRY/vvhCdXbUF0QMVikzpsi+LrxQFUryd6RAXgTJJgrv8m0TgyGciTipF2QYysDGHPp3rk3eJYRQYgH0GccIQgAbtD3OOadVUKqoqFDWfb1tWV/pIi5wdIU+F4fvFwz5t/uIIBySevtYeFuRc0P4bWs74fV6lWXZZrMptQfsdruyQzCpUh5gD1oCUERnfQYwrZBRW1ursJS6urqo6uy2GW2VrIUVBofR+Wsx5Ndtuw/EXfoH3wen3eZZrVZlfvSVSk0KU5tygJAEoAsvMqiE9fqBuCDrmrZZ1nKu9wmAkaLH8PAqaDN07gs9DSVfYw69UK7nwCUlrdHJVquV8847T3v6BEEIYBsahdCQIUMUo9Cnn36q3OTgQbV6aYcQgD3Z51sfLYrCKHlidU3ODcSxIHsA+i9cW41cCKHUHRw6dKheC7haCBFQElg0F0rgU/+xw+Hgootat17btm1TNILffPONohCqqqoKWvY9poiWxfYcDekjw/fTI/u66LgGdAj7r6+vV3ZdDodDWf8dDoeSG+jCCy/UD6FkrtLbWhUFt7YaiJRSubHH41EEQ4/HY1ouPebofxXYoghEKQqm+AmDaOWG5GxIGxG+XzuhL0mrV9Jp9//gq9mgg2Ij1xPAUjTeQVdddZXylesjhvVygbaARNxgS/KpbSNB5/7ti8WLdOcALc4r8Wf/epd9fQyHNmN4SkoKF1+s7JwqASV7lUIAQog9QKCgfc+ePZU0pF988YWyDGzevFk5rqmp0acmiw9yImS1hXe3TyPnSPFpB2P5TO1AZWWlouNPSEhQPjqHw6F8lNdee63eh/NjfS0hM3ebt7UH2mXA5XIpTqJer9ew/dMLh3FB/yvDf5n2ZMg3lFmNHkX3hd/Xp+RCjx+E7hMD6PUv+vgNPTeYPNlAlAb/OTMCeE17cMsttwRSkPTq1YtLLlFdnHQpSTl06FD8dQLWhPCBFvn/JzahWMnZ4e814MbQ52OAmpoaJVm3zWZj/fr1gWMhBG+/3frt9ujRQ8kUAtQAhoRBBgIQQmzDVxYW8E36li1bWL58OVu2bKGgoEDJBHrs2DGDP7p2WxI35N8e/JwjpX3KHD2GzwzOBSx2yPtZ7O4VBPp32tzcrGj7mpubFY5www036OMGXhVCGBIrBPO4VOKoU1NTmTBhQiA1iTYxMZwkLtB7rLn51poAY1+ATpnGc21Fj+Ew6gkTB1UB5/4lfIazdqK2tlbRs1itVuXrBzWhpxCCX/7yl/phTGPjgxHAy0BQG6++7t+BAwcMXEC/HYkLRj8Nl74DOT/27fcLpsN1X/mcMWONwrvhqjWQ91PfvQZOgatWtU1hFCV27typHOu35DabTelzxRVXKOVlgG/wFZQ0IOi+RUo5nxCFBjZs2KCsOb179zakKh02bNiZGoHtxOHDh5V8DVarlc8//1whgGXLlrF2bWuA6kcffcT48Yo/4u+EEH8xGz+U0/3fCBH0PmTIECVb1cGDBw1uSTt27Ii/t9B3GB6Px8BJ9ZpAq9WqTH5RUZGiwcXn/PmPYPcISgBCiE1A0JxsFovFoGb87LPPFCKor683C0s+gwixY8cORZZyOp2Kb4YQQingCfCHP/xBHxDytBCihiAIVzXswVAni4qKyMhoja2rr683GIV2797dMf4C3zFUVFQY1L579uxRzMBNTU1s3Row7HHOOefo9/71wFxCICQBCCHWAUE9IIUQTJw4UfFBX79+vSIQSinZtm1b/ANIvkNobGw0KHWsVqtSsNNms/GPf6ic/fHHH9d//c8KIVTvUB0iqeb4e0LIAhkZGQbfgZKSEmUpaGxsNCSeOgNzeL1ewwfjcDiUxJ3gS+WvNQtff/31nH/++douDcDj4e4XlgCEEF8Ar4fqM27cOGVbWFFRYchSdezYMfbsCRFrfwaAL0ObPsJn+/btig3AZrPxwgsvBI4dDgd//vOf9UP9RQgR1joXaT3XP6ALH9PCbrcrS0G3bt3Izs421A7avXu3wYJ4Bq0oLy83WPsaGhoULaDdbufZZ59VZIHZs2frC3eVAY9Gcs+I7ZdSylnA7FB9jh49ypEjRxgwYACJiYlIKdm4caOiwxZCMHjw4LbXFviO4uDBg/oS8NhsNj76SA1xLy0t5Y03WmMfRo4cyZo1a/S5Aa4UQkRUYycaAnDg8xwOET9lhMvlYsOGDYqZ2GKxUFhYaBax+r2E2eQ7nU4++ugjxcvK5XLx8MMPB46TkpIoKSnRK+DeEEJE7NYccUlvIUQzMB2IKiOE3W5nyJAhhpwDpaWlHeNBdIoj2OSvWbNGmXyHw8GcOXOUfo8++qh+8uuAqFygoqrpLoRYCTwZzTXg+4OKioqUnYF/e/h9lgn27NljmHyHw0FxcbES+eN0OnniiScUpdCVV15pZvD5tRAiKs1b1D5MLYmli9Gll48EtbW1lJaWGuLaBwwYQGZmDK13pzi8Xi9ff/21QeBzOp0UFxcr2zur1cqiRYsoLS0NtA0ePJi1a9fqazMvFELcFO2zRMUBAFqCCicBUceDJScnM2zYMEOquV27dn1vbAaNjY2UlJSYTv66deuUybdYLKxcuVKZ/NTUVP71r3/pJ38nMK0tzxM1AQAIIb4GQnhkBEdSUhLDhg0zFKD8PpSZP3bsGOvXrzcE0zqdTtauXavsliwWC2vWrFF2AXa7ncWLF+u3fI3ADS0BvlGjXW9dSvkUYJJuIzxcLhfl5eW4XC769+9vSH/+XYLL5WLnzp2mSbjtdjuffPKJovnzf/kff9zqwi+E4LnnnuO2227TDzFNCBHU2hcO7SUAK/AmJjVpz8CHS2YBDgAAB1ZJREFUiooKdu7cafCQEkLQ1NSkmHIh+OTPmzePadMMXP4ZIYRBEowG7ea7UspkYDUwNFS/8vJySkpKGDdu3Pdi/3/8+HF27dqlsHU/HA4HZWVlhrwLDoeDRYsWsWFDa6C2EIJnnnmG6dOn64d5BfhpS0RXmxGThbel5vBKIN/s/KZNmxg5ciQNDQ1kZGTw6quvMnbs2Fjc+pRDfX09u3fvNqRo8cNut7N69WpDRI/D4eDJJ59UlgkhBHPnzuXOO+/UD7Mcn7av3Y6XbRIC9RBCHAUuAUytPUuXLg1kFTl06BATJkzgkUce+U5J/pWVlWzatIni4mLTyXc4HBw8eJDly5cbJt/j8TBr1ixl8u12O/Pnzzeb/M+Ba2Mx+RDjWCYpZQ6wDE0BKoAvv/yS0aNHG3wCrrjiCl566SVDIcTTBQ0NDVRUVHD48GFD2hw/rFYrjY2NrFu3zhA8a7PZKC0tVTx6wVcZdMmSJWZccj0wQQjxrf5EWxHzvZeUsic+VzIlVObTTz/lxhtvNMQP9u3bl2eeeYaJE2NXUCmeqKuro6qqioqKipC5kfyW0c8//9w0iZbNZuPvf/+7oZbPoEGDePfdd/VJncAnZ00M5d7VFsRl8y2l7AL8CxirbT906BA33XSTIdcAwKRJk3j66aeV+nfg8z4uKysjJyeHwsLCiCuUejweGhoacDgcbS5r09jYSENDA3V1dYHInHCeTTabDZfLxaZNmwyhW+DjCLt27eKFF14wLIGXX345r776qpkn9VJ8e/2YB17GTfsipXTik1QVy5Tb7eaPf/wjjz32mOEFpKSk8PDDDzN9+nSsVitlZWW88sorgfNOp5OhQ4cyYsSIkKXsTpw4wYYNGwIqZ4vFQkJCAomJiQGlk81mQwgRyLDpdrvxeDx4PJ7AxEeTCd3pdFJdXc369evNUrMH/vb58+cb9AGJiYk8+uij3HXXXWYKsfnAnUKIuPjUxVX91qIneAj4nf5eH374IdOmTTP1EsrLy2PmzJnk5eXx/vsmqdrx5TIsKCjgrLPOMnwxu3fv7hDvI4fDQVNTE2VlZWZl2QKw2+0sXLiQzZs3G8798Ic/5KWXXjIUfAbc+Iw7T8f0oXXoEP2rlHI8Pm7QS9teX1/PrFmzeOqpp0xZ65AhQ7jxxhvDpqPt1asXeXl55ObmkpGRQU1NjSFcLRawWq3Y7Xbq6urYu3dv2BhIu93OsmXLWLlypem5GTNmMGPGDLOqLEeBG4UQYVKSth8dpoCXUmYCCwFDyqoNGzZwxx13GPIRgm8vfOGFFzJ+/Hi8Xm/YraPFYiEtLY3+/fvTpUsXrFYrXq8Xl8sV8bZTCBGQNdxuN/X19Rw6dCiioFeLxYLb7WbRokWKF68W1157LY899hgDBw40O/0hcGvL1jru6FALjJTSBvwJ35Kg+DB5vV5efvllHnzwQYOGzI+0tDQmT55MRkZG0HU2GIQQdOnShS5duiCEwOl0YrVaAxPmX/dPnDhBXV1d1DoKp9NJeXk5S5YsCZowa/jw4Tz++ONmeXvAl73rN/hcuTtMQXJSTHBSyh8A8wBD9ia3281LL73EQw89FDTAVAhBUVER48ePJy0trWNyFJrA6XSyf/9+3nnnnZARUIMHD+aBBx7gpptuClbudQU+o84Os5PxxEmzwUopLcBU4M/oCleCz4L24osv8tRTT5kKT1r06tWLiy++mKysLJKSkmhubo6LltHpdFJTU8PGjRsN5lszTJgwgV//+tdceumlwczdR4H7gVc68qvX4qQb4aWUPfC5MP+cIKrptWvXsmDBAhYtWhRRDiKn00lBQQFFRUWkpaXRuXNnnE4nUkrcbndQ4tD6JbhcLqqqqtizZw/btm1jz549BhWuGbp06cKkSZO4++67GTo0qH2sEXgK+HOsFTunLaSUBVLKl6WULhkE1dXV8plnnpHjx4+XDodD4otYavMvMTFRJiYmtnuspKQkOXnyZPnmm2/KhoaGYI8vW/62F6SUaj7+M2iFlDJXSjlfStkU6k3W1NTIxYsXy5///OeyZ8+e7SaGaH5CCFlQUCCnT58uFy1aJOvq6kI9qpRSNkop/y6ljDLzZPxx0peAYJBS9sHn4nwLkB6mL2VlZRQXF/PVV19RXFzM+vXrYxaV3K9fP/Ly8hg8eDDnn38+Y8aMIT095CP5cQD4O7BACHEkXOeTgVOWAPyQUtqBHwG3AlcCztBXBK7j8OHDHDhwgAMHDrB37172799PdXU1brc7kG/frx/o2rUr3bp1C/x69OjBWWedRV5eXrTuak3A+/hy8iwVQkS3X+1gnPIEoIWUMhX4CXAdcB4Qv6qM0aERn5PG28BbQogOyJwdG5xWBKCFlDIRHxGMb/mdjU65FEd48aVc/cT/E0LEuXBSfHDaEoAeUsqu+IhgEL6gFf+/wc2GkaEGXzmdr/FNejGwXgjRAXVy4o/vDAEEQ4ueIQPoZvLTOgpU44utqwUqgH3AoXAZNs7gDE5r/C/RmsozuLA30wAAAABJRU5ErkJggg==",
+            "name": "warp10-icon-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix script statistics",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Warp10 through Sensision metrics web page**\r\n\r\nAvailable host templates and related services:\r\n\r\n|App-DB-Warp10-Sensision-Web|\r\n|---|\r\n|Fetch-Statistics|\r\n|Script-Statistics|"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser Warp10 au travers de la page de m\u00e9triques de Sensision.**\r\n\r\nMod\u00e8les d\\'h\u00f4te disponibles et leurs services :\r\n\r\n|App-DB-Warp10-Sensision-Web|\r\n|---|\r\n|Fetch-Statistics|\r\n|Script-Statistics|"
+            }
+        ],
+        "discovery_category": "database",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n\r\n## Prerequisites\r\n\r\n### Centreon Plugin\r\n\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Databases-Warp10-Sensision\r\n\r\n## Centreon Configuration\r\n\r\n### Create a host using the appropriate template\r\n\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Field</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>Name</p></td>\r\n            <td align=\"left\"><p><em>Name of the host</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Alias</p></td>\r\n            <td align=\"left\"><p><em>Description</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>IP Address / DNS</p></td>\r\n            <td align=\"left\"><p><em>Can be localhost</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Monitored from</p></td>\r\n            <td align=\"left\"><p><em>Poller used to monitor</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Templates</p></td>\r\n            <td align=\"left\"><p>App-DB-Warp10-Sensision-Web</p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nThe following host macros should be set as shown:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Macro</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>WARP10SENSISIONPORT</p></td>\r\n            <td align=\"left\"><p><em>Warp10 Sensision web page port</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>WARP10SENSISIONPROTO</p></td>\r\n            <td align=\"left\"><p><em>Warp10 Sensision web page protocol</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>WARP10SENSISIONURLPATH</p></td>\r\n            <td align=\"left\"><p><em>Warp10 Sensision web page url path</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>WARP10SENSISIONUSERNAME</p></td>\r\n            <td align=\"left\"><p><em>Warp10 Sensision web page username (if needed)</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>WARP10SENSISIONPASSWORD</p></td>\r\n            <td align=\"left\"><p><em>Warp10 Sensision web page password(if needed)</em></p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nCheck the *Create Services linked to the Template too* box and click on the *Save* button.\r\n\r\nThe following services will be created:\r\n\r\n* Fetch-Statistics\r\n* Script-Statistics\r\n",
+        "name": "Warp10 Sensision",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_warp10_sensision.pl",
+                "package_name": "centreon-plugin-Applications-Databases-Warp10-Sensision",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-databases-warp10-sensision",
+        "status": "stable",
+        "status_message": "fix script statistics",
+        "tags": [
+            "Warp10",
+            "Sensision",
+            "OpenMetrics"
+        ],
+        "update_date": "1568298345",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques \"scripts\".}\r\n\r\n{EN: Check scripts statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Script-Statistics",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Warp10-Sensision-Web-Script-Statistics",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Warp10-Sensision-Script-Statistics-Web",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 1,
+            "alias": "generic-active-service",
+            "check_timeperiod": "24x7",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 0,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "generic-active-service",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "24x7",
+            "parent_template": null,
+            "passive_checks_enabled": 0,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques \"fetchs\".}\r\n\r\n{EN: Check fetchs statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Fetch-Statistics",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Warp10-Sensision-Web-Fetch-Statistics",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Warp10-Sensision-Fetch-Statistics-Web",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

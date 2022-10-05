@@ -1,0 +1,201 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_drbd_ssh.pl --plugin=apps::drbd::local::plugin --mode=resources --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --filter-resource-name=\\'$_SERVICEFILTERRESOURCENAME$\\' --warning-resources-total=\\'$_SERVICEWARNINGRESOURCESTOTAL$\\' --critical-resources-total=\\'$_SERVICECRITICALRESOURCESTOTAL$\\' --unknown-disk-status=\\'$_SERVICEUNKNOWNDISKSTATUS$\\' --warning-disk-status=\\'$_SERVICEWARNINGDISKSTATUS$\\' --critical-disk-status=\\'$_SERVICECRITICALDISKSTATUS$\\' --warning-data-read=\\'$_SERVICEWARNINGDATAREAD$\\' --critical-data-read=\\'$_SERVICECRITICALDATAREAD$\\' --warning-data-written=\\'$_SERVICEWARNINGDATAWRITTEN$\\' --critical-data-written=\\'$_SERVICECRITICALDATAWRITTEN$\\' --unknown-peer-role=\\'$_SERVICEUNKNOWNPEERROLE$\\' --warning-peer-role=\\'$_SERVICEWARNINGPEERROLE$\\' --critical-peer-role=\\'$_SERVICECRITICALPEERROLE$\\' --unknown-peer-connection-status=\\'$_SERVICEUNKNOWNPEERCONNECTIONSTATUS$\\' --warning-peer-connection-status=\\'$_SERVICEWARNINGPEERCONNECTIONSTATUS$\\' --critical-peer-connection-status=\\'$_SERVICECRITICALPEERCONNECTIONSTATUS$\\' --unknown-peer-device-replication-status=\\'$_SERVICEUNKNOWNPEERDEVICEREPLICATIONSTATUS$\\' --warning-peer-device-replication-status=\\'$_SERVICEWARNINGPEERDEVICEREPLICATIONSTATUS$\\' --critical-peer-device-replication-status=\\'$_SERVICECRITICALPEERDEVICEREPLICATIONSTATUS$\\' --unknown-peer-device-disk-status=\\'$_SERVICEUNKNOWNPEERDEVICEDISKSTATUS$\\' --warning-peer-device-disk-status=\\'$_SERVICEWARNINGPEERDEVICEDISKSTATUS$\\' --critical-peer-device-disk-status=\\'$_SERVICECRITICALPEERDEVICEDISKSTATUS$\\' --warning-peer-traffic-in=\\'$_SERVICEWARNINGPEERTRAFFICIN$\\' --critical-peer-traffic-in=\\'$_SERVICECRITICALPEERTRAFFICIN$\\' --warning-peer-traffic-out=\\'$_SERVICEWARNINGPEERTRAFFICOUT$\\' --critical-peer-traffic-out=\\'$_SERVICECRITICALPEERTRAFFICOUT$\\' --unknown-role=\\'$_SERVICEUNKNOWNLROLE$\\' --warning-role=\\'$_SERVICEWARNINGROLE$\\' --critical-role=\\'$_SERVICECRITICALROLE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Drbd-Ssh-Resources",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4ler le logiciel DRBD}\r\n{EN: Check DRBD software.}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check DRBD through SSH",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "drbd-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSSHBACKEND$",
+                    "value": "libssh"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Drbd-SSH",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Drbd-Resources-Ssh"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAqqSURBVHic7dx9lFRlHcDx7+/uLisQsMu2pQmJmG+wiymVHTMjpSgzOr2glZ5IS9OT6dHceKcNdlGyNI9iIr1oaiVahonooY6eFF9KE3fZCAXZFBFEmFlexGV3768/nhkYtnvn3ju7M/TH73POnpmd+9z7e3bmd+/z3Od5ZsEYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGPMISAAqaaxU1U5saADiNeFaBpIoaTw/fYqX9qksW1f1L6p5rqL1NfjCol7ID6dIt7bvu/vFnhNRDa/U+mtPbyhZU8Bh/OAZjLvS4G6gV1AGtgDrAXWAJ0h5c8CvlNgrL1ACtiRedwKrAbWA36cA7gEaK5fhurkAisRpAt4WpEVit5TM3vNa0GF0k31KxT9TD/GzeoG2kD/inBX9ay21TH3GwEE1rWPunCJ8BDwK2BDzrZ5wJx+jvcm8DBwJ/B4voJePwfOqgDOEPRaD9pTTXVLty8YO6ZIsYKUAyeBXI3KC6mmusd2NNeNi7HfB4pUnwpgHDAT+DdwMzAos+2fRYj3HuCbwGPA88AZYQWLlQC9Y0zxfFmdmj92ni6dUlaCmL1NEOUf6ea6cyPKFSsBcpUDlwOPAgOBPwF3FzHeKbirwLUEfN6lSICsCkTmpF5au3zL9eMGAyA8UML4A1T5baqpPvRsoDQJkHU6rr8BsKDIsQSYDvyCXv2bUiZAtiaTKjt7luni8RVVs1pvV2VpCcOXgb8kz1WolAkAcClQhesfvFCCeBcC1+S+UPIEcOSs9FvvLASgovISYHsJYx/X8fLaM0M2ljoBBgIfyzxvKVHMecDR2V8OUQIAKld2zBtz6vDpz3cgclMJIz8GXlDCCXBMCeuRNTLzuKlE8Q7DNQfAoUwA8HyvzLV9XWU3AzuLHM9XuKx69pozq2a1vAF8HjgPOCGzvRJ3315qXZnHw0oY8+vZeOUF7S5yofhs8mGAiF+reGM8dLIeeDNj0jN3zKuvr567ujXVVP8A6NS8pZELPGXr/mp4fpn6vF9FpgCfyruvMHf4rDWLcR2uBg7+2x8Czge+AKwCou5U3gJOzfl9IO4NHYm7pz8lYv9c7ZnHmhhlvwS0AsOAIcAYYDLwaZINXr0L+DiwsqAEKBPvqaFzXnwp9zVVpqeb6q5AuDFJZcTjXKAVdBmQNwGkrGxV1YzV7QGbluxoqr9d0IuDd2TTnoFDbgC+C8wIKHEO8EtgCvB7XDLksx54JeD154Fq3GBPHO8AT2WefzhG+SeBbTm/Pw7cCnwFWEqyJDgFWNlvTYAIWj1nzU2QtD13I4Hl3d6qPlXA8+8MDyH3j7z66b24BAjzZeAI4A8xom3Is+30GPtn3Ycbzh2FO5vz6eDgDz/X/cAfE8QFGA1F6AP43fJToCfBLidtbBx12JDGljfpyzBsjzcsdJtqO+5vPTbPEQQ4nuAzu7f1Aa+NAm7A3WrF0QXMzzy/hOizNyhmrkdixs2qhiIkQE1jyyZcOxVXRU3Z0KMyzzcmjaeNeB3NYyeJ6PWhhTwZipscierk7SReW9yAm4DJ/uzG1f0q4l+GG4CXgSOB78UoH5UASe8iuqHQTmAUZQ3CB+MW99GRwDpBXlc0vGBP94Op5jo3y6jiIVqbVmpRKvMdX5TTMk8fAcKGgzfj7sWvCdmeaxAHxvILsRi4CZcst+I6ZVGiEqArYntvKSjWbaCnYW1VIBUdAuC7MymfepTxKONBT0YZAfk/fABFJ2Ymo6YDWwKKdOOmZMvI30/oD/OAyzLPr8b14uOISoDhCetRxATwIz/IgwgMcJXRpFkcV7nne3dvuX7cm7je78+Av+OaqruBjwLLcWPlI4pUh6xJuP4CwBPEP3OjEuDwhPXYCkVqAgTx8lzI/5e6bES1CunLWoxQe0W49717Wvbi+gFX9dp+BPBn4HPFCN7LqbjbufG4JLyOeOsB8t15AIxNWI/noEhXABUN75EHEFWXACJVxagPUO4rx3RU1ofV6xJK8+FnvQ9YlHm+CIhaPbWb4KYr14cSxO/CrRwqUgIgiZZ5aUVmbF7drUkRVAh6sfboc9sbxwVd4ks9CQTwRdy9+FZgZUTZDZCvd8wI4OQEsVtx4w/9nwC6eHyFuMtb7F26vH3bAFSo7e/69DLaK9egAaMkCXAdbtg5+zMZd2cxEzetG5cAEzPPo2YCo9r/qST7LJ/MPun3PkB6276ziXcvnfVK7bR1uzY3jh8EnUdHF++T11T8JaqIyEFn1BW4juFpIfvlWk7OG9jLzbjRurgTO6Mzj1EfcL7ttcD3Y8bL2j/a2a8JsLlx/CClc2HCbtwzAJUD9p2En38SRuA2X7VDhApU3o1Qg5uAijON+x+/2zu9prFlF7OYhuv5D8a1hbcBn8Qtz/psxHHyfRhJRkAhc/eDWzNYSMxK4F5I1HRupBhXgG3NJx5R7nf+DjecGpsiKwBENWyRxoGyZeULhwdMBqXnj71YRW7Pu6+n59c0tvTger+5l/yJuPvys3HTwxsJv4LthgOzkQEuI9m0bvZYgyPKBSXAGODXwEcSxAM38LR/yXhBCeCrjkxfW98tXX6Net4oH3+iqHwNYUjCQ+3uqdj3IIC4qdiCVM1pW5JuqrtI3Vkd5G/DZ7atwr1hQe394My2Y4FbgB+GHGc7bh1/rmG4Xv0kXBIl8WzmMWrF8ghcog7HXe0mZH5P2ofbgrva7VdQAqj6f6EH1BNAkUK/RyFyZ+20dbu2Lxg7Bj/WdGgoH20RJDABVPe/0flG3UYDdWSapBBHEd1jj2sfbhwA3Nx8Pnf1U8yZ9BptPZQrgvZ0090M4PnSe2AmOZWOsE0iuhn3t0aNM9Tg5gRKYSnwNm5UcHT+ov1iBXBH7xcPWQIo+oPaWWvf2Dl/3PHAN/p8QI/QBFDkSFy71x5xlA0cWKNXTApkZy8vL0G8l4ELCBhLOFQJcE/1rLafayNej/Qs4kBvuGCSZ/7Bg3NUEdxYf5hHgVfpQ18kgZ/g7v2rcKOQxdSO65/sCNp4KBLgvqpuvUgE7aiobwDp3akqiHgaOtevcEJ6Qf1U4McEL9d6FncVGkN/XI3yW4lriwFuhMQd5ySewfUvQtdZlDIB9qkwu6p7zVf3f3NYmdBfB4+cSlZdlJ5fdxbwLaAed+ZdietRn4abk19GjOnlPliCW3/YDXwb9/29YugEfgR8goiFIsVZEHIwRVjm9/iza+b+q61oQbSsXfJ/I3qQCg+nm+qWqK+3Vc9tW5J5/WjcOoFpwNAiVW81MBc34wjuKnNLEeLsBX4DLCTm6qpiJYACL4qyXMr1jmEz2qKGOvusq5LWyk588l/VyhQuxZPzcPfUDbhmoRhex33gD+Au+9kO2AKCVyYXajtudfAK3OLQ0M5wkHIAUX+VImH/wCCUKopHynPTuSmEHerLeimXF6tmtKai9vfRJ8T9M4V4lVUJbecPb2jZk2qquwU3tx9V8+xxduBW5vZFGnc79zbuFnJd5ufVkPI+7gwtxE7cSp4U7rsJL+WJY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMeb/138BM0j71wOcuyUAAAAASUVORK5CYII=",
+            "name": "drbd-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin-pack to check DRBD software through command line with SSH:\r\n* Resources"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack de plugin pour superviser l\\'application DRBD en ligne de commande (par SSH)\r\n* DRBD"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "DRBD SSH",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_drbd_ssh.pl",
+                "package_name": "centreon-plugin-Applications-Drbd-Ssh",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-drbd-ssh",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "DRBD",
+            "SSH",
+            "Application"
+        ],
+        "update_date": "1600154973",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des resources DRBD.}\r\n{EN: Check DRBD resources.}",
+            "active_checks_enabled": 2,
+            "alias": "Drbd-Resources",
+            "check_timeperiod": "",
+            "command_name": "App-Drbd-Ssh-Resources",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNDISKSTATUS$",
+                    "password": false,
+                    "value": "%{disk_status} =~ /dunknown/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGDISKSTATUS$",
+                    "password": false,
+                    "value": "%{disk_status} =~ /attaching|detaching|negotiating/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALDISKSTATUS$",
+                    "password": false,
+                    "value": "%{disk_status} =~ /outdated|inconsistent|failed|diskless/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNPEERROLE$",
+                    "password": false,
+                    "value": "%{role} =~ /unknown/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALPEERROLE$",
+                    "password": false,
+                    "value": "%{role} =~ /unconfigured/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGPEERCONNECTIONSTATUS$",
+                    "password": false,
+                    "value": "%{connection_status} =~ /^(?:connecting|disconnecting|standalone|teardown)$/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALPEERCONNECTIONSTATUS$",
+                    "password": false,
+                    "value": "%{connection_status} =~ /^(?:brokenpipe|networkfailure|protocolerror|timeout|unconnected|wfconnection|wfreportparams)$/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGPEERDEVICEREPLICATIONSTATUS$",
+                    "password": false,
+                    "value": "%{device_replication_status} =~ /^(?:ahead|off|startingsyncs|startingsynct|syncsource|synctarget|verifys|verifyt|wfsyncuuid)$/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALPEERDEVICEREPLICATIONSTATUS$",
+                    "password": false,
+                    "value": "%{device_replication_status} =~ /^(?:behind|pausedsyncs|pausedsynct|wfbitmaps|wfbitmapt)$/i "
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNPEERDEVICEDISKSTATUS$",
+                    "password": false,
+                    "value": "%{device_disk_status} =~ /dunknown/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGPEERDEVICEDISKSTATUS$",
+                    "password": false,
+                    "value": "%{device_disk_status} =~ /^(?:attaching|detaching|diskless|failed|inconsistent|negotiating|outdated)$/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNLROLE$",
+                    "password": false,
+                    "value": "%{role} =~ /unknown/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALROLE$",
+                    "password": false,
+                    "value": "%{role} =~ /unconfigured/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Drbd-Resources-Ssh",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,347 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_santricity_restapi.pl --plugin=storage::netapp::santricity::restapi::plugin --mode=storage-volumes --hostname=$HOSTADDRESS$ --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --api-username=\\'$_HOSTAPIUSERNAME$\\' --api-password=\\'$_HOSTAPIPASSWORD$\\' --api-path=\\'$_HOSTAPIPATH$\\' $_HOSTAPIEXTRAOPTIONS$  --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --filter-storage-name=\\'$_SERVICEFILTERSTORAGE$\\' --filter-volume-name=\\'$_SERVICEFILTERVOLUME$\\' --warning-volume-status=\\'$_SERVICEWARNINGVOLUMESTATUS$\\' --critical-volume-status=\\'$_SERVICECRITICALVOLUMESTATUS$\\' --warning-read=\\'$_SERVICEWARNINGREAD$\\' --critical-read=\\'$_SERVICECRITICALREAD$\\' --warning-write=\\'$_SERVICEWARNINGWRITE$\\' --critical-write=\\'$_SERVICECRITICALWRITE$\\' --warning-read-iops=\\'$_SERVICEWARNINGREADIOPS$\\' --critical-read-iops=\\'$_SERVICECRITICALREADIOPS$\\' --warning-write-iops=\\'$_SERVICEWARNINGWRITEIOPS$\\' --critical-write-iops=\\'$_SERVICECRITICALWRITEIOPS$\\'\\\"",
+            "name": "HW-Storage-NetApp-Santricity-Restapi-Storage-Volumes",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_santricity_restapi.pl --plugin=storage::netapp::santricity::restapi::plugin --mode=storage-systems --hostname=$HOSTADDRESS$ --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --api-username=\\'$_HOSTAPIUSERNAME$\\' --api-password=\\'$_HOSTAPIPASSWORD$\\' --api-path=\\'$_HOSTAPIPATH$\\' $_HOSTAPIEXTRAOPTIONS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --filter-storage-name=\\'$_SERVICEFILTERSTORAGE$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Santricity-Restapi-Storage-Systems",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_santricity_restapi.pl --plugin=storage::netapp::santricity::restapi::plugin --mode=storage-pools --hostname=$HOSTADDRESS$ --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --api-username=\\'$_HOSTAPIUSERNAME$\\' --api-password=\\'$_HOSTAPIPASSWORD$\\' --api-path=\\'$_HOSTAPIPATH$\\' $_HOSTAPIEXTRAOPTIONS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --filter-storage-name=\\'$_SERVICEFILTERSTORAGE$\\' --filter-pool-name=\\'$_SERVICEFILTERPOOL$\\' --warning-pool-status=\\'$_SERVICEWARNINGPOOLSTATUS$\\' --critical-pool-status=\\'$_SERVICECRITICALPOOLSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Santricity-Restapi-Storage-Pools",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_santricity_restapi.pl --plugin=storage::netapp::santricity::restapi::plugin --mode=storage-controllers --hostname=$HOSTADDRESS$ --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --api-username=\\'$_HOSTAPIUSERNAME$\\' --api-password=\\'$_HOSTAPIPASSWORD$\\' --api-path=$_HOSTAPIPATH$ $_HOSTAPIEXTRAOPTIONS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --filter-storage-name=\\'$_SERVICEFILTERSTORAGE$\\' --filter-controller-name=\\'$_SERVICEFILTERCONTROLLER$\\' --warning-controller-status=\\'$_SERVICEWARNINGCONTROLLERSTATUS$\\' --critical-controller-status=\\'$_SERVICECRITICALCONTROLLERSTATUS$\\' --warning-cpu-utilization=\\'$_SERVICEWARNINGCPUUTILIZATION$\\' --critical-cpu-utilization=\\'$_SERVICECRITICALCPUUTILIZATION$\\' --warning-read=\\'$_SERVICEWARNINGREAD$\\' --critical-read=\\'$_SERVICECRITICALREAD$\\' --warning-write=\\'$_SERVICEWARNINGWRITE$\\' --critical-write=\\'$_SERVICECRITICALWRITE$\\' --warning-read-iops=\\'$_SERVICEWARNINGREADIOPS$\\' --critical-read-iops=\\'$_SERVICECRITICALREADIOPS$\\' --warning-write-iops=\\'$_SERVICEWARNINGWRITEIOPS$\\' --critical-write-iops=\\'$_SERVICECRITICALWRITEIOPS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Santricity-Restapi-Storage-Controllers",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_santricity_restapi.pl --plugin=storage::netapp::santricity::restapi::plugin --mode=hardware --hostname=$HOSTADDRESS$ --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --api-username=\\'$_HOSTAPIUSERNAME$\\' --api-password=\\'$_HOSTAPIPASSWORD$\\' --api-path=\\'$_HOSTAPIPATH$\\' $_HOSTAPIEXTRAOPTIONS$ --component=$_SERVICECOMPONENT$ --filter=\\'$_SERVICEFILTER$\\' --warning=$_SERVICEWARNING$ --critical=$_SERVICECRITICAL$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Santricity-Restapi-Hardware",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les baies de stockage Netapp avec Santricity en utilisant l'API Rest}\r\n{EN: Template to check Netapp storages with Santricity using Rest API.}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Netapp Storage Santricity using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "netapp-128-1.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAPIPORT$",
+                    "value": "8080"
+                },
+                {
+                    "key": "$_HOSTAPIPROTO$",
+                    "value": "http"
+                },
+                {
+                    "key": "$_HOSTAPIUSERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAPIPASSWORD$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAPIPATH$",
+                    "value": "/devmgr/v2"
+                },
+                {
+                    "key": "$_HOSTAPIEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Santricity-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Storage-NetApp-Santricity-Storage-Volumes-Restapi",
+                "HW-Storage-NetApp-Santricity-Storage-Systems-Restapi",
+                "HW-Storage-NetApp-Santricity-Storage-Pools-Restapi",
+                "HW-Storage-NetApp-Santricity-Storage-Controllers-Restapi",
+                "HW-Storage-NetApp-Santricity-Hardware-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAH4AAAB+CAYAAADiI6WIAAABOklEQVR42u3Ruw2DQBRFwQ3IHJNTCnVYQjIJ7oweiFZaQQGuyAYacALLR3Okm73oTQiSJEmSJEmSJEmSjqxNZXjFym60Ohb/4d9TP+9rN9qCDx48ePDgwYMHb+ANvIE38AbewBt4A2/gDbyBN/AG3sAbeANv4A28gQcPHjx48ODBexZ4A2/gDbyBN/AG3sAbeAO/zfrd140f8GdbjrrxCR48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHnxG+TeV6eLXlqBkel/xNHYsgSZIkSZIkSZKkY/sB3w4IbYPJDrUAAAAASUVORK5CYII=",
+            "name": "netapp-128-1.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix  twice double hyphens on option",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor NetApp storage Santricity using API :\r\n* hardware\r\n* storage-controllers\r\n* storage-pools\r\n* storage-systems\r\n* storage-volumes\r\n"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin-pack pour superviser les baies de stockage Netapp avec Santricity via l\\'API Rest :\r\n* hardware\r\n* storage-controllers\r\n* storage-pools\r\n* storage-systems\r\n* storage-volumes"
+            }
+        ],
+        "discovery_category": "storage",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Storage-Netapp-Santricity-Restapi\r\n\r\n## Centreon Configuration\r\n### Create a new NetApp Santricity server\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Storage-NetApp-Santricity-Restapi-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\n### Host Macro Configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"23%\" />\r\n<col width=\"53%\" />\r\n<col width=\"24%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>HOSTNAME</p></td>\r\n<td align=\"left\"><p>Santricity hostname</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>APIUSERNAME</p></td>\r\n<td align=\"left\"><p>Santricity API username</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>APIPASSWORD</p></td>\r\n<td align=\"left\"><p>Santricity API password</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>APIPORT</p></td>\r\n<td align=\"left\"><p>Santricity API port</p></td>\r\n<td align=\"left\"><p>8080</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>APIPROTO</p></td>\r\n<td align=\"left\"><p>Santricity API protcole</p></td>\r\n<td align=\"left\"><p>http</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "NetApp Santricity Restapi",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_netapp_santricity_restapi.pl",
+                "package_name": "centreon-plugin-Hardware-Storage-Netapp-Santricity-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-storage-netapp-santricity-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "NetApp",
+            "Storage",
+            "Hardware",
+            "Restapi",
+            "SAN"
+        ],
+        "update_date": "1596633696",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des volumes du stockage Netapp.}\r\n\r\n{EN: Check volumes state of Netapp storages.}",
+            "active_checks_enabled": 2,
+            "alias": "Storage-Volumes",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Santricity-Restapi-Storage-Volumes",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTERS$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERSTORAGE$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERVOLUME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGVOLUMESTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /degraded/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALVOLUMESTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /failed/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Santricity-Storage-Volumes-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des syst\u00e8mes du stockage Netapp.}\r\n\r\n{EN: Check systems state of Netapp storages.}",
+            "active_checks_enabled": 2,
+            "alias": "Storage-Systems",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Santricity-Restapi-Storage-Systems",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTERS$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /needsAttn/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Santricity-Storage-Systems-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du pool du stockage Netapp.}\r\n\r\n{EN: Check pool state of Netapp storages.}",
+            "active_checks_enabled": 2,
+            "alias": "Storage-Pools",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Santricity-Restapi-Storage-Pools",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTERS$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERSTORAGE$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERPOOL$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGPOOLSTATUS$",
+                    "password": false,
+                    "value": "%{raid_status} =~ /degraded/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALPOOLSTATUS$",
+                    "password": false,
+                    "value": "%{raid_status} =~ /failed/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Santricity-Storage-Pools-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des contr\u00f4leurs du stockage Netapp.}\r\n\r\n{EN: Check controllers state of Netapp storages.}",
+            "active_checks_enabled": 2,
+            "alias": "Storage-Controllers",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Santricity-Restapi-Storage-Controllers",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTERS$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERSTORAGE$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCONTROLLER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGCONTROLLERSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /rpaParErr|degraded/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALCONTROLLERSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /failed/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Santricity-Storage-Controllers-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat mat\u00e9riel du stockage Netapp.}\r\n\r\n{EN: Check hardware state of Netapp storages.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Santricity-Restapi-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Santricity-Hardware-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

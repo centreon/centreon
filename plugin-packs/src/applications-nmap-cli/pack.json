@@ -1,0 +1,845 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v3.0": [
+                {
+                    "attributes": {
+                        "hostname": {
+                            "type": "string"
+                        },
+                        "ip": {
+                            "type": "string"
+                        },
+                        "os": {
+                            "type": "string"
+                        },
+                        "os_accuracy": {
+                            "type": "string"
+                        },
+                        "status": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "vendor": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "App-Nmap-Cli-HostDiscovery",
+                    "credentials": {},
+                    "default_template": "generic-active-host",
+                    "description": "Discover devices, servers and services using Nmap",
+                    "discovery_examples": [],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.hostname"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.vendor"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.ip"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "linux"
+                                    }
+                                ],
+                                "value": "OS-Linux-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "windows"
+                                    }
+                                ],
+                                "value": "OS-Windows-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "macos"
+                                    }
+                                ],
+                                "value": "OS-Mac-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "freebsd"
+                                    }
+                                ],
+                                "value": "OS-FreeBSD-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "hp-ux"
+                                    }
+                                ],
+                                "value": "OS-Hpux-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "cisco standard"
+                                    }
+                                ],
+                                "value": "Net-Cisco-Standard-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "hp procurve"
+                                    }
+                                ],
+                                "value": "Net-Hp-Procurve-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "hp standard"
+                                    }
+                                ],
+                                "value": "Net-HP-Standard-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "palo alto"
+                                    }
+                                ],
+                                "value": "Net-PaloAlto-Standard-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "mrv optiswitch"
+                                    }
+                                ],
+                                "value": "Net-Mrv-Optiswitch-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "redback"
+                                    }
+                                ],
+                                "value": "Net-Redback-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "stonesoft"
+                                    }
+                                ],
+                                "value": "Net-Stonesoft-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "silverpeak"
+                                    }
+                                ],
+                                "value": "Net-Silverpeak-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "sonicwall"
+                                    }
+                                ],
+                                "value": "Net-FW-Sonicwall-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "hp msl"
+                                    }
+                                ],
+                                "value": "HW-Storage-Hp-Msl-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "netapp"
+                                    }
+                                ],
+                                "value": "HW-Storage-NetApp-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "mrv optiswitch"
+                                    }
+                                ],
+                                "value": "Net-Mrv-Optiswitch-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "synology"
+                                    }
+                                ],
+                                "value": "HW-Storage-Synology-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Nmap Discovery",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Target Subnet",
+                                "group": "Nmap options",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TARGETSUBNET",
+                                "type": "text",
+                                "value": "127.0.0.1/32"
+                            },
+                            {
+                                "description": "Command-line options",
+                                "group": "Nmap options",
+                                "hidden": false,
+                                "locked": true,
+                                "mandatory": false,
+                                "name": "NMAPOPTIONS",
+                                "type": "text",
+                                "value": "-sS -sU -R -O --osscan-limit --osscan-guess -p U:161,162,T:21-25,80,139,443,3306,8080,8443 -oX -"
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additionnal Parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 120
+                            }
+                        ]
+                    },
+                    "proxy": false,
+                    "slug": "application-nmap-cli",
+                    "type": "nmap",
+                    "uuid_attributes": [
+                        "hostname",
+                        "ip"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "addresses": {
+                            "properties": [
+                                "type",
+                                "address"
+                            ],
+                            "type": "array"
+                        },
+                        "hostname": {
+                            "type": "string"
+                        },
+                        "hostnames": {
+                            "properties": [
+                                "name",
+                                "type"
+                            ],
+                            "type": "array"
+                        },
+                        "ip": {
+                            "type": "string"
+                        },
+                        "os": {
+                            "type": "string"
+                        },
+                        "os_accuracy": {
+                            "type": "string"
+                        },
+                        "services": {
+                            "properties": [
+                                "name",
+                                "port"
+                            ],
+                            "type": "array"
+                        },
+                        "status": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "vendor": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "App-Nmap-Cli-HostDiscovery",
+                    "credentials": {},
+                    "default_template": "generic-active-host",
+                    "description": "Discover devices, servers and services using Nmap",
+                    "discovery_examples": [
+                        {
+                            "addresses": [
+                                {
+                                    "address": "10.30.2.212",
+                                    "type": "ipv4"
+                                }
+                            ],
+                            "hostname": "cps-demo.int.centreon",
+                            "hostnames": [
+                                {
+                                    "name": "cps-demo",
+                                    "type": "PTR"
+                                }
+                            ],
+                            "ip": "10.30.2.212",
+                            "os": "Linux 3.7 - 3.9",
+                            "os_accuracy": "100",
+                            "services": [
+                                {
+                                    "name": "ssh",
+                                    "port": "22/tcp"
+                                },
+                                {
+                                    "name": "http",
+                                    "port": "80/tcp"
+                                },
+                                {
+                                    "name": "https",
+                                    "port": "443/tcp"
+                                },
+                                {
+                                    "name": "mysql",
+                                    "port": "3306/tcp"
+                                },
+                                {
+                                    "name": "snmp",
+                                    "port": "161/udp"
+                                },
+                                {
+                                    "name": "snmptrap",
+                                    "port": "162/udp"
+                                }
+                            ],
+                            "status": "up",
+                            "type": "linux",
+                            "vendor": null
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.hostname"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.vendor"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.ip"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "linux"
+                                    }
+                                ],
+                                "value": "OS-Linux-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "windows"
+                                    }
+                                ],
+                                "value": "OS-Windows-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "macos"
+                                    }
+                                ],
+                                "value": "OS-Mac-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "freebsd"
+                                    }
+                                ],
+                                "value": "OS-FreeBSD-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "hp-ux"
+                                    }
+                                ],
+                                "value": "OS-Hpux-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "cisco standard"
+                                    }
+                                ],
+                                "value": "Net-Cisco-Standard-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "hp procurve"
+                                    }
+                                ],
+                                "value": "Net-Hp-Procurve-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "hp standard"
+                                    }
+                                ],
+                                "value": "Net-HP-Standard-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "palo alto"
+                                    }
+                                ],
+                                "value": "Net-PaloAlto-Standard-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "mrv optiswitch"
+                                    }
+                                ],
+                                "value": "Net-Mrv-Optiswitch-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "redback"
+                                    }
+                                ],
+                                "value": "Net-Redback-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "stonesoft"
+                                    }
+                                ],
+                                "value": "Net-Stonesoft-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "silverpeak"
+                                    }
+                                ],
+                                "value": "Net-Silverpeak-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "sonicwall"
+                                    }
+                                ],
+                                "value": "Net-FW-Sonicwall-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "hp msl"
+                                    }
+                                ],
+                                "value": "HW-Storage-Hp-Msl-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "netapp"
+                                    }
+                                ],
+                                "value": "HW-Storage-NetApp-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "mrv optiswitch"
+                                    }
+                                ],
+                                "value": "Net-Mrv-Optiswitch-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.type",
+                                        "value": "synology"
+                                    }
+                                ],
+                                "value": "HW-Storage-Synology-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Nmap Discovery",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Target Subnet",
+                                "group": "Nmap options",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TARGETSUBNET",
+                                "type": "text",
+                                "value": "127.0.0.1/32"
+                            },
+                            {
+                                "description": "Command-line options",
+                                "group": "Nmap options",
+                                "hidden": false,
+                                "locked": true,
+                                "mandatory": false,
+                                "name": "NMAPOPTIONS",
+                                "type": "text",
+                                "value": "-sS -sU -R -O --osscan-limit --osscan-guess -p U:161,162,T:21-25,80,139,443,3306,8080,8443 -oX -"
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additionnal Parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 120
+                            }
+                        ]
+                    },
+                    "proxy": false,
+                    "slug": "application-nmap-cli",
+                    "type": "nmap",
+                    "uuid_attributes": [
+                        "hostname",
+                        "ip"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\"sudo $CENTREONPLUGINS$\\/centreon_nmap_cli.pl --plugin=apps::nmap::cli::plugin --mode=discovery --nmap-options='$_NMAPOPTIONS$ ' --subnet='$_TARGETSUBNET$' --timeout='$_TIMEOUT$'\"",
+            "name": "App-Nmap-Cli-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ add default type mappers",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "This Pack includes a Host Discovery provider allowing network scanning using Nmap."
+            },
+            {
+                "lang": "fr",
+                "value": "Ce Pack contient un provider d\\'auto-d\u00e9couverte bas\u00e9 sur Nmap pouvant scanner vos sous-r\u00e9seaux. "
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "",
+        "name": "Nmap CLI",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_nmap_cli.pl",
+                "package_name": "centreon-plugin-Applications-Nmap-Cli",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-nmap-cli",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Nmap",
+            "HostDisco"
+        ],
+        "update_date": "1635799585",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [],
+    "timeperiods": []
+}

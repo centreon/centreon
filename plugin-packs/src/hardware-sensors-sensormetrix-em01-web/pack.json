@@ -1,0 +1,397 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sensormetrix.pl --plugin=hardware::sensors::sensormetrix::em01::web::plugin --mode=temperature --hostname=$HOSTADDRESS$ --urlpath=\\'$_HOSTSENSORMETRIXURLPATHHIL$\\' $_HOSTSENSORMETRIXEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\'  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Sensor-Sensormetrix-Em01-Temperature",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sensormetrix.pl --plugin=hardware::sensors::sensormetrix::em01::web::plugin --mode=illumination --hostname=$HOSTADDRESS$ --urlpath=\\'$_HOSTSENSORMETRIXURLPATHHIL$\\' $_HOSTSENSORMETRIXEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\'  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Sensor-Sensormetrix-Em01-Illumination",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sensormetrix.pl --plugin=hardware::sensors::sensormetrix::em01::web::plugin --mode=humidity --hostname=$HOSTADDRESS$ --urlpath=\\'$_HOSTSENSORMETRIXURLPATHHIL$\\' $_HOSTSENSORMETRIXEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\'  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Sensor-Sensormetrix-Em01-Humidity",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sensormetrix.pl --plugin=hardware::sensors::sensormetrix::em01::web::plugin --mode=thermistor --hostname=$HOSTADDRESS$ --urlpath=\\'$_HOSTSENSORMETRIXURLPATHTHERMISTOR$\\' $_HOSTSENSORMETRIXEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\'  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Sensor-Sensormetrix-Em01-Thermistor",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sensormetrix.pl --plugin=hardware::sensors::sensormetrix::em01::web::plugin --mode=voltage --hostname=$HOSTADDRESS$ --urlpath=\\'$_HOSTSENSORMETRIXURLPATHVOLTAGE$\\' $_HOSTSENSORMETRIXEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\'  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Sensor-Sensormetrix-Em01-Voltage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sensormetrix.pl --plugin=hardware::sensors::sensormetrix::em01::web::plugin --mode=contact --hostname=$HOSTADDRESS$ --urlpath=\\'$_HOSTSENSORMETRIXURLPATHCONTACT$\\' $_HOSTSENSORMETRIXEXTRAOPTIONS$ --$_SERVICETHRESHOLD$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Sensor-Sensormetrix-Em01-Contact",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sensormetrix.pl --plugin=hardware::sensors::sensormetrix::em01::web::plugin --mode=flood --hostname=$HOSTADDRESS$ --urlpath=\\'$_HOSTSENSORMETRIXURLPATHFLOOD$\\' $_HOSTSENSORMETRIXEXTRAOPTIONS$ --$_SERVICETHRESHOLD$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Sensor-Sensormetrix-Em01-Flood",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Sensormetrix Em01 series using HTTP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [
+                {
+                    "key": "$_HOSTSENSORMETRIXEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTSENSORMETRIXURLPATHCONTACT$",
+                    "value": "/index.htm?eL"
+                },
+                {
+                    "key": "$_HOSTSENSORMETRIXURLPATHFLOOD$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTSENSORMETRIXURLPATHHIL$",
+                    "value": "/index.htm?em"
+                },
+                {
+                    "key": "$_HOSTSENSORMETRIXURLPATHTHERMISTOR$",
+                    "value": "/index.htm?eR"
+                },
+                {
+                    "key": "$_HOSTSENSORMETRIXURLPATHVOLTAGE$",
+                    "value": "/index.htm?ev"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Sensor-Sensormetrix-Em01-Web",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Sensor-Sensormetrix-Em01-Temperature",
+                "HW-Sensor-Sensormetrix-Em01-Illumination",
+                "HW-Sensor-Sensormetrix-Em01-Humidity"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Compatibility with Centreon Plugin Packs Manager v2.2.0",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Sensormetrix sensors:\r\n* Contact\r\n* Flood\r\n* Humidity\r\n* Illimination\r\n* Temperature\r\n* Termistor\r\n* Voltage"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller les sondes Sensormetrix :\r\n* Contact\r\n* Flood\r\n* Humidity\r\n* Illimination\r\n* Temperature\r\n* Termistor\r\n* Voltage"
+            }
+        ],
+        "discovery_category": "sensor",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAAAtCAIAAADp3vSsAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuOWwzfk4AAAswSURBVHhe7ZmHV1RJFsb3P9kxK2YdUTGhGBkTKgYUs6iggzjj0TGNju4Yzpj1zK4yOqhrHDHhEsxZMdA0IKlBaTIiIJIk7q/7Ph6PBoFdmW322N+p06fq1q10v6pbt17/pcoGq8JGgJVhI8DKsBFgZdgIsDJsBFgZNgKsDBsBzYzC0tyC0hyl0ATYCGhO6NIDjus8Sc9T/RVRY/jiCMjOzo6Ojn4V9So2NjYuNjYmJobfV69eRZuTPlzPb2REBIkq5Ib4eBRI8XHxVEWByEgSPUToUY6Oj0ceHR8XFxGlOxWxwk+3lHQifNnH8iJlyAbxxRGQmpKSkZFRUlLysT6InF9FoY6aSV5dW1JcLEJBUXHBuajVQsDpiJVlFR+VIRvEF0dAWlrau3fvlEJzIzU/6lL05ovRPxrzwhVRY6iHgPS0tBsh129cv85mUURVVQkJCXG1kZiYiLysrIzTl5ubK2oWYLUc4crKSimyTZ4/e3Yt4NrLFy9KS0tFqAK1lJSUO7duX/L3f3D/flZmplJRDRQ47zK6Id5QUFCgVFQDy1JVWEcOysvKqUpLTWN1qCUlJZm7qQE9y1o+BVlIfn6+Uo6LMxqNNFEGqMbr168NBoO65EZRiwCa7d2zp2Pbdm3++hWpfes2f9uyVarse/UWoZr62/dFPzMjs12r1qOchr/Pey+aWiz1WNzVzg67k8dkwx2Hqs0HOwxISU4WNYBXne46la5UBaaxxMPDmJSkaFRVwZld+w6qQtdOdhvWrsMbKNVVVb8eOoR89syZ5eXliqgae3fvpooO4QACxo1xVvuR1Klde7ZLhzZtLeRq6mbXmbGuXrmiStp+1YpVhAQFK2OYMWLYsD69etfdXp9CLQIePnhAp7NmuIUEBwcFBn3vs3Lm9BlSRaf9+9ifP3tWTVcvX0EuBDCbGVOnaW0hWOrhgZkgAKpcxk/o3rnLUV/fe3fv/nbEd/CAgS9fvhQ1DhyWhe95c+ac8PO7djXg2NGjbtOmMZle3bpzXERNCBjpNPxaQMCpk/+cPsWVceFAaoEQQNr60xZFZEZwUBBdITcRYD4BY8c4d+nY6eyZM+pyLpw/X1hYeP7cOSmePX0Gha979FQVLl64AK9CwPq1665cvnxw/4He3XuwUcJ1OmWkzyRgz67dWDM1NVUps20NBsnQKSuXvBZCALuDafl4r6ioqFAqzFAJ4ORigg3raoyFRJxMsjG5q13nzh06wrpUCeDszKlTsNKvj31eXh4SIWDaFFdRwAWxfmykDioEcFjbtmrlf+GCCIl2mANEMgEIwMu9zXoLAT27drOYrRblZWUoDHJwUMrVEAKgR1vcsvknKYLPIuAfv/6d7o4cPqyUNWiYgI3r18+bPZu2v+zcqVSYoRJAwIDtnByHiim1+HHDBhr6Hj4ixcqqyvIKZq/40B3btlO7b88e8hYEsB+HDBzEqVIdjhDA0RzQtx+M6sPDuZyGDR6Ce+FKg0sISE5OJhJtLgIePXxI8YfVq6UIVAJY6dusLHG/AvJILO7LWgRwPNlT7JR1a36wCBXodPjQYQUfalBcZIpzhYAtmzcjYVW0PXPqtDQBKgHk0WGujoMG371zR2oB29yhbz8OOz1TLCn7EBi/iyA62LBX4mhCRvyyy/jx5IWAqZOnfCz5mJebx0ZhOBymqSMzhIDHjx7pwsLQHNiv/5xZ7jKld9nZCgHGZKzAVHt06coplLUAi6u7YQJOnTxZXFycbDS6TZtOMeDqVaVaQ0BwYBAjciHJ8pHMnjkLiVYZ1CIA8PoYPWIEnXK0OcUYSOR0ykqwhZoWzJ2LXCWAfHp6+sD+DvhEvLy5US0CCBh+3rqVhvTjtWQp2xAhbhfrjxjmZFY3vSQljiZFZJo8EruboR3s+7JbhQDWwK5v17oNkxw9fARRh7QFKgHk/zh3noEorl2zhlVoCDBmZmZCAFXa5TBz6UTQMAFMg2mLQTj92pOkdUEca3RWf78KhU0bNtJw/969oqbCkgCAvQ7s29/ZPIDqjui0d4+eO7dtV9O5s2eRawkAvBO7d+nClcAbkqKWAAH31YSx45gKE2UDso+4AAY5DJDasPQrKgH6jEAktMUQQwYMxIhCALEAS3Ia4kgnO7dvV7cI0BKAfMumza6TJokttAS8fWu6A/BLO37epi7n0IGD5j4UNEwAG99zyRK8HFdLWHUoIdASwBw2rjc52FlubhjTe/ly7WwF9RAgwIJYHFNyPCnSaQN3gEoAuH/3HvtiQL/+HIi6BAAmt3rVKqYFzRTHOX/Ddk5MSCBfVJp3JWarn84zIHZ7cZlpXN4NaC6av0AaQoDcAUVFRbgXqvyOHaMo0BIAOD2oSV4lgNhXCMC+n3kH4Og4i3169kpPS5daoCUAcO7FTTmPGs1uE6EWtQhgZkrOjIP799NSosCmEwCYH4SPd/4GDygEYAvt5UOeDShmPe7nxyhLFnnIXVpZVaGLDOUqJs81M2nCRGqDAk2nQUsA4JYjlu3SyU71QhYEaFFDQEpK9ttmu4QDr/2Llc6fM1fd2hYE8ICVa5Xj8iw0VIRa1CKA18pR39+kMZP7zsenXevWKcmm97CZACeG0QJ5vQSA3b/sYqIMLARA/qQJE4hApDYyMhJzSPBA7WSzlXm18fam28iICH55mvK2QO65eImMZUEAuHXzJkO4u7mJKZtCgPoOwL5QblpGNRRVM5pIAK08FixEcuniRZFoCcjJyRk+dCin5Ob1G3hOmEioDutV1CLgwL599OU4cJD3suUTx40nv2jBApkZnbJnnUeOGlOdxo4ZwwH/FAFYxMfbmx6EAMJQ/BLmm+vu7rXUE89GPjIiUpRz3uWIrbnAOTdc72NGjMReGHflihXq+64uAWC5lxdqPKnIN4kAXsLmMJRpO4+qWQ557X3eRAIAR4qAyr731xI3qgQACXuuB4cg56nPqomJJfpQUYsAlvr70WNTXFyIOpwcHQlaigoLpWre7DnsU21ynTQZAhh1isuk33x9RU0LevvWaxkekKlQjNDrfb71hl06Z8+GPn0qagI2I2/LhfPmE9rz8iIu+m6FD6bUbkz86XRXV0JkpWwG1uRJ7O42E7d24fwfTIyBlDoN8FfMc8e2bakpqcyZzrVrMaWJLklv3ija5vkwycULFynlaty/dw/l6yEmm6q46O+Pq+QZS365p9dc99lMlSAFIW9+0QG3b96aPHGi9tUG6r+ETQey9pFsLjTaM7W4IKXwJ0BckFJoAaifAOvCIrBrXuCCLJyAddESCQjXNfVj+n8BcxRUK9izLloiAS+eP1dyjSEvN5fjgl82GAx1P83XC3kHKIUWgJZJgPL9+VPgVjfEG3Q6ndFolBslKyuLVrExMfU+drQwJiXV/avHimiJBPDCVHJ1QHCi1+tN/5dlZSkiDcpKS7nAnzx+nKb5om4BY5Kx3rbWwv+NC8Jv6MNNyH9fz19vWkAS753Qp6EEPIpIg2Rjso2ARqALq/mDCQ+Dn3n44CE7t+H4tS4yMzL04Xqee/I5S5CEC7IR0ACS8sIeJ51OzY9iI8fFxvIWS0xM/E9NrwXvcBh98vgJNBSXfQhLDYjICCmtaOSq+J+hZRHwJveFfIs+rvO8/eyi/OfTLODejo6OMn9qNfUfkmD6ENsS0LIIeJJyRgxEepl2WZE2EwpKc47rvKTzE+HLyiuaFLb+2WhZBOB/2PsY6Hi4V/qHGEXaTKioLL8UvUkICIzfpUitjRZ3B6S8j3ye5p/W3NYXFJbmcbB0Gdc+lisfGa2OFkfAlwYbAVaGjQArw0aAlWEjwMqwEWBl2AiwKqqq/g1gEFRnpPbFFAAAAABJRU5ErkJggg==",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Sensors-Sensormetrix-Em01-Web\r\n\r\n### Configuration\r\nThe following plugin-pack monitors Sensormetrix Em01 Series. By default,\r\nthe host template checks: humidity, temperature and Illumination. You\r\ncan also check (it depends your Em01 model) :\r\n\r\n* flood: the host macro 'SENSORMETRIXURLPATHFLOOD' must be set. Read the constructor documentation to know the good URL ;\r\n* contact ;\r\n* voltage ;\r\n* thermistor temperature.\r\n\r\n## Centreon Configuration\r\n### Create a Sensormetrix Em01\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p><em>HW-Sensor-Sensormetrix-Em01-Web-custom</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Sensormetrix",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_sensormetrix.pl",
+                "package_name": "centreon-plugin-Hardware-Sensors-Sensormetrix-Em01-Web",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Hardware-Sensors-Sensormetrix-Em01-Web",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "hardware-sensors-sensormetrix-em01-web",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Humidity",
+            "Illumination",
+            "Sensor",
+            "Sensormetrix",
+            "Temperature",
+            "Voltage",
+            "Web"
+        ],
+        "update_date": "1486389219",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le la temp\u00e9rature.}\r\n\r\n{EN: Check temperature sensor.}",
+            "active_checks_enabled": 2,
+            "alias": "Temperature",
+            "check_timeperiod": "",
+            "command_name": "HW-Sensor-Sensormetrix-Em01-Temperature",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Sensor-Sensormetrix-Em01-Temperature",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le taux d'illumination.}\r\n\r\n{EN: Check illumination sensor.}",
+            "active_checks_enabled": 2,
+            "alias": "Illumination",
+            "check_timeperiod": "",
+            "command_name": "HW-Sensor-Sensormetrix-Em01-Illumination",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Sensor-Sensormetrix-Em01-Illumination",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le taux d'humidit\u00e9.}\r\n\r\n{EN: Check humidity sensor.}",
+            "active_checks_enabled": 2,
+            "alias": "Humidity",
+            "check_timeperiod": "",
+            "command_name": "HW-Sensor-Sensormetrix-Em01-Humidity",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Sensor-Sensormetrix-Em01-Humidity",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la temp\u00e9rature (thermistance).}\r\n\r\n{EN: Check thermistor temperature sensor.}",
+            "active_checks_enabled": 2,
+            "alias": "Thermistor-Temperature",
+            "check_timeperiod": "",
+            "command_name": "HW-Sensor-Sensormetrix-Em01-Thermistor",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Sensor-Sensormetrix-Em01-Thermistor",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le voltage.}\r\n\r\n{EN: Check voltage sensor.}",
+            "active_checks_enabled": 2,
+            "alias": "Voltage",
+            "check_timeperiod": "",
+            "command_name": "HW-Sensor-Sensormetrix-Em01-Voltage",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Sensor-Sensormetrix-Em01-Voltage",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le contact de la sonde.}\r\n\r\n{EN: Check contact sensor.}",
+            "active_checks_enabled": 2,
+            "alias": "Contact",
+            "check_timeperiod": "",
+            "command_name": "HW-Sensor-Sensormetrix-Em01-Contact",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETHRESHOLD$",
+                    "password": false,
+                    "value": "critical"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Sensor-Sensormetrix-Em01-Contact",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la sonde \"d'inondation\".}\r\n\r\n{EN: Check flood sensor.}",
+            "active_checks_enabled": 2,
+            "alias": "Flood",
+            "check_timeperiod": "",
+            "command_name": "HW-Sensor-Sensormetrix-Em01-Flood",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETHRESHOLD$",
+                    "password": false,
+                    "value": "critical"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Sensor-Sensormetrix-Em01-Flood",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

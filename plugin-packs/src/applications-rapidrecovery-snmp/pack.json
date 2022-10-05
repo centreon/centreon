@@ -1,0 +1,174 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_rapidrecovery_snmp.pl --plugin=aapps::backup::rapidrecovery::snmp::plugin --mode=repository --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-space-usage=\\'$_SERVICEWARNINGSPACEUSAGE$\\' --critical-space-usage=\\'$_SERVICECRITICALSPACEUSAGE$\\' --warning-space-usage-free=\\'$_SERVICEWARNINGSPACEUSAGEFREE$\\' --critical-space-usage-free=\\'$_SERVICECRITICALSPACEUSAGEFREE$\\' --warning-space-usage-prct=\\'$_SERVICEWARNINGSPACEUSAGEPRCT$\\' --critical-space-usage-prct=\\'$_SERVICECRITICALSPACEUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Rapidrecovery-SNMP-Repository",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_rapidrecovery_snmp.pl --plugin=aapps::backup::rapidrecovery::snmp::plugin --mode=agent --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-recoverypoints=\\'$_SERVICEWARNINGRECOVERYPOINTS$\\' --critical-recoverypoints=\\'$_SERVICECRITICALRECOVERYPOINTS$\\' --warning-total=\\'$_SERVICEWARNINGTOTAL$\\' --critical-total=\\'$_SERVICECRITICALTOTAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Rapidrecovery-SNMP-Agent",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser l'application Rapid Recovery Quest Software en SNMP}\r\n{EN: Template to check Rapid Recovery Quest software using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Rapid Recovery Quest Software in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "quest-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Rapidrecovery-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Rapidrecovery-Repository-SNMP",
+                "App-Rapidrecovery-Agent-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "quest-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Quest Software Rapid Recovery using SNMP:\r\n* Agent\r\n* Repository"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller l\\'application Quest Software Rapid Recovery via SNMP:\r\n* Agent\r\n* Repository"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Rapidrecovery-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Rapidrecovery-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Rapid Recovery SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_rapidrecovery_snmp.pl",
+                "package_name": "centreon-plugin-Applications-Rapidrecovery-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-rapidrecovery-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Backup",
+            "Rapidrecovery",
+            "Quest Software",
+            "SNMP"
+        ],
+        "update_date": "1576507975",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des d\u00e9p\u00f4ts.}\r\n\r\n{EN: Check repository status.}",
+            "active_checks_enabled": 2,
+            "alias": "Repository",
+            "check_timeperiod": "",
+            "command_name": "App-Rapidrecovery-SNMP-Repository",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /unknown/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /error/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Rapidrecovery-Repository-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des agents.}\r\n\r\n{EN: Check agent status.}",
+            "active_checks_enabled": 2,
+            "alias": "Agent",
+            "check_timeperiod": "",
+            "command_name": "App-Rapidrecovery-SNMP-Agent",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /unreachable/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /failed|authenticationError/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Rapidrecovery-Agent-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

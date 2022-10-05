@@ -1,0 +1,205 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Cloud-Aws-Vpn-Api-Connections-Discover",
+                "command_for_macro": "Cloud-Aws-Vpn-Api-Connections-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Cloud-Aws-Vpn"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERVPN",
+                        "value": "^$id$$"
+                    }
+                ],
+                "name": "Cloud-Aws-Vpn-Connections",
+                "service_display_name": "Vpn-Traffic-$name$",
+                "service_template": "Cloud-Aws-Vpn-Traffic-Api"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_vpn_api.pl --plugin=cloud::aws::vpn::plugin --mode=list-vpn --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' $_HOSTEXTRAOPTIONS$ --disco-format\\\"",
+            "name": "Cloud-Aws-Vpn-Api-Connections-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_vpn_api.pl --plugin=cloud::aws::vpn::plugin --mode=list-vpn --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' $_HOSTEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Cloud-Aws-Vpn-Api-Connections-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_vpn_api.pl --plugin=cloud::aws::vpn::plugin --mode=traffic --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-vpn=\\'$_SERVICEFILTERVPN$\\' --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-tunnel-state=\\'$_SERVICEWARNINGTUNNELSTATE$\\' --critical-tunnel-state=\\'$_SERVICECRITICALTUNNELSTATE$\\' --warning-tunnel-datain=\\'$_SERVICEWARNINGTUNNELDATAIN$\\' --critical-tunnel-datain=\\'$_SERVICECRITICALTUNNELDATAIN$\\' --warning-tunnel-dataout=\\'$_SERVICEWARNINGTUNNELDATAOUT$\\' --critical-tunnel-dataout=\\'$_SERVICECRITICALTUNNELDATAOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Vpn-Api-Traffic",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les liens AWS VPN via l'API}\r\n{EN: Template to check AWS VPN links using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Amazon VPN connections and status using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "aws-vpn-transp-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAWSCUSTOMMODE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSSECRETKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSACCESSKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSREGION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Vpn",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Aws-Vpn-Traffic-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAs5SURBVHhe7Z17bBzFHcdn9s7P8yMJ5ZFAKZS0DaGBgH1HISVBQkUEyqOg0qqCPrBpyyNtoUjQ2AmF2AZVrQQCBdQmoX8UqSkv20DV8mqBEMg5JIY8CPEFhxCneTl2fE+fb3f6He8kCsa52907n33e30ca7/x+5z3vznxn5je7s2tGEARBEARBEARBEARBEARBEARBEARBEARBEARBEARBEARBFDJcbSctxp++xRJx/URD8FqusW/CdaZg7BQumA/bUtgpzkSYcX4A+V1CsI8ZE526xkLVizsM+R2TmUkpgIGWWo9HsPOZ0K7DGX4XrnOR7J7rAcHE65zxl+Q26TH2TrvvffXR5GFSCSDSFCjBGV3BhfgNWvSFcJWZn2QFOgq2H5s2ZJ7gHr7Jd19QNz8qfCaFANBts1iz/yLB+UM4oflwjdV5DSKtRnrQ1xDcMewpcApeANGmgI9x8QBO5XaYuWjxVuiD6h7E313ua1ifVL6CpKAFEG3yn4ZTWIWz+I5y5RM5NKwWQtxZ0djRa7oKj4IVQLip9usa58/jFM5RrvFiHaRwg68x2KPsgqIgBYBu/3TB2Ss4+G8o13gTFIa4smJJ4fUEmtoWDNFltdWQ7d8mUOVLAlzjyyMtgWJlFwwFJYC++8/jQuMPI3uJ6XGEvLgTQ+pHiig7F3yfG+I2lS8YCmYIEPej9RcFFnLOWmHaaWkppG2I2F7Gdi0i9+3cGBaAjmmjbACVSLNQEJdiKy8afQXJacM4iClpTUVjcJeyJzwFI4BIS60PzX8NsnNNjyW2okKWasJ4sXxJ5uma+Tf4zSiWpTCnm157CCYe9WjaXWW/WydnCROeghkCUDE/xMZq5cvCfxZTtHm+huBzVipfUrF4fbQ8Wf4k5vjzYL5neu3BGb9JGPpJypzw5F0A8qpd/KHaksRDNcqTmUiTvxxFe4cyrfAaE/xnmJ/3Y8iwBX/gTeZr7OjG/t+D+bHptcUJhtAWqnxGEi01Wry5tkiZeSfvAoi1+C/UDa01pWs2qoZfjB9zzHxG9iPd7mtcJwM8x2D/vdjUI0WHHTaA6K5R2YykDO1kg/HV0ebaWbJx5Ju8CSDa7C+PNAUaUDyvwKyxc64o0Bux8ZpWejAGr2Beb0iZ2VGSWoufz5uGLc6LNNVWqHx6hpsBn4+qeBuN47bIMn/JsD9P5EUAkWb/LHSp7ajIJphVptca4v4FHLV6pTIzAV3xp3z3ynrLHt89G+QU8UnTssWXcBynqLxV5D6PM032Bv4ZyjfmjKkAYsv8xWj1dyIwCkLplym3LaJF8dnY12phboYGdqp8TkAg2YlNl2lZpgLHfILK20GOi9dCCBsjzYGbBpprPMo/ZoyZADCmnSU0/gxa/SMw5VzbEZyLC7CxWhBbhJ7K6b16r6HFsfnAtCyDiuTVKu+EkyCEVR6mrUI5njyWsUHOBYCxzxNtCvwIX/0OTBkMZalibuOSr9hduXRjTourdOnwfH67adki28ge+/MfoxzXxJoDVylfzrE5STo+GKtZrCh+GkrrDypoS1fxcmHFC2Y2I3Jlz5lmNiNbkD40sznlbCQ7F6AkbyHtMbNpkWsYrkBKF/wNoVyfwPbBioZgTm845UQAkWUBjWliIbq9x2GeYXqJMaBTrj8whLa2aklurjRmPQREl/lPkCtjUPnyGj1V/tgyl3P+hqYZS6NNNT7lywrHPUC0ya9BggtwQMthynE6Z8MJkREUvXgPweEdKP9OX0PQcW/gqAcIN/tLBect+OMvwZyFRJWfX1De/CLZG0AEi8LNAccBp20BbL7r3K9ywdfgCO6FWW56iXFiCgLuR5kQbW/fNsfJdQf7Anj/03jtu59EzxpMCXlPnRhnwgk98tb2aKBrb+Is5bKFbQGkDMZ3HUpO+feWAbanP9mn3ESewaBvdB8c7Hv1o7B378BQlSGEo2HY8SwgljTK3w5Fqzt2xg4ldSHn9USeQNlH13RFwsHu2JRkSsjnGx3jWAASBCDajgOD017bGk4dDKfkGruczE2J0ZGtvqd/6NArWwe82FbDPrbVOyp7293GymtnnooZwJ+xo1z0cHR/BCP62dNLD8+eXurzajzTLc1UfyyVUPm0+Eo83iIPt6RytIZELKnLNYA5pbRI40i25t1opZEkxstMaCi4qjKPvBqY9pL5YMpIdH4Wj+88mJQVf2zDTaHqn8YA8Kv61q4B5bOMo3Fj1TUzS4TG5QrYRqRjo08xtdwT8Z9Rzqb5vMe9AWQYov/ZDf2W7pfPm+nrO3VK8YnKTMvOg4P9wZ0xa/fhbXDO9NLec04tO1mZlnhnR6S3p28o4w2hsiItcdWcKqFpfNTykq1+38BQGEOtNzpojBRhj2Dibq6z5+teDDkSvqMh4Jb20GBlUdcjQojLcITrlFvC+2J65RvbIiXb/pfoM8TwitxRwWdeKwnDjGWRypYx2ndknRw0FARllo9F7fIFdIMlNu6KDby1PVIxSuW3C2FcUlUU+ofTypc4jgFufIax+rbQB4Ib81HychVt2PxEzhREcefu+NTXPxqIYZpy1E9YRvRGU4f/teWwvn3f4BSI5NjhoRfBVx0z2PX1bTu6ZT1kQ1ZBoKS+dUfS0EQTjvlymPK++dFgpDeqV726NVyCQPEQTmKkSqVtJdkJbuSgO9p3ZJXQ/J08PGLxWMTn1i/ohhja3BM/9J9tYV848blWb6AkXkdhzEfsvaquvSsn6x4cxQDHY8U1M6u5xpbgaxfBPPbhDTGjuugwYoPismKtHN167zPv994AUWSs3GvnTrmnrMhztTLTEk3oz764qf8xZeaMy2dXX4+Y5tfKtMSnvcl73v0k3KHM43La1OKp82ZWrkJFTDsc18Md3VFxEA1HfXyEKArq95oQj9/SFrIUPFslpwKQ/OWGMzWuey/FFx+5SXSUEi9PXHB6eeLL04rkScyobOzIKIBos/+vOMyfKDM9Qiz3NXbYWT5uiUiz/7ec8T8q0ypX+xqC8l5JWvDd09EgNqCrL9m8J1GR0sXI6/prUUiL9JS+8RcvfZKxvOyS9RAwkluf6zYwHXkDtbEA5gok2dUNM5gSpe91R6veCUXjCBKV191s3TMo/vtxRE7xpo6o/ARquwWB9kKU54axqHxJzgVwhLrW0D5hsJ+jVcrVQUeflZMXj3b3Jys6e+hWgmRTT5zvD6dGTgE3YXS8AhXfgEDb9tzeDmMmAEl9e5eoawu9gFr/Nsy/Ix3tDYhRkd3ickRGC+pbQ2+arrFlTAVwBIjgM2Hwm6HqX8I8ZHqJEche8geeIbaorq0rbzfZ8iIASX379hRUvRJjmnwo8J+mlwA6yuRpJoy5da1d7T99ucvJlNMxeRPAETCm7eSc38q5XFGWGT3NlbKRYGJs+XcnClwYBzyc3V3XtmNcbq3nfBpoF0zzTsFhyCdxRz2WlBB3eDmfrcy0GEKs1zh/Spm5RD7VdL2ZtYx8pGyTmf0CYYOz1ZWLg+P+irlxFwDmwRdjji0DnoJrvVnQLbg4v2Jxx2Fljxt5HwKIiQUJwOWQAFwOCcDlkABcDgnA5ZAAXA4JwOWQAFwOCcDlkABcDgnA5ZAAXA4JwOWQAFwOCcDlkABcDgnA5ZAAXA4JwOWQAFwOCcDlkABcDgnA5ZAAXA4JwOWQAFwOCcDlkABcDgnA5ZAAXM64vx9g/Z1zAoZg8j+OZfkPJguKzzwav6zmsQ/H/f0A4y6Aldd9Tf5reNe9IIIxcX5da4heEEGMLyQAlzMRBCDfFiZfjSbffu2WlNdXwREEQRAEQRAEQRAEQRAEQRAEQRAEQRAEQRAEQRAEQRAEQRAEMRlh7P8i544HKrSgQQAAAABJRU5ErkJggg==",
+            "name": "aws-vpn-transp-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ tag update",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor AWS VPN connections.**\r\n\r\nAvailable host template and related services:\r\n\r\n|Cloud-Aws-Vpn-custom|\r\n|---|\r\n|Vpn-Traffic-Global|\r\n\r\n\r\nThis pack provides a service discovery rule to automatically discover and add all of the VPN connections.\r\n"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser les connexions AWS VPN.**\r\n\r\nMod\u00e8le disponible:\r\n\r\n|Cloud-Aws-Vpn-custom|\r\n|---|\r\n|Vpn-Traffic-Global|\r\n\r\n\r\nCe pack contient une r\u00e8gle de d\u00e9couverte de services pour automatiquement d\u00e9couvrir et ajouter les connexions VPN en supervision.\r\n"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "AWS VPN",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_aws_vpn_api.pl",
+                "package_name": "centreon-plugin-Cloud-Aws-Vpn-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-aws-vpn",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Amazon",
+            "AWS",
+            "VPN",
+            "API",
+            "Security",
+            "ServiceDisco"
+        ],
+        "update_date": "1628800062",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat et le trafic d'un lien VPN AWS.}\r\n\r\n{EN: Check the state and traffic of an AWS VPN link.}",
+            "active_checks_enabled": 2,
+            "alias": "Vpn-Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Vpn-Api-Traffic",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGTUNNELSTATE$",
+                    "password": false,
+                    "value": "1:"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALTUNNELSTATE$",
+                    "password": false,
+                    "value": "0.5:"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Vpn-Traffic-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,135 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_vmware_vcsa_restapi.pl --plugin=apps::vmware::vcsa::restapi::plugin --mode=health --hostname=$HOSTADDRESS$ --api-username=\\'$_HOSTVCSAAPIUSERNAME$\\' --api-password=\\'$_HOSTVCSAAPIPASSWORD$\\' --port=\\'$_HOSTVCSAAPIPORT$\\' --proto=\\'$_HOSTVCSAAPIPROTO$\\' $_HOSTVCSAAPIEXTRAOPTIONS$ --filter-service=\\'$_SERVICEFILTERSERVICE$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Vmware-Vcsa-Restapi-Health",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser l'appliance vCenter (VCSA) via la Rest API}\r\n{EN: Template to check vCenter Server Appliance (VCSA) through HTTP/REST API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check vCenter Server Appliance (VCSA) through HTTP/REST API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "vmware-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTVCSAAPIPORT$",
+                    "value": "443"
+                },
+                {
+                    "key": "$_HOSTVCSAAPIPROTO$",
+                    "value": "https"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Vmware-Vcsa-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Vmware-Vcsa-Health-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "vmware-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* change name",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor vCenter Server Appliance (VCSA) through HTTP/REST API:\r\n* Health"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser l\\'appliance vCenter via l\\'API Rest :\r\n* Health"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Vmware-Vcsa-Restapi\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Vmware-Vcsa-Restapi-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Host Macro Configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"23%\" />\r\n<col width=\"53%\" />\r\n<col width=\"24%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>VCSAAPIPORT</p></td>\r\n<td align=\"left\"><p>Port used by the API</p></td>\r\n<td align=\"left\"><p>443</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>VCSAAPIPROTO</p></td>\r\n<td align=\"left\"><p>Protocol used by the API</p></td>\r\n<td align=\"left\"><p>https</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>VCSAAPIUSERNAME</p></td>\r\n<td align=\"left\"><p>Username to access API</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>VCSAAPIPASSWORD</p></td>\r\n<td align=\"left\"><p>Password to access API</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "VMware VCSA RestAPI",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_vmware_vcsa_restapi.pl",
+                "package_name": "centreon-plugin-Applications-Vmware-Vcsa-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-vmware-vcsa-restapi",
+        "status": "stable",
+        "status_message": "change name",
+        "tags": [
+            "VMware",
+            "VCSA",
+            "Appliance",
+            "Application",
+            "Restapi"
+        ],
+        "update_date": "1571214590",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des services.}\r\n{EN: Check service health.}",
+            "active_checks_enabled": 2,
+            "alias": "Health",
+            "check_timeperiod": "",
+            "command_name": "App-Vmware-Vcsa-Restapi-Health",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{health} !~ /green/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Vmware-Vcsa-Health-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

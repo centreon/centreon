@@ -1,0 +1,243 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_ntopng_restapi.pl --plugin=apps::monitoring::ntopng::restapi::plugin --mode=probe-health --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNTOPNGAPIPORT$\\' --proto=\\'$_HOSTNTOPNGAPIPROTOCOL$\\' --api-username=\\'$_HOSTNTOPNGAPIUSERNAME$\\' --api-password=\\'$_HOSTNTOPNGAPIPASSWORD$\\' $_HOSTNTOPNGAPIEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACE$\\' --warning-cpu-utilization=\\'$_SERVICEWARNINGCPUUTILIZATION$\\' --critical-cpu-utilization=\\'$_SERVICECRITICALCPUUTILIZATION$\\' --warning-cpu-load=\\'$_SERVICEWARNINGCPULOAD$\\' --critical-cpu-load=\\'$_SERVICECRITICALCPULOAD$\\' --warning-memory-usage=\\'$_SERVICEWARNINGMEMORYUSAGE$\\' --critical-memory-usage=\\'$_SERVICECRITICALMEMORYUSAGE$\\' --warning-dropped-alerts=\\'$_SERVICEWARNINGDROPPEDALERTS$\\' --critical-dropped-alerts=\\'$_SERVICECRITICALDROPPEDALERTS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Monitoring-Ntopng-Restapi-Probe-Health",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_ntopng_restapi.pl --plugin=apps::monitoring::ntopng::restapi::plugin --mode=netflow-health --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNTOPNGAPIPORT$\\' --proto=\\'$_HOSTNTOPNGAPIPROTOCOL$\\' --api-username=\\'$_HOSTNTOPNGAPIUSERNAME$\\' --api-password=\\'$_HOSTNTOPNGAPIPASSWORD$\\' $_HOSTNTOPNGAPIEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACE$\\' --warning-flows-detected=\\'$_SERVICEWARNINGFLOWSDETECTED$\\' --critical-flows-detected=\\'$_SERVICECRITICALFLOWSDETECTED$\\' --warning-flows-alerted-detected=\\'$_SERVICEWARNINGFLOWSALERTEDDETECTED$\\' --critical-flows-alerted-detected=\\'$_SERVICECRITICALFLOWSALERTEDDETECTED$\\' --warning-flows-alerted-prct=\\'$_SERVICEWARNINGFLOWSALERTEDPRCT$\\' --critical-flows-alerted-prct=\\'$_SERVICECRITICALFLOWSALERTEDPRCT$\\' --warning-packets-download=\\'$_SERVICEWARNINGPACKETSDOWNLOAD$\\' --critical-packets-download=\\'$_SERVICECRITICALPACKETSDOWNLOAD$\\' --warning-packets-upload=\\'$_SERVICEWARNINGPACKETSUPLOAD$\\' --critical-packets-upload=\\'$_SERVICECRITICALPACKETSUPLOAD$\\' --warning-packets-dropped=\\'$_SERVICEWARNINGPACKETSDROPPED$\\' --critical-packets-dropped=\\'$_SERVICECRITICALPACKETSDROPPED$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Monitoring-Ntopng-Restapi-Netflow-Health",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_ntopng_restapi.pl --plugin=apps::monitoring::ntopng::restapi::plugin --mode=alerts --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNTOPNGAPIPORT$\\' --proto=\\'$_HOSTNTOPNGAPIPROTOCOL$\\' --api-username=\\'$_HOSTNTOPNGAPIUSERNAME$\\' --api-password=\\'$_HOSTNTOPNGAPIPASSWORD$\\' $_HOSTNTOPNGAPIEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACE$\\' --period=\\'$_SERVICEPERIOD$\\' --filter-type=\\'$_SERVICEFILTERTYPE$\\' --filter-severity=\\'$_SERVICEFILTERSEVERITY$\\' --warning-severity-info=\\'$_SERVICEWARNINGSEVERITYINFO$\\' --critical-severity-info=\\'$_SERVICECRITICALSEVERITYINFO$\\' --warning-severity-warning=\\'$_SERVICEWARNINGSEVERITYWARNING$\\' --critical-severity-warning=\\'$_SERVICECRITICALSEVERITYWARNING$\\' --warning-severity-error=\\'$_SERVICEWARNINGSEVERITYERROR$\\' --critical-severity-error=\\'$_SERVICECRITICALSEVERITYERROR$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Monitoring-Ntopng-Restapi-Alerts",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_ntopng_restapi.pl --plugin=apps::monitoring::ntopng::restapi::plugin --mode=host-flows --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNTOPNGAPIPORT$\\' --proto=\\'$_HOSTNTOPNGAPIPROTOCOL$\\' --api-username=\\'$_HOSTNTOPNGAPIUSERNAME$\\' --api-password=\\'$_HOSTNTOPNGAPIPASSWORD$\\' $_HOSTNTOPNGAPIEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACE$\\' --ip=\\'$_SERVICEIP$\\' --warning-packets-received=\\'$_SERVICEWARNINGPACKETSRECEIVED$\\' --critical-packets-received=\\'$_SERVICECRITICALPACKETSRECEIVED$\\' --warning-packets-sent=\\'$_SERVICEWARNINGPACKETSSENT$\\' --critical-packets-sent=\\'$_SERVICECRITICALPACKETSSENT$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Monitoring-Ntopng-Restapi-Host-Flows",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Netflow via L&#39;API de NtopNG}\r\n{EN: Template to monitor Netflow using NtopNG Rest API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to monitor Netflows using NtopNG Rest API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "icon": "ntop-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTNTOPNGAPIPORT$",
+                    "value": "3000"
+                },
+                {
+                    "key": "$_HOSTNTOPNGAPIPROTOCOL$",
+                    "value": "http"
+                },
+                {
+                    "key": "$_HOSTNTOPNGAPIEXTRAOPTIONS$",
+                    "value": "--http-backend=curl --insecure"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Ntopng-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Monitoring-Ntopng-Restapi-Probe-Health",
+                "App-Monitoring-Ntopng-Restapi-Netflow-Health",
+                "App-Monitoring-Ntopng-Restapi-Alerts"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "ntop-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix EXTRAOPTIONS macro name",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin-Pack to monitor Netflow using NtopNG API:\r\n* Alerts\r\n* Host-flows\r\n* Netflow-health\r\n* Probe-health\r\n"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin-Pack pour superviser Netflow via l\\'API NtopNG :\r\n* Alerts\r\n* Host-flows\r\n* Netflow-health\r\n* Probe-health"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' \r\n",
+        "name": "NtopNG RestAPI",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_monitoring_netdata_restapi.pl",
+                "package_name": "centreon-plugin-Applications-Monitoring-Ntopng-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-monitoring-ntopng-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Application",
+            "Network",
+            "Netflow",
+            "NtopNG",
+            "API"
+        ],
+        "update_date": "1651130734",
+        "version": "22.06.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de sant\u00e9 de la sonde.}\r\n\r\n{EN: Check probe health.}",
+            "active_checks_enabled": 2,
+            "alias": "Probe-Health",
+            "check_timeperiod": "",
+            "command_name": "App-Monitoring-Ntopng-Restapi-Probe-Health",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERFACE$",
+                    "password": false,
+                    "value": "0"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Ntopng-Restapi-Probe-Health",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de sant\u00e9 global netflow.}\r\n\r\n{EN: Check netflow health.}",
+            "active_checks_enabled": 2,
+            "alias": "Netflow-Health",
+            "check_timeperiod": "",
+            "command_name": "App-Monitoring-Ntopng-Restapi-Netflow-Health",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERFACE$",
+                    "password": false,
+                    "value": "0"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Ntopng-Restapi-Netflow-Health",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les alertes.}\r\n\r\n{EN: Check alerts.}",
+            "active_checks_enabled": 2,
+            "alias": "Alerts",
+            "check_timeperiod": "",
+            "command_name": "App-Monitoring-Ntopng-Restapi-Alerts",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERFACE$",
+                    "password": false,
+                    "value": "0"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "last-5mns"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{severity} =~ /warning/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{severity} =~ /error/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Ntopng-Restapi-Alerts",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les flux r\u00e9seau d'un h\u00f4te.}\r\n\r\n{EN: Check host flows.}",
+            "active_checks_enabled": 2,
+            "alias": "Host-Flows",
+            "check_timeperiod": "",
+            "command_name": "App-Monitoring-Ntopng-Restapi-Host-Flows",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERFACE$",
+                    "password": false,
+                    "value": "0"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Ntopng-Restapi-Host-Flows",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

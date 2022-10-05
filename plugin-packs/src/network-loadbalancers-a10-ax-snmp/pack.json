@@ -1,0 +1,393 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-A10-Ax-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-A10-Ax-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-A10-Ax-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-A10-Ax-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-A10-Ax-Traffic-Global-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-A10-Ax-SNMP-Vservers-Discover",
+                "command_for_macro": "Net-A10-Ax-SNMP-Vservers-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-A10-Ax-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-A10-Ax-SNMP-Vservers",
+                "service_display_name": "Vserver-$name$",
+                "service_template": "Net-A10-Ax-Vserver-Usage-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_a10_ax_snmp.pl --plugin=network::a10::ax::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-A10-Ax-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_a10_ax_snmp.pl --plugin=network::a10::ax::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-A10-Ax-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_a10_ax_snmp.pl --plugin=network::a10::ax::snmp::plugin --mode=list-vservers --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-A10-Ax-SNMP-Vservers-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_a10_ax_snmp.pl --plugin=network::a10::ax::snmp::plugin --mode=list-vservers --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-A10-Ax-SNMP-Vservers-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_a10_ax_snmp.pl --plugin=network::a10::ax::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-A10-Ax-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_a10_ax_snmp.pl --plugin=network::a10::ax::snmp::plugin --mode=hardware --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-A10-Ax-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_a10_ax_snmp.pl --plugin=network::a10::ax::snmp::plugin --mode=global-stats --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-current-connections=\\'$_SERVICEWARNINGCURRENTCONNECTIONS$\\' --critical-current-connections=\\'$_SERVICECRITICALCURRENTCONNECTIONS$\\' --warning-total-connections=\\'$_SERVICEWARNINGTOTALCONNECTIONS$\\' --critical-total-connections=\\'$_SERVICECRITICALTOTALCONNECTIONS$\\' --warning-total-ssl-connections=\\'$_SERVICEWARNINGTOTALSSLCONNECTIONS$\\' --critical-total-ssl-connections=\\'$_SERVICECRITICALTOTALSSLCONNECTIONS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-A10-Ax-SNMP-Global-Stats",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_a10_ax_snmp.pl --plugin=network::a10::ax::snmp::plugin --mode=disk --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-A10-Ax-SNMP-Disk",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_a10_ax_snmp.pl --plugin=network::a10::ax::snmp::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-cpu-30s=\\'$_SERVICEWARNINGCPU30S$\\' --critical-cpu-30s=\\'$_SERVICECRITICALCPU30S$\\' --warning-cpu-1m=\\'$_SERVICEWARNINGCPU1M$\\' --critical-cpu-1m=\\'$_SERVICECRITICALCPU1M$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-A10-Ax-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_a10_ax_snmp.pl --plugin=network::a10::ax::snmp::plugin --mode=vserver-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-current-con=\\'$_SERVICEWARNINGCURRENTCON$\\' --critical-current-con=\\'$_SERVICECRITICALCURRENTCON$\\' --warning-total-con=\\'$_SERVICEWARNINGTOTALCON$\\' --critical-total-con=\\'$_SERVICECRITICALTOTALCON$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-A10-Ax-SNMP-Vserver-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_a10_ax_snmp.pl --plugin=network::a10::ax::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-A10-Ax-SNMP-Traffic-Global",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements A10 AX en SNMP}\r\n{EN: Template to check A10 AX equipments using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check A10 AX using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "a10-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-A10-Ax-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-A10-Ax-Memory-SNMP",
+                "Net-A10-Ax-Hardware-SNMP",
+                "Net-A10-Ax-Global-Stats-SNMP",
+                "Net-A10-Ax-Disk-SNMP",
+                "Net-A10-Ax-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "a10-128.png"
+        }
+    ],
+    "information": {
+        "author": "centreon",
+        "changelog": "* add discovery capabilities",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor A10 AX loadbalancer via SNMP:\r\n* Cpu\r\n* Global-Stats\r\n* Hardware\r\n* Memory\r\n* Storage\r\n* Traffic (by interface name, ID or all interfaces)\r\n* Vserver-Status (by name or global)"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour la supervision des \u00e9quipements A10 AX loadbalancer via SNMP:\r\n* Cpu\r\n* Global-Stats\r\n* Hardware\r\n* Memory\r\n* Storage\r\n* Traffic (by interface name, ID or all interfaces)\r\n* Vserver-Status (by name or global)"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": " Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Loadbalancers-A10-AX-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-A10-Ax-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "A10 AX",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_a10_ax_snmp.pl",
+                "package_name": "centreon-plugin-Network-Loadbalancers-A10-AX-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-loadbalancers-a10-ax-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Loadbalancer",
+            "A10",
+            "AX"
+        ],
+        "update_date": "1584623603",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation m\u00e9moire.}\r\n\r\n{EN: Check memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-A10-Ax-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-A10-Ax-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du mat\u00e9riel.}\r\n\r\n{EN: Check hardware environment.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware",
+            "check_timeperiod": "",
+            "command_name": "Net-A10-Ax-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-A10-Ax-Hardware-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation globale.}\r\n\r\n{EN: Check global statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Global-Stats",
+            "check_timeperiod": "",
+            "command_name": "Net-A10-Ax-SNMP-Global-Stats",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-A10-Ax-Global-Stats-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation m\u00e9moire.}\r\n\r\n{EN: Check memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk",
+            "check_timeperiod": "",
+            "command_name": "Net-A10-Ax-SNMP-Disk",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-A10-Ax-Disk-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation CPU.}\r\n\r\n{EN: Check CPU usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-A10-Ax-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-A10-Ax-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des serveurs virtuels.}\r\n\r\n{EN: Check virtual server usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Vserver-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-A10-Ax-SNMP-Vserver-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-A10-Ax-Vserver-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau de plusieurs interfaces r\u00c3\u00a9seau.}\r\n\r\n{EN: Check traffic of multiple network interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-A10-Ax-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-A10-Ax-Traffic-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

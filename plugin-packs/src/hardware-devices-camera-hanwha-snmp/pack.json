@@ -1,0 +1,124 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_camera_hanwha_snmp.pl --plugin=hardware::devices::camera::hanwha::snmp::plugin --mode=hardware --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Camera-Hanwha-SNMP-Hardware",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Hanwha camera using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "hanwha-logo-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Camera-Hanwha-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Device-Camera-Hanwha-Hardware-Global-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "hanwha-logo-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Hanwha camera using SNMP:\r\n* Hardware status"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller les cam\u00e9ras Hanwha via SNMP :\r\n* Hardware status"
+            }
+        ],
+        "discovery_category": "hardware-server",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Devices-Camera-Hanwha-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp)\r\n\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Device-Camera-Hanwha-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Hanwha camera SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_camera_hanwha_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Devices-Camera-Hanwha-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-devices-camera-hanwha-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Hardware",
+            "SNMP",
+            "Hanwha",
+            "Camera"
+        ],
+        "update_date": "1565167286",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le statut du mat\u00e9riel.}\r\n\r\n{EN: Check hardware status.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Camera-Hanwha-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Camera-Hanwha-Hardware-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

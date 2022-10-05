@@ -1,0 +1,134 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_dynatrace_restapi.pl --plugin=apps::monitoring::dynatrace::restapi::plugin --mode=problems --hostname=\\'$HOSTADDRESS$\\' --environment-id=\\'$_HOSTDYNATRACEAPIENVIRONMENTID$\\' --api-password=\\'$_HOSTDYNATRACEAPIPASSWORD$\\' --port=\\'$_HOSTDYNATRACEAPIPORT$\\' --proto=\\'$_HOSTDYNATRACEAPIPROTO$\\' $_HOSTDYNATRACEAPIEXTRAOPTIONS$ --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-problems-open=\\'$_SERVICEWARNINGPROBLEMSOPEN$\\' --critical-problems-open=\\'$_SERVICECRITICALPROBLEMSOPEN$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Monitoring-Dynatrace-Restapi-Problems",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Dynatrace via la Rest API}\r\n{EN: Template to check Dynatrace using Rest API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Dynatrace using Rest API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "dynatrace-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTDYNATRACEAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTDYNATRACEAPIPORT$",
+                    "value": "443"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Dynatrace-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Monitoring-Dynatrace-Problems-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "dynatrace-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Dynatrace using Rest API :\r\n* Problems"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser Dynatrace via l\\'API Rest :\r\n* Problems"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Monitoring-Dynatrace-Restapi\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Monitoring-Dynatrace-Restapi-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Host Macro Configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"23%\" />\r\n<col width=\"53%\" />\r\n<col width=\"24%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>DYNATRACEAPIPORT</p></td>\r\n<td align=\"left\"><p>Port of the Dynatrace API instance</p></td>\r\n<td align=\"left\"><p>443</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>DYNATRACEAPIPROTO</p></td>\r\n<td align=\"left\"><p>Protocol used by the Dynatrace API</p></td>\r\n<td align=\"left\"><p>http</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>DYNATRACEAPIUSERNAME</p></td>\r\n<td align=\"left\"><p>Username to access API</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>DYNATRACEENVIRONMENTID</p></td>\r\n<td align=\"left\"><p>Environement ID</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Dynatrace Rest API",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_monitoring_dynatrace_restapi.pl",
+                "package_name": "centreon-plugin-Applications-Monitoring-Dynatrace-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-monitoring-dynatrace-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Monitoring",
+            "Application",
+            "Dynatrace",
+            "Restapi"
+        ],
+        "update_date": "1580304115",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les probl\u00e8mes.}\r\n\r\n{EN: Check problems.}",
+            "active_checks_enabled": 2,
+            "alias": "Problems",
+            "check_timeperiod": "",
+            "command_name": "App-Monitoring-Dynatrace-Restapi-Problems",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} eq \"OPEN\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Dynatrace-Problems-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

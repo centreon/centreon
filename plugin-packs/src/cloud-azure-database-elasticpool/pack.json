@@ -1,0 +1,1268 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Database-Elasticpool-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure SQL Elastic Pools resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Sql/servers/elasticpools/ELPEUR001",
+                            "location": "westeurope",
+                            "name": "ELPEUR001",
+                            "resourceGroup": "RSG1234",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers/elasticpools"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Sql/servers/elasticpools/ELPUS001",
+                            "location": "westus",
+                            "name": "ELPUS001",
+                            "resourceGroup": "RSG2345",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers/elasticpools"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Sql/servers/elasticpools/westeurope",
+                            "location": "westeurope",
+                            "name": "ELPEUR002",
+                            "resourceGroup": "RSG1234",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers/elasticpools"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Sql/servers/elasticpools/ELPUS002",
+                            "location": "westus",
+                            "name": "ELPUS002",
+                            "resourceGroup": "RSG2345",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers/elasticpools"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": "discovery.results.id"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Database-Elasticpool-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure SQL Elastic Pool",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-database-elasticpool",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Database-Elasticpool-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure SQL Elastic Pools resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Sql/servers/elasticpools/ELPEUR001",
+                            "location": "westeurope",
+                            "name": "ELPEUR001",
+                            "resourceGroup": "RSG1234",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers/elasticpools"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Sql/servers/elasticpools/ELPUS001",
+                            "location": "westus",
+                            "name": "ELPUS001",
+                            "resourceGroup": "RSG2345",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers/elasticpools"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Sql/servers/elasticpools/westeurope",
+                            "location": "westeurope",
+                            "name": "ELPEUR002",
+                            "resourceGroup": "RSG1234",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers/elasticpools"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Sql/servers/elasticpools/ELPUS002",
+                            "location": "westus",
+                            "name": "ELPUS002",
+                            "resourceGroup": "RSG2345",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers/elasticpools"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Database-Elasticpool-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure SQL Elastic Pool",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-database-elasticpool",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Database-Elasticpool-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure SQL Elastic Pools resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Sql/servers/elasticpools/ELPEUR001",
+                            "location": "westeurope",
+                            "name": "ELPEUR001",
+                            "resourceGroup": "RSG1234",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers/elasticpools"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Sql/servers/elasticpools/ELPUS001",
+                            "location": "westus",
+                            "name": "ELPUS001",
+                            "resourceGroup": "RSG2345",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers/elasticpools"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Sql/servers/elasticpools/westeurope",
+                            "location": "westeurope",
+                            "name": "ELPEUR002",
+                            "resourceGroup": "RSG1234",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers/elasticpools"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Sql/servers/elasticpools/ELPUS002",
+                            "location": "westus",
+                            "name": "ELPUS002",
+                            "resourceGroup": "RSG2345",
+                            "tags": [
+                                {
+                                    "key": "Env",
+                                    "value": "Development"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/servers/elasticpools"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Database-Elasticpool-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure SQL Elastic Pool",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-database-elasticpool",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_elasticpool_api.pl --plugin=cloud::azure::database::elasticpool::plugin --mode=storage --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-storage-percent=\\'$_SERVICEWARNINGSTORAGEPERCENT$\\' --critical-storage-percent=\\'$_SERVICECRITICALSTORAGEPERCENT$\\' --warning-allocated-data-storage=\\'$_SERVICEWARNINGALLOCATEDDATASTORAGE$\\' --critical-allocated-data-storage=\\'$_SERVICECRITICALALLOCATEDDATASTORAGE$\\' --warning-storage-used=\\'$_SERVICEWARNINGSTORAGEUSED$\\' --critical-storage-used=\\'$_SERVICECRITICALSTORAGEUSED$\\' --warning-allocated-data-storage-percent=\\'$_SERVICEWARNINGALLOCATEDDATASTORAGEPERCENT$\\' --critical-allocated-data-storage-percent=\\'$_SERVICECRITICALALLOCATEDDATASTORAGEPERCENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-Elasticpool-Api-Storage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_elasticpool_api.pl --plugin=cloud::azure::database::elasticpool::plugin --mode=sessions --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-workers-percent=\\'$_SERVICEWARNINGWORKERSPERCENT$\\' --critical-workers-percent=\\'$_SERVICECRITICALWORKERSPERCENT$\\' --warning-sessions-percent=\\'$_SERVICEWARNINGSESSIONSPERCENT$\\' --critical-sessions-percent=\\'$_SERVICECRITICALSESSIONSPERCENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-Elasticpool-Api-Sessions",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_elasticpool_api.pl --plugin=cloud::azure::database::elasticpool::plugin --mode=log --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-tempdb-log-used-percent=\\'$_SERVICEWARNINGTEMPDBLOGUSEDPERCENT$\\' --critical-tempdb-log-used-percent=\\'$_SERVICECRITICALTEMPDBLOGUSEDPERCENT$\\' --warning-tempdb-log-size=\\'$_SERVICEWARNINGTEMPDBLOGSIZE$\\' --critical-tempdb-log-size=\\'$_SERVICECRITICALTEMPDBLOGSIZE$\\' --warning-log-write-percent=\\'$_SERVICEWARNINGLOGWRITEPERCENT$\\' --critical-log-write-percent=\\'$_SERVICECRITICALLOGWRITEPERCENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-Elasticpool-Api-Log",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_elasticpool_api.pl --plugin=cloud::azure::database::elasticpool::plugin --mode=cpu --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-cpu-limit=\\'$_SERVICEWARNINGCPULIMIT$\\' --critical-cpu-limit=\\'$_SERVICECRITICALCPULIMIT$\\' --warning-cpu-used=\\'$_SERVICEWARNINGCPUUSED$\\' --critical-cpu-used=\\'$_SERVICECRITICALCPUUSED$\\' --warning-cpu-percent=\\'$_SERVICEWARNINGCPUPERCENT$\\' --critical-cpu-percent=\\'$_SERVICECRITICALCPUPERCENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-Elasticpool-Api-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_elasticpool_api.pl --plugin=cloud::azure::database::elasticpool::plugin --mode=dtu --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-dtu-consumption-percent=\\'$_SERVICEWARNINGDTUCONSUMPTIONPERCENT$\\' --critical-dtu-consumption-percent=\\'$_SERVICECRITICALDTUCONSUMPTIONPERCENT$\\' --warning-edtu-limit=\\'$_SERVICEWARNINGEDTULIMIT$\\' --critical-edtu-limit=\\'$_SERVICECRITICALEDTULIMIT$\\' --warning-edtu-used=\\'$_SERVICEWARNINGEDTUUSED$\\' --critical-edtu-used=\\'$_SERVICECRITICALEDTUUSED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-Elasticpool-Api-Dtu",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_database_elasticpool_api.pl --statefile-suffix='autodiscovery' --plugin=cloud::azure::database::elasticpool::plugin --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Database-Elasticpool-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Azure Database Elastic Pools via l'API}\r\n{EN: Template to check Azure Database Elastic Pools service using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Database Elastic Pools service using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-database-elp-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-Elasticpool",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Database-Elasticpool-Storage-Api",
+                "Cloud-Azure-Database-Elasticpool-Sessions-Api",
+                "Cloud-Azure-Database-Elasticpool-Log-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-database-elp-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ Add proper tags management",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Azure Database Elastic Pool using RestAPI or AZCLI.**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|Cloud-Azure-Database-Elasticpool-custom|\r\n|---|\r\n|Log|\r\n|Sessions|\r\n|Storage|\r\n\r\nThe following Service templates are also available but not linked to the Host template by default:\r\n\r\n|Cloud-Azure-Database-Elasticpool-custom|\r\n|---|\r\n|Cpu (for vCore based pools)|\r\n|Dtu (for Dtu based pools)|\r\n\r\nThis Plugin-Pack provides a Host discovery *provider* to be used with the Host discovery module.\r\n\r\n"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin-Pack pour superviser les Elastic Pools Azure via RestAPI ou AZCLI.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponibles et services associ\u00e9s:\r\n\r\n|Cloud-Azure-Database-Elasticpool-custom|\r\n|---|\r\n|Log|\r\n|Sessions|\r\n|Storage|\r\n\r\nLes mod\u00e8les de Services ci-apr\u00e8s sont \u00e9galement disponibles mais ne sont pas li\u00e9s par d\u00e9faut au mod\u00e8le d\\'H\u00f4te:\r\n\r\n|Cloud-Azure-Database-Elasticpool-custom|\r\n|---|\r\n|Cpu (for vCore based pools)|\r\n|Dtu (for Dtu based pools)|\r\n\r\nCe Plugin-Pack fournit un *provider* Host Discovery pour le module d\\'auto-d\u00e9couverte d\\'H\u00f4tes\r\n\r\n"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure Elastic Pool",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_database_elasticpool_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Database-Elasticpool-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-database-elasticpool",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Azure",
+            "Cloud",
+            "Microsoft",
+            "Database",
+            "SQL",
+            "API",
+            "Restapi",
+            "Elastic",
+            "PaaS",
+            "HostDisco"
+        ],
+        "update_date": "1636823048",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques de stockage des Elastic Pools Azure.}\r\n\r\n{EN: Check Azure Elastic Pools storage.}",
+            "active_checks_enabled": 2,
+            "alias": "Storage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-Elasticpool-Api-Storage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-Elasticpool-Storage-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les sessions et workers actifs des Elastic Pools Azure.}\r\n\r\n{EN: Check Azure Elastic Pools sessions and workers.}",
+            "active_checks_enabled": 2,
+            "alias": "Sessions",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-Elasticpool-Api-Sessions",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-Elasticpool-Sessions-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des fichiers et bases logs Elastic Pools Azure.}\r\n\r\n{EN: Check Azure Elastic Pools log file and DB usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Log-Usage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-Elasticpool-Api-Log",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-Elasticpool-Log-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation CPU des Elastic Pools vCore Azure.}\r\n\r\n{EN: Check Azure vCore Elastic Pools CPU usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-Elasticpool-Api-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-Elasticpool-Cpu-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation DTU des Elastic Pools Azure.}\r\n\r\n{EN: Check Azure Elastic Pools DTU usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Dtu",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-Elasticpool-Api-Dtu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-Elasticpool-Dtu-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

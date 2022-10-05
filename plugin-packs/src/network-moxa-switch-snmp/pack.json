@@ -1,0 +1,334 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_moxa_switch_snmp.pl --plugin=network::moxa::switch::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-memory-usage=\\'$_SERVICEWARNINGMEMORYUSAGE$\\' --critical-memory-usage=\\'$_SERVICECRITICALMEMORYUSAGE$\\' --warning-memory-usage-free=\\'$_SERVICEWARNINGMEMORYUSAGEFREE$\\' --critical-memory-usage-free=\\'$_SERVICECRITICALMEMORYUSAGEFREE$\\' --warning-memory-usage-prct=\\'$_SERVICEWARNINGMEMORYUSAGEPRCT$\\' --critical-memory-usage-prct=\\'$_SERVICECRITICALMEMORYUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Moxa-Switch-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_moxa_switch_snmp.pl --plugin=network::moxa::switch::snmp::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-cpu-utilization-5s=\\'$_SERVICEWARNINGCPUUTILIZATION5S$\\' --critical-cpu-utilization-5s=\\'$_SERVICECRITICALCPUUTILIZATION5S$\\' --warning-cpu-utilization-1m=\\'$_SERVICEWARNINGCPUUTILIZATION1M$\\' --critical-cpu-utilization-1m=\\'$_SERVICECRITICALCPUUTILIZATION1M$\\' --warning-cpu-utilization-5m=\\'$_SERVICEWARNINGCPUUTILIZATION5M$\\' --critical-cpu-utilization-5m=\\'$_SERVICECRITICALCPUUTILIZATION5M$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Moxa-Switch-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_moxa_switch_snmp.pl --plugin=network::moxa::switch::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Moxa-Switch-SNMP-Traffic-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_moxa_switch_snmp.pl --plugin=network::moxa::switch::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACEID$\\' --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Moxa-Switch-SNMP-Traffic-Id",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_moxa_switch_snmp.pl --plugin=network::moxa::switch::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$$$\\' --name --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Moxa-Switch-SNMP-Traffic-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_moxa_switch_snmp.pl --plugin=network::moxa::switch::snmp::plugin --mode=uptime --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-uptime=\\'$_SERVICEWARNING$\\' --critical-uptime=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Moxa-Switch-SNMP-Uptime",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les switchs Moxa en SNMP}\r\n{EN: Template to check Moxa switchs using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Moxa switches using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "moxa-128.jpg",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Moxa-Switch-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Moxa-Switch-Memory-SNMP",
+                "Net-Moxa-Switch-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "moxa-128.jpg"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* break: new threshold macros",
+        "dependencies": [],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Moxa switch via SNMP:\r\n* Cpu\r\n* Memory\r\n* Uptime\r\n* Traffic (by interface name, ID or all interfaces)"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les switch Moxa via SNMP :\r\n* Cpu\r\n* Memoire\r\n* Uptime\r\n* Trafic (par nom, ID ou toutes les interfaces)"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\nThis chapter describes the prerequisites installation needed by plugins\r\nto run.\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Moxa-Switch-Snmp\r\n\r\n### SNMP\r\nIt's necessary to enable SNMP on your equipment\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Moxa-Switch-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Moxa Switch",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_moxa_switch_snmp.pl",
+                "package_name": "centreon-plugin-Network-Switchs-Moxa-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-moxa-switch-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Network",
+            "Switch",
+            "SNMP",
+            "Moxa"
+        ],
+        "update_date": "1596635184",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire.}\r\n\r\n{EN: Check the rate of the utilization of memory.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Moxa-Switch-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Moxa-Switch-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU.}\r\n\r\n{EN: Check the rate of utilization of CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Moxa-Switch-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Moxa-Switch-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante des interfaces. Pour chaque contr\u00f4le appara\u00eetra le nom de l'interface (\u00ab\u00a0label\u00a0\u00bb raccourci d\u00e9crivant l'interface).}\n\n{EN: Check the bandwidth of interfaces. For each checks the name of the interface will appear (\u00ab label \u00bb shortcut describing the interface).}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Moxa-Switch-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "#NOM?"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": null
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Moxa-Switch-Traffic-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante de l'interface. Pour chaque contr\u00f4le appara\u00eetra le nom de l'interface (\u00ab\u00a0label\u00a0\u00bb raccourci d\u00e9crivant l'interface).}\n\n{EN: Check the bandwidth of the interface. For each checks the name of the interface will appear (\u00ab label \u00bb shortcut describing the interface).}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Id",
+            "check_timeperiod": "",
+            "command_name": "Net-Moxa-Switch-SNMP-Traffic-Id",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": null
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEINTERFACEID$",
+                    "password": false,
+                    "value": null
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Moxa-Switch-Traffic-Generic-Id-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante de l'interface. Pour chaque contr\u00f4le appara\u00eetra le nom de l'interface (\u00ab\u00a0label\u00a0\u00bb raccourci d\u00e9crivant l'interface).}\n\n{EN: Check the bandwidth of the interface. For each checks the name of the interface will appear (\u00ab label \u00bb shortcut describing the interface).}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-Moxa-Switch-SNMP-Traffic-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEINTERFACENAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Moxa-Switch-Traffic-Generic-Name-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Dur\u00e9e depuis laquelle le serveur tourne sans interruption.}\n\n{EN: Time since the server has been working and available.}",
+            "active_checks_enabled": 2,
+            "alias": "Uptime",
+            "check_timeperiod": "",
+            "command_name": "Net-Moxa-Switch-SNMP-Uptime",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-Moxa-Switch-Uptime-SNMP",
+            "normal_check_interval": 60,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

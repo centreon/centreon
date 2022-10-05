@@ -1,0 +1,2114 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v1.0": [],
+            "v2.0": [
+                {
+                    "attributes": {
+                        "hostname": {
+                            "type": "string"
+                        },
+                        "internal_ip": {
+                            "type": "string"
+                        },
+                        "kubelet_version": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "node_role": {
+                            "type": "string"
+                        },
+                        "os_image": {
+                            "type": "string"
+                        },
+                        "uid": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Kubernetes-Api-HostDiscovery-Nodes-Restapi",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Kubernetes API Token",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "KUBERNETESAPITOKEN",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "default_template": "generic-active-host",
+                    "description": "Discover Kubernetes nodes by requesting Kubernetes RestAPI",
+                    "discovery_examples": [
+                        {
+                            "hostname": "kubemaster.local.domain",
+                            "internal_ip": "10.11.12.13",
+                            "kubelet_version": "v1.20.2",
+                            "name": "kubemaster",
+                            "node_role": "control-plane",
+                            "os_image": "CentOS Linux 7 (Core)",
+                            "uid": "4c40a741-b3cf-49ac-852b-1f133f89de1e"
+                        },
+                        {
+                            "hostname": "kubenode1.local.domain",
+                            "internal_ip": "10.11.12.14",
+                            "kubelet_version": "v1.20.2",
+                            "name": "kubenode1",
+                            "node_role": "worker",
+                            "os_image": "CentOS Linux 7 (Core)",
+                            "uid": "37c69489-1a79-4113-8e11-009b74918b3b"
+                        },
+                        {
+                            "hostname": "kubenode2.local.domain",
+                            "internal_ip": "10.11.12.15",
+                            "kubelet_version": "v1.20.2",
+                            "name": "kubenode2",
+                            "node_role": "worker",
+                            "os_image": "CentOS Linux 7 (Core)",
+                            "uid": "2a8016e2-ed70-4ac5-804e-ce3a862102f6"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.internal_ip"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.KUBERNETESAPICUSTOMMODE",
+                                "is_password": false,
+                                "source": "api"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.KUBERNETESAPIHOSTNAME",
+                                "is_password": false,
+                                "source": "discovery.parameters.KUBERNETESAPIHOSTNAME"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.KUBERNETESAPIPORT",
+                                "is_password": false,
+                                "source": "discovery.parameters.KUBERNETESAPIPORT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.KUBERNETESAPIPROTO",
+                                "is_password": false,
+                                "source": "discovery.parameters.KUBERNETESAPIPROTO"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.KUBERNETESAPITOKEN",
+                                "is_password": true,
+                                "source": "discovery.credentials.KUBERNETESAPITOKEN"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.KUBERNETESNODENAME",
+                                "is_password": false,
+                                "source": "discovery.results.name"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.EXTRAOPTIONS",
+                                "is_password": false,
+                                "source": "discovery.parameters.EXTRAOPTIONS"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Kubernetes-Node-Api-Custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Kubernetes Nodes (RestAPI)",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Kubernetes API Hostname",
+                                "group": "Kubernetes API Information",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "KUBERNETESAPIHOSTNAME",
+                                "type": "text",
+                                "value": ""
+                            },
+                            {
+                                "description": "Kubernetes API Port",
+                                "group": "Kubernetes API Information",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "KUBERNETESAPIPORT",
+                                "type": "text",
+                                "value": ""
+                            },
+                            {
+                                "description": "Kubernetes API Protocol",
+                                "group": "Kubernetes API Information",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "KUBERNETESAPIPROTO",
+                                "type": "text",
+                                "value": ""
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additionnal Parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additionnal Parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "kubernetes-restapi-nodes",
+                    "type": "kubernetes-restapi",
+                    "uuid_attributes": [
+                        "uid"
+                    ]
+                },
+                {
+                    "attributes": {
+                        "hostname": {
+                            "type": "string"
+                        },
+                        "internal_ip": {
+                            "type": "string"
+                        },
+                        "kubelet_version": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "node_role": {
+                            "type": "string"
+                        },
+                        "os_image": {
+                            "type": "string"
+                        },
+                        "uid": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Kubernetes-Api-HostDiscovery-Nodes-Kubectl",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Kubectl Configuration File Path",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "KUBECTLCONFIGFILE",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "default_template": "generic-active-host",
+                    "description": "Discover Kubernetes nodes by requesting Kubernetes cluster using kubectl",
+                    "discovery_examples": [
+                        {
+                            "hostname": "kubemaster.local.domain",
+                            "internal_ip": "10.11.12.13",
+                            "kubelet_version": "v1.20.2",
+                            "name": "kubemaster",
+                            "node_role": "control-plane",
+                            "os_image": "CentOS Linux 7 (Core)",
+                            "uid": "4c40a741-b3cf-49ac-852b-1f133f89de1e"
+                        },
+                        {
+                            "hostname": "kubenode1.local.domain",
+                            "internal_ip": "10.11.12.14",
+                            "kubelet_version": "v1.20.2",
+                            "name": "kubenode1",
+                            "node_role": "worker",
+                            "os_image": "CentOS Linux 7 (Core)",
+                            "uid": "37c69489-1a79-4113-8e11-009b74918b3b"
+                        },
+                        {
+                            "hostname": "kubenode2.local.domain",
+                            "internal_ip": "10.11.12.15",
+                            "kubelet_version": "v1.20.2",
+                            "name": "kubenode2",
+                            "node_role": "worker",
+                            "os_image": "CentOS Linux 7 (Core)",
+                            "uid": "2a8016e2-ed70-4ac5-804e-ce3a862102f6"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.internal_ip"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.KUBERNETESAPICUSTOMMODE",
+                                "is_password": false,
+                                "source": "kubectl"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.KUBECTLCONFIGFILE",
+                                "is_password": false,
+                                "source": "discovery.credentials.KUBECTLCONFIGFILE"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.KUBERNETESNODENAME",
+                                "is_password": false,
+                                "source": "discovery.results.name"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.EXTRAOPTIONS",
+                                "is_password": false,
+                                "source": "discovery.parameters.EXTRAOPTIONS"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Kubernetes-Node-Api-Custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Kubernetes Nodes (Kubectl)",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Timeout",
+                                "group": "Additionnal Parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additionnal Parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "kubernetes-kubectl-nodes",
+                    "type": "kubernetes-kubectl",
+                    "uuid_attributes": [
+                        "uid"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "hostname": {
+                            "type": "string"
+                        },
+                        "internal_ip": {
+                            "type": "string"
+                        },
+                        "kubelet_version": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "node_role": {
+                            "type": "string"
+                        },
+                        "os_image": {
+                            "type": "string"
+                        },
+                        "uid": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Kubernetes-Api-HostDiscovery-Nodes-Restapi",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Kubernetes API Token",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "KUBERNETESAPITOKEN",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "default_template": "generic-active-host",
+                    "description": "Discover Kubernetes nodes by requesting Kubernetes RestAPI",
+                    "discovery_examples": [
+                        {
+                            "hostname": "kubemaster.local.domain",
+                            "internal_ip": "10.11.12.13",
+                            "kubelet_version": "v1.20.2",
+                            "name": "kubemaster",
+                            "node_role": "control-plane",
+                            "os_image": "CentOS Linux 7 (Core)",
+                            "uid": "4c40a741-b3cf-49ac-852b-1f133f89de1e"
+                        },
+                        {
+                            "hostname": "kubenode1.local.domain",
+                            "internal_ip": "10.11.12.14",
+                            "kubelet_version": "v1.20.2",
+                            "name": "kubenode1",
+                            "node_role": "worker",
+                            "os_image": "CentOS Linux 7 (Core)",
+                            "uid": "37c69489-1a79-4113-8e11-009b74918b3b"
+                        },
+                        {
+                            "hostname": "kubenode2.local.domain",
+                            "internal_ip": "10.11.12.15",
+                            "kubelet_version": "v1.20.2",
+                            "name": "kubenode2",
+                            "node_role": "worker",
+                            "os_image": "CentOS Linux 7 (Core)",
+                            "uid": "2a8016e2-ed70-4ac5-804e-ce3a862102f6"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.internal_ip"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.KUBERNETESAPICUSTOMMODE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "string",
+                                        "value": "api"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.KUBERNETESAPIHOSTNAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.KUBERNETESAPIHOSTNAME"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.KUBERNETESAPIPORT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.KUBERNETESAPIPORT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.KUBERNETESAPIPROTO",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.KUBERNETESAPIPROTO"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.KUBERNETESAPITOKEN",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.KUBERNETESAPITOKEN"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.KUBERNETESNODENAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.EXTRAOPTIONS",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.EXTRAOPTIONS"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Kubernetes-Node-Api-Custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Kubernetes Nodes (RestAPI)",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Kubernetes API Hostname",
+                                "group": "Kubernetes API Information",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "KUBERNETESAPIHOSTNAME",
+                                "type": "text",
+                                "value": ""
+                            },
+                            {
+                                "description": "Kubernetes API Port",
+                                "group": "Kubernetes API Information",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "KUBERNETESAPIPORT",
+                                "type": "text",
+                                "value": ""
+                            },
+                            {
+                                "description": "Kubernetes API Protocol",
+                                "group": "Kubernetes API Information",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "KUBERNETESAPIPROTO",
+                                "type": "text",
+                                "value": ""
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additionnal Parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additionnal Parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "kubernetes-restapi-nodes",
+                    "type": "kubernetes-restapi",
+                    "uuid_attributes": [
+                        "uid"
+                    ]
+                },
+                {
+                    "attributes": {
+                        "hostname": {
+                            "type": "string"
+                        },
+                        "internal_ip": {
+                            "type": "string"
+                        },
+                        "kubelet_version": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "node_role": {
+                            "type": "string"
+                        },
+                        "os_image": {
+                            "type": "string"
+                        },
+                        "uid": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Kubernetes-Api-HostDiscovery-Nodes-Kubectl",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Kubectl Configuration File Path",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "KUBECTLCONFIGFILE",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "default_template": "generic-active-host",
+                    "description": "Discover Kubernetes nodes by requesting Kubernetes cluster using kubectl",
+                    "discovery_examples": [
+                        {
+                            "hostname": "kubemaster.local.domain",
+                            "internal_ip": "10.11.12.13",
+                            "kubelet_version": "v1.20.2",
+                            "name": "kubemaster",
+                            "node_role": "control-plane",
+                            "os_image": "CentOS Linux 7 (Core)",
+                            "uid": "4c40a741-b3cf-49ac-852b-1f133f89de1e"
+                        },
+                        {
+                            "hostname": "kubenode1.local.domain",
+                            "internal_ip": "10.11.12.14",
+                            "kubelet_version": "v1.20.2",
+                            "name": "kubenode1",
+                            "node_role": "worker",
+                            "os_image": "CentOS Linux 7 (Core)",
+                            "uid": "37c69489-1a79-4113-8e11-009b74918b3b"
+                        },
+                        {
+                            "hostname": "kubenode2.local.domain",
+                            "internal_ip": "10.11.12.15",
+                            "kubelet_version": "v1.20.2",
+                            "name": "kubenode2",
+                            "node_role": "worker",
+                            "os_image": "CentOS Linux 7 (Core)",
+                            "uid": "2a8016e2-ed70-4ac5-804e-ce3a862102f6"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.internal_ip"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.KUBERNETESAPICUSTOMMODE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "string",
+                                        "value": "kubectl"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.KUBECTLCONFIGFILE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.KUBECTLCONFIGFILE"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.KUBERNETESNODENAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.EXTRAOPTIONS",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.EXTRAOPTIONS"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Kubernetes-Node-Api-Custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Kubernetes Nodes (Kubectl)",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Timeout",
+                                "group": "Additionnal Parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additionnal Parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "kubernetes-kubectl-nodes",
+                    "type": "kubernetes-kubectl",
+                    "uuid_attributes": [
+                        "uid"
+                    ]
+                }
+            ]
+        },
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Cloud-Kubernetes-Api-Nodes-Discover",
+                "command_for_macro": "Cloud-Kubernetes-Api-Nodes-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Cloud-Kubernetes-Api"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Cloud-Kubernetes-Api-Nodes-Usage",
+                "service_display_name": "Node-Usage-$name$",
+                "service_template": "Cloud-Kubernetes-Node-Usage-Api"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Cloud-Kubernetes-Api-Pods-Discover",
+                "command_for_macro": "Cloud-Kubernetes-Api-Pods-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Cloud-Kubernetes-Api"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERPOD",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Cloud-Kubernetes-Api-Pods-Status",
+                "service_display_name": "Pod-Status-$name$",
+                "service_template": "Cloud-Kubernetes-Pod-Status-Api"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Cloud-Kubernetes-Api-Deployments-Discover",
+                "command_for_macro": "Cloud-Kubernetes-Api-Deployments-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Cloud-Kubernetes-Api"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERDEPLOYMENT",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Cloud-Kubernetes-Api-Deployments-Status",
+                "service_display_name": "Deployment-Status-$name$",
+                "service_template": "Cloud-Kubernetes-Deployment-Status-Api"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Cloud-Kubernetes-Api-Nodes-Discover",
+                "command_for_macro": "Cloud-Kubernetes-Api-Nodes-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Cloud-Kubernetes-Api"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNODENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Cloud-Kubernetes-Api-Nodes-Status",
+                "service_display_name": "Node-Status-$name$",
+                "service_template": "Cloud-Kubernetes-Node-Status-Api"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Cloud-Kubernetes-Api-CronJobs-Discover",
+                "command_for_macro": "Cloud-Kubernetes-Api-CronJobs-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Cloud-Kubernetes-Api"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERCRONJOB",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Cloud-Kubernetes-Api-CronJobs-Status",
+                "service_display_name": "CronJob-Status-$name$",
+                "service_template": "Cloud-Kubernetes-CronJob-Status-Api"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Cloud-Kubernetes-Api-PersistentVolumes-Discover",
+                "command_for_macro": "Cloud-Kubernetes-Api-PersistentVolumes-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Cloud-Kubernetes-Api"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERPERSISTENTVOLUME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Cloud-Kubernetes-Api-PersistentVolumes-Status",
+                "service_display_name": "PersistentVolume-Status-$name$",
+                "service_template": "Cloud-Kubernetes-PersistentVolume-Status-Api"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Cloud-Kubernetes-Api-ReplicaSets-Discover",
+                "command_for_macro": "Cloud-Kubernetes-Api-ReplicaSets-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Cloud-Kubernetes-Api"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERREPLICATSET",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Cloud-Kubernetes-Api-ReplicaSets-Status",
+                "service_display_name": "ReplicaSet-Status-$name$",
+                "service_template": "Cloud-Kubernetes-ReplicaSet-Status-Api"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Cloud-Kubernetes-Api-ReplicationControllers-Discover",
+                "command_for_macro": "Cloud-Kubernetes-Api-ReplicationControllers-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Cloud-Kubernetes-Api"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERREPLICATIONCONTROLLER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Cloud-Kubernetes-Api-ReplicationControllers-Status",
+                "service_display_name": "ReplicationController-Status-$name$",
+                "service_template": "Cloud-Kubernetes-ReplicationController-Status-Api"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Cloud-Kubernetes-Api-StatefulSets-Discover",
+                "command_for_macro": "Cloud-Kubernetes-Api-StatefulSets-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Cloud-Kubernetes-Api"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERSTATEFULSET",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Cloud-Kubernetes-Api-StatefulSets-Status",
+                "service_display_name": "StatefulSet-Status-$name$",
+                "service_template": "Cloud-Kubernetes-StatefulSet-Status-Api"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Cloud-Kubernetes-Api-Daemonsets-Discover",
+                "command_for_macro": "Cloud-Kubernetes-Api-Daemonsets-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Cloud-Kubernetes-Api"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERDAEMONSET",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Cloud-Kubernetes-Api-Daemonsets-Status",
+                "service_display_name": "DaemonSet-Status-$name$",
+                "service_template": "Cloud-Kubernetes-Daemonset-Status-Api"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=list-nodes --custommode=\\'api\\' --hostname=127.0.0.1 --token=\\'none\\' --disco-format\\\"",
+            "name": "Cloud-Kubernetes-Api-Nodes-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=list-nodes --custommode=\\'$_HOSTKUBERNETESAPICUSTOMMODE$\\' --hostname=$_HOSTKUBERNETESAPIHOSTNAME$ --port=\\'$_HOSTKUBERNETESAPIPORT$\\' --proto=\\'$_HOSTKUBERNETESAPIPROTO$\\' --token=\\'$_HOSTKUBERNETESAPITOKEN$\\' --config-file=\\'$_HOSTKUBECTLCONFIGFILE$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Cloud-Kubernetes-Api-Nodes-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=list-pods --custommode=\\'api\\' --hostname=127.0.0.1 --token=\\'none\\' --disco-format\\\"",
+            "name": "Cloud-Kubernetes-Api-Pods-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=list-pods --custommode=\\'$_HOSTKUBERNETESAPICUSTOMMODE$\\' --hostname=$_HOSTKUBERNETESAPIHOSTNAME$ --port=\\'$_HOSTKUBERNETESAPIPORT$\\' --proto=\\'$_HOSTKUBERNETESAPIPROTO$\\' --token=\\'$_HOSTKUBERNETESAPITOKEN$\\' --config-file=\\'$_HOSTKUBECTLCONFIGFILE$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Cloud-Kubernetes-Api-Pods-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=list-deployments --custommode=\\'api\\' --hostname=127.0.0.1 --token=\\'none\\' --disco-format\\\"",
+            "name": "Cloud-Kubernetes-Api-Deployments-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=list-deployments --custommode=\\'$_HOSTKUBERNETESAPICUSTOMMODE$\\' --hostname=$_HOSTKUBERNETESAPIHOSTNAME$ --port=\\'$_HOSTKUBERNETESAPIPORT$\\' --proto=\\'$_HOSTKUBERNETESAPIPROTO$\\' --token=\\'$_HOSTKUBERNETESAPITOKEN$\\' --config-file=\\'$_HOSTKUBECTLCONFIGFILE$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Cloud-Kubernetes-Api-Deployments-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=list-cronjobs --custommode=\\'api\\' --hostname=127.0.0.1 --token=\\'none\\' --disco-format\\\"",
+            "name": "Cloud-Kubernetes-Api-CronJobs-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=list-cronjobs --custommode=\\'$_HOSTKUBERNETESAPICUSTOMMODE$\\' --hostname=$_HOSTKUBERNETESAPIHOSTNAME$ --port=\\'$_HOSTKUBERNETESAPIPORT$\\' --proto=\\'$_HOSTKUBERNETESAPIPROTO$\\' --token=\\'$_HOSTKUBERNETESAPITOKEN$\\' --config-file=\\'$_HOSTKUBECTLCONFIGFILE$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Cloud-Kubernetes-Api-CronJobs-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=list-persistentvolumes --custommode=\\'api\\' --hostname=127.0.0.1 --token=\\'none\\' --disco-format\\\"",
+            "name": "Cloud-Kubernetes-Api-PersistentVolumes-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=list-persistentvolumes --custommode=\\'$_HOSTKUBERNETESAPICUSTOMMODE$\\' --hostname=$_HOSTKUBERNETESAPIHOSTNAME$ --port=\\'$_HOSTKUBERNETESAPIPORT$\\' --proto=\\'$_HOSTKUBERNETESAPIPROTO$\\' --token=\\'$_HOSTKUBERNETESAPITOKEN$\\' --config-file=\\'$_HOSTKUBECTLCONFIGFILE$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Cloud-Kubernetes-Api-PersistentVolumes-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=list-replicasets --custommode=\\'api\\' --hostname=127.0.0.1 --token=\\'none\\' --disco-format\\\"",
+            "name": "Cloud-Kubernetes-Api-ReplicaSets-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=list-replicasets --custommode=\\'$_HOSTKUBERNETESAPICUSTOMMODE$\\' --hostname=$_HOSTKUBERNETESAPIHOSTNAME$ --port=\\'$_HOSTKUBERNETESAPIPORT$\\' --proto=\\'$_HOSTKUBERNETESAPIPROTO$\\' --token=\\'$_HOSTKUBERNETESAPITOKEN$\\' --config-file=\\'$_HOSTKUBECTLCONFIGFILE$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Cloud-Kubernetes-Api-ReplicaSets-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=list-replicationcontrollers --custommode=\\'api\\' --hostname=127.0.0.1 --token=\\'none\\' --disco-format\\\"",
+            "name": "Cloud-Kubernetes-Api-ReplicationControllers-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=list-replicationcontrollers --custommode=\\'$_HOSTKUBERNETESAPICUSTOMMODE$\\' --hostname=$_HOSTKUBERNETESAPIHOSTNAME$ --port=\\'$_HOSTKUBERNETESAPIPORT$\\' --proto=\\'$_HOSTKUBERNETESAPIPROTO$\\' --token=\\'$_HOSTKUBERNETESAPITOKEN$\\' --config-file=\\'$_HOSTKUBECTLCONFIGFILE$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Cloud-Kubernetes-Api-ReplicationControllers-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=list-statefulsets --custommode=\\'api\\' --hostname=127.0.0.1 --token=\\'none\\' --disco-format\\\"",
+            "name": "Cloud-Kubernetes-Api-StatefulSets-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=list-statefulsets --custommode=\\'$_HOSTKUBERNETESAPICUSTOMMODE$\\' --hostname=$_HOSTKUBERNETESAPIHOSTNAME$ --port=\\'$_HOSTKUBERNETESAPIPORT$\\' --proto=\\'$_HOSTKUBERNETESAPIPROTO$\\' --token=\\'$_HOSTKUBERNETESAPITOKEN$\\' --config-file=\\'$_HOSTKUBECTLCONFIGFILE$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Cloud-Kubernetes-Api-StatefulSets-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=list-daemonsets --custommode=\\'api\\' --hostname=127.0.0.1 --token=\\'none\\' --disco-format\\\"",
+            "name": "Cloud-Kubernetes-Api-Daemonsets-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=list-daemonsets --custommode=\\'$_HOSTKUBERNETESAPICUSTOMMODE$\\' --hostname=$_HOSTKUBERNETESAPIHOSTNAME$ --port=\\'$_HOSTKUBERNETESAPIPORT$\\' --proto=\\'$_HOSTKUBERNETESAPIPROTO$\\' --token=\\'$_HOSTKUBERNETESAPITOKEN$\\' --config-file=\\'$_HOSTKUBECTLCONFIGFILE$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Cloud-Kubernetes-Api-Daemonsets-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=statefulset-status --custommode=\\'$_HOSTKUBERNETESAPICUSTOMMODE$\\' --hostname=$_HOSTKUBERNETESAPIHOSTNAME$ --port=\\'$_HOSTKUBERNETESAPIPORT$\\' --proto=\\'$_HOSTKUBERNETESAPIPROTO$\\' --token=\\'$_HOSTKUBERNETESAPITOKEN$\\' --config-file=\\'$_HOSTKUBECTLCONFIGFILE$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERSTATEFULSET$\\' --filter-namespace=\\'$_SERVICEFILTERNAMESPACE$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Kubernetes-Api-StatefulSet-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=replicationcontroller-status --custommode=\\'$_HOSTKUBERNETESAPICUSTOMMODE$\\' --hostname=$_HOSTKUBERNETESAPIHOSTNAME$ --port=\\'$_HOSTKUBERNETESAPIPORT$\\' --proto=\\'$_HOSTKUBERNETESAPIPROTO$\\' --token=\\'$_HOSTKUBERNETESAPITOKEN$\\' --config-file=\\'$_HOSTKUBECTLCONFIGFILE$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERREPLICATIONCONTROLLER$\\' --filter-namespace=\\'$_SERVICEFILTERNAMESPACE$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Kubernetes-Api-ReplicationController-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=replicaset-status --custommode=\\'$_HOSTKUBERNETESAPICUSTOMMODE$\\' --hostname=$_HOSTKUBERNETESAPIHOSTNAME$ --port=\\'$_HOSTKUBERNETESAPIPORT$\\' --proto=\\'$_HOSTKUBERNETESAPIPROTO$\\' --token=\\'$_HOSTKUBERNETESAPITOKEN$\\' --config-file=\\'$_HOSTKUBECTLCONFIGFILE$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERREPLICATSET$\\' --filter-namespace=\\'$_SERVICEFILTERNAMESPACE$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Kubernetes-Api-ReplicaSet-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=pod-status --custommode=\\'$_HOSTKUBERNETESAPICUSTOMMODE$\\' --hostname=$_HOSTKUBERNETESAPIHOSTNAME$ --port=\\'$_HOSTKUBERNETESAPIPORT$\\' --proto=\\'$_HOSTKUBERNETESAPIPROTO$\\' --token=\\'$_HOSTKUBERNETESAPITOKEN$\\' --config-file=\\'$_HOSTKUBECTLCONFIGFILE$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERPOD$\\' --filter-namespace=\\'$_SERVICEFILTERNAMESPACE$\\' --warning-pod-status=\\'$_SERVICEWARNINGPODSTATUS$\\' --critical-pod-status=\\'$_SERVICECRITICALPODSTATUS$\\' --warning-container-status=\\'$_SERVICEWARNINGCONTAINERSTATUS$\\' --critical-container-status=\\'$_SERVICECRITICALCONTAINERSTATUS$\\' --warning-containers-ready=\\'$_SERVICEWARNINGCONTAINERSREADY$\\' --critical-containers-ready=\\'$_SERVICECRITICALCONTAINERSREADY$\\' --warning-total-restarts-count=\\'$_SERVICEWARNINGTOTALRESTARTSCOUNT$\\' --critical-total-restarts-count=\\'$_SERVICECRITICALTOTALRESTARTSCOUNT$\\' --warning-restarts-count=\\'$_SERVICEWARNINGRESTARTSCOUNT$\\' --critical-restarts-count=\\'$_SERVICECRITICALRESTARTSCOUNT$\\' --units=\\'$_SERVICEUNITS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Kubernetes-Api-Pod-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=persistentvolume-status --custommode=\\'$_HOSTKUBERNETESAPICUSTOMMODE$\\' --hostname=$_HOSTKUBERNETESAPIHOSTNAME$ --port=\\'$_HOSTKUBERNETESAPIPORT$\\' --proto=\\'$_HOSTKUBERNETESAPIPROTO$\\' --token=\\'$_HOSTKUBERNETESAPITOKEN$\\' --config-file=\\'$_HOSTKUBECTLCONFIGFILE$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERPERSISTENTVOLUME$\\' --filter-namespace=\\'$_SERVICEFILTERNAMESPACE$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Kubernetes-Api-PersistentVolume-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=node-usage --custommode=\\'$_HOSTKUBERNETESAPICUSTOMMODE$\\' --hostname=$_HOSTKUBERNETESAPIHOSTNAME$ --port=\\'$_HOSTKUBERNETESAPIPORT$\\' --proto=\\'$_HOSTKUBERNETESAPIPROTO$\\' --token=\\'$_HOSTKUBERNETESAPITOKEN$\\' --config-file=\\'$_HOSTKUBECTLCONFIGFILE$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-cpu-requests=\\'$_SERVICEWARNINGCPUREQUESTS$\\' --critical-cpu-requests=\\'$_SERVICECRITICALCPUREQUESTS$\\' --warning-cpu-limits=\\'$_SERVICEWARNINGCPULIMITS$\\' --critical-cpu-limits=\\'$_SERVICECRITICALCPULIMITS$\\' --warning-memory-requests=\\'$_SERVICEWARNINGMEMORYREQUESTS$\\' --critical-memory-requests=\\'$_SERVICECRITICALMEMORYREQUESTS$\\' --warning-memory-limits=\\'$_SERVICEWARNINGMEMORYLIMITS$\\' --critical-memory-limits=\\'$_SERVICECRITICALMEMORYLIMITS$\\' --warning-allocated-pods=\\'$_SERVICEWARNINGALLOCATEDPODS$\\' --critical-allocated-pods=\\'$_SERVICECRITICALALLOCATEDPODS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Kubernetes-Api-Node-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=node-status --custommode=\\'$_HOSTKUBERNETESAPICUSTOMMODE$\\' --hostname=$_HOSTKUBERNETESAPIHOSTNAME$ --port=\\'$_HOSTKUBERNETESAPIPORT$\\' --proto=\\'$_HOSTKUBERNETESAPIPROTO$\\' --token=\\'$_HOSTKUBERNETESAPITOKEN$\\' --config-file=\\'$_HOSTKUBECTLCONFIGFILE$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNODENAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Kubernetes-Api-Node-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=deployment-status --custommode=\\'$_HOSTKUBERNETESAPICUSTOMMODE$\\' --hostname=$_HOSTKUBERNETESAPIHOSTNAME$ --port=\\'$_HOSTKUBERNETESAPIPORT$\\' --proto=\\'$_HOSTKUBERNETESAPIPROTO$\\' --token=\\'$_HOSTKUBERNETESAPITOKEN$\\' --config-file=\\'$_HOSTKUBECTLCONFIGFILE$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERDEPLOYMENT$\\' --filter-namespace=\\'$_SERVICEFILTERNAMESPACE$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Kubernetes-Api-Deployment-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=daemonset-status --custommode=\\'$_HOSTKUBERNETESAPICUSTOMMODE$\\' --hostname=$_HOSTKUBERNETESAPIHOSTNAME$ --port=\\'$_HOSTKUBERNETESAPIPORT$\\' --proto=\\'$_HOSTKUBERNETESAPIPROTO$\\' --token=\\'$_HOSTKUBERNETESAPITOKEN$\\' --config-file=\\'$_HOSTKUBECTLCONFIGFILE$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERDAEMONSET$\\' --filter-namespace=\\'$_SERVICEFILTERNAMESPACE$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Kubernetes-Api-Daemonset-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=cronjob-status --custommode=\\'$_HOSTKUBERNETESAPICUSTOMMODE$\\' --hostname=$_HOSTKUBERNETESAPIHOSTNAME$ --port=\\'$_HOSTKUBERNETESAPIPORT$\\' --proto=\\'$_HOSTKUBERNETESAPIPROTO$\\' --token=\\'$_HOSTKUBERNETESAPITOKEN$\\' --config-file=\\'$_HOSTKUBECTLCONFIGFILE$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERCRONJOB$\\' --filter-namespace=\\'$_SERVICEFILTERNAMESPACE$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Kubernetes-Api-CronJob-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=cluster-events --custommode=\\'$_HOSTKUBERNETESAPICUSTOMMODE$\\' --hostname=$_HOSTKUBERNETESAPIHOSTNAME$ --port=\\'$_HOSTKUBERNETESAPIPORT$\\' --proto=\\'$_HOSTKUBERNETESAPIPROTO$\\' --token=\\'$_HOSTKUBERNETESAPITOKEN$\\' --config-file=\\'$_HOSTKUBECTLCONFIGFILE$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTEXTRAOPTIONS$ --filter-type=\\'$_SERVICEFILTERTYPE$\\' --filter-namespace=\\'$_SERVICEFILTERNAMESPACE$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Kubernetes-Api-Cluster-Events",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=node-usage --custommode=\\'$_HOSTKUBERNETESAPICUSTOMMODE$\\' --hostname=$_HOSTKUBERNETESAPIHOSTNAME$ --port=\\'$_HOSTKUBERNETESAPIPORT$\\' --proto=\\'$_HOSTKUBERNETESAPIPROTO$\\' --token=\\'$_HOSTKUBERNETESAPITOKEN$\\' --config-file=\\'$_HOSTKUBECTLCONFIGFILE$\\' --filter-name=\\'$_HOSTKUBERNETESNODENAME$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTEXTRAOPTIONS$ --warning-cpu-requests=\\'$_SERVICEWARNINGCPUREQUESTS$\\' --critical-cpu-requests=\\'$_SERVICECRITICALCPUREQUESTS$\\' --warning-cpu-limits=\\'$_SERVICEWARNINGCPULIMITS$\\' --critical-cpu-limits=\\'$_SERVICECRITICALCPULIMITS$\\' --warning-memory-requests=\\'$_SERVICEWARNINGMEMORYREQUESTS$\\' --critical-memory-requests=\\'$_SERVICECRITICALMEMORYREQUESTS$\\' --warning-memory-limits=\\'$_SERVICEWARNINGMEMORYLIMITS$\\' --critical-memory-limits=\\'$_SERVICECRITICALMEMORYLIMITS$\\' --warning-allocated-pods=\\'$_SERVICEWARNINGALLOCATEDPODS$\\' --critical-allocated-pods=\\'$_SERVICECRITICALALLOCATEDPODS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Kubernetes-Api-Node-Usage-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=node-status --custommode=\\'$_HOSTKUBERNETESAPICUSTOMMODE$\\' --hostname=$_HOSTKUBERNETESAPIHOSTNAME$ --port=\\'$_HOSTKUBERNETESAPIPORT$\\' --proto=\\'$_HOSTKUBERNETESAPIPROTO$\\' --token=\\'$_HOSTKUBERNETESAPITOKEN$\\' --config-file=\\'$_HOSTKUBECTLCONFIGFILE$\\' --filter-name=\\'$_HOSTKUBERNETESNODENAME$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Kubernetes-Api-Node-Status-Name",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=discovery-nodes --custommode='api' --hostname=$_KUBERNETESAPIHOSTNAME$ --port='$_KUBERNETESAPIPORT$' --proto='$_KUBERNETESAPIPROTO$' --token='$_KUBERNETESAPITOKEN$' --proxyurl='$_PROXYURL$' --timeout='$_TIMEOUT$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Kubernetes-Api-HostDiscovery-Nodes-Restapi",
+            "type": "4"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_kubernetes_api.pl --plugin=cloud::kubernetes::plugin --mode=discovery-nodes --custommode='kubectl' --config-file='$_KUBECTLCONFIGFILE$' --proxyurl='$_PROXYURL$' --timeout='$_TIMEOUT$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Kubernetes-Api-HostDiscovery-Nodes-Kubectl",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser un cluster Kubernetes via CLI (kubectl) ou RestAPI}\r\n{EN: Template to check a Kubernetes cluster using CLI (kubectl) or RestAPI}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check a Kubernetes cluster through CLI (kubectl) or RestAPI",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "kubernetes-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTKUBERNETESAPICUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTKUBERNETESAPIHOSTNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTKUBERNETESAPIPORT$",
+                    "value": "443"
+                },
+                {
+                    "key": "$_HOSTKUBERNETESAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTKUBERNETESAPITOKEN$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTKUBECTLCONFIGFILE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTTIMEOUT$",
+                    "value": "10"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Kubernetes-Api",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Kubernetes-StatefulSet-Status-Api",
+                "Cloud-Kubernetes-ReplicationController-Status-Api",
+                "Cloud-Kubernetes-ReplicaSet-Status-Api",
+                "Cloud-Kubernetes-Pod-Status-Api",
+                "Cloud-Kubernetes-PersistentVolume-Status-Api",
+                "Cloud-Kubernetes-Node-Usage-Api",
+                "Cloud-Kubernetes-Node-Status-Api",
+                "Cloud-Kubernetes-Deployment-Status-Api",
+                "Cloud-Kubernetes-Daemonset-Status-Api",
+                "Cloud-Kubernetes-CronJob-Status-Api",
+                "Cloud-Kubernetes-Cluster-Events-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser un noeud Kubernetes via CLI (kubectl) ou RestAPI}\r\n{EN: Template to check a Kubernetes node using CLI (kubectl) or RestAPI}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check a Kubernetes node through CLI (kubectl) or RestAPI",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "kubernetes-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTKUBERNETESAPICUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTKUBERNETESAPIHOSTNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTKUBERNETESAPIPORT$",
+                    "value": "443"
+                },
+                {
+                    "key": "$_HOSTKUBERNETESAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTKUBERNETESAPITOKEN$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTKUBECTLCONFIGFILE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTKUBERNETESNODENAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTTIMEOUT$",
+                    "value": "10"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Kubernetes-Node-Api",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Kubernetes-Node-Usage-Name-Api",
+                "Cloud-Kubernetes-Node-Status-Name-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "kubernetes-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Fixing wrong source types in v3.0 mapper (discovery instead of string)",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin Pack to monitor a Kubernetes cluster using CLI (kubectl) or RestAPI.**\r\n\r\nAvailable host templates and related services:\r\n\r\n| Cloud-Kubernetes-Api         |\r\n|------------------------------|\r\n| Cluster Events               |\r\n| CronJob Status               |\r\n| DaemonSet Status             |\r\n| Deployment Status            |\r\n| Node Status                  |\r\n| Node Usage                   |\r\n| PersistentVolume Status      |\r\n| Pod Status                   |\r\n| ReplicatSet Status           |\r\n| ReplicationController Status |\r\n| StatefulSet Status           |\r\n\r\n| Cloud-Kubernetes-Node-Api |\r\n|---------------------------|\r\n| Node Usage                |\r\n| Node Status               |\r\n\r\nThis pack comes with 2 Host Discovery providers:\r\n\r\n- Kubernetes Nodes (Restapi)\r\n- Kubernetes Nodes (Kubectl)\r\n\r\nThis pack comes with 10 Service Discovery rules:\r\n\r\n- Cloud-Kubernetes-Api-CronJobs-Status\r\n- Cloud-Kubernetes-Api-Daemonsets-Status\r\n- Cloud-Kubernetes-Api-Deployments-Status\r\n- Cloud-Kubernetes-Api-Nodes-Status\r\n- Cloud-Kubernetes-Api-Nodes-Usage\r\n- Cloud-Kubernetes-Api-PersistentVolumes-Status\r\n- Cloud-Kubernetes-Api-Pods-Status\r\n- Cloud-Kubernetes-Api-ReplicaSets-Status\r\n- Cloud-Kubernetes-Api-ReplicationControllers-Status\r\n- Cloud-Kubernetes-Api-StatefulSets-Status"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin Pack pour superviser un cluster Kubernetes avec la CLI (kubectl) ou la RestAPI**\r\n\r\nMod\u00e8les d\\'h\u00f4te disponibles et leurs services :\r\n\r\n| Cloud-Kubernetes-Api         |\r\n|------------------------------|\r\n| Cluster Events               |\r\n| CronJob Status               |\r\n| DaemonSet Status             |\r\n| Deployment Status            |\r\n| Node Status                  |\r\n| Node Usage                   |\r\n| PersistentVolume Status      |\r\n| Pod Status                   |\r\n| ReplicatSet Status           |\r\n| ReplicationController Status |\r\n| StatefulSet Status           |\r\n\r\n| Cloud-Kubernetes-Node-Api |\r\n|---------------------------|\r\n| Node Usage                |\r\n| Node Status               |\r\n\r\nCe pack fournit 2 r\u00e8gles de d\u00e9couverte d\\'h\u00f4te:\r\n\r\n- Kubernetes Nodes (Restapi)\r\n- Kubernetes Nodes (Kubectl)\r\n\r\nCe pack fournit 10 r\u00e8gles de d\u00e9couverte de service:\r\n\r\n- Cloud-Kubernetes-Api-CronJobs-Status\r\n- Cloud-Kubernetes-Api-Daemonsets-Status\r\n- Cloud-Kubernetes-Api-Deployments-Status\r\n- Cloud-Kubernetes-Api-Nodes-Status\r\n- Cloud-Kubernetes-Api-Nodes-Usage\r\n- Cloud-Kubernetes-Api-PersistentVolumes-Status\r\n- Cloud-Kubernetes-Api-Pods-Status\r\n- Cloud-Kubernetes-Api-ReplicaSets-Status\r\n- Cloud-Kubernetes-Api-ReplicationControllers-Status\r\n- Cloud-Kubernetes-Api-StatefulSets-Status"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "",
+        "name": "Kubernetes API",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_kubernetes_api.pl",
+                "package_name": "centreon-plugin-Cloud-Kubernetes-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-kubernetes-api",
+        "status": "stable",
+        "status_message": "Fixing wrong source types in v3.0 mapper",
+        "tags": [
+            "Kubernetes",
+            "Cloud",
+            "Restapi",
+            "Docker",
+            "API",
+            "Container"
+        ],
+        "update_date": "1637341792",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le status des StatefulSets.}\r\n\r\n{EN: Check StatefulSets status.}",
+            "active_checks_enabled": 2,
+            "alias": "StatefulSet-Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Kubernetes-Api-StatefulSet-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERSTATEFULSET$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAMESPACE$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{up_to_date} < %{desired}"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{ready} < %{desired}"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Kubernetes-StatefulSet-Status-Api",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status des ReplicationControllers.}\r\n\r\n{EN: Check ReplicationControllers status.}",
+            "active_checks_enabled": 2,
+            "alias": "ReplicationController-Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Kubernetes-Api-ReplicationController-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERREPLICATIONCONTROLLER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAMESPACE$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{ready} < %{desired}"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Kubernetes-ReplicationController-Status-Api",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status des ReplicaSets.}\r\n\r\n{EN: Check ReplicaSets status.}",
+            "active_checks_enabled": 2,
+            "alias": "ReplicaSet-Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Kubernetes-Api-ReplicaSet-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERREPLICATSET$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAMESPACE$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{ready} < %{desired}"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Kubernetes-ReplicaSet-Status-Api",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status des pods et des containers.}\r\n\r\n{EN: Check pods and containers status.}",
+            "active_checks_enabled": 2,
+            "alias": "Pod-Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Kubernetes-Api-Pod-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERPOD$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAMESPACE$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALPODSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /running/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALCONTAINERSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /running/i || %{state} !~ /^ready$/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNITS$",
+                    "password": false,
+                    "value": "%"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Kubernetes-Pod-Status-Api",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status des PersistentVolumes.}\r\n\r\n{EN: Check PersistentVolumes status.}",
+            "active_checks_enabled": 2,
+            "alias": "PersistentVolume-Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Kubernetes-Api-PersistentVolume-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERPERSISTENTVOLUME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAMESPACE$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{phase} !~ /Bound|Available|Released/i"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Kubernetes-PersistentVolume-Status-Api",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des noeuds.}\r\n\r\n{EN: Check nodes usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Node-Usage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Kubernetes-Api-Node-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Kubernetes-Node-Usage-Api",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status des Nodes.}\r\n\r\n{EN: Check Nodes status.}",
+            "active_checks_enabled": 2,
+            "alias": "Node-Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Kubernetes-Api-Node-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNODENAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "(%{type} =~ /Ready/i && %{status} !~ /True/i) || (%{type} =~ /.*Pressure/i && %{status} !~ /False/i)"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAMESPACE$",
+                    "password": false,
+                    "value": ".*"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Kubernetes-Node-Status-Api",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status des Deployments.}\r\n\r\n{EN: Check Deployments status.}",
+            "active_checks_enabled": 2,
+            "alias": "Deployment-Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Kubernetes-Api-Deployment-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERDEPLOYMENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAMESPACE$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{up_to_date} < %{desired}"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{available} < %{desired}"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Kubernetes-Deployment-Status-Api",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status des DaemonSets.}\r\n\r\n{EN: Check DaemonSets status.}",
+            "active_checks_enabled": 2,
+            "alias": "Daemonset-Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Kubernetes-Api-Daemonset-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERDAEMONSET$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAMESPACE$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{up_to_date} < %{desired}"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{available} < %{desired}"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Kubernetes-Daemonset-Status-Api",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status des CronJobs.}\r\n\r\n{EN: Check CronJobs status.}",
+            "active_checks_enabled": 2,
+            "alias": "CronJob-Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Kubernetes-Api-CronJob-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCRONJOB$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAMESPACE$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Kubernetes-CronJob-Status-Api",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre d'\u00e9v\u00e9nements survenant sur le cluster.}\r\n\r\n{EN: Check the number of events occurring on the cluster.}",
+            "active_checks_enabled": 2,
+            "alias": "Cluster-Events",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Kubernetes-Api-Cluster-Events",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERTYPE$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAMESPACE$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{type} =~ /warning/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{type} =~ /error/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Kubernetes-Cluster-Events-Api",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des noeuds.}\r\n\r\n{EN: Check nodes usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Node-Usage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Kubernetes-Api-Node-Usage-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Kubernetes-Node-Usage-Name-Api",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status d'un Node.}\r\n\r\n{EN: Check a Node status.}",
+            "active_checks_enabled": 2,
+            "alias": "Node-Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Kubernetes-Api-Node-Status-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "(%{type} =~ /Ready/i && %{status} !~ /True/i) || (%{type} =~ /.*Pressure/i && %{status} !~ /False/i)"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Kubernetes-Node-Status-Name-Api",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

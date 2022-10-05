@@ -1,0 +1,285 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::microsoft::sccm::local::plugin\\' \\'site-status\\'  \\' --warning-status=\\\\\\\"$_SERVICEWARNINGSTATUS$\\\\\\\" --critical-status=\\\\\\\"$_SERVICECRITICALSTATUS$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Sccm-NRPE-Site-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'apps::microsoft::sccm::local::plugin\\' \\'database-replication-status\\'  \\' --warning-link-status=\\\\\\\"$_SERVICEWARNINGLINKSTATUS$\\\\\\\" --critical-link-status=\\\\\\\"$_SERVICECRITICALLINKSTATUS$\\\\\\\" --warning-site-status=\\\\\\\"$_SERVICEWARNINGSITESTATUS$\\\\\\\" --critical-site-status=\\\\\\\"$_SERVICECRITICALSITESTATUS$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Sccm-NRPE-Database-Replication-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nsclient_restapi.pl --plugin=apps::nsclient::restapi::plugin --mode=query --hostname=$HOSTADDRESS$ --port=\\'$_HOSTNSCPRESTAPIPORT$\\' --proto=\\'$_HOSTNSCPRESTAPIPROTO$\\' --legacy-password=\\'$_HOSTNSCPRESTAPILEGACYPASSWORD$\\' $_HOSTNSCPRESTAPIEXTRAOPTIONS$ --command=check_centreon_plugins --arg=\\'apps::microsoft::sccm::local::plugin\\' --arg=\\'database-replication-status\\' --arg=\\' --warning-status=\\\\\\\"$_SERVICEWARNINGSTATUS$\\\\\\\" --critical-status=\\\\\\\"$_SERVICECRITICALSTATUS$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Sccm-NSClient05-Restapi-Site-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nsclient_restapi.pl --plugin=apps::nsclient::restapi::plugin --mode=query --hostname=$HOSTADDRESS$ --port=\\'$_HOSTNSCPRESTAPIPORT$\\' --proto=\\'$_HOSTNSCPRESTAPIPROTO$\\' --legacy-password=\\'$_HOSTNSCPRESTAPILEGACYPASSWORD$\\' $_HOSTNSCPRESTAPIEXTRAOPTIONS$ --command=check_centreon_plugins --arg=\\'apps::microsoft::sccm::local::plugin\\' --arg=\\'database-replication-status\\' --arg=\\' --warning-link-status=\\\\\\\"$_SERVICEWARNINGLINKSTATUS$\\\\\\\" --critical-link-status=\\\\\\\"$_SERVICECRITICALLINKSTATUS$\\\\\\\" --warning-site-status=\\\\\\\"$_SERVICEWARNINGSITESTATUS$\\\\\\\" --critical-site-status=\\\\\\\"$_SERVICECRITICALSITESTATUS$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-Sccm-NSClient05-Restapi-Database-Replication-Status",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Windows SCCM via NRPE}\r\n{EN: Template to check Windows SCCM using NRPE protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Microsoft SCCM using NRPE protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "iis-128-2.png",
+            "macros": [
+                {
+                    "key": "$_HOSTNRPECLIENT$",
+                    "value": "check_centreon_nrpe"
+                },
+                {
+                    "key": "$_HOSTNRPEEXTRAOPTIONS$",
+                    "value": "-u -m 8192"
+                },
+                {
+                    "key": "$_HOSTNRPEPORT$",
+                    "value": "5666"
+                },
+                {
+                    "key": "$_HOSTNRPETIMEOUT$",
+                    "value": "55"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Sccm-NRPE",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Sccm-Site-Status-NRPE",
+                "App-Sccm-Database-Replication-Status-NRPE"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Windows SCCM via Rest API (NSClientpp 0.5)}\r\n{EN: Template to check Windows SCCM using Rest API protocol (NSClientpp 0.5)}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Microsoft SCCM using NSClient restapi",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "iis-128-2.png",
+            "macros": [
+                {
+                    "key": "$_HOSTNSCPRESTAPIPORT$",
+                    "value": "8443"
+                },
+                {
+                    "key": "$_HOSTNSCPRESTAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTNSCPRESTAPILEGACYPASSWORD$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Sccm-NSClient-05-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Sccm-Site-Status-NSClient05-Restapi",
+                "App-Sccm-Database-Replication-Status-NSClient05-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABGdBTUEAALGPC/xhBQAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAOwgAADsIBFShKgAAAAXdJREFUeNrt0kENgEAMRNFqQRGOMIMJMEWCgbIC2Nve5jX56X3y6t23Tmtc/XXc1WkVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALAWwGwMZWQEAIwAgAAQAEoEUOfTaU0HucYLCwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABY2wdAJk7gki710QAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAABJ0RVh0RVhJRjpPcmllbnRhdGlvbgAxhFjs7wAAAABJRU5ErkJggg==",
+            "name": "iis-128-2.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* change plugin path",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Microsoft SCCM via Nsclient++ (NRPE or RestAPI):\r\n* Database replication status\r\n* Sites status"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser Microsoft SCCM via Nsclient++ (NRPE ou RestAPI):\r\n* Database replication status\r\n* Sites status"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABGdBTUEAALGPC/xhBQAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAOwgAADsIBFShKgAAAAXdJREFUeNrt0kENgEAMRNFqQRGOMIMJMEWCgbIC2Nve5jX56X3y6t23Tmtc/XXc1WkVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALAWwGwMZWQEAIwAgAAQAEoEUOfTaU0HucYLCwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABY2wdAJk7gki710QAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAABJ0RVh0RVhJRjpPcmllbnRhdGlvbgAxhFjs7wAAAABJRU5ErkJggg==",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\nNRPE :\r\n    # yum install centreon-nrpe-plugin\r\n\r\nNSClient++ RestAPI :\r\n    # yum install centreon-plugin-Operatingsystems-Windows-Restapi\r\n\r\n### Nsclient++\r\nThis plugin pack requires the use of the NSClient++ package provided by Centreon.\r\n\r\nYou can download it [here](https://download.centreon.com/?action=product&product=agent-nsclient&version=0.51&secKey=59d646114079212e03ec09454456a938)\r\n\r\nIf you have some problems with the centreon\\_plugins.exe, you can build it using [following procedure](https://documentation.centreon.com/docs/centreon-nsclient/en/latest/windows_agent.html#build-your-own-executable)\r\n\r\n## Centreon Configuration\r\n### Create a new IIS server\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Apps-Sccm-NRPE/App-Sccm-NSClient-05-Restapi</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Microsoft SCCM",
+        "plugins_requirements": [],
+        "requirement": [],
+        "slug": "applications-sccm-nsclient",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Microsoft",
+            "SCCM",
+            "WSUS",
+            "NRPE",
+            "NSClient++"
+        ],
+        "update_date": "1556182497",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des sites.}\r\n\r\n{EN: Check sites status.}",
+            "active_checks_enabled": 2,
+            "alias": "Site-Status",
+            "check_timeperiod": "",
+            "command_name": "App-Sccm-NRPE-Site-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Sccm-Site-Status-NRPE",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de la r\u00e9plication des bases.}\r\n\r\n{EN: Check databases replication status.}",
+            "active_checks_enabled": 2,
+            "alias": "Database-Replication-Status",
+            "check_timeperiod": "",
+            "command_name": "App-Sccm-NRPE-Database-Replication-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALLINKSTATUS$",
+                    "password": false,
+                    "value": "%{status} ne \"Active\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSITESTATUS$",
+                    "password": false,
+                    "value": "%{status} ne \"ACTIVE\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Sccm-Database-Replication-Status-NRPE",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des sites.}\r\n\r\n{EN: Check sites status.}",
+            "active_checks_enabled": 2,
+            "alias": "Site-Status",
+            "check_timeperiod": "",
+            "command_name": "App-Sccm-NSClient05-Restapi-Site-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Sccm-Site-Status-NSClient05-Restapi",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de la r\u00e9plication des bases.}\r\n\r\n{EN: Check databases replication status.}",
+            "active_checks_enabled": 2,
+            "alias": "Database-Replication-Status",
+            "check_timeperiod": "",
+            "command_name": "App-Sccm-NSClient05-Restapi-Database-Replication-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALLINKSTATUS$",
+                    "password": false,
+                    "value": "%{status} ne \"Active\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSITESTATUS$",
+                    "password": false,
+                    "value": "%{status} ne \"ACTIVE\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Sccm-Database-Replication-Status-NSClient05-Restapi",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

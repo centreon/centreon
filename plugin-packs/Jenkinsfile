@@ -1,0 +1,106 @@
+env.REF_BRANCH = 'master'
+if ((env.BRANCH_NAME == env.REF_BRANCH)) {
+  env.BUILD = 'REFERENCE'
+  env.REPO = '22.04-plugin-packs-testing'
+} else {
+  env.BUILD = 'CI'
+  env.REPO = '22.04-plugin-packs-unstable'
+}
+
+try {
+  stage('Source analysis') {
+    node {
+      sh 'setup_centreon_build.sh'
+      dir('centreon-plugin-packs') {
+        checkout scm
+      }
+      // Run sonarQube analysis
+      withSonarQubeEnv('SonarQubeDev') {
+        sh './centreon-build/jobs/packs/packs-analysis.sh'
+      }
+      if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
+        error("Source stage failure");
+      }
+    }
+  }
+
+  // sonarQube step to get qualityGate result
+  stage('Quality gate') {
+    node {
+      timeout(time: 10, unit: 'MINUTES') {
+        def qualityGate = waitForQualityGate()
+        if (qualityGate.status != 'OK') {
+          currentBuild.result = 'FAIL'
+        }
+      }
+      if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
+        error("Quality gate failure: ${qualityGate.status}.");
+      }
+    }
+  }
+
+  stage('Package') {
+    parallel 'RPM': {
+      node {
+        dir('centreon-plugin-packs') {
+          checkout scm
+        }
+        sh 'setup_centreon_build.sh'
+        sh './centreon-build/jobs/packs/packs-package.sh'
+        stash name: 'el7-rpms', includes: 'output-centos7/noarch/*.rpm'
+        stash name: 'el8-rpms', includes: 'output-alma8/noarch/*.rpm'
+        archiveArtifacts artifacts: "rpms-centos7.tar.gz"
+        archiveArtifacts artifacts: "rpms-alma8.tar.gz"
+        sh 'rm -rf output-*'
+        source = readProperties file: 'source.properties'
+        env.VERSION = "${source.VERSION}"
+        env.RELEASE = "${source.RELEASE}"
+      }
+    },
+    'DEBIAN': [
+      node {
+        sh 'setup_centreon_build.sh'
+        sh './centreon-build/jobs/packs/packs-debian-pkg.sh'
+        archiveArtifacts artifacts: '*.deb'
+        stash name: "Debian11", includes: '*.deb'
+    }
+    ]
+    if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
+      error('Package stage failure.');
+    }
+  }
+
+  stage('RPM delivery') {
+    parallel 'all': {
+      node {
+        dir('centreon-plugin-packs') {
+          checkout scm
+        }
+        unstash 'el7-rpms'
+        unstash 'el8-rpms'
+        sh 'setup_centreon_build.sh'
+        sh './centreon-build/jobs/packs/packs-delivery.sh'
+      }
+    },
+    'deliver debian bullseye': {
+      node {
+        withCredentials([usernamePassword(credentialsId: 'nexus-credentials', passwordVariable: 'NEXUS_PASSWORD', usernameVariable: 'NEXUS_USERNAME')]) {
+          checkout scm
+          unstash "Debian11"
+          sh '''for i in $(echo *.deb)
+                do 
+                  curl -u $NEXUS_USERNAME:$NEXUS_PASSWORD -H "Content-Type: multipart/form-data" --data-binary "@./$i" https://apt.centreon.com/repository/$REPO/
+                done
+            '''    
+        }
+      }
+    }
+    if ((currentBuild.result ?: 'SUCCESS') != 'SUCCESS') {
+      error('Package stage failure.');
+    }
+  }
+} catch(e) {
+  if (env.BRANCH_NAME == 'master') {
+    slackSend channel: "#monitoring-metrology", color: "#F30031", message: "*FAILURE*: `CENTREON PACKS` <${env.BUILD_URL}|build #${env.BUILD_NUMBER}> on branch ${env.BRANCH_NAME}\n*COMMIT*: <https://github.com/centreon/centreon-plugin-packs/commit/${source.COMMIT}|here> by ${source.COMMITTER}\n*INFO*: ${e}"
+  }
+}

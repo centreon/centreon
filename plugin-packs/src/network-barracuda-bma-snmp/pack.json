@@ -1,0 +1,160 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_barracuda_bma_snmp.pl --plugin=network::barracuda::bma::snmp::plugin --mode=storage --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-firmware-space=\\'$_SERVICEWARNINGFIRMWARESPACE$\\' --critical-firmware-space=\\'$_SERVICECRITICALFIRMWARESPACE$\\' --warning-maillog-space=\\'$_SERVICEWARNINGMAILLOGSPACE$\\' --critical-maillog-space=\\'$_SERVICECRITICALMAILLOGSPACE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Barracuda-Bma-SNMP-Storage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_barracuda_bma_snmp.pl --plugin=network::barracuda::bma::snmp::plugin --mode=mails --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-inbound-hourly=\\'$_SERVICEWARNINGINBOUNDHOURLY$\\' --critical-inbound-hourly=\\'$_SERVICECRITICALINBOUNDHOURLY$\\' --warning-inbound-daily=\\'$_SERVICEWARNINGINBOUNDDAILY$\\' --critical-inbound-daily=\\'$_SERVICECRITICALINBOUNDDAILY$\\' --warning-inbound-total=\\'$_SERVICEWARNINGINBOUNDTOTAL$\\' --critical-inbound-total=\\'$_SERVICECRITICALINBOUNDTOTAL$\\' --warning-internal-hourly=\\'$_SERVICEWARNINGINTERNALHOURLY$\\' --critical-internal-hourly=\\'$_SERVICECRITICALINTERNALHOURLY$\\' --warning-internal-daily=\\'$_SERVICEWARNINGINTERNALDAILY$\\' --critical-internal-daily=\\'$_SERVICECRITICALINTERNALDAILY$\\' --warning-internal-total=\\'$_SERVICEWARNINGINTERNALTOTAL$\\' --critical-internal-total=\\'$_SERVICECRITICALINTERNALTOTAL$\\' --warning-outbound-hourly=\\'$_SERVICEWARNINGOUTBOUNDHOURLY$\\' --critical-outbound-hourly=\\'$_SERVICECRITICALOUTBOUNDHOURLY$\\' --warning-outbound-daily=\\'$_SERVICEWARNINGOUTBOUNDDAILY$\\' --critical-outbound-daily=\\'$_SERVICECRITICALOUTBOUNDDAILY$\\' --warning-outbound-total=\\'$_SERVICEWARNINGOUTBOUNDTOTAL$\\' --critical-outbound-total=\\'$_SERVICECRITICALOUTBOUNDTOTAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Barracuda-Bma-SNMP-Mails",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_barracuda_bma_snmp.pl --plugin=network::barracuda::bma::snmp::plugin --mode=load --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-cpu-load=\\'$_SERVICEWARNINGCPULOAD$\\' --critical-cpu-load=\\'$_SERVICECRITICALCPULOAD$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Barracuda-Bma-SNMP-Load",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Barracuda Message Archiver en SNMP}\r\n{EN: Template to check Barracuda Message Archiver using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Barracuda Message Archiver in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "barracuda-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Barracuda-Bma-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Barracuda-Bma-Storage-SNMP",
+                "Net-Barracuda-Bma-Mails-SNMP",
+                "Net-Barracuda-Bma-Load-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "barracuda-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Barracuda Message Archiver equipment via SNMP:\r\n* Load\r\n* Mails\r\n* Storage"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un \u00e9quipement Barracuda Message Archiver via SNMP :\r\n* Load\r\n* Mails\r\n* Storage"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAD6AAAA+gBtXtSawAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAv+SURBVHic7dp5kFXVncDx7++8192KkJYlAiIi2ZxojCGyqUxiKkuNMmq5NAlSNWM0mhl49y3d0Cya8WoUEpRuul9ThRQxJpPMZGAyjpoxapbBDWRxdJwhmuBMMCqxhl5oAwKv3z2/+aMXXm/0QodO6e9T9aq6z/3d3zn33XPvOfe8C8YYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMeakkuFuwHGVbYpx9uSrcbGP0ezWsGF6y3A36b0mPtwN6FHZphhTzpmP+BUgB9CSL7LhQjv5fwR/YncAFRbvugrx9wDng+4hXnwpqz69f7hb9l71p9MBlmz7NLgq4LNtJfXEuZRVs34znM16rxv+IWDZM6OJiu8BbuFYe3KIzmPVbDv5f2TD2wGW7LyOvM8iTOy8wadZffG/D0+j3l+GZwhYvn0seV0Hbh5o5zYI32H1rFsAHZa2vc+c/DtA5Y7Pk9cHQc7qdo6VF8lHAXbyT5qTdwco0xhTd3wDr7cjEush4g9ETKfKJn0nk+tWUvn8WUNey7JnRjN1x8Mod/Ry8kE1ZSf/5OvcAVY8Px4fu2hIa8hs/QhR8XMoc3sP0ke4b/aDQ1qv6ZfOHaBFrkSioVtxW7ZjBnH3HPDxXmOUA0j+b7Fxf1h0HQLmgvNDknnxzsuI9OcgZxw3TmQFq+fsG5I6zYAd6wC37ioCPjckWRdv+wLO/xvwgT4iX2Lv3g1DUqcZlGMd4PTcNKAUH404oYxLtl2Kcw+h9J1HXCWb50UnVJ85IQXrAEWXgAcX6+uq7V3lto+j7hGUkf2IfobVM37W39RBMvNLkE8dK+lYQPJAsyC7vfCDupqqTbxP5xO3ptMTS1R+7PBframp+XV/9jnWAdTPBEDkg4OqvWLXONQ/CjqmX/HKtweUXxiF+t0qbm17wbFNjFP0SlF+FASZOdlsdTCg3O8RDkpQLla0Pxcg0KkDcBECqJ884Jo3aYydO34EfLh/O8j/MHLGTwdcj7g36mqqftzL1vuDIFODkEgkKtbV1a15dcD534da5wCLnzgN4UMAiHxkwFl27fgG8PkB7PFDQhmap40CqmwEHDG9YKhzD4VMJnNqZWXlqKHKFwRBSRAEgx+yab8D+FEfI9b2t+p5reOr9G8cXbz9YpTbBlZt9PDA4vtHJB9BHCLfUFieSKafdMgnFFFBm4EXnNOVa9eufQUglUqd69XVjh1TOrep6Q+zVf1SD+fljhy6oKTktDkqfKWutvqmIEhfD7JIROK1tVV/nkxmVqlyPUIRSgvCK+p1bV3d2l92qj9Vfp2gyyLPJ/NHWlyQzLypwv3jRpfeF4ZhflEyc00Mrq+trV7Q9ZgymcyH8hEb0fyXs9ns/tb2Vszx6lcCM4FYkEy/jrp7Y/gnus6oE6nUVU7degCFHPA7hX8YN6Z0QxiGvvUO4OIfLfgaJ7Ni+/Gf3dsFj5UgfIeB/ajUxN43/nMA8f0ShqGDeBrYM27c6c8WbhN1S7zXMvV+nhdZBoyJvDybSFSeCRBFbhRwWWNj81zFP6bK/4ry9aampqMgEwSZEQTlaUTuV9EtqixpzRw9oKo3qtcFwCJE9omTx1Op1Gfa6w6C8qWi+kM8DzvRc534s1BdIZ7K+sbmDQBOmATM7um4vPcjgc9FUdEpAMlk5i+8+l+AvCxEF6D5MwVJ4HRRpFLRdf9cPL7Vey3zXstQ/lrRnwh6b0ND8+3QfuKcTj02b1ZHzl8CPNTnt37K2AqOt8rXE2H3oB/9lCmJVOaGLgmdoOMbGpuvRTg9HuOaMAxzhRHZbFWnDheG4eMNDc2vOZf/ClDVnkiRlXi+lM1WPd8eGwTlgH4Q4Rb1sel1dff9tn1bbW3tHmBPQeongyB9doT7OvB0IpG5ANG7BW6tzVZ/tyDuH4Mg3SLIplQq9e3+joVhGBY3NDavR/S72ZrqRMGmxxctWrTTxYp3dt1nw5o19UB9QdFTyWR53qNLgbva1gHk7E57Sbzv8XzJjgnAsn62/RjP2wPep4Ne6JR7Cj+iejfK7cAMVF6LIndKX1nCMMwp7FeYVFBcpKJ/X3jyC4xXkeWFJ7/XFoq8IW15JSY3ofx6zJjS73WNe/vttx5CWee9K+0rZ7v9TU2fBSY7dGXXbevWrWtAWNe/TPqmCOOAjnH/zC4Bcwk1edyJmvrliAx8QuNOYPIn8khtTdUNXYvDMHQNDQ1/phK/C/TpVKrispqaNTsLtsfr6+snQ3wqTqY4mO5Vpwk8VZinyPFoLzUfHTf6A092LVRVCYJgIvH4VIk4R8Sdq+gNIC+1BczG6c/CMOx2zJs3b46AACBIZWb26/BVpgGv19TU/K7HAM8zPf3An06nT/c+9mEveo5TP1VbX78D2juAyBlopznfORzcMQvY1mNFi587A5Gv9afR3ahO7DtoYNq+4F+VlW368oSJ215Q9X8HXLlw4cKR8XjJXfUNzQvEFcUF+ZWqf82LvCTSdpIK5HLuYC9VtIRheKSgPtfY+E46mapYKK5oAhGv4GSPV79bkMeA9gtqtKj7v6E6ToeMVqS+t+2qLftFijr+TyTSl+PkjnzEhYj/rSi/UZFXVfWfBLkNOu4AdF+8cfpVeusAxG+Bfiz19tzKady6awQbpr87qP2PY/PmeVEyWf604q8DiBWVfA/lUxJnwdjS0i1hGObbY4Nk+fWDXTCsbzywXJBKVIJ4nM3V1dWH27clk5kqbesAAgeU1lttT8IwLN69+7yo168Z8N6Vtl/VqnJARcf2GlxUNJa22VUikb5UnDysSHW+xV21fv19HR1xUar8L6Xtgm+7A2hpt+/CM5/l25ezalanRypCdRzacVOvjeiLyEhKW+YBDw46x3GoMAqVQ5lM5tR8JFd44ca66qqfd22FomcO9nUoUblWRNbXZqu+361+6FhIU2Unol9QVRHp/FhdVlYWa2hofn3ChK3LFfG0XlBCt14p09qL1MlLojolk8lMqq6ufqtbu/I6B2k9KhG5GuG/6mqqlnaNc55J7Z3KtbX6tO5HKSPJS7Jb+eGds6Ft0WiwVO6mYlevV8ZgBUHlWaherdDxRrFT7XanSqXKr5UTPAbfw3JrEFScB4UvvsgDwPlBunx+19gJk86ehzBGtfhJp7JXVccvXJjptJIahmExojd3ZPO5LQpvt0TS7aQuXbq0FCFBW28RERXl1NbH42MWL158Gk4Xtf/f/vzey8xZ06zYtZ6V039fcOTX9Bw7ACKTkOhRKnZdyZrpvY5p3XZTLU0mk5/oXFqMajQamKnSkhH0sGj0zerq7OEgmXlC4Z5EqmJfkfNPH1YdX+zdfO91Po7nBvuTkYj8K+htiUTmP0aMKNrkvT81l4vmKn65wE+U1tfcs9mqFxPJ9DdFZWMyWT4hV+x+4N+JHS0paZmH91Uo36qrW70vk8k0aV7ejMV5IAjKA2h51fuiKfUNB+4VZDvCJ1vzZY8mUqmFou6fg1TmSNxRAzTm88x893DLGkR+ivI3bW181Ksubmx8Z206nV5VXFx88N13j15yNBfdJbBL4Xw49nNwnNae0/Uziryv6nz0+sVeYgf6mYWLXqRyx4K2dxGOz4PC5Urs5c6f6GVFn0JIiOjmKF90UTabfRPAR7mbEdki6v8lH3GoyLtXVHQ6FF2hqttUZW9rcncQ2KrqjnatVtXvB7YXlh05cvBbKLXiuPfwkZbmo7lonwo3R+IXqOrjgv53e2xd7do7Vfiait5YlIt+X3JKrgnR2wRdkc1WhwDV1dWHRaIr2r7fF5D4YRfTX8ScbPE+txzY6ke0tq2upuYRQS4X5TP5iNfzEYeAjYJuLCmKLQO2icjBmpo1z6LurxSuiLy8dfhIS7PEXB0i60T8WqR14tE6EnS5TXRT+BjTV+xghHdoX0vPqip33nlnj8N2GIbtnar3KsLQ9fQ4dqLa8vZZfxsJw1D6aEd/YjpiVZWu84uuVFt/Ou8rzhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxJ8f/AxIY1BLKDsSVAAAAAElFTkSuQmCC",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Barracuda Message Archiver SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_barracuda_bma_snmp.pl",
+                "package_name": "centreon-plugin-Network-Barracuda-Bma-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-barracuda-bma-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Barracuda",
+            "Network",
+            "SNMP",
+            "BMA"
+        ],
+        "update_date": "1641459460",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du stockage.}\r\n\r\n{EN: Check storage usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Storage",
+            "check_timeperiod": "",
+            "command_name": "Net-Barracuda-Bma-SNMP-Storage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Barracuda-Bma-Storage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'activit\u00e9 des mails.}\r\n\r\n{EN: Check mails activity.}",
+            "active_checks_enabled": 2,
+            "alias": "Mails",
+            "check_timeperiod": "",
+            "command_name": "Net-Barracuda-Bma-SNMP-Mails",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Barracuda-Bma-Mails-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation processeur syst\u00e8me.}\r\n\r\n{EN: Check system cpu load.}",
+            "active_checks_enabled": 2,
+            "alias": "Load",
+            "check_timeperiod": "",
+            "command_name": "Net-Barracuda-Bma-SNMP-Load",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Barracuda-Bma-Load-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

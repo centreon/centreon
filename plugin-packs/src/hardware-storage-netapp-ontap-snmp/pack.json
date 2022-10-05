@@ -1,0 +1,861 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Netapp-Ontap-SNMP-Filesys-Discover",
+                "command_for_macro": "Net-Netapp-Ontap-SNMP-Filesys-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$name$",
+                        "order": 0,
+                        "pattern": "(/dev.*|/run.*|/sys.*|/boot)",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "HW-Storage-NetApp-Ontap-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Netapp-Ontap-SNMP-Disk-Name",
+                "service_display_name": "Disk-$name$",
+                "service_template": "HW-Storage-NetApp-Ontap-File-System-Global-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Netapp-Ontap-SNMP-Plexes-Discover",
+                "command_for_macro": "Net-Netapp-Ontap-SNMP-Plexes-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "HW-Storage-NetApp-Ontap-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Netapp-Ontap-SNMP-Plex-Name",
+                "service_display_name": "Plex-$name$",
+                "service_template": "HW-Storage-NetApp-Ontap-Plexes-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Netapp-Ontap-SNMP-Cluster-Nodes-Discover",
+                "command_for_macro": "Net-Netapp-Ontap-SNMP-Cluster-Nodes-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "HW-Storage-NetApp-Ontap-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNODENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Netapp-Ontap-SNMP-Cluster-Node-Name",
+                "service_display_name": "Cluster-Node-$name$",
+                "service_template": "HW-Storage-NetApp-Ontap-Cluster-Nodes-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_snmp.pl --plugin=storage::netapp::ontap::snmp::plugin --mode=list-filesys --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Netapp-Ontap-SNMP-Filesys-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_snmp.pl --plugin=storage::netapp::ontap::snmp::plugin --mode=list-filesys --hostname=\\'$HOSTADDRESS$\\' --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Netapp-Ontap-SNMP-Filesys-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_snmp.pl --plugin=storage::netapp::ontap::snmp::plugin --mode=list-plexes --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Netapp-Ontap-SNMP-Plexes-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_snmp.pl --plugin=storage::netapp::ontap::snmp::plugin --mode=list-plexes --hostname=\\'$HOSTADDRESS$\\' --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Netapp-Ontap-SNMP-Plexes-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_snmp.pl --plugin=storage::netapp::ontap::snmp::plugin --mode=list-cluster-nodes --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Netapp-Ontap-SNMP-Cluster-Nodes-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_snmp.pl --plugin=storage::netapp::ontap::snmp::plugin --mode=list-cluster-nodes --hostname=\\'$HOSTADDRESS$\\' --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Netapp-Ontap-SNMP-Cluster-Nodes-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_snmp.pl --plugin=storage::netapp::ontap::snmp::plugin --mode=shelf --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Ontap-SNMP-Shelf",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_snmp.pl --plugin=storage::netapp::ontap::snmp::plugin --mode=nvram --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Ontap-SNMP-Nvram",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_snmp.pl --plugin=storage::netapp::ontap::snmp::plugin --mode=global-status --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTION$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Ontap-SNMP-Global-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_snmp.pl --plugin=storage::netapp::ontap::snmp::plugin --mode=diskfailed --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Ontap-SNMP-Disk-Failed",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_snmp.pl --plugin=storage::netapp::ontap::snmp::plugin --mode=cpuload --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICESNMPEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Ontap-SNMP-Cpu-Load",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_snmp.pl --plugin=storage::netapp::ontap::snmp::plugin --mode=cp-statistics --hostname=\\'$HOSTADDRESS$\\' --snmp-version \\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Ontap-SNMP-Cp-Statistics",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_snmp.pl --plugin=storage::netapp::ontap::snmp::plugin --mode=cache-age --hostname=\\'$HOSTADDRESS$\\' --snmp-version \\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Ontap-SNMP-Cache-Age",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_snmp.pl --plugin=storage::netapp::ontap::snmp::plugin --mode=aggregates --hostname=\\'$HOSTADDRESS$\\' --snmp-version \\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-state=\\'$_SERVICEWARNINGSTATE$\\' --critical-state=\\'$_SERVICECRITICALSTATE$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Ontap-SNMP-Aggregates",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_snmp.pl --plugin=storage::netapp::ontap::snmp::plugin --mode=fan --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Ontap-SNMP-Fan",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_snmp.pl --plugin=storage::netapp::ontap::snmp::plugin --mode=filesys --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTER$\\'  --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\'  --warning-inodes=\\'$_SERVICEWARNINGINODES$\\' --critical-inodes=\\'$_SERVICECRITICALINODES$\\' --units=\\'$_SERVICEUNIT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Ontap-SNMP-File-System",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_snmp.pl --plugin=storage::netapp::ontap::snmp::plugin --mode=ndmpsessions --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Ontap-SNMP-Ndmpsessions",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_snmp.pl --plugin=storage::netapp::ontap::snmp::plugin --mode=partnerstatus --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Ontap-SNMP-Partner-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_snmp.pl --plugin=storage::netapp::ontap::snmp::plugin --mode=psu --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Ontap-SNMP-Psu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_snmp.pl --plugin=storage::netapp::ontap::snmp::plugin --mode=quotas --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-index=\\'$_SERVICEFILTERINDEX$\\' --filter-qtree=\\'$_SERVICEFILTERQTREE$\\' --filter-volume=\\'$_SERVICEFILTERVOLUME$\\' --filter-vserver=\\'$_SERVICEFILTERVSERVER$\\' --warning-space-usage=\\'$_SERVICEWARNINGSPACEUSAGE$\\' --critical-space-usage=\\'$_SERVICECRITICALSPACEUSAGE$\\' --warning-space-usage-free=\\'$_SERVICEWARNINGSPACEUSAGEFREE$\\' --critical-space-usage-free=\\'$_SERVICECRITICALSPACEUSAGEFREE$\\' --warning-space-usage-prct=\\'$_SERVICEWARNINGSPACEUSAGEPRCT$\\' --critical-space-usage-prct=\\'$_SERVICECRITICALSPACEUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Ontap-SNMP-Quotas",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_snmp.pl --plugin=storage::netapp::ontap::snmp::plugin --mode=share-calls --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-cifs=\\'$_SERVICEWARNINGCIFS$\\' --critical-cifs=\\'$_SERVICECRITICALCIFS$\\'  --warning-nfs=\\'$_SERVICEWARNINGNFS$\\' --critical-nfs=\\'$_SERVICECRITICALNFS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Ontap-SNMP-Share-Calls",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_snmp.pl --plugin=storage::netapp::ontap::snmp::plugin --mode=snapshotage --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --name=\\'$_SERVICEVOLUMENAME$\\' --regexp --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Ontap-SNMP-Snapshot-Age-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_snmp.pl --plugin=storage::netapp::ontap::snmp::plugin --mode=snapshotage --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --name=\\'$_SERVICEVOLUMENAME$\\' --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Ontap-SNMP-Snapshot-Age-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_snmp.pl --plugin=storage::netapp::ontap::snmp::plugin --mode=temperature --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Ontap-SNMP-Temperature",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_snmp.pl --plugin=storage::netapp::ontap::snmp::plugin --mode=volumeoptions --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --unknown-options=\\'$_SERVICEUNKNOWNOPTIONS$\\' --warning-options=\\'$_SERVICEWARNINGOPTIONS$\\' --critical-options=\\'$_SERVICECRITICALOPTIONS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Ontap-SNMP-Volume-Options",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_snmp.pl --plugin=storage::netapp::ontap::snmp::plugin --mode=cluster-nodes --hostname=\\'$HOSTADDRESS$\\' --snmp-version \\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-node-name=\\'$_SERVICEFILTERNODENAME$\\' --filter-port-id=\\'$_SERVICEFILTERPORDID$\\' --filter-port-role=\\'$_SERVICEFILTERPORTROLE$\\' --warning-cpu-utilization=\\'$_SERVICEWARNINGCPUUTILIZATION$\\' --critical-cpu-utilization=\\'$_SERVICECRITICALCPUUTILIZATION$\\' --warning-node-status=\\'$_SERVICEWARNINGNODESTATUS$\\' --critical-node-status=\\'$_SERVICECRITICALNODESTATUS$\\' --warning-bbu-status=\\'$_SERVICEWARNINGBBUSTATUS$\\' --critical-bbu-status=\\'$_SERVICECRITICALBBUSTATUS$\\' --warning-fan-failed=\\'$_SERVICEWARNINGFANFAILED$\\' --critical-fan-failed=\\'$_SERVICECRITICALFANFAILED$\\' --warning-psu-failed=\\'$_SERVICEWARNINGPSUFAILED$\\' --critical-psu-failed=\\'$_SERVICECRITICALPSUFAILED$\\' --warning-temperature-overrange=\\'$_SERVICEWARNINGTEMPERATUREOVERRANGE$\\' --critical-temperature-overrange=\\'$_SERVICECRITICALTEMPERATUREOVERRANGE$\\' --warning-port-link-status=\\'$_SERVICEWARNINGPORTLINKSTATUS$\\' --critical-port-link-status=\\'$_SERVICECRITICALPORTLINKSTATUS$\\' --warning-port-health=\\'$_SERVICEWARNINGPORTHEALTH$\\' --critical-port-health=\\'$_SERVICECRITICALPORTHEALTH$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Ontap-SNMP-Cluster-Nodes",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_netapp_ontap_snmp.pl --plugin=storage::netapp::ontap::snmp::plugin --mode=plexes --hostname=\\'$HOSTADDRESS$\\' --snmp-version \\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-total-online=\\'$_SERVICEWARNINGTOTALONLINE$\\' --critical-total-online=\\'$_SERVICECRITICALTOTALONLINE$\\' --warning-total-offline=\\'$_SERVICEWARNINGTOTALOFFLINE$\\' --critical-total-offline=\\'$_SERVICECRITICALTOTALOFFLINE$\\' --warning-total-resyncing=\\'$_SERVICEWARNINGTOTALRESYNCING$\\' --critical-total-resyncing=\\'$_SERVICECRITICALTOTALRESYNCING$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-resyncing=\\'$_SERVICEWARNINGRESYNCING$\\' --critical-resyncing=\\'$_SERVICECRITICALRESYNCING$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-NetApp-Ontap-SNMP-Plexes",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les baies de stockage Netapp via SNMP}\r\n{EN: Template to check Netapp storage using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Netapp storage using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "netapp-128-1.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Storage-NetApp-Ontap-Shelf-SNMP",
+                "HW-Storage-NetApp-Ontap-Nvram-SNMP",
+                "HW-Storage-NetApp-Ontap-Global-status-SNMP",
+                "HW-Storage-NetApp-Ontap-Disk-Failed-SNMP",
+                "HW-Storage-NetApp-Ontap-Cpu-Load-SNMP",
+                "HW-Storage-NetApp-Ontap-Cp-Statistics-SNMP",
+                "HW-Storage-NetApp-Ontap-Cache-Age-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAH4AAAB+CAYAAADiI6WIAAABOklEQVR42u3Ruw2DQBRFwQ3IHJNTCnVYQjIJ7oweiFZaQQGuyAYacALLR3Okm73oTQiSJEmSJEmSJEmSjqxNZXjFym60Ohb/4d9TP+9rN9qCDx48ePDgwYMHb+ANvIE38AbewBt4A2/gDbyBN/AG3sAbeANv4A28gQcPHjx48ODBexZ4A2/gDbyBN/AG3sAbeAO/zfrd140f8GdbjrrxCR48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHDx48ePDgwYMHnxG+TeV6eLXlqBkel/xNHYsgSZIkSZIkSZKkY/sB3w4IbYPJDrUAAAAASUVORK5CYII=",
+            "name": "netapp-128-1.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* break: renamed service qtree as quota",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor NetApp storage via SNMP:\r\n* Aggregate-State-Global\r\n* Cache-Age\r\n* Cluster-nodes\r\n* Cp-Statistics\r\n* Cpu-Load\r\n* Disk-Failed\r\n* Fan\r\n* File-system-Global\r\n* Global-Stauts\r\n* Ndmpsessions\r\n* Nvram\r\n* Partner-Status\r\n* Plexes\r\n* Psu\r\n* Quotas\r\n* Share-Calls\r\n* Shelf\r\n* Snapshot-Age (Global or by Name)\r\n* Temperature\r\n* Volume-Options-Generic"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser le stockage NetApp via SNMP :\r\n* Aggregate-State-Global\r\n* Cache-Age\r\n* Cluster-nodes\r\n* Cp-Statistics\r\n* Cpu-Load\r\n* Disk-Failed\r\n* Fan\r\n* File-system-Global\r\n* Global-Stauts\r\n* Ndmpsessions\r\n* Nvram\r\n* Partner-Status\r\n* Plexes\r\n* Psu\r\n* Quotas\r\n* Share-Calls\r\n* Shelf\r\n* Snapshot-Age (Global or by Name)\r\n* Temperature\r\n* Volume-Options-Generic"
+            }
+        ],
+        "discovery_category": "storage",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAH4AAAB+CAYAAADiI6WIAAAE2UlEQVR42u2c0W3bQAyG/aC3PgcxAtl1B+gE3cAj5KkFivTFM3SHLJEl9FCgSAfoFB0jFRVdKtMk7xQ5kdB8P0C0tS2Zdx955J2MrlYIIYQQQugN68vPi9W3X3fYTHZzf5gH/Ocfu9aBB2w2uwM84AEPeMADHvCABzzgAQ94wAMe8IAHPOABD3jAA57JBzwGeAzwGOAxwGOAxwCPAR4DPAZ4DPAY4AEPeMADHvCABzzgAQ94wAMe8P8H+K/3+863c9rNfQP4pYMXv86tx/+MAPCABzzgAQ94wAMe8IAHPOABD3jAAx7wgAc84AEPeMADHvCABzzgAQ94wAMe8IAHPOABD3jAAx7wgAc84AEPeMADHvCABzzgAQ94wAMe8IAHPOABD3jAAx7wgAc84AEPeMADHvCABzzgAQ94wAMe8IAHPOABD3jAAx7wgAc8QgghhBBCCCGEEEIIIYQQQmge7dbr3Yft9iHZbrv9s16vL6Jr3tf19dE1m83dOf0ZWvtSNer61pcj3+r6O5QLwPfWRBP+kuC1Lz38Il1eXr47ub4N5LHB85bBh5myVPDiszWW7dXVJ0gXgo8mbKHgK8lucyybzW9IjwDv1ftS8LL01nX9sf38QT4jGdn+fW/BlCDT900rj7wuFmWuvOeNIxdA6f7JxO80N/Lvoe/pPT1O5x6VHn8/hmo4/+ma1NfItS++SkXgB9lSjQUvA3Yz8DGobo8mQDVl5jXByiJ+ar+N7ytaZTrfA38kAHJzKPeQXslLKHk/BU0Kqn5emy45zriKPg+8MWk58BLhuXumJvIpuyaA93Ym+norW83yEgTsAP4hmsPCe+zTfKbM7wO2mQe8zh4V5RF4t1l0JiI1kZPAt4FpQdEZJ36XgC+1VD5Kksebk1QmBkv+QeZkFvCSLRaoVO8j8Mby1hwtawpSysTuOw1fUk8gZvUb1hYuZbau+/3Wrgi8fFYgpHrrLNtNCL5NoNQXyJ9WQs12zmA57TZLfb33wFsQEvSo+x5m4tiuXpcVlSkn32U1TRY0K8gs+BF44/ygWsyOwwPv7YtlYj3wfUOjM/Zam478CeBPwOpAywSGDd6B0WWt4Z9T429LytJwvhcDvo/QJlev02Ra27GiWndcKorB57Zwnulsjhq3XMaKD9YcetsxKznGHFK9FviVV++XAN7bLmW/T9XV0rpr7RS6rZ/Tm5SuGrlnI7OA96LUAmdtq9LERDYceCn453bS1vm98362n3hqhP3nHavSPmGR4HN780HGVlaNd0669tbDk9Ls0/2HwOpOxxyLMrLkkKZrXI2uPNzCqqAdEyCLAR8trUf7eKN5SUeV/WnebfQU0IIk13QW7B6Cumz7PmjgolPLbo9tjGnYwIXH3v+a4cYJsOvFg/cehOS2UAXLbtj1lvQS3qlc1AimjJxaLiaUnXmy/Rng7eNJtUXqancBfOshUNRPPPUSelcRnMOroDKvs4Dk/B527d4SPnbsiwY/4ulc5fUFXT1WD2mM+5+cAErdtTLXOCQq8jutFNZK0G3T7OBtNDAzGR6PYA/mChmM/TVVGT93KgqY6ChVb4MEjkzmmCjvjnjVz6/Sa2P9DcZaRU2Z+Dt4lFwVr4Ij74Fm0NQDlRx4BHgEeDS7vJ9ejelFpt4DIYQQyugvQEmGL4QZYWMAAAAASUVORK5CYII=",
+        "monitoring_procedure": "Read online documentation:\r\nhttps://docs.centreon.com/current/en/integrations/plugin-packs/procedures/hardware-storage-netapp-ontap-snmp.html",
+        "name": "NetApp Ontap SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_netapp_ontap_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Storage-Netapp-Ontap-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-storage-netapp-ontap-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Hardware",
+            "Storage",
+            "NetApp",
+            "Ontap",
+            "SNMP",
+            "ServiceDisco"
+        ],
+        "update_date": "1639052832",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le mat\u00e9riel de l'armoire}\r\n\r\n{EN : Check Shelves hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Shelf",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Ontap-SNMP-Shelf",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-Shelf-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status de la NVRAM.}\r\n\r\n{EN: Check current status of the NVRAM batteries.}",
+            "active_checks_enabled": 2,
+            "alias": "Nvram",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Ontap-SNMP-Nvram",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-Nvram-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status global du NetApp.}\r\n\r\n{EN: Check the overall status of the  appliance.}",
+            "active_checks_enabled": 2,
+            "alias": "Global-status",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Ontap-SNMP-Global-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-Global-status-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de disques en avec un probl\u00e8me de fonctionnement.}\r\n\r\n{EN: Check the current number of disk broken.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Failed",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Ontap-SNMP-Disk-Failed",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-Disk-Failed-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du CPU.}\r\n\r\n{EN: Check CPU usage. }",
+            "active_checks_enabled": 2,
+            "alias": "Cpu-Load",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Ontap-SNMP-Cpu-Load",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-Cpu-Load-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les m\u00e9triques des 'consistency point'.}\r\n\r\n{EN: Check consistency point metrics. }",
+            "active_checks_enabled": 2,
+            "alias": "Cp-Statistics",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Ontap-SNMP-Cp-Statistics",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-Cp-Statistics-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le en minutes le dernier bloc en lecture-seul dans le 'cache buffer'.}\r\n\r\n{EN: Check age in minutes of the oldest read-only blocks in the buffer cache. }",
+            "active_checks_enabled": 2,
+            "alias": "Cache-Age",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Ontap-SNMP-Cache-Age",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-Cache-Age-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat d'un ou plusieurs aggr\u00e9gats.}\r\n\r\n{EN: Check state of one or several aggregates.}",
+            "active_checks_enabled": 2,
+            "alias": "Aggregates",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Ontap-SNMP-Aggregates",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATE$",
+                    "password": false,
+                    "value": "%{state} =~ /offline/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /normal|mirrored/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-Aggregates-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat des ventilateurs.}\r\n\r\n{EN: Check if fans are failed.}",
+            "active_checks_enabled": 2,
+            "alias": "Fan",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Ontap-SNMP-Fan",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-Fan-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des disques.}\r\n\r\n{EN: Check filesystem usage.}",
+            "active_checks_enabled": 2,
+            "alias": "File-System-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Ontap-SNMP-File-System",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNIT$",
+                    "password": false,
+                    "value": "%"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --filter-perfdata='used|inodes'"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-File-System-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de sessions ndmp.}\r\n\r\n{EN: Check current total of ndmp sessions opened.}",
+            "active_checks_enabled": 2,
+            "alias": "Ndmpsessions",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Ontap-SNMP-Ndmpsessions",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-Ndmpsessions-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR : Contr\u00f4le le status du failover.}\r\n\r\n{EN : Check status of clustered failover partner.}",
+            "active_checks_enabled": 2,
+            "alias": "Partner-Status",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Ontap-SNMP-Partner-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-Partner-Status-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR : Contr\u00f4le le status de l'alimentation \u00e9l\u00e9ctrique.}\r\n\r\n{EN : Check if power supplies are failed.}",
+            "active_checks_enabled": 2,
+            "alias": "Psu",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Ontap-SNMP-Psu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-Psu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les quotas.}\r\n\r\n{EN: Check quotas.}",
+            "active_checks_enabled": 2,
+            "alias": "Quotas",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Ontap-SNMP-Quotas",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-Quotas-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre d'appels 'CIFS' et 'NFS' par secondes.}\r\n\r\n{EN: Check cifs and nfs calls per seconds. }",
+            "active_checks_enabled": 2,
+            "alias": "Share-Calls",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Ontap-SNMP-Share-Calls",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-Share-Calls-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'anciennet\u00e9 des snapshots de volumes.}\r\n\r\n{EN: Check snapshot age of volumes.}",
+            "active_checks_enabled": 2,
+            "alias": "Snapshot-Age-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Ontap-SNMP-Snapshot-Age-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-Snapshot-Age-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'anciennet\u00e9 des snapshots de volumes.}\r\n\r\n{EN: Check snapshot age of volumes.}",
+            "active_checks_enabled": 2,
+            "alias": "Snapshot-Age-Name",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Ontap-SNMP-Snapshot-Age-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-Snapshot-Age-Name-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la temperature du materiel}\r\n\r\n{EN: Check if hardware is currently operating outside of its recommended temperature range.}",
+            "active_checks_enabled": 2,
+            "alias": "Temperature",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Ontap-SNMP-Temperature",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-Temperature-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le des options des volumes.}\r\n\r\n{EN: Check options from volumes.}",
+            "active_checks_enabled": 2,
+            "alias": "Volume-Options-Generic",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Ontap-SNMP-Volume-Options",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-Volume-Options-Generic-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les noeuds du cluster.}\r\n\r\n{EN: Check cluster nodes.}",
+            "active_checks_enabled": 2,
+            "alias": "Cluster-Nodes",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Ontap-SNMP-Cluster-Nodes",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALNODESTATUS$",
+                    "password": false,
+                    "value": "%{node_status} eq \"clusterComLost\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALBBUSTATUS$",
+                    "password": false,
+                    "value": "%{bbu_status} !~ /fullyCharged|ok/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALPORTLINKSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} ne \"up\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALPORTHEALTH$",
+                    "password": false,
+                    "value": "%{health} eq \"degraded\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-Cluster-Nodes-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les plex.}\r\n\r\n{EN: Check plexes.}",
+            "active_checks_enabled": 2,
+            "alias": "Plexes",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-NetApp-Ontap-SNMP-Plexes",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} eq \"resyncing\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} eq \"offline\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-NetApp-Ontap-Plexes-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

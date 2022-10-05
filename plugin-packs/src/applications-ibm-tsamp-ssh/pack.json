@@ -1,0 +1,178 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-Ibm-Tsamp-Ssh-Resource-Groups-Discover",
+                "command_for_macro": "App-Ibm-Tsamp-Ssh-Resource-Groups-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-Ibm-Tsamp-SSH"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERRGNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "App-Ibm-Tsamp-SSH-Resource-Group-Name",
+                "service_display_name": "Resource-Group-$name$",
+                "service_template": "App-Ibm-Tsamp-Resource-Groups-Ssh"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ibm_tsamp_ssh.pl --plugin=apps::ibm::tsamp::local::plugin --mode=list-resource-groups --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "App-Ibm-Tsamp-Ssh-Resource-Groups-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ibm_tsamp_ssh.pl --plugin=apps::ibm::tsamp::local::plugin --mode=list-resource-groups --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --sudo --disco-show\\\"",
+            "name": "App-Ibm-Tsamp-Ssh-Resource-Groups-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ibm_tsamp_ssh.pl --plugin=apps::ibm::tsamp::local::plugin --mode=resource-groups --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --filter-rg-name=\\'$_SERVICEFILTERRGNAME$\\' --exclude-rg-name=\\'$_SERVICEEXCLUDEGNAME$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-total-unknown=\\'$_SERVICEWARNINGTOTALUNKNOWN$\\' --critical-total-unknown=\\'$_SERVICECRITICALTOTALUNKNOWN$\\' --warning-total-offline=\\'$_SERVICEWARNINGTOTALOFFLINE$\\' --critical-total-offline=\\'$_SERVICECRITICALTOTALOFFLINE$\\' --warning-total-online=\\'$_SERVICEWARNINGTOTALONLINE$\\' --critical-total-online=\\'$_SERVICECRITICALTOTALONLINE$\\' --warning-total-failed-offline=\\'$_SERVICEWARNINGTOTALFAILEDOFFLINE$\\' --critical-total-failed-offline=\\'$_SERVICECRITICALTOTALFAILEDOFFLINE$\\' --warning-total-stuck-online=\\'$_SERVICEWARNINGTOTALSTUCKONLINE$\\' --critical-total-stuck-online=\\'$_SERVICECRITICALTOTALSTUCKONLINE$\\' --warning-total-pending-online=\\'$_SERVICEWARNINGTOTALPENDINGONLINE$\\' --critical-total-pending-online=\\'$_SERVICECRITICALTOTALPENDINGONLINE$\\' --warning-total-pending-offline=\\'$_SERVICEWARNINGTOTALPENDINGOFFLINE$\\' --critical-total-pending-offline=\\'$_SERVICECRITICALTOTALPENDINGOFFLINE$\\' --warning-total-ineligible=\\'$_SERVICEWARNINGTOTALINELIGIBLE$\\' --critical-total-ineligible=\\'$_SERVICECRITICALTOTALINELIGIBLE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Ibm-Tsamp-Ssh-Resource-Groups",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4ler IBM Tivoli System Automation for Multiplatforms en SSH.}\r\n{EN: Check IBM Tivoli System Automation for Multiplatforms in ssh.}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check IBM Tivoli System Automation for Multiplatforms through SSH",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "ibm-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSSHBACKEND$",
+                    "value": "libssh"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Ibm-Tsamp-SSH",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Ibm-Tsamp-Resource-Groups-Ssh"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAAsSAAALEgHS3X78AAAE50lEQVR42u2cX2gcVRSHy1prt6IhsbaNttmkFlGDJdUQ8SH0QYKClYoggT4UbS2RFpvd1CjFaksfVaLFh4IiCq1iVUREpBCk7qTVIt2XUmMRg9AW/0AeNBVUEOu9OOh02dk9d+bcccl+H/wgD/eec+beX5Izs3dnwQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaDIKxfJezxqvyndvBjmjKhltMOpwXJerPdRyY8q9ulm5nhEb9JJn/VR1ERMZ5KylP42OGt3fs+tTyWIv81DDnpQGOKBcT6WVDBDVlFHv/2CAszc9eSLh5gdX2rXEAHr6zWhLxgawGkj427/BQy0VmiAAgJa+DfzIsw5V5dti9GET6l2jtkidbR5z7Xbco1c91THRyk1gLe3KoAm0+tlosXDzb/FYRwUDXK4TGRnAaqPQAM/5NsApz5qsuqBSBjmT6vPuYvmKsM52z7meFRrgkMcaDtMEAQBAzP+fY0bnBTqrlG+TMJ/VJuEz9E6HmFYPCGs97Ri3ls4ZLY+JP6gQ3+pYmg2ZFnaTc0oG2ObQwW4TGmClY2d8t7DWWaVOvBgT/3Wl+NMYQB7zd6MlGRvgVI3YeaNfmsEA+41eE+gVJQMMCvNZDQoN0O4Qc7dDrS85xG2ktqrYvYqx99PMAEACuktBh9H1Ai1VyrdYmM+HFjrWulQ5fz6Mm1eO25F4Q5q8CdTUN93F8lWOtc4q13A4jPumctxpDFBfF436EtQ66xD/L8G4X+0zAbuWwuNsf2CA9LK3WusT1io1wIzRceHYo8Jx7wiNktoAw0aPC7RVyQC3CvNpqTdFrY8Ic9inmwPKddt12iocO0w3CwDJn8zdJ9CQUr5Vwnxa6kxR6z3CHOv/Gf9ZXqnmJWH+IeH4wTQbMt+bwAtGt/luAu34rp1TOfPzdynr/b5Q+vfE0hx3ATr6wajbtwEin62kqXUiEgsDKOrLnvAsoGcDrBE+E4hTf9YGWGt0l0D9SgZYJsznQ3nHWu8Uxu2rmndHwvoGVj89GY3TL5y3lm4WAJL9SR4xekagcaV864T5rNbJYgbXOsTc7FDrmDDmjhpzNzrUZPVQjRjjwrkj87UJ9HEk7GJhtLzIVxMYmbvZsfl7rEaMOc4E6hvgkrShTWmAa8JP/6QvsmjDANkZ4GHfBgjnvyWcfyRmvn8DdJWmFkqlY4CpnDSfHSuJuXr0uNN1FMbKOd21qX3SqGssEF3rqmKQa4a9AYD5eqv3otEHfhVcF8n3qP98ifVe1+h/j4TDc/VpYx6ss/adDeb21Jn7tsY120AV/8/ag5WRwpv5BRGVqkU+rxBzJm4Te/d9ZXOciZlnvzeYq2OAOY1rxgCXa2+WBghzPBUz74UG89QMcCT8pqtHBcurnmCdbkLZN2asqFrkSYW4nzTYyBti5vU1mHdS47ppggAAWvo28OPwrJpHBSsi+fb4zyfSTL2XRYe1fqGQpyzchwPh+PeF489orEOr3gV8a0/1ChbZ+11AJNeD4fidwvHcBibQ10bbC8IvgmZsgEVGP9pjcVkbYJ/RG34VtEcKHw7ff5OVXg43/fY1T5x0/fc4oXD9zzvkG3IYe1Bjb2iCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJqNvwHNnenmiznmwAAAAABJRU5ErkJggg==",
+            "name": "ibm-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Pack to monitor IBM Tivoli System Automation for Multiplatforms using ssh:\r\n* Resource-groups"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack pour superviser IBM Tivoli System Automation for Multiplatforms en ssh :\r\n* Resource-groups"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAAsSAAALEgHS3X78AAAE50lEQVR42u2cX2gcVRSHy1prt6IhsbaNttmkFlGDJdUQ8SH0QYKClYoggT4UbS2RFpvd1CjFaksfVaLFh4IiCq1iVUREpBCk7qTVIt2XUmMRg9AW/0AeNBVUEOu9OOh02dk9d+bcccl+H/wgD/eec+beX5Izs3dnwQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaDIKxfJezxqvyndvBjmjKhltMOpwXJerPdRyY8q9ulm5nhEb9JJn/VR1ERMZ5KylP42OGt3fs+tTyWIv81DDnpQGOKBcT6WVDBDVlFHv/2CAszc9eSLh5gdX2rXEAHr6zWhLxgawGkj427/BQy0VmiAAgJa+DfzIsw5V5dti9GET6l2jtkidbR5z7Xbco1c91THRyk1gLe3KoAm0+tlosXDzb/FYRwUDXK4TGRnAaqPQAM/5NsApz5qsuqBSBjmT6vPuYvmKsM52z7meFRrgkMcaDtMEAQBAzP+fY0bnBTqrlG+TMJ/VJuEz9E6HmFYPCGs97Ri3ls4ZLY+JP6gQ3+pYmg2ZFnaTc0oG2ObQwW4TGmClY2d8t7DWWaVOvBgT/3Wl+NMYQB7zd6MlGRvgVI3YeaNfmsEA+41eE+gVJQMMCvNZDQoN0O4Qc7dDrS85xG2ktqrYvYqx99PMAEACuktBh9H1Ai1VyrdYmM+HFjrWulQ5fz6Mm1eO25F4Q5q8CdTUN93F8lWOtc4q13A4jPumctxpDFBfF436EtQ66xD/L8G4X+0zAbuWwuNsf2CA9LK3WusT1io1wIzRceHYo8Jx7wiNktoAw0aPC7RVyQC3CvNpqTdFrY8Ic9inmwPKddt12iocO0w3CwDJn8zdJ9CQUr5Vwnxa6kxR6z3CHOv/Gf9ZXqnmJWH+IeH4wTQbMt+bwAtGt/luAu34rp1TOfPzdynr/b5Q+vfE0hx3ATr6wajbtwEin62kqXUiEgsDKOrLnvAsoGcDrBE+E4hTf9YGWGt0l0D9SgZYJsznQ3nHWu8Uxu2rmndHwvoGVj89GY3TL5y3lm4WAJL9SR4xekagcaV864T5rNbJYgbXOsTc7FDrmDDmjhpzNzrUZPVQjRjjwrkj87UJ9HEk7GJhtLzIVxMYmbvZsfl7rEaMOc4E6hvgkrShTWmAa8JP/6QvsmjDANkZ4GHfBgjnvyWcfyRmvn8DdJWmFkqlY4CpnDSfHSuJuXr0uNN1FMbKOd21qX3SqGssEF3rqmKQa4a9AYD5eqv3otEHfhVcF8n3qP98ifVe1+h/j4TDc/VpYx6ss/adDeb21Jn7tsY120AV/8/ag5WRwpv5BRGVqkU+rxBzJm4Te/d9ZXOciZlnvzeYq2OAOY1rxgCXa2+WBghzPBUz74UG89QMcCT8pqtHBcurnmCdbkLZN2asqFrkSYW4nzTYyBti5vU1mHdS47ppggAAWvo28OPwrJpHBSsi+fb4zyfSTL2XRYe1fqGQpyzchwPh+PeF489orEOr3gV8a0/1ChbZ+11AJNeD4fidwvHcBibQ10bbC8IvgmZsgEVGP9pjcVkbYJ/RG34VtEcKHw7ff5OVXg43/fY1T5x0/fc4oXD9zzvkG3IYe1Bjb2iCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJqNvwHNnenmiznmwAAAAABJRU5ErkJggg==",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "IBM TSAMP SSH",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_ibm_tsamp_ssh.pl",
+                "package_name": "centreon-plugin-Applications-Ibm-Tsamp-Ssh",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-ibm-tsamp-ssh",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "IBM",
+            "TSAMP",
+            "Tivoli System Automation for Multiplatforms",
+            "SSH",
+            "Application"
+        ],
+        "update_date": "1638872475",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les groupes de ressources.}\r\n\r\n{EN: Check resource groups.}",
+            "active_checks_enabled": 2,
+            "alias": "Resource-Groups",
+            "check_timeperiod": "",
+            "command_name": "App-Ibm-Tsamp-Ssh-Resource-Groups",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{opState} =~ /unknown/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{opState} =~ /pending/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{opState} =~ /failed offline|stuck online/i || %{opState} ne %{nominalState}"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --sudo"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Ibm-Tsamp-Resource-Groups-Ssh",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

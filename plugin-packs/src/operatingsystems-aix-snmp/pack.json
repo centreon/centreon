@@ -1,0 +1,642 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": null,
+                "changes": [],
+                "command_for_discovery": "OS-AIX-SNMP-Interfaces-Discover",
+                "command_for_macro": "OS-AIX-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "OS-AIX-SNMP"
+                ],
+                "macros": [],
+                "name": "OS-AIX-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "OS-AIX-Traffic-Global-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "OS-AIX-SNMP-Storages-Discover",
+                "command_for_macro": "OS-AIX-SNMP-Storages-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$name$",
+                        "order": 0,
+                        "pattern": "(/dev.*|/run.*|/sys.*|/boot)",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "OS-AIX-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "OS-AIX-SNMP-Disk-Name",
+                "service_display_name": "Disk-$name$",
+                "service_template": "OS-AIX-Disk-Global-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "OS-AIX-SNMP-Processes-Discover",
+                "command_for_macro": "OS-AIX-SNMP-Processes-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$type$",
+                        "order": 0,
+                        "pattern": "^operatingSystem$",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "OS-AIX-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "PROCESSNAME",
+                        "value": "^$name$$"
+                    },
+                    {
+                        "is_empty": null,
+                        "name": "PROCESSPATH",
+                        "value": "^$path$$"
+                    },
+                    {
+                        "is_empty": null,
+                        "name": "EXTRAOPTIONS",
+                        "value": "--cpu --memory"
+                    }
+                ],
+                "name": "OS-AIX-SNMP-Processes-Name",
+                "service_display_name": "Proc-$name$",
+                "service_template": "OS-AIX-Process-Generic-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aix_snmp.pl --plugin=os::aix::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "OS-AIX-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aix_snmp.pl --plugin=os::aix::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "OS-AIX-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aix_snmp.pl --plugin=os::aix::snmp::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "OS-AIX-SNMP-Storages-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aix_snmp.pl --plugin=os::aix::snmp::plugin --mode=list-storages --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "OS-AIX-SNMP-Storages-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aix_snmp.pl --plugin=os::aix::snmp::plugin --mode=list-processes --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "OS-AIX-SNMP-Processes-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aix_snmp.pl --plugin=os::aix::snmp::plugin --mode=list-processes --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "OS-AIX-SNMP-Processes-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aix_snmp.pl --plugin=os::aix::snmp::plugin --mode=time --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-offset=\\'$_SERVICEWARNING$\\' --critical-offset=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-AIX-SNMP-Time",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aix_snmp.pl --plugin=os::aix::snmp::plugin --mode=swap --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-total-usage=\\'$_SERVICEWARNINGTOTALUSAGE$\\' --critical-total-usage=\\'$_SERVICECRITICALTOTALUSAGE$\\' --warning-total-active=\\'$_SERVICEWARNINGTOTALACTIVE$\\' --critical-total-active=\\'$_SERVICECRITICALTOTALACTIVE$\\' --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-AIX-SNMP-swap",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aix_snmp.pl --plugin=os::aix::snmp::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-average=\\'$_SERVICEWARNING$\\'  --critical-average=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-AIX-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aix_snmp.pl --plugin=os::aix::snmp::plugin --mode=processcount --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --process-name=\\'$_SERVICEPROCESSNAME$\\' --process-path=\\'$_SERVICEPROCESSPATH$\\' --process-args=\\'$_SERVICEPROCESSARGS$\\' --regexp-name --regexp-path --regexp-args --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-AIX-SNMP-process-generic",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aix_snmp.pl --plugin=os::aix::snmp::plugin --mode=storage --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --storage \\'$_SERVICEDISKID$\\' --display-transform-src=\\'$_SERVICETRANSFORMSRC$\\' --display-transform-dst=\\'$_SERVICETRANSFORMDST$\\' --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-AIX-SNMP-Disk-ID",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aix_snmp.pl --plugin=os::aix::snmp::plugin --mode=storage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --storage \\'$_SERVICEDISKNAME$\\' --name --display-transform-src=\\'$_SERVICETRANSFORMSRC$\\' --display-transform-dst=\\'$_SERVICETRANSFORMDST$\\' --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-AIX-SNMP-Disk-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aix_snmp.pl --plugin=os::aix::snmp::plugin --mode=storage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --storage=\\'$_SERVICEFILTER$\\' --name --regexp --display-transform-src=\\'$_SERVICETRANSFORMSRC$\\' --display-transform-dst=\\'$_SERVICETRANSFORMDST$\\' --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-AIX-SNMP-Disk-global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aix_snmp.pl --plugin=os::aix::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACEID$\\' --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-AIX-SNMP-Traffic-ID",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aix_snmp.pl --plugin=os::aix::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$$$\\' --name --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-AIX-SNMP-Traffic-NAME",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aix_snmp.pl --plugin=os::aix::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-AIX-SNMP-Traffic-Global",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les serveurs AIX via SNMP}\r\n{EN: Template to check AIX server using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check AIX server using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "aix-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-AIX-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "OS-AIX-Time-SNMP",
+                "OS-AIX-Swap-SNMP",
+                "OS-AIX-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "aix-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix(pack): missing autodisco rule",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor AIX operating system via SNMP:\r\n* Cpu\r\n* Disk (by ID, name or global)\r\n* Process-Generic\r\n* Swap\r\n* Traffic (by interface name, ID or all interfaces)"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller les syst\u00e8mes d\\'exploitation Aix via SNMP :\r\n* Cpu\r\n* Disk (by ID, name or global)\r\n* Process-Generic\r\n* Swap\r\n* Traffic (by interface name, ID or all interfaces)"
+            }
+        ],
+        "discovery_category": "operating-system",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Operatingsystems-Aix-Snmp\r\n\r\n## SNMP\r\nSNMP must be configured on the monitored host.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp)\r\n\r\n## Centreon Configuration\r\n### Create a new AIX host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>OS-AIX-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "AIX SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_aix_snmp.pl",
+                "package_name": "centreon-plugin-Operatingsystems-Aix-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Operatingsystems-Aix-Snmp",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "operatingsystems-aix-snmp",
+        "status": "stable",
+        "status_message": "fix(pack): missing autodisco rule",
+        "tags": [
+            "Aix",
+            "IBM",
+            "Operating System",
+            "OS",
+            "SNMP"
+        ],
+        "update_date": "1596636882",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le de la synchronisation NTP}\r\n\r\n{EN: Check NTP synchronization}",
+            "active_checks_enabled": 2,
+            "alias": "Time",
+            "check_timeperiod": "",
+            "command_name": "OS-AIX-SNMP-Time",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "-5:5"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "-10:10"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-AIX-Time-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire virtuelle (SWAP)}\r\n\r\n{EN: Check virtual memory usage (SWAP)}",
+            "active_checks_enabled": 2,
+            "alias": "Swap",
+            "check_timeperiod": "",
+            "command_name": "OS-AIX-SNMP-swap",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "10"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "30"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-AIX-Swap-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine. Ce contr\u00f4le pourra remonter la moyenne du taux d'utilisation des CPU ainsi que le taux par CPU pour les CPU multi-coeur.}\r\n\r\n{EN: Check the rate of utilization of CPU for the machine. This check can give the average CPU utilization rate and the rate per CPU for multi-core CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "OS-AIX-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-AIX-Cpu-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le fonctionnement d'un processus/service Linux.}\r\n\r\n{EN: Check Linux process/service is working.}",
+            "active_checks_enabled": 2,
+            "alias": "Process-Generic",
+            "check_timeperiod": "",
+            "command_name": "OS-AIX-SNMP-process-generic",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "OS-AIX-Process-Generic-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'espace libre disponible du disque. Pour chaque contr\u00f4le appara\u00eetra le nom du disque (\u00ab\u00a0label\u00a0\u00bb) plut\u00f4t que la lettre attribu\u00e9e. Les seuils pourront \u00eatre en pourcentage, en espace libre restant.}\r\n\r\n{EN: Check the rate of free space on the disk. For each checks the name of the disk will appear (\u00ab label \u00bb) rather than the letter assigned. Thresholds can be in percentage or in free space remaining.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Generic-Id",
+            "check_timeperiod": "",
+            "command_name": "OS-AIX-SNMP-Disk-ID",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--filter-perfdata='storage.space|used|free'"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-AIX-Disk-Generic-Id-SNMP",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'espace libre disponible du disque. Pour chaque contr\u00f4le appara\u00eetra le point de montage du disque (\u00ab\u00a0label\u00a0\u00bb). Les seuils pourront \u00eatre en pourcentage, en espace libre restant.}\r\n\r\n{EN: Check the rate of free space on the disk. For each checks the mount pont of the disk will appear (\u00ab label \u00bb). Thresholds can be in percentage or in free space remaining.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "OS-AIX-SNMP-Disk-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--filter-perfdata='storage.space|used|free'"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-AIX-Disk-Generic-Name-SNMP",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'espace libre disponible des disques. Pour chaque contr\u00f4le appara\u00eetra le point de montage des disques (\u00ab\u00a0label\u00a0\u00bb). Les seuils pourront \u00eatre en pourcentage, en espace libre restant.}\r\n\r\n{EN: Check the rate of free space on disks. For each checks the mount point of disks will appear (\u00ab label \u00bb). Thresholds can be in percentage or in free space remaining.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Global",
+            "check_timeperiod": "",
+            "command_name": "OS-AIX-SNMP-Disk-global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --filter-perfdata='storage.space|used|free'"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-AIX-Disk-Global-SNMP",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante de l'interface. Pour chaque contr\u00f4le appara\u00eetra le nom de l'interface (\u00ab\u00a0label\u00a0\u00bb raccourci d\u00e9crivant l'interface).}\r\n\r\n{EN: Check the bandwidth of the interface. For each checks the name of the interface will appear (\u00ab label \u00bb shortcut describing the interface).}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Id",
+            "check_timeperiod": "",
+            "command_name": "OS-AIX-SNMP-Traffic-ID",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-AIX-Traffic-Generic-Id-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante de l'interface. Pour chaque contr\u00f4le appara\u00eetra le nom de l'interface (\u00ab\u00a0label\u00a0\u00bb raccourci d\u00e9crivant l'interface).}\r\n\r\n{EN: Check the bandwidth of the interface. For each checks the name of the interface will appear (\u00ab label \u00bb shortcut describing the interface).}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "OS-AIX-SNMP-Traffic-NAME",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-AIX-Traffic-Generic-Name-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante des interfaces. Pour chaque contr\u00f4le appara\u00eetra le nom de l'interface (\u00ab\u00a0label\u00a0\u00bb raccourci d\u00e9crivant l'interface).}\r\n\r\n{EN: Check the bandwidth of interfaces. For each checks the name of the interface will appear (\u00ab label \u00bb shortcut describing the interface).}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "OS-AIX-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-AIX-Traffic-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

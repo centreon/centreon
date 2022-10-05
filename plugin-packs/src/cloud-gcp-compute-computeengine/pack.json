@@ -1,0 +1,894 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "cpu_platform": {
+                            "type": "string"
+                        },
+                        "description": {
+                            "type": "string"
+                        },
+                        "id": {
+                            "type": "string"
+                        },
+                        "machine_type": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "status": {
+                            "type": "string"
+                        },
+                        "zone": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Gcp-Compute-ComputeEngine-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Google Compute Engine instances",
+                    "discovery_examples": [
+                        {
+                            "cpu_platform": "Unknown CPU Platform",
+                            "description": "",
+                            "id": "3566678292297294870",
+                            "machine_type": "f1-micro",
+                            "name": "centreon1",
+                            "network_interfaces": [
+                                {
+                                    "ip": "10.132.0.2",
+                                    "name": "nic0"
+                                }
+                            ],
+                            "status": "TERMINATED",
+                            "tags": [],
+                            "zone": "europe-west1-b"
+                        },
+                        {
+                            "cpu_platform": "Intel Haswell",
+                            "description": null,
+                            "id": "387152412961022754",
+                            "machine_type": "f1-micro",
+                            "name": "instance-centreon1-drb5",
+                            "network_interfaces": [
+                                {
+                                    "ip": "10.132.0.3",
+                                    "name": "nic0"
+                                }
+                            ],
+                            "status": "RUNNING",
+                            "tags": [
+                                "http-server"
+                            ],
+                            "zone": "europe-west1-b"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.GCPKEYFILEPATH",
+                                "is_password": false,
+                                "source": "discovery.parameters.KEYFILEPATH"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.GCPDIMENSIONVALUE",
+                                "is_password": false,
+                                "source": "discovery.results.id"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Gcp-Compute-ComputeEngine-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Google Compute Engine",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Key File Path",
+                                "group": "GCP",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "KEYFILEPATH",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Scope endpoint",
+                                "group": "GCP",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "SCOPEENDPOINT",
+                                "type": "text",
+                                "value": "https://www.googleapis.com/auth/cloud-platform"
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": "--http-backend=curl"
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "gcp-compute-computeengine",
+                    "type": "gcp",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "cpu_platform": {
+                            "type": "string"
+                        },
+                        "description": {
+                            "type": "string"
+                        },
+                        "id": {
+                            "type": "string"
+                        },
+                        "machine_type": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "status": {
+                            "type": "string"
+                        },
+                        "zone": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Gcp-Compute-ComputeEngine-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Google Compute Engine instances",
+                    "discovery_examples": [
+                        {
+                            "cpu_platform": "Unknown CPU Platform",
+                            "description": "",
+                            "id": "3566678292297294870",
+                            "machine_type": "f1-micro",
+                            "name": "centreon1",
+                            "network_interfaces": [
+                                {
+                                    "ip": "10.132.0.2",
+                                    "name": "nic0"
+                                }
+                            ],
+                            "status": "TERMINATED",
+                            "tags": [],
+                            "zone": "europe-west1-b"
+                        },
+                        {
+                            "cpu_platform": "Intel Haswell",
+                            "description": null,
+                            "id": "387152412961022754",
+                            "machine_type": "f1-micro",
+                            "name": "instance-centreon1-drb5",
+                            "network_interfaces": [
+                                {
+                                    "ip": "10.132.0.3",
+                                    "name": "nic0"
+                                }
+                            ],
+                            "status": "RUNNING",
+                            "tags": [
+                                "http-server"
+                            ],
+                            "zone": "europe-west1-b"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.GCPKEYFILEPATH",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.KEYFILEPATH"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.GCPDIMENSIONVALUE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Gcp-Compute-ComputeEngine-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Google Compute Engine",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Key File Path",
+                                "group": "GCP",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "KEYFILEPATH",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Scope endpoint",
+                                "group": "GCP",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "SCOPEENDPOINT",
+                                "type": "text",
+                                "value": "https://www.googleapis.com/auth/cloud-platform"
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": "--http-backend=curl"
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "gcp-compute-computeengine",
+                    "type": "gcp",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "cpu_platform": {
+                            "type": "string"
+                        },
+                        "description": {
+                            "type": "string"
+                        },
+                        "id": {
+                            "type": "string"
+                        },
+                        "machine_type": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "status": {
+                            "type": "string"
+                        },
+                        "tags": {
+                            "properties": null,
+                            "type": "array"
+                        },
+                        "zone": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Gcp-Compute-ComputeEngine-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Google Compute Engine instances",
+                    "discovery_examples": [
+                        {
+                            "cpu_platform": "Unknown CPU Platform",
+                            "description": "",
+                            "id": "3566678292297294870",
+                            "machine_type": "f1-micro",
+                            "name": "centreon1",
+                            "network_interfaces": [
+                                {
+                                    "ip": "10.132.0.2",
+                                    "name": "nic0"
+                                }
+                            ],
+                            "status": "TERMINATED",
+                            "tags": [
+                                "a-tag",
+                                "another-tag"
+                            ],
+                            "zone": "europe-west1-b"
+                        },
+                        {
+                            "cpu_platform": "Intel Haswell",
+                            "description": null,
+                            "id": "387152412961022754",
+                            "machine_type": "f1-micro",
+                            "name": "instance-centreon1-drb5",
+                            "network_interfaces": [
+                                {
+                                    "ip": "10.132.0.3",
+                                    "name": "nic0"
+                                }
+                            ],
+                            "status": "RUNNING",
+                            "tags": [
+                                "http-server"
+                            ],
+                            "zone": "europe-west1-b"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.GCPKEYFILEPATH",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.KEYFILEPATH"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.GCPDIMENSIONVALUE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Gcp-Compute-ComputeEngine-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Google Compute Engine",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Key File Path",
+                                "group": "GCP",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "KEYFILEPATH",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Scope endpoint",
+                                "group": "GCP",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "SCOPEENDPOINT",
+                                "type": "text",
+                                "value": "https://www.googleapis.com/auth/cloud-platform"
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": "--http-backend=curl"
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "gcp-compute-computeengine",
+                    "type": "gcp",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_gcp_compute_computeengine_api.pl --plugin=cloud::google::gcp::compute::computeengine::plugin --mode=network --proxyurl=\\'$_HOSTPROXYURL$\\' --key-file=\\'$_HOSTGCPKEYFILEPATH$\\' --scope-endpoint=\\'$_HOSTGCPSCOPEENDPOINT$\\' --dimension-name=\\'$_HOSTGCPDIMENSIONNAME$\\' --dimension-operator=\\'$_HOSTGCPDIMENSIONOPERATOR$\\' --dimension-value=\\'$_HOSTGCPDIMENSIONVALUE$\\' $_HOSTGCPEXTRAOPTIONS$  --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-sent-packets=\\'$_SERVICEWARNINGSENTPACKETS$\\' --critical-sent-packets=\\'$_SERVICECRITICALSENTPACKETS$\\' --warning-sent-volume=\\'$_SERVICEWARNINGSENTVOLUME$\\' --critical-sent-volume=\\'$_SERVICECRITICALSENTVOLUME$\\' --warning-received-volume=\\'$_SERVICEWARNINGRECEIVEDVOLUME$\\' --critical-received-volume=\\'$_SERVICECRITICALRECEIVEDVOLUME$\\' --warning-received-packets=\\'$_SERVICEWARNINGRECEIVEDPACKETS$\\' --critical-received-packets=\\'$_SERVICECRITICALRECEIVEDPACKETS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Gcp-Compute-ComputeEngine-Api-Network",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_gcp_compute_computeengine_api.pl --plugin=cloud::google::gcp::compute::computeengine::plugin --mode=diskio --proxyurl=\\'$_HOSTPROXYURL$\\' --key-file=\\'$_HOSTGCPKEYFILEPATH$\\' --scope-endpoint=\\'$_HOSTGCPSCOPEENDPOINT$\\' --dimension-name=\\'$_HOSTGCPDIMENSIONNAME$\\' --dimension-operator=\\'$_HOSTGCPDIMENSIONOPERATOR$\\' --dimension-value=\\'$_HOSTGCPDIMENSIONVALUE$\\' $_HOSTGCPEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-write-volume=\\'$_SERVICEWARNINGWRITEVOLUME$\\' --critical-write-volume=\\'$_SERVICECRITICALWRITEVOLUME$\\' --warning-throttled-write-volume=\\'$_SERVICEWARNINGTHROTTLEDWRITEVOLUME$\\' --critical-throttled-write-volume=\\'$_SERVICECRITICALTHROTTLEDWRITEVOLUME$\\' --warning-throttled-read-volume=\\'$_SERVICEWARNINGTHROTTLEDREADVOLUME$\\' --critical-throttled-read-volume=\\'$_SERVICECRITICALTHROTTLEDREADVOLUME$\\' --warning-read-volume=\\'$_SERVICEWARNINGREADVOLUME$\\' --critical-read-volume=\\'$_SERVICECRITICALREADVOLUME$\\' --warning-write-ops=\\'$_SERVICEWARNINGWRITEOPS$\\' --critical-write-ops=\\'$_SERVICECRITICALWRITEOPS$\\' --warning-read-ops=\\'$_SERVICEWARNINGREADOPS$\\' --critical-read-ops=\\'$_SERVICECRITICALREADOPS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Gcp-Compute-ComputeEngine-Api-Diskio",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_gcp_compute_computeengine_api.pl --plugin=cloud::google::gcp::compute::computeengine::plugin --mode=cpu --proxyurl=\\'$_HOSTPROXYURL$\\' --key-file=\\'$_HOSTGCPKEYFILEPATH$\\' --scope-endpoint=\\'$_HOSTGCPSCOPEENDPOINT$\\' --dimension-name=\\'$_HOSTGCPDIMENSIONNAME$\\' --dimension-operator=\\'$_HOSTGCPDIMENSIONOPERATOR$\\' --dimension-value=\\'$_HOSTGCPDIMENSIONVALUE$\\' $_HOSTGCPEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-utilization=\\'$_SERVICEWARNINGUTILIZATION$\\' --critical-utilization=\\'$_SERVICECRITICALUTILIZATION$\\' --warning-cores-reserved=\\'$_SERVICEWARNINGCORESRESERVED$\\' --critical-cores-reserved=\\'$_SERVICECRITICALCORESRESERVED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Gcp-Compute-ComputeEngine-Api-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_gcp_compute_computeengine_api.pl --plugin=cloud::google::gcp::compute::computeengine::plugin --mode=discovery --key-file='$_KEYFILEPATH$' --scope-endpoint='$_SCOPEENDPOINT$' --proxyurl='$_PROXYURL$' --timeout='$_TIMEOUT$' --statefile-suffix='-autodiscovery' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Gcp-Compute-ComputeEngine-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Google Cloud Platform compute engine via l'API}\r\n{EN: Template to check Google Cloud Platform compute engine using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Google Cloud Platform compute engine using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "gcp-compute-engine-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTGCPKEYFILEPATH$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTGCPDIMENSIONVALUE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTGCPDIMENSIONNAME$",
+                    "value": "resource.labels.instance_id"
+                },
+                {
+                    "key": "$_HOSTGCPDIMENSIONOPERATOR$",
+                    "value": "equals"
+                },
+                {
+                    "key": "$_HOSTGCPSCOPEENDPOINT$",
+                    "value": "https://www.googleapis.com/auth/cloud-platform"
+                },
+                {
+                    "key": "$_HOSTGCPEXTRAOPTIONS$",
+                    "value": "--http-backend=curl"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Gcp-Compute-ComputeEngine",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Gcp-Compute-ComputeEngine-Network-Api",
+                "Cloud-Gcp-Compute-ComputeEngine-Diskio-Api",
+                "Cloud-Gcp-Compute-ComputeEngine-Cpu-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "gcp-compute-engine-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ add Host Disco advanced attributes",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Google ComputeEngine service.**\r\n\r\nAvailable host templates and related services:\r\n\r\n|Cloud-Gcp-Compute-ComputeEngine|\r\n|---|\r\n|Cpu|\r\n|Diskio|\r\n|Network|\r\n\r\nThis pack provides a host discovery rule."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser le service Google ComputeEngine.**\r\n\r\nMod\u00e8les d\\'h\u00f4te disponibles et leurs services :\r\n\r\n|Cloud-Gcp-Compute-ComputeEngine|\r\n|---|\r\n|Cpu|\r\n|Diskio|\r\n|Network|\r\n\r\nCe pack fournit une r\u00e8gle de d\u00e9couverte d\\'h\u00f4te."
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Google Compute Engine",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_gcp_compute_computeengine_api.pl",
+                "package_name": "centreon-plugin-Cloud-Gcp-Compute-ComputeEngine-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-gcp-compute-computeengine",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Cloud",
+            "GCP",
+            "ComputeEngine",
+            "Stackdriver",
+            "HostDisco"
+        ],
+        "update_date": "1635234915",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du r\u00e9seau.}\r\n\r\n{EN: Check network usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Network",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Gcp-Compute-ComputeEngine-Api-Network",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Gcp-Compute-ComputeEngine-Network-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les entr\u00e9es/sorties sur les disques.}\r\n\r\n{EN: Check disks I/Os usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Diskio",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Gcp-Compute-ComputeEngine-Api-Diskio",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Gcp-Compute-ComputeEngine-Diskio-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation de la CPU.}\r\n\r\n{EN: Check CPU usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Gcp-Compute-ComputeEngine-Api-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Gcp-Compute-ComputeEngine-Cpu-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

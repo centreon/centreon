@@ -1,0 +1,144 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_office365_onedrive_api.pl --plugin=cloud::microsoft::office365::onedrive::plugin --mode=site-usage --tenant=\\'$_HOSTOFFICE365TENANT$\\' --client-id=\\'$_HOSTOFFICE365CLIENTID$\\' --client-secret=\\'$_HOSTOFFICE365CLIENTSECRET$\\' $_HOSTOFFICE365EXTRAOPTIONS$ --filter-url=\\'$_SERVICEFILTERURL$\\' --filter-owner=\\'$_SERVICEFILTEROWNER$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-file-count=\\'$_SERVICEWARNINGFILECOUNT$\\' --critical-file-count=\\'$_SERVICECRITICALFILECOUNT$\\' --warning-active-file-count=\\'$_SERVICEWARNINGACTIVEFILECOUNT$\\' --critical-active-file-count=\\'$_SERVICECRITICALACTIVEFILECOUNT$\\' --warning-total-usage-active=\\'$_SERVICEWARNINGTOTALUSAGEACTIVE$\\' --critical-total-usage-active=\\'$_SERVICECRITICALTOTALUSAGEACTIVE$\\' --warning-total-usage-inactive=\\'$_SERVICEWARNINGTOTALUSAGEINACTIVE$\\' --critical-total-usage-inactive=\\'$_SERVICECRITICALTOTALUSAGEINACTIVE$\\' --warning-total-file-count-active=\\'$_SERVICEWARNINGTOTALFILECOUNTACTIVE$\\' --critical-total-file-count-active=\\'$_SERVICECRITICALTOTALFILECOUNTACTIVE$\\' --warning-total-file-count-inactive=\\'$_SERVICEWARNINGTOTALFILECOUNTINACTIVE$\\' --critical-total-file-count-inactive=\\'$_SERVICECRITICALTOTALFILECOUNTINACTIVE$\\' --warning-total-active-file-count=\\'$_SERVICEWARNINGTOTALACTIVEFILECOUNT$\\' --critical-total-active-file-count=\\'$_SERVICECRITICALTOTALACTIVEFILECOUNT$\\' --warning-active-sites=\\'$_SERVICEWARNINGACTIVESITES$\\' --critical-active-sites=\\'$_SERVICECRITICALACTIVESITES$\\' --units=$_SERVICEUNITS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Microsoft-Office365-Onedrive-Api-Site-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00c3\u00a8le pour superviser Microsoft Office 365 OneDrive via l'API}\r\n{EN: Template to check Microsoft Office 365 OneDrive using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Microsoft Office 365 OneDrive using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "onedrive-128-2.png",
+            "macros": [
+                {
+                    "key": "$_HOSTOFFICE365TENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTOFFICE365CLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTOFFICE365CLIENTSECRET$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTOFFICE365EXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Microsoft-Office365-Onedrive-Api",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Microsoft-Office365-Onedrive-Usage-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "onedrive-128-2.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Fixing warning-* & critical-* options",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Microsoft Office 365 OneDrive :\r\n* Sites usage"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser Microsoft Office 365 OneDrive :\r\n* Utilisation des sites"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n\r\n## Prerequisites\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Cloud-Microsoft-Office365-Onedrive-Api\r\n\r\n### Perl dependencies\r\nBy installing the plugin, some perl depencies will be installed :\r\n\r\n    JSON::XS\r\n    Text::CSV\r\n    DateTime\r\n    Digest::MD5\r\n    Digest::SHA\r\n    LWP::UserAgent\r\n    LWP::Protocol::https\r\n    IO::Socket::SSL\r\n    URI\r\n    Encode\r\n    HTTP::ProxyPAC\r\n\r\n### Register an application\r\nTo connect to the Office 365 Graph API, you must register an application.\r\n\r\nFollow the 'How-to guide' in https://docs.microsoft.com/en-us/graph/auth-register-app-v2?view=graph-rest-1.0 for a complete explanation on how to register an application and get a client ID and secret.\r\n\r\n## Centreon Configuration\r\n\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Cloud-Microsoft-Office365-Onedrive-Api-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Set host macros\r\nThe following macros must be configured on host.\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>OFFICE365CUSTOMMODE</p></td>\r\n<td align=\"left\"><p>Custom mode 'graphapi'</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>OFFICE365TENANT</p></td>\r\n<td align=\"left\"><p>Office 365 tenant ID</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>OFFICE365CLIENTID</p></td>\r\n<td align=\"left\"><p>Office 365 client ID</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>OFFICE365CLIENTSECRET</p></td>\r\n<td align=\"left\"><p>Office 365 client secret</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Office365 OneDrive",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_office365_onedrive_api.pl",
+                "package_name": "centreon-plugin-Cloud-Microsoft-Office365-Onedrive-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-microsoft-office365-onedrive",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Cloud",
+            "Microsoft",
+            "Office",
+            "Office365",
+            "OneDrive",
+            "Restapi"
+        ],
+        "update_date": "1599661326",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00c3\u00b4le l'utilisation des sites OneDrive.}\r\n\r\n{EN: Check OneDrive sites usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Site-Usage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Microsoft-Office365-Onedrive-Api-Site-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNITS$",
+                    "password": false,
+                    "value": "%"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERCOUNTERS$",
+                    "password": false,
+                    "value": "active-sites|total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Microsoft-Office365-Onedrive-Usage-Api",
+            "normal_check_interval": 60,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

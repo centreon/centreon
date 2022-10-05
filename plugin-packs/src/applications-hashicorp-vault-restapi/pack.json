@@ -1,0 +1,190 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hashicorp_vault_restapi.pl --plugin=apps::hashicorp::vault::restapi::plugin --mode=raft-storage --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTVAULTAPIPORT$\\' --proto=\\'$_HOSTVAULTAPIPROTOCOL$\\' --api-version=\\'$_HOSTVAULTAPIVERSION$\\' --auth-method=\\'$_HOSTVAULTAPIAUTHMETHOD$\\' --vault-token=\\'$_HOSTVAULTTOKEN$\\' $_HOSTEXTRAOPTIONS$ --warning-commit-time=\\'$_SERVICEWARNINGCOMMITTIME$\\' --critical-commit-time=\\'$_SERVICECRITICALCOMMITTIME$\\' --warning-spill-time=\\'$_SERVICEWARNINGSPILLTIME$\\' --critical-spill-time=\\'$_SERVICECRITICALSPILLTIME$\\' --warning-rebalance-time=\\'$_SERVICEWARNINGREBALANCETIME$\\' --critical-rebalance-time=\\'$_SERVICECRITICALREBALANCETIME$\\' --warning-write-time=\\'$_SERVICEWARNINGWRITETIME$\\' --critical-write-time=\\'$_SERVICECRITICALWRITETIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-HashiCorp-Vault-Restapi-Raft-Storage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hashicorp_vault_restapi.pl --plugin=apps::hashicorp::vault::restapi::plugin --mode=health --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTVAULTAPIPORT$\\' --proto=\\'$_HOSTVAULTAPIPROTOCOL$\\' --api-version=\\'$_HOSTVAULTAPIVERSION$\\' --auth-method=\\'$_HOSTVAULTAPIAUTHMETHOD$\\' --vault-token=\\'$_HOSTVAULTTOKEN$\\' $_HOSTEXTRAOPTIONS$ --warning-seal-status=\\'$_SERVICEWARNINGSEALSTATUS$\\' --critical-seal-status=\\'$_SERVICECRITICALSEALSTATUS$\\' --warning-init-status=\\'$_SERVICEWARNINGINITSTATUS$\\' --critical-init-status=\\'$_SERVICECRITICALINITSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-HashiCorp-Vault-Restapi-Health",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser une instance HashiCorp Vault via l'API Rest}\r\n{EN: Template to check a HashiCorp Vault instance using RestAPI}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check a Hashicorp Vault instance using Rest API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "vault-logo-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTVAULTAPIPORT$",
+                    "value": "8200"
+                },
+                {
+                    "key": "$_HOSTVAULTAPIPROTOCOL$",
+                    "value": "http"
+                },
+                {
+                    "key": "$_HOSTVAULTAPIVERSION$",
+                    "value": "v1"
+                },
+                {
+                    "key": "$_HOSTVAULTAPIAUTHMETHOD$",
+                    "value": "token"
+                },
+                {
+                    "key": "$_HOSTVAULTTOKEN$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-HashiCorp-Vault-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-HashiCorp-Vault-Raft-Storage-Restapi",
+                "App-HashiCorp-Vault-Health-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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bnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iCiAgICB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIgogICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICAgeG1sbnM6R0lNUD0iaHR0cDovL3d3dy5naW1wLm9yZy94bXAvIgogICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iCiAgICB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iCiAgIHhtcE1NOkRvY3VtZW50SUQ9ImdpbXA6ZG9jaWQ6Z2ltcDo3N2FkN2Y2Zi02NjQwLTRjYmMtYWI2Yi0yOWE1YTY1NGRkYzkiCiAgIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6MTYzYzgyOGQtY2JlMC00ZDNmLTk5N2ItYjBjYjk0YTkzNjQ5IgogICB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6Mjg4OGI2OTItN2UxNi00YTJkLTkzNTktMjZmYzQyZGJlMDU2IgogICBkYzpGb3JtYXQ9ImltYWdlL3BuZyIKICAgR0lNUDpBUEk9IjIuMCIKICAgR0lNUDpQbGF0Zm9ybT0iV2luZG93cyIKICAgR0lNUDpUaW1lU3RhbXA9IjE2MzA0ODI4NTg4MDIwNDgiCiAgIEdJTVA6VmVyc2lvbj0iMi4xMC4yNCIKICAgdGlmZjpPcmllbnRhdGlvbj0iMSIKICAgeG1wOkNyZWF0b3JUb29sPSJHSU1QIDIuMTAiPgogICA8eG1wTU06SGlzdG9yeT4KICAgIDxyZGY6U2VxPgogICAgIDxyZGY6bGkKICAgICAgc3RFdnQ6YWN0aW9uPSJzYXZlZCIKICAgICAgc3RFdnQ6Y2hhbmdlZD0iLyIKICAgICAgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDo4ODZlNzc4ZC00MGI0LTQ5ZmYtOTI3Zi0wMzM5NmNlOTRhMTIiCiAgICAgIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkdpbXAgMi4xMCAoV2luZG93cykiCiAgICAgIHN0RXZ0OndoZW49IjIwMjEtMDktMDFUMDk6NTQ6MTgiLz4KICAgIDwvcmRmOlNlcT4KICAgPC94bXBNTTpIaXN0b3J5PgogIDwvcmRmOkRlc2NyaXB0aW9uPgogPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgIAo8P3hwYWNrZXQgZW5kPSJ3Ij8+y9uGNwAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+UJAQc2EkAb0z0AAAfwSURBVHja7Z3JjxVFHMc/1e/JNiyDimDYRIUAJiTGaKIx6slEPUmMejBC9OJBE5dEQmJioggiMMywDQGBk4l/gAcTPRo1gRg22UIAQWAYhmEfFqHLQxexeXa/ee9NL1Xdv2/Sh9fdr7v6t9Xv963qahAIBAKBQCAQCATlgorY9yTwuYimcHruBn4Y1ACUUqO01juBmSK3wqAPmAucrT3g1e7QWg8AS0RmhcLmKOXHdQF3osAOYI7Iznn0K6Vmaq37ow56UTtNFFglsisE1scpPzYCAHieN8z3/Z0SBZzGeWA20Bur57gDvu/fNFFAixydRWc95deNACYKDPd9/yAwXWTpXt9vMv8zdXVc76Dv+zeA5SJLJ7FhMOUPGgFMRTBWa70HmCYydafuV0rN0Vr3DXaiN9gJWutLwDciU7fq/kaU31AEMFFgtNZ6NzBDZOtE3T9L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",
+            "name": "vault-logo-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Initial version",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin Pack to monitor a HashiCorp Vault instance using Rest API.**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|App-HashiCorp-Vault-RestAPI-custom|\r\n|---|\r\n|Health|\r\n|Raft-Storage|"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin Pack pour superviser une instance HashiCorp Vault via l\\'API Rest.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponibles et services associ\u00e9s:\r\n\r\n|App-HashiCorp-Vault-RestAPI-custom|\r\n|---|\r\n|Health|\r\n|Raft-Storage|"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAPMXpUWHRSYXcgcHJvZmlsZSB0eXBlIGV4aWYAAHjarZlrcus6DoT/YxWzBPFNLofPqtnBLH8+ULKP4xMnTu5NKpYiSxSFBroblMz//XfJf/gJ0UTxIeVYYjz48cUXW9nJx/lT96c5/P7cP7ev+P/Dcbl/YTnk2Lrrgnidfztu7gOcm8peeByoX1+0j18Uf42fnwa6buR0RpadcQ1UroGcPb8w1wD1fKwjlpweH6HNcztuT5LPP9GP1W3RY6Gd3z3/7xPRG4H7OGunM+7g0zp/TsDpnxFX2Sn7k3Bc+8F5Po2L10wIyGdxOh5mJc+o3PfMi+NPoHCzfVw48DGY8b799LgJnwdfdogf7uz6/c4fjtd5g+FjkHeM18iy1jyfrvpISOP1ULdH2XucSNi925dFfhN/gf20fwu/Wcjezr3G0Y/GbzfFWGBZxpthqllm7m03nSl6O21ia20HKD2WXbLFdncI2Hj9NcsmEBsuA2YHXsdRe5+L2fct+3bdZG48DGdaw2CGK6zox7/x+3KgtTTljTnyPVbMy2pRMA1FTj85CwjMuuVR2AG+/T7/KK4OBMMOc+YB69HOIVowV25pHrkNtOPEwPYE2aRxDUCIuHdgMsaBwBGNCyaaI1mbjCGOGXwqA2WKxjYgMCHYwSytdy4CTrZ6b65JZp9rgz0Pw1kAEVx0CWgoKbDyEBv5k3wmh2pwwYcQYkghhxJqdNHHEGNMUcmvJpd8CimmlHIqqWaXfQ455pSz5JJrscVBjqHEkkoupdTKTSsjV66unFBrs80130KLLbXcSqud9Om+hx576ll66XXY4QY8MeJII48yqIdJKk0/w4wzzTzLrItUW275FVZcaeVVVr2jZuSE9a/f91EzN9TsRkpPTHfUuDSl2xBG6SQoZiBmvQHxpAiQ0FYxO7Lx3opCp5gdxVIVwTLLoOAMo4iBoJ/GhmXu2P1B7gNu4v0/ws3ekBOF7t9AThS6F8j9jdsnqA1Vm3442QhpGWpQD0f5cVK1ua7Cf9OkCDxucbyanHRrfR26XXmgSWmkhVp3yUYPHq2ladmF4Liq2BCXHu9xZt3mMNoyUOXMUUu+2LYHncSMNApriAnLHgklm2NlvSUstk8hXm0PZlp9nNo5sXNaeotrWrLntad1m5SqaN8Pc05MBXNP7D4tbrMnxozPqTExuWb218Q2wXLKOTEGe5rYc8zkOWi/jZk8B+23MZPnoP02ZvIctN/GTL5LtHdjJt8l2rsxk+8S7d2YyXeJ9m7M5LtEezdm8tPifBUz+Wlx7ml1M4+ycts3DX6hywKHpdJwL2XGVMpaxvJPXHHMFC2svGbDJ46WmfVKbCcT8zzTcU6uh7HwvcIkzZh2FTd7qAl2XN7Doew4rpsxzoE4JG6DKOCoJvsroXI96AQDMeohk5B19AQf4qBSia2mUNKoDQUYZcUQFs6AYwEls90z2xEcZOxyVRgmVGp118pt559uvxqoqcsY6mKQNaifdiJUD6yj2lXTGDP00JhhiiOI7TwRPmwexo2YDzd6WzERQFeBiucvNY88Q55uNTun62MWEIiupBmOsbCfZIDUkNocEcEpqGgZ0/QBuMPSf5BDzY3cTWsdHUvNzTG6hpZwFUeWpeJCVQMexPhgNNf+APk7HOUCsizVxbJMTF2tKPfHwyXcIHpMUBaNZosqnYkZG9wzVjDN2vmYtcwms/TkMAmauHt24XdbeetEUpk790XXl7CmTSdMZtmuj7hiDD0J5ZHSGtg3uzoOp8zuJgXrgXuAPQngU/eptm5qiMVtBoq5AV3CkJhIsY3RJPhmwBbc84E/qAuodvb4uY4Zs2aPO7OHe1B0V/aQ9nPGM3l8mV4UxaqkV3cuHn+26iJwJAv/DCkckxrvXI5raeCEWx4RXA3PuxxKG4dmmnO14ahzotpTG4kiarMtTCn81Vf2Myqg2cwJD3kyc7UQKxlH4CypUgVrWIqhJIO9IbmB1NwyI5xpdrzeko8kci5SM0SnWeKgMBvHmgOacnMuerPBwK3FWqIDIIgNwp8tjKxZW+ydve2CjzBl45K8rtTgts0CO++RhUZfriWrQa+j+kn5AZk5IYNVKhUCaIHqL9MUsrgT1KLVQi2YMI6UC4hj3DG61Emh7lLzazXD1UBbqGEcoY6SKEahnE3H5loINNS+HlOne8Mcdur8nTgf88aKMoebUKQ/VOHUUl8KF+apcONUuBImGfYy7rJ3MNGbRSqJ40ZQFmkni3gl+otFaqXuaz1ZhBDQHlSVFtW4LqvMo4PQiGSK18eb1PdO5OGQleGOCKmFVbyjGUSK3GRyywXcseJe1bs7L4p7OXHvK3LVhTuJlpIzG3dLDLQMYNCXpY2tIfHTMiX1g9xF+AYTnqSSVgTlELS8PHngkZkwASSaBrtFGyj/7pfLymdKtaMQYfTT0WGgL1rc9DOuRvhxoE82Yvlnx/tH8FEXEisZRrX+qYWAiahfUFqqTBjtxSa0UdU0NAho0r2ctbjycYoOebSzOgM7cciJbCc421AMu0/3ygfwQD5IxNjWpHXSc/Z1g2Zr7jKRw/MdLEYcSbu1TUsluJvGtyxAexq/b6pXqIeC6JCMtHQgCLq2tZZXR20gGHSsNOtJ6RZIISrzoNsr01XopwVllp2CcuYgEvl+DmJJPqTQziB5N4WUp79iJ9k7ODokLbt+DLOycz243R1yB9wXWbXg5oqPIp6T52ygCHGT3wbsAdIAfxiDuGp5bqHdexY2pl0+pRbIXWgt3KU2INyD4bbUHpVeuaYpeKaE3GuC55fZhDxhn6AX16AXiK4pncLaZ0wzUxcopkAxUSmGbj5CkwUDYA8mTdTTOUOl1XPeSqubVUlM5dRViAj8J3afmj33oul1lbnzSHi6iFnjSYxaS2UKHxGj1A76/4HE0T03fdRpdpZWCadBr2UPGHWJdqn9udnlpg+FsSFJmJQyJtTd4kndkGYn4pSFKm1Xoeh9VpdD2kqB6wLIacJUH4zM7CrIZI1HWr05nyE9TnwJPpjaTnEWMhwRKnHPPU+KNG+/mXQshDa7tngy/dvYniqAes2k/qhivdIeLC6m69ROM+pUuBGvcboAY3Dxadu4EeoWv8hEMHjRqxE4JVsFz1avioQIqZdbxsFM8USsR83L/TgFFCOJBVD0Azj95XQ2OIopunZpcIqLGgIDnoJBbu6vmZHUMSyAQe5pDKhmEr+RK9VFSpIx9Rn6EjJCucKffdc9YT6kC6mpCQN9KSutHEulV9HpLVvDyUtCuNJ6y2gj/l8YbQmfGO2dUcxLdcFA5YF4Da8Gttioldwb0WlVPfdNqeRBqsqTVP1IqeQLqfqkejs+xoDFnW7CjW7kD9+Ayo1vqC8bIEjSRFuhbeCQYxUObfe068PFdSy5sZCLmhQEskXYIIIrKTsXFDtaq15JW/24n0xmjbk8PmJD9+gz79tGjBw3YEpEaZw+ZMzdJHtPl6ptrD7Sfjr9b22Z01bdu2rSJXTFiy9nJ6KneaY0aAOo51O1GvlLNdS1VWZnDDrV/B5qyx9VU1T2cCPqjZryxn559Vc6kYNeLTZUAj4JI6BWDttvOnChY81RG32itCT9U++FH8BmPTimN9RKvpGrt9VKvpGrT7efqZf8UL5u6nXTrrtyyQ+k60vlkocDd4rWWXOj4+QjhAKv3awuB3T8s96NHdI2+k1J+C9Qg625UVLxMMS6aYLahH2ziOLcfKZJqnSpTmuzJsw3A5lYB/jDmC2OIn276Ti/stEf3fPnuSBf2Oes3WfRh+VWAeptwzeUAK3RxQ6CPs5vSEOsHzeEIVFerqy6cnxrI9BeyhQ9vrcRqRG9q42g426t5N1GaP8vmlKR6vm0pt/auql9lChQUE83BWd8rGgi7WYcdpM/VOp63+FOhvDAEbSiKxU6vA4DO54BytUFclFEtG/lMppJhNmffStVX+oY8PLVt1rthos929YjuOLDbltdnhHvK69K/mYhjG9qIUy/LAQtd4sUPQGbpJtaCE2yLrsEfadjLMHbg7zXJRa1EJukYU0a3KVrBiQXrbOmPn81E2ynCkxHjylI4rSmkkJBs7Rq7hPaxSX4uhM0fz7hgnsvfbeIkU0a6iHpKqB5+l88Ev1l9IVEL1uZEcRAl5CsO5SyaRHHFtTnNjPEIq+WKH66QiGvliher1B8vpXXJyA9ZJIyF70J/2bYssShizAnfcGd7VDtVmcj5XFtquua2o3BZviJ/5ZfsdhXC1G3NY5riSP/YIkDyphTSH83ky7tjKQrpEGXdaAYwAhUky5SJbqruIoJmsszchWEoku4jzDK2ytNG8ZxvFodlV8sp15wqm9VszidK9ELFXjoimceSg5/4HyF5kzbWfyFpvy0nbrQ3Fg+Mru8EtNx/AwGuePQAcE9W1gqelvY+LRW/NHB0kcs+Q3Rb56nnP0DDPLvLIvzaJ42DEQOWIZ4wmux2FGvwgxTlxotfEl9wlTJ0EYMtOLozqm/vS39lyCdxgG2OegdaU1xYRRC7GoBK32QUv+h46DNyedyB7B+LMc05Is63Ct21nWnnR5JlrW/wdPR6+52lfmmc/msLQdDTn2/iw5PHxPJqAZknLR/V+wnvYZRb4p96jVyLe/qtXYnXwEp/1ixr618JekKKB3tovABGGtaQ0tXaaLbuth3R1ReQVpgWq05E1vHcFHiBNxnO6xCGv6CVF5gqoj+qAblWy7UZpviM6cb0JZor1joQhluGPqru/GnhaAD5HFjj7tzTMiqK/r2C5dJ4ryLorxRj29t5Rf16Y9793dfnrFyNYBN19wI0a370+Xa6K7uL+RoRtbu7zRpBKdlJLhR7CksU2gnpVCyelJtoZ40S95AulFXS9y9iwx/ukhdMMH/fOzqnXzCiVj8+A0n7q5ebVvfr63qXIIuVH1npe9rmq1IBVXJhlxa1rZr5XmQouTJF2/P5M3XZ992YPLDVu3zLV2q3N7PnUL3+IZu/ehNq5xv6MJ+Q2e2gm4y9Bbvh/ujb9EXvuMS4YSXRzRt2nVuS6+4TUqgdNlv6eb5HtgfP2ljPnYxsqi+Yz171BD3qt5436DKT96hfWVQpf5zlv1qoD8v6dLTS7r1yUs6fUcnr1/SIZ3GwYQw0ZjuMPQKGB1tmxiQrmO/haJdgoeaadImJ0FfAz0be7kkrccaereEZNfQr9/O7g5q0YAX+T/LXtQMSQGZaAAAAYVpQ0NQSUNDIHByb2ZpbGUAAHicfZE9SMNQFIVPU6UqFQc7iDhkqE4WRIs4SisWwUJpK7TqYPLSP2jSkKS4OAquBQd/FqsOLs66OrgKguAPiJubk6KLlHhfUmgR44XH+zjvnsN79wFCs8pUs2cKUDXLSCdiYi6/KgZe0Q8fAojCJzFTT2YWs/Csr3vqpbqL8Czvvj9rUCmYDPCJxPNMNyziDeLZTUvnvE8cYmVJIT4nnjTogsSPXJddfuNccljgmSEjm44Th4jFUhfLXczKhkocJQ4rqkb5Qs5lhfMWZ7VaZ+178hcGC9pKhuu0xpDAEpJIQYSMOiqowkKEdo0UE2k6j3n4Rx1/ilwyuSpg5FhADSokxw/+B79naxZnpt2kYAzofbHtj3EgsAu0Grb9fWzbrRPA/wxcaR1/rQnMfZLe6GjhI2BoG7i47mjyHnC5A4w86ZIhOZKfllAsAu9n9E15YPgWGFhz59Y+x+kDkKVZLd8AB4fARImy1z3e3dc9t3972vP7ATu3cpG5d886AAANGGlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNC40LjAtRXhpdjIiPgogPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iCiAgICB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIgogICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICAgeG1sbnM6R0lNUD0iaHR0cDovL3d3dy5naW1wLm9yZy94bXAvIgogICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iCiAgICB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iCiAgIHhtcE1NOkRvY3VtZW50SUQ9ImdpbXA6ZG9jaWQ6Z2ltcDo3N2FkN2Y2Zi02NjQwLTRjYmMtYWI2Yi0yOWE1YTY1NGRkYzkiCiAgIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6MTYzYzgyOGQtY2JlMC00ZDNmLTk5N2ItYjBjYjk0YTkzNjQ5IgogICB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6Mjg4OGI2OTItN2UxNi00YTJkLTkzNTktMjZmYzQyZGJlMDU2IgogICBkYzpGb3JtYXQ9ImltYWdlL3BuZyIKICAgR0lNUDpBUEk9IjIuMCIKICAgR0lNUDpQbGF0Zm9ybT0iV2luZG93cyIKICAgR0lNUDpUaW1lU3RhbXA9IjE2MzA0ODI4NTg4MDIwNDgiCiAgIEdJTVA6VmVyc2lvbj0iMi4xMC4yNCIKICAgdGlmZjpPcmllbnRhdGlvbj0iMSIKICAgeG1wOkNyZWF0b3JUb29sPSJHSU1QIDIuMTAiPgogICA8eG1wTU06SGlzdG9yeT4KICAgIDxyZGY6U2VxPgogICAgIDxyZGY6bGkKICAgICAgc3RFdnQ6YWN0aW9uPSJzYXZlZCIKICAgICAgc3RFdnQ6Y2hhbmdlZD0iLyIKICAgICAgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDo4ODZlNzc4ZC00MGI0LTQ5ZmYtOTI3Zi0wMzM5NmNlOTRhMTIiCiAgICAgIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkdpbXAgMi4xMCAoV2luZG93cykiCiAgICAgIHN0RXZ0OndoZW49IjIwMjEtMDktMDFUMDk6NTQ6MTgiLz4KICAgIDwvcmRmOlNlcT4KICAgPC94bXBNTTpIaXN0b3J5PgogIDwvcmRmOkRlc2NyaXB0aW9uPgogPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgIAo8P3hwYWNrZXQgZW5kPSJ3Ij8+y9uGNwAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAuIwAALiMBeKU/dgAAAAd0SU1FB+UJAQc2EkAb0z0AAAfwSURBVHja7Z3JjxVFHMc/1e/JNiyDimDYRIUAJiTGaKIx6slEPUmMejBC9OJBE5dEQmJioggiMMywDQGBk4l/gAcTPRo1gRg22UIAQWAYhmEfFqHLQxexeXa/ee9NL1Xdv2/Sh9fdr7v6t9Xv963qahAIBAKBQCAQCATlgorY9yTwuYimcHruBn4Y1ACUUqO01juBmSK3wqAPmAucrT3g1e7QWg8AS0RmhcLmKOXHdQF3osAOYI7Iznn0K6Vmaq37ow56UTtNFFglsisE1scpPzYCAHieN8z3/Z0SBZzGeWA20Bur57gDvu/fNFFAixydRWc95deNACYKDPd9/yAwXWTpXt9vMv8zdXVc76Dv+zeA5SJLJ7FhMOUPGgFMRTBWa70HmCYydafuV0rN0Vr3DXaiN9gJWutLwDciU7fq/kaU31AEMFFgtNZ6NzBDZOtE3T9L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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires the version 19.10.1 or later of the Plugin Pack Manager module\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "HashiCorp Vault Rest API",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_hashicorp_vault_restapi.pl",
+                "package_name": "centreon-plugin-Applications-HashiCorp-Vault-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-hashicorp-vault-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "HashiCorp",
+            "Vault",
+            "Manager",
+            "Security",
+            "API",
+            "Restapi",
+            "Identity"
+        ],
+        "update_date": "1630486128",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le statut du stockage Raft de l'instance HashiCorp Vault.}\r\n\r\n{EN: Check HashiCorp Vault Raft Storage statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Raft-Storage",
+            "check_timeperiod": "",
+            "command_name": "App-HashiCorp-Vault-Restapi-Raft-Storage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-HashiCorp-Vault-Raft-Storage-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la sant\u00e9 de l'instance HashiCorp Vault.}\r\n\r\n{EN: Check HashiCorp Vault health.}",
+            "active_checks_enabled": 2,
+            "alias": "Health",
+            "check_timeperiod": "",
+            "command_name": "App-HashiCorp-Vault-Restapi-Health",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSEALSTATUS$",
+                    "password": false,
+                    "value": "%{sealed} ne \"unsealed\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALINITSTATUS$",
+                    "password": false,
+                    "value": "%{init} ne \"initialized\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-HashiCorp-Vault-Health-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

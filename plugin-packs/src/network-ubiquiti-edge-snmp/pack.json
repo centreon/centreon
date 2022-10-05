@@ -1,0 +1,269 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Ubiquiti-Edge-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Ubiquiti-Edge-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Ubiquiti-Edge-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "INTERFACENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Ubiquiti-Edge-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Ubiquiti-Edge-Interfaces-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ubiquiti_edge_snmp.pl --plugin=network::ubiquiti::edge::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Ubiquiti-Edge-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ubiquiti_edge_snmp.pl --plugin=network::ubiquiti::edge::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Ubiquiti-Edge-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ubiquiti_edge_snmp.pl --plugin=network::ubiquiti::edge::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$  --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Ubiquiti-Edge-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ubiquiti_edge_snmp.pl --plugin=network::ubiquiti::edge::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Ubiquiti-Edge-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ubiquiti_edge_snmp.pl --plugin=network::ubiquiti::edge::snmp::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-5s=\\'$_SERVICEWARNING5S$\\' --critical-5s=\\'$_SERVICECRITICAL5S$\\' --warning-1m=\\'$_SERVICEWARNING1M$\\' --critical-1m=\\'$_SERVICECRITICAL1M$\\' --warning-5m=\\'$_SERVICEWARNING5M$\\' --critical-5m=\\'$_SERVICECRITICAL5M$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Ubiquiti-Edge-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ubiquiti_edge_snmp.pl --plugin=network::ubiquiti::edge::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' --warning-in-ucast=\\'$_SERVICEWARNINGINUCAST$\\' --critical-in-ucast=\\'$_SERVICECRITICALINUCAST$\\' --warning-in-bcast=\\'$_SERVICEWARNINGINBCAST$\\' --critical-in-bcast=\\'$_SERVICECRITICALINBCAST$\\' --warning-in-mcast=\\'$_SERVICEWARNINGINMCAST$\\' --critical-in-mcast=\\'$_SERVICECRITICALINMCAST$\\' --warning-out-ucast=\\'$_SERVICEWARNINGOUTUCAST$\\' --critical-out-ucast=\\'$_SERVICECRITICALOUTUCAST$\\' --warning-out-bcast=\\'$_SERVICEWARNINGOUTBCAST$\\' --critical-out-bcast=\\'$_SERVICECRITICALOUTBCAST$\\' --warning-out-mcast=\\'$_SERVICEWARNINGOUTMCAST$\\' --critical-out-mcast=\\'$_SERVICECRITICALOUTMCAST$\\' --warning-speed=\\'$_SERVICEWARNINGSPEED$\\' --critical-speed=\\'$_SERVICECRITICALSPEED$\\' --warning-in-volume=\\'$_SERVICEWARNINGINVOLUME$\\' --critical-in-volume=\\'$_SERVICECRITICALINVOLUME$\\' --warning-out-volume=\\'$_SERVICEWARNINGOUTVOLUME$\\' --critical-out-volume=\\'$_SERVICECRITICALOUTVOLUME$\\' --warning-total-port=\\'$_SERVICEWARNINGTOTALPORT$\\' --critical-total-port=\\'$_SERVICECRITICALTOTALPORT$\\' --warning-global-admin-up=\\'$_SERVICEWARNINGGLOBALADMINUP$\\' --critical-global-admin-up=\\'$_SERVICECRITICALGLOBALADMINUP$\\' --warning-total-admin-down=\\'$_SERVICEWARNINGTOTALADMINDOWN$\\' --critical-total-admin-down=\\'$_SERVICECRITICALTOTALADMINDOWN$\\' --warning-total-oper-up=\\'$_SERVICEWARNINGTOTALOPERUP$\\' --critical-total-oper-up=\\'$_SERVICECRITICALTOTALOPERUP$\\' --warning-total-oper-down=\\'$_SERVICEWARNINGTOTALOPERDOWN$\\' --critical-total-oper-down=\\'$_SERVICECRITICALTOTALOPERDOWN$\\' --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Ubiquiti-Edge-SNMP-Interfaces",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Ubiquiti Edge en SNMP}\r\n{EN: Template to check Ubiquiti Edge devices using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Ubiquiti Edge equipments in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "ubiquiti-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Ubiquiti-Edge-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Ubiquiti-Edge-Memory-SNMP",
+                "Net-Ubiquiti-Edge-Hardware-SNMP",
+                "Net-Ubiquiti-Edge-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "ubiquiti-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "feat: new pack ubiquiti edge",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Ubuiqiti Edge devices in SNMP.**\r\n\r\nAvailable host template and related services:\r\n\r\n|Net-Ubiquiti-Edge-SNMP|\r\n|---|\r\n|Cpu|\r\n|Hardware|\r\n|Interfaces|\r\n|Memory|"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser les Ubuiqiti Edge via SNMP.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponible et ses services :\r\n\r\n|Net-Ubiquiti-Edge-SNMP|\r\n|---|\r\n|Cpu|\r\n|Edge|\r\n|Interfaces|\r\n|Memory|"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Ubiquiti Edge SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_ubiquiti_edge_snmp.pl",
+                "package_name": "centreon-plugin-Network-Ubiquiti-Edge-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-ubiquiti-edge-snmp",
+        "status": "stable",
+        "status_message": "feat: new pack ubiquiti edge",
+        "tags": [
+            "Ubiquiti",
+            "Edge",
+            "SNMP",
+            "Network",
+            "Router"
+        ],
+        "update_date": "1628752225",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation de la m\u00e9moire.}\r\n\r\n{EN: Check memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Ubiquiti-Edge-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Ubiquiti-Edge-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du mat\u00e9riel.}\r\n\r\n{EN: Check hardware environment.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware",
+            "check_timeperiod": "",
+            "command_name": "Net-Ubiquiti-Edge-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Ubiquiti-Edge-Hardware-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation CPU.}\r\n\r\n{EN: Check CPU Usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Ubiquiti-Edge-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Ubiquiti-Edge-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces.}\r\n\r\n{EN: Check interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "Net-Ubiquiti-Edge-SNMP-Interfaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} !~ /up|dormant/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose  --use-new-perfdata"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Ubiquiti-Edge-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

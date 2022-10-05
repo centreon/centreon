@@ -1,0 +1,576 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Alcatel-Omniswitch-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Alcatel-Omniswitch-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Alcatel-OmniSwitch-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Alcatel-Omniswitch-SNMP-Packet-Errors-Name",
+                "service_display_name": "Packet-Errors-$name$",
+                "service_template": "Net-Alcatel-Omniswitch-Packet-Errors-Global-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Alcatel-Omniswitch-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Alcatel-Omniswitch-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Alcatel-OmniSwitch-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Alcatel-Omniswitch-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Alcatel-Omniswitch-Traffic-Global-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_alcatel_omniswitch_snmp.pl --plugin=network::alcatel::omniswitch::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Alcatel-Omniswitch-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_alcatel_omniswitch_snmp.pl --plugin=network::alcatel::omniswitch::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Alcatel-Omniswitch-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_alcatel_omniswitch_snmp.pl --plugin=network::alcatel::omniswitch::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Alcatel-Omniswitch-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_alcatel_omniswitch_snmp.pl --plugin=network::alcatel::omniswitch::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Alcatel-Omniswitch-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_alcatel_omniswitch_snmp.pl --plugin=network::alcatel::omniswitch::snmp::plugin --hostname=$HOSTADDRESS$ --mode=flash-memory --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Alcatel-Omniswitch-SNMP-Flash-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_alcatel_omniswitch_snmp.pl --plugin=network::alcatel::omniswitch::snmp::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Alcatel-Omniswitch-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_alcatel_omniswitch_snmp.pl --plugin=network::alcatel::omniswitch::snmp::plugin --mode=spanning-tree --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-port=\\'$_SERVICEFILTERPORT$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Alcatel-Omniswitch-SNMP-SpanningTree",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_alcatel_omniswitch_snmp.pl --plugin=network::alcatel::omniswitch::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACEID$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Alcatel-Omniswitch-SNMP-Traffic-ID",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_alcatel_omniswitch_snmp.pl --plugin=network::alcatel::omniswitch::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$\\' --name --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Alcatel-Omniswitch-SNMP-Traffic-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_alcatel_omniswitch_snmp.pl --plugin=network::alcatel::omniswitch::snmp::plugin  --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Alcatel-Omniswitch-SNMP-Traffic-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_alcatel_omniswitch_snmp.pl --plugin=network::alcatel::omniswitch::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACEID$\\' --add-status --add-errors --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Alcatel-Omniswitch-SNMP-Packet-Errors-Id",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_alcatel_omniswitch_snmp.pl --plugin=network::alcatel::omniswitch::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$$$\\' --name --add-status --add-errors --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Alcatel-Omniswitch-SNMP-Packet-Errors-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_alcatel_omniswitch_snmp.pl --plugin=network::alcatel::omniswitch::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-errors --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Alcatel-Omniswitch-SNMP-Packet-Errors-Global",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Alcatel OmniSwitch en SNMP}\r\n{EN: Template to check Alcatel OmniSwitch using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Alcatel OmniSwitch SNMP using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "network-alcatel-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Alcatel-OmniSwitch-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Alcatel-Omniswitch-Memory-SNMP",
+                "Net-Alcatel-Omniswitch-Hardware-SNMP",
+                "Net-Alcatel-Omniswitch-Flash-Memory-SNMP",
+                "Net-Alcatel-Omniswitch-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "network-alcatel-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ fix discovery filter on packet-errors",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Alcatel Omniswtich via SNMP:\r\n* Cpu-Standard\r\n* Flash-Memory\r\n* Hardware\r\n* Memory\r\n* Packet-Errors (by interface name, ID or all interfaces)\r\n* Traffic (by interface name, ID or all interfaces)"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un \u00e9quipement Alcatel Omniswitch via SNMP : \r\n* Cpu-Standard\r\n* Flash-Memory\r\n* Hardware\r\n* Memory\r\n* Packet-Errors (by interface name, ID or all interfaces)\r\n* Traffic (by interface name, ID or all interfaces)"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Switchs-Alcatel-Omniswitch-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Alcatel-OmniSwitch-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Alcatel Omniswitch",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_alcatel_omniswitch_snmp.pl",
+                "package_name": "centreon-plugin-Network-Switchs-Alcatel-Omniswitch-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-switchs-alcatel-omniswitch-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Alcatel",
+            "Hardware",
+            "Lucent",
+            "Network",
+            "Omniswitch",
+            "SNMP",
+            "Switch"
+        ],
+        "update_date": "1604654522",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le taux d'utilisation de la m\u00e9moire.}\r\n\r\n{EN: Check memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Alcatel-Omniswitch-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Alcatel-Omniswitch-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du hardware.}\r\n\r\n{EN: Check hardware state.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware",
+            "check_timeperiod": "",
+            "command_name": "Net-Alcatel-Omniswitch-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Alcatel-Omniswitch-Hardware-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le taux d'utilisation de la m\u00e9moire Flash.}\r\n\r\n{EN: Check Flash memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Flash-Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Alcatel-Omniswitch-SNMP-Flash-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Alcatel-Omniswitch-Flash-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le taux d'utilisation du CPU.}\r\n\r\n{EN: Check CPU usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Alcatel-Omniswitch-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Alcatel-Omniswitch-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du spanning tree sur les interfaces.}\r\n\r\n{EN: Check Spanning Tree state on interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Spanning-Tree",
+            "check_timeperiod": "",
+            "command_name": "Net-Alcatel-Omniswitch-SNMP-SpanningTree",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERPORT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{state} =~ /blocking|broken/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Alcatel-Omniswitch-SpanningTree-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau d'une interface r\u00e9seau.}\r\n\r\n{EN: Check traffic of an network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Id",
+            "check_timeperiod": "",
+            "command_name": "Net-Alcatel-Omniswitch-SNMP-Traffic-ID",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Alcatel-Omniswitch-Traffic-Generic-Id-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau d'une interface r\u00e9seau.}\r\n\r\n{EN: Check traffic of an network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-Alcatel-Omniswitch-SNMP-Traffic-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Alcatel-Omniswitch-Traffic-Generic-Name-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau de plusieurs interfaces r\u00e9seau.}\r\n\r\n{EN: Check traffic of multiple network interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Alcatel-Omniswitch-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Alcatel-Omniswitc-Traffic-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le pourcentage de paquets en erreur/\u00e9cart\u00e9 d'une interface r\u00e9seau.}\r\n\r\n{EN: Check packets on errors/discards of a network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Packet-Errors-Generic-Id",
+            "check_timeperiod": "",
+            "command_name": "Net-Alcatel-Omniswitch-SNMP-Packet-Errors-Id",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Alcatel-Omniswitch-Packet-Errors-Generic-Id-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le pourcentage de paquets en erreur/\u00e9cart\u00e9 d'une interface r\u00e9seau.}\r\n\r\n{EN: Check packets on errors/discards of a network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Packet-Errors-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-Alcatel-Omniswitch-SNMP-Packet-Errors-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Alcatel-Omniswitch-Packet-Errors-Generic-Name-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le pourcentage de paquets en erreur/\u00e9cart\u00e9 de plusieurs interfaces r\u00e9seau.}\r\n\r\n{EN: Check packets on errors/discards of multiple network interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Packet-Errors-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Alcatel-Omniswitch-SNMP-Packet-Errors-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Alcatel-Omniswitch-Packet-Errors-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau d'une interface r\u00e9seau.}\r\n\r\n{EN: Check traffic of an network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Alcatel-Omniswitch-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Alcatel-Omniswitch-Traffic-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

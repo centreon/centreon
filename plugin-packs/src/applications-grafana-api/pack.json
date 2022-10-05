@@ -1,0 +1,136 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_grafana_api.pl --plugin=apps::grafana::api::plugin --mode=health --hostname=$HOSTADDRESS$ --proto=$_HOSTPROTO$ --port=$_HOSTPORT$ --username=$_HOSTUSERNAME$ --password=\\'$_HOSTPASSWORD$\\' --warning-status=\\'$_SERVICEWARNING$\\' --critical-status=\\'$_SERVICECRITICAL$\\'\\\"",
+            "name": "App-Grafana-Api-Health",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "",
+            "active_checks_enabled": 2,
+            "alias": "Template to monitor Grafana using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "app-grafana-64.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROTO$",
+                    "value": "http"
+                },
+                {
+                    "key": "$_HOSTPORT$",
+                    "value": "3000"
+                },
+                {
+                    "key": "$_HOSTUSERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPASSWORD$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Grafana-Api",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Grafana-Health-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "app-grafana-64.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* name from restapi to api",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Grafana database health:\r\n* Health"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser la sant\u00e9 de la base de donn\u00e9es Grafana :\r\n* Health"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAC4jAAAuIwF4pT92AAAXoElEQVR42t1bB3yUVbY/yaTNZCaZkjI105KZSQAFu+KioCI2FBDSISQ0lSJFVEQRpEmVXlSk2BCUdfXZYEFgKbp23UXf7vO5Pl3FJNNb6nnnfjNfpmRSkF12f3t/vz/3m2/uPeV/zzn33iQAXOCWzP5JArgyTwS+Cj00ltnAXmEFZ4Vla/0YGzSPLYHd12q4sWnJF9q6f3JLCsNA+Or2QvCNs4G7tEBgL7e1OyqsaC+zoqPMavFWFcP0YlmEsP+UJgj3m/vnAI4sBOfdljRnpY05jYwARzmRUM49D8dxJTDdlv2fQwLv/EiTBFrLLOC82QCOMUWc006GMAHsuZEI8VRYzO4KCygzBBwBSf9qB86bgKQQTt9uAv9IMzSUWr53VNg4p1nvZCgPkeAot2FDWRG2jiuGFZfkcfNTkkKRkBzuGSF8H49/m4hJCjueEl6+EVpa/fEl8EulrcjBOxt23BkmwxkGSwV3ufW1H8eY4Xq5+F/tSmzjVzMa8azHf74hJwueHqiE5uoSqC+1NPME8M5Hg//OXmZBz5gSCJb2hfeH6eHAtQa4VZsJ10jFYMtKh20DNXD8ViO8N1QPh4YWwGFKq4NDDfABRdkVuaKEdvyqVUxJig237sZyqx7+rCXcpRHDGzcVAFb0g+ayfrTtWYFzjg/5OOedHVFg4wqja3QJNpRbTzWNtdW2VvQFrLoIvETI38dYAGtKoK2mD7SMLbmhubr4dUJ9sLq4DSdelDqrRP6PISBRu1YlhuG0ErdoMuE2rQjuLBBDP1lqzJi5l4jg7yPJ8eFmaCq3QH259SL76JKzoWofl/vxEVARcp4nwREujA0VRdhIhNDnp1yVNqgvs+7n3kfhbKkF/VW2EydvNZz/yrMmTRXAiAIJHBgkh1O3GOAohaKXDitYR6tB+zjWWOnZBmfHFMIx+o7h6DAd+CtKIDDZBA0j9Xc0jioKORJ2ilV8Z1TuOxNGQYSE6Ofo7ZLbOaLm2MtDW2ojba2u4SYYJBT8uijgJwzME8L/3V1EjvaBJjqctFbqBRRm0+nAcvxshY1jvJ7ytIFARpxoqrLVNFUXA0NDuUXbWEpGVYZXtDzaAVuXq99VRCQixBG9c/C1o4rsut2IONKcdLtBwvkhONc9lJ9wm1YMOL4P/DjasoELsfIQ+OLl6Chato4w5cCPqYgrdIlWPLztOcsjxa+jEMY7HE1CQqIsFAE2rC+3YHtN8eW3U/35VdsiP2GYOhPaKNzZKkeqNp+jEfZ5R/mVit3WoopdefS8EHEh43kZoc+MQD6nY1MneqewxaZARxrQPKoDFLWX36AUn18E3EIMttNhpL40KsR4J7vIXZ6cjpXsyPfoPI68t3NpxLa8kEONRDal2Rk6Cv8ea4oP0vg/u0b3aWXjuXFRu0QHogtrOBJ9VCSP07aYl/4rTpI8AcOoyuPYMAHlEafODVFzoooYWyW2woHq4mU4vm9mc7WNtkgz+CrNcPTmAth+tQpeuFYLvtF9wV9eAl5yiN0P/JU2C5F2iM118tERd35wUAr8Msb6JdIW+eZvtJwv50QAnwI3sxQYx1LAGhXu5+B8dOhHrY5jdPGHWDYgBWv6wpFbzLDjNzqoMElBnykAS5ag4+TImlmUDqasVBggS4ctV6ng0ztM0EKHqTZaGIqGwdxNsjySPh31iWGU5VCgygaTLLJzI4GPgDt0VARr+8DZMktbZOvpZeWOKny883QCdLdVlKQ1D78Udl5shTpdHqQnJ3VpQ6KvJCnJcJkiA3YNVFNUFAMLdUdF8XUd9pVHiqU99K6ORc7AHGHoLtEbAni9feVp8AOduFzl1mftvyICIkdaOtGN6LcYKy+GT24zQ7Uxu7OzkPikGX3JiS9mA+QZ8OVdhdxO5aQbpqPU+rE9inCWCo2Uaq3VxWn7r9eceyqwdoIOP61ji60sZzsqck8oj4RiIxnhGdV3aCut+o6LzHSwCq1BalLSuVdniNz2+LnZaQJ4tJ8C2qtDdYKKaJUjSr+dSztLk7+qBO4tEvaeBJ71jVfmMwKgoaMC23pEqNqHQ7DScmdrTTHUFmXFrHhXOln+d2cgf7uM398HyDLgT3dSfSBbfym19ok+gzRQEW+rNt556lZt75nmjRysFIULYdFRPgIclT2gIhQt9VWWPd7xNqgtzA6vemLnEuV6tHPdXcJSom6i+sxU+HpEYYiEMmsfR2Ukau0VJvSMtcI1ucIeL3UxLZM0fH6HgY63OkFjNZ3pq+jYW02Cq0N9IrDvfqkqasVpfWDN1XkdzidynH/N+qtyM+CePlLYeZ0S/lpmgi/vNsKfRhOo/3qMEU4P18N4azZMKZGCLTstRlZ6mIUCIuHMCDMEydmGamuds5oIILsbaGFwYvFVe29Qd+jrsfHMbr4iG3CqGRrHGz5xjiMna4oIlsQYR8pojK9WJf7wbi3kCVNitrVEqz6lnxQ+H6MHey0VtHtt0DLJCoHaIoLlGn+ddbS/zjKani8PTqAr8GQ6D9xDK1xTCKdH6qEsKrV4PQWZKfBdWSH4J/cF+7iik8wmx9giJDnN35QbQUff96rxK2RWAPxUWQCOGtpyxpPztQyF6KorigW9c9YRCXWaMziNbpH6UNERxMnlDR2QkwF7h6kAZxSDd7IFnHXm7Pqawj83ji9EB+mwExxhsGc7vafvGVqddUWTm6cQGVP08OFoA1SaQhGREc7dqf3zOLIaxhUCs43Z3EDzcaoVBiozQlHQmzDgxxy7Kheaay1gn0BOMkzsDAfBPsGMzbN1yV9UpwBTE1/weKVX5WdA4+RCaJtqgbN1FF0TC39y0NxEcrtCYx3pqzM90zxRBzjLDI9frQgtXFjp/EsUFC0WaKgzl7Dx9joztk0tGj+7f+iHJb3ehVjAnBqhhZZR2iTHFDO6JhOmFMaCe2dG+0RzoHW6GcYUp3RSwlfua1TpYL/HBN77zFA/0Wzl5iaS2RNojpN6+2Qj7TZ6c/sEI2wepAC24wuS2RaZBP9TZQTvFDojTDbb7ZPM2D7N8pejd4d2g9SeTkV86A7TZkLz6AJonFo403WvCV33mNF9byxc95Exk00YnGUccXCUEtLI1UTVXUDx/2OtHppnmsE+xTTAxeYymfHywnCGe3c3YLpdU0x04NI8hJMMsPo3ig590/pLAadTQZxsljvuMWHbjCJ8e6QqJhW7JiC8xdxeKAKca2Or5nFNI2OnmtA9LQ73GbFhViG2T9DC/H6iTgpY6DNCn7skG5rmUV5OMWQwWW6SxckMy3HS58b7TOidTs5NNaJ/BpFAfSNzMmqce1pkHocZjCgj1k/Sb8JHimDhQBlnu5xug9/WGCEw3QSNZGP77EJ8d7SqdxHAby3DDXQnmFMEDdMNpIgpM6LrflME7PNM2mcnFWAT7RjW8EYbT3CmMBkcdTpoLtOAY7apzT3dGJl/P4XxNCO6ZxifxwcK4fsJOvhhcgH8fI8RgvfT7jCvD3hmmK6zzzC08OM72UDvnPRsn26owUfNMNwcKsIziHScUwj10wx1ONeM75QqeyaAz12rTAB/maQB7ywjOGeSklkGdM8yxoHezTSg5wHja66hCuD4Te4sa0ZxJjSRY/Z79aWcHE5eaL5zpgVxft8U+/0GePDKbJBnJHGQ0SqMtMlgzZAc+Pt9lDqzzUDjr3bPjrJjdsQOJs95vx5bHzYIj1arON3FilTwzjRC4wwDtD1swnfKlN2nAP++9mIxfDtdS+wbwDOzQOh+gJTO0ZOjhhiw9445BmxfYC7fWiKKOavzjf2m99u7ciFITrgeNKJnth5D8kLAx/vBm1VWuF6fBV01rUQAhytU0D7PBEQ2uOYUcDKi7fA8oEfXHGaPvrXtMSPcQed/5uiRCjX5YQKcb8KDFd2kAF+4Fg6h4rHECL55enA+oK9wP0gGP0gKqPdwfQTuhwxon12AWKWUbpaEpMYfNdJTAb6fqIGmWk2S62GaN5fJ06NjLs1bpBcdqo4UrpQ4w7jzf3LEvpqLxEDzwT3XAkx3xLbQs4eTq8e2BcbBx2rzubkzLs+mtDNweO3u/MQRkBxWsugGypllBmh8WAfOhwrOeuaRgh5gf5gUztHCquzQ3hF/+EknZd+PyQP/E8ZJrodo5Wi862Hq55pP1t9fBFfqUnrMy+gr8dbbaEUXFUHjAwUGz7yQvIg9oc+Oh3XtbUvUcKMpJDubjJDQ1ijq7mi66CZyfoUeHPN14J6vQ8+jBQS+T4D5DDp007N3YQGUyEPK4k9ZdGuF7+YUQOAx3X5OLoEIRlxoTV12pTLhyndFAhuXI0qBjyepofkRA7ge0X3vjrGTydej8xEV4nJNyp0lwu7P/vyXj1SnhZx/TAOeBQXt3gVa9D6u6xkLdOgkpe0rDbDyVkVH2MZEABn93SwNBBfp/tdDcj00x029a6EOrtdkxlyMemr8YpXZMgGXGsA5vyDf87iWsyPaLudjZNNy3aq3Jyhi5nUSxlZLRbl7drEKgrvywPW4tsGziIzkQMJ6ABvnIGdwtTFt7XBpwtWk7Rj+NlcNwcW6b90LtcgQXKLD7+epencmT2B3BgXbsQlKaFqqAddCDXoW6jrsdZNN5Ae2rtC0Hb0nL3alo1tqOFkXDssC3JsPjuWq+z1LSNhiwhJtL6FBxyINtq/RDdk6WsodQzvtAmTsdw8RAcu0L7uf0KBrsRb9SzX40+MqkNP54FxJEIQJ3nk3FevVKnAsUjd7Fsfa5CQ97St1+P69uV36zzFpzhHAz7T6/jVqcNNE77Jzg2eZGr3kjO9Jzav2pSqQCTurSicCfphPObtMO4Qf71isxvYNWph3Y+hXWD2ezKIaT9ioEgE0r6B6tVRzOt4u1xKSv0aLx6bldp9eQ63pgBup4i9Rv+pdQcY9Sc6s6D3YHHIe3ctV2LJBA6P6Z3SQ2xEBFGl/mauCppVa8DypxpAeNXpWaPo416jgrn7CjnFJ4bRkq5wShUQEVF0hhJbVJHO5+gSz29thlxpdy9WI67R4cGpOJ3ti2iBzGrSs04B7pQq9q1ToW03GnQO48avU6F6pxuZNavj4wVxuxfk04Pt7B2ZC20YtOJ5Uvcf0sDmeVaqWpnVq0q+D2/ulQW8bnwLPVVEKbNWAc4XKyeRF7FKhh/zxr9XgD0tyoH9ectckDLVRBGzTgn2lstW3lgxbQySsPTd4w3CtVm3E7WoYPSAjxnnWMugw9PWjedBEUeIJ6/E+pUTvSu3bvvV54FufD0vvEoNOngyqrGQovzwDniqVwKqRmbDgDgmIov4EgYmVUqp9/KACmtarwcNsjrabyV5LBK/MxbZ1eXB2iRK04sjcCJP0SZOdDJ/MywXcogbnmvwW33oSsI6wXoncc2+xTokecsi/WQWfL8gBlTgUuklRKzZ1MG1du+g+sCpf4WXymZ51+ehZp/yG9AE+qwLXBiU41+VD2zYVfc4nu/IAX8iBugEhGaxwM5kX0+EJt6qITCX4SZZ3XZS960L2MB88y5Uv4vZc2FyZDSlkSAwBfEjk0zb42aNEwtNqsK/N+YFWBH0b89G/kYQQ/L0EG0vGr0faTreWRfKa18WM31JBO85ODfjWKHLca3PRQ3rYPO+GfHStz/+I5Nzm26yUedblX+5cpzxydmUeNu0QpMy4JhxJ4XP2ztosaH1GBe71+ZN9YRnxtvg2ETbkMZsex5d1MPKy9NAPZqJZ4AtKriQJPlugINbp0rIp5yH35nz0EvxbSHgY0c9dYnMeetbLU5p2KmHSdaKYnOXbllIR+DcS4TuU0LpNecBFDjg35iHrXZvI4Keo30r9+lzEXdlT23anQnFeRM746wTQuisf3BvzgbNpc2fb/FH2uLeosH1Pftq7MzNjfO4cCWTvspEi+InykRnXvEF2xrWFHCJjvNsoKrbnc/B3CRpD47zb81t92yl0X1LClMHCmNDldfUvEMDOiVL46woigsjCPUoLPq9cirtVr+CreVvxQ9ml+K4UPnpCDKXXRGxVSZPg29UKaNkjA8/W3AG+bfmczu5s8pL9gWdk3/24KRdsKkHnWhD/ghWiY7PF8PNTOWQYXUF3Kba2PJeL7m25GHg2B/3PMIGd4efxdC56n84746Nowr0UCUOEMRU8OgRTKaQrrkqHmoFCGDcwA8ZdKYSaESlQO46Ou6Wxv8bQyAH+vJZS6CUZeLcpgNcV6MKeQJQ9HiIC9+fD0H6pXe8I8V9oiYjl5UI4s0oKPzxF6bFPDv4dCpNvRy76wwg81xmh9zno3ZF3MrBNBm1UxHbUCUGWHpGdIuicGokaP0YtS4JvmPP7peDZmUV25H3N6/cnsiHOHu+zudj6cu71g2wpiSOgu4jgooLOE8sqKXd307V2V/Z0/26KhJ0E6gO7qE8IBev/z7eNbpn7c+CztTKYcH0GiNKTYhxkPy9gx2WWJgzc56hjwUV6AXy1mvb8V3PBv1MKgd2Kff6duZzuGH1Rn0M25XLPPoJruwLxt7nje4yAeBLiB556grayA7ng2aXw+59XYGAPKXqeFHYJImGPAj07FUX4CqXEG7nwxXopjB+SDqa87q24mBx/cUYmtOyVQ/u+HPDtpgh8XnG6W30v5nD63OS0Z7ecegW27MoJks2SDxZLIT876df98XVy+HiqldNusVoGzS9TDr4gx8BLRMKLcgxSnxAvKkJjXpIjjf+b7yWFCF+TA74uh+DLctgzMwv2zJFA7Y0isKqT4VKTAJ65LxP2zhFDM6UcvqGA4IuU8y/IdSFZIZ3xerh3ZEdgl4yeafd4Pecn/F3WCvydRPDjJhnMH0EpKErqXfh3mY/hmTf2pUPImznMKEtgLykNI9gD+DG+l+St/pdkdU2vkINvUVS8RzvGG1QrDsig/bf07m3CfykgQN97XpQNpDmuQA9yGTHeV+TY9rzo8M9LhTDm6hQoo92jbBBt8VF/k3Hef3rPF6VFVBzxTQV498pGBvYT6/vIiP3dI9gBWcc7mo+evfI23yuy4/59sl0Mnr2yr9j7+LkJZe5jumXoZxF2Iq2t/UQGTLkkuUu7z7vxgkYNTIH2g7RC+2SbA69JMfiaDIMHLjwCB6TIFsB3SITYmJS0YE5on09LDdkqSP4H/4cLPg2qhqQCHpaB77Xs9uDrUmx6PZsgvWAIcsjGwG+lSFGD+EVa5qf7kkGeE7Lx1/yk6ZwioPJ6qgNHpOBljr+RjcE3qX9TekEQ5HpynpFxRIp4UCX89Ck5yDNCxv1T/4sN/+PzisEUAceIgDeyMPhW9gVGFgbeJsL/ID7b+rEY3n1eCDnibu78/5QIYClwQgq+tyTY9E5WCO9eKEjQRyS0vym6eP6wiG0X5D9X8QyXD6EieDoLfGRM00Ey6pAEmw9lJQB9T33woAQD70nQ/26oZ3PixyWeH4eDYk6X920x4jvC5LKSyFX7gjQ+AsYOoxrwSSb4DmZi02Fy6LAYm7le0tEzBH8vRj8Z3X5U8iOeyBqIJyVf4CkiggjxHRKjj77zHxJzn4Ns7pGIjK7AZLaeyMKfXheDRnIBV5+LgDABN18O4D2eCcH3xceCRzOx+X1amaNkHPX+I4TDmRggUlrpHX6afekvv5PA8U1COLpRCH/YLAI8JQb8o1iNH0ruxD9KFlD/SvtxyStNR8SfNZG8pqPiLsHk0/g/vbPyX/w/yv57rwhaT4n7+46IMHBURM6LsP0EGfcR4eOsY/hVluKXgxJ4cloG6PNj12hQ/2S46TIB3HipgOvvuEYAPxyge8aHYvAdFjW0HCdnjxOx1EeQyYHpa/9KKK6+KS3067ILFf7xUfDEZCqEf6WV/CjzUvwsoxjPpKXWvyWCoxskcGS9BO66IQUM6ojj/I+8uwpXiy4JfqT5+EUmBI5nfNR0QoQtJ0XYfJL1mVwf/EMmRVTqN87DAlApzvNsf75NKk6CwVckw6AByXDdJQCDrwZyOAFhCZxmJEaDX0VrAcCJ59IAP6Nb4CnRZc2niIAPhNh8WohNp0XY9Ech+j9Pg4nDkzpI/bdr7Kc8DNwx9BwMjB57IxEbOCmCltMiCJ4WFrZ8JP4o8EEG4pfJsjP7wuPP087/B7l+RcCcet+QAAAAAElFTkSuQmCC",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\nThis chapter describes the prerequisites installation needed by plugins\r\nto run.\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Grafana-Api\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Grafana-Api-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Host Macro Configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"24%\" />\r\n<col width=\"44%\" />\r\n<col width=\"17%\" />\r\n<col width=\"12%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n<th align=\"left\">Example</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>PORT</p></td>\r\n<td align=\"left\"><p>The Grafana GUI port</p></td>\r\n<td align=\"left\"><p>3000</p></td>\r\n<td align=\"left\"><p>443</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>PROTO</p></td>\r\n<td align=\"left\"><p>The Grafana instance protocol</p></td>\r\n<td align=\"left\"><p>http</p></td>\r\n<td align=\"left\"><p>https</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>USERNAME</p></td>\r\n<td align=\"left\"><p>The Grafana instance username</p></td>\r\n<td align=\"left\"><p></p></td>\r\n<td align=\"left\"><p>centreon</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>PASSWORD</p></td>\r\n<td align=\"left\"><p>The Grafana instance password</p></td>\r\n<td align=\"left\"><p></p></td>\r\n<td align=\"left\"><p>centreon</p></td>\r\n</tr>\r\n</tbody>\r\n</table>",
+        "name": "Grafana",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_grafana_api.pl",
+                "package_name": "centreon-plugin-Applications-Grafana-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-grafana-api",
+        "status": "stable",
+        "status_message": "change name",
+        "tags": [
+            "grafana",
+            "API",
+            "Rest",
+            "Restapi"
+        ],
+        "update_date": "1632946635",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "Health",
+            "check_timeperiod": "",
+            "command_name": "App-Grafana-Api-Health",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "%{state} ne \"ok\""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Grafana-Health-Api",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

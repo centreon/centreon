@@ -1,0 +1,130 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle_gg_ssh.pl --plugin=apps::oracle::gg::local::plugin --mode=processes --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' --ggs-home=\\'$_HOSTGGSHOME$\\' --oracle-home=\\'$_HOSTORACLEHOME$\\' $_HOSTSSHEXTRAOPTIONS$ --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-lag=\\'$_SERVICEWARNINGLAG$\\' --critical-lag=\\'$_SERVICECRITICALLAG$\\' --warning-time-checkpoint=\\'$_SERVICEWARNINGTIMECHECKPOINT$\\' --critical-time-checkpoint=\\'$_SERVICECRITICALTIMECHECKPOINT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Oracle-Goldengate-SSH-Processes",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4ler l'\u00e9tat de l'outil Oracle GoldenGate en SSH via 'ggsci'}\r\n{EN: Check Oracle GoldenGate in ssh wih 'ggsci'.}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Oracle GoldenGate through SSH",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "oracle-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSSHBACKEND$",
+                    "value": "libssh"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Oracle-Goldengate-SSH",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Oracle-Goldengate-Processes-SSH"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "oracle-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Oracle GoldenGate.**\r\n\r\nAvailable host template and related services:\r\n\r\n|App-Oracle-Goldengate-SSH-custom|\r\n|---|\r\n|App-Oracle-Goldengate-Processes-SSH|\r\n"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser Oracle GoldenGate**\r\n\r\nMod\u00e8le disponible:\r\n\r\n|App-Oracle-Goldengate-SSH-custom|\r\n|---|\r\n|App-Oracle-Goldengate-Processes-SSH|\r\n"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Oracle GoldenGate SSH",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_oracle_gg_ssh.pl",
+                "package_name": "centreon-plugin-Applications-Oracle-Goldengate-Ssh",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-oracle-goldengate-ssh",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Oracle",
+            "GoldenGate",
+            "SSH",
+            "Application"
+        ],
+        "update_date": "1610530111",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les processus GoldenGate.}\r\n\r\n{EN: Check processes.}",
+            "active_checks_enabled": 2,
+            "alias": "Processes",
+            "check_timeperiod": "",
+            "command_name": "App-Oracle-Goldengate-SSH-Processes",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /ABENDED/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Oracle-Goldengate-Processes-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,104 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_protocol_modbus.pl --plugin=apps::protocols::modbus::plugin --mode=numeric-value --tcp-host=\\'$_HOSTMODBUSTCPHOST$\\' $_HOSTMODBUSEXTRAOPTIONS$ --config=\\'$_SERVICECONFIG$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Protocol-Modbus-Numeric-Value",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check a Modbus Service",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "protocol-modbus-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Protocol-Modbus",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "protocol-modbus-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Modbus service:\r\n* Numeric value"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack Plugin pour surveiller un service Modbus :\r\n* Numeric value"
+            }
+        ],
+        "discovery_category": "protocol",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\nThis chapter describes the prerequisites installation needed by plugins\r\nto run.\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Protocol-Modbus\r\n\r\n\r\n### Remote server\r\nThe remote server must have a Modbus service running and available.\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Protocol-Modbus-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations</em> &gt; Parent Hostgroups tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\nAfter that, you can add service linked with template *App-Protocol-Modbus-Numeric-Value-Generic*. To fill the macro *CONFIG*, read [Modbus config](https://github.com/centreon/centreon-plugins/blob/master/docs/en/user/guide.rst#modbus-protocol)",
+        "name": "Modbus",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_protocol_modbus.pl",
+                "package_name": "centreon-plugin-Applications-Protocol-Modbus",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-protocol-modbus",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Modbus",
+            "Protocol"
+        ],
+        "update_date": "1502203660",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier des valeurs Modbus.}\r\n\r\n{EN: Check Modbus numeric values.}",
+            "active_checks_enabled": 2,
+            "alias": "Numeric-Value-Generic",
+            "check_timeperiod": "",
+            "command_name": "App-Protocol-Modbus-Numeric-Value",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Protocol-Modbus-Numeric-Value-Generic",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

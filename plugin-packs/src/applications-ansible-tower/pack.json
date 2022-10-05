@@ -1,0 +1,697 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v1.0": [
+                {
+                    "command": "App-Ansible-Tower-HostDiscovery",
+                    "default_template": "generic-active-host",
+                    "description": "Discover hosts by requesting Ansible Tower using CLI",
+                    "mapping": {
+                        "ansible_tower_host": {
+                            "association": {
+                                "description": [
+                                    "${description}",
+                                    "${name}"
+                                ],
+                                "hostname": [
+                                    "${description}"
+                                ],
+                                "ip": [
+                                    "${name}"
+                                ]
+                            },
+                            "attributes": {
+                                "description": {
+                                    "type": "string"
+                                },
+                                "enabled": {
+                                    "type": "string"
+                                },
+                                "groups": {
+                                    "type": "array"
+                                },
+                                "id": {
+                                    "type": "string"
+                                },
+                                "inventory_id": {
+                                    "type": "string"
+                                },
+                                "inventory_name": {
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                }
+                            },
+                            "filters": {
+                                "type": "host"
+                            },
+                            "macros": [],
+                            "object": "host",
+                            "templates": [
+                                "generic-active-host-custom"
+                            ]
+                        }
+                    },
+                    "name": "Ansible Tower CLI",
+                    "parameters": [
+                        {
+                            "description": "Ansible Tower Server Hostname",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "ANSIBLETOWERHOSTNAME",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Ansible Tower Server Username",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "ANSIBLETOWERUSERNAME",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Ansible Tower Server Password",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "ANSIBLETOWERPASSWORD",
+                            "type": "password",
+                            "value": null
+                        },
+                        {
+                            "description": "Proxy URL",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "PROXYURL",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Timeout",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "TIMEOUT",
+                            "type": "text",
+                            "value": "20"
+                        },
+                        {
+                            "description": "Extra Options",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "EXTRAOPTIONS",
+                            "type": "text",
+                            "value": null
+                        }
+                    ],
+                    "type": "ansible-tower-cli"
+                }
+            ],
+            "v2.0": [
+                {
+                    "attributes": {
+                        "description": {
+                            "type": "string"
+                        },
+                        "enabled": {
+                            "type": "string"
+                        },
+                        "id": {
+                            "type": "string"
+                        },
+                        "inventory_id": {
+                            "type": "string"
+                        },
+                        "inventory_name": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "App-Ansible-Tower-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Ansible Tower Server Username",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "ANSIBLETOWERUSERNAME",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Ansible Tower Server Password",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "ANSIBLETOWERPASSWORD",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-active-host",
+                    "description": "Discover hosts by requesting Ansible Tower using CLI",
+                    "discovery_examples": [],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.hostname"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.hostname"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.ip"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "generic-active-host-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Ansible Tower CLI",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Ansible Tower Server Hostname",
+                                "group": "Ansible Tower API",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "ANSIBLETOWERHOSTNAME",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": "20"
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "ansible-tower-cli",
+                    "type": "ansible-tower-cli",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "description": {
+                            "type": "string"
+                        },
+                        "enabled": {
+                            "type": "string"
+                        },
+                        "id": {
+                            "type": "string"
+                        },
+                        "inventory_id": {
+                            "type": "string"
+                        },
+                        "inventory_name": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "App-Ansible-Tower-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Ansible Tower Server Username",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "ANSIBLETOWERUSERNAME",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Ansible Tower Server Password",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "ANSIBLETOWERPASSWORD",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-active-host",
+                    "description": "Discover hosts by requesting Ansible Tower using CLI",
+                    "discovery_examples": [],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.hostname"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.hostname"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.ip"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "generic-active-host-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Ansible Tower CLI",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Ansible Tower Server Hostname",
+                                "group": "Ansible Tower API",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "ANSIBLETOWERHOSTNAME",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": "20"
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "ansible-tower-cli",
+                    "type": "ansible-tower-cli",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ansible_tower.pl --plugin=apps::automation::ansible::tower::plugin --mode=schedules --hostname=\\'$HOSTADDRESS$\\' --username=\\'$_HOSTANSIBLETOWERUSERNAME$\\' --password=\\'$_HOSTANSIBLETOWERPASSWORD$\\' --custommode=\\'$_HOSTANSIBLETOWERCUSTOMMODE$\\' $_HOSTANSIBLETOWEREXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --unknown-job-status=\\'$_SERVICEUNKNOWNJOBSTATUS$\\' --warning-job-status=\\'$_SERVICEWARNINGJOBSTATUS$\\' --critical-job-status=\\'$_SERVICECRITICALJOBSTATUS$\\' --warning-start-last-time=\\'$_SERVICEWARNINGSTARTLASTTIME$\\' --critical-start-last-time=\\'$_SERVICECRITICALSTARTLASTTIME$\\' --warning-total=\\'$_SERVICEWARNINGTOTAL$\\' --critical-total=\\'$_SERVICECRITICALTOTAL$\\' --warning-successful=\\'$_SERVICEWARNINGSUCCESSFUL$\\' --critical-successful=\\'$_SERVICECRITICALSUCCESSFUL$\\' --warning-failed=\\'$_SERVICEWARNINGFAILED$\\' --critical-failed=\\'$_SERVICECRITICALFAILED$\\' --warning-running=\\'$_SERVICEWARNINGRUNNING$\\' --critical-running=\\'$_SERVICECRITICALRUNNING$\\' --warning-canceled=\\'$_SERVICEWARNINGCANCELED$\\' --critical-canceled=\\'$_SERVICECRITICALCANCELED$\\' --warning-pending=\\'$_SERVICEWARNINGPENDING$\\' --critical-pending=\\'$_SERVICECRITICALPENDING$\\' --warning-default=\\'$_SERVICEWARNINGDEFAULT$\\' --critical-default=\\'$_SERVICECRITICALDEFAULT$\\' --warning-never=\\'$_SERVICEWARNINGNEVER$\\' --critical-never=\\'$_SERVICECRITICALNEVER$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Ansible-Tower-Api-Schedules",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ansible_tower.pl --plugin=apps::automation::ansible::tower::plugin --mode=jobs --hostname=\\'$HOSTADDRESS$\\' --username=\\'$_HOSTANSIBLETOWERUSERNAME$\\' --password=\\'$_HOSTANSIBLETOWERPASSWORD$\\' --custommode=\\'$_HOSTANSIBLETOWERCUSTOMMODE$\\' $_HOSTANSIBLETOWEREXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-total=\\'$_SERVICEWARNINGTOTAL$\\' --critical-total=\\'$_SERVICECRITICALTOTAL$\\' --warning-successful=\\'$_SERVICEWARNINGSUCCESSFUL$\\' --critical-successful=\\'$_SERVICECRITICALSUCCESSFUL$\\' --warning-failed=\\'$_SERVICEWARNINGFAILED$\\' --critical-failed=\\'$_SERVICECRITICALFAILED$\\' --warning-running=\\'$_SERVICEWARNINGRUNNING$\\' --critical-running=\\'$_SERVICECRITICALRUNNING$\\' --warning-canceled=\\'$_SERVICEWARNINGCANCELED$\\' --critical-canceled=\\'$_SERVICECRITICALCANCELED$\\' --warning-pending=\\'$_SERVICEWARNINGPENDING$\\' --critical-pending=\\'$_SERVICECRITICALPENDING$\\' --warning-default=\\'$_SERVICEWARNINGDEFAULT$\\' --critical-default=\\'$_SERVICECRITICALDEFAULT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Ansible-Tower-Api-Jobs",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ansible_tower.pl --plugin=apps::automation::ansible::tower::plugin --mode=job-templates --hostname=\\'$HOSTADDRESS$\\' --username=\\'$_HOSTANSIBLETOWERUSERNAME$\\' --password=\\'$_HOSTANSIBLETOWERPASSWORD$\\' --custommode=\\'$_HOSTANSIBLETOWERCUSTOMMODE$\\' $_HOSTANSIBLETOWEREXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-total=\\'$_SERVICEWARNINGTOTAL$\\' --critical-total=\\'$_SERVICECRITICALTOTAL$\\' --warning-successful=\\'$_SERVICEWARNINGSUCCESSFUL$\\' --critical-successful=\\'$_SERVICECRITICALSUCCESSFUL$\\' --warning-failed=\\'$_SERVICEWARNINGFAILED$\\' --critical-failed=\\'$_SERVICECRITICALFAILED$\\' --warning-running=\\'$_SERVICEWARNINGRUNNING$\\' --critical-running=\\'$_SERVICECRITICALRUNNING$\\' --warning-canceled=\\'$_SERVICEWARNINGCANCELED$\\' --critical-canceled=\\'$_SERVICECRITICALCANCELED$\\' --warning-pending=\\'$_SERVICEWARNINGPENDING$\\' --critical-pending=\\'$_SERVICECRITICALPENDING$\\' --warning-default=\\'$_SERVICEWARNINGDEFAULT$\\' --critical-default=\\'$_SERVICECRITICALDEFAULT$\\' --warning-never=\\'$_SERVICEWARNINGNEVER$\\' --critical-never=\\'$_SERVICECRITICALNEVER$\\' --unknown-job-status=\\'$_SERVICEUNKNOWNJOBSTATUS$\\' --warning-job-status=\\'$_SERVICEWARNINGJOBSTATUS$\\' --critical-job-status=\\'$_SERVICECRITICALJOBSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Ansible-Tower-Api-Job-Templates",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ansible_tower.pl --plugin=apps::automation::ansible::tower::plugin --mode=inventories --hostname=\\'$HOSTADDRESS$\\' --username=\\'$_HOSTANSIBLETOWERUSERNAME$\\' --password=\\'$_HOSTANSIBLETOWERPASSWORD$\\' --custommode=\\'$_HOSTANSIBLETOWERCUSTOMMODE$\\' $_HOSTANSIBLETOWEREXTRAOPTIONS$ --filter-inventory=\\'$_SERVICEFILTERINVENTORY$\\' --warning-total=\\'$_SERVICEWARNINGTOTAL$\\' --critical-total=\\'$_SERVICECRITICALTOTAL$\\' --warning-failed=\\'$_SERVICEWARNINGFAILED$\\' --critical-failed=\\'$_SERVICECRITICALFAILED$\\' --warning-hosts-total=\\'$_SERVICEWARNINGHOSTSTOTAL$\\' --critical-hosts-total=\\'$_SERVICECRITICALHOSTSTOTAL$\\' --warning-hosts-failed=\\'$_SERVICEWARNINGHOSTSFAILED$\\' --critical-hosts-failed=\\'$_SERVICECRITICALHOSTSFAILED$\\' --warning-sources-total=\\'$_SERVICEWARNINGSOURCESTOTAL$\\' --critical-sources-total=\\'$_SERVICECRITICALSOURCESTOTAL$\\' --warning-sources-failed=\\'$_SERVICEWARNINGSOURCESFAILED$\\' --critical-sources-failed=\\'$_SERVICECRITICALSOURCESFAILED$\\' --warning-groups-total=\\'$_SERVICEWARNINGGROUPSTOTAL$\\' --critical-groups-total=\\'$_SERVICECRITICALGROUPSTOTAL$\\' --warning-groups-failed=\\'$_SERVICEWARNINGGROUPSFAILED$\\' --critical-groups-failed=\\'$_SERVICECRITICALGROUPSFAILED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Ansible-Tower-Api-Inventories",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ansible_tower.pl --plugin=apps::automation::ansible::tower::plugin --mode=hosts --hostname=\\'$HOSTADDRESS$\\' --username=\\'$_HOSTANSIBLETOWERUSERNAME$\\' --password=\\'$_HOSTANSIBLETOWERPASSWORD$\\' --custommode=\\'$_HOSTANSIBLETOWERCUSTOMMODE$\\' $_HOSTANSIBLETOWEREXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --unknown-job-status=\\'$_SERVICEUNKNOWNJOBSTATUS$\\' --warning-job-status=\\'$_SERVICEWARNINGJOBSTATUS$\\' --critical-job-status=\\'$_SERVICECRITICALJOBSTATUS$\\' --warning-total=\\'$_SERVICEWARNINGTOTAL$\\' --critical-total=\\'$_SERVICECRITICALTOTAL$\\' --warning-failed=\\'$_SERVICEWARNINGFAILED$\\' --critical-failed=\\'$_SERVICECRITICALFAILED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Ansible-Tower-Api-Hosts",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_ansible_tower.pl --plugin=apps::automation::ansible::tower::plugin --mode=discovery --hostname='$_ANSIBLETOWERHOSTNAME$' --username='$_ANSIBLETOWERUSERNAME$'  --password='$_ANSIBLETOWERPASSWORD$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' $_EXTRAOPTIONS$\"",
+            "name": "App-Ansible-Tower-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Ansible Tower via l'API}\r\n{EN: Template to check Ansible Tower using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Ansible Tower using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "ansible-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTANSIBLETOWERCUSTOMMODE$",
+                    "value": "api"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Ansible-Tower",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Ansible-Tower-Schedules-Api",
+                "App-Ansible-Tower-Jobs-Api",
+                "App-Ansible-Tower-Job-Templates-Api",
+                "App-Ansible-Tower-Inventories-Api",
+                "App-Ansible-Tower-Hosts-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "ansible-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ fix disco command using --host instead of --hostname",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Ansible Tower using API.**\r\n\r\nAvailable host templates and related services:\r\n\r\n|App-Ansible-Tower|\r\n|---|\r\n|Hosts|\r\n|Inventories|\r\n|Jobs|\r\n|Jobs templates|\r\n|Schedules|\r\n\r\nThis pack provides a host discovery rule."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser Ansible Tower via l\\'API.**\r\n\r\nMod\u00e8les d\\'h\u00f4te disponibles et leurs services :\r\n\r\n|App-Ansible-Tower|\r\n|---|\r\n|Hosts|\r\n|Inventories|\r\n|Jobs|\r\n|Jobs templates|\r\n|Schedules|\r\n\r\nCe pack fournit une r\u00e8gle de d\u00e9couverte d\\'h\u00f4te."
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n\r\n## Prerequisites\r\n\r\n### Centreon Plugin\r\n\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Ansible-Tower\r\n\r\n### Tower CLI\r\n\r\nTo interact with the Ansible Tower instance, the plugin uses the Tower CLI.\r\n\r\nInstall it using the official documentation : https://docs.ansible.com/ansible-tower/latest/html/towerapi/tower_cli.html#installation.\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Ansible-Tower-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Ansible Tower",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_ansible_tower.pl",
+                "package_name": "centreon-plugin-Applications-Ansible-Tower",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-ansible-tower",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Ansible",
+            "Automation",
+            "Tower",
+            "Application"
+        ],
+        "update_date": "1617290927",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les scheduled jobs.}\r\n\r\n{EN: Check schedules.}",
+            "active_checks_enabled": 2,
+            "alias": "Schedules",
+            "check_timeperiod": "",
+            "command_name": "App-Ansible-Tower-Api-Schedules",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNJOBSTATUS$",
+                    "password": false,
+                    "value": "%{last_job_status} =~ /default/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALJOBSTATUS$",
+                    "password": false,
+                    "value": "%{last_job_status} =~ /failed/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Ansible-Tower-Schedules-Api",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les jobs.}\r\n\r\n{EN: Check jobs.}",
+            "active_checks_enabled": 2,
+            "alias": "Jobs",
+            "check_timeperiod": "",
+            "command_name": "App-Ansible-Tower-Api-Jobs",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Ansible-Tower-Jobs-Api",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les job templates.}\r\n\r\n{EN: Check job templates.}",
+            "active_checks_enabled": 2,
+            "alias": "Job-Templates",
+            "check_timeperiod": "",
+            "command_name": "App-Ansible-Tower-Api-Job-Templates",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNJOBSTATUS$",
+                    "password": false,
+                    "value": "%{last_job_status} =~ /default/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALJOBSTATUS$",
+                    "password": false,
+                    "value": "%{last_job_status} =~ /failed/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Ansible-Tower-Job-Templates-Api",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'inventaire.}\r\n\r\n{EN: Check inventories.}",
+            "active_checks_enabled": 2,
+            "alias": "Inventories",
+            "check_timeperiod": "",
+            "command_name": "App-Ansible-Tower-Api-Inventories",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Ansible-Tower-Inventories-Api",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les h\u00f4tes.}\r\n\r\n{EN: Check hosts.}",
+            "active_checks_enabled": 2,
+            "alias": "Hosts",
+            "check_timeperiod": "",
+            "command_name": "App-Ansible-Tower-Api-Hosts",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNJOBSTATUS$",
+                    "password": false,
+                    "value": "%{last_job_status} =~ /default/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALJOBSTATUS$",
+                    "password": false,
+                    "value": "%{last_job_status} =~ /failed/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Ansible-Tower-Hosts-Api",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

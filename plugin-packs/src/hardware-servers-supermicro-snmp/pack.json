@@ -1,0 +1,119 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_supermicro_snmp.pl --plugin=hardware::server::supermicro::superdoctor::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Server-Supermicro-SNMP-Hardware",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les serveurs Supermicro via SuperDoctor en SNMP}\r\n{EN: Template to check Supermicro server using SuperDoctor using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Supermicro server using Openmanage using SuperDoctor Agent SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "hardware-supermicro.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Server-Supermicro-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Supermicro-Hardware-Global-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "hardware-supermicro.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* deprecate pack: use supermicro superdoctor pack instead",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Supermicro servers via SuperDoctor using SNMP."
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les serveurs Supermicro via SuperDoctor en utilisant le protocole SNMP."
+            }
+        ],
+        "discovery_category": "hardware-server",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\nThis chapter describes the prerequisites installation needed by plugins to run.\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Servers-Supermicro-Snmp\r\n\r\n\r\n### SNMP\r\nIt's necessary to install SuperDoctor Agent and enable SNMP on Supermicro server\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"56%\" />\r\n<col width=\"43%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Server-Supermicro-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\nThose services were automatically created for this host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"23%\" />\r\n<col width=\"76%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Service</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Ping</p></td>\r\n<td align=\"left\"><p>Monitor host response time</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Hardware-Global</p></td>\r\n<td align=\"left\"><p>Monitor Global hardware status</p></td>\r\n</tr>\r\n</tbody>\r\n</table>",
+        "name": "Supermicro",
+        "plugins_requirements": [],
+        "requirement": [],
+        "slug": "hardware-servers-supermicro-snmp",
+        "status": "deprecated",
+        "status_message": "",
+        "tags": [
+            "Hardware",
+            "Supermicro",
+            "SNMP",
+            "SuperDoctor"
+        ],
+        "update_date": "1582877301",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le mat\u00e9riel.}\r\n\r\n{EN: Check hardware of Supermicro Server.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Server-Supermicro-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Supermicro-Hardware-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

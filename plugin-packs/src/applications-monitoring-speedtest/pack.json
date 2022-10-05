@@ -1,0 +1,104 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_speedtest.pl --plugin=apps::monitoring::speedtest::plugin --mode=internet-bandwidth $_HOSTSPEEDTESTEXTRAOPTIONS$ --warning-ping-time=\\'$_SERVICEWARNINGPINGTIME$\\' --critical-ping-time=\\'$_SERVICECRITICALPINGTIME$\\' --warning-bandwidth-download=\\'$_SERVICEWARNINGBANDWIDTHDOWNLOAD$\\' --critical-bandwidth-download=\\'$_SERVICECRITICALBANDWIDTHDOWNLOAD$\\' --warning-bandwidth-upload=\\'$_SERVICEWARNINGBANDWIDTHUPLOAD$\\' --critical-bandwidth-upload=\\'$_SERVICECRITICALBANDWIDTHUPLOAD$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Monitoring-Speedtest-Internet-Bandwidth",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser la bande passante Internet via speedtest.net}\r\n{EN: Template to check internet bandwidth using speedtest.net}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check internet bandwidth using speedtest.net",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Speedtest",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Monitoring-Speedtest-Internet-Bandwidth"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin-pack to monitor internet bandwidth using speedtest.net:\r\n* Internet-Bandwidth\r\n"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin-pack pour superviser la bande passante Internet via speedtest.net :\r\n* Internet-Bandwidth\r\n"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Speedtest",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_monitoring_speedtest.pl",
+                "package_name": "centreon-plugin-Applications-Monitoring-Speedtest",
+                "package_version": "20220616"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-monitoring-speedtest",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Application",
+            "Speedtest",
+            "Test",
+            "Internet"
+        ],
+        "update_date": "1654616192",
+        "version": "22.06.1",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le la bande passante Internet}\r\n\r\n{EN: Check internet bandwidth}",
+            "active_checks_enabled": 2,
+            "alias": "Internet-Bandwidth",
+            "check_timeperiod": "",
+            "command_name": "App-Monitoring-Speedtest-Internet-Bandwidth",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Speedtest-Internet-Bandwidth",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

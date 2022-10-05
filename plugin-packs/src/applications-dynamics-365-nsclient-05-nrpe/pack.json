@@ -1,0 +1,204 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_files -a \\\\\\\"paths=$_SERVICEPATHS$\\\\\\\" \\\\\\\"pattern=$_SERVICEPATTERN$\\\\\\\" \\\\\\\"warning=$_SERVICEWARNING$\\\\\\\" \\\\\\\"critical=$_SERVICECRITICAL$\\\\\\\" top-syntax=\\'$_SERVICETOPSYNTAX$\\' detail-syntax=\\'$_SERVICEDETAILSYNTAX$\\' filter=\\\\\\\"$_SERVICEFILTER$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Windows-NSClient05-NRPE-Files",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser un serveur Dynamics 365 via NRPE}\r\n{EN: Template to check Microsoft Dynamics 365 server using NRPE protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Microsoft Dynamics 365 using NRPE protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "app-dynamics-365-64.png",
+            "macros": [
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTNRPECLIENT$",
+                    "value": "check_centreon_nrpe3"
+                },
+                {
+                    "key": "$_HOSTNRPEEXTRAOPTIONS$",
+                    "value": "-2 -P 8192"
+                },
+                {
+                    "key": "$_HOSTNRPEPORT$",
+                    "value": "5666"
+                },
+                {
+                    "key": "$_HOSTNRPETIMEOUT$",
+                    "value": "30"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Dynamics-365-NRPE",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Dynamics-365-New-Orders-NRPE"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "app-dynamics-365-64.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* put generic monitoring procedure",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            },
+            {
+                "name": "operatingsystems-windows-nsclient-05-nrpe",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Microsoft Dynamics 365 via NSClient++ 0.5.x using client:\r\n* New-Order"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un serveur Microsoft Dynamics 365 via NSClient++ 0.5.x using client:\r\n* New-Order"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\\r\\n\\r\\n* 19.04.2 or later\\r\\n* 19.10.1 or later\\r\\n* 20.04.0 or later\\r\\n\\r\\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' \",\r\n",
+        "name": "Dynamics 365",
+        "plugins_requirements": [],
+        "requirement": [],
+        "slug": "applications-dynamics-365-nsclient-05-nrpe",
+        "status": "stable",
+        "status_message": "put generic monitoring procedure",
+        "tags": [
+            "Dynamics",
+            "Windows",
+            "Microsoft",
+            "Application"
+        ],
+        "update_date": "1639584702",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier la pr\u00e9sence de nouvelles commandes et leur \u00e2ge.}\r\n\r\n{EN: Check new orders presence and age.}",
+            "active_checks_enabled": 2,
+            "alias": "New-Orders",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPATHS$",
+                    "password": false,
+                    "value": "C:/D365/Interfaces/Input/SalesOrders/New/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPATTERN$",
+                    "password": false,
+                    "value": "*.xml"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "count > 20"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "age > -1d or count > 100"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": "none"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "\"empty-state=ok\" show-all"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Dynamics-365-New-Orders-NRPE",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Windows-NSClient05-Files-Generic-NRPE",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier des fichiers/r\u00e9pertoires (taille, dernier acc\u00e8s,..).}\r\n\r\n{EN: Check files/directories (size, last access,...).}",
+            "active_checks_enabled": 2,
+            "alias": "Files-Generic",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NSClient05-NRPE-Files",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETOPSYNTAX$",
+                    "password": false,
+                    "value": "${status}: ${problem_count}/${count} files (${problem_list})"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEDETAILSYNTAX$",
+                    "password": false,
+                    "value": "${name}"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "show-all"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-Windows-NSClient05-Files-Generic-NRPE",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

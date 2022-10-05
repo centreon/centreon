@@ -1,0 +1,283 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_cli.pl --plugin=apps::redis::cli::plugin --mode=replication --hostname=$HOSTADDRESS$ --port=\\'$_HOSTREDISPORT$\\' --password=\\'$_HOSTREDISPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-connected-slaves=\\'$_SERVICEWARNINGCONNECTEDSLAVES$\\' --critical-connected-slaves=\\'$_SERVICECRITICALCONNECTEDSLAVES$\\' --warning-master-repl-offset=\\'$_SERVICEWARNINGMASTERREPLOFFSET$\\' --critical-master-repl-offset=\\'$_SERVICECRITICALMASTERREPLOFFSET$\\' --warning-master-last-io=\\'$_SERVICEWARNINGMASTERLASTIO$\\' --critical-master-last-io=\\'$_SERVICECRITICALMASTERLASTIO$\\' --warning-slave-priority=\\'$_SERVICEWARNINGSLAVEPRIORITY$\\' --critical-slave-priority=\\'$_SERVICECRITICALSLAVEPRIORITY$\\' --warning-slave-read-only=\\'$_SERVICEWARNINGSLAVEREADONLY$\\' --critical-slave-read-only=\\'$_SERVICECRITICALSLAVEREADONLY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Cli-Replication",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_cli.pl --plugin=apps::redis::cli::plugin --mode=persistence --hostname=$HOSTADDRESS$ --port=\\'$_HOSTREDISPORT$\\' --password=\\'$_HOSTREDISPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-changes=\\'$_SERVICEWARNINGCHANGES$\\' --critical-changes=\\'$_SERVICECRITICALCHANGES$\\' --warning-last-save=\\'$_SERVICEWARNINGLASTSAVE$\\' --critical-last-save=\\'$_SERVICECRITICALLASTSAVE$\\' --warning-save-size=\\'$_SERVICEWARNINGSAVESIZE$\\' --critical-save-size=\\'$_SERVICECRITICALSAVESIZE$\\' --warning-last-save-duration=\\'$_SERVICEWARNINGLASTSAVEDURATION$\\' --critical-last-save-duration=\\'$_SERVICECRITICALLASTSAVEDURATION$\\' --warning-current-save-duration=\\'$_SERVICEWARNINGCURRENTSAVEDURATION$\\' --critical-current-save-duration=\\'$_SERVICECRITICALCURRENTSAVEDURATION$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Cli-Persistence",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_cli.pl --plugin=apps::redis::cli::plugin --mode=memory --hostname=$HOSTADDRESS$ --port=\\'$_HOSTREDISPORT$\\' --password=\\'$_HOSTREDISPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --warning-used=\\'$_SERVICEWARNINGUSED$\\' --critical-used=\\'$_SERVICECRITICALUSED$\\' --warning-rss=\\'$_SERVICEWARNINGRSS$\\' --critical-rss=\\'$_SERVICECRITICALRSS$\\' --warning-peak=\\'$_SERVICEWARNINGPEAK$\\' --critical-peak=\\'$_SERVICECRITICALPEAK$\\' --warning-overhead=\\'$_SERVICEWARNINGOVERHEAD$\\' --critical-overhead=\\'$_SERVICECRITICALOVERHEAD$\\' --warning-startup=\\'$_SERVICEWARNINGSTARTUP$\\' --critical-startup=\\'$_SERVICECRITICALSTARTUP$\\' --warning-dataset=\\'$_SERVICEWARNINGDATASET$\\' --critical-dataset=\\'$_SERVICECRITICALDATASET$\\' --warning-lua=\\'$_SERVICEWARNINGLUA$\\' --critical-lua=\\'$_SERVICECRITICALLUA$\\' --warning-fragmentation-ratio=\\'$_SERVICEWARNINGFRAGMENTATIONRATIO$\\' --critical-fragmentation-ratio=\\'$_SERVICECRITICALFRAGMENTATIONRATIO$\\' --warning-defrag-running=\\'$_SERVICEWARNINGDEFRAGRUNNING$\\' --critical-defrag-running=\\'$_SERVICECRITICALDEFRAGRUNNING$\\' --warning-lazyfree-pending-objects=\\'$_SERVICEWARNINGLAZYFREEPENDINGOBJECTS$\\' --critical-lazyfree-pending-objects=\\'$_SERVICECRITICALLAZYFREEPENDINGOBJECTS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Cli-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_cli.pl --plugin=apps::redis::cli::plugin --mode=cpu --hostname=$HOSTADDRESS$ --port=\\'$_HOSTREDISPORT$\\' --password=\\'$_HOSTREDISPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --warning-sys=\\'$_SERVICEWARNINGSYS$\\' --critical-sys=\\'$_SERVICECRITICALSYS$\\' --warning-user=\\'$_SERVICEWARNINGUSER$\\' --critical-user=\\'$_SERVICECRITICALUSER$\\' --warning-sys-children=\\'$_SERVICEWARNINGSYSCHILDREN$\\' --critical-sys-children=\\'$_SERVICECRITICALSYSCHILDREN$\\' --warning-user-children=\\'$_SERVICEWARNINGUSERCHILDREN$\\' --critical-user-children=\\'$_SERVICECRITICALUSERCHILDREN$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Cli-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_cli.pl --plugin=apps::redis::cli::plugin --mode=connections --hostname=$HOSTADDRESS$ --port=\\'$_HOSTREDISPORT$\\' --password=\\'$_HOSTREDISPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --warning-received-connections=\\'$_SERVICEWARNINGRECEIVEDCONNECTIONS$\\' --critical-received-connections=\\'$_SERVICECRITICALRECEIVEDCONNECTIONS$\\' --warning-rejected-connections=\\'$_SERVICEWARNINGREJECTEDCONNECTIONS$\\' --critical-rejected-connections=\\'$_SERVICECRITICALREJECTEDCONNECTIONS$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Cli-Connections",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_cli.pl --plugin=apps::redis::cli::plugin --mode=commands --hostname=$HOSTADDRESS$ --port=\\'$_HOSTREDISPORT$\\' --password=\\'$_HOSTREDISPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --warning-processed-commands=\\'$_SERVICEWARNINGPROCESSEDCOMMANDS$\\' --critical-processed-commands=\\'$_SERVICECRITICALPROCESSEDCOMMANDS$\\' --warning-ops-per-sec=\\'$_SERVICEWARNINGOPSPERSEC$\\' --critical-ops-per-sec=\\'$_SERVICECRITICALOPSPERSEC$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Cli-Commands",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_cli.pl --plugin=apps::redis::cli::plugin --mode=clients --hostname=$HOSTADDRESS$ --port=\\'$_HOSTREDISPORT$\\' --password=\\'$_HOSTREDISPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --warning-connected-clients=\\'$_SERVICEWARNINGCONNECTEDCLIENTS$\\' --critical-connected-clients=\\'$_SERVICECRITICALCONNECTEDCLIENTS$\\' --warning-blocked-clients=\\'$_SERVICEWARNINGBLOCKEDCLIENTS$\\' --critical-blocked-clients=\\'$_SERVICECRITICALBLOCKEDCLIENTS$\\' --warning-client-longest-output-list=\\'$_SERVICEWARNINGCLIENTLONGESTOUTPUTLIST$\\' --critical-client-longest-output-list=\\'$_SERVICECRITICALCLIENTLONGESTOUTPUTLIST$\\' --warning-client-biggest-input-buf=\\'$_SERVICEWARNINGCLIENTBIGGESTINPUTBUF$\\' --critical-client-biggest-input-buf=\\'$_SERVICECRITICALCLIENTBIGGESTINPUTBUF$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Cli-Clients",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser une instance Redis}\r\n{EN: Template to check Redis instance}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Redis instance",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "Redis-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTREDISPORT$",
+                    "value": "6379"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Cli",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Redis-Cli-Replication",
+                "App-Redis-Cli-Persistence",
+                "App-Redis-Cli-Memory",
+                "App-Redis-Cli-Cpu",
+                "App-Redis-Cli-Connections",
+                "App-Redis-Cli-Commands",
+                "App-Redis-Cli-Clients"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "Redis-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* please use applications-databases-redis",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Redis instances :\r\n* Clients\r\n* Commands\r\n* Connections\r\n* Cpu\r\n* Memory\r\n* Persistence\r\n* Replication"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pour superviser les instances Redis :\r\n* Clients\r\n* Commands\r\n* Connections\r\n* Cpu\r\n* Memory\r\n* Persistence\r\n* Replication"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nThe plugin is using the perl-Redis library. To install it, you will need the EPEL repository :\r\n    # yum install epel-release\r\n    # yum install perl-Redis\r\n    # yum remove epel-release\r\nThis library installs 2 dependencies : perl-IO-Socket-Timeout and perl-PerlIO-via-Timeout.\r\n\r\nThen install this plugin :\r\n    # yum install centreon-plugin-Applications-Redis-Cli\r\n\r\n## Centreon Configuration\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Redis-Cli</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Host Macro Configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"23%\" />\r\n<col width=\"53%\" />\r\n<col width=\"24%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>REDISPORT</p></td>\r\n<td align=\"left\"><p>Redis server port</p></td>\r\n<td align=\"left\"><p>6379</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n",
+        "name": "Redis Cli",
+        "plugins_requirements": [],
+        "requirement": [
+            {
+                "name": "centreon-plugin-Applications-Redis-Cli",
+                "version": "20171208-1"
+            }
+        ],
+        "slug": "applications-redis-cli",
+        "status": "deprecated",
+        "status_message": "",
+        "tags": [
+            "Redis"
+        ],
+        "update_date": "1625772786",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le status de la r\u00e9plication.}\r\n{EN: Check replication status.}",
+            "active_checks_enabled": 2,
+            "alias": "Replication",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Cli-Replication",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{sync_status} =~ /in progress/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{link_status} =~ /down/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Cli-Replication",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la persistance des donn\u00e9es.}\r\n{EN: Check data persistence.}",
+            "active_checks_enabled": 2,
+            "alias": "Persistence",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Cli-Persistence",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{progress_status} =~ /in progress/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /fail/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Cli-Persistence",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la consommation m\u00e9moire.}\r\n{EN: Check memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Cli-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Cli-Memory",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la consommation CPU.}\r\n{EN: Check CPU usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Cli-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Cli-Cpu",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de connections re\u00e7ues et rejet\u00e9es.}\r\n{EN: Check received and rejected connections.}",
+            "active_checks_enabled": 2,
+            "alias": "Connections",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Cli-Connections",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Cli-Connections",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de commandes ex\u00e9cut\u00e9es par le serveur.}\r\n{EN: Check processed commands.}",
+            "active_checks_enabled": 2,
+            "alias": "Commands",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Cli-Commands",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Cli-Commands",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le nombre de clients connect\u00e9s et bloqu\u00e9s.}\r\n{EN: Check connected and blocked clients.}",
+            "active_checks_enabled": 2,
+            "alias": "Clients",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Cli-Clients",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Cli-Clients",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

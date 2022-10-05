@@ -1,0 +1,331 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-Commvault-Commserve-Restapi-Media-Agents-Discover",
+                "command_for_macro": "App-Commvault-Commserve-Restapi-Media-Agents-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-Commvault-Commserve-Restapi"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERMEDIAAGENTID",
+                        "value": "^$id$$"
+                    }
+                ],
+                "name": "App-Commvault-Commserve-Restapi-Media-Agent-Name",
+                "service_display_name": "Media-Agent-$name$",
+                "service_template": "App-Commvault-Commserve-Media-Agents-Restapi"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-Commvault-Commserve-Restapi-Storage-Policies-Discover",
+                "command_for_macro": "App-Commvault-Commserve-Restapi-Storage-Policies-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-Commvault-Commserve-Restapi"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERPOLICYID",
+                        "value": "^$id$$"
+                    }
+                ],
+                "name": "App-Commvault-Commserve-Restapi-Storage-Policies-Job-Name",
+                "service_display_name": "Job-$name$",
+                "service_template": "App-Commvault-Commserve-Jobs-Restapi"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_commvault_commserve_restapi.pl --plugin=apps::backup::commvault::commserve::restapi::plugin --mode=list-media-agents --hostname=127.0.0.1 --api-username=none --api-password=none --statefile-suffix=\\'autodiscovery\\' --disco-format\\\"",
+            "name": "App-Commvault-Commserve-Restapi-Media-Agents-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_commvault_commserve_restapi.pl --plugin=apps::backup::commvault::commserve::restapi::plugin --mode=list-media-agents --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTCOMMSERVEAPIUSERNAME$\\' --api-password=\\'$_HOSTCOMMSERVEAPIPASSWORD$\\' --port=\\'$_HOSTCOMMSERVEAPIPORT$\\' --proto=\\'$_HOSTCOMMSERVEAPIPROTO$\\' $_HOSTCOMMSERVEAPIEXTRAOPTIONS$ --statefile-suffix=\\'autodiscovery\\' --disco-show\\\"",
+            "name": "App-Commvault-Commserve-Restapi-Media-Agents-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_commvault_commserve_restapi.pl --plugin=apps::backup::commvault::commserve::restapi::plugin --mode=list-storage-policies --hostname=127.0.0.1 --api-username=none --api-password=none --statefile-suffix=\\'autodiscovery\\' --disco-format\\\"",
+            "name": "App-Commvault-Commserve-Restapi-Storage-Policies-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_commvault_commserve_restapi.pl --plugin=apps::backup::commvault::commserve::restapi::plugin --mode=list-storage-policies --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTCOMMSERVEAPIUSERNAME$\\' --api-password=\\'$_HOSTCOMMSERVEAPIPASSWORD$\\' --port=\\'$_HOSTCOMMSERVEAPIPORT$\\' --proto=\\'$_HOSTCOMMSERVEAPIPROTO$\\' $_HOSTCOMMSERVEAPIEXTRAOPTIONS$ --statefile-suffix=\\'autodiscovery\\' --disco-show\\\"",
+            "name": "App-Commvault-Commserve-Restapi-Storage-Policies-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_commvault_commserve_restapi.pl --plugin=apps::backup::commvault::commserve::restapi::plugin --mode=storage-pools --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTCOMMSERVEAPIUSERNAME$\\' --api-password=\\'$_HOSTCOMMSERVEAPIPASSWORD$\\' --port=\\'$_HOSTCOMMSERVEAPIPORT$\\' --proto=\\'$_HOSTCOMMSERVEAPIPROTO$\\' $_HOSTCOMMSERVEAPIEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Commvault-Commserve-Restapi-Storage-Pools",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_commvault_commserve_restapi.pl --plugin=apps::backup::commvault::commserve::restapi::plugin --mode=media-agents --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTCOMMSERVEAPIUSERNAME$\\' --api-password=\\'$_HOSTCOMMSERVEAPIPASSWORD$\\' --port=\\'$_HOSTCOMMSERVEAPIPORT$\\' --proto=\\'$_HOSTCOMMSERVEAPIPROTO$\\' $_HOSTCOMMSERVEAPIEXTRAOPTIONS$ --filter-media-agent-id=\\'$_SERVICEFILTERMEDIAAGENTID$\\' --filter-media-agent-name=\\'$_SERVICEFILTERMEDIAAGENTNAME$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-media-agents-total=\\'$_SERVICEWARNINGMEDIAAGENTSTOTAL$\\' --critical-media-agents-total=\\'$_SERVICECRITICALMEDIAAGENTSTOTAL$\\' --warning-media-agents-online=\\'$_SERVICEWARNINGMEDIAAGENTSONLINE$\\' --critical-media-agents-online=\\'$_SERVICECRITICALMEDIAAGENTSONLINE$\\' --warning-media-agents-offline=\\'$_SERVICEWARNINGMEDIAAGENTSOFFLINE$\\' --critical-media-agents-offline=\\'$_SERVICECRITICALMEDIAAGENTSOFFLINE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Commvault-Commserve-Restapi-Media-Agents",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_commvault_commserve_restapi.pl --plugin=apps::backup::commvault::commserve::restapi::plugin --mode=jobs --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTCOMMSERVEAPIUSERNAME$\\' --api-password=\\'$_HOSTCOMMSERVEAPIPASSWORD$\\' --port=\\'$_HOSTCOMMSERVEAPIPORT$\\' --proto=\\'$_HOSTCOMMSERVEAPIPROTO$\\' $_HOSTCOMMSERVEAPIEXTRAOPTIONS$ --filter-policy-name=\\'$_SERVICEFILTERPOLICYNAME$\\' --filter-policy-id=\\'$_SERVICEFILTERPOLICYID$\\' --filter-type=\\'$_SERVICEFILTERTYPE$\\' --filter-client-name=\\'$_SERVICEFILTERCLIENTNAME$\\' --filter-client-group=\\'$_SERVICEFILTERCLIENTGROUP$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --warning-jobs-total=\\'$_SERVICEWARNINGJOBSTOTAL$\\' --critical-jobs-total=\\'$_SERVICECRITICALJOBSTOTAL$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-long=\\'$_SERVICEWARNINGLONG$\\' --critical-long=\\'$_SERVICECRITICALLONG$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Commvault-Commserve-Restapi-Jobs",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_commvault_commserve_restapi.pl --plugin=apps::backup::commvault::commserve::restapi::plugin --mode=alerts --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTCOMMSERVEAPIUSERNAME$\\' --api-password=\\'$_HOSTCOMMSERVEAPIPASSWORD$\\' --port=\\'$_HOSTCOMMSERVEAPIPORT$\\' --proto=\\'$_HOSTCOMMSERVEAPIPROTO$\\' $_HOSTCOMMSERVEAPIEXTRAOPTIONS$ --filter-alert-name=\\'$_SERVICEFILTERALERTNAME$\\' --filter-alert-type=\\'$_SERVICEFILTERALERTTYPE$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-alerts-total=\\'$_SERVICEWARNINGALERTSTOTAL$\\' --critical-alerts-total=\\'$_SERVICECRITICALALERTSTOTAL$\\' --warning-alerts-critical=\\'$_SERVICEWARNINGALERTSCRITICAL$\\' --critical-alerts-critical=\\'$_SERVICECRITICALALERTSCRITICAL$\\' --warning-alerts-warning=\\'$_SERVICEWARNINGALERTSWARNING$\\' --critical-alerts-warning=\\'$_SERVICECRITICALALERTSWARNING$\\' --warning-alerts-info=\\'$_SERVICEWARNINGALERTSINFO$\\' --critical-alerts-info=\\'$_SERVICECRITICALALERTSINFO$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Commvault-Commserve-Restapi-Alerts",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Commvault Commserve via l'API}\r\n{EN: Template to check Commvault Commserve using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Commvault Commserve using Rest API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "commvault-128-1.png",
+            "macros": [
+                {
+                    "key": "$_HOSTCOMMSERVEAPIPORT$",
+                    "value": "443"
+                },
+                {
+                    "key": "$_HOSTCOMMSERVEAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTCOMMSERVEAPIEXTRAOPTIONS$",
+                    "value": "--http-backend=curl --insecure"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Commvault-Commserve-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Commvault-Commserve-Storage-Pools-Restapi",
+                "App-Commvault-Commserve-Media-Agents-Restapi",
+                "App-Commvault-Commserve-Jobs-Restapi",
+                "App-Commvault-Commserve-Alerts-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "commvault-128-1.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ added some thresholds that weren't implemented",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Commvault Commserve using Rest API:\r\n* Alerts\r\n* Jobs\r\n* Storage pools"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser Commvault Commserve via l\\'API Rest :\r\n* Alerts\r\n* Jobs\r\n* Storage pools"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAt4SURBVHic7dp7kFTVncDx7+/cngfdzfBQIBqzaxTBOMwMymaVZGMmzIMdEJPdysRYUQOuQRhkQdfUkl3ZmpJETVxcCkRYDKyGMpuy1yQrj0GGQZQtN7ALzCtbAYPomkgByvCY6Xl1n9/+0T3jPHpGzSaUWr9P1dR03/P7nXvOufeee/p2gzHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMeaD0zn3XK1fWTr6/cTKH7ox5sLR2QvHoFINVIGcA32QyKnHJRZLDpVjJ8DHgBZXh4icWIi6atCxKD/DMQklH7QBFyyVrY/vyZTrLmxTze+bViyYQfjkQVRWg55A3J9LzRN/yWfHF6J8E+RSvH9RZy3corMXXjEw32aAjyidWTWRQB4CrQQ53TPd0zb+SkS/h5ejZLV/j2ROCO/+FuHedOZ6NFguNWvOwYATYPTU4tFdGtwicANeLiUV8Q6q9ckg69mO+h2vp0MlUlRarnCTKBOBkCJnBN2P1x+1Nded6KkzXFA2S5zOFWhpbdi1ANBMHYoWla5QmCyqz7Y21v1b9NqKceq71wI4TS4/3/ji4Ux54aKSmwS5A+UN791qF/iVAF7dyvbGnfsypEi0sGSDioxCdVtbY93TFBeHIqdDGxFGKFoXb6j7574JIwrLr3fi/0ZUX21trPv7gRVGCkuXInxO1W2ON+7cEi0sn6HiF6hKfbyx9qGeuJFXl1zkc2Rdpn70Nk71p4HmvpCQrutCmn3wbNO2lr7levOdI0nkLAe3BFRA1pCdtYIzXQnC3A8sA3LS4W8D3yVy6nHOjb+aQFcBpShvIbJMtq/dHOo7kN1efiQwJtWSvq2SWwNNOOARCssjETSGakW/kNRx/ao6+YdwUcmt8Ya6ralUnYRSqUCkqOy5tobanQM7nTe17Kqk178DnBfXDJCgMxyoqwRQCVqAuzMPmKwApiLa0N6889uRwtLJQKFTr8AtA+OjRSXFqnIXCoo+AhBtCd2scAcKgpQwbc5mDmyJ9+QE+MtUqQT5RaY2gFyPaqXg9wNbPMlPi0qloCP7RiVCQdipr8xcR29dRzqD5C+CBJd0ZrXnAf1OALpzixG+DVqL18XcMP5V9p28jTA/ACYMqOxiYBWt4+5AdIlsf6JMZy36MsJq0KeBzQ4gWlg+RVRiwBiQ/SLcIrgCzQouxWuRKner0AQQFf8YaAXQBtyrwnXeuz/CazlQJxAVlZ/kXjvjjwf1TfW+TF1OJHUxw6xHVLk9em3FuIHbowVlXwSmDohdmxpHvhKZUjJwQFCV9ImkL8cbdx9M59yT2ia/AcaGE/Hbh2rL/0f7xV3Hk8qVPX/AsXSjbuvZ5pLBYx31O17PztEtHYd2vzFkZeJWyo51h/nvdwoQHmDwwe8Ty3U4lumc+WHZvvbfQbf2FIUAFL0fyAUOtsVDN/Lrms4+6ceBRkhPYcpcAFGZ19pUG+sT9yb5lS9FXMshhGuChFsAfKdPeRIojxaWT2lt3Nncs3HMtNJRXd3MTZcHGZqfBEZ4n1gIPNivxOlStH9eXNwzEfz3gdE47gQe7imLFpaPV/xfAHhxq9Lbpij+S8ARdXqfeLaKl78GNjDE7ep3tmdPogNe63kbKSztBhAJjnc07nwNoCNd1nJg19n3qk5nV30Jn7gBDf0JLjkfZTmQNyDsV6jeJzXrajLVkb7q/BcBVFk/4OD3k8xhOpANnG1t+vxzgwJ+GetSkWcAVPhC/9ayAxBVf2/fzV0J/StgJMigW0M67zBwTFSruLw4t2dzbkHpFarMGZTXuLMtPb0B8i2o7p1ZVJNz0+0/1j5p9PPpvi9KhcqGeP2u7cBhhGsiU0pKhxqHDw2vo0AeQpLNeE6SI1cAq0ldNGcQXYYGU4c6+NB7AsgnUm9cxoXWuzuUS9KvjkG1z1ih+KPpii/pu13QA8BBhG9E8os/AUBlZYCyWIVfo7yUcZ+CV9gITAjnBd/o2RwIi1P/dOPgNvAEqav305HCveU9NanIfACUNcRiydFTi0cr3A50uE7/FKCisiYVLUuGHYsPl08hPE0nz4L7IUIBGkySbeu+LzVrhrygIX0CKCQA1PkRwwVLOo5h79eup85BHzFVdAOQIy6rCiB6pOXLIJeL6ibwQ0+3WcEmICG4ewEZe31FHsqdwIHA+/qB4ecb6o6g1KbaLAsAIlNKSgWuRDmXE87aCNDtQ3OBCBDLGpXdHSkoLfX43wIJhIq8qWVXDTceHz46A/xBklwkNWtOvZ8MByDK/6by+cxwwYI7mo67vO/U2q8JqlcCqMjxgWW5udn/qtCqoguZPn2EKkuBhAbu6eH2Gz/wwnERtoLmRwpLZna2J+Yh5ElqZshIRdammsrsEYXFl6lLL/5E/+X0vppzUO1UWATgvV/f2ZH4FkKtiPyM1NrIpReneFxXuq7IEHuLpsZHu4brxwUSImC8zlq0UmdVLdFp87OGC04dRNHa9PuqcfnF0aGCW9uDfcAZhLxo4d6vDQqYWJEjwm0Agu4dWHx6X805h/4EuDgaj6wCvgBaEz9U+9Z79cp7vyH1Su5XdDEQz8rix0PFxyeP3gb6OhAKNOsBgZuBZMjrGoBwwcsz088wGtubd7+CqhNhQ/rv5wAizB0zrXQU4n/T08NBn0ZS65LrALzK0Kv2C07HAquYEGrWWYtuGioqBJAM9J+ChMxDuCoehF6JFJY9LJJoxOWeJJmc4NEb0ORv4001NVpQulKEFYpsjBSVfVLR3aqJU05C+fjuZcBkoC0pofWZdpgUfdKp3KXKfABVGfIq7ivedOMLkcL/eAMoSd9bNrcc2HV21JQZF2dMiMWSFJStR/QRFb0bQISfn23efTT1OlgMisB6gLbGXY/25hYXhyKng1dBLu/qZl588pg10cMtrylc4ZPdPx1ZVPqdZCg4Sqf/pHO6XOFS4ExuOOvFeL9GaDi3oHTQ49eOpl3H+H18wlCtR6SeAR+FB5gEukVnVW0jSHxNtmzo10QH0HFo9xuC3AycAApAf6waNGuy+6TimwR9UpwrAohfPeZhRJ8Cwqj+oygHHaE3UXYgFAPnFXdrn6eG/bQ37N6PaEOqAxyPX5TY9v56W+1V3l3wibofvleGy+7eyLufrMDLKoC8/JkTQWcqtGaPyHpmUOKePQkReSzVRO4hlq+CzgXOCvyZV/ZKd/ItcfpfmppZOgTuSt1a+pIbA+HowD+mT88dtM8PSv19hDSLPx0/LfXMnxPDRB/A84hs2RDXiqo5wOyegt4nga1NtS+Nyy+e2BYEt4jK5xE+BQQopxCtT3p5FoBYLNkG80ZMmfGkC9xXUSYD2SincbJfVDa3Ne482dtOlSPiNIbIL3uHBXlQha+rUsuePakFqLhfiWjMqf+fVMNy4irdMby82VsXuklEClA519q0cy9AAmlFiJFh+j1/YM/bkYKyapxOU+XttqbalwB8kCxCeE48/zn4oKXHQ92mCPo5EQ1GFrwy6Xxj3d7wtWXXkNA7nfBZhZEocXEcCpL+qZ6ZBcARHFPxsUz1AnDusvTXs7ID0QaUk0PGDpTVsYdEzqPgluBDzew7uZruxHeJhp+ns3sZokv7RB9HtJrw2xtpHTtZZ1W9AJSnHwV/E+zLoI+sfl8GKe8grCBy6nE6JlxFd1IJBZfg4gcyfhkU6nhAnt90HuwE+MjTigUzSD3VLAAOgSyV7Wtf1upqx76TtyE8CowH3YqwRLate61vvp0AHwODfhCCPgcyidR6btgfhNgJ8DHyu/wkzHwMfZAfhRpjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGmAvg/wD8Xq0AqBB4fgAAAABJRU5ErkJggg==",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Commvault Commserve Rest API",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_commvault_commserve_restapi.pl",
+                "package_name": "centreon-plugin-Applications-Commvault-Commserve-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-commvault-commserve-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Backup",
+            "Commvault",
+            "Commserve",
+            "Restapi",
+            "Application"
+        ],
+        "update_date": "1608116310",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les pools de stockage.}\r\n\r\n{EN: Check storage pools.}",
+            "active_checks_enabled": 2,
+            "alias": "Storage-Pools",
+            "check_timeperiod": "",
+            "command_name": "App-Commvault-Commserve-Restapi-Storage-Pools",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /online/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Commvault-Commserve-Storage-Pools-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les media agents.}\r\n\r\n{EN: Check media agents.}",
+            "active_checks_enabled": 2,
+            "alias": "Media-Agents",
+            "check_timeperiod": "",
+            "command_name": "App-Commvault-Commserve-Restapi-Media-Agents",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{is_maintenance} eq \"no\" and %{status} eq \"offline\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Commvault-Commserve-Media-Agents-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les jobs.}\r\n\r\n{EN: Check jobs.}",
+            "active_checks_enabled": 2,
+            "alias": "Jobs",
+            "check_timeperiod": "",
+            "command_name": "App-Commvault-Commserve-Restapi-Jobs",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /abnormal/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /errors|failed/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Commvault-Commserve-Jobs-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les alertes.}\r\n\r\n{EN: Check alerts.}",
+            "active_checks_enabled": 2,
+            "alias": "Alerts",
+            "check_timeperiod": "",
+            "command_name": "App-Commvault-Commserve-Restapi-Alerts",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{severity} =~ /warning/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{severity} =~ /critical/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Commvault-Commserve-Alerts-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

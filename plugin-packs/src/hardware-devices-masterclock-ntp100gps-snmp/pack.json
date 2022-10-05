@@ -1,0 +1,171 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_masterclock_ntpserver_snmp.pl --plugin=hardware::devices::masterclock::ntp100gps::snmp::plugin --mode=uptime --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-uptime=\\'$_SERVICEWARNING$\\' --critical-uptime=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Masterclock-Ntp100gps-SNMP-Uptime",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_masterclock_ntpserver_snmp.pl --plugin=hardware::devices::masterclock::ntp100gps::snmp::plugin --mode=ntp-performance --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-stratum-level=\\'$_SERVICEWARNINGSTRATUMLEVEL$\\' --critical-stratum-level=\\'$_SERVICECRITICALSTRATUMLEVEL$\\' --warning-precision=\\'$_SERVICEWARNINGPRECISION$\\'  --critical-precision=\\'$_SERVICECRITICALPRECISION$\\' --warning-poll-interval=\\'$_SERVICEWARNINGPOLLINTERVAL$\\' --critical-poll-interval=\\'$_SERVICECRITICALPOLLINTERVAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Masterclock-Ntp100gps-SNMP-Ntp-Performance",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_masterclock_ntpserver_snmp.pl --plugin=hardware::devices::masterclock::ntp100gps::snmp::plugin --mode=gps-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Masterclock-Ntp100gps-SNMP-Gps-Status",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les serveurs NTP Masterclock Ntp100gps en SNMP}\r\n{EN: Template to check Masterclocl NTP server ntp100gps using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Masterclock NTP server Ntp100gps using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "masterclock-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Masterclock-Ntp100gps-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Device-Masterclock-Ntp100gps-Uptime-SNMP",
+                "HW-Device-Masterclock-Ntp100gps-Ntp-Performance-SNMP",
+                "HW-Device-Masterclock-Ntp100gps-Gps-Status-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "masterclock-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix(pack)missing-icon\r\n",
+        "dependencies": [],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Masterclock NTP server NTP100GPS via SNMP :\r\n* GPS status\r\n* NTP performances\r\n* Uptime"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les serveurs NTP Masterclock NTP100GPS via SNMP :\r\n* Statut GPS\r\n* Performances NTP\r\n* Uptime"
+            }
+        ],
+        "discovery_category": "hardware-server",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\nThis chapter describes the prerequisites installation needed by plugins\r\nto run.\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Devices-Masterclock-Ntp100gps-Snmp\r\n\r\n### SNMP\r\nIt's necessary to enable SNMP on your equipment\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Device-Masterclock-Ntp100gps-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Masterclock NTP100GP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_masterclock_ntpserver_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Devices-Masterclock-Ntp100gps-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-devices-masterclock-ntp100gps-snmp",
+        "status": "stable",
+        "status_message": "fix(pack)missing-icon",
+        "tags": [
+            "Hardware",
+            "Devices",
+            "SNMP",
+            "Masterclock",
+            "NTP",
+            "GPS"
+        ],
+        "update_date": "1596008703",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Dur\u00e9e depuis laquelle le serveur tourne sans interruption.}\n\n{EN: Time since the server has been working and available.}",
+            "active_checks_enabled": 2,
+            "alias": "Uptime",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Masterclock-Ntp100gps-SNMP-Uptime",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "HW-Device-Masterclock-Ntp100gps-Uptime-SNMP",
+            "normal_check_interval": 60,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le statut et les performances du server NTP.}\r\n\r\n{EN: Check the NTP server performances and statut.}",
+            "active_checks_enabled": 2,
+            "alias": "Ntp-Performance",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Masterclock-Ntp100gps-SNMP-Ntp-Performance",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{health} !~ /No leap second today/"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Device-Masterclock-Ntp100gps-Ntp-Performance-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut de la r\u00e9ception GPS.}\r\n\r\n{EN: Check the GPS receiver status.}",
+            "active_checks_enabled": 2,
+            "alias": "Gps-Status",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Masterclock-Ntp100gps-SNMP-Gps-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{satellites} =~ /No satellites in view/"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Device-Masterclock-Ntp100gps-Gps-Status-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

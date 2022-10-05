@@ -1,0 +1,155 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_phoenixtec_snmp.pl --plugin=hardware::ups::phoenixtec::snmp::plugin --mode=output-lines  --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-load=\\'$_SERVICEWARNINGLOAD$\\' --critical-load=\\'$_SERVICECRITICALLOAD$\\' --warning-frequence=\\'$_SERVICEWARNINGFREQUENCE$\\' --critical-frequence=\\'$_SERVICECRITICALFREQUENCE$\\' --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\'\\\"",
+            "name": "HW-UPS-Phoenixtec-SNMP-Output-Lines",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_phoenixtec_snmp.pl --plugin=hardware::ups::phoenixtec::snmp::plugin --mode=input-lines --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-frequence=\\'$_SERVICEWARNINGFREQUENCE$\\' --critical-frequence=\\'$_SERVICECRITICALFREQUENCE$\\' --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\'\\\"",
+            "name": "HW-UPS-Phoenixtec-SNMP-Input-Lines",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_phoenixtec_snmp.pl --plugin=hardware::ups::phoenixtec::snmp::plugin --mode=battery-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-charge-remaining=\\'$_SERVICEWARNINGCHARGEREMAINING$\\' --critical-charge-remaining=\\'$_SERVICECRITICALCHARGEREMAINING$\\' --warning-charge-remaining-minutes=\\'$_SERVICEWARNINGCHARGEREMAININGMINUTES$\\' --critical-charge-remaining-minutes=\\'$_SERVICECRITICALCHARGEREMAININGMINUTES$\\' --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\' --warning-temperature=\\'$_SERVICEWARNINGTEMPERATURE$\\' --critical-temperature=\\'$_SERVICECRITICALTEMPERATURE$\\'\\\"",
+            "name": "HW-UPS-Phoenixtec-SNMP-Battery-Status",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les Ups Phoenixtec en SNMP}\r\n{EN: Template to check Phoenixtec Ups using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Phoenixtec Ups using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Ups-Phoenixtec-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Ups-Phoenixtec-Output-Lines-SNMP",
+                "HW-Ups-Phoenixtec-Input-Lines-SNMP",
+                "HW-Ups-Phoenixtec-Battery-Status-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Phoenixtec UPS in SNMP:\r\n* Battery-Status\r\n* Input-lines\r\n* Output-lines\r\n"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les UPS Phoenixtec Systems :\r\n* Battery-Status\r\n* Input-lines\r\n* Output-lines"
+            }
+        ],
+        "discovery_category": "ups-pdu",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Phoenixtec UPS SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_ups_phoenixtec_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Ups-Phoenixtec-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-ups-phoenixtec-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "UPS",
+            "SNMP",
+            "Hardware",
+            "Phoenixtec"
+        ],
+        "update_date": "1628684582",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "Output-Lines",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Phoenixtec-SNMP-Output-Lines",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Ups-Phoenixtec-Output-Lines-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "Input-Lines",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Phoenixtec-SNMP-Input-Lines",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Ups-Phoenixtec-Input-Lines-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "Battery-Status",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Phoenixtec-SNMP-Battery-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Ups-Phoenixtec-Battery-Status-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

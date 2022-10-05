@@ -1,0 +1,211 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_pfsense_fauxapi.pl --plugin=apps::pfsense::fauxapi::plugin --mode=system --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --api-key=\\'$_HOSTAPIKEY$\\' --api-secret=\\'$_HOSTAPISECRET$\\' $_HOSTAPIEXTRAOPTIONS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --warning-temperature=\\'$_SERVICEWARNINGTEMPERATURE$\\' --critical-temperature=\\'$_SERVICECRITICALTEMPERATURE$\\' --warning-connections-tcp-usage=\\'$_SERVICEWARNINGCONNECTIONSTCPUSAGE$\\' --critical-connections-tcp-usage=\\'$_SERVICECRITICALCONNECTIONSTCPUSAGE$\\' --warning-connections-tcp-usage-prct=\\'$_SERVICEWARNINGCONNECTIONSTCPUSAGEPRCT$\\' --critical-connections-tcp-usage-prct=\\'$_SERVICECRITICALCONNECTIONSTCPUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Pfsense-Fauxapi-System",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_pfsense_fauxapi.pl --plugin=apps::pfsense::fauxapi::plugin --mode=rules --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --api-key=\\'$_HOSTAPIKEY$\\' --api-secret=\\'$_HOSTAPISECRET$\\' $_HOSTAPIEXTRAOPTIONS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-traffic=\\'$_SERVICEWARNINGTRAFFIC$\\' --critical-traffic=\\'$_SERVICECRITICALTRAFFIC$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Pfsense-Fauxapi-Rules",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_pfsense_fauxapi.pl --plugin=apps::pfsense::fauxapi::plugin --mode=gateways --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --api-key=\\'$_HOSTAPIKEY$\\' --api-secret=\\'$_HOSTAPISECRET$\\' $_HOSTAPIEXTRAOPTIONS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-packets-delay=\\'$_SERVICEWARNINGPACKETSDELAY$\\' --critical-packets-delay=\\'$_SERVICECRITICALPACKETSDELAY$\\' --warning-packets-loss=\\'$_SERVICEWARNINGPACKETSLOSS$\\' --critical-packets-loss=\\'$_SERVICECRITICALPACKETSLOSS$\\' --warning-packets-stddev=\\'$_SERVICEWARNINGPACKETSSTDDEV$\\' --critical-packets-stddev=\\'$_SERVICECRITICALPACKETSSTDDEV$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Pfsense-Fauxapi-Gateways",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_pfsense_fauxapi.pl --plugin=apps::pfsense::fauxapi::plugin --mode=backup-files  --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTAPIPORT$\\' --proto=\\'$_HOSTAPIPROTO$\\' --api-key=\\'$_HOSTAPIKEY$\\' --api-secret=\\'$_HOSTAPISECRET$\\' $_HOSTAPIEXTRAOPTIONS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --warning-total=\\'$_SERVICEWARNINGTOTAL$\\' --critical-total=\\'$_SERVICECRITICALTOTAL$\\' --warning-time-last=\\'$_SERVICEWARNINGTIMELAST$\\' --critical-time-last=\\'$_SERVICECRITICALTIMELAST$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Pfsense-Fauxapi-Backup-Files",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les pare-feux Pfsense via Fauxapi}\r\n{EN: Template to check Pfsense Firewalls using fauxapi}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Pfsense using Fauxapi",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "Network-PFSense_64.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAPIPORT$",
+                    "value": "443"
+                },
+                {
+                    "key": "$_HOSTAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTAPIKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAPISECRET$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAPIEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Pfsense-Fauxapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Pfsense-System-Fauxapi",
+                "App-Pfsense-Rules-Fauxapi",
+                "App-Pfsense-Gateways-Fauxapi",
+                "App-Pfsense-Backup-Files-Fauxapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "Network-PFSense_64.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "typo",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor pfSense via Fauxapi : :\r\n* Backup-Files\r\n* Gateways\r\n* Rules\r\n* System"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un pfSense via Fauxapi :\r\n* Backup-Files\r\n* Gateways\r\n* Rules\r\n* System"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "pfSense Fauxapi",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_pfsense_fauxapi.pl",
+                "package_name": "centreon-plugin-Applications-Pfsense-Fauxapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-pfsense-fauxapi",
+        "status": "stable",
+        "status_message": "typo",
+        "tags": [
+            "Application",
+            "pfSense",
+            "Fauxapi"
+        ],
+        "update_date": "1599477303",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le status du syst\u00e8me Pfsense via Fauxapi}\r\n\r\n{EN: Check Pfsense system status using Fauxapi}",
+            "active_checks_enabled": 2,
+            "alias": "System",
+            "check_timeperiod": "",
+            "command_name": "App-Pfsense-Fauxapi-System",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Pfsense-System-Fauxapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les r\u00e8gles Pfsense via Fauxapi}\r\n\r\n{EN: Check the rules Pfsense using Fauxapi}",
+            "active_checks_enabled": 2,
+            "alias": "Rules",
+            "check_timeperiod": "",
+            "command_name": "App-Pfsense-Fauxapi-Rules",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Pfsense-Rules-Fauxapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les Gateways Pfsense via Fauxapi}\r\n\r\n{EN: Check the Gateways Pfsense using Fauxapi}",
+            "active_checks_enabled": 2,
+            "alias": "Gateways",
+            "check_timeperiod": "",
+            "command_name": "App-Pfsense-Fauxapi-Gateways",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /none/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Pfsense-Gateways-Fauxapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les sauvegardes de fichiers Pfsense via Fauxapi}\r\n\r\n{EN: Check the Backup files Pfsense using Fauxapi}",
+            "active_checks_enabled": 2,
+            "alias": "Backup-Files",
+            "check_timeperiod": "",
+            "command_name": "App-Pfsense-Fauxapi-Backup-Files",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Pfsense-Backup-Files-Fauxapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

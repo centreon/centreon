@@ -1,0 +1,251 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sensorip.pl --plugin=hardware::sensors::sensorip::snmp::plugin --mode=sensors --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Sensors-Sensorip-SNMP-Sensors",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Sensor-IP in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Sensor-Sensorip-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Sensors-Sensorip-Sensors-Global-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ remove hardcoded snmp community and version",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Sensor IP sensors:\r\n* Global\r\n* Humidity\r\n* Sp\r\n* Switch\r\n* Temperature"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack tpour superviser une sonde  Sensor IP :\r\n* Global\r\n* Humidity\r\n* Sp\r\n* Switch\r\n* Temperature"
+            }
+        ],
+        "discovery_category": "sensor",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites \r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Sensors-Sensorip-Snmp\r\n\r\n### SNMP\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the monitoring server\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp)\r\n\r\n## Centreon Configuration\r\n### Create a new PDU Raritan host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Sensor-Sensorip-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Sensor IP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_sensorip.pl",
+                "package_name": "centreon-plugin-Hardware-Sensors-Sensorip-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Hardware-Sensors-Sensorip-Snmp",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "hardware-sensors-sensorip-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Hardware",
+            "Sensor",
+            "Sensor IP",
+            "SensorIP",
+            "SNMP"
+        ],
+        "update_date": "1499675499",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'ensemble des sondes (statut global, temp\u00e9rature, humidit\u00e9, switch) de l'\u00e9quipement.}\r\n\r\n{EN: Check all sensors (global status, , temperatures, humidity, switch) of equipment.}",
+            "active_checks_enabled": 2,
+            "alias": "Sensors-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Sensors-Sensorip-SNMP-Sensors",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Sensors-Sensorip-Sensors-Global-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les sondes de temp\u00e9rature de l'\u00e9quipement.}\r\n\r\n{EN: Check temperature sensors of equipment.}",
+            "active_checks_enabled": 2,
+            "alias": "Sensors-Temperature",
+            "check_timeperiod": "",
+            "command_name": "HW-Sensors-Sensorip-SNMP-Sensors",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "temperature"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Sensors-Sensorip-Sensors-Temperature-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les sondes d'humidit\u00e9 de l'\u00e9quipement.}\r\n\r\n{EN: Check humidity sensors of equipment.}",
+            "active_checks_enabled": 2,
+            "alias": "Sensors-Humidity",
+            "check_timeperiod": "",
+            "command_name": "HW-Sensors-Sensorip-SNMP-Sensors",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "humidity"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Sensors-Sensorip-Sensors-Humidity-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut global des sondes  de l'\u00e9quipement.}\r\n\r\n{EN: Check sensor probe status of equipment.}",
+            "active_checks_enabled": 2,
+            "alias": "Sensors-Sp",
+            "check_timeperiod": "",
+            "command_name": "HW-Sensors-Sensorip-SNMP-Sensors",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "sp"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Sensors-Sensorip-Sensors-Sp-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les sondes de contact de l'\u00e9quipement.}\r\n\r\n{EN: Check switch sensors of equipment.}",
+            "active_checks_enabled": 2,
+            "alias": "Sensors-Switch",
+            "check_timeperiod": "",
+            "command_name": "HW-Sensors-Sensorip-SNMP-Sensors",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "switch"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Sensors-Sensorip-Sensors-Switch-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

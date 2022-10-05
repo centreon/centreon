@@ -1,0 +1,263 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-DB-Influxdb-Databases-Discover",
+                "command_for_macro": "App-DB-Influxdb-Databases-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-DB-Influxdb"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERDATABASE",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "App-DB-Influxdb-Database-Statistics",
+                "service_display_name": "Database-$name$",
+                "service_template": "App-DB-Influxdb-Database-Statistics"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_influxdb.pl --plugin=database::influxdb::plugin --mode=list-databases --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "App-DB-Influxdb-Databases-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_influxdb.pl --plugin=database::influxdb::plugin --mode=list-databases --hostname=$HOSTADDRESS$ --port=\\'$_INFLUXDBPORT$\\' --proto=\\'$_INFLUXDBPROTO$\\' --username=\\'$_INFLUXDBUSERNAME$\\' --password=\\'$_INFLUXDBPASSWORD$\\' $_HOSTINFLUXDBEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "App-DB-Influxdb-Databases-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_influxdb.pl --plugin=database::influxdb::plugin --mode=write-statistics --hostname=$HOSTADDRESS$ --port=$_HOSTINFLUXDBPORT$ --proto=$_HOSTINFLUXDBPROTO$ --username=\\'$_HOSTINFLUXDBUSERNAME$\\' --password=\\'$_HOSTINFLUXDBPASSWORD$\\' $_HOSTINFLUXDBEXTRAOPTIONS$ --warning-points-written=\\'$_SERVICEWARNINGPOINTSWRITTEN$\\' --critical-points-written=\\'$_SERVICECRITICALPOINTSWRITTEN$\\' --warning-writes-ok=\\'$_SERVICEWARNINGWRITESOK$\\' --critical-writes-ok=\\'$_SERVICECRITICALWRITESOK$\\' --warning-writes-error=\\'$_SERVICEWARNINGWRITESERROR$\\' --critical-writes-error=\\'$_SERVICECRITICALWRITESERROR$\\' --warning-writes-drop=\\'$_SERVICEWARNINGWRITESDROP$\\' --critical-writes-drop=\\'$_SERVICECRITICALWRITESDROP$\\' --warning-writes-timeout=\\'$_SERVICEWARNINGWRITESTIMEOUT$\\' --critical-writes-timeout=\\'$_SERVICECRITICALWRITESTIMEOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Influxdb-Write-Statistics",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_influxdb.pl --plugin=database::influxdb::plugin --mode=http-server-statistics --hostname=$HOSTADDRESS$ --port=$_HOSTINFLUXDBPORT$ --proto=$_HOSTINFLUXDBPROTO$ --username=\\'$_HOSTINFLUXDBUSERNAME$\\' --password=\\'$_HOSTINFLUXDBPASSWORD$\\' $_HOSTINFLUXDBEXTRAOPTIONS$ --warning-requests-query-count=\\'$_SERVICEWARNINGREQUESTSQUERYCOUNT$\\' --critical-requests-query-count=\\'$_SERVICECRITICALREQUESTSQUERYCOUNT$\\' --warning-requests-write-count=\\'$_SERVICEWARNINGREQUESTSWRITECOUNT$\\' --critical-requests-write-count=\\'$_SERVICECRITICALREQUESTSWRITECOUNT$\\' --warning-requests-ping-count=\\'$_SERVICEWARNINGREQUESTSPINGCOUNT$\\' --critical-requests-ping-count=\\'$_SERVICECRITICALREQUESTSPINGCOUNT$\\' --warning-requests-status-count=\\'$_SERVICEWARNINGREQUESTSSTATUSCOUNT$\\' --critical-requests-status-count=\\'$_SERVICECRITICALREQUESTSSTATUSCOUNT$\\' --warning-requests-active=\\'$_SERVICEWARNINGREQUESTSACTIVE$\\' --critical-requests-active=\\'$_SERVICECRITICALREQUESTSACTIVE$\\' --warning-requests-write-active=\\'$_SERVICEWARNINGREQUESTSWRITEACTIVE$\\' --critical-requests-write-active=\\'$_SERVICECRITICALREQUESTSWRITEACTIVE$\\' --warning-requests-response-data=\\'$_SERVICEWARNINGREQUESTSRESPONSEDATA$\\' --critical-requests-response-data=\\'$_SERVICECRITICALREQUESTSRESPONSEDATA$\\' --warning-requests-write-data=\\'$_SERVICEWARNINGREQUESTSWRITEDATA$\\' --critical-requests-write-data=\\'$_SERVICECRITICALREQUESTSWRITEDATA$\\' --warning-errors-server=\\'$_SERVICEWARNINGERRORSSERVER$\\' --critical-errors-server=\\'$_SERVICECRITICALERRORSSERVER$\\' --warning-errors-client=\\'$_SERVICEWARNINGERRORSCLIENT$\\' --critical-errors-client=\\'$_SERVICECRITICALERRRORSCLIENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Influxdb-Http-Server-Statistics",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_influxdb.pl --plugin=database::influxdb::plugin --mode=database-statistics --hostname=$HOSTADDRESS$ --port=$_HOSTINFLUXDBPORT$ --proto=$_HOSTINFLUXDBPROTO$ --username=\\'$_HOSTINFLUXDBUSERNAME$\\' --password=\\'$_HOSTINFLUXDBPASSWORD$\\' $_HOSTINFLUXDBEXTRAOPTIONS$ --filter-database=\\'$_SERVICEFILTERDATABASE$\\' --warning-measurements=\\'$_SERVICEWARNINGMEASUREMENTS$\\' --critical-measurements=\\'$_SERVICECRITICALMEASUREMENTS$\\' --warning-series=\\'$_SERVICEWARNINGSERIES$\\' --critical-series=\\'$_SERVICECRITICALSERIES$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Influxdb-Database-Statistics",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_influxdb.pl --plugin=database::influxdb::plugin --mode=connection-time --hostname=$HOSTADDRESS$ --port=$_HOSTINFLUXDBPORT$ --proto=$_HOSTINFLUXDBPROTO$ --username=\\'$_HOSTINFLUXDBUSERNAME$\\' --password=\\'$_HOSTINFLUXDBPASSWORD$\\' $_HOSTINFLUXDBEXTRAOPTIONS$ --warning-connection-time=\\'$_SERVICEWARNINGCONNECTIONTIME$\\' --critical-connection-time=\\'$_SERVICECRITICALCONNECTIONTIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Influxdb-Connection-Time",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_influxdb.pl --plugin=database::influxdb::plugin --mode=query --hostname=$_HOSTINFLUXDBHOSTNAME$ --port=$_HOSTINFLUXDBPORT$ --proto=$_HOSTINFLUXDBPROTO$ --username=\\'$_HOSTINFLUXDBUSERNAME$\\' --password=\\'$_HOSTINFLUXDBPASSWORD$\\' $_HOSTINFLUXDBEXTRAOPTIONS$ $_SERVICEQUERIES$ --instance=\\'$_SERVICEINSTANCE$\\' --output=\\'$_SERVICEOUTPUT$\\' --multiple-output=\\'$_SERVICEMULTIPLEOUTPUT$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Influxdb-Query",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check InfluxDB databases",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "influxdb-128-2.png",
+            "macros": [
+                {
+                    "key": "$_HOSTINFLUXDBPORT$",
+                    "value": "8086"
+                },
+                {
+                    "key": "$_HOSTINFLUXDBPROTO$",
+                    "value": "http"
+                },
+                {
+                    "key": "$_HOSTINFLUXDBUSERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTINFLUXDBPASSWORD$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTINFLUXDBEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Influxdb",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-DB-Influxdb-Write-Statistics",
+                "App-DB-Influxdb-Http-Server-Statistics",
+                "App-DB-Influxdb-Database-Statistics",
+                "App-DB-Influxdb-Connection-Time"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "influxdb-128-2.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix write statistics command",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor InfluxDB databases:\r\n* Connection-Time\r\n* Database-Statistics\r\n* Http-Server-Statistics\r\n* Write-Statistics\r\n* Query (Mode allowing InfluxDB queries)"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser une base de donn\u00e9es InfluxDB :\r\n* Connection-Time\r\n* Database-Statistics\r\n* Http-Server-Statistics\r\n* Write-Statistics\r\n* Query (Mode pour requ\u00eater la base InfluxDB)"
+            }
+        ],
+        "discovery_category": "database",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\nThis chapter describes the prerequisites installation needed by plugins\r\nto run.\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Databases-Influxdb\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-DB-Influxdb-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Host Macro Configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"24%\" />\r\n<col width=\"44%\" />\r\n<col width=\"17%\" />\r\n<col width=\"12%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n<th align=\"left\">Example</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>INFLUXDBPORT</p></td>\r\n<td align=\"left\"><p>The InfluxDB instance port</p></td>\r\n<td align=\"left\"><p>9200</p></td>\r\n<td align=\"left\"><p>1234</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>INFLUXDBPROTO</p></td>\r\n<td align=\"left\"><p>The InfluxDB instance protocol</p></td>\r\n<td align=\"left\"><p>http</p></td>\r\n<td align=\"left\"><p>https</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>INFLUXDBUSERNAME</p></td>\r\n<td align=\"left\"><p>The InfluxDB instance username</p></td>\r\n<td align=\"left\"><p></p></td>\r\n<td align=\"left\"><p>centreon</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>INFLUXDBPASSWORD</p></td>\r\n<td align=\"left\"><p>The InfluxDB instance password</p></td>\r\n<td align=\"left\"><p></p></td>\r\n<td align=\"left\"><p>centreon</p></td>\r\n</tr>\r\n</tbody>\r\n</table>",
+        "name": "InfluxDB",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_influxdb.pl",
+                "package_name": "centreon-plugin-Applications-Databases-Influxdb",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-databases-influxdb",
+        "status": "stable",
+        "status_message": "fix write statistics command",
+        "tags": [
+            "Database",
+            "TSDB",
+            "DB",
+            "Timeseries",
+            "InfluxDB"
+        ],
+        "update_date": "1560869620",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques d'\u00e9criture.}\r\n{EN: Check writes statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Write-Statistics",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Influxdb-Write-Statistics",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Influxdb-Write-Statistics",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques du serveur HTTP.}\r\n{EN: Check HTTP server statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Http-Server-Statistics",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Influxdb-Http-Server-Statistics",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Influxdb-Http-Server-Statistics",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques des bases de donn\u00e9es.}\r\n{EN: Check databases statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Database-Statistics",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Influxdb-Database-Statistics",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Influxdb-Database-Statistics",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le temps de connexion \u00e0 l'instance.}\r\n{EN: Check instance connection time.}",
+            "active_checks_enabled": 2,
+            "alias": "Connection-Time",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Influxdb-Connection-Time",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Influxdb-Connection-Time",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant d'ex\u00e9cuter des requ\u00eates et d'utiliser le r\u00e9sultat pour d\u00e9finir des seuils d'alarmes.}\r\n\r\n{EN: Check allowing to execute queries and use results to define thresholds.}",
+            "active_checks_enabled": 2,
+            "alias": "Query",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Influxdb-Query",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Influxdb-Query",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

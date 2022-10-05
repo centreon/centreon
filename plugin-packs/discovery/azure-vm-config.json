@@ -1,0 +1,205 @@
+{
+    "name": "Microsoft Azure VM",
+    "description": "Discover Microsoft Azure resources",
+    "command": {
+        "name": "Cloud-Azure-Resources-Discovery",
+        "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_management_monitor_api.pl --plugin=cloud::azure::management::monitor::plugin --custommode='api' --mode=discovery --subscription='$_CREDENTIALSAZURESUBSCRIPTION$' --tenant='$_CREDENTIALSAZURETENANT' --client-id='$_CREDENTIALSAZURECLIENTID$' --client-secret='$_CREDENTIALSAZURESECRET$' --timeout='$_TIMEOUT$' --namespace='$_DISCOVERYNAMESPACE$' --type='$_DISCOVERYTYPE$' --resource-group='$_DISCOVERYRESOURCEGROUP$' --location='$_DISCOVERYLOCATION$' $_DISCOVERYEXTRAOPTIONS$\\\"",
+        "parameters": [
+            {
+                "name": "CREDENTIALSAZURESUBSCRIPTION",
+                "description": "Azure Subscription ID",
+                "mandatory": true,
+                "type": "text",
+                "value": null,
+                "locked": false,
+                "hidden": false
+            },
+            {
+                "name": "CREDENTIALSAZURETENANT",
+                "description": "Azure Tenant ID",
+                "mandatory": true,
+                "type": "text",
+                "value": null,
+                "locked": false,
+                "hidden": false
+            },
+            {
+                "name": "CREDENTIALSAZURECLIENTID",
+                "description": "Azure Client ID",
+                "mandatory": true,
+                "type": "text",
+                "value": null,
+                "locked": false,
+                "hidden": false
+            },
+            {
+                "name": "CREDENTIALSAZURECLIENTSECRET",
+                "description": "Azure Client Secret",
+                "mandatory": true,
+                "type": "password",
+                "value": null,
+                "locked": false,
+                "hidden": false
+            },
+            {
+                "name": "DISCOVERYNAMESPACE",
+                "description": "Resource Namespace",
+                "mandatory": true,
+                "type": "text",
+                "value": "Microsoft.Compute",
+                "locked": true,
+                "hidden": true
+            },
+            {
+                "name": "DISCOVERYTYPE",
+                "description": "Resource Type",
+                "mandatory": true,
+                "type": "text",
+                "value": "virtualMachines",
+                "locked": true,
+                "hidden": true
+            },
+            {
+                "name": "DISCOVERYRESOURCEGROUP",
+                "description": "Resource Group Name",
+                "mandatory": false,
+                "type": "text",
+                "value": null,
+                "locked": false,
+                "hidden": false
+            },
+            {
+                "name": "DISCOVERYLOCATION",
+                "description": "Location",
+                "mandatory": false,
+                "type": "text",
+                "value": null,
+                "locked": false,
+                "hidden": false
+            },
+            {
+                "name": "TIMEOUT",
+                "description": "Timeout",
+                "mandatory": true,
+                "type": "text",
+                "value": 10,
+                "locked": false,
+                "hidden": false
+            },
+            {
+                "name": "DISCOVERYEXTRAOPTIONS",
+                "description": "Extra Options",
+                "mandatory": false,
+                "type": "text",
+                "value": null,
+                "locked": false,
+                "hidden": false
+            }
+        ],
+        "test_option": "--test-login"
+    },
+    "mapping": {
+        "key": "type",
+        "entries": {
+            "Microsoft.Compute/virtualMachines": {
+                "name": "Microsoft.Compute/virtualMachines",
+                "description": "Virtual Machine",
+                "attributs": {
+                    "hostname": {
+                        "default": {
+                            "key": "name",
+                            "ref": "string"
+                        },
+                        "others": []
+                    },
+                    "description": {
+                        "default": {
+                            "key": "name",
+                            "ref": "string"
+                        },
+                        "others": []
+                    },
+                    "ip": {
+                        "default": {
+                            "key": "name",
+                            "ref": "string"
+                        },
+                        "others": []
+                    }
+                },
+                "templates": [
+                    {
+                        "name": "Cloud-Azure-Compute-VirtualMachine-custom",
+                        "order": 0,
+                        "in_pp": true,
+                        "default": true,
+                        "macros": [
+                            {
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "from": "parameters",
+                                "value": "CREDENTIALSAZURESUBSCRIPTION"
+                            },
+                            {
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "from": "parameters",
+                                "value": "CREDENTIALSAZURETENANT"
+                            },
+                            {
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "from": "parameters",
+                                "value": "CREDENTIALSAZURECLIENTID"
+                            },
+                            {
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "from": "parameters",
+                                "value": "CREDENTIALSAZURECLIENTSECRET"
+                            },
+                            {
+                                "name": "AZURERESOURCE",
+                                "type": "text",
+                                "from": "results",
+                                "value": "name"
+                            },
+                            {
+                                "name": "AZURERESOURCEGROUP",
+                                "type": "text",
+                                "from": "results",
+                                "value": "resourceGroup"
+                            }
+                        ]
+                    }
+                ],
+                "extra_attributs": {
+                    "hostgroups": [
+                        {
+                            "key": "location",
+                            "ref": "string"
+                        },
+                        {
+                            "key": "resourceGroup",
+                            "ref": "string"
+                        },
+                        {
+                            "key": "tags",
+                            "ref": "arrayofhash"
+                        }
+                    ],
+                    "categories": [
+                        {
+                            "key": "sku",
+                            "ref": "arrayofhash"
+                        },
+                        {
+                            "key": "tags",
+                            "ref": "arrayofhash"
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

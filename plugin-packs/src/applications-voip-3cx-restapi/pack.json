@@ -1,0 +1,120 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_3cx_restapi.pl --plugin=apps::voip::3cx::restapi::plugin --mode=system --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOST3CXPORT$\\' --proto=\\'$_HOST3CXPROTO$\\' --api-username=\\'$_HOST3CXUSERNAME$\\' --api-password=\\'$_HOST3CXPASSWORD$\\' $_HOST3CXEXTRAOPTIONS$ --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-calls-active-usage=\\'$_SERVICEWARNINGCALLSACTIVEUSAGE$\\' --critical-calls-active-usage=\\'$_SERVICECRITICALCALLSACTIVEUSAGE$\\' --warning-calls-active-free=\\'$_SERVICEWARNINGCALLSACTIVEFREE$\\' --critical-calls-active-free=\\'$_SERVICECRITICALCALLSACTIVEFREE$\\' --warning-calls-active-usage-prct=\\'$_SERVICEWARNINGCALLSACTIVEUSAGEPRCT$\\' --critical-calls-active-usage-prct=\\'$_SERVICECRITICALCALLSACTIVEUSAGEPRCT$\\' --warning-extensions-registered=\\'$_SERVICEWARNINGEXTENSIONSREGISTERED$\\' --critical-extensions-registered=\\'$_SERVICECRITICALEXTENSIONSREGISTERED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-VoIP-3cx-Restapi-System",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser un serveur 3CX via une API Rest.}\r\n{EN: Template to check a 3CX server through Rest API.}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check 3cx VoIP Application through Rest API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "3cx-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-VoIP-3cx-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Voip-3cx-System-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "3cx-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* change command macros threshold for system service",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor 3CX server via Rest API:\r\n* System\r\n"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un serveur 3CX via l\\'API Rest :\r\n* System"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Voip-3cx-Restapi\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-VoIP-3cx-Restapi-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "3CX",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_3cx_restapi.pl",
+                "package_name": "centreon-plugin-Applications-Voip-3cx-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-voip-3cx-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Application",
+            "3CX",
+            "VoIP",
+            "Restapi",
+            "Server"
+        ],
+        "update_date": "1562594698",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du syst\u00e8me.}\r\n\r\n{EN: Check system health.}",
+            "active_checks_enabled": 2,
+            "alias": "System",
+            "check_timeperiod": "",
+            "command_name": "App-VoIP-3cx-Restapi-System",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{error} =~ /true/"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Voip-3cx-System-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

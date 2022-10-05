@@ -1,0 +1,121 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_jacarta.pl --plugin=hardware::sensors::jacarta::snmp::plugin --mode=sensors --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Sensors-Jacarta-SNMP-Sensors",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Jacarta sensor in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Sensor-Jacarta-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Sensors-Jacarta-Sensors-Global-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ fix hardcoded snmp community and version",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Jacarta sensor:\r\n* Global"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller une sonde Jacarta :\r\n* Global"
+            }
+        ],
+        "discovery_category": "sensor",
+        "email": "imp@centreon.com",
+        "icon": "/9j/4AAQSkZJRgABAQAASABIAAD/4QCMRXhpZgAATU0AKgAAAAgABQESAAMAAAABAAEAAAEaAAUAAAABAAAASgEbAAUAAAABAAAAUgEoAAMAAAABAAIAAIdpAAQAAAABAAAAWgAAAAAAAABIAAAAAQAAAEgAAAABAAOgAQADAAAAAQABAACgAgAEAAAAAQAAAICgAwAEAAAAAQAAAFIAAAAA/+0AOFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAAAAOEJJTQQlAAAAAAAQ1B2M2Y8AsgTpgAmY7PhCfv/AABEIAFIAgAMBEQACEQEDEQH/xAAfAAABBQEBAQEBAQAAAAAAAAAAAQIDBAUGBwgJCgv/xAC1EAACAQMDAgQDBQUEBAAAAX0BAgMABBEFEiExQQYTUWEHInEUMoGRoQgjQrHBFVLR8CQzYnKCCQoWFxgZGiUmJygpKjQ1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4eLj5OXm5+jp6vHy8/T19vf4+fr/xAAfAQADAQEBAQEBAQEBAAAAAAAAAQIDBAUGBwgJCgv/xAC1EQACAQIEBAMEBwUEBAABAncAAQIDEQQFITEGEkFRB2FxEyIygQgUQpGhscEJIzNS8BVictEKFiQ04SXxFxgZGiYnKCkqNTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqCg4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2dri4+Tl5ufo6ery8/T19vf4+fr/2wBDAAICAgICAgICAgIDAgICAwQDAgIDBAUEBAQEBAUGBQUFBQUFBgYHBwgHBwYJCQoKCQkMDAwMDAwMDAwMDAwMDAz/2wBDAQMDAwUEBQkGBgkNCwkLDQ8ODg4ODw8MDAwMDA8PDAwMDAwMDwwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAz/3QAEABD/2gAMAwEAAhEDEQA/AP38oAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoA//Q/fygAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgD/9H9/KACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKAP/0v38oAgmura3Kie4jhLcqHdVzj0yRTSbAdFPDOu+GVJkzjcjBhn0yCaTVgJaACgAoAKACgAoAKACgBMigBc0AFABQAUAf//T/ftulAH49f8ABWpAvh34HTo0kM7a7rERnhkkhk8s6bM+3fGytjcoPXtX3nAr/eVv8K818S6PQ83MkuS/VHrH7AviDVfDP7CWleJ9D8N3XjLX7C98U3dj4btpQtzqV0ur3QSITztgM5wC7tgdScVycXUozziUJS5Y2gr9EuSPRduyNMFJ+wUutjpL39rT9oTTrK71C+/Y21uCzsIHuL2b/hLfD7eXHEpZ22rdknAB4AzXNHJME3ZYuN3/AHJ/5FuvNfZ/E1v2Uf26/Cf7T/iPVfB0HgzUfBHiWx0iPXbC3vLmC6hvLF5PLdo3hYlGQkblcA4Iqc94Yq5XBTclOLly3V1Z79f0HQxcakuXr/l/w55f4g/4KTWUvxavfhJ8Mfgpr3xH1eDXbvw5ptxDf2Vkb+/sDILhYIp5AwRTDJ8z4BCkjjFdlLhCSw31ivWjBcqk9G7RlazdlbW60311M3jU58kVdn038KPjT8afGfjKDw98Qf2ZvEHwo0K5s7iaPxbfapp+oW4uItpS3ZLOWRlMiliGIAyMdxXjY7AYWjT5qWIjUd9kpLTv7yRvCpNuzjY5Dxv+0d8dPDni7xFoXh39lTWvFuhaVevb6T4nXxFo1gt/CgX9+ttd3EcqAtkDcOQMjrW2GyrCVaalPEqMnuuWTt80miZVppu0fxPB5P8AgpYvhX4k2fw4+K3wH1zwHfte6bZ6tcLq+magbEapMIYJ3WCYiRAWywjZmABOOx9VcHurh3XoVozVpPaSvyq7Wq/My+uWlyyVj2n9rT9spf2W9W8CadJ8PpvHMPjuyv7qynttQhsmiewMW5XWYYKsswIIPYjHSvPyHh55pGpJT5eRq9038V+3oVicWqDSfW/4HmHgX/gold/EbxZ4I0bwz+zr44fwv4p1Cw02/wDiDcQSDSbWa6+WZ0njjdJI4Xyu/IBIznBBPbi+E1hac5TxFPmim+W/vO3dOzTfbf8AG0QxvPZqL1/rpdfifJX7av7XX7Ufgr4nSaFo0uufATS7PTL42Ong6XqS6tb2t40cWso7QTvGkiY/dEq/PTIzXv8ADOQZfiKHNLlqttfzR5W18O6TfZ6r77HNisVWhOyX4+v9f5n6P/s3fGj44fEFfCWlfED4C634Q0Cfw1HeSfFPUNU0+5i1C4WOLy2Frau0im5DNJ8yqFxjHIFfGZtl+Ew/M6NdTlzW5UpKy16tW026nfQqVJJc0ehS8bftH/HPw54t8Q6H4d/ZT1rxZoWlXr22leJh4i0bT1v4kAHnpbXdzHKilsgbl5Az3qsNlWEq01KeJUZPdcsnb5pNBKtNPSP4nhR/4KVDwz8S7L4bfFP4Ea54E1CS+02y1WdNX0zUDYjVZlgt5nWCYiRNzAtsJIAJxxivV/1QdXDuvQrRmrSe0lflV2tVv6/eZ/XLS5ZI/UuNw6hlO5WAKsO4IyDXxZ2n/9T9m/jV8YNO+Cfha18Xav4X8QeKdNm1GHT7i18N2T6heQmdWKSm3jBdkyu0lQcZHau3AYF4ubhGUYu1/edk/K5lVq+zV7XPxk/bm+O0f7Sll8MdI8B/Cv4i2f8Awimo39/qd1qvhjU4t32q0e1jjiSO3kLHMm4k4GBjrX6Dwxl39nSqSq1KfvJJWnHo076tdjzsZN1o8sUe+6Z8L/jD4D/4Jaal4P0zRNa0/wCI1zYXusP4dsFlj1WOz1HVnvXgMUREok+zyfOi/N1Uc159bHYTE8QqpNp0rpXfw3jFRvfa11o9iqdOccKl18u3zt06NHwN+z78PPgXBoXxKj+OnwS+IfinxnfSFfhgLLQPEc0SK1tgIVESqrm4G4s+eO+K+mzfMca501ha1OMbe9eUFrf12tbQ5aFCEYvmi7+XX7tz1z/gmN4U8V6H+0zDf+IfDWt6LG3w/wBSs5rrU9KvrGJrw3NpJIgkuYIkLHaxAB7HFcnGeKpTy9xjKLftE9GnpaS6NlZfScK21k1/SPOvCmi+Mfgb+2mnjLx38PPF8Wi+EviV4h1i+m03Qr/UBPp+pC/+zXNrJawyxyq63aHAbI+YEAjFdGIr0cblXs6VSF5UoR1ko2lHlumm018L6WelhxhKnXcmtD9w/hb+1R4C+L3jGHwb4V8MeOLK9azuNQuNR17w5qGj2UUVuVGDPeRRqzszgKq5J5PQGvzPGZPVwtPnnKFr20kpPXyTZ6sK6k7H4K+Kfh9qc/7V+uXn7Q/gLx54n8Fr4916fxkttp+u3stzpMs122ni1mtVdDCFaAhYnACDbgYIr9Uw+PjDLUsHOEZ8keXWCtJcvNdPW/xau+ruePOjzVrzWn4/15rU5r40eCPDkXxafUPgl8JPG/hn4VLcaBd6DY3vhzW1kKwXSyX9yEltnkCttBAY5O04HIzpluMqSw1sTVhKo1NN88eqtFb77+l9dtJnSiql4p/P08z71/4KmaLrXiHxD+zvJoGiarrqafouuS3p0vTr2/8AKW5WzWEv9lhl2bypxuxnB9K+Z4IrU6dPEKckruNrtLa992jozGnKcoW6J/jY/Qn9iK2ms/2Ufgfp13aT2F9p3hyK11LT7qB7eaG4id1kjlilVWDA9civkuI5KeY15J3Tm2mtU09j0sP8CPzQ/wCCqnw78ca18UPBXiHRvCes61omo+CL/R4tT0zTrvUIo71bqN/JmNpDMYyVbcNwGQDjODX2XA2Mo06Moykk1UjKzaWlnqrtX+XkcOOhJyTS7fgffv7OP7TvgnxTp/wu+E9h4T8d2PiiLQrayvbjVfDOo6fp8D6fZ7pjJeXMMcWMx4XnkkAda+RzPKKtJ1KrlBxvfSSbd32Tv1OulWXuxs7n4q+J/h9qk37V2t3v7QvgHx34m8Fr4912fxmsGn67fTXOkSTXTacLaa1VkaIBoSFicAINuBgiv0vD4+MMsSwc4Rn7OPLrBWlpzXT1v8WrW+p5U6PNXvNXX4/1vqjn/jF4I8O2/wAXn1L4K/CXxv4a+FQuvD95oFje+G9bWTZBdpLf3ASW2eQI2zIDHJ2nA5GdMvxdSeGtiasJVHzJ+/DqrRT131fpfXyU6MfaOUU16+nmf1O6ayvp9k6nKvbxMp9QUXFfik/iZ7y2P//V/fsqG6jNADQijoAPwFO4C7Rwe470gECKDkAA+uBTuACNQc4H5CkFgKKeozjpkA0XCwBF9B+Qo3ACinkjP1A/rRcAKKeoz25AoCweWn90fkKLgKFC9BigAKA8Y49OtACbF9P0FD1ACinqM/UA0XACinqAeMdBRcBwAHA4FAH/1v38oAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoA//X/fygAoAKACgAoAKACgAoAKACgAoAKACgAoAKACgD/9D9/KACgAoAKACgAoAKACgAoAKACgAoAKACgAoAKAP/0f38oAKACgAoAKACgAoAKACgAoAKACgAoAKACgAoA//Z",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites \r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Sensors-Jacarta-Snmp\r\n\r\n### SNMP\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the monitoring server\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp)\r\n\r\n## Centreon Configuration\r\n### Create a new PDU Raritan host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Sensor-Jacarta-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Jacarta Sensor",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_jacarta.pl",
+                "package_name": "centreon-plugin-Hardware-Sensors-Jacarta-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "centreon-plugin-Hardware-Sensors-Jacarta-Snmp",
+                "version": "20161212-1"
+            }
+        ],
+        "slug": "hardware-sensors-jacarta-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Sensor",
+            "Jacarta",
+            "SNMP",
+            "Hardware"
+        ],
+        "update_date": "1499675500",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'ensemble des sondes de l'\u00e9quipement.}\r\n\r\n{EN: Check all sensors of equipment.}",
+            "active_checks_enabled": 2,
+            "alias": "Sensors-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Sensors-Jacarta-SNMP-Sensors",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Sensors-Jacarta-Sensors-Global-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,115 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sendmail_snmp.pl --plugin=apps::sendmail::snmp::plugin --mode=mta-usage --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-total-received-messages=\\'$_SERVICEWARNINGTOTALRECEIVEDMESSAGES$\\' --critical-total-received-messages=\\'$_SERVICECRITICALTOTALRECEIVEDMESSAGES$\\' --warning-total-received-volume=\\'$_SERVICEWARNINGTOTALRECEIVEDVOLUME$\\' --critical-total-received-volume=\\'$_SERVICECRITICALTOTALRECEIVEDVOLUME$\\' --warning-total-stored-messages=\\'$_SERVICEWARNINGTOTALSTOREDMESSAGES$\\' --critical-total-stored-messages=\\'$_SERVICECRITICALTOTALSTOREDMESSAGES$\\' --warning-total-stored-volume=\\'$_SERVICEWARNINGTOTALSTOREDVOLUME$\\' --critical-total-stored-volume=\\'$_SERVICECRITICALTOTALSTOREDVOLUME$\\' --warning-total-transmitted-messages=\\'$_SERVICEWARNINGTOTALTRANSMITTEDMESSAGES$\\' --critical-total-transmitted-messages=\\'$_SERVICECRITICALTOTALTRANSMITTEDMESSAGES$\\' --warning-total-transmitted-volume=\\'$_SERVICEWARNINGTOTALTRANSMITTEDVOLUME$\\' --critical-total-transmitted-volume=\\'$_SERVICECRITICALTOTALTRANSMITTEDVOLUME$\\' --warning-received-messages=\\'$_SERVICEWARNINGRECEIVEDMESSAGES$\\' --critical-received-messages=\\'$_SERVICECRITICALRECEIVEDMESSAGES$\\' --warning-received-volume=\\'$_SERVICEWARNINGRECEIVEDVOLUME$\\' --critical-received-volume=\\'$_SERVICECRITICALRECEIVEDVOLUME$\\' --warning-stored-messages=\\'$_SERVICEWARNINGSTOREDMESSAGES$\\' --critical-stored-messages=\\'$_SERVICECRITICALSTOREDMESSAGES$\\' --warning-stored-volume=\\'$_SERVICEWARNINGSTOREDVOLUME$\\' --critical-stored-volume=\\'$_SERVICECRITICALSTOREDVOLUME$\\' --warning-transmitted-messages=\\'$_SERVICEWARNINGTRANSMITTEDMESSAGES$\\' --critical-transmitted-messages=\\'$_SERVICECRITICALTRANSMITTEDMESSAGES$\\' --warning-transmitted-volume=\\'$_SERVICEWARNINGTRANSMITTEDVOLUME$\\' --critical-transmitted-volume=\\'$_SERVICECRITICALTRANSMITTEDVOLUME$\\' --warning-rejected-messages=\\'$_SERVICEWARNINGREJECTEDMESSAGES$\\' --critical-rejected-messages=\\'$_SERVICECRITICALREJECTEDMESSAGES$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Sendmail-SNMP-Mta-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to monitor Sendmail MTA Server by SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "app-sendmail-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Sendmail-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Sendmail-Mta-Usage-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "app-sendmail-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Sendmail application using SNMP:\r\n* Mta Usage"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller une application Sendmail via SNMP :\r\n* Mta Usage"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Sendmail-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Sendmail-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Sendmail",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_sendmail_snmp.pl",
+                "package_name": "centreon-plugin-Applications-Sendmail-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-sendmail-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "SNMP",
+            "Application",
+            "Sendmail",
+            "Proofpoint"
+        ],
+        "update_date": "1502454713",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation MTA.}\r\n\r\n{EN: Check MTA usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Mta-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-Sendmail-SNMP-Mta-Usage",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Sendmail-Mta-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

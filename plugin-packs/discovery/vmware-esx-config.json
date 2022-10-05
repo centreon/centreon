@@ -1,0 +1,157 @@
+{
+    "name": "VMware ESX",
+    "description": "Discover VMware ESX from vCenter Server and standalone ESX",
+    "command": {
+        "name": "Virt-VMWare2-Resources-Discovery",
+        "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_vmware_connector_client.pl --plugin=apps::vmware::connector::plugin --mode=discovery --custommode='connector' --connector-hostname='$_VMWARECONNECTORHOSTNAME$' --connector-port='$_VMWARECONNECTORPORT$' --container='$_VMWARECONNECTORCONTAINER$' --resource-type='$_RESOURCETYPE$' --timeout='$_TIMEOUT$' $_DISCOVERYEXTRAOPTIONS$\\\"",
+        "parameters": [
+            {
+                "name": "VMWARECONNECTORHOSTNAME",
+                "description": "Centreon VMWare Connector server hostname or IP address",
+                "mandatory": true,
+                "type": "text",
+                "value": "localhost",
+                "locked": false,
+                "hidden": false
+            },
+            {
+                "name": "VMWARECONNECTORPORT",
+                "description": "Centreon VMWare Connector server port",
+                "mandatory": true,
+                "type": "text",
+                "value": "5700",
+                "locked": false,
+                "hidden": false
+            },
+            {
+                "name": "VMWARECONNECTORCONTAINER",
+                "description": "Centreon VMWare Connector container",
+                "mandatory": true,
+                "type": "text",
+                "value": "default",
+                "locked": false,
+                "hidden": false
+            },
+            {
+                "name": "RESOURCETYPE",
+                "description": "Resource Type",
+                "mandatory": true,
+                "type": "text",
+                "value": "esx",
+                "locked": true,
+                "hidden": true
+            },
+            {
+                "name": "TIMEOUT",
+                "description": "Timeout",
+                "mandatory": true,
+                "type": "text",
+                "value": 10,
+                "locked": false,
+                "hidden": false
+            },
+            {
+                "name": "DISCOVERYEXTRAOPTIONS",
+                "description": "Extra Options",
+                "mandatory": false,
+                "type": "text",
+                "value": null,
+                "locked": false,
+                "hidden": false
+            }
+        ]
+    },
+    "mapping": {
+        "key": "type",
+        "entries": {
+            "esx": {
+                "name": "esx",
+                "description": "VMware ESX",
+                "attributs": {
+                    "hostname": {
+                        "default": {
+                            "key": "name",
+                            "ref": "string"
+                        },
+                        "others": []
+                    },
+                    "description": {
+                        "default": {
+                            "key": "name",
+                            "ref": "string"
+                        },
+                        "others": []
+                    },
+                    "ip": {
+                        "default": {
+                            "key": "ip_management",
+                            "ref": "array"
+                        },
+                        "others": [
+                            {
+                                "key": "name",
+                                "ref": "string"
+                            }
+                        ]
+                    }
+                },
+                "templates": [
+                    {
+                        "name": "Virt-VMWare2-ESX-custom",
+                        "is_in_pp": true,
+                        "order": 0,
+                        "is_default": true,
+                        "macros": [
+                            {
+                                "name": "CENTREONVMWAREHOST",
+                                "type": "text",
+                                "from": "parameters",
+                                "value": "VMWARECONNECTORHOSTNAME"
+                            },
+                            {
+                                "name": "CENTREONVMWAREPORT",
+                                "type": "text",
+                                "from": "parameters",
+                                "value": "VMWARECONNECTORPORT"
+                            },
+                            {
+                                "name": "CENTREONVMWARECONTAINER",
+                                "type": "text",
+                                "from": "parameters",
+                                "value": "VMWARECONNECTORCONTAINER"
+                            },
+                            {
+                                "name": "ESXNAME",
+                                "type": "text",
+                                "from": "results",
+                                "value": "name"
+                            }
+                        ]
+                    }
+                ],
+                "extra_attributs": {
+                    "hostgroups": [
+                        {
+                            "key": "cluster",
+                            "ref": "string"
+                        },
+                        {
+                            "key": "datacenter",
+                            "ref": "string"
+                        }
+                    ],
+                    "categories": [
+                        {
+                            "key": "cluster",
+                            "ref": "string"
+                        },
+                        {
+                            "key": "datacenter",
+                            "ref": "string"
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

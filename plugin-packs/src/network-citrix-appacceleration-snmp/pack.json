@@ -1,0 +1,180 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Citrix-Appacceleration-SNMP-Serviceclass-Discover",
+                "command_for_macro": "Net-Citrix-Appacceleration-SNMP-Serviceclass-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$name$",
+                        "order": 0,
+                        "pattern": "^[Ll]o",
+                        "type": "exclusion"
+                    },
+                    {
+                        "object": "$status$",
+                        "order": 1,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Citrix-Appacceleration-SNMP"
+                ],
+                "macros": [],
+                "name": "Net-Citrix-Appacceleration-SNMP-Serviceclass",
+                "service_display_name": "Serviceclass-$name$",
+                "service_template": "Net-Citrix-Appacceleration-Serviceclass-Usage-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_citrix_appacceleration_snmp.pl --plugin=network::citrix::appacceleration::snmp::plugin\\\\r\\\\n --mode=list-serviceclass --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Citrix-Appacceleration-SNMP-Serviceclass-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_citrix_appacceleration_snmp.pl --plugin=network::citrix::appacceleration::snmp::plugin\\\\r\\\\n --mode=list-serviceclass --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Citrix-Appacceleration-SNMP-Serviceclass-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_citrix_appacceleration_snmp.pl --plugin=network::citrix::appacceleration::snmp::plugin --mode=serviceclass-usage --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-current-acc-con=\\'$_SERVICEWARNINGCURRENTACCCON$\\' --critical-current-acc-con=\\'$_SERVICECRITICALCURRENTACCCON$\\' --warning-total-acc-con=\\'$_SERVICEWARNINGTOTALACCCON$\\' --critical-total-acc-con=\\'$_SERVICECRITICALTOTALACCCON$\\' --warning-total-nonacc-con=\\'$_SERVICEWARNINGTOTALNONACCCON$\\' --critical-total-nonacc-con=\\'$_SERVICECRITICALTOTALNONACCCON$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-in-compressed=\\'$_SERVICEWARNINGTRAFFICINCOMPRESSED$\\' --critical-traffic-in-compressed=\\'$_SERVICECRITICALTRAFFICINCOMPRESSED$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' --warning-traffic-out-compressed=\\'$_SERVICEWARNINGTRAFFICOUTCOMPRESSED$\\' --critical-traffic-out-compressed=\\'$_SERVICECRITICALTRAFFICOUTCOMPRESSED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Citrix-Appacceleration-SNMP-Serviceclass-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_citrix_appacceleration_snmp.pl --plugin=network::citrix::appacceleration::snmp::plugin --mode=cpu --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-cpu=\\'$_SERVICEWARNINGCPU$\\' --critical-cpu=\\'$_SERVICECRITICALCPU$\\' --warning-load=\\'$_SERVICEWARNINGLOAD$\\' --critical-load=\\'$_SERVICECRITICALLOAD$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Citrix-Appacceleration-SNMP-Cpu",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Citrix Application Acceleration Module (Cloudbridge, Orbital, Repeater) using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Citrix-Appacceleration-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Citrix-Appacceleration-Serviceclass-Usage-SNMP",
+                "Net-Citrix-Appacceleration-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "centreon",
+        "changelog": "* add discovery capabilities",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Citrix App Acceleration module with SNMP : \r\n* Cpu\r\n* Serviceclass-usage"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser le module Citrix \\'App Acceleration\\' par SNMP : \r\n* Cpu\r\n* Serviceclass-usage"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAAAyCAYAAACUPNO1AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAQHAAAEBwBA/62pwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAZ8SURBVHic7ZxpjBRFFIC/nV3xWBDiCUgI4gEbDo3KegQI3opGPCLxQE2EEILEK6hBo/vHKDEaL8CYiCRrYsQYD8QDjVckGuTwXhEVV8KKiOji7soCC+uP15Mdmrq6e7p7ZugvqR+78+q96q43Va9eVQ0kyyTgY6DdKx8CExNuQ0ZKPAx0a0pDiu3KSIBL0Xd+vpyXWusyYmcZdgdYklrrMmJnE3YH2JBa6/ZjcgnZ2VkkmYwik5QDLHeQ+TT2VmSkxmhgB/rhfzswPLXWZSTCZKSj/Z3fAVyeYrv2a6oStncsMBOoRzp/BTCfLADMyEgH1xEgB5wJnAoMAPoDbcjybgPwHrDFoqOXwV43PasAk1xQ9gC7iqTLRjVQY/h8F9KetDkU+A/ochEeAjwDbMa8hu9CcvxT0K8sthnqby2Q67DYClJ+8HQeGLBeK9AELEJiF1PH5mmw6LzJJz/boR07gBMUtmqAVQ71vwAO8OrUAfcANwLTgTu896KkN/A40OlgxF9WA+MUOsvJAfylGUlnmwjqADngEwfbryhs3etQr40e5zkYuBvZjLsfmAMMBGapHmQQbt5lKl2ItxVSzg7QjQzfs1UvzCOoAwAMRTrKZnt8QZ1hqFdT/nJdQZ1zgBFIh58CPIKMCDP9w3UdsAaZ66NQDcxFIv5KoQp5cZcUUed64D4HuSeQESMHPAccZJFfBLxY8Hc1PfHHRKAv8Ku/0mHAOor37etAln15yn0EyJcm1HFOmBEAT9dHDnZvAG5zkPsJ6OOz0RuZ8ychQ/+FwMnArYXBTSPqgCMsDSi8rERpBd5BVjejgCMMsnXAGcBnRbK9B7gZ+AbpKB1zkQjexE7gGmRaKaQdiTfO9+z1BU4C5uUd4AKKO7R9CzwZsu4KJGjxczr65WEn8JXi/82ONjfRM2dWA9OABehXNOMpngOAfFHuQlZcOgY66JmDBOEq1nhlMOLw//o/tA0tbcipnjHAUUgwcgXwGhL05eV2I53lx3UK0GHaS/jZUtc2BTQp6rxgkH9aIR92CshThYxCYaemdwmZPxnpoHwdErHqGAv85snO18iUmwPcbpB/XiEf1QEAjgH+tuhRlc3I9BWYHPItNtGBrIHXG2SWI0uN75A1aiVwpOGzv2Ky2YJMBUHoRmKIP8IYzAETLDLPIiOAjV+Q6WFbmIaUGEOAqYbPv4zR9kLg7QDyjwFvhTVWgww7Jl4OoK8zbENSpha4CtnnOAvZnlYFoiBJmCAdFIbpyGjazyK3Grc8ghYXB1gbxUCZMBh1ylXFPOIf5QYAhzjI1RJx4yyHzCEmkj4zUMqsJv47DP2AxciuqI3hyNIvNDlkDWxiWBQDFcQyJJGyPWY7CzCvuPzMQVZyocgBGy0yVwfQZ8tRlyPbkBTqRcA/MduaBVwbsE4vJHCsDmMwh+zjm5iBW4r4OGAlkmasJPoic3LcjEY2m8JQj+wThGIU9kTDj5iHpXH0JILmaWRKORFkK53IEtdElERQbyTYjtLGDuB4Sxu1uKSC25ENiXokFXwicCXwOvumgusVNkrZAVqAPy0yzciOqY4oDvCSpW43smNoO6DzASGD9rMdGhCkfE3PUaQ8pewATchmkO253kc/14Z1gBkOdjciO5SmG9b5Ms3yLrQsdVAepNzp01/qDgDwhsNzNWhshHGAkcgBTVO93cC5nnwf4HeLfCtyqiswcRwIGVKgvxwcYCDyAm0dcrHCRlAHqPXs2t7jQ7560xzqvGl5H1rqsM+FQcotBbrLwQFAlmK259rK3qedILgDNDrYWcm+CaEcbmc2J1veiZZBnuEoHR/lUKiOpBwgh1xUtT3jCvY+Vh3EAaY66G9DAm0VExzqb8G8o2mkFngUt9On/rKKaMfCdSR5HsD15G3h2QdXBxiB27nHKZZnetVBR6NFh5XBSGrS9gMPXcgPPl1P9IshOpI+EPKApY6/Y10coBb43kHnYof3MRS3exuXmZQEuRo2xitHI8FSO7J+3oAsj2ydWGOwl3eiOOvHTRXmdOxupJ0ZGaVDttVbXGqQhNIkJABrQYbzfH4ho4I5HPgc9Ty8hMrcKc0owHakW3daOqMCOA17NL4LCaBLiqR+JazSGesgU4P8yEZJkTlAcfDvfEaVS4zMAYqD6l6iijjvE2SkSDVyIdYUAyxNrXUZiVCHfq9+LSUYAGYUn/7AU0h6fAfyYw0PYr/Xnxr/A3edaZgg2vi1AAAAAElFTkSuQmCC",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install ccentreon-plugin-Network-Citrix-Appacceleration-Snmp\r\n\r\n## SNMP\r\nSNMP must be configured on the monitored system.\r\n\r\n## Centreon Configuration\r\n### Create a new Host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Citrix-Appacceleration-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Citrix Acceleration",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_citrix_appacceleration_snmp.pl",
+                "package_name": "centreon-plugin-Network-Citrix-Appacceleration-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-citrix-appacceleration-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Citrix",
+            "Network optimizer",
+            "Network",
+            "Application optimizer"
+        ],
+        "update_date": "1584623148",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00c3\u00b4le l'utilisation des classes de service.}\n\n{EN: Check service class usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Serviceclass-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Citrix-Appacceleration-SNMP-Serviceclass-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Citrix-Appacceleration-Serviceclass-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00c3\u00b4le du taux d'utilisation CPU du module.}\n\n{EN: Check the rate of utilization of CPU for the module.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Citrix-Appacceleration-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Citrix-Appacceleration-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

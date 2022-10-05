@@ -1,0 +1,285 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Cambium-Epmp-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Cambium-Epmp-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Cambium-Epmp-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "INTERFACENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Cambium-Epmp-SNMP-Interface-Name",
+                "service_display_name": "Interface-$name$",
+                "service_template": "Net-Cambium-Epmp-Interfaces-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cambium_epmp.pl --plugin=network::cambium::epmp::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Cambium-Epmp-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cambium_epmp.pl --plugin=network::cambium::epmp::snmp::plugin --mode=list-interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Cambium-Epmp-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cambium_epmp.pl --plugin=network::cambium::epmp::snmp::plugin --mode=uptime --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-uptime=\\'$_SERVICEWARNINGUPTIME$\\' --critical-uptime=\\'$_SERVICECRITICALUPTIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-cambium-Epmp-SNMP-Uptime",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cambium_epmp.pl --plugin=network::cambium::epmp::snmp::plugin --mode=license --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-cambium-Epmp-SNMP-License",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cambium_epmp.pl --plugin=network::cambium::epmp::snmp::plugin --mode=interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --add-errors --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-cambium-Epmp-SNMP-Interfaces",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cambium_epmp.pl --plugin=network::cambium::epmp::snmp::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-cpu=\\'$_SERVICEWARNINGCPU$\\' --critical-cpu=\\'$_SERVICECRITICALCPU$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-cambium-Epmp-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cambium_epmp.pl --plugin=network::cambium::epmp::snmp::plugin --mode=antenna --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-antenna-gain=\\'$_SERVICEWARNINGGAIN$\\' --critical-antenna-gain=\\'$_SERVICECRITICALGAIN$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-cambium-Epmp-SNMP-Antenna",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser un \u00e9quipement Cambium ePMP via SNMP}\r\n{EN: Template to check Cambium ePMP device through SNMP}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Cambium ePMP using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 0,
+            "command_name": null,
+            "icon": "cambium-epmp-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Cambium-Epmp-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Cambium-Epmp-Uptime-SNMP",
+                "Net-Cambium-Epmp-License-SNMP",
+                "Net-Cambium-Epmp-Interfaces-SNMP",
+                "Net-Cambium-Epmp-Cpu-SNMP",
+                "Net-Cambium-Epmp-Antenna-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "cambium-epmp-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "adding description for htpl and stpl",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Cambium ePMP devices through SNMP.**\r\n\r\nAvailable host template and related services:\r\n\r\n|Network-Cambium-Epmp-Snmp|\r\n|---|\r\n|Antenna|\r\n|Cpu|\r\n|Interfaces|\r\n|License|\r\n|Uptime|"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser les \u00e9quipements Cambium ePMP \u00e0 l\\'aide du protocole SNMP.**\r\n\r\nMod\u00e8le d\\'h\u00f4te et de services disponibles :\r\n\r\n|Network-Cambium-Epmp-Snmp|\r\n|---|\r\n|Antenna|\r\n|Cpu|\r\n|Interfaces|\r\n|License|\r\n|Uptime|"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 21.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Cambium ePMP SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_cambium_epmp.pl",
+                "package_name": "centreon-plugin-Network-Cambium-Epmp-Snmp",
+                "package_version": "20220616"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-cambium-epmp-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Network",
+            "SNMP"
+        ],
+        "update_date": "1653302687",
+        "version": "22.06.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Dur\u00e9e depuis laquelle l'\u00e9quipement tourne sans interruption.}\r\n\r\n{EN: Time since the device has been working and available.}",
+            "active_checks_enabled": 2,
+            "alias": "Uptime",
+            "check_timeperiod": "",
+            "command_name": "Net-cambium-Epmp-SNMP-Uptime",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Cambium-Epmp-Uptime-SNMP",
+            "normal_check_interval": 60,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la validit\u00e9 de la licence.}\r\n\r\n{EN: Check license state.}",
+            "active_checks_enabled": 2,
+            "alias": "License",
+            "check_timeperiod": "",
+            "command_name": "Net-cambium-Epmp-SNMP-License",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /unknown/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /validation fail|not provided/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /not valid/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Cambium-Epmp-License-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces r\u00e9seau.}\r\n\r\n{EN: Check network interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "Net-cambium-Epmp-SNMP-Interfaces",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} !~ /up|dormant/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Cambium-Epmp-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les cpu.}\r\n\r\n{EN: Check cpu hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-cambium-Epmp-SNMP-Cpu",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Cambium-Epmp-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le gain d'une antenne en dBi.}\r\n\r\n{EN: Check antenna gain in dBi.}",
+            "active_checks_enabled": 2,
+            "alias": "Antenna",
+            "check_timeperiod": "",
+            "command_name": "Net-cambium-Epmp-SNMP-Antenna",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Cambium-Epmp-Antenna-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,122 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_activedirectory_wsman.pl --plugin=apps::microsoft::activedirectory::wsman::plugin --mode=dcdiag --hostname=$HOSTADDRESS$ --wsman-scheme=$_HOSTWSMANPROTO$ --wsman-port=$_HOSTWSMANPORT$ --wsman-username=\\'$_HOSTWSMANUSERNAME$\\' --wsman-password=\\'$_HOSTWSMANPASSWORD$\\' $_HOSTWSMANEXTRAOPTIONS$ --language=\\'$_SERVICELANGUAGE$\\' $_SERVICEEXTRAOPTIONS$\\'\\\"",
+            "name": "App-ActiveDirectory-WSMAN-Dcdiag",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Active Directory via WSMAN}\r\n{EN: Template to check Windows Active Directory Domain Controller using WSMAN}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Windows Active Directory Domain Controller using WSMAN",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "icon": "",
+            "macros": [
+                {
+                    "key": "$_HOSTWSMANPROTO$",
+                    "value": "http"
+                },
+                {
+                    "key": "$_HOSTWSMANPORT$",
+                    "value": "5985"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-ActiveDirectory-WSMAN",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-ActiveDirectory-Dcdiag-WSMAN"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin Pack to monitor Microsoft Windows Active Directory using WSMAN:\r\n* Dcdiag"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack Plugin pour surveiller Microsoft Active Directory en utilisant le protocole WSMAN :\r\n* Dcdiag"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAA7DAAAOwwHHb6hkAAACCUlEQVR42u3UwU4TURQG4N9gnCaKYfaCtIWWFuKirSUIVd8AXBQxEBPfgrJQ0cSXEVjR4kocWJogK1t0pbicpHVpCnM8d6Y+gqcm/os/Z5bnfve/g5+Ps2KW1Yz0dPZ0ykbWr924AsxOYP7DS5SbjbDS3JJyqyGV1pZZQAACEIAABCAAAQhAAAIQgAAEIAABCEAAAhCAAAQgAAEIQIC/CpCW6J8B0KXsko5vv1fXBqxn/Np1JACHL4YHEN+IVfTgXZ3dQQOWXAOK46geagP2N8PyfkNKzU1RDLMgvhGr1NN6eEWoT0rfNWA0eQLV989RUgDXgJIu5aZVIBtTvnX665O+PMti0TWgcAu1j2+wEGyP3Tt+5Sd5bRYsjsI+N4EFnZ7+AjAyAkyNA7nbwPREMi3jzcwbpgqvMPjOV/Xw1+Dp+e8XruLhkILV1rlZ6n++m9/wNOgila5gaQaQL3cgJ0XIp1nIqW2wstsJzbLTDpdd3n4O1w6+j3mZKh4UgcuTOfwKcl/7QS7sH+XDC8Pg0d6ZmGX3TFb22jo7snZw7qcyd7X+QHQ6h4tAFwqmJTrKyaVhXAPELDsdWY5nW568++F76aQBrvru5uOljvMSGWYIDejEDXAAKfcEtAHiGjAAiP47gCIBCEAAAhCAAAQgAAEIQAACEIAABCAAAQhAAAIQgAAEIAABTPIbSgkGafqmch4AAAAASUVORK5CYII=",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Active Directory WSMAN",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon-plugin-Applications-ActiveDirectory-Wsman",
+                "package_name": "centreon_activedirectory_wsman.pl",
+                "package_version": "20220616"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-active-directory-wsman",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Active Directory",
+            "AD",
+            "Microsoft",
+            "Security",
+            "WSMAN",
+            "Window"
+        ],
+        "update_date": "1654085515",
+        "version": "22.06.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de diagnostiquer le contr\u00f4leur de domaine. Ex\u00e9cute la commande \"dcdiag\".}\r\n\r\n{EN: This check makes to diagnose the domain controller. It executes the command \"dcdiag\" .}",
+            "active_checks_enabled": 2,
+            "alias": "Dcdiag",
+            "check_timeperiod": "",
+            "command_name": "App-ActiveDirectory-WSMAN-Dcdiag",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICELANGUAGE$",
+                    "password": false,
+                    "value": "en"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-ActiveDirectory-Dcdiag-WSMAN",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

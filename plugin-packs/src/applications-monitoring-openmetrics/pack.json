@@ -1,0 +1,203 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_openmetrics.pl --plugin=apps::monitoring::openmetrics::plugin --mode=scrape-metrics --custommode=\\'file\\' --hostname=\\'$HOSTADDRESS$\\' --command-options=\\'=\\'$_HOSTOPENMETRICSFILEPATH$\\' $_HOSTOPENMETRICSEXTRAOPTIONS$ --filter-metrics=\\'$_SERVICEFILTERMETRICS$\\' --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' --instance=\\'$_SERVICEINSTANCE$\\' --filter-instance=\\'$_SERVICEFILTERINSTANCE$\\' --subinstance=\\'$_SERVICESUBINSTANCE$\\' --filter-subinstance=\\'$_SERVICEFILTERSUBINSTANCE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Monitoring-Openmetrics-File-Scrape-Metrics",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_openmetrics.pl --plugin=apps::monitoring::openmetrics::plugin --mode=scrape-metrics --custommode=\\'web\\' --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTOPENMETRICSPORT$\\' --proto=\\'$_HOSTOPENMETRICSPROTO$\\' --urlpath=\\'$_HOSTOPENMETRICSURLPATH$\\' --username=\\'$_HOSTOPENMETRICSUSERNAME$\\' --password=\\'$_HOSTOPENMETRICSPASSWORD$\\' $_HOSTOPENMETRICSEXTRAOPTIONS$ --filter-metrics=\\'$_SERVICEFILTERMETRICS$\\' --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' --instance=\\'$_SERVICEINSTANCE$\\' --filter-instance=\\'$_SERVICEFILTERINSTANCE$\\' --subinstance=\\'$_SERVICESUBINSTANCE$\\' --filter-subinstance=\\'$_SERVICEFILTERSUBINSTANCE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Monitoring-Openmetrics-Web-Scrape-Metrics",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check OpenMetrics formatted file on remote host using SSH",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "openmetrics-icon-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTOPENMETRICSFILEPATH$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTOPENMETRICSEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Openmetrics-File",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Monitoring-Openmetrics-Scrape-Metrics-File"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check OpenMetrics web page",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "openmetrics-icon-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTOPENMETRICSPORT$",
+                    "value": "80"
+                },
+                {
+                    "key": "$_HOSTOPENMETRICSPROTO$",
+                    "value": "http"
+                },
+                {
+                    "key": "$_HOSTOPENMETRICSURLPATH$",
+                    "value": "/metrics"
+                },
+                {
+                    "key": "$_HOSTOPENMETRICSUSERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTOPENMETRICSPASSWORD$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTOPENMETRICSEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Openmetrics-Web",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Monitoring-Openmetrics-Scrape-Metrics-Web"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "openmetrics-icon-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* first commit",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor OpenMetrics from web endpoint or local/remote file**\r\n\r\nAvailable host templates and related services:\r\n\r\n|App-Monitoring-Openmetrics-File|\r\n|---|\r\n|Scrape-Metrics|\r\n\r\n|App-Monitoring-Openmetrics-Web|\r\n|---|\r\n|Scrape-Metrics|"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser OpenMetrics depuis une page web ou un fichier local/distant**\r\n\r\nMod\u00e8les d\\'h\u00f4te disponibles et leurs services :\r\n\r\n|App-Monitoring-Openmetrics-File|\r\n|---|\r\n|Scrape-Metrics|\r\n\r\n|App-Monitoring-Openmetrics-Web|\r\n|---|\r\n|Scrape-Metrics|"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n\r\n## Prerequisites\r\n\r\n### Centreon Plugin\r\n\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Monitoring-Openmetrics\r\n\r\n## Centreon Configuration\r\n\r\n### Create a host using the appropriate template\r\n\r\n#### Checking using a web page\r\n\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Field</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>Name</p></td>\r\n            <td align=\"left\"><p><em>Name of the host</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Alias</p></td>\r\n            <td align=\"left\"><p><em>Description</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>IP Address / DNS</p></td>\r\n            <td align=\"left\"><p><em>Can be localhost</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Monitored from</p></td>\r\n            <td align=\"left\"><p><em>Poller used to monitor</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Templates</p></td>\r\n            <td align=\"left\"><p>App-Monitoring-Openmetrics-Web</p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nThe following host macros should be set as shown:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Macro</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>OPENMETRICSPORT</p></td>\r\n            <td align=\"left\"><p><em>OpenMetrics web page port</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>OPENMETRICSPROTO</p></td>\r\n            <td align=\"left\"><p><em>OpenMetrics web page protocol</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>OPENMETRICSURLPATH</p></td>\r\n            <td align=\"left\"><p><em>OpenMetrics web page url path</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>OPENMETRICSUSERNAME</p></td>\r\n            <td align=\"left\"><p><em>OpenMetrics web page username (if needed)</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>OPENMETRICSPASSWORD</p></td>\r\n            <td align=\"left\"><p><em>OpenMetrics web page password(if needed)</em></p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nCheck the *Create Services linked to the Template too* box and click on the *Save* button.\r\n\r\nThe following service will be created:\r\n\r\n* Scrape-Metrics\r\n\r\n#### Checking using a remote file\r\n\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Field</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>Name</p></td>\r\n            <td align=\"left\"><p><em>Name of the host</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Alias</p></td>\r\n            <td align=\"left\"><p><em>Description</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>IP Address / DNS</p></td>\r\n            <td align=\"left\"><p><em>Can be localhost</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Monitored from</p></td>\r\n            <td align=\"left\"><p><em>Poller used to monitor</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Templates</p></td>\r\n            <td align=\"left\"><p>App-Monitoring-Openmetrics-File</p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nThe following host macros should be set as shown:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Macro</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>OPENMETRICSFILEPATH</p></td>\r\n            <td align=\"left\"><p><em>OpenMetrics file path on remote host</em></p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nCheck the *Create Services linked to the Template too* box and click on the *Save* button.\r\n\r\nThe following service will be created:\r\n\r\n* Scrape-Metrics\r\n\r\n### Set the service macros\r\n\r\nThe following service macros should be set as shown:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Macro</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>FILTERMETRICS</p></td>\r\n            <td align=\"left\"><p><em>Name of the metrics to filter on</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>WARNING</p></td>\r\n            <td align=\"left\"><p><em>Warning threshold</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>CRITICAL</p></td>\r\n            <td align=\"left\"><p><em>Critical threshold</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>INSTANCE</p></td>\r\n            <td align=\"left\"><p><em>Label from dimensions to get the instance value from</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>FILTERINSTANCE</p></td>\r\n            <td align=\"left\"><p><em>Filter on some instance</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>SUBINSTANCE</p></td>\r\n            <td align=\"left\"><p><em>Set the label from dimensions to get the subinstance value from</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>FILTERSUBINSTANCE</p></td>\r\n            <td align=\"left\"><p><em>Filter on some subinstance</em></p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nExamples on command line:\r\n\r\n`# perl centreon_plugins.pl --plugin=apps::monitoring::openmetrics::plugin --mode=scrape-metrics\r\n--custommode=web --hostname=10.2.3.4 --port=9100 --verbose --filter-metrics='node_network_up'\r\n--critical='0:0' --instance='device' --new-perfdata`\r\n\r\n`# perl centreon_plugins.pl --plugin=apps::monitoring::openmetrics::plugin --mode=scrape-metrics\r\n--custommode=web --hostname=10.2.3.4 --port=9100 --verbose --filter-metrics='node_cpu_seconds_total'\r\n--instance='cpu' --subinstance='mode' --filter-subinstance='idle'`\r\n\r\n`# perl centreon_plugins.pl --plugin=apps::monitoring::openmetrics::plugin --mode=scrape-metrics\r\n--custommode=file --command-options='/tmp/metrics' --filter-metrics='cpu' --verbose`\r\n\r\n`# perl centreon_plugins.pl --plugin=apps::monitoring::openmetrics::plugin --mode=scrape-metrics\r\n--custommode=file --hostname=10.2.3.4 --ssh-option='-l=centreon-engine' --ssh-option='-p=52'\r\n--command-options='/my/app/path/metrics' --verbose`\r\n\r\n### Duplicate service to monitor more metrics\r\n\r\nYou can now duplicate the service to monitor several metrics.\r\n",
+        "name": "OpenMetrics",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_monitoring_openmetrics.pl",
+                "package_name": "centreon-plugin-Applications-Monitoring-Openmetrics",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-monitoring-openmetrics",
+        "status": "stable",
+        "status_message": "first commit",
+        "tags": [
+            "OpenMetrics"
+        ],
+        "update_date": "1568298297",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Permet de collecter des m\u00e9triques en consultant un fichier OpenMetrics sur un serveur distant.}\r\n\r\n{EN: Allows to scrape metrics from an OpenMetrics formatted file on a remote host.}",
+            "active_checks_enabled": 2,
+            "alias": "Scrape-Metrics",
+            "check_timeperiod": "",
+            "command_name": "App-Monitoring-Openmetrics-File-Scrape-Metrics",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Openmetrics-Scrape-Metrics-File",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Permet de collecter des m\u00e9triques en consultant une page web exposant des OpenMetrics.}\r\n\r\n{EN: Allows to scrape metrics from a web page exposing OpenMetrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Scrape-Metrics",
+            "check_timeperiod": "",
+            "command_name": "App-Monitoring-Openmetrics-Web-Scrape-Metrics",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Openmetrics-Scrape-Metrics-Web",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

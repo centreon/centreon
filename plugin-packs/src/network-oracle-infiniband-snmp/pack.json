@@ -1,0 +1,549 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": null,
+                "changes": [],
+                "command_for_discovery": "Net-Oracle-Infiniband-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Oracle-Infiniband-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Oracle-Infiniband-SNMP"
+                ],
+                "macros": [],
+                "name": "Net-Oracle-Infiniband-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Oracle-Infiniband-Traffic-Global-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Oracle-Infiniband-SNMP-Infinibands-Discover",
+                "command_for_macro": "Net-Oracle-Infiniband-SNMP-Infinibands-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Oracle-Infiniband-SNMP"
+                ],
+                "macros": [],
+                "name": "Net-Oracle-Infiniband-SNMP-Infiniband-Name",
+                "service_display_name": "Infiniband-$name$",
+                "service_template": "Net-Oracle-Infiniband-Infiniband-Usage-Global-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle_infiniband.pl --plugin=network::oracle::infiniband::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Oracle-Infiniband-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle_infiniband.pl --plugin=network::oracle::infiniband::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Oracle-Infiniband-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle_infiniband.pl --plugin=network::oracle::infiniband::snmp::plugin --mode=list-infinibands --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Oracle-Infiniband-SNMP-Infinibands-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle_infiniband.pl --plugin=network::oracle::infiniband::snmp::plugin --mode=list-infinibands --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Oracle-Infiniband-SNMP-Infinibands-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle_infiniband.pl --plugin=network::oracle::infiniband::snmp::plugin --mode=swap --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage-prct=\\'$_SERVICEWARNING$\\' --critical-usage-prct=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Oracle-Infiniband-SNMP-Swap",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle_infiniband.pl --plugin=network::oracle::infiniband::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Oracle-Infiniband-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle_infiniband.pl --plugin=network::oracle::infiniband::snmp::plugin --mode=load --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Oracle-Infiniband-SNMP-Load",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle_infiniband.pl --plugin=network::oracle::infiniband::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Oracle-Infiniband-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle_infiniband.pl --plugin=network::oracle::infiniband::snmp::plugin --mode=cpu-detailed --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-idle=\\'$_SERVICEWARNINGIDLE$\\'  --critical-idle=\\'$_SERVICECRITICALIDLE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Oracle-Infiniband-SNMP-Cpu-Detailed",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle_infiniband.pl --plugin=network::oracle::infiniband::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$$$\\' --name --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Oracle-Infiniband-SNMP-Traffic-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle_infiniband.pl --plugin=network::oracle::infiniband::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Oracle-Infiniband-SNMP-Traffic-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle_infiniband.pl --plugin=network::oracle::infiniband::snmp::plugin --mode=infiniband-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --filter-ib-name=\\'$_SERVICEIBNAME$\\' --filter-ibgw-name=\\'$_SERVICEIBGWNAME$\\'  --warning-ib-status=\\'$_SERVICEWARNINGIBSTATUS$\\' --critical-ib-status=\\'$_SERVICECRITICALIBSTATUS$\\'  --warning-ibgw-status=\\'$_SERVICEWARNINGIBGWSTATUS$\\' --critical-ibgw-status=\\'$_SERVICECRITICALIBGWSTATUS$\\' --warning-in=\\'$_SERVICEWARNINGIN$\\' --critical-in=\\'$_SERVICECRITICALIN$\\' --warning-out=\\'$_SERVICEWARNINGOUT$\\' --critical-out=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Oracle-Infiniband-SNMP-Infiniband-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Oracle Infiniband switch using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "oracle-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Oracle-Infiniband-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Oracle-Infiniband-Swap-SNMP",
+                "Net-Oracle-Infiniband-Memory-SNMP",
+                "Net-Oracle-Infiniband-Load-SNMP",
+                "Net-Oracle-Infiniband-Hardware-Global-SNMP",
+                "Net-Oracle-Infiniband-Cpu-Detailed-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "oracle-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ fix service disco commands",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Oracle Infiniband network appliances :\r\n* Cpu-Detailed\r\n* Hardware-Global\r\n* Infiniband-Usage-Global\r\n* Infiniband-Usage-Name\r\n* Load\r\n* Memory\r\n* Swap\r\n* Traffic-Generic-Name\r\n* Traffic-Global"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les \u00e9quipements r\u00e9seaux Oracle Infiniband :\r\n* Cpu-Detailed\r\n* Hardware-Global\r\n* Infiniband-Usage-Global\r\n* Infiniband-Usage-Name\r\n* Load\r\n* Memory\r\n* Swap\r\n* Traffic-Generic-Name\r\n* Traffic-Global"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites \r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Oracle-Infiniband-Snmp\r\n\r\n### SNMP\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the monitoring server\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp)\r\n\r\n## Centreon Configuration\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Oracle-Infiniband-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Oracle Infiniband",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_oracle_infiniband.pl",
+                "package_name": "centreon-plugin-Network-Oracle-Infiniband-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "centreon-plugin-Network-Oracle-Infiniband-Snmp",
+                "version": "20170807-1"
+            }
+        ],
+        "slug": "network-oracle-infiniband-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Oracle",
+            "Network",
+            "SNMP"
+        ],
+        "update_date": "1586980460",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Controle du taux d'utilisation de la memoire virtuelle (SWAP)}\r\n\r\n{EN: Check virtual memory usage (SWAP)}",
+            "active_checks_enabled": 2,
+            "alias": "Swap",
+            "check_timeperiod": "",
+            "command_name": "Net-Oracle-Infiniband-SNMP-Swap",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Oracle-Infiniband-Swap-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Controle du taux d'utilisation de la memoire vive (RAM)..}\r\n\r\n{EN: Check the rate of the utilization of memory (RAM).}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Oracle-Infiniband-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Oracle-Infiniband-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Controle de la charge serveur.}\r\n\r\n{EN: Check the server load average.}",
+            "active_checks_enabled": 2,
+            "alias": "Load",
+            "check_timeperiod": "",
+            "command_name": "Net-Oracle-Infiniband-SNMP-Load",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Oracle-Infiniband-Load-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Controle le materiel.}\r\n\r\n{EN: Check hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Oracle-Infiniband-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Oracle-Infiniband-Hardware-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Controle du taux d'utilisation detaille CPU de la machine. Ce controle pourra remonter la moyenne du taux d'utilisation des CPU ainsi que le taux par CPU pour les CPU multi-coeur.}\r\n\r\n{EN: Check the detailed rate of utilization of CPU for the machine. This check can give the average CPU utilization rate and the rate per CPU for multi-core CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu-Detailed",
+            "check_timeperiod": "",
+            "command_name": "Net-Oracle-Infiniband-SNMP-Cpu-Detailed",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIDLE$",
+                    "password": false,
+                    "value": "20:"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIDLE$",
+                    "password": false,
+                    "value": "10:"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Oracle-Infiniband-Cpu-Detailed-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Controle de la bande passante de l'interface. Pour chaque controle apparaitra le nom de l'interface (\u00ab\u00a0label\u00a0\u00bb raccourci decrivant l'interface).}\r\n\r\n{EN: Check the bandwidth of the interface. For each checks the name of the interface will appear (\u00c2\u00ab label \u00c2\u00bb shortcut describing the interface).}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-Oracle-Infiniband-SNMP-Traffic-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--oid-display=ifdesc --oid-filter=ifdesc"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Oracle-Infiniband-Traffic-Generic-Name-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Controle de la bande passante des interfaces. Pour chaque controle apparaetra le nom de l'interface (\u00ab\u00a0label \u00bb raccourci decrivant l'interface).}\r\n\r\n{EN: Check the bandwidth of interfaces. For each checks the name of the interface will appear (\u00c2\u00ab label \u00c2\u00bb shortcut describing the interface).}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Oracle-Infiniband-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --oid-display=ifdesc --oid-filter=ifdesc"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Oracle-Infiniband-Traffic-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Controle de la bande passante des interfaces.}\r\n\r\n{EN: Check the bandwidth of infiniband interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Infiniband-Usage-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-Oracle-Infiniband-SNMP-Infiniband-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIBSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /active/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIBGWSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /up/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Oracle-Infiniband-Infiniband-Usage-Name-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Controle de la bande passante des interfaces infiniband.}\r\n\r\n{EN: Check the bandwidth of infiniband interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Infiniband-Usage-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Oracle-Infiniband-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIBSTATUS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIBGWSTATUS$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Oracle-Infiniband-Infiniband-Usage-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

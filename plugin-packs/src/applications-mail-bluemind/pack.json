@@ -1,0 +1,530 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_bluemind.pl --plugin=apps::bluemind::plugin --mode=incoming --hostname=$HOSTADDRESS$ --port=$_HOSTBLUEMINDPORT$ --database=$_HOSTBLUEMINDDBNAME$ --username=\\'$_HOSTBLUEMINDUSERNAME$\\' --password=\\'$_HOSTBLUEMINDPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Mail-Bluemind-Incoming-Mail",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_bluemind.pl --plugin=apps::bluemind::plugin --mode=cmd-return --hostname=$HOSTADDRESS$ $_HOSTEXTRAOPTIONS$ --remote --ssh-option=\\'-l=centreon\\' --command=\\'ls \\\\/var\\\\/log\\\\/bm*\\\\/*.hprof\\' --manage-returns=\\'0,CRITICAL, hprof file exists#2,OK,hprof file NOT exist#,UNKNOW,Command problem\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Mail-Bluemind-hprof-file",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser un serveur Bluemind}\r\n{EN: Template to check Bluemind Server}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Bluemind Server",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "bluemind-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTBLUEMINDDBNAME$",
+                    "value": "bm"
+                },
+                {
+                    "key": "$_HOSTBLUEMINDPASSWORD$",
+                    "value": "root"
+                },
+                {
+                    "key": "$_HOSTBLUEMINDPORT$",
+                    "value": "9086"
+                },
+                {
+                    "key": "$_HOSTBLUEMINDUSERNAME$",
+                    "value": "root"
+                },
+                {
+                    "key": "$_HOSTIMAPPASSWORD$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTIMAPUSERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPOSTGRESDATABASE$",
+                    "value": "bj"
+                },
+                {
+                    "key": "$_HOSTPOSTGRESPASSWORD$",
+                    "value": "bj"
+                },
+                {
+                    "key": "$_HOSTPOSTGRESUSERNAME$",
+                    "value": "bj"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Mail-Bluemind",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host",
+                "App-DB-Postgres",
+                "App-Protocol-IMAP",
+                "App-Protocol-SMTP",
+                "App-Webserver-Nginx-ServerStatus",
+                "OS-Linux-SNMP"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Mail-Bluemind-Process-Postfix",
+                "App-Mail-Bluemind-Process-MQ",
+                "App-Mail-Bluemind-Process-LMTP",
+                "App-Mail-Bluemind-Process-IPS",
+                "App-Mail-Bluemind-Process-HPS",
+                "App-Mail-Bluemind-Process-EAS",
+                "App-Mail-Bluemind-Process-Cyrus",
+                "App-Mail-Bluemind-Process-Core",
+                "App-Mail-Bluemind-Incoming-Mails",
+                "App-Mail-Bluemind-hprof-file"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "bluemind-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* deprecated",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            },
+            {
+                "name": "applications-databases-postgresql",
+                "version": "22.05.0"
+            },
+            {
+                "name": "applications-protocol-imap",
+                "version": "22.05.0"
+            },
+            {
+                "name": "applications-protocol-smtp",
+                "version": "22.05.0"
+            },
+            {
+                "name": "applications-webservers-nginx-serverstatus",
+                "version": "22.05.0"
+            },
+            {
+                "name": "operatingsystems-linux-snmp",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Bluemind server:\r\n* Hprof-File\r\n* Incoming-Mails\r\n* Bluemind-Process-Core\r\n* Bluemind-Process-Cyrus\r\n* Bluemind-Process-EAS\r\n* Bluemind-Process-HPS\r\n* Bluemind-Process-IPS\r\n* Bluemind-Process-LMTP\r\n* Bluemind-Process-MQ\r\n* Proc-Postfix"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser un serveur Bluemind :\r\n* Hprof-File\r\n* Incoming-Mails\r\n* Bluemind-Process-Core\r\n* Bluemind-Process-Cyrus\r\n* Bluemind-Process-EAS\r\n* Bluemind-Process-HPS\r\n* Bluemind-Process-IPS\r\n* Bluemind-Process-LMTP\r\n* Bluemind-Process-MQ\r\n* Proc-Postfix"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Mail-Bluemind\r\n\r\n## centreon user for check by ssh\r\nYou must create the centreon user on your bluemind server and setup its\r\npassword with these following commands:\r\n\r\n    $ useradd -m -s /bin/bash centreon\r\n    $ passwd centreon\r\n\r\n### SSH key exchange\r\nYou must make a ssh key exchange between the user centreon-engine of\r\nyour monitoring poller and centreon user of your Bluemind server with\r\nthese following commands:\r\n\r\n    $ su - centreon-engine \r\n    $ ssh-keygen\r\n    $ ssh-copy-id centreon@bluemind_server_@IP\r\n    $ ssh centreon@centreon@bluemind_server_@IP\r\n    $ exit\r\n\r\n### Install InfluxDB\r\nInstall InfluDB metric database on Bluemind web interface.\r\n\r\n### Configure bm-iptables\r\nYou must allow the monitoring poller to access the Bluemind server. Log\r\non Bluemind web interface with Global Admin and go to\r\n*Security-&gt;Firewall settings*. Add the ip address of your monitoring\r\npoller and click the *Save* button.\r\n\r\n## Centreon configuration\r\n### Create a Bluemind server\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"44%\" />\r\n<col width=\"55%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p><em>App-Mail-Bluemind-custom</em></p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick the *Save* button.",
+        "name": "BlueMind",
+        "plugins_requirements": [],
+        "requirement": [
+            {
+                "name": "ces-plugins-Applications-Mail-Bluemind",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "applications-mail-bluemind",
+        "status": "deprecated",
+        "status_message": "",
+        "tags": [
+            "Blue Mind",
+            "BlueMind",
+            "Communication",
+            "Email",
+            "Server"
+        ],
+        "update_date": "1587995341",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le fonctionnement du processus postfix.}\r\n\r\n{EN: Check postfix process.}",
+            "active_checks_enabled": 2,
+            "alias": "Proc-Postfix",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSNAME$",
+                    "password": false,
+                    "value": "master"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSPATH$",
+                    "password": false,
+                    "value": "/usr/libexec/postfix/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "1"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Mail-Bluemind-Process-Postfix",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Linux-Process-Generic-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le fonctionnement du processus bm-mq.}\r\n\r\n{EN: Check bm-mq process.}",
+            "active_checks_enabled": 2,
+            "alias": "Bluemind-Process-MQ",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSNAME$",
+                    "password": false,
+                    "value": "java"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSPATH$",
+                    "password": false,
+                    "value": "/usr/lib/jvm/bm-jdk/bin/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSARGS$",
+                    "password": false,
+                    "value": "-Dlogback.configurationFile=/etc/bm/default/bm-mq.log.xml"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "1"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Mail-Bluemind-Process-MQ",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Linux-Process-Generic-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le fonctionnement du processus bm-lmtpd.}\r\n\r\n{EN: Check bm-lmtpd process.}",
+            "active_checks_enabled": 2,
+            "alias": "Bluemind-Process-LMTP",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSNAME$",
+                    "password": false,
+                    "value": "java"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSPATH$",
+                    "password": false,
+                    "value": "/usr/lib/jvm/bm-jdk/bin/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSARGS$",
+                    "password": false,
+                    "value": "-Dlogback.configurationFile=/etc/bm/default/bm-lmtpd.log.xml"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "1"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Mail-Bluemind-Process-LMTP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Linux-Process-Generic-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le fonctionnement du processus bm-ips.}\r\n\r\n{EN: Check bm-ips process.}",
+            "active_checks_enabled": 2,
+            "alias": "Bluemind-Process-IPS",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSNAME$",
+                    "password": false,
+                    "value": "java"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSPATH$",
+                    "password": false,
+                    "value": "/usr/lib/jvm/bm-jdk/bin/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSARGS$",
+                    "password": false,
+                    "value": "-Dlogback.configurationFile=/etc/bm/default/bm-ips.log.xml"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "1"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Mail-Bluemind-Process-IPS",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Linux-Process-Generic-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le fonctionnement du processus bm-hps.}\r\n\r\n{EN: Check bm-hps process.}",
+            "active_checks_enabled": 2,
+            "alias": "Bluemind-Process-HPS",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSNAME$",
+                    "password": false,
+                    "value": "java"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSPATH$",
+                    "password": false,
+                    "value": "/usr/lib/jvm/bm-jdk/bin/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSARGS$",
+                    "password": false,
+                    "value": "-Dlogback.configurationFile=/etc/bm/default/bm-hps.log.xml"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "1"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Mail-Bluemind-Process-HPS",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Linux-Process-Generic-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le fonctionnement du processus bm-eas.}\r\n\r\n{EN: Check bm-eas process.}",
+            "active_checks_enabled": 2,
+            "alias": "Bluemind-Process-EAS",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSNAME$",
+                    "password": false,
+                    "value": "java"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSPATH$",
+                    "password": false,
+                    "value": "/usr/lib/jvm/bm-jdk/bin/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSARGS$",
+                    "password": false,
+                    "value": "-Dlogback.configurationFile=/etc/bm/default/bm-eas.log.xml"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "1"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Mail-Bluemind-Process-EAS",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Linux-Process-Generic-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le fonctionnement du processus cyrus.}\r\n\r\n{EN: Check cyrus process.}",
+            "active_checks_enabled": 2,
+            "alias": "Bluemind-Process-Cyrus",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSNAME$",
+                    "password": false,
+                    "value": "master"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSPATH$",
+                    "password": false,
+                    "value": "/usr/lib/cyrus/bin/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "1"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Mail-Bluemind-Process-Cyrus",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Linux-Process-Generic-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le fonctionnement du processus bm-core.}\r\n\r\n{EN: Check bm-core process.}",
+            "active_checks_enabled": 2,
+            "alias": "Bluemind-Process-Core",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSNAME$",
+                    "password": false,
+                    "value": "java"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSPATH$",
+                    "password": false,
+                    "value": "/usr/lib/jvm/bm-jdk/bin/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPROCESSARGS$",
+                    "password": false,
+                    "value": "-Dlogback.configurationFile=/etc/bm/default/bm-core.log.xml"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "1"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Mail-Bluemind-Process-Core",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Linux-Process-Generic-SNMP",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant d'afficher le nombre de mails re\u00e7us.}\r\n\r\n{EN: Check incoming mails.}",
+            "active_checks_enabled": 2,
+            "alias": "Incoming-Mails",
+            "check_timeperiod": "",
+            "command_name": "App-Mail-Bluemind-Incoming-Mail",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Mail-Bluemind-Incoming-Mails",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier la pr\u00e9sence d'un fichier hprof .}\r\n\r\n{EN: Check the presence of hprof file.}",
+            "active_checks_enabled": 2,
+            "alias": "Hprof-File",
+            "check_timeperiod": "",
+            "command_name": "App-Mail-Bluemind-hprof-file",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Mail-Bluemind-hprof-file",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

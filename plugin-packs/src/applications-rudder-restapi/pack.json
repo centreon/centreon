@@ -1,0 +1,1751 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v1.0": [
+                {
+                    "command": "App-Rudder-Restapi-HostDiscovery",
+                    "default_template": "generic-active-host",
+                    "description": "Discover hosts from Rudder's inventory",
+                    "mapping": {
+                        "rudder_debian": {
+                            "association": {
+                                "description": [
+                                    "${name}"
+                                ],
+                                "hostname": [
+                                    "${name}"
+                                ],
+                                "ip": [
+                                    "${name}"
+                                ]
+                            },
+                            "attributes": {
+                                "id": {
+                                    "type": "string"
+                                },
+                                "ip": {
+                                    "type": "array"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "os": {
+                                    "type": "string"
+                                },
+                                "state": {
+                                    "type": "string"
+                                },
+                                "status": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                },
+                                "version": {
+                                    "type": "string"
+                                }
+                            },
+                            "filters": {
+                                "os": "Debian"
+                            },
+                            "macros": [
+                                {
+                                    "from": "parameters",
+                                    "name": "RUDDERAPIHOSTNAME",
+                                    "type": "text",
+                                    "value": "RUDDERAPIHOSTNAME"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "RUDDERAPIURLPATH",
+                                    "type": "text",
+                                    "value": "RUDDERAPIURLPATH"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "RUDDERAPIPORT",
+                                    "type": "text",
+                                    "value": "RUDDERAPIPORT"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "RUDDERAPIPROTO",
+                                    "type": "text",
+                                    "value": "RUDDERAPIPROTO"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "RUDDERAPITOKEN",
+                                    "type": "password",
+                                    "value": "RUDDERAPITOKEN"
+                                },
+                                {
+                                    "from": "results",
+                                    "name": "RUDDERNODENAME",
+                                    "type": "text",
+                                    "value": "name"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "PROXYURL",
+                                    "type": "text",
+                                    "value": "PROXYURL"
+                                }
+                            ],
+                            "object": "host",
+                            "templates": [
+                                "OS-Linux-SNMP-custom",
+                                "App-Rudder-Node-Compliance-Restapi"
+                            ]
+                        },
+                        "rudder_freebsd": {
+                            "association": {
+                                "description": [
+                                    "${name}"
+                                ],
+                                "hostname": [
+                                    "${name}"
+                                ],
+                                "ip": [
+                                    "${name}"
+                                ]
+                            },
+                            "attributes": {
+                                "id": {
+                                    "type": "string"
+                                },
+                                "ip": {
+                                    "type": "array"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "os": {
+                                    "type": "string"
+                                },
+                                "state": {
+                                    "type": "string"
+                                },
+                                "status": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                },
+                                "version": {
+                                    "type": "string"
+                                }
+                            },
+                            "filters": {
+                                "os": "FreeBSD"
+                            },
+                            "macros": [
+                                {
+                                    "from": "parameters",
+                                    "name": "RUDDERAPIHOSTNAME",
+                                    "type": "text",
+                                    "value": "RUDDERAPIHOSTNAME"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "RUDDERAPIURLPATH",
+                                    "type": "text",
+                                    "value": "RUDDERAPIURLPATH"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "RUDDERAPIPORT",
+                                    "type": "text",
+                                    "value": "RUDDERAPIPORT"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "RUDDERAPIPROTO",
+                                    "type": "text",
+                                    "value": "RUDDERAPIPROTO"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "RUDDERAPITOKEN",
+                                    "type": "password",
+                                    "value": "RUDDERAPITOKEN"
+                                },
+                                {
+                                    "from": "results",
+                                    "name": "RUDDERNODENAME",
+                                    "type": "text",
+                                    "value": "name"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "PROXYURL",
+                                    "type": "text",
+                                    "value": "PROXYURL"
+                                }
+                            ],
+                            "object": "host",
+                            "templates": [
+                                "OS-Linux-SNMP-custom",
+                                "App-Rudder-Node-Compliance-Restapi"
+                            ]
+                        },
+                        "rudder_linux": {
+                            "association": {
+                                "description": [
+                                    "${name}"
+                                ],
+                                "hostname": [
+                                    "${name}"
+                                ],
+                                "ip": [
+                                    "${name}"
+                                ]
+                            },
+                            "attributes": {
+                                "id": {
+                                    "type": "string"
+                                },
+                                "ip": {
+                                    "type": "array"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "os": {
+                                    "type": "string"
+                                },
+                                "state": {
+                                    "type": "string"
+                                },
+                                "status": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                },
+                                "version": {
+                                    "type": "string"
+                                }
+                            },
+                            "filters": {
+                                "os": "UnknownLinux"
+                            },
+                            "macros": [
+                                {
+                                    "from": "parameters",
+                                    "name": "RUDDERAPIHOSTNAME",
+                                    "type": "text",
+                                    "value": "RUDDERAPIHOSTNAME"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "RUDDERAPIURLPATH",
+                                    "type": "text",
+                                    "value": "RUDDERAPIURLPATH"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "RUDDERAPIPORT",
+                                    "type": "text",
+                                    "value": "RUDDERAPIPORT"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "RUDDERAPIPROTO",
+                                    "type": "text",
+                                    "value": "RUDDERAPIPROTO"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "RUDDERAPITOKEN",
+                                    "type": "password",
+                                    "value": "RUDDERAPITOKEN"
+                                },
+                                {
+                                    "from": "results",
+                                    "name": "RUDDERNODENAME",
+                                    "type": "text",
+                                    "value": "name"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "PROXYURL",
+                                    "type": "text",
+                                    "value": "PROXYURL"
+                                }
+                            ],
+                            "object": "host",
+                            "templates": [
+                                "OS-Linux-SNMP-custom",
+                                "App-Rudder-Node-Compliance-Restapi"
+                            ]
+                        },
+                        "rudder_windows_2008r2": {
+                            "association": {
+                                "description": [
+                                    "${name}"
+                                ],
+                                "hostname": [
+                                    "${name}"
+                                ],
+                                "ip": [
+                                    "${name}"
+                                ]
+                            },
+                            "attributes": {
+                                "id": {
+                                    "type": "string"
+                                },
+                                "ip": {
+                                    "type": "array"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "os": {
+                                    "type": "string"
+                                },
+                                "state": {
+                                    "type": "string"
+                                },
+                                "status": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                },
+                                "version": {
+                                    "type": "string"
+                                }
+                            },
+                            "filters": {
+                                "os": "Windows2008R2"
+                            },
+                            "macros": [
+                                {
+                                    "from": "parameters",
+                                    "name": "RUDDERAPIHOSTNAME",
+                                    "type": "text",
+                                    "value": "RUDDERAPIHOSTNAME"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "RUDDERAPIURLPATH",
+                                    "type": "text",
+                                    "value": "RUDDERAPIURLPATH"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "RUDDERAPIPORT",
+                                    "type": "text",
+                                    "value": "RUDDERAPIPORT"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "RUDDERAPIPROTO",
+                                    "type": "text",
+                                    "value": "RUDDERAPIPROTO"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "RUDDERAPITOKEN",
+                                    "type": "password",
+                                    "value": "RUDDERAPITOKEN"
+                                },
+                                {
+                                    "from": "results",
+                                    "name": "RUDDERNODENAME",
+                                    "type": "text",
+                                    "value": "name"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "PROXYURL",
+                                    "type": "text",
+                                    "value": "PROXYURL"
+                                }
+                            ],
+                            "object": "host",
+                            "templates": [
+                                "OS-Windows-SNMP-custom",
+                                "App-Rudder-Node-Compliance-Restapi"
+                            ]
+                        },
+                        "rudder_windows_2016": {
+                            "association": {
+                                "description": [
+                                    "${name}"
+                                ],
+                                "hostname": [
+                                    "${name}"
+                                ],
+                                "ip": [
+                                    "${name}"
+                                ]
+                            },
+                            "attributes": {
+                                "id": {
+                                    "type": "string"
+                                },
+                                "ip": {
+                                    "type": "array"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "os": {
+                                    "type": "string"
+                                },
+                                "state": {
+                                    "type": "string"
+                                },
+                                "status": {
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "type": "string"
+                                },
+                                "version": {
+                                    "type": "string"
+                                }
+                            },
+                            "filters": {
+                                "os": "Windows2016"
+                            },
+                            "macros": [
+                                {
+                                    "from": "parameters",
+                                    "name": "RUDDERAPIHOSTNAME",
+                                    "type": "text",
+                                    "value": "RUDDERAPIHOSTNAME"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "RUDDERAPIURLPATH",
+                                    "type": "text",
+                                    "value": "RUDDERAPIURLPATH"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "RUDDERAPIPORT",
+                                    "type": "text",
+                                    "value": "RUDDERAPIPORT"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "RUDDERAPIPROTO",
+                                    "type": "text",
+                                    "value": "RUDDERAPIPROTO"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "RUDDERAPITOKEN",
+                                    "type": "password",
+                                    "value": "RUDDERAPITOKEN"
+                                },
+                                {
+                                    "from": "results",
+                                    "name": "RUDDERNODENAME",
+                                    "type": "text",
+                                    "value": "name"
+                                },
+                                {
+                                    "from": "parameters",
+                                    "name": "PROXYURL",
+                                    "type": "text",
+                                    "value": "PROXYURL"
+                                }
+                            ],
+                            "object": "host",
+                            "templates": [
+                                "OS-Windows-SNMP-custom",
+                                "App-Rudder-Node-Compliance-Restapi"
+                            ]
+                        }
+                    },
+                    "name": "Rudder",
+                    "parameters": [
+                        {
+                            "description": "Rudder Hostname",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "RUDDERAPIHOSTNAME",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Rudder API Url Path",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "RUDDERAPIURLPATH",
+                            "type": "text",
+                            "value": "/rudder/api/latest"
+                        },
+                        {
+                            "description": "Rudder API Port",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "RUDDERAPIPORT",
+                            "type": "text",
+                            "value": "443"
+                        },
+                        {
+                            "description": "Rudder API Protocol",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "RUDDERAPIPROTO",
+                            "type": "text",
+                            "value": "https"
+                        },
+                        {
+                            "description": "Rudder API Token",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "RUDDERAPITOKEN",
+                            "type": "password",
+                            "value": null
+                        },
+                        {
+                            "description": "Timeout",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": true,
+                            "name": "TIMEOUT",
+                            "type": "text",
+                            "value": 10
+                        },
+                        {
+                            "description": "Proxy URL",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "PROXYURL",
+                            "type": "text",
+                            "value": null
+                        },
+                        {
+                            "description": "Extra Options",
+                            "hidden": false,
+                            "locked": false,
+                            "mandatory": false,
+                            "name": "EXTRAOPTIONS",
+                            "type": "text",
+                            "value": null
+                        }
+                    ],
+                    "test_option": null,
+                    "type": "rudder"
+                }
+            ],
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "os": {
+                            "type": "string"
+                        },
+                        "state": {
+                            "type": "string"
+                        },
+                        "status": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "version": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "App-Rudder-Restapi-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Rudder API Token",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "RUDDERAPITOKEN",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-active-host",
+                    "description": "Discover hosts from Rudder's inventory",
+                    "discovery_examples": [
+                        {
+                            "id": "4b76c25e-4b08-44d6-b630-29fa77f60c94",
+                            "ip": [
+                                "0:0:0:0:0:0:0:1",
+                                "127.0.0.1",
+                                "fe80:0:0:0:5054:ff:fe5e:4057",
+                                "192.168.210.3"
+                            ],
+                            "name": "prod-www-01.domain.local",
+                            "os": "Centos",
+                            "state": null,
+                            "status": "accepted",
+                            "type": "Virtual",
+                            "version": "7.5.1804"
+                        },
+                        {
+                            "id": "4b76c25e-4b08-44d6-b630-29fa77f60c94",
+                            "ip": [
+                                "0:0:0:0:0:0:0:1",
+                                "127.0.0.1",
+                                "fe80:0:0:0:5054:ff:fe5e:4057",
+                                "192.168.210.3"
+                            ],
+                            "name": "prod-www-01.domain.local",
+                            "os": "Centos",
+                            "state": null,
+                            "status": "accepted",
+                            "type": "Virtual",
+                            "version": "7.5.1804"
+                        },
+                        {
+                            "id": "4b76c25e-4b08-44d6-b630-29fa77f60c94",
+                            "ip": [
+                                "0:0:0:0:0:0:0:1",
+                                "127.0.0.1",
+                                "fe80:0:0:0:5054:ff:fe5e:4057",
+                                "192.168.210.3"
+                            ],
+                            "name": "prod-www-01.domain.local",
+                            "os": "Centos",
+                            "state": null,
+                            "status": "accepted",
+                            "type": "Virtual",
+                            "version": "7.5.1804"
+                        },
+                        {
+                            "id": "4b76c25e-4b08-44d6-b630-29fa77f60c94",
+                            "ip": [
+                                "0:0:0:0:0:0:0:1",
+                                "127.0.0.1",
+                                "fe80:0:0:0:5054:ff:fe5e:4057",
+                                "192.168.210.3"
+                            ],
+                            "name": "prod-www-01.domain.local",
+                            "os": "Centos",
+                            "state": null,
+                            "status": "accepted",
+                            "type": "Virtual",
+                            "version": "7.5.1804"
+                        },
+                        {
+                            "id": "4b76c25e-4b08-44d6-b630-29fa77f60c94",
+                            "ip": [
+                                "0:0:0:0:0:0:0:1",
+                                "127.0.0.1",
+                                "fe80:0:0:0:5054:ff:fe5e:4057",
+                                "192.168.210.3"
+                            ],
+                            "name": "prod-www-01.domain.local",
+                            "os": "Centos",
+                            "state": null,
+                            "status": "accepted",
+                            "type": "Virtual",
+                            "version": "7.5.1804"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.RUDDERAPIHOSTNAME",
+                                "is_password": false,
+                                "source": "discovery.parameters.RUDDERAPIHOSTNAME"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.RUDDERAPIURLPATH",
+                                "is_password": false,
+                                "source": "discovery.parameters.RUDDERAPIURLPATH"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.RUDDERAPIPORT",
+                                "is_password": false,
+                                "source": "discovery.parameters.RUDDERAPIPORT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.RUDDERAPIPROTO",
+                                "is_password": false,
+                                "source": "discovery.parameters.RUDDERAPIPROTO"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.RUDDERAPITOKEN",
+                                "is_password": true,
+                                "source": "discovery.credentials.RUDDERAPITOKEN"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.RUDDERNODENAME",
+                                "is_password": false,
+                                "source": "discovery.results.name"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.os",
+                                        "value": "Debian"
+                                    }
+                                ],
+                                "value": "OS-Linux-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.os",
+                                        "value": "FreeBSD"
+                                    }
+                                ],
+                                "value": "OS-Linux-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.os",
+                                        "value": "UnknownLinux"
+                                    }
+                                ],
+                                "value": "OS-Linux-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.os",
+                                        "value": "Centos"
+                                    }
+                                ],
+                                "value": "OS-Linux-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "contain",
+                                        "source": "discovery.results.type",
+                                        "value": "Windows"
+                                    }
+                                ],
+                                "value": "OS-Windows-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "App-Rudder-Node-Compliance-Restapi-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Rudder",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Rudder Hostname",
+                                "group": "Rudder API",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "RUDDERAPIHOSTNAME",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Rudder API Url Path",
+                                "group": "Rudder API",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "RUDDERAPIURLPATH",
+                                "type": "text",
+                                "value": "/rudder/api/latest"
+                            },
+                            {
+                                "description": "Rudder API Port",
+                                "group": "Rudder API",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "RUDDERAPIPORT",
+                                "type": "text",
+                                "value": "443"
+                            },
+                            {
+                                "description": "Rudder API Protocol",
+                                "group": "Rudder API",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "RUDDERAPIPROTO",
+                                "type": "text",
+                                "value": "https"
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "rudder",
+                    "type": "rudder",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "os": {
+                            "type": "string"
+                        },
+                        "state": {
+                            "type": "string"
+                        },
+                        "status": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "version": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "App-Rudder-Restapi-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Rudder API Token",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "RUDDERAPITOKEN",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-active-host",
+                    "description": "Discover hosts from Rudder's inventory",
+                    "discovery_examples": [
+                        {
+                            "id": "4b76c25e-4b08-44d6-b630-29fa77f60c94",
+                            "ip": [
+                                "0:0:0:0:0:0:0:1",
+                                "127.0.0.1",
+                                "fe80:0:0:0:5054:ff:fe5e:4057",
+                                "192.168.210.3"
+                            ],
+                            "name": "prod-www-01.domain.local",
+                            "os": "Centos",
+                            "state": null,
+                            "status": "accepted",
+                            "type": "Virtual",
+                            "version": "7.5.1804"
+                        },
+                        {
+                            "id": "4b76c25e-4b08-44d6-b630-29fa77f60c94",
+                            "ip": [
+                                "0:0:0:0:0:0:0:1",
+                                "127.0.0.1",
+                                "fe80:0:0:0:5054:ff:fe5e:4057",
+                                "192.168.210.3"
+                            ],
+                            "name": "prod-www-01.domain.local",
+                            "os": "Centos",
+                            "state": null,
+                            "status": "accepted",
+                            "type": "Virtual",
+                            "version": "7.5.1804"
+                        },
+                        {
+                            "id": "4b76c25e-4b08-44d6-b630-29fa77f60c94",
+                            "ip": [
+                                "0:0:0:0:0:0:0:1",
+                                "127.0.0.1",
+                                "fe80:0:0:0:5054:ff:fe5e:4057",
+                                "192.168.210.3"
+                            ],
+                            "name": "prod-www-01.domain.local",
+                            "os": "Centos",
+                            "state": null,
+                            "status": "accepted",
+                            "type": "Virtual",
+                            "version": "7.5.1804"
+                        },
+                        {
+                            "id": "4b76c25e-4b08-44d6-b630-29fa77f60c94",
+                            "ip": [
+                                "0:0:0:0:0:0:0:1",
+                                "127.0.0.1",
+                                "fe80:0:0:0:5054:ff:fe5e:4057",
+                                "192.168.210.3"
+                            ],
+                            "name": "prod-www-01.domain.local",
+                            "os": "Centos",
+                            "state": null,
+                            "status": "accepted",
+                            "type": "Virtual",
+                            "version": "7.5.1804"
+                        },
+                        {
+                            "id": "4b76c25e-4b08-44d6-b630-29fa77f60c94",
+                            "ip": [
+                                "0:0:0:0:0:0:0:1",
+                                "127.0.0.1",
+                                "fe80:0:0:0:5054:ff:fe5e:4057",
+                                "192.168.210.3"
+                            ],
+                            "name": "prod-www-01.domain.local",
+                            "os": "Centos",
+                            "state": null,
+                            "status": "accepted",
+                            "type": "Virtual",
+                            "version": "7.5.1804"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.RUDDERAPIHOSTNAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.RUDDERAPIHOSTNAME"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.RUDDERAPIURLPATH",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.RUDDERAPIURLPATH"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.RUDDERAPIPORT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.RUDDERAPIPORT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.RUDDERAPIPROTO",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.RUDDERAPIPROTO"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.RUDDERAPITOKEN",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.RUDDERAPITOKEN"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.RUDDERNODENAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.os",
+                                        "value": "Debian"
+                                    }
+                                ],
+                                "value": "OS-Linux-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.os",
+                                        "value": "FreeBSD"
+                                    }
+                                ],
+                                "value": "OS-Linux-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.os",
+                                        "value": "UnknownLinux"
+                                    }
+                                ],
+                                "value": "OS-Linux-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.os",
+                                        "value": "Centos"
+                                    }
+                                ],
+                                "value": "OS-Linux-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "contain",
+                                        "source": "discovery.results.type",
+                                        "value": "Windows"
+                                    }
+                                ],
+                                "value": "OS-Windows-SNMP-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "App-Rudder-Node-Compliance-Restapi-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Rudder",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Rudder Hostname",
+                                "group": "Rudder API",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "RUDDERAPIHOSTNAME",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Rudder API Url Path",
+                                "group": "Rudder API",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "RUDDERAPIURLPATH",
+                                "type": "text",
+                                "value": "/rudder/api/latest"
+                            },
+                            {
+                                "description": "Rudder API Port",
+                                "group": "Rudder API",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "RUDDERAPIPORT",
+                                "type": "text",
+                                "value": "443"
+                            },
+                            {
+                                "description": "Rudder API Protocol",
+                                "group": "Rudder API",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "RUDDERAPIPROTO",
+                                "type": "text",
+                                "value": "https"
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "rudder",
+                    "type": "rudder",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-Rudder-Restapi-Rules-Discovery",
+                "command_for_macro": "App-Rudder-Restapi-Rules-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-Rudder-Restapi"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "App-Rudder-Restapi-Rules",
+                "service_display_name": "Rule-$name$",
+                "service_template": "App-Rudder-Rule-Compliance-Restapi"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-Rudder-Restapi-Nodes-Discovery",
+                "command_for_macro": "App-Rudder-Restapi-Nodes-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-Rudder-Restapi"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "App-Rudder-Restapi-Nodes",
+                "service_display_name": "Node-$name$",
+                "service_template": "App-Rudder-Node-Compliance-Global-Restapi"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_rudder_restapi.pl --plugin=apps::rudder::restapi::plugin --mode=list-rules --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "App-Rudder-Restapi-Rules-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_rudder_restapi.pl --plugin=apps::rudder::restapi::plugin --mode=list-rules --hostname=$HOSTADDRESS$ --port=$_HOSTRUDDERAPIPORT$ --proto=\\'$_HOSTRUDDERAPIPROTO$\\' --api-token=\\'$_HOSTRUDDERAPITOKEN$\\' $_HOSTEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "App-Rudder-Restapi-Rules-Discovery",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_rudder_restapi.pl --plugin=apps::rudder::restapi::plugin --mode=list-nodes --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "App-Rudder-Restapi-Nodes-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_rudder_restapi.pl --plugin=apps::rudder::restapi::plugin --mode=list-nodes --hostname=$HOSTADDRESS$ --port=$_HOSTRUDDERAPIPORT$ --proto=\\'$_HOSTRUDDERAPIPROTO$\\' --api-token=\\'$_HOSTRUDDERAPITOKEN$\\' $_HOSTEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "App-Rudder-Restapi-Nodes-Discovery",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_rudder_restapi.pl --plugin=apps::rudder::restapi::plugin --mode=statistics --hostname=$_HOSTRUDDERAPIHOSTNAME$ --url-path=\\'$_HOSTRUDDERAPIURLPATH$\\' --port=$_HOSTRUDDERAPIPORT$ --proto=\\'$_HOSTRUDDERAPIPROTO$\\' --api-token=\\'$_HOSTRUDDERAPITOKEN$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --warning-nodes=\\'$_SERVICEWARNINGNODES$\\' --critical-nodes=\\'$_SERVICECRITICALNODES$\\' --warning-pending-nodes=\\'$_SERVICEWARNINGPENDINGNODES$\\' --critical-pending-nodes=\\'$_SERVICECRITICALPENDINGNODES$\\' --warning-rules=\\'$_SERVICEWARNINGRULES$\\' --critical-rules=\\'$_SERVICECRITICALRULES$\\' --warning-directives=\\'$_SERVICEWARNINGDIRECTIVES$\\' --critical-directives=\\'$_SERVICECRITICALDIRECTIVES$\\' --warning-groups=\\'$_SERVICEWARNINGGROUPS$\\' --critical-groups=\\'$_SERVICECRITICALGROUPS$\\' --warning-techniques=\\'$_SERVICEWARNINGTECHNIQUES$\\' --critical-techniques=\\'$_SERVICECRITICALTECHNIQUES$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Rudder-Restapi-Statistics",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_rudder_restapi.pl --plugin=apps::rudder::restapi::plugin --mode=nodes-overall-compliance --hostname=$_HOSTRUDDERAPIHOSTNAME$ --url-path=\\'$_HOSTRUDDERAPIURLPATH$\\' --port=$_HOSTRUDDERAPIPORT$ --proto=\\'$_HOSTRUDDERAPIPROTO$\\' --api-token=\\'$_HOSTRUDDERAPITOKEN$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --warning-perfect=\\'$_SERVICEWARNINGPERFECT$\\' --critical-perfect=\\'$_SERVICECRITICALPERFECT$\\' --warning-good=\\'$_SERVICEWARNINGGOOD$\\' --critical-good=\\'$_SERVICECRITICALGOOD$\\' --warning-average=\\'$_SERVICEWARNINGAVERAGE$\\' --critical-average=\\'$_SERVICECRITICALAVERAGE$\\' --warning-poor=\\'$_SERVICEWARNINGPOOR$\\' --critical-poor=\\'$_SERVICECRITICALPOOR$\\' --units=\\'$_SERVICEUNITS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Rudder-Restapi-Nodes-Overall-Compliance",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_rudder_restapi.pl --plugin=apps::rudder::restapi::plugin --mode=global-compliance --hostname=$_HOSTRUDDERAPIHOSTNAME$ --url-path=\\'$_HOSTRUDDERAPIURLPATH$\\' --port=$_HOSTRUDDERAPIPORT$ --proto=\\'$_HOSTRUDDERAPIPROTO$\\' --api-token=\\'$_HOSTRUDDERAPITOKEN$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --warning-global-compliance=\\'$_SERVICEWARNINGGLOBALCOMPLIANCE$\\' --critical-global-compliance=\\'$_SERVICECRITICALGLOBALCOMPLIANCE$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Rudder-Restapi-Global-Compliance",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_rudder_restapi.pl --plugin=apps::rudder::restapi::plugin --mode=node-compliance --hostname=$_HOSTRUDDERAPIHOSTNAME$ --url-path=\\'$_HOSTRUDDERAPIURLPATH$\\' --port=$_HOSTRUDDERAPIPORT$ --proto=\\'$_HOSTRUDDERAPIPROTO$\\' --api-token=\\'$_HOSTRUDDERAPITOKEN$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'^$_HOSTRUDDERNODENAME$$$\\' --warning-node-compliance=\\'$_SERVICEWARNINGNODECOMPLIANCE$\\' --critical-node-compliance=\\'$_SERVICECRITICALNODECOMPLIANCE$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Rudder-Restapi-Node-Compliance-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_rudder_restapi.pl --plugin=apps::rudder::restapi::plugin --mode=node-compliance --hostname=$_HOSTRUDDERAPIHOSTNAME$ --url-path=\\'$_HOSTRUDDERAPIURLPATH$\\' --port=$_HOSTRUDDERAPIPORT$ --proto=\\'$_HOSTRUDDERAPIPROTO$\\' --api-token=\\'$_HOSTRUDDERAPITOKEN$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-node-compliance=\\'$_SERVICEWARNINGNODECOMPLIANCE$\\' --critical-node-compliance=\\'$_SERVICECRITICALNODECOMPLIANCE$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Rudder-Restapi-Node-Compliance-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_rudder_restapi.pl --plugin=apps::rudder::restapi::plugin --mode=rule-compliance --hostname=$_HOSTRUDDERAPIHOSTNAME$ --url-path=\\'$_HOSTRUDDERAPIURLPATH$\\' --port=$_HOSTRUDDERAPIPORT$ --proto=\\'$_HOSTRUDDERAPIPROTO$\\' --api-token=\\'$_HOSTRUDDERAPITOKEN$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-rule-compliance=\\'$_SERVICEWARNINGRULECOMPLIANCE$\\' --critical-rule-compliance=\\'$_SERVICECRITICALRULECOMPLIANCE$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Rudder-Restapi-Rule-Compliance",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_rudder_restapi.pl --plugin=apps::rudder::restapi::plugin --mode=discovery --hostname=$_RUDDERAPIHOSTNAME$ --url-path='$_RUDDERAPIURLPATH$' --port=$_RUDDERAPIPORT$ --proto='$_RUDDERAPIPROTO$' --api-token='$_RUDDERAPITOKEN$' --proxyurl='$_PROXYURL$' --timeout='$_TIMEOUT$' $_EXTRAOPTIONS$\"",
+            "name": "App-Rudder-Restapi-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Rudder via l'API Rest}\r\n{EN: Template to check Rudder using RestAPI}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Rudder service using RestAPI",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "rudder-128-2.png",
+            "macros": [
+                {
+                    "key": "$_HOSTRUDDERAPIHOSTNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTRUDDERAPIURLPATH$",
+                    "value": "/rudder/api/latest"
+                },
+                {
+                    "key": "$_HOSTRUDDERAPIPORT$",
+                    "value": "443"
+                },
+                {
+                    "key": "$_HOSTRUDDERAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTRUDDERAPITOKEN$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Rudder-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Rudder-Statistics-Restapi",
+                "App-Rudder-Nodes-Overall-Compliance-Restapi",
+                "App-Rudder-Global-Compliance-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser la conformit\u00e9 d'un h\u00f4te via l'API Rest de Rudder}\r\n{EN: Template to check a host compliance using Rudder RestAPI}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Rudder compliance of a node using RestAPI",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "rudder-128-2.png",
+            "macros": [
+                {
+                    "key": "$_HOSTRUDDERAPIHOSTNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTRUDDERAPIURLPATH$",
+                    "value": "/rudder/api/latest"
+                },
+                {
+                    "key": "$_HOSTRUDDERAPIPORT$",
+                    "value": "443"
+                },
+                {
+                    "key": "$_HOSTRUDDERAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTRUDDERAPITOKEN$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTRUDDERNODENAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Rudder-Node-Compliance-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Rudder-Node-Compliance-Name-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "rudder-128-2.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Adding HD v3 provider",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Rudder using RestAPI.**\r\n\r\nAvailable host templates and related services:\r\n\r\n|App-Rudder-Restapi|\r\n|---|\r\n|Global-Compliance|\r\n|Nodes-Overall-Compliance|\r\n|Statistics|\r\n\r\n|App-Rudder-Node-Compliance-Restapi|\r\n|---|\r\n|Node-Compliance|\r\n\r\nAvailable service discovery rules:\r\n\r\n* App-Rudder-Restapi-Nodes \r\n* App-Rudder-Restapi-Rules \r\n\r\nThis pack provides a host discovery rule."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser Rudder via l\\'API Rest.**\r\n\r\nMod\u00e8les d\\'h\u00f4te disponibles et leurs services :\r\n\r\n|App-Rudder-Restapi|\r\n|---|\r\n|Global-Compliance|\r\n|Nodes-Overall-Compliance|\r\n|Statistics|\r\n\r\n|App-Rudder-Node-Compliance-Restapi|\r\n|---|\r\n|Node-Compliance|\r\n\r\nR\u00e8gles de d\u00e9couverte de services disponibles :\r\n\r\n* App-Rudder-Restapi-Nodes \r\n* App-Rudder-Restapi-Rules \r\n\r\nCe pack fournit une r\u00e8gle de d\u00e9couverte d\\'h\u00f4te."
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n\r\n## Prerequisites\r\n\r\n### Centreon Plugin\r\n\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Rudder-Restapi\r\n\r\n### API token\r\n\r\nA token needs to be created to acces the API.\r\n\r\nTo do so, follow the official documentation here : https://docs.rudder.io/api/#api-_-Authentication.\r\n\r\n## Centreon Configuration\r\n\r\n### Create hosts using the appropriate template\r\n\r\nThe Rudder instance can be monitored as a host to get global statuses and statistics.\r\n\r\nA dedicated host template can also be added to any Centreon host to monitor its Rudder compliance.\r\n\r\n#### Rudder instance\r\n\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Field</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>Name</p></td>\r\n            <td align=\"left\"><p><em>Name of the Rudder instance</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Alias</p></td>\r\n            <td align=\"left\"><p><em>Description</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>IP Address / DNS</p></td>\r\n            <td align=\"left\"><p><em>IP address of the Rudder instance (or localhost)</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Monitored from</p></td>\r\n            <td align=\"left\"><p><em>Poller used to monitor</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Templates</p></td>\r\n            <td align=\"left\"><p>App-Rudder-Restapi-custom</p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nThe following host macros should be set as shown:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Macro</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>RUDDERAPIHOSTNAME</p></td>\r\n            <td align=\"left\"><p><em>Rudder instance hostname or IP address</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>RUDDERAPIURLPATH</p></td>\r\n            <td align=\"left\"><p><em>URL path of the Rudder instance API</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>RUDDERAPIPORT</p></td>\r\n            <td align=\"left\"><p><em>Port of the Rudder instance API</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>RUDDERAPIPROTO</p></td>\r\n            <td align=\"left\"><p><em>Protocol used by the Rudder API</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>RUDDERAPITOKEN</p></td>\r\n            <td align=\"left\"><p><em>Token used to access the Rudder API</em></p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nCheck the *Create Services linked to the Template too* box and click on the *Save* button.\r\n\r\nThe following services will be created:\r\n\r\n* Global-Compliance\r\n* Nodes-Overall-Compliance\r\n* Statistics\r\n\r\nThe following rules are linked to this host template:\r\n\r\n* App-Rudder-Restapi-Nodes \r\n* App-Rudder-Restapi-Rules \r\n\r\n#### Host\r\n\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Field</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>Name</p></td>\r\n            <td align=\"left\"><p><em>Hostname</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Alias</p></td>\r\n            <td align=\"left\"><p><em>Description</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>IP Address / DNS</p></td>\r\n            <td align=\"left\"><p><em>IP address of the host</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Monitored from</p></td>\r\n            <td align=\"left\"><p><em>Poller used to monitor</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Templates</p></td>\r\n            <td align=\"left\"><p>App-Rudder-Node-Compliance-Restapi-custom</p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nThe following host macros should be set as shown:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Macro</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>RUDDERAPIHOSTNAME</p></td>\r\n            <td align=\"left\"><p><em>Rudder instance hostname or IP address</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>RUDDERAPIURLPATH</p></td>\r\n            <td align=\"left\"><p><em>URL path of the Rudder instance API</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>RUDDERAPIPORT</p></td>\r\n            <td align=\"left\"><p><em>Port of the Rudder instance API</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>RUDDERAPIPROTO</p></td>\r\n            <td align=\"left\"><p><em>Protocol used by the Rudder API</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>RUDDERAPITOKEN</p></td>\r\n            <td align=\"left\"><p><em>Token used to access the Rudder API</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>RUDDERNODENAME</p></td>\r\n            <td align=\"left\"><p><em>Hostname (or name as registered in Rudder)</em></p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nCheck the *Create Services linked to the Template too* box and click on the *Save* button.\r\n\r\nThe following service will be created:\r\n\r\n* Node-Compliance",
+        "name": "Rudder",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_rudder_restapi.pl",
+                "package_name": "centreon-plugin-Applications-Rudder-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-rudder-restapi",
+        "status": "stable",
+        "status_message": "Adding HD v3 provider",
+        "tags": [
+            "Application",
+            "Rudder",
+            "Restapi"
+        ],
+        "update_date": "1617291222",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques de l'application.}\n\n{EN: Check statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Statistics",
+            "check_timeperiod": "",
+            "command_name": "App-Rudder-Restapi-Statistics",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Rudder-Statistics-Restapi",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de la conformit\u00e9 des noeuds globalement.}\r\n\r\n{EN: Check overall nodes compliance status.}",
+            "active_checks_enabled": 2,
+            "alias": "Nodes-Overall-Compliance",
+            "check_timeperiod": "",
+            "command_name": "App-Rudder-Restapi-Nodes-Overall-Compliance",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Rudder-Nodes-Overall-Compliance-Restapi",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de la conformit\u00e9 globale.}\n\n{EN: Check global compliance status.}",
+            "active_checks_enabled": 2,
+            "alias": "Global-Compliance",
+            "check_timeperiod": "",
+            "command_name": "App-Rudder-Restapi-Global-Compliance",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Rudder-Global-Compliance-Restapi",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de la conformit\u00e9 d'un noeud.}\r\n\r\n{EN: Check a node compliance status.}",
+            "active_checks_enabled": 2,
+            "alias": "Node-Compliance",
+            "check_timeperiod": "",
+            "command_name": "App-Rudder-Restapi-Node-Compliance-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALNODECOMPLIANCE$",
+                    "password": false,
+                    "value": "100:"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Rudder-Node-Compliance-Name-Restapi",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de la conformit\u00e9 des noeuds.}\r\n\r\n{EN: Check nodes compliance status.}",
+            "active_checks_enabled": 2,
+            "alias": "Node-Compliance",
+            "check_timeperiod": "",
+            "command_name": "App-Rudder-Restapi-Node-Compliance-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALNODECOMPLIANCE$",
+                    "password": false,
+                    "value": "100:"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Rudder-Node-Compliance-Global-Restapi",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de la conformit\u00e9 des r\u00e8gles.}\r\n\r\n{EN: Check rules compliance status.}",
+            "active_checks_enabled": 2,
+            "alias": "Rule-Compliance",
+            "check_timeperiod": "",
+            "command_name": "App-Rudder-Restapi-Rule-Compliance",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALRULECOMPLIANCE$",
+                    "password": false,
+                    "value": "100:"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Rudder-Rule-Compliance-Restapi",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,1202 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Database-SqlManagedInstance-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Database SQL Managed Instance resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Sql/managedInstances/SVC123456ABCD78",
+                            "location": "westeurope",
+                            "name": "SVC123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/managedInstances"
+                        },
+                        {
+                            "id": "/subscriptions/1bzcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Sql/managedInstances/SVC789012EFGH34",
+                            "location": "westus",
+                            "name": "SVC789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/managedInstances"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": "discovery.results.id"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Database-SqlManagedInstance-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure SQL Managed Instance",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-sqlManagedinstance",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Database-SqlManagedInstance-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Database SQL Managed Instance resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Sql/managedInstances/SVC123456ABCD78",
+                            "location": "westeurope",
+                            "name": "SVC123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/managedInstances"
+                        },
+                        {
+                            "id": "/subscriptions/1bzcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Sql/managedInstances/SVC789012EFGH34",
+                            "location": "westus",
+                            "name": "SVC789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/managedInstances"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Database-SqlManagedInstance-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure SQL Managed Instance",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-sqlManagedinstance",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Database-SqlManagedInstance-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Database SQL Managed Instance resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Sql/managedInstances/SVC123456ABCD78",
+                            "location": "westeurope",
+                            "name": "SVC123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/managedInstances"
+                        },
+                        {
+                            "id": "/subscriptions/1bzcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Sql/managedInstances/SVC789012EFGH34",
+                            "location": "westus",
+                            "name": "SVC789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Sql/managedInstances"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Database-SqlManagedInstance-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure SQL Managed Instance",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-sqlManagedinstance",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_sqlmanagedinstance_api.pl --plugin=cloud::azure::database::sqlmanagedinstance::plugin --mode=storage --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-reserved=\\'$_SERVICEWARNINGRESERVED$\\' --critical-reserved=\\'$_SERVICECRITICALRESERVED$\\' --warning-used=\\'$_SERVICEWARNINGUSED$\\' --critical-used=\\'$_SERVICECRITICALUSED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-SqlManagedInstance-Api-Storage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_sqlmanagedinstance_api.pl --plugin=cloud::azure::database::sqlmanagedinstance::plugin --mode=health --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --ok-status=\\'$_SERVICEOKSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-SqlManagedInstance-Api-Health",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_sqlmanagedinstance_api.pl --plugin=cloud::azure::database::sqlmanagedinstance::plugin --mode=diskio --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-bytes-read=\\'$_SERVICEWARNINGBYTESREAD$\\' --critical-bytes-read=\\'$_SERVICECRITICALBYTESREAD$\\' --warning-bytes-written=\\'$_SERVICEWARNINGBYTESWRITTEN$\\' --critical-bytes-written=\\'$_SERVICECRITICALBYTESWRITTEN$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-SqlManagedInstance-Api-Diskio",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_sqlmanagedinstance_api.pl --plugin=cloud::azure::database::sqlmanagedinstance::plugin --mode=cpu --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-cpu-average=\\'$_SERVICEWARNINGCPUAVERAGE$\\' --critical-cpu-average=\\'$_SERVICECRITICALCPUAVERAGE$\\' --warning-core-count=\\'$_SERVICEWARNINGCORECOUNT$\\' --critical-core-count=\\'$_SERVICECRITICALCORECOUNT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-SqlManagedInstance-Api-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_database_sqlmanagedinstance_api.pl --statefile-suffix='autodiscovery' --plugin=cloud::azure::database::sqlmanagedinstance::plugin --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Database-SqlManagedInstance-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Azure SQL Managed Instance via l'API}\r\n{EN: Template to check Azure SQL Managed Instance using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure SQL Managed Instance using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-database-sqlmanagedinstance-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-SqlManagedInstance",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Database-SqlManagedInstance-Storage-Api",
+                "Cloud-Azure-Database-SqlManagedInstance-Health-Api",
+                "Cloud-Azure-Database-SqlManagedInstance-Diskio-Api",
+                "Cloud-Azure-Database-SqlManagedInstance-Cpu-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-database-sqlmanagedinstance-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ add proper tags management",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Azure SQL Managed Instance resources using RestAPI or AZCLI.**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|Cloud-Azure-Database-SqlManagedInstance-custom|\r\n|---|\r\n|Cpu|\r\n|Diskio|\r\n|Storage|\r\n|Health||\r\n\r\nThis Plugin-Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin-Pack pour superviser les ressources Azure SQL Managed Instance via RestAPI ou AZCLI.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponibles et services associ\u00e9s:\r\n\r\n|Cloud-Azure-Database-SqlManagedInstance-custom|\r\n|---|\r\n|Cpu|\r\n|Diskio|\r\n|Storage|\r\n|Health||\r\n\r\n\r\nCe Plugin-Pack fournit un *provider* Host Discovery pour le module d\\'auto-d\u00e9couverte d\\'H\u00f4tes"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAABhGlDQ1BJQ0MgcHJvZmlsZQAAKJF9kT1Iw0AcxV9TpVIqDu0g4pChOlkUFXGUKhbBQmkrtOpgcukXNGlIUlwcBdeCgx+LVQcXZ10dXAVB8APEzc1J0UVK/F9SaBHjwXE/3t173L0DhGaVqWbPBKBqlpFOxMVcflUMvMKPMIIYR1Ripp7MLGbhOb7u4ePrXYxneZ/7c/QrBZMBPpF4jumGRbxBPLNp6Zz3iSOsLCnE58RjBl2Q+JHrsstvnEsOCzwzYmTT88QRYrHUxXIXs7KhEk8TRxVVo3wh57LCeYuzWq2z9j35C0MFbSXDdZrDSGAJSaQgQkYdFVRhIUarRoqJNO3HPfxDjj9FLplcFTByLKAGFZLjB/+D392axalJNykUB3pfbPtjBAjsAq2GbX8f23brBPA/A1dax19rArOfpDc6WvQIGNgGLq47mrwHXO4Ag0+6ZEiO5KcpFIvA+xl9Ux4I3wLBNbe39j5OH4AsdbV8AxwcAqMlyl73eHdfd2//nmn39wOr7nK+9DzsBQAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAN1wAADdcBQiibeAAAAAd0SU1FB+UDEwoxCT1HmPAAABUySURBVHja7V15fFTVvf+ee+fOlsxkJoSEELYQlhBEQKgsCiLalkUFbamfUnlV8T37Wtta+6o+7WKr1tdSbUXx+dQWPxW3KopVcEURZCtrCFsCIYQEkpBJMplktruc8/4IoCFzJ3fW3CT3O5/z+WSZe875nfM7v+38zrmAAQMGDBgwYKA/gkT647vvvjuMELIcwGjGmKkfjosI4BDP8y8sWLCgsV8xwDvvvPN1juPeBpBhrA94OI6bv3Dhwt39ggE2bNjglGX5BIABxtxfwIm6urriO++8U+qLxHFf/UWW5XnG5HfByPz8/Fl9lTjuot8HG/MdQUwSMryv0tbJwGOMccZ0a1ooBmEGDAYwYDCAgT5lA5yzA4xRuQiUUkMCGOgnEiAZaA/qJ2Zi4jlYzbwx01oYQFEUEEJiriQQlvH+rlPYeqgeNY3tkBV9iUzBxKF4qAtXTRiMORMLwHPEmPlkSYADVU14Ym0pWv2ibomUZIqyqmaUVTXjvZ3VuO/myRjkthuznygD7DvuwaOv7oFCOwxHS5YD+TMnIbMgD3IwBE9ZBTwHKnRF8MmGNtz3wg788Y7pyDOYIH4vwBcQ8fja0guTP/wbMzHhzpthslk6fc9TVoHd//MCQi0+3RDtC4hY8cZ+/PGOGdCi8eJRi33eC3jriyr4Qx3GXsHsKZj802VdJh8AciaMwYxHfgJeEHRFeGWdD9sO1/d7CRAXAzDGsPXc4BGew4T/WIJoSymrcAiGz7tSd8R/cchgAO7igAdjrNvS3BZGky8EAMgeWwhrtqvbhgbPnKQ74o+d9mqi1wgEXYS2wJcWv3WAS9Mz1hyX7ohvC0qGBIjnIWeG+cLPWo27sI6MwAuq6St0GAwQA1wZZmQ7Ogy+lqNVCLe2dftM3c4DuiO+KN9pMEAkA6+7AgBXjs/vsBtkGYdXvx21kfbTDahav1l3xF85fpBmeg0JcBEWzxyODGtHGKH6o204+MJaUFnu8r3Wyhps++VKKKGw7lb/9OK8fi8B4o4EOu1m3HPTpfj9a/ugUIbjb32MM1v3omD2VDiGDoIUCMJzoAL1Ow6A6cyKPt93YmwJdGYASmlMUa9LC7Pxy+9OxpPrDsLrFxFoaMKxNz7UNcEj8hy456YJyHVZNYv3vuwGJrwZdMmIbDz1wyvwwe4abD96FjWN7ZBkne0G8h27gbMn5GPWJYOM3cBkMgAAWM08Fs8cgcUzR4AxhkBY0Q2BPEeMfIBYGCAZVq/doq8BN9LcUuAFGDAYwIDBAAYMG6AfwEgIMWC4gd1BoQyHT7WgptGPVr8EBn1IEoHnkGkzYewQFwrzHEb0LxoDxBPxYgz4aO9prN1aBV9A3/vrQ3IysHROES4bFdsVCEZCiAokheJPaw9g9ccVnSbf7MwEbxZ0R2ytx48Va8vw+uYTxtJPhgp47v1y7Dne1CFqM+wovuU6DJ07DWZHBsAYmstPovyV9WjYfVA3BDPG8Pa2amRlmDFvyhDDDYw0QFrK/hNN2HKwI6nS4nLgqj/fh6JFczsmv8N0RnZxIWb89kcouvEa3RH+ymeV8LSGjHyAeB9c/6+aCz9Puut7yBySp+ZD4ZLl34Zr1DBdES7KFBtLzxgSIJ6HwpKCw6e8AADbwGzkz5gY3Y/mCEZef7XuiN9/otmwAeKxdpt84QsnglyjhkGLb+Uarb97luqaA5pEfF9WA4kHgrQOjg4H0QgJxMkA7kwzuHOr3ltZo2lyvZWndEd8TpbVUAHxPGQ18xhT4MTR2lYEG5tRt6MU+TPUT/4wynDi3U26I35iYXbXvoKDyASIsICdkxGt1DH8+y96pzDCKOXk+jXLBtb1WQbQqu/mTSnA0drWDmPqqZfhGJaPzIK8iKL/0N/egvdYtb4I5znMmTQYHjoAzWwAfMyJdpaJILNF+vqvAPYrMIAoJix7sSUMoIYB+zmC7QDdHrRl/+uN7xCltzFAJzX4yiuv3MMYe1xrQOWJdYex93wgKNOOccuux9Crp0HItAOMoeVYNcpfWY/6f5XphmCeN2FoUQlmTp8BwT0cNHn7YWcZ2NsAeW3Nbe5NfZ4BACAoKvjT2oMXJMF5l8/ickIOhiAH9XMWwGbPxNjJV2DU+Kmw2jJTPaoHQdmTJuJb8+JthaFewwAvvfTSPYSQx2OpQFYo/rmzFut31SIs6U8Cmq02jJ8yB2MmzYDJlPb9iZOE4YE1t7lfAyGsTzLAV6XB/hPNqGn0oz0k62PV546Fc/RscIKtZzvCsJ0w5bY1yweW91kG0BNEJqBMmYAGOkhP3QowQu5/9VbX03qSBn0uJczLsrBXmYIQswLQFS12MLZy6eqm6ebVVcv1Yhv0qZSwBjYIO+Xp5yZfn2AgS0PM+dmSv7UNNBggiThDB2OvPBky48EYdF3AMJ1n4ubvPt+QZzBAEnCaFmCfPBEKI2DnBH8vKMWUM3249BmvWzcMoPWSKD2VJpqNUvmSC2HbXoaJikX5x5yHeu7VfL36nYABZscu+TIojNObwRcLrs0t8KwA8DNDBcRkTHHYK0+EyITeJPYjF0Lu/s4LnsW6YIDeIvrLlSI0M3fvn/xzhQKresIe6JUSoI1l4phcpHtrP8YyOGRSHjMYQAMOKiVQQMD62AeELv/W/3mKDSMwCjxsABqUHPRRmBihvwdwkyEBVHBEGtVn9H7kQhbf+FzjmB6TAHreC/CxTHhotm4OnqYIhAL/mS63UPcSgIGgndlRR/NwUB4H2qdX/4Voxq3zVx6z9FsbIMQsOK3koYEORCPNhgQB/Qwu3px1DYAN/YgBCM7QXFTKQ9FAcy4K7fbLW0sWpZ0BeuIcPANwShmMo8po+GgGDFzAvD5vAzTRLGwMz8ROaRJaaUaf1+0xlmE3pGG7uEdUAAOHcnkEyqTR59KyjYupIiEssakA1vcpBggyC74QL0MTdRkz3D0u6VMM4KVOfB6eggAzzuRpE5WkoM8EglqoA5+KX0OYCYbI126hDe4TNkALdeCT8DSITDAmNRbHmGHuNavqXwJlZSDcluzc3KSfP0w5AwRhxWfhqedWfpyd5AmK3ARFOTxy7J1Tv7whhqYAw4lmBfW+xILEI9wcSvJ4FLo5ZNsJ7AIgykBbmKG6leFQg4IjZ5W4rjrIyeDARzgOIFOCpgBVc5HdYOyWjpAIRdPZ+pa5T9etA9iLn/4of0syzhd0Gs3Vq1fHdDawO1Bw+DB4OTxxGnwDMzhcXyJgbpEJDkv3OX+tIYbdtQpWbtWecm81AQuKzbh2lAkFWd17xS1BhvfLJbx3RIJf1D7+Ty2yY5ira/3ljRT3bgjEM3H7GPDoZ3flv5UII6Q0KbRULEIjdcUTC8ei8QJWLbZjUYmgafIBIMtKcFUhr7mduaNMeP7bGfj+FLOmyQcAt41g6SQznrvJjlmFQkw0RQuGxZFBNJkBb855um7L7JWnJ+suEORRXCgTR8aTM48fTLfg9qkWWOJQUAzdt2HmgPvnWPHTK6xwWuLLJs60EPzXbAv+/XILiIY2o/Y5sUyiKwjIzqtWnnlgyT8YrwsGYCDYKZ3fuYvts2CcgPljhQTbV/9YBYbffdOGmcOTY/5cP07AD6abteT7xNFbzR+BgT1aX3/mvWkrm2J6G2ZKjMBKKR9n5ayYn3NYCJZNVn+dq0KB0joFdW0dhrDAE4xwcyh0cxD4L1cyVRltjgA/n2VDSS4ftY2DDTIa2hnCMsMAO4eJ+TwyzOqSYv5YM040M6w/KkYXTSp/psnziucJCH8x7S8NX995d15DjzAAA8F+sSgua3z6MJPqQO87I+PJrSE0tHet2WIimDmMx3XjzBg9gFNt+7piAdOHRSaZMmBDuYg1+0S0hjrXIPAEC8aYcNtUq6paWv41C3bWyGj0x3HhdnJnYIKJkzfOWll39Zaf5DfGrAISNfyqpYFopfa4np08OPLKDMnAI58GUd8W2UgNSRSfVkr4+Xt+/OHzyNe/uqzAssssqpP/+OYgnt4WgjfYtQ1Rplh3WMS97/uhdvWB1QTcMtkc5brZKEog2WnzlI1XqLJOS1JJ0m2Aw+JQUIa4itsWefWfbadoC7Nun1cYsLlKivi/68aZVaXLa6VhfHxc6rb+I2cVPL0tqEr71SNNyLKSiM+yKAYgTU2Z2aLYn04rAwSYBaeVAfFvgaqMUp6DA8/Ff/DTxBNcVxzZtqhro3i5VNRc10fHJBxtjByME3iCuaOEtLiB2gq74/K/1C5JGwOckAZBYQBlLK5S0xpZf1p4YMml5rjrnZDHIcsaefW/WRZGSKKa61IYw9qD6sbetCGmiM9FDZjFSZeWwiiemrbymFMTAyiKkpDuqZGzE+LYPWfU7xa6fYoFd19hg8UUe73Thgmquv+TSinm+rZUSwiqdHV8Hh9RWqV/9V+QAnmKZH0w5RKAgeC07E6IW7edklTj4h0+txkvLnFi/hgBhGivd0xOZDKrvQpaQzTmfoYkisomWVUN5GV2XdWshyQAZQwU7MeXrjiem1IG8Cp2hKkpoahWWGJ4cU/0uwVzMwh+MduOvy9xYt5os6Yo3MjsyN5FdYsSd1+rW2iUPnLpjARqKTaemH+cUgZoZg7Qjhh1QuWdI2F8Ud39y6cKnBzun2PHqkUODHfzqvUJJgK7EFn/y4zE3c9o78c2m7rWG00F0PSU2yOFipMnAWRbUnxYyhh+80k7dtVqu2uwJJfHczc6MLdIiFif3YSU+N9KlGVNSNe61XVA2o7UDy6vOTUnZYEgPxWS5sMGJeBn69vwwu4QwnL3cTKrCXjomgwsLrF0qUuOKn9J3H2MtoXkF6nmOABSFwfo2geFLUxZKDgMIaln9hQG/HV3AP88EsIN4yz41ngL3DYuamLDz2fZ0Ryk+OzEl25aQGJR9h4Qd5+jbVG3i0xzvecsdaQDDOzalKkAwmhKuLahneL5XUEsWuPFk9sC8IZYVCb476syYBdIJ2nSrOJZjB7Ax92vIhXDkgE42aJ0+X70OEC6CikZ8kSNLSUMYCViSv3ZkAy8XBrCd19vjWokOiwEi0osnZ6tbI5ssQ2wcxg1wBRzX3IzORSqMMAZH0WbyHQSCexSeGdYKVZlgEQygmwknHp/ljE0+hXcvd6HVw+ENEfjdp1WZ5jri2OPMC4cawGvogF21IiRI3LRvIA0jNv5InNseEokgJvzp/VOnT9v9cMXjjysg52dbwv9vEqdARaXWJDv4DS3m23jsHSi+rmGj4+L6c4Iii3jSmEDU8IAubwPFCyhMiqH1/xdiTJUeCK7ijxHOn23oknCvjpJxYMgeHBOBnge3bZJCMN9s+2qaWTVXgW7T4sRn42mCBIdt5gK6ZyenTQGsHMSMkkoIe68bbINj33DAaeFdPtdE0cwzBVZD7eGaJfvr96jvo07fagZf/ymAw6zert2geCRax24pkh9i/35XQHINLacwLTfRgauKWUZQSPMzSgNxX+YhQGYP9qC2SPMePVAEO8cDeNkS1cDLsfO4RezMpCbEZl/jzTKXaJvm06K2HxSxOwRkbeF5xSa8fb33Hj9YAibToTR4GdgDMjL5DB7hBk3T7Cqtne+zfUVYdWonxoPZFoILh9q1jQ+De0KqloSOxfCKDkblQESORpWZDqL/Sw/IU8V6Fhty6fYsXyKHbU+Bcc8MhraOwRpgZPH9KECzLy6H/5BRSgiHb/Z2IbXbnYhL5NX9Qp+eLkdP7zcHlOvJYXhl5+0QY7m76n8a6Sbx3OLtOVxvl4WxCOb2hNz1wV2JHUSQGiCAAVi7NnJqmM0xMljiFN7fTtqRGw/JUWsq9FPcde7Pjx/YxZc1uRoPwbgNxvbUd6Y+tfkaDEou4Gn+t7C+pQlhJiJghJLXdwGSqI4267gVxvboERp41CjhO+v9aLWl/gRO4UBD29qw7qjwZTTliSDcUvKIoHnMcVam5ibEieONcm45U0valu73+Kt8Mi48eVmvHkoCCXONhv9FLe/5cWrpcGU0tUlYJSYEfhht3sBiR4Pz+V9KDQ3oVIcEPOzf/jCjyqvgsXjrJrEPgNwoF7C3/cHsKEiHFN+vU9kePCTNvxtbxC3TrZh/mirpiNoAYnhr3sCWL03AL/EYpq8ZDBAArc4yRJn+mek8PkFPPvss0k5HFovZ+K5lmkJvcRhZLYJl+aZUJRtgsvKIcNMwJOOmPaZNgWVzQq214RR15aci60sJoJLck2YOEhAvpNHcY4J04Z0tc5DMvCT9V5sqortpZiDHDyEBOVtu8jQEoyb3vfqfz36+pTtBnYi1tSOEnMDysLxv7bteJOM403pe/9gUOoIGZ8PG/MEePYGF64eabkocAT87w0uPPixD28eCmqu/4yvZ1+qyUCeifT3lB0OXeAoh50L99qbu2XG8NMNXpR7ukYQeQI89g0nbr/M3lvo2dP466IP0soAdk7C/MzyNG51Jr+0iQx3rPPCE2E7mQB44CoHfnGlQ/+0UHqv2h0CnSytBQsWzADwzWQxQZ7JD78ioFbKQm+FL8ywvUbETSV2mCIsl6kFZmTbOHxeFYYe79kmYGuaflv8hNr/U35R5AJHBYYJzend8EhyKW0Qcc8HXtUJ/rdJdvx5gUvThlKaN35Oh0Xunmjz00kCLFy4MKkSAOg4kj3e6sGxcDZaFUuvvbmz3CMDhGCmSty+OMeEy/IFbKgIQVR00WeZUtzQ/uiYIz3KAABgIhTjrWdRHspGOzX3WnWwozYMt5WDiSM466dditVEUOgyYXN1KJln/uM0+nFn28PF67qdm2QHglSNQiLizuw9eKn1UhwPu3snBzDggY2tvaGn9/t/V/xXTYsznb2ycTKWu/ZhnW8MdgQKYCDpUEDIXYGHi5/VLJ3T3UOeMHwrqxxjLM14w1sMPzUuj0wSPIyQZeGHiz+IST1/9RdKaZCQ9LyDd4K1ESNyW/Gurwh7Anm99d2/esHHnCDdHnpoYm3M9tlF+n9XuhgAAByciKWuI5idUYv3fCNRHs4GM64RjgXVhOA+8dGS1+OPE1yEVatWvc0Y65H32NZJGfjcPwR7A3kIx5lU0h9ACI4wSp5QrOzveGi8mFig6CKsWLEiw263P8kYu/ViNzFdkBiH8nA2SoMDURnOgkexGbMOHAbYRxTkNTw2fmfyIoUqeOaZZ9yMsXGKoth7mvJKyZ21O5A7plmx5rVTS67IeKdMYaVIzevEKHipXTH5FHByD63xNjA0g7AzADsEji/D70vqjDVgwIABAwYMGEgW/h/og05FWe+T/gAAAABJRU5ErkJggg==",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure SQL Managed Instance",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_database_sqlmanagedinstance_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Database-SqlManagedInstance-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-database-sqlmanagedinstance",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Azure",
+            "Cloud",
+            "Microsoft",
+            "Database",
+            "HostDisco",
+            "Restapi",
+            "API",
+            "Rest",
+            "SQL"
+        ],
+        "update_date": "1636823334",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques de stockage de Azure SQL Managed Instance.}\r\n\r\n{EN: Check Azure SQL Managed Instance storage.}",
+            "active_checks_enabled": 2,
+            "alias": "Storage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-SqlManagedInstance-Api-Storage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-SqlManagedInstance-Storage-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la disponibilit\u00e9 des ressources Azure SQL Managed Instance.}\r\n\r\n{EN: Check Azure SQL Managed Instance health.}",
+            "active_checks_enabled": 2,
+            "alias": "Health",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-SqlManagedInstance-Api-Health",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEOKSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^Available$/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^Unavailable$/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^Unknown$/"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-SqlManagedInstance-Health-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les \u00e9critures/lectures des disques Azure SQL Managed Instance.}\r\n\r\n{EN: Check Azure SQL Managed Instance disk I/O utilization.}",
+            "active_checks_enabled": 2,
+            "alias": "Diskio",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-SqlManagedInstance-Api-Diskio",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-SqlManagedInstance-Diskio-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du CPU de SQL Managed Instance Azure.}\r\n\r\n{EN: Check Azure SQL Managed Instance CPU utilization.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-SqlManagedInstance-Api-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-SqlManagedInstance-Cpu-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

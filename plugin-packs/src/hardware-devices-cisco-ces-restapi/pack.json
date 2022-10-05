@@ -1,0 +1,687 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cisco_ces_restapi.pl --plugin=hardware::devices::cisco::ces::restapi::plugin --mode=sessions --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTCESAPIUSERNAME$\\' --api-password=\\'$_HOSTCESAPIPASSWORD$\\' --port=\\'$_HOSTCESAPIPORT$\\' --proto=\\'$_HOSTCESAPIPROTO$\\' $_HOSTCESAPIEXTRAOPTIONS$ --warning-sessions-current=\\'$_SERVICEWARNINGSESSIONSCURRENT$\\' --critical-sessions-current=\\'$_SERVICECRITICALSESSIONSCURRENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Cisco-Ces-Restapi-Sessions",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cisco_ces_restapi.pl --plugin=hardware::devices::cisco::ces::restapi::plugin --mode=peripherals --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTCESAPIUSERNAME$\\' --api-password=\\'$_HOSTCESAPIPASSWORD$\\' --port=\\'$_HOSTCESAPIPORT$\\' --proto=\\'$_HOSTCESAPIPROTO$\\' $_HOSTCESAPIEXTRAOPTIONS$ --filter-since=\\'$_SERVICEFILTERSINCE$\\' --warning-peripherals-connected=\\'$_SERVICEWARNINGPERIPHERALSCONNECTED$\\' --critical-peripherals-connected=\\'$_SERVICECRITICALPERIPHERALSCONNECTED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Cisco-Ces-Restapi-Peripherals",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cisco_ces_restapi.pl --plugin=hardware::devices::cisco::ces::restapi::plugin --mode=diagnostics --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTCESAPIUSERNAME$\\' --api-password=\\'$_HOSTCESAPIPASSWORD$\\' --port=\\'$_HOSTCESAPIPORT$\\' --proto=\\'$_HOSTCESAPIPROTO$\\' $_HOSTCESAPIEXTRAOPTIONS$ --filter-msg=\\'$_SERVICEFILTERMSG$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Cisco-Ces-Restapi-Diagnostics",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cisco_ces_restapi.pl --plugin=hardware::devices::cisco::ces::restapi::plugin --mode=components --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTCESAPIUSERNAME$\\' --api-password=\\'$_HOSTCESAPIPASSWORD$\\' --port=\\'$_HOSTCESAPIPORT$\\' --proto=\\'$_HOSTCESAPIPROTO$\\' $_HOSTCESAPIEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Cisco-Ces-Restapi-Components",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cisco_ces_restapi.pl --plugin=hardware::devices::cisco::ces::restapi::plugin --mode=certificates --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTCESAPIUSERNAME$\\' --api-password=\\'$_HOSTCESAPIPASSWORD$\\' --port=\\'$_HOSTCESAPIPORT$\\' --proto=\\'$_HOSTCESAPIPROTO$\\' $_HOSTCESAPIEXTRAOPTIONS$ --warning-certificate-expire=\\'$_SERVICEWARNINGCERTIFICATEEXPIRE$\\' --critical-certificate-expire=\\'$_SERVICECRITICALCERTIFICATEEXPIRE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Cisco-Ces-Restapi-Certificates",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cisco_ces_restapi.pl --plugin=hardware::devices::cisco::ces::restapi::plugin --mode=calls-summary --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTCESAPIUSERNAME$\\' --api-password=\\'$_HOSTCESAPIPASSWORD$\\' --port=\\'$_HOSTCESAPIPORT$\\' --proto=\\'$_HOSTCESAPIPROTO$\\' $_HOSTCESAPIEXTRAOPTIONS$ --warning-packetloss=\\'$_SERVICEWARNINGPACKETLOSS$\\' --critical-packetloss=\\'$_SERVICECRITICALPACKETLOSS$\\' --warning-packetloss-prct=\\'$_SERVICEWARNINGPACKETLOSSPRCT$\\' --critical-packetloss-prct=\\'$_SERVICECRITICALPACKETLOSSPRCT$\\' --warning-maxjitter=\\'$_SERVICEWARNINGMAXJITTER$\\' --critical-maxjitter=\\'$_SERVICECRITICALMAXJITTER$\\' --warning-packetloss=\\'$_SERVICEWARNINGPACKETLOSS$\\' --critical-packetloss=\\'$_SERVICECRITICALPACKETLOSS$\\' --warning-packetloss-prct=\\'$_SERVICEWARNINGPACKETLOSSPRCT$\\' --critical-packetloss-prct=\\'$_SERVICECRITICALPACKETLOSSPRCT$\\' --warning-maxjitter=\\'$_SERVICEWARNINGMAXJITTER$\\' --critical-maxjitter=\\'$_SERVICECRITICALMAXJITTER$\\' --warning-packetloss=\\'$_SERVICEWARNINGPACKETLOSS$\\' --critical-packetloss=\\'$_SERVICECRITICALPACKETLOSS$\\' --warning-packetloss-prct=\\'$_SERVICEWARNINGPACKETLOSSPRCT$\\' --critical-packetloss-prct=\\'$_SERVICECRITICALPACKETLOSSPRCT$\\' --warning-maxjitter=\\'$_SERVICEWARNINGMAXJITTER$\\' --critical-maxjitter=\\'$_SERVICECRITICALMAXJITTER$\\' --warning-packetloss=\\'$_SERVICEWARNINGPACKETLOSS$\\' --critical-packetloss=\\'$_SERVICECRITICALPACKETLOSS$\\' --warning-packetloss-prct=\\'$_SERVICEWARNINGPACKETLOSSPRCT$\\' --critical-packetloss-prct=\\'$_SERVICECRITICALPACKETLOSSPRCT$\\' --warning-maxjitter=\\'$_SERVICEWARNINGMAXJITTER$\\' --critical-maxjitter=\\'$_SERVICECRITICALMAXJITTER$\\' --warning-total-finished=\\'$_SERVICEWARNINGTOTALFINISHED$\\' --critical-total-finished=\\'$_SERVICECRITICALTOTALFINISHED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Cisco-Ces-Restapi-Calls-Summary",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cisco_ces_restapi.pl --plugin=hardware::devices::cisco::ces::restapi::plugin --mode=calls-rt --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTCESAPIUSERNAME$\\' --api-password=\\'$_HOSTCESAPIPASSWORD$\\' --port=\\'$_HOSTCESAPIPORT$\\' --proto=\\'$_HOSTCESAPIPROTO$\\' $_HOSTCESAPIEXTRAOPTIONS$ --warning-channels-traffic=\\'$_SERVICEWARNINGCHANNELSTRAFFIC$\\' --critical-channels-traffic=\\'$_SERVICECRITICALCHANNELSTRAFFIC$\\' --warning-channels-maxjitter=\\'$_SERVICEWARNINGCHANNELSMAXJITTER$\\' --critical-channels-maxjitter=\\'$_SERVICECRITICALCHANNELSMAXJITTER$\\' --warning-channels-packetloss=\\'$_SERVICEWARNINGCHANNELSPACKETLOSS$\\' --critical-channels-packetloss=\\'$_SERVICECRITICALCHANNELSPACKETLOSS$\\' --warning-channels-packetloss-prct=\\'$_SERVICEWARNINGCHANNELSPACKETLOSSPRCT$\\' --critical-channels-packetloss-prct=\\'$_SERVICECRITICALCHANNELSPACKETLOSSPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Cisco-Ces-Restapi-Calls-Rt",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Cisco Collaboration Endpoint (DX series, MX series, SX series, Room series) using Rest API}\r\n{EN: Template to check Cisco Collaboration Endpoint Software (DX series, MX series, SX series, Room series) using Rest API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Cisco Collaboration Endpoint Software (DX series, MX series, SX series, Room series) using Rest API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "cisco-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTCESAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTCESAPIPORT$",
+                    "value": "443"
+                },
+                {
+                    "key": "$_HOSTCESAPIEXTRAOPTIONS$",
+                    "value": "--insecure"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Cisco-Ces-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Device-Cisco-Ces-Sessions-Restapi",
+                "HW-Device-Cisco-Ces-Peripherals-Restapi",
+                "HW-Device-Cisco-Ces-Diagnostics-Restapi",
+                "HW-Device-Cisco-Ces-Components-Global-Restapi",
+                "HW-Device-Cisco-Ces-Certificates-Restapi",
+                "HW-Device-Cisco-Ces-Calls-Summary-Restapi",
+                "HW-Device-Cisco-Ces-Calls-Rt-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "cisco-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* use --insecure option",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Cisco Collaboration Endpoints using Rest API :\r\n* Calls Realtime\r\n* Calls Summary\r\n* Components\r\n* Certificats\r\n* Diagnostics\r\n* Peripherals\r\n* Sessions"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser Cisco Collaboration Endpoints via l\\'API Rest :\r\n* Calls Realtime\r\n* Calls Summary\r\n* Components\r\n* Certificats\r\n* Diagnostics\r\n* Peripherals\r\n* Sessions"
+            }
+        ],
+        "discovery_category": "hardware-server",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Devices-Cisco-Ces-Restapi\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Device-Cisco-Ces-Restapi-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Host Macro Configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"23%\" />\r\n<col width=\"53%\" />\r\n<col width=\"24%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>CESAPIPORT</p></td>\r\n<td align=\"left\"><p>Port of the MIP API instance</p></td>\r\n<td align=\"left\"><p>443</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>CESAPIPROTO</p></td>\r\n<td align=\"left\"><p>Protocol used by the MIP API</p></td>\r\n<td align=\"left\"><p>https</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>CESAPIUSERNAME</p></td>\r\n<td align=\"left\"><p>Username to access API</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>CESAPIPASSWORD</p></td>\r\n<td align=\"left\"><p>Password to access API</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Cisco Collaboration Endpoint Rest API",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_cisco_ces_restapi.pl",
+                "package_name": "centreon-plugin-Hardware-Devices-Cisco-Ces-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-devices-cisco-ces-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Cisco",
+            "Restapi",
+            "Room series",
+            "SX series",
+            "MX series",
+            "DX series",
+            "Video",
+            "Hardware"
+        ],
+        "update_date": "1578992602",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les sessions.}\r\n\r\n{EN: Check sessions.}",
+            "active_checks_enabled": 2,
+            "alias": "Sessions",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Cisco-Ces-Restapi-Sessions",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Cisco-Ces-Sessions-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les p\u00e9riph\u00e9riques connect\u00e9s}\r\n\r\n{EN: Check peripherals device connected.}",
+            "active_checks_enabled": 2,
+            "alias": "Peripherals",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Cisco-Ces-Restapi-Peripherals",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERSINCE$",
+                    "password": false,
+                    "value": "86400"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Cisco-Ces-Peripherals-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les messages de diagnostique.}\r\n\r\n{EN: Check diagnostic messages.}",
+            "active_checks_enabled": 2,
+            "alias": "Diagnostics",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Cisco-Ces-Restapi-Diagnostics",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{level} =~ /warning|minor/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{level} =~ /critical|major/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Cisco-Ces-Diagnostics-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'ensemble des composants.}\r\n\r\n{EN: Check all components.}",
+            "active_checks_enabled": 2,
+            "alias": "Components-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Cisco-Ces-Restapi-Components",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Cisco-Ces-Components-Global-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'expiration des certificats.}\r\n\r\n{EN: Check certificates validity.}",
+            "active_checks_enabled": 2,
+            "alias": "Certificates",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Cisco-Ces-Restapi-Certificates",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Cisco-Ces-Certificates-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'historique des appels.}\r\n\r\n{EN: Check call history.}",
+            "active_checks_enabled": 2,
+            "alias": "Calls-Summary",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Cisco-Ces-Restapi-Calls-Summary",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Cisco-Ces-Calls-Summary-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les appels en temps r\u00e9el.}\r\n\r\n{EN: Check call channels in real-time.}",
+            "active_checks_enabled": 2,
+            "alias": "Calls-Rt",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Cisco-Ces-Restapi-Calls-Rt",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Cisco-Ces-Calls-Rt-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les composants: \u00e9quipements audio.}\r\n\r\n{EN: Check audio device components.}",
+            "active_checks_enabled": 2,
+            "alias": "Components-Audio-Device",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Cisco-Ces-Restapi-Components",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "ad"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Cisco-Ces-Components-Audio-Device-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les composants: connecteur entr\u00e9e audio.}\r\n\r\n{EN: Check audio input connector component.}",
+            "active_checks_enabled": 2,
+            "alias": "Components-Audio-Input-Connector",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Cisco-Ces-Restapi-Components",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "aic"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Cisco-Ces-Components-Audio-Input-Connector-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les composants: connecteur sortie audio.}\r\n\r\n{EN: Check audio output connector component.}",
+            "active_checks_enabled": 2,
+            "alias": "Components-Audio-Output-Connector",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Cisco-Ces-Restapi-Components",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "aoc"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Cisco-Ces-Components-Audio-Output-Connector-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les composants: camera.}\r\n\r\n{EN: Check camera components.}",
+            "active_checks_enabled": 2,
+            "alias": "Components-Camera",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Cisco-Ces-Restapi-Components",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "camera"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Cisco-Ces-Components-Camera-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les composants: SpeakerTrack.}\r\n\r\n{EN: Check SpeakerTrack components.}",
+            "active_checks_enabled": 2,
+            "alias": "Components-Speakertrack",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Cisco-Ces-Restapi-Components",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "st"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Cisco-Ces-Components-Speakertrack-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les composants: logiciels.}\r\n\r\n{EN: Check software components.}",
+            "active_checks_enabled": 2,
+            "alias": "Components-Software",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Cisco-Ces-Restapi-Components",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "software"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Cisco-Ces-Components-Software-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les composants: temp\u00e9rature.}\r\n\r\n{EN: Check temperature components.}",
+            "active_checks_enabled": 2,
+            "alias": "Components-Temperature",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Cisco-Ces-Restapi-Components",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "temperature"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Cisco-Ces-Components-Temperature-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les composants: connecteur entr\u00e9e vid\u00e9o.}\r\n\r\n{EN: Check video input connector components.}",
+            "active_checks_enabled": 2,
+            "alias": "Components-Video-Input-Connector",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Cisco-Ces-Restapi-Components",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "vic"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Cisco-Ces-Components-Video-Input-Connector-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les composants: source entr\u00e9e vid\u00e9o.}\r\n\r\n{EN: Check video input source components.}",
+            "active_checks_enabled": 2,
+            "alias": "Components-Video-Input-Source",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Cisco-Ces-Restapi-Components",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "vis"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Cisco-Ces-Components-Video-Input-Source-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les composants: connecteur sortie vid\u00e9o.}\r\n\r\n{EN: Check video output connector components.}",
+            "active_checks_enabled": 2,
+            "alias": "Components-Video-Output-Connector",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Cisco-Ces-Restapi-Components",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "voc"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Cisco-Ces-Components-Video-Output-Connector-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les composants: webex.}\r\n\r\n{EN: Check webex components.}",
+            "active_checks_enabled": 2,
+            "alias": "Components-Webex",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Cisco-Ces-Restapi-Components",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": "webex"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Cisco-Ces-Components-Webex-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

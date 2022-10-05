@@ -1,0 +1,703 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v3.0": [
+                {
+                    "attributes": {
+                        "dns_name": {
+                            "type": "string"
+                        },
+                        "fsx_type": {
+                            "type": "string"
+                        },
+                        "id": {
+                            "type": "string"
+                        },
+                        "lifecycle": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Aws-Fsx-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "AWS Access Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSACCESSKEY",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "AWS Secret Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSSECRETKEY",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Amazon AWS FSX",
+                    "discovery_examples": [
+                        {
+                            "dns_name": "transactions.corp.example.com",
+                            "fsx_type": "LUSTRE",
+                            "id": "fs-fea31ef73a49c",
+                            "lifecycle": "AVAILABLE",
+                            "tags": [
+                                {
+                                    "key": "BU",
+                                    "value": "Financial"
+                                }
+                            ],
+                            "type": "fsx"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.dns_name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSACCESSKEY",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSACCESSKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSSECRETKEY",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSSECRETKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSREGION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.REGION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSFILESYSTEMID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.AWSFILESYSTEMID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.lifecycle",
+                                        "value": "DELETING"
+                                    }
+                                ]
+                            },
+                            "type": "exclusion"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Aws-Fsx-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Amazon AWS FSX",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Region",
+                                "group": "AWS",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "REGION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "amazon-fsx",
+                    "type": "aws",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "dns_name": {
+                            "type": "string"
+                        },
+                        "fsx_type": {
+                            "type": "string"
+                        },
+                        "id": {
+                            "type": "string"
+                        },
+                        "lifecycle": {
+                            "type": "string"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Aws-Fsx-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "AWS Access Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSACCESSKEY",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "AWS Secret Key",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AWSSECRETKEY",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Amazon AWS FSX",
+                    "discovery_examples": [
+                        {
+                            "dns_name": "transactions.corp.example.com",
+                            "fsx_type": "LUSTRE",
+                            "id": "fs-fea31ef73a49c",
+                            "lifecycle": "AVAILABLE",
+                            "tags": [
+                                {
+                                    "key": "BU",
+                                    "value": "Financial"
+                                }
+                            ],
+                            "type": "fsx"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.dns_name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSACCESSKEY",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSACCESSKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSSECRETKEY",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AWSSECRETKEY"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSREGION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.REGION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AWSFILESYSTEMID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.AWSFILESYSTEMID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [
+                                    {
+                                        "operator": "equal",
+                                        "source": "discovery.results.lifecycle",
+                                        "value": "DELETING"
+                                    }
+                                ]
+                            },
+                            "type": "exclusion"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Aws-Fsx-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Amazon AWS FSX",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Region",
+                                "group": "AWS",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "REGION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "amazon-fsx",
+                    "type": "aws",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_fsx_api.pl --plugin=cloud::aws::fsx::plugin --mode=datausage --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --name=\\'$_HOSTAWSFILESYSTEMID$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ $_HOSTAWSEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-data-write-ops=\\'$_SERVICEWARNINGDATAWRITEOPS$\\' --critical-data-write-ops=\\'$_SERVICECRITICALDATAWRITEOPS$\\' --warning-data-read-ops=\\'$_SERVICEWARNINGDATAREADOPS$\\' --critical-data-read-ops=\\'$_SERVICECRITICALDATAREADOPS$\\' --warning-data-write-ops=\\'$_SERVICEWARNINGDATAWRITEOPS$\\' --critical-data-write-ops=\\'$_SERVICECRITICALDATAWRITEOPS$\\' --warning-data-read-bytes=\\'$_SERVICEWARNINGDATAREADBYTES$\\' --critical-data-read-bytes=\\'$_SERVICECRITICALDATAREADBYTES$\\' --warning-metadata-ops-bytes=\\'$_SERVICEWARNINGMETADATAOPSBYTES$\\' --critical-metadata-ops-bytes=\\'$_SERVICECRITICALMETADATAOPSBYTES$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Fsx-Api-Datausage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_fsx_api.pl --plugin=cloud::aws::fsx::plugin --custommode=\\'awscli\\' --mode=discovery --aws-access-key=\\'$_AWSACCESSKEY$\\' --aws-secret-key=\\'$_AWSSECRETKEY$\\' --proxyurl=\\'$_PROXYURL$\\' --timeout=\\'$_TIMEOUT$\\' --region=\\'$_REGION$\\' $_EXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Fsx-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les syst\u00e8mes de fichiers Amazon FSx (Lustre,Netapp,Windows,OpenZFS) via l'API Cloudwatch.}\r\n{EN: Template to check Amazon FSx (Lustre,Netapp,Windows,OpenZFS) volumes using Cloudwatch API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Amazon FSX using Cloudwatch API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "icon": "",
+            "macros": [
+                {
+                    "key": "$_HOSTAWSCUSTOMMODE$",
+                    "value": "awscli"
+                },
+                {
+                    "key": "$_HOSTAWSACCESSKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSSECRETKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSREGION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTFILESYSTEMID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Fsx",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Aws-Fsx-Freespace-Api",
+                "Cloud-Aws-Fsx-Datausage-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "\u00b0 fix discovery exclusion mappers",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin Pack to monitor Amazon FS x filesystems.**\r\n\r\nAvailable host template and related services:\r\n\r\n|Cloud-Aws-Fsx-Custom|\r\n|---|\r\n|Fsx-Datausage|\r\n|Fsx-Freespace|\r\n\r\nThis pack provides a host discovery rule.\r\n"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin-Pack pour superviser les syst\u00e8mes de fichiers Amazon FSX.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponible et services associ\u00e9s:\r\n\r\n|Cloud-Aws-Fsx-Custom|\r\n|---|\r\n|Fsx-Datausage|\r\n|Fsx-Freespace|\r\n\r\nCe Pack contient une r\u00e8gle de d\u00e9couverte d\\'H\u00f4te. "
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module >= 19.10.1\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Amazon FSx",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_aws_fsx_api.pl",
+                "package_name": "centreon-plugin-Cloud-Aws-Fsx-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-aws-fsx",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "AWS",
+            "Amazon",
+            "FSx",
+            "Cloud",
+            "Cloudwatch",
+            "HostDisco"
+        ],
+        "update_date": "1652128597",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'espace disponible sur un syst\u00e8me de fichier FSx.}\r\n\r\n{EN: Check free space available on a FSx filesystem.}",
+            "active_checks_enabled": 2,
+            "alias": "Fsx-Freespace",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Fsx-Api-Datausage",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Fsx-Freespace-Api",
+            "normal_check_interval": 10,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les m\u00e9triques li\u00e9es au syst\u00e8me de fichier FSx.}\r\n\r\n{EN: Check FSx filesystem related I/O metrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Fsx-DataUsage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Fsx-Api-Datausage",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "sum"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Fsx-Datausage-Api",
+            "normal_check_interval": 10,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

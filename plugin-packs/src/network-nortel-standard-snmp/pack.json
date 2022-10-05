@@ -1,0 +1,501 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": null,
+                "changes": [],
+                "command_for_discovery": "Net-Nortel-Standard-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Nortel-Standard-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Nortel-Standard-SNMP"
+                ],
+                "macros": [],
+                "name": "Net-Nortel-Standard-SNMP-Packet-Errors-Name",
+                "service_display_name": "Packet-Errors-$name$",
+                "service_template": "Net-Nortel-Standard-Packet-Errors-Global-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Nortel-Standard-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Nortel-Standard-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Nortel-Standard-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Nortel-Standard-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Nortel-Standard-Traffic-Global-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nortel_standard_snmp.pl --plugin=network::nortel::standard::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Nortel-Standard-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nortel_standard_snmp.pl --plugin=network::nortel::standard::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Nortel-Standard-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nortel_standard_snmp.pl --plugin=network::nortel::standard::snmp::plugin --mode=memory --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Nortel-Standard-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nortel_standard_snmp.pl --plugin=network::nortel::standard::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Nortel-Standard-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nortel_standard_snmp.pl --plugin=network::nortel::standard::snmp::plugin --mode=cpu --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-total=\\'$_SERVICEWARNINGTOTAL$\\' --critical-total=\\'$_SERVICECRITICALTOTAL$\\' --warning-1m=\\'$_SERVICEWARNING1M$\\' --critical-1m=\\'$_SERVICECRITICAL1M$\\' --warning-5m=\\'$_SERVICEWARNING5M$\\' --critical-5m=\\'$_SERVICECRITICAL5M$\\' --warning-10m=\\'$_SERVICEWARNING10M$\\' --critical-10m=\\'$_SERVICECRITICAL10M$\\' --warning-1h=\\'$_SERVICEWARNING1H$\\' --critical-1h=\\'$_SERVICECRITICAL1H$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Nortel-Standard-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nortel_standard_snmp.pl --plugin=network::nortel::standard::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACEID$\\' --add-status --add-errors --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Nortel-Standard-SNMP-Packet-Errors-Id",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nortel_standard_snmp.pl --plugin=network::nortel::standard::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$$$\\' --name --add-status --add-errors --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Nortel-Standard-SNMP-Packet-Errors-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nortel_standard_snmp.pl --plugin=network::nortel::standard::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-errors --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Nortel-Standard-SNMP-Packet-Errors-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nortel_standard_snmp.pl --plugin=network::nortel::standard::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACEID$\\' --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Nortel-Standard-SNMP-Traffic-Id",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nortel_standard_snmp.pl --plugin=network::nortel::standard::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$$$\\' --name --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Nortel-Standard-SNMP-Traffic-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nortel_standard_snmp.pl --plugin=network::nortel::standard::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Nortel-Standard-SNMP-Traffic-Global",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Nortel en SNMP}\r\n{EN: Template to check Nortel devices using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Nortel devices using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "Net-nortel-64.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Nortel-Standard-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Nortel-Standard-Memory-SNMP",
+                "Net-Nortel-Standard-Hardware-Global-SNMP",
+                "Net-Nortel-Standard-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "Net-nortel-64.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* update commands 'memory' and 'cpu'",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Nortel equipment (Routers, Switches, Firewall, etc.) using SNMP protocol.\r\nSeveral indicators are available but not linked to this template.\r\nYou have to use them manually:\r\n* CPU usage\r\n* Memory usage\r\n* Environment (hardware)\r\n* Packet errors\r\n* Traffic (Bandwidth usage)"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack Plugin pour surveiller la plupart des \u00e9quipements Nortel (Routeurs, Switches, Pare-feux) en utilisant le protocole SNMP.\r\nDe nombreux indicateurs sont disponibles mais ne sont pas associ\u00e9s \u00e0 ce mod\u00e8le.\r\nIls doivent \u00eatre d\u00e9ploy\u00e9s manuellement:\r\n* Utilisation CPU\r\n* Utilisation m\u00e9moire\r\n* Environment (mat\u00e9riel)\r\n* Erreurs de paquets\r\n* Trafic (Bande passante)"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Nortel-Standard-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp)\r\n\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Nortel-Standard-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Nortel Standard",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_nortel_standard_snmp.pl",
+                "package_name": "centreon-plugin-Network-Nortel-Standard-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "centreon-plugin-Network-Nortel-Standard-Snmp",
+                "version": "20161212-1"
+            }
+        ],
+        "slug": "network-nortel-standard-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Nortel",
+            "Network",
+            "SNMP"
+        ],
+        "update_date": "1586980634",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation m\u00e9moire du mat\u00e9riel}\r\n\r\n{EN: Check memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Nortel-Standard-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGUSAGEPRCT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALUSAGEPRCT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Nortel-Standard-Memory-SNMP",
+            "normal_check_interval": 10,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'ensemble du mat\u00e9riel de l'\u00e9quipement.}\r\n\r\n{EN: Check hardware status.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Nortel-Standard-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Nortel-Standard-Hardware-Global-SNMP",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine. Ce contr\u00f4le pourra remonter la moyenne du taux d'utilisation des CPU.}\r\n\r\n{EN: Check the rate of utilization of CPU for the machine. This check can give the average utilization rate of CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Nortel-Standard-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Nortel-Standard-Cpu-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le pourcentage de paquets en erreur/\u00e9cart\u00e9 d'une interface r\u00e9seau.}\r\n\r\n{EN: Check packets on errors/discards of a network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Packet-Errors-Generic-Id",
+            "check_timeperiod": "",
+            "command_name": "Net-Nortel-Standard-SNMP-Packet-Errors-Id",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-Nortel-Standard-Packet-Errors-Generic-Id-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le pourcentage de paquets en erreur/\u00e9cart\u00e9 d'une interface r\u00e9seau.}\r\n\r\n{EN: Check packets on errors/discards of a network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Packet-Errors-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-Nortel-Standard-SNMP-Packet-Errors-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-Nortel-Standard-Packet-Errors-Generic-Name-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le pourcentage de paquets en erreur/\u00e9cart\u00e9 de plusieurs interfaces r\u00e9seau.}\r\n\r\n{EN: Check packets on errors/discards of multiple network interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Packet-Errors-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Nortel-Standard-SNMP-Packet-Errors-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Nortel-Standard-Packet-Errors-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau d'une interface r\u00e9seau.}\r\n\r\n{EN: Check traffic of an network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Id",
+            "check_timeperiod": "",
+            "command_name": "Net-Nortel-Standard-SNMP-Traffic-Id",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Nortel-Standard-Traffic-Generic-Id-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau d'une interface r\u00e9seau.}\r\n\r\n{EN: Check traffic of an network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-Nortel-Standard-SNMP-Traffic-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Nortel-Standard-Traffic-Generic-Name-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le trafic r\u00e9seau de plusieurs interfaces r\u00e9seau.}\r\n\r\n{EN: Check traffic of multiple network interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Nortel-Standard-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Nortel-Standard-Traffic-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

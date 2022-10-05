@@ -1,0 +1,259 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_polycom_rmx_snmp.pl --plugin=network::polycom::rmx::snmp::plugin --mode=videoconferencing-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-calls-new=\\'$_SERVICEWARNINGCALLSNEW$\\' --critical-calls-new=\\'$_SERVICECRITICALCALLSNEW$\\' --warning-calls-voice-active=\\'$_SERVICEWARNINGCALLSVOICEACTIVE$\\' --critical-calls-voice-active=\\'$_SERVICECRITICALCALLSVOICEACTIVE$\\' --warning-calls-video-active=\\'$_SERVICEWARNINGCALLSVIDEOACTIVE$\\' --critical-calls-video-active=\\'$_SERVICECRITICALCALLSVIDEOACTIVE$\\'  --warning-conferences-active=\\'$_SERVICEWARNINGCONFERENCESACTIVE$\\' --critical-conferences-active=\\'$_SERVICECRITICALCONFERENCESACTIVE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Polycom-Rmx-SNMP-Videoconferencing-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_polycom_rmx_snmp.pl --plugin=network::polycom::rmx::snmp::plugin --mode=memory --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Polycom-Rmx-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_polycom_rmx_snmp.pl --plugin=network::polycom::rmx::snmp::plugin --mode=load --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Polycom-Rmx-SNMP-Load",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_polycom_rmx_snmp.pl --plugin=network::polycom::rmx::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Polycom-Rmx-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_polycom_rmx_snmp.pl --plugin=network::polycom::rmx::snmp::plugin --mode=cpu-detailed --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-idle=\\'$_SERVICEWARNINGIDLE$\\'  --critical-idle=\\'$_SERVICECRITICALIDLE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Polycom-Rmx-SNMP-Cpu-Detailed",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Polycom RMX devices using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "Net-Polycom-64.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Polycom-Rmx-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Polycom-Rmx-Videoconferencing-Usage-SNMP",
+                "Net-Polycom-Rmx-Memory-SNMP",
+                "Net-Polycom-Rmx-Load-SNMP",
+                "Net-Polycom-Rmx-Hardware-Global-SNMP",
+                "Net-Polycom-Rmx-Cpu-Detailed-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "Net-Polycom-64.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* change memory mode thresholds",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Polycom RealPresence Collaboration Server RMX using SNMP:\r\n* Cpu-detailed\r\n* Load\r\n* Memory\r\n* Hardware\r\n* Voiceconferencing-Usage"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un serveur Polycom RealPresence Collaboration RMX via SNMP :\r\n* Cpu-detailed\r\n* Load\r\n* Memory\r\n* Hardware\r\n* Voiceconferencing-Usage"
+            }
+        ],
+        "discovery_category": "toip-voip",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Polycom-Rmx-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp)\r\n\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Polycom-Rmx-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Polycom RMX",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_polycom_rmx_snmp.pl",
+                "package_name": "centreon-plugin-Network-Polycom-Rmx-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "centreon-plugin-Network-Polycom-Rmx-Snmp",
+                "version": "20161212-1"
+            }
+        ],
+        "slug": "network-polycom-rmx-snmp",
+        "status": "stable",
+        "status_message": "change memory mode thresholds",
+        "tags": [
+            "Polycom",
+            "RMX",
+            "SNMP",
+            "Voice",
+            "VoIP",
+            "ToIP"
+        ],
+        "update_date": "1555074346",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation de la visioconf\u00e9rence.}\r\n\r\n{EN: Check videoconferencing usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Videoconferencing-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Polycom-Rmx-SNMP-Videoconferencing-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-Polycom-Rmx-Videoconferencing-Usage-SNMP",
+            "normal_check_interval": 1,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire vive (RAM)..}\r\n\r\n{EN: Check the rate of the utilization of memory (RAM).}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Polycom-Rmx-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Polycom-Rmx-Memory-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la charge serveur.}\r\n\r\n{EN: Check the server load average.}",
+            "active_checks_enabled": 2,
+            "alias": "Load",
+            "check_timeperiod": "",
+            "command_name": "Net-Polycom-Rmx-SNMP-Load",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-Polycom-Rmx-Load-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le mat\u00e9riel.}\r\n\r\n{EN: Check hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Polycom-Rmx-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Polycom-Rmx-Hardware-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation d\u00e9taill\u00e9 CPU de la machine.}\r\n\r\n{EN: Check the detailed rate of utilization of CPU for the machine.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu-Detailed",
+            "check_timeperiod": "",
+            "command_name": "Net-Polycom-Rmx-SNMP-Cpu-Detailed",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIDLE$",
+                    "password": false,
+                    "value": "20:"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIDLE$",
+                    "password": false,
+                    "value": "10:"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Polycom-Rmx-Cpu-Detailed-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

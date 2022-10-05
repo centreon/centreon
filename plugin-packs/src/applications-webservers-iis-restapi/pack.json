@@ -1,0 +1,269 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-Webserver-IIS-ApplicationsPools-Discover",
+                "command_for_macro": "App-Webserver-IIS-ApplicationsPools-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-Webserver-IIS-Restapi"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "App-Webserver-IIS-Restapi-ApplicationPools-Name",
+                "service_display_name": "ApplicationPool-$name$",
+                "service_template": "App-Webserver-IIS-ApplicationPools-Restapi"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-Webserver-IIS-Websites-Discover",
+                "command_for_macro": "App-Webserver-IIS-Websites-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-Webserver-IIS-Restapi"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "App-Webserver-IIS-Restapi-Websites-Name",
+                "service_display_name": "Website-$name$",
+                "service_template": "App-Webserver-IIS-Websites-Restapi"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_iis_restapi.pl --plugin apps::microsoft::iis::restapi::plugin --mode list-application-pools --hostname=127.0.0.1 --api-username=centreon --api-password=centreon --api-token=centreon --disco-format\\\"",
+            "name": "App-Webserver-IIS-ApplicationsPools-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_iis_restapi.pl --plugin apps::microsoft::iis::restapi::plugin --mode list-application-pools --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTIISAPIPORT$\\' --proto=\\'$_HOSTIISAPIPROTO$\\' --api-username=\\'$_HOSTIISAPIUSERNAME$\\' --api-password=\\'$_HOSTIISAPIPASSWORD$\\' --api-token=\\'$_HOSTIISAPITOKEN$\\' $_HOSTIISAPIEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "App-Webserver-IIS-ApplicationsPools-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_iis_restapi.pl --plugin apps::microsoft::iis::restapi::plugin --mode list-websites --hostname=127.0.0.1 --api-username=centreon --api-password=centreon --api-token=centreon --disco-format\\\"",
+            "name": "App-Webserver-IIS-Websites-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_iis_restapi.pl --plugin apps::microsoft::iis::restapi::plugin --mode list-websites --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTIISAPIPORT$\\' --proto=\\'$_HOSTIISAPIPROTO$\\' --api-username=\\'$_HOSTIISAPIUSERNAME$\\' --api-password=\\'$_HOSTIISAPIPASSWORD$\\' --api-token=\\'$_HOSTIISAPITOKEN$\\' $_HOSTIISAPIEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "App-Webserver-IIS-Websites-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_iis_restapi.pl --plugin=apps::microsoft::iis::restapi::plugin --mode websites --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTIISAPIPORT$\\' --proto=\\'$_HOSTIISAPIPROTO$\\' --api-username=\\'$_HOSTIISAPIUSERNAME$\\' --api-password=\\'$_HOSTIISAPIPASSWORD$\\' --api-token=\\'$_HOSTIISAPITOKEN$\\' $_HOSTIISAPIEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-requests=\\'$_SERVICEWARNINGREQUESTS$\\' --critical-requests=\\'$_SERVICECRITICALREQUESTS$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' --warning-connections-current=\\'$_SERVICEWARNINGCONNECTIONSCURRENT$\\' --critical-connections-current=\\'$_SERVICECRITICALCONNECTIONSCURRENT$\\' --warning-connections-total=\\'$_SERVICEWARNINGCONNECTIONSTOTAL$\\' --critical-connections-total=\\'$_SERVICECRITICALCONNECTIONSTOTAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Webserver-IIS-Restapi-Websites",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_iis_restapi.pl --plugin=apps::microsoft::iis::restapi::plugin --mode application-pools --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTIISAPIPORT$\\' --proto=\\'$_HOSTIISAPIPROTO$\\' --api-username=\\'$_HOSTIISAPIUSERNAME$\\' --api-password=\\'$_HOSTIISAPIPASSWORD$\\' --api-token=\\'$_HOSTIISAPITOKEN$\\' $_HOSTIISAPIEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-requests=\\'$_SERVICEWARNINGREQUESTS$\\' --critical-requests=\\'$_SERVICECRITICALREQUESTS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Webserver-IIS-Restapi-ApplicationPools",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser un serveur IIS en utilisant l'API IIS}\r\n{EN: Template to check Windows IIS using IIS API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Windows IIS using IIS Api",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "iis-128-2.png",
+            "macros": [
+                {
+                    "key": "$_HOSTIISAPIPORT$",
+                    "value": "55539"
+                },
+                {
+                    "key": "$_HOSTIISAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTIISAPIUSERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTIISAPIPASSWORD$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTIISAPITOKEN$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTIISAPIEXTRAOPTIONS$",
+                    "value": "--http-backend=curl --insecure"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Webserver-IIS-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABGdBTUEAALGPC/xhBQAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAOwgAADsIBFShKgAAAAXdJREFUeNrt0kENgEAMRNFqQRGOMIMJMEWCgbIC2Nve5jX56X3y6t23Tmtc/XXc1WkVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALAWwGwMZWQEAIwAgAAQAEoEUOfTaU0HucYLCwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABY2wdAJk7gki710QAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAABJ0RVh0RVhJRjpPcmllbnRhdGlvbgAxhFjs7wAAAABJRU5ErkJggg==",
+            "name": "iis-128-2.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ fix discovery commands",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Microsoft IIS webserver via IIS API.\r\n* ApplicationPools\r\n* Websites"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un serveur web Microsoft IIS via l\\'API IIS.\r\n* ApplicationPools\r\n* Websites"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAAAe1BMVEUAAADxURvxURvxURuAzCiAzCiAzCjxURvxURvxURuAzCiAzCiAzCgAre8Are8Are/7vAn7vAn7vAkAre8Are8Are/7vAn7vAn7vAlwbW5wbW5wbW5wbW5wbW5wbW5wbW5wbW5wbW5wbW5wbW5wbW5wbW5wbW5wbW5wbW4UlcP7AAAAKXRSTlMAv/+AgP+/MEAgIEAwv/+AgP+/MEAgIEAwUL/vz2AwQBCfcP+AII+v37AfmB8AAAJ9SURBVHgB7M7HCcRAFAXBWe+9kfKPVPwEBO82iOp7Q7W+Wq2zNjVtd1l7AAAAAAAAAAAAAAAAAAAAAAAAAAAAAICeAYdj1qmm8yXrOgOQbvesR03PV9YbAAAAAAAAAKBnAAAAAAAAAAAAAAAAAAAAwOeb9avpP2SNbflJmporo+TlVRiOZhsNQKAHSve/wjvGVvlr9c749P1ebE4jPUUyLhpimupsVqSYZfmcpKr1LFZVTZIDTX5JA2gTUDAxUBHpWwR0ufxSP4rgCzRQ+SEFqFuSpV4IpIBHLwU28SRcwAKb/BCDcX/qu0APQIyfBMLZ7wJSuvwo0D4JrLB3kbKOC4Ed/OR07gK9NfMj1Ia2xcveWr+DLYn3rkO96wF7q6CttR1aSy8C7dzmciHQwL0qVGjHm5SBx3c2gJ0gZpElHL/nExpz9H0Hgn06ubZDFykBbU8BBaIGxPDYcABEkeD3VOQB9+WrQAnA6B8EVn9igvQUSHfl4iW19APkAMncQkxsgt/OgLf4OpcCBXaRSJCnwHhMtPld2Q6QYGQISe5wO+F3AekKEPKVgFRYMmyTQIT+ENiOxY5SJQJ7eoHfBURMgf1SwGBUyJMAME3XJNBBJStAneH/C/hGYVcCskMgyt8dyK8C6Sj1fJ08ZvhNwMoJ2qXACpBmgXrMZj/XXY8XGbCWcp9am+EkUN4E2r6ISNlhuRQoQCizgAGabAvnuj2ALsuAUCw0swhWJjgJ1KW9CkBQDd53JSAVqswCkrjnKJ+ARQxP/APPxgagbwJH0sXfcRaRfPvwKt2ub21LBEI9SxEbACMfIxV8qPMDPho3oIpfqeYb3qRsvtow+WfyH4xJ+YawWVmpAAAAAElFTkSuQmCC",
+        "monitoring_procedure": "",
+        "name": "Microsoft IIS Server Restapi",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_iis_restapi.pl",
+                "package_name": "centreon-plugin-Applications-Webservers-Iis-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-webservers-iis-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Windows",
+            "Web",
+            "Web server",
+            "IIS",
+            "Microsoft",
+            "Restapi",
+            "HTTP",
+            "HTTPS"
+        ],
+        "update_date": "1608210529",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le de performances des sites IIS via l'API IIS.}\r\n\r\n{EN: Check performances of IIS sites trought IIS API.}",
+            "active_checks_enabled": 2,
+            "alias": "Websites",
+            "check_timeperiod": "",
+            "command_name": "App-Webserver-IIS-Restapi-Websites",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /starting|started/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Webserver-IIS-Websites-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'\u00e9tat des \"application pools\" via l'API IIS.}\r\n\r\n{EN: Check states of application pools trought IIS API.}",
+            "active_checks_enabled": 2,
+            "alias": "ApplicationPools",
+            "check_timeperiod": "",
+            "command_name": "App-Webserver-IIS-Restapi-ApplicationPools",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{auto_start} eq \"true\" and %{status} !~ /starting|started/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Webserver-IIS-ApplicationPools-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

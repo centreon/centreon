@@ -1,0 +1,274 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mikrotik_snmp.pl --plugin=network::mikrotik::snmp::plugin --mode=signal --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-rx-strength=\\'$_SERVICEWARNINGRXSTRENGTH$\\' --critical-rx-strength=\\'$_SERVICECRITICALRXSTRENGTH$\\' --warning-tx-strength=\\'$_SERVICEWARNINGTXSTRENGTH$\\' --critical-tx-strength=\\'$_SERVICECRITICALTXSTRENGTH$\\' --warning-signal2noise=\\'$_SERVICEWARNINGSIGNAL2NOISE$\\' --critical-signal2noise=\\'$_SERVICECRITICALSIGNAL2NOISE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Mikrotik-SNMP-Signal",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mikrotik_snmp.pl --plugin=network::mikrotik::snmp::plugin --mode=memory --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-access=\\'$_SERVICEWARNINGACCESS$\\' --critical-access=\\'$_SERVICECRITICALACCESS$\\' --warning-count=\\'$_SERVICEWARNINGCOUNT$\\' --critical-count=\\'$_SERVICECRITICALCOUNT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Mikrotik-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mikrotik_snmp.pl --plugin=network::mikrotik::snmp::plugin --mode=environment --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Mikrotik-SNMP-Environment",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mikrotik_snmp.pl --plugin=network::mikrotik::snmp::plugin --mode=cpu --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-average=\\'$_SERVICEWARNINGAVERAGE$\\' --critical-average=\\'$_SERVICECRITICALAVERAGE$\\' --warning-core=\\'$_SERVICEWARNINGCORE$\\' --critical-core=\\'$_SERVICECRITICALCORE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Mikrotik-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mikrotik_snmp.pl --plugin=network::mikrotik::snmp::plugin --mode=interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --add-errors --warning-total-port=\\'$_SERVICEWARNINGTOTALPORT$\\' --critical-total-port=\\'$_SERVICECRITICALTOTALPORT$\\' --warning-global-admin-up=\\'$_SERVICEWARNINGGLOBALADMINUP$\\' --critical-global-admin-up=\\'$_SERVICECRITICALGLOBALADMINUP$\\' --warning-total-admin-down=\\'$_SERVICEWARNINGTOTALADMINDOWN$\\' --critical-total-admin-down=\\'$_SERVICECRITICALTOTALADMINDOWN$\\' --warning-total-oper-up=\\'$_SERVICEWARNINGTOTALOPERUP$\\' --critical-total-oper-up=\\'$_SERVICECRITICALTOTALOPERUP$\\' --warning-total-oper-down=\\'$_SERVICEWARNINGTOTALOPERDOWN$\\' --critical-total-oper-down=\\'$_SERVICECRITICALTOTALOPERDOWN$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' --warning-in-toolong=\\'$_SERVICEWARNINGINTOOLONG$\\' --critical-in-toolong=\\'$_SERVICECRITICALINTOOLONG$\\' --warning-in-tooshort=\\'$_SERVICEWARNINGINTOOSHORT$\\' --critical-in-tooshort=\\'$_SERVICECRITICALINTOOSHORT$\\' --warning-out-fcserror=\\'$_SERVICEWARNINGOUTFCSERROR$\\' --critical-out-fcserror=\\'$_SERVICECRITICALOUTFCSERROR$\\' --warning-in-alignerror=\\'$_SERVICEWARNINGINALIGNERROR$\\' --critical-in-alignerror=\\'$_SERVICECRITICALINALIGNERROR$\\' --warning-out-underrun=\\'$_SERVICEWARNINGOUTUNDERRUN$\\' --critical-out-underrun=\\'$_SERVICECRITICALOUTUNDERRUN$\\' --warning-out-deferred=\\'$_SERVICEWARNINGOUTDEFERRED$\\' --critical-out-deferred=\\'$_SERVICECRITICALOUTDEFERRED$\\' --warning-in-jabber=\\'$_SERVICEWARNINGINJABBER$\\' --critical-in-jabber=\\'$_SERVICECRITICALINJABBER$\\' --warning-in-fragment=\\'$_SERVICEWARNINGINFRAGMENT$\\' --critical-in-fragment=\\'$_SERVICECRITICALINFRAGMENT$\\' --warning-in-fcserror=\\'$_SERVICEWARNINGINFCSERROR$\\' --critical-in-fcserror=\\'$_SERVICECRITICALINFCSERROR$\\' --warning-out-singlecollision=\\'$_SERVICEWARNINGOUTSINGLECOLLISION$\\' --critical-out-singlecollision=\\'$_SERVICECRITICALOUTSINGLECOLLISION$\\' --warning-in-overflow=\\'$_SERVICEWARNINGINOVERFLOW$\\' --critical-in-overflow=\\'$_SERVICECRITICALINOVERFLOW$\\' --warning-out-excessivedeferred=\\'$_SERVICEWARNINGOUTEXCESSIVEDEFERRED$\\' --critical-out-excessivedeferred=\\'$_SERVICECRITICALOUTEXCESSIVEDEFERRED$\\' --warning-in-drop=\\'$_SERVICEWARNINGINDROP$\\' --critical-in-drop=\\'$_SERVICECRITICALINDROP$\\' --warning-out-collision=\\'$_SERVICEWARNINGOUTCOLLISION$\\' --critical-out-collision=\\'$_SERVICECRITICALOUTCOLLISION$\\' --warning-out-excessivecollision=\\'$_SERVICEWARNINGOUTEXCESSIVECOLLISION$\\' --critical-out-excessivecollision=\\'$_SERVICECRITICALOUTEXCESSIVECOLLISION$\\' --warning-out-fragment=\\'$_SERVICEWARNINGOUTFRAGMENT$\\' --critical-out-fragment=\\'$_SERVICECRITICALOUTFRAGMENT$\\' --warning-in-lengtherror=\\'$_SERVICEWARNINGINLENGTHERROR$\\' --critical-in-lengtherror=\\'$_SERVICECRITICALINLENGTHERROR$\\' --warning-in-codeerror=\\'$_SERVICEWARNINGINCODEERROR$\\' --critical-in-codeerror=\\'$_SERVICECRITICALINCODEERROR$\\' --warning-in-unknownop=\\'$_SERVICEWARNINGINUNKNOWNOP$\\' --critical-in-unknownop=\\'$_SERVICECRITICALINUNKNOWNOP$\\' --warning-in-carriererror=\\'$_SERVICEWARNINGINCARRIERERROR$\\' --critical-in-carriererror=\\'$_SERVICECRITICALINCARRIERERROR$\\' --warning-out-totalcollision=\\'$_SERVICEWARNINGOUTTOTALCOLLISION$\\' --critical-out-totalcollision=\\'$_SERVICECRITICALOUTTOTALCOLLISION$\\' --warning-out-toolong=\\'$_SERVICEWARNINGOUTTOOLONG$\\' --critical-out-toolong=\\'$_SERVICECRITICALOUTTOOLONG$\\' --warning-out-multiplecollision=\\'$_SERVICEWARNINGOUTMULTIPLECOLLISION$\\' --critical-out-multiplecollision=\\'$_SERVICECRITICALOUTMULTIPLECOLLISION$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-out-drop=\\'$_SERVICEWARNINGOUTDROP$\\' --critical-out-drop=\\'$_SERVICECRITICALOUTDROP$\\' --warning-out-tooshort=\\'$_SERVICEWARNINGOUTTOOSHORT$\\' --critical-out-tooshort=\\'$_SERVICECRITICALOUTTOOSHORT$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-jabber=\\'$_SERVICEWARNINGOUTJABBER$\\' --critical-out-jabber=\\'$_SERVICECRITICALOUTJABBER$\\' --warning-out-latecollision=\\'$_SERVICEWARNINGOUTLATECOLLISION$\\' --critical-out-latecollision=\\'$_SERVICECRITICALOUTLATECOLLISION$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' --warning-in-ucast=\\'$_SERVICEWARNINGINUCAST$\\' --critical-in-ucast=\\'$_SERVICECRITICALINUCAST$\\' --warning-in-bcast=\\'$_SERVICEWARNINGINBCAST$\\' --critical-in-bcast=\\'$_SERVICECRITICALINBCAST$\\' --warning-in-mcast=\\'$_SERVICEWARNINGINMCAST$\\' --critical-in-mcast=\\'$_SERVICECRITICALINMCAST$\\' --warning-out-ucast=\\'$_SERVICEWARNINGOUTUCAST$\\' --critical-out-ucast=\\'$_SERVICECRITICALOUTUCAST$\\' --warning-out-bcast=\\'$_SERVICEWARNINGOUTBCAST$\\' --critical-out-bcast=\\'$_SERVICECRITICALOUTBCAST$\\' --warning-out-mcast=\\'$_SERVICEWARNINGOUTMCAST$\\' --critical-out-mcast=\\'$_SERVICECRITICALOUTMCAST$\\' --warning-speed=\\'$_SERVICEWARNINGSPEED$\\' --critical-speed=\\'$_SERVICECRITICALSPEED$\\' --warning-in-volume=\\'$_SERVICEWARNINGINVOLUME$\\' --critical-in-volume=\\'$_SERVICECRITICALINVOLUME$\\' --warning-out-volume=\\'$_SERVICEWARNINGOUTVOLUME$\\' --critical-out-volume=\\'$_SERVICECRITICALOUTVOLUME$\\' --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Mikrotik-SNMP-Interfaces",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mikrotik_snmp.pl --plugin=network::mikrotik::snmp::plugin --mode=uptime --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-rx-strength=\\'$_SERVICEWARNINGRXSTRENGTH$\\' --critical-rx-strength=\\'$_SERVICECRITICALRXSTRENGTH$\\' --warning-uptime=\\'$_SERVICEWARNING$\\' --critical-uptime=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Mikrotik-SNMP-Uptime",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Mikrotik en SNMP}\r\n{EN: Template to check Mikrotik devices using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Mikrotik equipments in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "mikrotik-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Mikrotik-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Mikrotik-Signal-SNMP",
+                "Net-Mikrotik-Memory-SNMP",
+                "Net-Mikrotik-Environment-SNMP",
+                "Net-Mikrotik-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "mikrotik-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix(pack)missing-icon",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Mikrotik network equipment via SNMP:\r\n* Cpu\r\n* Environment\r\n* Interfaces\r\n* Memory\r\n* Signal\r\n* Uptime"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller des \u00e9quipements r\u00e9seau Mikrotik via SNMP :\r\n* Cpu\r\n* Environment\r\n* Interfaces\r\n* Memory\r\n* Signal\r\n* Uptime"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAi8SURBVHic7Zp/sFVVFcc/D5/4MnmCT9Lil07ZDDZl8iMfUiGW5o+yUrMow8asTKccR4w0R3Dsx4TWJKBlhmRTMVnRqGgOkkKTfwT9QhRGtB9WUmGGIAIa793+WGvP2e/cs/e7r/vkMvD9zJy596y99jr7nLP3XnutfUAIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEPs7r2h1A/Y3hrT4+vELPwqY0qJ27Le0ugO8Cxjp/8cAb2lhW/ZLWt0BXg9M8P89wNktbMt+Sas7wCHAyf7/SWAS8MbWNUfsaWYBTwFtfv5b4J7WNUfsac4EasCpfj7Tzz/WqgaJPcuhwE7gN9gsMAT4GbALeG8L2yX2IHdgo/5iP38l8CugF5gHDG9Ru8Qe4mjgBeBF4G0uawfmADuALcB84DRgRCsauC/TlpCPBWZE5z8C/tLktd4DHOv/twLfisouBBYBzwEfBZa5fBjmCqYCXcC/gVXAUuC/TbanGS7B2jaY/BSLhGYCr64orwFfw8LlLuCihJ0NwN3NNuZyv2A4Lm3S3iRshAd7Syt0ZmE31wPciN3k3kgX1sbaIB/jgAOB7Ynyx6I2fChj56rBuMl73Nga//1uE7Y6sZ5dAzb572cSuqdjM00N2AZ8HTgJezB7C2cz+C//T277xIzOzVEbvpnRO7HZG2zHpuheip62vgl733cbtwJP+P83ZPQ7gI8DyylGwzbgl8AVwGFNtGUwuInB7wC3u+0vZHTOi9qwPqHzAjC02Ruc4sbWYX4uTMud/4etiyimr2P9/79Irz2qGI4t/lqdtQz8gcHvABe47eWJ8l7gSNd5lZ9X6a0YjBu8xo0t9PPQ204aoJ1jgOexOP84LMyrAT8cjEa+THRhHXUitjlV7qiH8fL4/6PI+/94Bj4vY+fagd5we4Us5OZX+e9qYDwwGVjZoN0O4E4s1/8pYG3UuIcivSFu82Bs9RtudJ6341bgtsx1zgKu9vtYhEUWC4ETMDeyFjgeW8R2Yy+1HZtRXnIbk7GZ6t3Aa0r2/wPcBdyAra5fZPB3LGvYuucgYFpC57nof0oHincGNujuIB2trAc+URZ2YCO2FzjCZZd6I+/MXLjMLV7nJ35+APYwa8BrI73jXbadvr7raZe/I2H/YMwX9wL/xDoCFOuXHVhC6UaKKfRp4PdYRwFzLUu87CXsRV+GjbAZwHUUs98uLFTdG3iM6tG/i+L7ilOwTpOaKb6HPZ863kn9lDOZopc2Qlgl/5ViwTYlksVc4fL7Itn4ihuK6QY2UnTKrlJZDfOli4Fn/BpHlmyMpniQK7BkVBVtFAuzHtJucAg2q6SOjkS9mM5E3TgTOpK0/w+j/0KsQ1fp7MA6eZIvu+ItkWwo9jJq2AIkxxjgWSxJE4cjc7z+4pL+MpdfGckucdmDJd12YC6wG9gMnFNx/au97hPYYm1UhU4H5tZCB6pyg2VCJLMqUX4yeR/f33cOjcb/H8hc43rs+aTKN9DAVvuvXfmDCfkZmbrtWA6/BswulQX5zJL+VpdPjOQ/dtk1kWw8tmFUA+6l3lcHVrjOZupHfSB0xvU0/g1imMF6MPdT5jrSD74XOLwf+7n4Px6MCzN6f8yULUq0uw+HYqOrRv0DXuDyOZn6YfZ4kL4hWyfFlDQ6koeHugVbI4BNuZtdPtXPL8Omrq1YmjhFh+vVSGcuO/16NexztEbppHiYVe5iJemH/0gD9q/K1I8H46MZvdSUn0oZ13GWV3q8oizs0y+rKAPzjbuxGL+cx35/wm7wrXFa+E0uex5zJ/dS3Mw20iMfYDrFTad2EEMItZGB5SJGRO0oJ6LCwjn1EuY3YP/+TP1wzzn/nzritVUl8UgNK+6VFXqr/bcqBBqJxfZtwPnAP0rlp/hv2aeHcPOhSDbdf3dhIVw39tKWY+HMVyuuX657N33DpqprhoRLo4TIZTs2g8R0k1/kpdYNgXbS6dvHsfQ5WPg3kE4LllrvblR5HfZQPlxR1kYxdY4rycO+wVcSdsM+QJzKjKfrOC18F0XvfYDCZRyDdYpe4O2J64R1xicT5VAsOi/P6FQx2+v9vKJsLukR2Ev/C+cTMvXjHdMFGb3ccX8jNxinF8ckdB7w8nMj2edctprqHPTRFA/iiEgeVs1xWjjOFcymvrff4GW/o1gzBA6hWGe8LtF+KHz1QHY3h1CEnXWJE2wGa8b/h85VdcRb8o9k9HYCf8+Uv7W/RsxwxSczOl9ynTANT8YyY1tIx9GfpvpBXO/yOC08kcL/V+3+DaNIEF1cKjvd5eU8Q5klrndTP3oxIYW9ifqp/iDy/n9BA/bvy9QPYezhpP3/U8CbsQVyyk7Z/dZxmyt+J6PzvsjYMIpRMSNTZ6nrfKMkf5j6EXUl/S9cLnCdZ+kbWs1z+eJMXSg2pzbRWAg4EVt81rD7LzON/PR7bkWdmANIZ+w2RnrnZK4x13UOxAZASm86GUIMOTOjM8p1tmJfCJV9VJn26ObiDzzj6TpOC4eRECeFyrRh28I1+sbHIUeQaz/YS/+b6y7BRnCKM7EvkGrAFxM615J+4I34/5BlrTriPZD5Gb1pkd7nM3oPpxoxLlIa10+DYz/zKPnkwlTX203fb/nOoJi6AqmkUBUT3GYP9qXRcIr8xehMvcAkigXtBuzjlAnYZ3DHAR+hCMt2AJ/N2PoF6Qe+roG2zMrUPz/SW5vQ2UlftzQCc6Epm6dSQZgW/9xAg8OUvhOL2XPMdd01JXlYzN0eyUIOP04K5fg2Ra8Oew9V+YsUY4EfkM6ZP4ONwLEZG0OxDzBSD7sR/x8iqKojXDu3BV3l23OzxRpKi+uBxpX7GsOw3MYozB1sptg17Glhu4QQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIsQ/zPxG1zOnqQk2CAAAAAElFTkSuQmCC",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Mikrotik-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Mikrotik-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Mikrotik SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_mikrotik_snmp.pl",
+                "package_name": "centreon-plugin-Network-Mikrotik-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-mikrotik-snmp",
+        "status": "stable",
+        "status_message": "fix(pack)missing-icon",
+        "tags": [
+            "Network",
+            "Mikrotik",
+            "SNMP"
+        ],
+        "update_date": "1596008879",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le signal des bornes enregistr\u00e9es.}\r\n\r\n{EN: Check wireless registration signals.}",
+            "active_checks_enabled": 2,
+            "alias": "Signal",
+            "check_timeperiod": "",
+            "command_name": "Net-Mikrotik-SNMP-Signal",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Mikrotik-Signal-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation des m\u00e9moire.}\r\n\r\n{EN: Check the rate of the utilization of memory.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Mikrotik-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Mikrotik-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du mat\u00e9riel.}\r\n\r\n{EN: Check hardware environment.}",
+            "active_checks_enabled": 2,
+            "alias": "Environment",
+            "check_timeperiod": "",
+            "command_name": "Net-Mikrotik-SNMP-Environment",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Mikrotik-Environment-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation des processeurs.}\r\n\r\n{EN: Check the rate of the utilization of CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Mikrotik-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Mikrotik-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces.}\r\n\r\n{EN: Check interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "Net-Mikrotik-SNMP-Interfaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} !~ /up|dormant/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --no-skipped-counters"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Mikrotik-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Dur\u00e9e depuis laquelle l'\u00e9quipement tourne sans interruption.}\r\n\r\n{EN: Time since the equipment has been working and available.}",
+            "active_checks_enabled": 2,
+            "alias": "Uptime",
+            "check_timeperiod": "",
+            "command_name": "Net-Mikrotik-SNMP-Uptime",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Mikrotik-Uptime-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,1425 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Management-ApplicationInsights-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Management Application Insights resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Insights/components/APP123456ABCD78",
+                            "location": "westeurope",
+                            "name": "APP123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Insights/Components"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Insights/components/APP789012EFGH34",
+                            "location": "westus",
+                            "name": "APP789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Insights/Components"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": "discovery.results.id"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Management-ApplicationInsights-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Application Insights",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-management-appinsights",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Management-ApplicationInsights-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Application Insights resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Insights/components/APP123456ABCD78",
+                            "location": "westeurope",
+                            "name": "APP123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Insights/Components"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Insights/components/APP789012EFGH34",
+                            "location": "westus",
+                            "name": "APP789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Insights/Components"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Management-ApplicationInsights-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Application Insights",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-management-appinsights",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Management-ApplicationInsights-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Application Insights resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Insights/components/APP123456ABCD78",
+                            "location": "westeurope",
+                            "name": "APP123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Insights/Components"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Insights/components/APP789012EFGH34",
+                            "location": "westus",
+                            "name": "APP789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Insights/Components"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Management-ApplicationInsights-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Application Insights",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-management-appinsights",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_management_applicationinsights_api.pl --plugin=cloud::azure::management::applicationinsights::plugin --mode=requests --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-requests-execution-time=\\'$_SERVICEWARNINGREQUESTSEXECUTIONTIME$\\' --critical-requests-execution-time=\\'$_SERVICECRITICALREQUESTSEXECUTIONTIME$\\' --warning-requests-http-rate=\\'$_SERVICEWARNINGREQUESTSHTTPRATE$\\' --critical-requests-http-rate=\\'$_SERVICECRITICALREQUESTSHTTPRATE$\\' --warning-requests-count=\\'$_SERVICEWARNINGREQUESTSCOUNT$\\' --critical-requests-count=\\'$_SERVICECRITICALREQUESTSCOUNT$\\' --warning-requests-duration=\\'$_SERVICEWARNINGREQUESTSDURATION$\\' --critical-requests-duration=\\'$_SERVICECRITICALREQUESTSDURATION$\\' --warning-requests-queued=\\'$_SERVICEWARNINGREQUESTSQUEUED$\\' --critical-requests-queued=\\'$_SERVICECRITICALREQUESTSQUEUED$\\' --warning-requests-rate=\\'$_SERVICEWARNINGREQUESTSRATE$\\' --critical-requests-rate=\\'$_SERVICECRITICALREQUESTSRATE$\\' --warning-requests-failed=\\'$_SERVICEWARNINGREQUESTSFAILED$\\' --critical-requests-failed=\\'$_SERVICECRITICALREQUESTSFAILED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Management-ApplicationInsights-Api-Requests",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_management_applicationinsights_api.pl --plugin=cloud::azure::management::applicationinsights::plugin --mode=page-views --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-views-count=\\'$_SERVICEWARNINGVIEWSCOUNT$\\' --critical-views-count=\\'$_SERVICECRITICALVIEWSCOUNT$\\' --warning-load-time=\\'$_SERVICEWARNINGLOADTIME$\\' --critical-load-time=\\'$_SERVICECRITICALLOADTIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Management-ApplicationInsights-Api-Page-Views",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_management_applicationinsights_api.pl --plugin=cloud::azure::management::applicationinsights::plugin --mode=memory --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-memory-available=\\'$_SERVICEWARNINGMEMORYAVAILABLE$\\' --critical-memory-available=\\'$_SERVICECRITICALMEMORYAVAILABLE$\\' --warning-memory-private=\\'$_SERVICEWARNINGMEMORYPRIVATE$\\' --critical-memory-private=\\'$_SERVICECRITICALMEMORYPRIVATE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Management-ApplicationInsights-Api-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_management_applicationinsights_api.pl --plugin=cloud::azure::management::applicationinsights::plugin --mode=io-operations --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-process-bytes-operations=\\'$_SERVICEWARNINGPROCESSBYTESOPERATIONS$\\' --critical-process-bytes-operations=\\'$_SERVICECRITICALPROCESSBYTESOPERATIONS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Management-ApplicationInsights-Api-Io-Operations",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_management_applicationinsights_api.pl --plugin=cloud::azure::management::applicationinsights::plugin --mode=external-calls --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\'  --warning-calls-duration=\\'$_SERVICEWARNINGCALLSDURATION$\\' --critical-calls-duration=\\'$_SERVICECRITICALCALLSDURATION$\\' --warning-calls-count=\\'$_SERVICEWARNINGCALLSCOUNT$\\' --critical-calls-count=\\'$_SERVICECRITICALCALLSCOUNT$\\' --warning-calls-failure=\\'$_SERVICEWARNINGCALLSFAILURE$\\' --critical-calls-failure=\\'$_SERVICECRITICALCALLSFAILURE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Management-ApplicationInsights-Api-External-Calls",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_management_applicationinsights_api.pl --plugin=cloud::azure::management::applicationinsights::plugin --mode=exceptions --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-total-exeptions-count=\\'$_SERVICEWARNINGTOTALEXEPTIONSCOUNT$\\' --critical-total-exeptions-count=\\'$_SERVICECRITICALTOTALEXEPTIONSCOUNT$\\' --warning-browser-exceptions-count=\\'$_SERVICEWARNINGBROWSEREXCEPTIONSCOUNT$\\' --critical-browser-exceptions-count=\\'$_SERVICECRITICALBROWSEREXCEPTIONSCOUNT$\\' --warning-server-exceptions-count=\\'$_SERVICEWARNINGSERVEREXCEPTIONSCOUNT$\\' --critical-server-exceptions-count=\\'$_SERVICECRITICALSERVEREXCEPTIONSCOUNT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Management-ApplicationInsights-Api-Exceptions",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_management_applicationinsights_api.pl --plugin=cloud::azure::management::applicationinsights::plugin --mode=cpu --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\'  --warning-nonidle-time-percentage=\\'$_SERVICEWARNINGNONIDLETIMEPERCENTAGE$\\' --critical-nonidle-time-percentage=\\'$_SERVICECRITICALNONIDLETIMEPERCENTAGE$\\' --warning-w3wp-utilization-percentage=\\'$_SERVICEWARNINGW3WPUTILIZATIONPERCENTAGE$\\' --critical-w3wp-utilization-percentage=\\'$_SERVICECRITICALW3WPUTILIZATIONPERCENTAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Management-ApplicationInsights-Api-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_management_applicationinsights_api.pl --plugin=cloud::azure::management::applicationinsights::plugin --mode=browser-timings --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-send-duration=\\'$_SERVICEWARNINGSENDDURATION$\\' --critical-send-duration=\\'$_SERVICECRITICALSENDDURATION$\\' --warning-receive-duration=\\'$_SERVICEWARNINGRECEIVEDURATION$\\' --critical-receive-duration=\\'$_SERVICECRITICALRECEIVEDURATION$\\' --warning-processing-duration=\\'$_SERVICEWARNINGPROCESSINGDURATION$\\' --critical-processing-duration=\\'$_SERVICECRITICALPROCESSINGDURATION$\\' --warning-total-duration=\\'$_SERVICEWARNINGTOTALDURATION$\\' --critical-total-duration=\\'$_SERVICECRITICALTOTALDURATION$\\' --warning-network-duration=\\'$_SERVICEWARNINGNETWORKDURATION$\\' --critical-network-duration=\\'$_SERVICECRITICALNETWORKDURATION$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Management-ApplicationInsights-Api-Browser-Timings",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_management_applicationinsights_api.pl --plugin=cloud::azure::management::applicationinsights::plugin --mode=availability --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\'  --warning-tests-count=\\'$_SERVICEWARNINGTESTSCOUNT$\\' --critical-tests-count=\\'$_SERVICECRITICALTESTSCOUNT$\\' --warning-tests-duration=\\'$_SERVICEWARNINGTESTSDURATION$\\' --critical-tests-duration=\\'$_SERVICECRITICALTESTSDURATION$\\' --warning-availability=\\'$_SERVICEWARNINGAVAILABILITY$\\' --critical-availability=\\'$_SERVICECRITICALAVAILABILITY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Management-ApplicationInsights-Api-Availability",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_management_applicationinsights_api.pl --statefile-suffix='autodiscovery' --plugin=cloud::azure::management::applicationinsights::plugin --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Management-ApplicationInsights-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les instances Azure Application Application Insights via l'API}\r\n{EN: Template to check Azure Application Application Insights resources service using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Application Insights service using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-management-applicationinsights-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCETYPE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Management-ApplicationInsights",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Management-ApplicationInsights-Requests-Api",
+                "Cloud-Azure-Management-ApplicationInsights-Page-Views-Api",
+                "Cloud-Azure-Management-ApplicationInsights-Memory-Api",
+                "Cloud-Azure-Management-ApplicationInsights-Io-Operations-Api",
+                "Cloud-Azure-Management-ApplicationInsights-External-Calls-Api",
+                "Cloud-Azure-Management-ApplicationInsights-Exceptions-Api",
+                "Cloud-Azure-Management-ApplicationInsights-Cpu-Api",
+                "Cloud-Azure-Management-ApplicationInsights-Browser-Timings-Api",
+                "Cloud-Azure-Management-ApplicationInsights-Availability-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-management-applicationinsights-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ add proper tags management",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin Pack to monitor Azure Application Insights service using RestAPI or AZCLI.**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|Cloud-Azure-Network-ApplicationInsights-custom|\r\n|---|\r\n|Cpu|   \r\n|Memory| \r\n|Requests|            \r\n|Exceptions|     \r\n|Availability|   \r\n|IO-Operations|  \r\n|External-Calls|   \r\n|Browser-Timings|\r\n\r\nThis Plugin Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin Pack pour superviser les resources Azure Application Insights via RestAPI ou AZCLI.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponibles et services associ\u00e9s:\r\n\r\n|Cloud-Azure-Network-ApplicationInsights-custom|\r\n|---|\r\n|Cpu|    \r\n|Memory| \r\n|Requests|            \r\n|Exceptions|     \r\n|Availability|   \r\n|IO-Operations|  \r\n|External-Calls|   \r\n|Browser-Timings|\r\n\r\nCe Plugin Pack fournit un *provider* Host Discovery pour le module d\\'auto-d\u00e9couverte d\\'H\u00f4tes"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin Pack requires a newer version of the Plugin Pack Manager module >= 19.10.1\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure Application Insights",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_management_applicationinsights_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Management-ApplicationInsights-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-management-applicationinsights",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "SNMP",
+            "Azure",
+            "Microsoft",
+            "HostDisco",
+            "Rest",
+            "Restapi",
+            "API",
+            "insights",
+            "Application"
+        ],
+        "update_date": "1636823989",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les requ\u00eates de  l'application supervis\u00e9e par Azure Applications Insights.}\r\n\r\n{EN: Check Azure Application Insights monitored application requests.}",
+            "active_checks_enabled": 2,
+            "alias": "Requests",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Management-ApplicationInsights-Api-Requests",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Management-ApplicationInsights-Requests-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les pages consult\u00e9es de l'application supervis\u00e9e par Azure Applications Insights.}\r\n\r\n{EN: Check Azure Application Insights monitored application page views.}",
+            "active_checks_enabled": 2,
+            "alias": "Page-Views",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Management-ApplicationInsights-Api-Page-Views",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Management-ApplicationInsights-Page-Views-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation de la m\u00e9moire de l'application supervis\u00e9e par Azure Applications Insights.}\r\n\r\n{EN: Check Azure Application Insights monitored application memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Management-ApplicationInsights-Api-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Management-ApplicationInsights-Memory-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les op\u00e9ration de lecture/\u00e9criture de l'application supervis\u00e9e par Azure Applications Insights.}\r\n\r\n{EN: Check Azure Application Insights monitored application read and write operations.}",
+            "active_checks_enabled": 2,
+            "alias": "IO-Operations",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Management-ApplicationInsights-Api-Io-Operations",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Management-ApplicationInsights-Io-Operations-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les appels effectu\u00e9s par l'application supervis\u00e9e par Azure Applications Insightsen direction de ressources ext\u00e9rieures.}\r\n\r\n{EN: Check Azure Application Insights calls made by the application to external resources.}",
+            "active_checks_enabled": 2,
+            "alias": "External-Calls",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Management-ApplicationInsights-Api-External-Calls",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Management-ApplicationInsights-External-Calls-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les exceptions non intercept\u00e9es de l'application supervis\u00e9e par Azure Applications Insights.}\r\n\r\n{EN: Check Azure Application Insights monitored application uncaught exceptions.}",
+            "active_checks_enabled": 2,
+            "alias": "Exceptions",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Management-ApplicationInsights-Api-Exceptions",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Management-ApplicationInsights-Exceptions-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du processeur de l'application supervis\u00e9e par Azure Applications Insights.}\r\n\r\n{EN: Check Azure Application Insights monitored application CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Management-ApplicationInsights-Api-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Management-ApplicationInsights-Cpu-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la synchronisation de l'application supervis\u00e9e par Azure Applications Insights.}\r\n\r\n{EN: Check Azure Application Insights monitored application browser timings.}",
+            "active_checks_enabled": 2,
+            "alias": "Browser-Timings",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Management-ApplicationInsights-Api-Browser-Timings",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Management-ApplicationInsights-Browser-Timings-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la disponibilit\u00e9 de l'application supervis\u00e9e par Azure Applications Insights.}\r\n\r\n{EN: Check Azure Application Insights monitored application availability.}",
+            "active_checks_enabled": 2,
+            "alias": "Availability",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Management-ApplicationInsights-Api-Availability",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Management-ApplicationInsights-Availability-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

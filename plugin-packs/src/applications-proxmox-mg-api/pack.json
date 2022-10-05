@@ -1,0 +1,173 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_proxmox_mg_api.pl --plugin=apps::proxmox::mg::restapi::plugin --mode=version --hostname=\\'$HOSTADDRESS$\\' --url-path=\\'$_HOSTPROXMOXMGAPIURL$\\' --port=\\'$_HOSTPROXMOXMGAPIPORT$\\' --proto=\\'$_HOSTPROXMOXMGAPIPROTO$\\' --api-username=\\'$_HOSTPROXMOXMGAPIUSERNAME$\\' --api-password=\\'$_HOSTPROXMOXMGAPIPASSWORD$\\' --realm=\\'$_HOSTPROXMOXMGAPIREALM$\\' $_HOSTPROXMOXMGAPIEXTRAOPTIONS$ --warning-version=\\'$_SERVICEWARNINGVERSION$\\' --critical-version=\\'$_SERVICECRITICALVERSION$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Proxmox-Mg-Api-Version",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_proxmox_mg_api.pl --plugin=apps::proxmox::mg::restapi::plugin --mode=mail --hostname=\\'$HOSTADDRESS$\\' --url-path=\\'$_HOSTPROXMOXMGAPIURL$\\' --port=\\'$_HOSTPROXMOXMGAPIPORT$\\' --proto=\\'$_HOSTPROXMOXMGAPIPROTO$\\' --api-username=\\'$_HOSTPROXMOXMGAPIUSERNAME$\\' --api-password=\\'$_HOSTPROXMOXMGAPIPASSWORD$\\' --realm=\\'$_HOSTPROXMOXMGAPIREALM$\\' $_HOSTPROXMOXMGAPIEXTRAOPTIONS$ --hours=\\'$_SERVICEHOURS$\\' --timespan=\\'$_SERVICETIMESPAN$\\' --warning-mails-incoming=\\'$_SERVICEWARNINGMAILSINCOMING$\\' --critical-mails-incoming=\\'$_SERVICECRITICALMAILSINCOMING$\\' --warning-mails-outgoing=\\'$_SERVICEWARNINGMAILSOUTGOING$\\' --critical-mails-outgoing=\\'$_SERVICECRITICALMAILSOUTGOING$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' --warning-spam-incoming=\\'$_SERVICEWARNINGSPAMINCOMING$\\' --critical-spam-incoming=\\'$_SERVICECRITICALSPAMINCOMING$\\' --warning-spam-outgoing=\\'$_SERVICEWARNINGSPAMOUTGOING$\\' --critical-spam-outgoing=\\'$_SERVICECRITICALSPAMOUTGOING$\\' --warning-virus-incoming=\\'$_SERVICEWARNINGVIRUSINCOMING$\\' --critical-virus-incoming=\\'$_SERVICECRITICALVIRUSINCOMING$\\' --warning-virus-outgoing=\\'$_SERVICEWARNINGVIRUSOUTGOING$\\' --critical-virus-outgoing=\\'$_SERVICECRITICALVIRUSOUTGOING$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Proxmox-Mg-Api-Mail",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Proxmox Mail Gateway via l'API.}\r\n{EN: Template to check Proxmox Mail Gateway through API.}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Proxmog Mail Gateway throught API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "proxmox-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROMOXMGAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTPROMOXMGAPIPORT$",
+                    "value": "8006"
+                },
+                {
+                    "key": "$_HOSTPROMOXMGAPIURLPATH$",
+                    "value": "/api2/json"
+                },
+                {
+                    "key": "$_HOSTPROMOXMGAPIREALM$",
+                    "value": "pmg"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Proxmox-Mg-Api",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Proxmox-Mg-Version-Api",
+                "App-Proxmox-Mg-Mail-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "proxmox-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin Pack to monitor Proxmox Mail Gateway using RestAPI.**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|Apps-Proxmox-Mg-Api-custom|\r\n|---|\r\n|Mail|\r\n|Version|"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin Pack pour superviser Proxmox Mail Gateway via RestAPI.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponibles et services associ\u00e9s:\r\n\r\n|Apps-Proxmox-Mg-Api-custom|\r\n|---|\r\n|Mail|\r\n|Version|"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Proxmox Mail Gateway",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_proxmox_mg_api.pl",
+                "package_name": "centreon-plugin-Applications-Proxmox-Mg-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-proxmox-mg-api",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "API",
+            "Proxmox",
+            "MG",
+            "Media gateway",
+            "Application"
+        ],
+        "update_date": "1620046790",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le la version.}\r\n\r\n{EN: Check version.}",
+            "active_checks_enabled": 2,
+            "alias": "Version",
+            "check_timeperiod": "",
+            "command_name": "App-Proxmox-Mg-Api-Version",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Proxmox-Mg-Version-Api",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques mails.}\r\n\r\n{EN: Check mail statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Mail",
+            "check_timeperiod": "",
+            "command_name": "App-Proxmox-Mg-Api-Mail",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEHOURS$",
+                    "password": false,
+                    "value": "12"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMESPAN$",
+                    "password": false,
+                    "value": "1800"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Proxmox-Mg-Mail-Api",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

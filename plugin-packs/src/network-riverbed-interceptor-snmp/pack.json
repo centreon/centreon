@@ -1,0 +1,591 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Riverbed-Interceptor-SNMP-Storages-Discover",
+                "command_for_macro": "Net-Riverbed-Interceptor-SNMP-Storages-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$name$",
+                        "order": 0,
+                        "pattern": "(/dev.*|/run.*|/sys.*|/boot)",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Riverbed-Interceptor-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Riverbed-Interceptor-SNMP-Disk-Name",
+                "service_display_name": "Disk-$name$",
+                "service_template": "Net-Riverbed-Interceptor-Disk-Global-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Riverbed-Interceptor-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Riverbed-Interceptor-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$name$",
+                        "order": 0,
+                        "pattern": "^[Ll]o",
+                        "type": "exclusion"
+                    },
+                    {
+                        "object": "$status$",
+                        "order": 1,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Riverbed-Interceptor-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Riverbed-Interceptor-SNMP-Packet-Errors-Name",
+                "service_display_name": "Packet-Errors-$name$",
+                "service_template": "Net-Riverbed-Interceptor-Packet-Errors-Global-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Riverbed-Interceptor-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Riverbed-Interceptor-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$name$",
+                        "order": 0,
+                        "pattern": "^[Ll]o",
+                        "type": "exclusion"
+                    },
+                    {
+                        "object": "$status$",
+                        "order": 1,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Riverbed-Interceptor-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Riverbed-Interceptor-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Riverbed-Interceptor-Traffic-Global-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_riverbed_interceptor.pl --plugin=network::riverbed::interceptor::snmp::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Riverbed-Interceptor-SNMP-Storages-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_riverbed_interceptor.pl --plugin=network::riverbed::interceptor::snmp::plugin --mode=list-storages --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Riverbed-Interceptor-SNMP-Storages-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_riverbed_interceptor.pl --plugin=network::riverbed::interceptor::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Riverbed-Interceptor-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_riverbed_interceptor.pl --plugin=network::riverbed::interceptor::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Riverbed-Interceptor-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_riverbed_interceptor.pl --plugin=network::riverbed::interceptor::snmp::plugin --mode=status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-uptime=\\'$_SERVICEWARNINGUPTIME$\\' --critical-uptime=\\'$_SERVICECRITICALUPTIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Riverbed-Interceptor-SNMP-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_riverbed_interceptor.pl --plugin=network::riverbed::interceptor::snmp::plugin --mode=neighbor-connections --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-connection=\\'$_SERVICEWARNINGCONNECTION$\\' --critical-connection=\\'$_SERVICECRITICALCONNECTION$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Riverbed-Interceptor-SNMP-Neighbor-Connections",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_riverbed_interceptor.pl --plugin=network::riverbed::interceptor::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Riverbed-Interceptor-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_riverbed_interceptor.pl --plugin=network::riverbed::interceptor::snmp::plugin --mode=load --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Riverbed-Interceptor-SNMP-Load",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_riverbed_interceptor.pl --plugin=network::riverbed::interceptor::snmp::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-average=\\'$_SERVICEWARNING$\\'  --critical-average=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Riverbed-Interceptor-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_riverbed_interceptor.pl --plugin=network::riverbed::interceptor::snmp::plugin --mode=cpu-detailed --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-idle=\\'$_SERVICEWARNINGIDLE$\\'  --critical-idle=\\'$_SERVICECRITICALIDLE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Riverbed-Interceptor-SNMP-Cpu-Detailed",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_riverbed_interceptor.pl --plugin=network::riverbed::interceptor::snmp::plugin --mode=storage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --storage=\\'$_SERVICEFILTER$\\' --name --regexp --display-transform-src=\\'$_SERVICETRANSFORMSRC$\\' --display-transform-dst=\\'$_SERVICETRANSFORMDST$\\' --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Riverbed-Interceptor-SNMP-Disk-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_riverbed_interceptor.pl --plugin=network::riverbed::interceptor::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-errors --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Riverbed-Interceptor-SNMP-Packet-Errors-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_riverbed_interceptor.pl --plugin=network::riverbed::interceptor::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Riverbed-Interceptor-SNMP-Traffic-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_riverbed_interceptor.pl --plugin=network::riverbed::interceptor::snmp::plugin --mode=uptime --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-uptime=\\'$_SERVICEWARNING$\\' --critical-uptime=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Riverbed-Interceptor-SNMP-Uptime",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Riverbed Steelhead Interceptor en SNMP}\r\n{EN: Template to check Riverbed Steelhead Interceptor devices using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Riverbed Steelhead Interceptor devices using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "riverbed-128-2.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Riverbed-Interceptor-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Riverbed-Interceptor-Status-SNMP",
+                "Net-Riverbed-Interceptor-Neighbor-Connections-SNMP",
+                "Net-Riverbed-Interceptor-Memory-SNMP",
+                "Net-Riverbed-Interceptor-Load-SNMP",
+                "Net-Riverbed-Interceptor-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAQeSURBVHic7dpPaBxlGMfx7zub1iTSpoqxjdWbUUSR9uBBbIWCkBwKIhj0qIKLtAj16inQq70oqVUQPCgeFApeRGkt4rkgWP8hWiVojRZrq0ayTeb1kCjxZKI788zO7/eBpae+z5Pul+nObMDMzMzM5KToBZomP8E2hrmZggkyu4Gb1l7XAWPAjrU//3oBjADDmxzVA74icZpljqUTfNOXH2CTJAPIXUbpcAcFk8Bt616TrL7BdbvMCvvSCc7VPXio7oF1y11uYAt7gT0k9pLZw+qb3Qlebb0xhjgGTNU9uHVXgHyIW4F9JPYD9wG3B6+0USuMMJae4/c6hw78FSB3mWAr05RMUXA/mYnonf6jDotMAh/VOXTgAsizDPEj+0lMAdPA3WQSCcjBy/1f+e8PlbUZiADyDB3GuZfEDD/xCImd0TtVomBr3SMbG0B+mmtY5gEKHgYeZPU2zPqscQHkw9wJPEvJQQq2R+/Tdo0JIHcZXbsVepJm3aK1WiMCyE+xmw4ngXuid1ETHkB+hutZ4gyrT+GsZkXk8DxDhx5vkfzmRwkNgBt5HDgQuoO4sAByl1HgaNT8Rirqf5QVdwXYwkFgV9j8Jirr/R4AYv8LmAmc3UwlC3WPjAzAt3z/dJEXOV/30JAA8mMMA7dEzG6szEsp4OusmCvAMNvDZjfTm3RiPhDHPAga4Vd6IZP7oQcsAFeBKyRWKFkElihYIrP4rydkShK/kPiakvfS8Xp/B2C9sN8IyodZppnP/H8jc47EF8A8mQvAPInvyHzPcRYiLtVViXwUHP+PmLhAySckPiVzlsRZxvkszVJGr1aX8O8CavYD8CGJU5S8k+aYj14oWtsDuAS8T+IUBafT83wZvVDTtDWAHnCEcV5JswP8cbMGbQwgA4+mOU5GLzII2ngv/q7f/I1rXwCJ16NXGCTtC6DkYvQKg6R9AaRWfq6pTPsCsE1xAOIcgDgHIM4BiHMA4hyAOAcgzgGIcwDiHIA4ByDOAYhzAOIcgDgHIM4BiHMA4hyAOAcgzgGIcwDiHIA4ByDOAYhzAOIcgDgHIM4BiHMA4hyAOAcgzgGIcwDiHIA4ByDOAYhzAOIcgDgHIM4BiHMA4hyAOAcgzgGIcwDiHIA4ByDOAYhzAOIcgDgHIM4BiHMA4hyAOAcgzgGIcwDiHIA4ByDOAYhzAOIcgDgHIM4BiHMA4hyAOAcgzgGIcwDiHIA4ByDOAYhzAOIcgDgHIM4BiHMA4hyAOAcgzgGIcwDiHIC4yAB6FZ37R0XntlJkAD9XdO6lis5tpbgAMh9XcOoyV/m8gnNbKy6AxBsVnPl2epnFvp/bYnEBzPFanyM4T8mRPp4nIUUvkA8xTeIh4C5gG3DtBv9qSeIy8C2ZDyh4Nb3AlcoWNTMza5c/AedVpYd4GU2nAAAAAElFTkSuQmCC",
+            "name": "riverbed-128-2.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix(pack)missing-icon",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Riverbed SteelHead Interceptor via SNMP.\r\n\r\nAvailable services :\r\n* CPU usage\r\n* CPU detailed usage\r\n* Disk usage\r\n* Load average\r\n* Memory usage\r\n* Neighbor connections\r\n* Network interfaces packets error\r\n* Network interfaces traffic\r\n* Status\r\n* Uptime\r\n\r\nAvailable discovery rules :\r\n* Disk usage\r\n* Network interfaces packets error\r\n* Network interfaces traffic"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les \u00e9quipements Riverbed SteelHead Interceptor via SNMP :\r\n* Interfaces\r\n* Load-Average\r\n* Neighbor-Connections\r\n* Status"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Riverbed-Interceptor-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Riverbed-Interceptor-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Riverbed Interceptor",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_riverbed_interceptor.pl",
+                "package_name": "centreon-plugin-Network-Riverbed-Interceptor-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-riverbed-interceptor-snmp",
+        "status": "stable",
+        "status_message": "fix(pack)missing-icon",
+        "tags": [
+            "Hardware",
+            "Network",
+            "SNMP",
+            "Riverbed",
+            "SteelHead",
+            "Interceptor"
+        ],
+        "update_date": "1596008939",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le statut de l'\u00e9quipement.}\r\n\r\n{EN: Check the equipment status.}",
+            "active_checks_enabled": 2,
+            "alias": "Status",
+            "check_timeperiod": "",
+            "command_name": "Net-Riverbed-Interceptor-SNMP-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{health} !~ /Healthy/ || %{status} !~ /running/"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Riverbed-Interceptor-Status-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de connexions depuis les \"voisins\".}\r\n\r\n{EN: Check neighbor connections count.}",
+            "active_checks_enabled": 2,
+            "alias": "Neighbor-Connections",
+            "check_timeperiod": "",
+            "command_name": "Net-Riverbed-Interceptor-SNMP-Neighbor-Connections",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-Riverbed-Interceptor-Neighbor-Connections-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire vive (RAM)..}\r\n\r\n{EN: Check the rate of the utilization of memory (RAM).}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Riverbed-Interceptor-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Riverbed-Interceptor-Memory-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la charge serveur.}\r\n\r\n{EN: Check the server load average.}",
+            "active_checks_enabled": 2,
+            "alias": "Load",
+            "check_timeperiod": "",
+            "command_name": "Net-Riverbed-Interceptor-SNMP-Load",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "4,3,2"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "6,5,4"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Riverbed-Interceptor-Load-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine. Ce contr\u00f4le pourra remonter la moyenne du taux d'utilisation des CPU ainsi que le taux par CPU pour les CPU multi-coeur.}\r\n\r\n{EN: Check the rate of utilization of CPU for the machine. This check can give the average CPU utilization rate and the rate per CPU for multi-core CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Riverbed-Interceptor-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Riverbed-Interceptor-Cpu-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation d\u00e9taill\u00e9 CPU de la machine. Ce contr\u00f4le pourra remonter la moyenne du taux d'utilisation des CPU ainsi que le taux par CPU pour les CPU multi-coeur.}\r\n\r\n{EN: Check the detailed rate of utilization of CPU for the machine. This check can give the average CPU utilization rate and the rate per CPU for multi-core CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu-Detailed",
+            "check_timeperiod": "",
+            "command_name": "Net-Riverbed-Interceptor-SNMP-Cpu-Detailed",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIDLE$",
+                    "password": false,
+                    "value": "20:"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIDLE$",
+                    "password": false,
+                    "value": "10:"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Riverbed-Interceptor-Cpu-Detailed-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'espace libre disponible des disques. Pour chaque contr\u00f4le appara\u00eetra le point de montage des disques (\u00ab\u00a0label\u00a0\u00bb). Les seuils pourront \u00eatre en pourcentage, en espace libre restant.}\r\n\r\n{EN: Check the rate of free space on disks. For each checks the mount point of disks will appear (\u00ab label \u00bb). Thresholds can be in percentage or in free space remaining.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Riverbed-Interceptor-SNMP-Disk-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Riverbed-Interceptor-Disk-Global-SNMP",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le pourcentage de paquets en erreur/\u00e9cart\u00e9 de plusieurs interfaces r\u00e9seau.}\r\n\r\n{EN: Check packets on errors/discards of multiple network interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Packet-Errors-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Riverbed-Interceptor-SNMP-Packet-Errors-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Riverbed-Interceptor-Packet-Errors-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante des interfaces. Pour chaque contr\u00f4le appara\u00eetra le nom de l'interface (\u00ab\u00a0label\u00a0\u00bb raccourci d\u00e9crivant l'interface).}\r\n\r\n{EN: Check the bandwidth of interfaces. For each checks the name of the interface will appear (\u00ab label \u00bb shortcut describing the interface).}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Riverbed-Interceptor-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Riverbed-Interceptor-Traffic-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Dur\u00e9e depuis laquelle le serveur tourne sans interruption.}\r\n\r\n{EN: Time since the server has been working and available.}",
+            "active_checks_enabled": 2,
+            "alias": "Uptime",
+            "check_timeperiod": "",
+            "command_name": "Net-Riverbed-Interceptor-SNMP-Uptime",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-Riverbed-Interceptor-Uptime-SNMP",
+            "normal_check_interval": 60,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

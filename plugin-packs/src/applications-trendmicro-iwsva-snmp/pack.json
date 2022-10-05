@@ -1,0 +1,429 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-Trendmicro-Iwsva-SNMP-Interfaces-Discover",
+                "command_for_macro": "App-Trendmicro-Iwsva-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "App-Trendmicro-Iwsva-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "App-Trendmicro-Iwsva-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "App-Trendmicro-Iwsva-Traffic-Global-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_trendmicro_iwsva.pl --plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "App-Trendmicro-Iwsva-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_trendmicro_iwsva.pl --plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=$_HOSTSNMPCOMMUNITY$ $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "App-Trendmicro-Iwsva-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_trendmicro_iwsva.pl --plugin=os::linux::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Trendmicro-Iwsva-SNMP-Traffic-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_trendmicro_iwsva.pl --plugin=os::linux::snmp::plugin --mode=swap --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Trendmicro-Iwsva-SNMP-Swap",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_trendmicro_iwsva.pl --plugin=os::linux::snmp::plugin --mode=tcpcon --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\'  --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Trendmicro-Iwsva-SNMP-Proxy-Connections",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_trendmicro_iwsva.pl --plugin=os::linux::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Trendmicro-Iwsva-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_trendmicro_iwsva.pl --plugin=os::linux::snmp::plugin --mode=load --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Trendmicro-Iwsva-SNMP-Load",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_trendmicro_iwsva.pl --plugin=os::linux::snmp::plugin --mode=storage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --storage=\\'$_SERVICEFILTER$\\' --name --regexp --display-transform-src=\\'$_SERVICETRANSFORMSRC$\\' --display-transform-dst=\\'$_SERVICETRANSFORMDST$\\' --warning-usage=\\'$_SERVICEWARNING$\\' --critical-usage=\\'$_SERVICECRITICAL$\\' --warning-access=\\'$_SERVICEWARNINGACCESS$\\' --critical-access=\\'$_SERVICECRITICALACCESS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Trendmicro-Iwsva-SNMP-Disk-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_trendmicro_iwsva.pl --plugin=os::linux::snmp::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-average=\\'$_SERVICEWARNING$\\' --critical-average=\\'$_SERVICECRITICAL$\\' --warning-core=\\'$_SERVICEWARNINGCORE$\\' --critical-core=\\'$_SERVICECRITICALCORE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Trendmicro-Iwsva-SNMP-Cpu",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check TrendMicro InterScan Web Security Virtual Appliance using SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "App-Trend-Micro-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": "--snmp-timeout=10"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Trendmicro-Iwsva-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Trendmicro-Iwsva-Traffic-Global-SNMP",
+                "App-Trendmicro-Iwsva-Swap-SNMP",
+                "App-Trendmicro-Iwsva-Proxy-Connections-SNMP",
+                "App-Trendmicro-Iwsva-Memory-SNMP",
+                "App-Trendmicro-Iwsva-Load-SNMP",
+                "App-Trendmicro-Iwsva-Disk-Global-SNMP",
+                "App-Trendmicro-Iwsva-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "App-Trend-Micro-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Fix thresholds",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor TrendMicro InterScan Web Security Virtual Appliance via SNMP:\r\n* Cpu\r\n* Disk-Global\r\n* Load\r\n* Memory\r\n* Proxy-Connections\r\n* Swap\r\n* Traffic-Global"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller TrendMicro InterScan Web Security Virtual Appliance via SNMP :\r\n* Cpu\r\n* Disk-Global\r\n* Load\r\n* Memory\r\n* Proxy-Connections\r\n* Swap\r\n* Traffic-Global"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-TrendMicro-Iwsva\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp)\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Trendmicro-Iwsva-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "TrendMicro Iwsva",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_trendmicro_iwsva.pl",
+                "package_name": "centreon-plugin-Applications-TrendMicro-Iwsva",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Applications-TrendMicro-Iwsva",
+                "version": "20160524-1"
+            }
+        ],
+        "slug": "applications-trendmicro-iwsva-snmp",
+        "status": "stable",
+        "status_message": "Fix thresholds",
+        "tags": [
+            "InterScan Web Security",
+            "Iwsva",
+            "Security",
+            "Trend Micro",
+            "TrendMicro"
+        ],
+        "update_date": "1569515544",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante des interfaces.}\r\n\r\n{EN: Check the bandwidth of interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "App-Trendmicro-Iwsva-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Trendmicro-Iwsva-Traffic-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire virtuelle (SWAP)}\r\n\r\n{EN: Check virtual memory usage (SWAP)}",
+            "active_checks_enabled": 2,
+            "alias": "Swap",
+            "check_timeperiod": "",
+            "command_name": "App-Trendmicro-Iwsva-SNMP-Swap",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "10"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "30"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Trendmicro-Iwsva-Swap-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des connexions proxy.}\r\n\r\n{EN: Check proxy connections usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Proxy-Connections",
+            "check_timeperiod": "",
+            "command_name": "App-Trendmicro-Iwsva-SNMP-Proxy-Connections",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--service='proxy,,,3128'"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Trendmicro-Iwsva-Proxy-Connections-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire}\r\n\r\n{EN: Check the rate of the utilization of memory.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "App-Trendmicro-Iwsva-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Trendmicro-Iwsva-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la charge serveur.}\r\n\r\n{EN: Check the server load average.}",
+            "active_checks_enabled": 2,
+            "alias": "Load",
+            "check_timeperiod": "",
+            "command_name": "App-Trendmicro-Iwsva-SNMP-Load",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "4,3,2"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "6,5,4"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Trendmicro-Iwsva-Load-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'espace libre disponible des disques.}\r\n\r\n{EN: Check the rate of free space on disks.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Global",
+            "check_timeperiod": "",
+            "command_name": "App-Trendmicro-Iwsva-SNMP-Disk-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Trendmicro-Iwsva-Disk-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation CPU.}\r\n\r\n{EN: Check CPU usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "App-Trendmicro-Iwsva-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Trendmicro-Iwsva-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

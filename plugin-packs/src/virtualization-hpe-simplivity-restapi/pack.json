@@ -1,0 +1,312 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Virt-Hpe-Simplivity-Restapi-Hosts-Discover",
+                "command_for_macro": "Virt-Hpe-Simplivity-Restapi-Hosts-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Virt-Hpe-Simplivity-Restapi"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Virt-Hpe-Simplivity-Restapi-Host-Name",
+                "service_display_name": "Host-$name$",
+                "service_template": "Virt-Hpe-Simplivity-Hosts-Restapi"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hpe_simplivity_restapi.pl --plugin=apps::virtualization::hpe::simplivity::restapi::plugin --mode=list-hosts --hostname=127.0.0.1 --api-username=none --api-password=none --disco-format\\\"",
+            "name": "Virt-Hpe-Simplivity-Restapi-Hosts-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hpe_simplivity_restapi.pl --plugin=apps::virtualization::hpe::simplivity::restapi::plugin --mode=list-hosts --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTOMNISTACKAPIUSERNAME$\\' --api-password=\\'$_HOSTOMNISTACKAPIPASSWORD$\\' --proto=\\'$_HOSTOMNISTACKAPIPROTO$\\' --port=\\'$_HOSTOMNISTACKAPIPORT$\\' $_HOSTOMNISTACKAPIEXTRAOPTIONS$ --disco-show --statefile-suffix=\\'-autodiscovery\\'\\\"",
+            "name": "Virt-Hpe-Simplivity-Restapi-Hosts-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hpe_simplivity_restapi.pl --plugin=apps::virtualization::hpe::simplivity::restapi::plugin --mode=omnistack-clusters --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTOMNISTACKAPIUSERNAME$\\' --api-password=\\'$_HOSTOMNISTACKAPIPASSWORD$\\' --proto=\\'$_HOSTOMNISTACKAPIPROTO$\\' --port=\\'$_HOSTOMNISTACKAPIPORT$\\' $_HOSTOMNISTACKAPIEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-ratio-deduplication=\\'$_SERVICEWARNINGRATIODEDUPLICATION$\\' --critical-ratio-deduplication=\\'$_SERVICECRITICALRATIODEDUPLICATION$\\' --warning-ratio-compression=\\'$_SERVICEWARNINGRATIOCOMPRESSION$\\' --critical-ratio-compression=\\'$_SERVICECRITICALRATIOCOMPRESSION$\\' --warning-ratio-efficiency=\\'$_SERVICEWARNINGRATIOEFFICIENCY$\\' --critical-ratio-efficiency=\\'$_SERVICECRITICALRATIOEFFICIENCY$\\' --warning-space-usage=\\'$_SERVICEWARNINGSPACEUSAGE$\\' --critical-space-usage=\\'$_SERVICECRITICALSPACEUSAGE$\\' --warning-space-usage-free=\\'$_SERVICEWARNINGSPACEUSAGEFREE$\\' --critical-space-usage-free=\\'$_SERVICECRITICALSPACEUSAGEFREE$\\' --warning-space-usage-prct=\\'$_SERVICEWARNINGSPACEUSAGEPRCT$\\' --critical-space-usage-prct=\\'$_SERVICECRITICALSPACEUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-Hpe-Simplivity-Restapi-Omnistack-Clusters",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hpe_simplivity_restapi.pl --plugin=apps::virtualization::hpe::simplivity::restapi::plugin --mode=hosts --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTOMNISTACKAPIUSERNAME$\\' --api-password=\\'$_HOSTOMNISTACKAPIPASSWORD$\\' --proto=\\'$_HOSTOMNISTACKAPIPROTO$\\' --port=\\'$_HOSTOMNISTACKAPIPORT$\\' $_HOSTOMNISTACKAPIEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-host-components-green=\\'$_SERVICEWARNINGHOSTCOMPONENTSGREEN$\\' --critical-host-components-green=\\'$_SERVICECRITICALHOSTCOMPONENTSGREEN$\\' --warning-host-components-yellow=\\'$_SERVICEWARNINGHOSTCOMPONENTSYELLOW$\\' --critical-host-components-yellow=\\'$_SERVICECRITICALHOSTCOMPONENTSYELLOW$\\' --warning-host-components-red=\\'$_SERVICEWARNINGHOSTCOMPONENTSRED$\\' --critical-host-components-red=\\'$_SERVICECRITICALHOSTCOMPONENTSRED$\\' --warning-host-components-unknown=\\'$_SERVICEWARNINGHOSTCOMPONENTSUNKNOWN$\\' --critical-host-components-unknown=\\'$_SERVICECRITICALHOSTCOMPONENTSUNKNOWN$\\' --warning-hosts-alive=\\'$_SERVICEWARNINGHOSTSALIVE$\\' --critical-hosts-alive=\\'$_SERVICECRITICALHOSTSALIVE$\\' --warning-hosts-faulty=\\'$_SERVICEWARNINGHOSTSFAULTY$\\' --critical-hosts-faulty=\\'$_SERVICECRITICALHOSTSFAULTY$\\' --warning-hosts-managed=\\'$_SERVICEWARNINGHOSTSMANAGED$\\' --critical-hosts-managed=\\'$_SERVICECRITICALHOSTSMANAGED$\\' --warning-hosts-removed=\\'$_SERVICEWARNINGHOSTSREMOVED$\\' --critical-hosts-removed=\\'$_SERVICECRITICALHOSTSREMOVED$\\' --warning-hosts-suspected=\\'$_SERVICEWARNINGHOSTSSUSPECTED$\\' --critical-hosts-suspected=\\'$_SERVICECRITICALHOSTSSUSPECTED$\\' --warning-hosts-unknown=\\'$_SERVICEWARNINGHOSTSUNKNOWN$\\' --critical-hosts-unknown=\\'$_SERVICECRITICALHOSTSUNKNOWN$\\' --unknown-raid-status=\\'$_SERVICEUNKNOWNRAIDSTATUS$\\' --warning-raid-status=\\'$_SERVICEWARNINGRAIDSTATUS$\\' --critical-raid-status=\\'$_SERVICECRITICALRAIDSTATUS$\\' --unknown-physical-drive-status=\\'$_SERVICEUNKNOWNPHYSICALDRIVESTATUS$\\' --warning-physical-drive-status=\\'$_SERVICEWARNINGPHYSICALDRIVESTATUS$\\' --critical-physical-drive-status=\\'$_SERVICECRITICALPHYSICALDRIVESTATUS$\\' --unknown-logical-drive-status=\\'$_SERVICEUNKNOWNLOGICALDRIVESTATUS$\\' --warning-logical-drive-status=\\'$_SERVICEWARNINGLOGICALDRIVESTATUS$\\' --critical-logical-drive-status=\\'$_SERVICECRITICALLOGICALDRIVESTATUS$\\' --unknown-host-status=\\'$_SERVICEUNKNOWNHOSTSTATUS$\\' --warning-host-status=\\'$_SERVICEWARNINGHOSTSTATUS$\\' --critical-host-status=\\'$_SERVICECRITICALHOSTSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-Hpe-Simplivity-Restapi-Hosts",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hpe_simplivity_restapi.pl --plugin=apps::virtualization::hpe::simplivity::restapi::plugin --mode=virtual-machines --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTOMNISTACKAPIUSERNAME$\\' --api-password=\\'$_HOSTOMNISTACKAPIPASSWORD$\\' --proto=\\'$_HOSTOMNISTACKAPIPROTO$\\' --port=\\'$_HOSTOMNISTACKAPIPORT$\\' $_HOSTOMNISTACKAPIEXTRAOPTIONS$ --filter-vm-name=\\'$_SERVICEFILTERVMNAME$\\' --unknown-ha-status=\\'$_SERVICEUNKNOWNHASTATUS$\\' --warning-ha-status=\\'$_SERVICEWARNINGHASTATUS$\\' --critical-ha-status=\\'$_SERVICECRITICALHASTATUS$\\' --warning-space-usage=\\'$_SERVICEWARNINGSPACEUSAGE$\\' --critical-space-usage=\\'$_SERVICECRITICALSPACEUSAGE$\\' --warning-space-usage-free=\\'$_SERVICEWARNINGSPACEUSAGEFREE$\\' --critical-space-usage-free=\\'$_SERVICECRITICALSPACEUSAGEFREE$\\' --warning-space-usage-prct=\\'$_SERVICEWARNINGSPACEUSAGEPRCT$\\' --critical-space-usage-prct=\\'$_SERVICECRITICALSPACEUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-Hpe-Simplivity-Restapi-Virtual-Machines",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser HPE Simplivity via la Rest API d'Omnistack}\r\n{EN: Template to check HPE Simplivity using OmniStack Rest API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check HPE Simplivity using OmniStack RestAPI",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "hpe-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTOMNISTACKAPIPORT$",
+                    "value": "443"
+                },
+                {
+                    "key": "$_HOSTOMNISTACKAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTOMNISTACKAPIEXTRAOPTIONS$",
+                    "value": "--http-backend=curl --insecure"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Hpe-Simplivity-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Virt-Hpe-Simplivity-Omnistack-Clusters-Restapi",
+                "Virt-Hpe-Simplivity-Hosts-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAAPnAAAD5wHDtfxxAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAASJJREFUeJzt2iFOBEEQQNHqyQosCsUpEISEQ+A5wGokDgeOU+DhBAQkCadYgSVrSbbRIxBLapuw9d4BqiaTn0wnPREAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADNJSpz3eXsXULlNnMrfpD3FxfZ81bpE1KCIipnYcPU5SZzI3tdfUcZnD+H8EUJwAiss9A/ykxVv06EN27ZfTXS8YE8DH4Xksl19Ddu2L55tFrA92/s58AooTQHECKE4AxQmgOAEUJ4DiBFCcAIoTQHECKE4AxQmguDG3gUefL/F05zp4G+sxawb9D9DPhuxhaz4BxQmgOAEUl3sG2PRVTO09dSZzm77660cAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4Fe+AcFgHkcCS2TfAAAAAElFTkSuQmCC",
+            "name": "hpe-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor HPE Simplivity using OmniStack Rest API:\r\n* Hosts\r\n* Omnistack-clusters\r\n* Virtual-machines"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser HPE Simplivity via la Rest API Omnistack :\r\n* Hosts\r\n* Omnistack-clusters\r\n* Virtual-machines\r\n"
+            }
+        ],
+        "discovery_category": "virtualization",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "HPE Simplivity Rest API",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_hpe_simplivity_restapi.pl",
+                "package_name": "centreon-plugin-Virtualization-Hpe-Simplivity-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "virtualization-hpe-simplivity-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "HPE",
+            "Simplivity",
+            "Virtualization",
+            "Omnistack"
+        ],
+        "update_date": "1641466097",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les clusters Omnistack.}\r\n\r\n{EN: Check omnistack clusters.}",
+            "active_checks_enabled": 2,
+            "alias": "Omnistack-Clusters",
+            "check_timeperiod": "",
+            "command_name": "Virt-Hpe-Simplivity-Restapi-Omnistack-Clusters",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Hpe-Simplivity-Omnistack-Clusters-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les h\u00f4tes.}\r\n\r\n{EN: Check hosts.}",
+            "active_checks_enabled": 2,
+            "alias": "Hosts",
+            "check_timeperiod": "",
+            "command_name": "Virt-Hpe-Simplivity-Restapi-Hosts",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNRAIDSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /unknown/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGRAIDSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /yellow/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALRAIDSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /red/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNPHYSICALDRIVESTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /unknown/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGPHYSICALDRIVESTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /yellow/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALPHYSICALDRIVESTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /red/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNLOGICALDRIVESTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /unknown/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGLOGICALDRIVESTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /yellow/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALLOGICALDRIVESTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /red/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNHOSTSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /unknown/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGHOSTSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /suspected/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALHOSTSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /faulty/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Hpe-Simplivity-Hosts-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les machines virtuelles.}\r\n\r\n{EN: Check virtual machines.}",
+            "active_checks_enabled": 2,
+            "alias": "Virtual-Machines",
+            "check_timeperiod": "",
+            "command_name": "Virt-Hpe-Simplivity-Restapi-Virtual-Machines",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNHASTATUS$",
+                    "password": false,
+                    "value": "%{ha_status} =~ /unknown/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGHASTATUS$",
+                    "password": false,
+                    "value": "%{ha_status} =~ /degraded/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-Hpe-Simplivity-Virtual-Machines-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

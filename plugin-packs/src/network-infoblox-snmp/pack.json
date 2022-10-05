@@ -1,0 +1,303 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Infoblox-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Infoblox-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Infoblox-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "INTERFACENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Infoblox-SNMP-Interface-Name",
+                "service_display_name": "Interface-$name$",
+                "service_template": "Net-Infoblox-Interfaces-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_infoblox_snmp.pl --plugin=network::infoblox::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Infoblox-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_infoblox_snmp.pl --plugin=network::infoblox::snmp::plugin --mode=list-interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Infoblox-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_infoblox_snmp.pl --plugin=network::infoblox::snmp::plugin --mode=system --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-cpu1-temperature=\\'$_SERVICEWARNINGCPU1TEMPERATURE$\\' --critical-cpu1-temperature=\\'$_SERVICECRITICALCPU1TEMPERATURE$\\' --warning-cpu2-temperature=\\'$_SERVICEWARNINGCPU2TEMPERATURE$\\' --critical-cpu2-temperature=\\'$_SERVICECRITICALCPU2TEMPERATURE$\\' --warning-cpu-load=\\'$_SERVICEWARNINGCPULOAD$\\' --critical-cpu-load=\\'$_SERVICECRITICALCPULOAD$\\' --warning-memory-usage=\\'$_SERVICEWARNINGMEMORYUSAGE$\\' --critical-memory-usage=\\'$_SERVICECRITICALMEMORYUSAGE$\\' --warning-swap-usage=\\'$_SERVICEWARNINGSWAPUSAGE$\\' --critical-swap-usage=\\'$_SERVICECRITICALSWAPUSAGE$\\' --warning-ha-status=\\'$_SERVICEWARNINGHASTATUS$\\' --critical-ha-status=\\'$_SERVICECRITICALHASTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Infoblox-SNMP-System",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_infoblox_snmp.pl --plugin=network::infoblox::snmp::plugin --mode=services --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Infoblox-SNMP-Services",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_infoblox_snmp.pl --plugin=network::infoblox::snmp::plugin --mode=dns-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-success-count=\\'$_SERVICEWARNINGSUCCESSCOUNT$\\' --critical-success-count=\\'$_SERVICECRITICALSUCCESSCOUNT$\\' --warning-referral-count=\\'$_SERVICEWARNINGREFERRALCOUNT$\\' --critical-referral-count=\\'$_SERVICECRITICALREFERRALCOUNT$\\' --warning-nxrrset-count=\\'$_SERVICEWARNINGNXRRSETCOUNT$\\' --critical-nxrrset-count=\\'$_SERVICECRITICALNXRRSETCOUNT$\\' --warning-failure-count=\\'$_SERVICEWARNINGFAILURECOUNT$\\' --critical-failure-count=\\'$_SERVICECRITICALFAILURECOUNT$\\' --warning-aa-latency-1m=\\'$_SERVICEWARNINGAALATENCY1M$\\' --critical-aa-latency-1m=\\'$_SERVICECRITICALAALATENCY1M$\\' --warning-aa-latency-5m=\\'$_SERVICEWARNINGAALATENCY5M$\\' --critical-aa-latency-5m=\\'$_SERVICECRITICALAALATENCY5M$\\' --warning-aa-latency-15m=\\'$_SERVICEWARNINGAALATENCY15M$\\' --critical-aa-latency-15m=\\'$_SERVICECRITICALAALATENCY15M$\\' --warning-total-query-rate=\\'$_SERVICEWARNINGTOTALQUERYRATE$\\' --critical-total-query-rate=\\'$_SERVICECRITICALTOTALQUERYRATE$\\' --warning-total-hit-ratio=\\'$_SERVICEWARNINGTOTALHITRATIO$\\' --critical-total-hit-ratio=\\'$_SERVICECRITICALTOTALHITRATIO$\\' --warning-naa-latency-1m=\\'$_SERVICEWARNINGNAALATENCY1M$\\' --critical-naa-latency-1m=\\'$_SERVICECRITICALNAALATENCY1M$\\' --warning-naa-latency-5m=\\'$_SERVICEWARNINGNAALATENCY5M$\\' --critical-naa-latency-5m=\\'$_SERVICECRITICALNAALATENCY5M$\\' --warning-naa-latency-15m=\\'$_SERVICEWARNINGNAALATENCY15M$\\' --critical-naa-latency-15m=\\'$_SERVICECRITICALNAALATENCY15M$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Infoblox-SNMP-Dns-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_infoblox_snmp.pl --plugin=network::infoblox::snmp::plugin --mode=dhcp-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-total-discovers=\\'$_SERVICEWARNINGTOTALDISCOVERS$\\' --critical-total-discovers=\\'$_SERVICECRITICALTOTALDISCOVERS$\\' --warning-total-requests=\\'$_SERVICEWARNINGTOTALREQUESTS$\\' --critical-total-requests=\\'$_SERVICECRITICALTOTALREQUESTS$\\' --warning-total-releases=\\'$_SERVICEWARNINGTOTALRELEASES$\\' --critical-total-releases=\\'$_SERVICECRITICALTOTALRELEASES$\\' --warning-total-offers=\\'$_SERVICEWARNINGTOTALOFFERS$\\' --critical-total-offers=\\'$_SERVICECRITICALTOTALOFFERS$\\' --warning-total-acks=\\'$_SERVICEWARNINGTOTALACKS$\\' --critical-total-acks=\\'$_SERVICECRITICALTOTALACKS$\\' --warning-total-nacks=\\'$_SERVICEWARNINGTOTALNACKS$\\' --critical-total-nacks=\\'$_SERVICECRITICALTOTALNACKS$\\' --warning-total-declines=\\'$_SERVICEWARNINGTOTALDECLINES$\\' --critical-total-declines=\\'$_SERVICECRITICALTOTALDECLINES$\\' --warning-total-informs=\\'$_SERVICEWARNINGTOTALINFORMS$\\' --critical-total-informs=\\'$_SERVICECRITICALTOTALINFORMS$\\' --warning-total-others=\\'$_SERVICEWARNINGTOTALOTHERS$\\' --critical-total-others=\\'$_SERVICECRITICALTOTALOTHERS$\\' --warning-subnet-used=\\'$_SERVICEWARNINGSUBNETUSED$\\' --critical-subnet-used=\\'$_SERVICECRITICALSUBNETUSED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Infoblox-SNMP-Dhcp-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_infoblox_snmp.pl --plugin=network::infoblox::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --add-errors --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Infoblox-SNMP-Interfaces",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Infoblox en SNMP}\r\n{EN: Template to check Infoblox equipments using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Infoblox equipments in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "infoblox-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Infoblox-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Infoblox-System-SNMP",
+                "Net-Infoblox-Services-SNMP",
+                "Net-Infoblox-Dns-Usage-SNMP",
+                "Net-Infoblox-Dhcp-Usage-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "infoblox-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* break change: remove services cpu/memory\r\n* add service system\r\n* add service discovery interfaces",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Infoblox equipments via SNMP:\r\n* Dhcp\r\n* Dns\r\n* Interfaces\r\n* Services\r\n* System"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un \u00e9quipement Infoblox via SNMP :\r\n* Dhcp\r\n* Dns\r\n* Interfaces\r\n* Services\r\n* System"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Infoblox SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_infoblox_snmp.pl",
+                "package_name": "centreon-plugin-Network-Infoblox-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-infoblox-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Infoblox",
+            "Network",
+            "SNMP",
+            "DNS",
+            "DHCP"
+        ],
+        "update_date": "1622635154",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le du syst\u00e8me.}\r\n\r\n{EN: Check system.}",
+            "active_checks_enabled": 2,
+            "alias": "System",
+            "check_timeperiod": "",
+            "command_name": "Net-Infoblox-SNMP-System",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Infoblox-System-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les services.}\r\n\r\n{EN: Check services.}",
+            "active_checks_enabled": 2,
+            "alias": "Services",
+            "check_timeperiod": "",
+            "command_name": "Net-Infoblox-SNMP-Services",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Infoblox-Services-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation DNS.}\r\n\r\n{EN: Check DNS usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Dns-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Infoblox-SNMP-Dns-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Infoblox-Dns-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation DHCP.}\r\n\r\n{EN: Check DHCP usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Dhcp-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Infoblox-SNMP-Dhcp-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Infoblox-Dhcp-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces.}\r\n\r\n{EN: Check interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "Net-Infoblox-SNMP-Interfaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} !~ /up|dormant/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --no-skipped-counters"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Infoblox-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

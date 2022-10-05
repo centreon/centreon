@@ -1,0 +1,121 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ibm_ts2900.pl --plugin=storage::ibm::ts2900::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-IBM-Ts2900-SNMP-Hardware",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check IBM TS2900 using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "Hardware-IBM-64.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-IBM-TS2900-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Storage-IBM-Ts2900-Hardware-Global-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAACxIAAAsSAdLdfvwAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuOWwzfk4AAASXSURBVGhD7VddbxtFFOX3QYV44RWk8o4QoIJ4aiilAkooFUhQ2gYFFGgJidsiRKuQ2m2JE0rz0Xz4I45tYqd27NiOvf6M7ZiTmcn13cnuEqqgVao9Og/ee4+v5+ze2bl+rnfM4RlwG54Bt+EZcBueAbfhGXAbngG34RlwG54Bt+EZcBvPkIFbM+lLv8Uc+DhZqjY7WtCSw5OJPyNb7XZXlRa4aV9/s9RQIoZ41tBkRCxVibiBU1fnnj8dcODYVCq33dCCDnzl0+B0eEtV7/XeujyrCYgj/qQSMXzmC2syIpaqRNzAdrW1VW46sN5qd3d3+5EKIwXNLFSaqjrVt9KXay0lYigZtutBKSXiBvyLm6N/rDswulFpNNta8DBM5Wv/Wj9T2NMQYk8qmoATpZTuf20h4sVbEdR/076FQHS2XIbEmR+XNAGndQul8lXcYwcWjWanu6sFD8ONQh3113PVSLpiR2TlMiQSWafFYKlKxw0QVta37z7OEqvNtkqYMRXKTy5kJe8t9Z8pUDRalAL5VgZQn2eJ1EWJTYMvgBhJl6WAw8LAJz+v8OeFm6ESZrw6GCTNy+ceqKjA3FqRUuAbl2ZVQmBwPMSzxAu+sBS8N7ygpSS/EK2owcLA6pPKVChHrNk8gblYiTQPo6Z7jLcEpUDtzmGD8iwRtqUAZwgug6E8iKcniA95y1t5NAYcOB9XyyLYGQCxW3B+aUFiPGOoEgxH00L29KO51Rf2obXQaxdn6PPAyOLrXz+iy5Of91Pgl79EVQkGCwPhVDmwuEm028QzkS0us+RCoqTUDBFzfTQYfX6wnKPPIE+BeP+oEgwWBjKFBjwQmzsdlTBjLWNwmSU3zMeTRKZY5xqMTKsbFR6RRP1Wu8MjWauRycLA+bEja6EXz9z7K6bvAa2FcDgOjFgcW2evLWWLdR45bAs9Wi34gmmi5aAC3JnNcJkdJ+Yy6gv7wO7nAown2NZjU+vjQcHplC8IpvEEqo0drjz4PgAsDGzXWphviZ3OrkqYgaGKy1RUAF/hKYxlKiFQru3wLAZEBDHh8aCcAtudLg8aDYvdeGQtpKIC+ApPnbwwrRICB1sIwY9Gl3lw0BdC8Clb6P5SbuhOjIi5QCXMuH7/76GJOFFFBXD/Lt+OEYcm1lRCAHMHry/fcnjDiMu1K4LoHwSNepsrca6JAib0DaAQTlAH4nXU7e6dsv+V+B8n6ne0uCRqSlTqOzJS3W8Vu5/jb/a+gbevOI27IPbW043TH4+uoL7dOC1bCMCoIyPf3FajtdZCROtx+kYw9dWvUQcuJku4SVrwMJQHEPxrcUnUlAvApCAjNFpju5OM88a01X/iY4q+gXe+nX/htF/yxEDgxPv+PnE5ELg5k8bjJo2Jml7wpQ8CPwSS4iW5h1NX+/U5qYWA4cnE93cT6kKc2ZpY8t2heaXgBr6bTJ69tnzuJ0V81vgwWsAz1YIH+eH15cHxMA6mfNl0OAz/HteUkqipFOJfW1r8gZYoVVuaWJKbfIZa6JjCM+A2PANuwzPgNjwDbsMz4DY8A27DM+A2PANuwzPgLnq9fwA6R9kjCHBwCAAAAABJRU5ErkJggg==",
+            "name": "Hardware-IBM-64.png"
+        }
+    ],
+    "information": {
+        "author": "centreon",
+        "changelog": "+ first release of plugin-pack to monitor IBM TS2900 Tape Library",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor IBM TS2900 tape library with SNMP :\r\n* Hardware-Global"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les IBM TS2900 tape library via SNMP :\r\n* Hardware-Global"
+            }
+        ],
+        "discovery_category": "",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Storage-Ibm-Ts2900-Snmp\r\n\r\n## SNMP\r\nSNMP must be configured on the monitored host\r\n\r\n## Centreon Configuration\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Storage-IBM-TS2900-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "IBM TS2900",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_ibm_ts2900.pl",
+                "package_name": "centreon-plugin-Hardware-Storage-Ibm-Ts2900-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-storage-ibm-ts2900-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Hardware",
+            "Storage",
+            "Tape",
+            "TS2900"
+        ],
+        "update_date": "1502293145",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'ensemble du mat\u00e9riel.}\r\n\r\n{EN: Check all hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-IBM-Ts2900-SNMP-Hardware",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-IBM-Ts2900-Hardware-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

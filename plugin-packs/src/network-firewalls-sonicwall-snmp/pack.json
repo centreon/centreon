@@ -1,0 +1,248 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sonicwall_snmp.pl --plugin=network::sonicwall::snmp::plugin --mode=vpn --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-FW-Sonicwall-SNMP-Vpn",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sonicwall_snmp.pl --plugin=network::sonicwall::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-FW-Sonicwall-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sonicwall_snmp.pl --plugin=network::sonicwall::snmp::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-FW-Sonicwall-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sonicwall_snmp.pl --plugin=network::sonicwall::snmp::plugin --mode=connections --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-FW-Sonicwall-SNMP-Connections",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les pare-feux Sonicwall via SNMP}\r\n{EN: Template to check Sonicwall firewalls using SNMP}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Sonicwall firewall using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "sonicwall-128x128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-FW-Sonicwall-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-FW-Sonicwall-Vpn-SNMP",
+                "Net-FW-Sonicwall-Memory-SNMP",
+                "Net-FW-Sonicwall-Cpu-SNMP",
+                "Net-FW-Sonicwall-Connections-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "sonicwall-128x128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ doc / dep update",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Sonicwall firewall via SNMP:\r\n* Connections\r\n* Cpu\r\n* Memory\r\n* Vpn"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les pare-feux Sonicwall via SNMP:\r\n* Connections\r\n* Cpu\r\n* Memory\r\n* Vpn"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Sonicwall",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_sonicwall_snmp.pl",
+                "package_name": "centreon-plugin-Network-Firewalls-Sonicwall-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "centreon-plugin-Network-Firewalls-Sonicwall-Snmp",
+                "version": "20180427-1"
+            }
+        ],
+        "slug": "network-firewalls-sonicwall-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Sonicwall",
+            "Firewall",
+            "Network",
+            "Hardware",
+            "SNMP",
+            "Security"
+        ],
+        "update_date": "1628801034",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le trafic entrant et sortant sur les tunnels VPN.}\r\n\r\n{EN: Check inbound and outbound traffic on VPN tunnels.}",
+            "active_checks_enabled": 2,
+            "alias": "Vpn",
+            "check_timeperiod": "",
+            "command_name": "Net-FW-Sonicwall-SNMP-Vpn",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-FW-Sonicwall-Vpn-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire.}\r\n\r\n{EN: Check utilization of memory.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-FW-Sonicwall-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGUSAGE$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALUSAGE$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-FW-Sonicwall-Memory-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU.}\r\n\r\n{EN: Check utilization of CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-FW-Sonicwall-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGUSAGE$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALUSAGE$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-FW-Sonicwall-Cpu-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation des connexions.}\r\n\r\n{EN: Check utilization of connections.}",
+            "active_checks_enabled": 2,
+            "alias": "Connections",
+            "check_timeperiod": "",
+            "command_name": "Net-FW-Sonicwall-SNMP-Connections",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGUSAGE$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALUSAGE$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-FW-Sonicwall-Connections-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

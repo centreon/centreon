@@ -1,0 +1,163 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_overland_neo_snmp.pl --plugin=storage::overland::neo::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Overland-Neo-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_overland_neo_snmp.pl --plugin=storage::overland::neo::snmp::plugin --mode=eventlog --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-severity=\\'$_SERVICEFILTERSEVERITY$\\' --filter-message=\\'$_SERVICEFILTERMESSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Overland-Neo-SNMP-Eventlog",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Overland Neo Series using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [
+                {
+                    "key": "$_HOSTSNMPEXTRAOPTIONS$",
+                    "value": "--snmp-force-getnext"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Overland-Neo-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Storage-Overland-Neo-Hardware-Global-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ fix hardcoded snmp community and version",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin Pack to monitor Overland Neo storage using SNMP:\r\n* Eventlog\r\n* Hardware-Global"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin Pack pour surveiller un stockage Overland Neo via SNMP :\r\n* Eventlog\r\n* Hardware-Global"
+            }
+        ],
+        "discovery_category": "storage",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Storage-Overland-Neo-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Storage-Overland-Neo-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Overland Neo",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_overland_neo_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Storage-Overland-Neo-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "centreon-plugin-Hardware-Storage-Overland-Neo-Snmp",
+                "version": "20161212-1"
+            }
+        ],
+        "slug": "hardware-storage-overland-neo-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "SNMP",
+            "Overland",
+            "Neo",
+            "Storage",
+            "Hardware"
+        ],
+        "update_date": "1499675510",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le du mat\u00e9riel.}\r\n\r\n{EN: Check hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Overland-Neo-SNMP-Hardware",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Storage-Overland-Neo-Hardware-Global-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les journaux d'\u00e9v\u00e9nements.}\r\n\r\n{EN: Check eventlogs.}",
+            "active_checks_enabled": 2,
+            "alias": "Eventlog",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Overland-Neo-SNMP-Eventlog",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERSEVERITY$",
+                    "password": false,
+                    "value": "hard|severe"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Storage-Overland-Neo-Eventlog-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

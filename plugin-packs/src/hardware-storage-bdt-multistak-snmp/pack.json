@@ -1,0 +1,126 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_bdt_multistak_snmp.pl --plugin=storage::bdt::multistak::snmp::plugin --mode=hardware --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Storage-Bdt-Multistak-SNMP-Hardware",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements BDT MultiStak en SNMP}\r\n{EN: Template to check BDT MultiStak using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check BDT MultiStak using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "bdt-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Bdt-Multistak-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Storage-Bdt-Multistak-Hardware-Global-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "bdt-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor BDT MultiStak via SNMP:\r\n* Hardware-Global"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller BDT MultiStak via SNMP :\r\n* Hardware-Global"
+            }
+        ],
+        "discovery_category": "storage",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "BDT MultiStak SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_bdt_multistak_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Storage-Bdt-Multistak-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-storage-bdt-multistak-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "BDT",
+            "MultiStak",
+            "SNMP",
+            "Pure Storage",
+            "Tape"
+        ],
+        "update_date": "1619430460",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'ensemble du mat\u00e9riel.}\r\n\r\n{EN: Check all hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Storage-Bdt-Multistak-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Bdt-Multistak-Hardware-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

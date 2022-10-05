@@ -1,0 +1,340 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_prometheus_kubernetes_api.pl --plugin=cloud::prometheus::direct::kubernetes::plugin --mode=node-status --hostname=$_HOSTPROMETHEUSAPIHOSTNAME$ --url-path=\\'$_HOSTPROMETHEUSAPIURL$\\' --port=\\'$_HOSTPROMETHEUSAPIPORT$\\' --proto=\\'$_HOSTPROMETHEUSAPIPROTO$\\' $_HOSTEXTRAOPTIONS$ --node=\\'$_SERVICENODE$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-allocated-pods=\\'$_SERVICEWARNINGALLOCATEDPODS$\\' --critical-allocated-pods=\\'$_SERVICECRITICALALLOCATEDPODS$\\' --units=\\'$_SERVICEUNITS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Prometheus-Kubernetes-Api-Node-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_prometheus_kubernetes_api.pl --plugin=cloud::prometheus::direct::kubernetes::plugin --mode=namespace-status --hostname=$_HOSTPROMETHEUSAPIHOSTNAME$ --url-path=\\'$_HOSTPROMETHEUSAPIURL$\\' --port=\\'$_HOSTPROMETHEUSAPIPORT$\\' --proto=\\'$_HOSTPROMETHEUSAPIPROTO$\\' $_HOSTEXTRAOPTIONS$ --namespace=\\'$_SERVICENAMESPACE$\\' --phase=\\'$_SERVICEPHASE$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Prometheus-Kubernetes-Api-Namespace-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_prometheus_kubernetes_api.pl --plugin=cloud::prometheus::direct::kubernetes::plugin --mode=deployment-status --hostname=$_HOSTPROMETHEUSAPIHOSTNAME$ --url-path=\\'$_HOSTPROMETHEUSAPIURL$\\' --port=\\'$_HOSTPROMETHEUSAPIPORT$\\' --proto=\\'$_HOSTPROMETHEUSAPIPROTO$\\' $_HOSTEXTRAOPTIONS$ --deployment=\\'$_SERVICEDEPLOYMENT$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Prometheus-Kubernetes-Api-Deployment-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_prometheus_kubernetes_api.pl --plugin=cloud::prometheus::direct::kubernetes::plugin --mode=daemonset-status --hostname=$_HOSTPROMETHEUSAPIHOSTNAME$ --url-path=\\'$_HOSTPROMETHEUSAPIURL$\\' --port=\\'$_HOSTPROMETHEUSAPIPORT$\\' --proto=\\'$_HOSTPROMETHEUSAPIPROTO$\\' $_HOSTEXTRAOPTIONS$ --daemonset=\\'$_SERVICEDAEMONSET$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Prometheus-Kubernetes-Api-Daemonset-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_prometheus_kubernetes_api.pl --plugin=cloud::prometheus::direct::kubernetes::plugin --mode=container-status --hostname=$_HOSTPROMETHEUSAPIHOSTNAME$ --url-path=\\'$_HOSTPROMETHEUSAPIURL$\\' --port=\\'$_HOSTPROMETHEUSAPIPORT$\\' --proto=\\'$_HOSTPROMETHEUSAPIPROTO$\\' $_HOSTEXTRAOPTIONS$ --container=\\'$_SERVICECONTAINER$\\' --pod=\\'$_SERVICEPOD$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-restarts-count=\\'$_SERVICEWARNINGRESTARTSCOUNT$\\' --critical-restarts-count=\\'$_SERVICECRITICALRESTARTSCOUNT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Prometheus-Kubernetes-Api-Container-Status",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Kubernetes metrics through Prometheus",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "kubernetes-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROMETHEUSAPIURL$",
+                    "value": "/api/v1"
+                },
+                {
+                    "key": "$_HOSTPROMETHEUSAPIPORT$",
+                    "value": "9090"
+                },
+                {
+                    "key": "$_HOSTPROMETHEUSAPIPROTO$",
+                    "value": "http"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Prometheus-Kubernetes-Api",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Prometheus-Kubernetes-Node-Status-Api",
+                "Cloud-Prometheus-Kubernetes-Namespace-Status-Api",
+                "Cloud-Prometheus-Kubernetes-Deployment-Status-Api",
+                "Cloud-Prometheus-Kubernetes-Daemonset-Status-Api",
+                "Cloud-Prometheus-Kubernetes-Container-Status-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAAsSAAALEgHS3X78AAAV10lEQVR42u1dCZRUxRVtg0sSNYnReMxJjB5NNMlJwokgoAQNqETcMEYxILhGcYMBFEQQ2RlAcQERQRBRQBZBFoFhG3EBBBHZZBdkm33t2ae7p1K3Z3r8Xb+q/v5//+l+57zjcZj5/bvqVdV79933KhBISUqSUQghZ1G9lOoVVH9FNTUoSTDpf6KaTnUH1TCJl3yqi6h2oXpGarSa1sS3obqMah3RJ8eoPk31J6nR8++kQ2+gmknMSzbVAVTPTY2ofyb+NKqdqW6RzWx+SYRsP1xDvtxfTQ5lhUg4IjWEQqrDqP4yNcKJO/HNqHajuls0i2WVdWTG6jJy54g8clWvrDi9fkAOGTO/hJzID8sMIUh1PNWLUiOeOBN/JtVHqR4SzVpRWYS8sTxIrhuQrZp4Vq9OyyKD3i0mh06FZIZQRfUNqpekZsC7iT+bah+qJ0SzlFMcJi99WEqufUZ74llt0TuL9JlaRHYdrZEZQi3VmVSvTM2IexP/C6qDG8I2rhzPC5ERc0tI6z7GJ56nj00siPoKEsG5MZ9q89QMOTfxF1IdQ7VENAsHT9WS52cWR7dxOyae1R4v55PMnVWkThxM4l+WI+xMzZh9E38x1depVohGfdfR2uh2jW3biYln9e7ReWTF1kqtyGF9QxiamkSTE/8HqjOoCg/hLQeqSc9JBa5MOk9vH5ZLFn5eQaprpfjSZqq3IzxNzaq+iW9OdR4Hqq3fY+lYb9hVRe6n27FXE89qx8E5ZNa6clJRLTUEwM/3IlxNzTJ/4q9pOD+5o4jtdtW2StIlPS9hJp7Vfz6XQ6asCJKScunZcIDqQ6l8ww9w7Y0yuLY2VEcWb6wgnUck7sSz2vbZbPLK4lKSVyIFlb6n+lRS5hv0wLVVNXVkzifl5OYhub6ZeFbb9M0moz7QRBeRb+ifFPkGfXBthExfXUZueD7HtxNvEl1EvmFok8w3NJAvANceFn77YIRMWhYk1/XPbjITL0YXa7XyDeOaRL5BAdeeFMK1RWEy3iRc62ftqY0uVvo236AHrj2WFyLDbYRrzWhLuiL1JIicVKCLn8jRRWwX74C65he4Nl0K156sh2tbpnm8AicVRJNFkG2HakgHj32Ou8dooovhBnykeSJO/O+oTpTBtTuP1pA0F+FarTAtWBE/0su3VCbE0RBDF2tCdbJ8w7KEyDfQl/hZA04vhmvpOYdsWiKdv0ARWTlVEE6od9SJLq4EZO4lZHvEL3CtUh+YoDaA4/nhhEUX35Kji+VUu7o9+S155zzOr5VfVZJ7xiQ2ageMgXW6vvi2OqHf+R9AFz8Soov4No+5NfkXNaBXcSt+2ZeV5I7h/kHtQBpRCriCfkEX0+eXkGL1jgDL6OCGASxmIVuAG36Lw5FKVgoG1U/vDx9hz/e1vHqGs52c/Dbsyk97q9CXQMzHWyvjRu7Z6f4zYmAY32Wr4OXnnDSAOcpPWvRFhW+RuPfWl8eN2qOvF/jye3Qbl08i8f7Mcao/cmLyz2jAqaMSoUfQLS/6N1P3zpqyuFHrkaARix5dv6OK3QVaO2EArZWf8M13Nb7G4tdujx80P/oxMX3+3WLnjwH60H5+9Jp5Cr+FhVdOFYbJNf38mZDqNCSXNYClThjAIuUn9PaZ84fSL2zzz71TFE2+8ATkDfwOftdvRpBVGGZL3U+zc/IDytgf3j8QqkRfFZjQjK8r2cHRJVlF4egxkb6gxBf4BviSjPzRTgO4XPnk77JCCbvKxy0sJbtpfFxH7JWDp0Jk4rIg+dcLiWkMYxeogNmH7TSA++PCv43Wwz9kvbrSEMaOtPCtQ3PJ/M/KSWWN3dOulhDdTFbTXaXb+HxbYV6rz8BYMjLDTgOYqnzyi+8XW3rZuRt+iMGP5ITIv0eayx20p8fQB/RZtWHnJ54HvqNM7K6R5vMeD79a0AjkfJ8bskR5x0Iqr4obh/12GsAe5ZOtULQx2bzy7f+MMvZMGGGxnH/vioSo8b27toxcazCC6DWlMEp5V8rXh6yF1pv3VbM2eoEdk38ecJ/YUwuCEdtz8RBkufQ4W+0H5pBPdlWRRBOs4B4v6TsWHqIrn3dcgaFkZWzfWhlkH3mHHQZwi/KJmTuqLL1kqz5ZQp48SBkydBHnLrxzM+f2t8dqowUmcJZE/DukhAERYyUFK43vLjiKxi4olU/+KwVCkodVVtITbxSyjxxnhwGMVj4ROWmrDgu2e04SIyonqRHwjhggdVUGnLyq2jqSQUMjJHnaKajmYB+LBPCwkjAKTAA1CngnI4KClpa9+RMkmnyUtncYmGPZmWQ4hV/YYQCfKJ/4wAR7kibIa09cGiSlFeqVhrO977SixuKQQbOKtUqx446SV6mRXi/AKZBGFcmCzyqEfP6n3iyM0tv0CogxKAiBIeC/WDghjh2hshiGZxctft+JWraVzVlWE0AVype1m8Z946AcVWpWKejkpWfysbJgUFpwLs8JjQlYuVrvi6zhvuO1uowAtLjDWSHuxEPWfVNle0Jt3qfl7Mdca8UAWrGT4RSQgRWmUUwplE17q0knnQMJR002YXpDLqxojb4A4hZ1pRHHkk+cxFB/KwbQR/mkmWucTQBhN9h/olb3QGJneG1JqSGq+eNqR6lRth00ZuD/HZsfJZMaEdQgOFn3iB2FkSVWDGCh8klpU51PAA15r1jXQFbSLR+xtNHnwykUCc5PM2AUdka90vEF53MoOfGRUp6pxFBDAihLmQBqP9D5l4fHzuG6qWTYbHNo5NDZYgMzSw0HNaugVNtRQRbSjbwAoGpGrjBjAJcpn3AkO+RaQqe4THswERKOnmecyIm+gbKGkmaQzb06ncLJy4OujCESYow8ZMYAuiuf8NEmd/h/HC9Wc1UZiZ/f/DgofBbKsYy86yhqgEYSUHAakbhynCc4XuXovm3GAKYonzB0drHjL34nXU0hE4EAogeALGbIoCoyXV/tMBeFpBtMwtHAB9xoSMEATnvNGMAu5RPuHOl8tc8KCR6gmZ2j3xeTqzWBSGXLRMtDf2pyYTSMMytg8LpROcWAVrCG843W90esnI1mcvoiwAe7wpHskK4Bhid/lySzyHGQ4rMngoQUkEtAvHU6dvzo++aI3/djFyqRp64qYz/2NiMGcLPb3uvMtWVSbB2e9lcH9YVbMgdx0z45nAuePfs3yNNr9PeJQyQBaqGbaCQiTiHfNMjZiOrJySq8I92IAYxU/iXAFqfPLNG2Cicrti1je8/4utK0g4jnMKQJlaBPkTIH8NKiUlKjE/ErpDtld0VKWHakAbZ2OpxmDPAzIwYQ17cPKUwnX/bxSWJ0DuwhNjHz/vpyQw4iUrToHv6djmMEg4a0MfoW6d1xolnMfHUWEzuHSA67wKs8cLKW7Tl0pp7JP72h5rwxNGrTN9uz0E9EF5tAV2bEfSYYVwBf3zSYv6XLUMK7RjnrDCK7yUgbPQbQ0u0KoGO5/JW584j8swfOLJa1UnFFUGXcTtLabuRcYbukaNrayXFFGp2RZ/QYQJryL8B3c/Il4QyJRA/5BOlZM+wdOwT+iFbYCcxA5Aw63ZQCkRUji/UYwHzlX4CY4XSZlkj0xss4a3OLw65OPiITvVnI3YLcBsgwTjfNYsYFq00zAXRSiR443T4NXjdP0BPHyOCgEgiOleN0cDoorxv04NHsSSSoj3ByfNdsVyGWv5cZwKXK3zya47ynumQzH5kDMdNMIonxfMXpZBpeImaPqV7K2fA5xhNQqEcUidMNNjjJrwdkBtAtjkmw2fkEkAiYYcM/I/UCehw39l4hOJRaAjDI7BUzIkHmzsnx7a5mQE2TGcBkq9ZumMQoSKVOWGxuYIAAyiS7KCw81rQSReD+m3knFI3oYSI7BbIxGcs9MgPY4WacKgsBB88ynn0Ejn9KQuEGotddUryBwdqqAf7AMM04biIE8kMX2uxsPRD3nXDYnSfq+tk4eiBltHAh/y/i3OuJPjARmFBUxEQrguu0E0Vaz8SupyUoN0c7VxA72+qkc4sIr260qH07Q5VnuZVnAB3NMGQt7wB5/B1AxD+EowenCn0JcceAEYGjp1WJixVpRABEoe37y4tKpTtmtqCiSQ8V3ao+/aYq1B7NM4Dhyt94fak79KX9Aq9d2bYNcT6SJ18friEhi5iPFnFknwFWsignAGgbhFVlsUeBwFjdcLSRSWVg8w08A1in/A2ULnvRsDEmIG5gNWYX2QvwTFsldrowYSEbPw4UsI17q6OJJRFkDUDJjXE+GJ/OxjZ3BpsAKnMzARRTnIFuCkqywW9UXiGPglWEj3pJJ3aKMv3spMJnYdlvSgO4ykgSxi4FqfJUYZh4IcDnUTwKr96rd4AAqXOjB9EL6nqLvkoD6KX8F0CXTl6chNWHCxYTJZ3rtQBxvdPhexEBObMRqNIA5in/pd/b1hNASORghQPogMf+2Z7qKExbXu3crJdV1pEddPcCjFxrc5p4K/VVwOhFDUCVQ72IEBKj7QwAKUQVA2i0g1I2u6jkTCia1ZgYIvX9ZXUzY6UrnOrijRWOrhiUhe05VkuWUsNCTh1hTifmgsn7xufrpnJpCZpKsJdNdR6eF8Uq3lgejBoGjNtJbgLYTA+/Zs0xX/uNKjF0Wey+n0Y5lmstAdRbkt41fE7X1bNtVtABRos2AC/YyvQicZk7rLeSgSd/dZp+2BUMJoSwb9IjDgxkO9PUMHwr2UPsKoz0gAF0Vf4E27UVA3h1SakmaxZ18SBbwvPGdg2nU2QAVrY/HDtWBeCRlZrI9RIjBNsKuwcWDaBvhL1aJfJWCLo91P2Z3oIBTFD+ZOQHJZbPfnYrxESCodt/RhG3gQMoVaJae7PJEjCN7GofZ3bQYTiyY4Hn+GF3A8sJoSo7JvBxrDiLCHcZ/2UbDOAj5U/+Z0PffFga4nvAyUAU9YQ5WAk8Ad3LzHWykyU1gEYFTa1amkgAyeoQ9YTayFoOm1MS3RngGNoRLjJIZyEMYI3yJ17d9AXquUiQzDCaAtVCEHF/L4oob6NHjB4wymhzbEyejKuIPghejDN6ESpdHNUO4GXffJEvgI5ftxnwBRDGajl2typaymDb3XFEngb+fE+1bQgnHMPWfb1pTc/URhTBAF5R/mS6h/cAcLJWjQLmkN709GaN8i8e0/nBCQXSBtPwY27XuQU/PUUeCY13mAUko8wx1LftMIAuyp8cN3ne2aWyahwkVfQ0bJDxAtCC7jrBfQAcAiUxipCiz1F+SUSaLfRq9Y+Zr+I6TIEB/JzUlw01yrA53l2hdm+6uEcAvHqtLCWya9LVJzEiOFkyBBFMZVkbulZ9tAtYnabZy2oFc9SYxM0xJHAa63l3HuHd7Z/shU5xh1ZZRFguhnRusEK8+nBZZCuNPoezM+UGJGqUAT9Cy5kE/uHFeLbg724HqTaLGcDFRFEPGIMe7ehjb7aLqIzeDQ+fFxKNmCunc/XXcTcgun6VSowIPYd5k6/FJAIh5AaPrqgHmYYj97CEkJ7sbyAx4dV176BXyUq5gZh1ZWr5ZR08dxhIcaMkTSbKUBnGmrGtUhPS1tvCxgnHmlOaNo+wFUKkvipopspLWBH07CjAeSlLGQNWRsYMv8u7ETwmeMSDBkrcMamyBtExIicSUMATtGTiUm/GEMc4B4vYTfUcES38x1S3xA0eHb2+HmID4xeWag4wso/rvhF78Lj8yejnygpFkGXEcaPnworFG725XRXHN6cfAuLTy7WKQ39DmNvBsRW7USMgUqRcTVPAaORgBkLF0bf7qDWCKLKBdtyJZObdM9VX42FL66i3Q0hbGLryr1EVA3apV0aAc7nORG7HCukSIadZQQf0q9O8GSsc2zwf2GibOJVTiPSqlyAROmEb6dAN/8FKbsNIsSmbwfTKeQaUz1koc4nJfsFT2SdNz/D2ylgwfU4Y7NANhw6t2VApi+5ZSKkCDYxtz3D6cB8gjAVJmvczy6POXdhgDQLobvAdvBobHNNl6shpO9Wfmu0WfibVjaxTiLy+l0YABwdxd10CkUoRZnoJnuF4/l5dZ4nQ6FKrV8ZcRBRNI2LhV5cxeZ4aAfSxiQUJYQQI87w8GvHZHPYTrKG9nVfHV7MkCa/vDwZOkAiCRlBejsP0DC50nmb37eEP8VK0LdOyPD3zEkG85FAA3ubsgrOIrBeQBSOYpE6RlnkaFfCKLFAyDgqV0etchPUGVfVE1kH083gkT9DPvPj+4F9yrqHbCkAv4ISQ+lvENrCfiInw4txj+/ei7RoL+uD/hzfw6uCoaV1GARInagSRPUPNwf0T8uPiefQDmMY0YsZtIW2fcRcjwfHLiYbQBey3ASeFfsCFKB+Io2zV1KkSM04r24ARaeJ2OsmjaNmCy5WwgtAcGpc/ITQEi1dP/I70KrKCdrCXzV4UzemthBdqF3BDSH0xaVwKDAWWHVxKdyKtyuLwbietBjHHDzqAW7n924a2c08E3BT6gfep6+dqXIE/2S7cQPw6vZjrqgGA1sUaIUit4N677feAOO2I06fDCCaoMEeHGx5w+t8avu/PySbXMx1srYtjllOYuolYuR7WogE0Q7aVfSOUfDmFAPJSsCA7egVEqdCXsLjDuRXFvQecPganqP464KXQFzgfDDKWdy9rx2ZW+3GAH2z/HQd7A0jhuOPRx+y+YCPavu6AimwKL7BNIBGEvsjfWE4hGKg32nwtSi8O3x5xuZcoHO+qG1xQYednCJjOjwQSSRrqC+IOKFyW0MrG28Zxc7nykkb067vFZeePdywpU8ZZNkdDQ/itbycHElHoi6Wzb7rgc3spUYjh4WOAnt2uf7bnCaloOpm+E8JCtKm1Mz+CY5TDf/iUKDt8JZgB/IjqSvaNR3icLPGj4vjkFHKgk8uFgUQWUn/n4ME4iCpUZ4iVm+yKY5Nz1xDAj5YBPwh90T+jwCiexx+Jsm5SE6zjsqfPuUUmPQJ+EjTAYJ3CXUdrXGtA6VcVVDe9GvCjEKb/MMStW8j9qChR5xSnrqd6ul8NAE7hUvYbpS9IOYWs4njkNIg6SvWCgJ+F1N9DsJfNnD3yWsopVJai7TyqcvrgCDQPNAWhX+RKlNfH1SgFI65n8BJVcSxyyhnvDTQloV/oVqK4kj5Wai1ruJAMmj6f6/SNCzRFoV9sMK+EKlknH8dgSN3LMKOxcUMTNIDTqH7IfmO0ME22yUdpOefKm0OEd6FTEzOCcwAJsO1Ye05KHqcQxx7LKST1F3b8JZAMghr1hlr1uO5dXpZWuVm6zemKinPgrkAyCam/pSzMtn3xqlOpW6njVfx2MiMDySioWed150ZYhDauLZrIxIPOhTsHBO1rlwEwS1YD4JagN/blq4hECSBg2/pRUWKO4g1Jn6OvqJ4bSGZpiAzGsomjJJDVSJ0HUhLnE+xLgomH89srabd9DSNo1pBGXoiSuyY06fD8Mqk+mfRbvsGjAc0p/kr17z7V5lQvabLIXkr8L/8H/6uyrDgUovcAAAAASUVORK5CYII=",
+            "name": "kubernetes-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* remove wrong stpl from htpl",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Kubernetes with Prometheus :\r\n\r\n* Container Status\r\n* Daemonset Status\r\n* Deployment Status\r\n* Namespace Status\r\n* Node Status"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser Kubernetes avec Prometheus :\r\n\r\n* Statut Container\r\n* Statut Daemonset\r\n* Statut Deployment\r\n* Statut Namespace\r\n* Statut Node"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Cloud-Prometheus-Kubernetes-Api\r\n\r\n## Centreon Configuration\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Cloud-Prometheus-Kubernetes-Api-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Host Macro Configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"23%\" />\r\n<col width=\"53%\" />\r\n<col width=\"24%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>PROMETHEUSAPIHOSTNAME</p></td>\r\n<td align=\"left\"><p>Hostname of the Prometheus Server</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>PROMETHEUSAPIURL</p></td>\r\n<td align=\"left\"><p>URL of the API</p></td>\r\n<td align=\"left\"><p>/api/v1</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>PROMETHEUSAPIPORT</p></td>\r\n<td align=\"left\"><p>Port of the API</p></td>\r\n<td align=\"left\"><p>9090</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>PROMETHEUSAPIPROTO</p></td>\r\n<td align=\"left\"><p>Protocol used by API</p></td>\r\n<td align=\"left\"><p>http</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Kubernetes w/ Prometheus",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_prometheus_kubernetes_api.pl",
+                "package_name": "centreon-plugin-Cloud-Prometheus-Kubernetes-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-prometheus-kubernetes-api",
+        "status": "stable",
+        "status_message": "remove wrong stpl from htpl",
+        "tags": [
+            "Prometheus",
+            "Cloud",
+            "Restapi",
+            "Kubernetes",
+            "Docker"
+        ],
+        "update_date": "1555072846",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le status des noeuds.}\r\n\r\n{EN: Check nodes status.}",
+            "active_checks_enabled": 2,
+            "alias": "Node-Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Prometheus-Kubernetes-Api-Node-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICENODE$",
+                    "password": false,
+                    "value": "node=~\".*\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /Ready/ || %{schedulable} =~ /false/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Prometheus-Kubernetes-Node-Status-Api",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status des namespaces.}\r\n\r\n{EN: Check namespaces status.}",
+            "active_checks_enabled": 2,
+            "alias": "Namespace-Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Prometheus-Kubernetes-Api-Namespace-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICENAMESPACE$",
+                    "password": false,
+                    "value": "namespace=~\".*\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPHASE$",
+                    "password": false,
+                    "value": "phase=~\".*\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{phase} !~ /Active/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Prometheus-Kubernetes-Namespace-Status-Api",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status des deploiments.}\r\n\r\n{EN: Check deployments status.}",
+            "active_checks_enabled": 2,
+            "alias": "Deployment-Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Prometheus-Kubernetes-Api-Deployment-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEDEPLOYMENT$",
+                    "password": false,
+                    "value": "deployment=~\".*\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{up_to_date} < %{desired}"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{available} < %{desired}"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Prometheus-Kubernetes-Deployment-Status-Api",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status des daemonsets.}\r\n\r\n{EN: Check daemonsets status.}",
+            "active_checks_enabled": 2,
+            "alias": "Daemonset-Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Prometheus-Kubernetes-Api-Daemonset-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEDAEMONSET$",
+                    "password": false,
+                    "value": "daemonset=~\".*\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{up_to_date} < %{desired}"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{available} < %{desired}"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Prometheus-Kubernetes-Daemonset-Status-Api",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status des conteneurs.}\r\n\r\n{EN: Check containers status.}",
+            "active_checks_enabled": 2,
+            "alias": "Container-Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Prometheus-Kubernetes-Api-Container-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECONTAINER$",
+                    "password": false,
+                    "value": "container=~\".*\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPOD$",
+                    "password": false,
+                    "value": "pod=~\".*\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /running/ || %{state} !~ /ready/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Cloud-Prometheus-Kubernetes-Container-Status-Api",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

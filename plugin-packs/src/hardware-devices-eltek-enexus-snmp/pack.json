@@ -1,0 +1,245 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_eltek_enexus_snmp.pl --plugin=hardware::devices::eltek::enexus::snmp::plugin --mode=outputs --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-outputs-disconnected=\\'$_SERVICEWARNINGOUTPUTSDISCONNECTED$\\' --critical-outputs-disconnected=\\'$_SERVICECRITICALOUTPUTSDISCONNECTED$\\' --warning-outputs-notenergized=\\'$_SERVICEWARNINGOUTPUTSNOTENERGIZED$\\' --critical-outputs-notenergized=\\'$_SERVICECRITICALOUTPUTSNOTENERGIZED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Eltek-Enexus-SNMP-Outputs",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_eltek_enexus_snmp.pl --plugin=hardware::devices::eltek::enexus::snmp::plugin --mode=load --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\' --warning-power=\\'$_SERVICEWARNINGPOWER$\\' --critical-power=\\'$_SERVICECRITICALPOWER$\\' --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Eltek-Enexus-SNMP-Load",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_eltek_enexus_snmp.pl --plugin=hardware::devices::eltek::enexus::snmp::plugin --mode=battery --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-temperature=\\'$_SERVICEWARNINGTEMPERATURE$\\' --critical-temperature=\\'$_SERVICECRITICALTEMPERATURE$\\' --warning-charge-remaining=\\'$_SERVICEWARNINGCHARGEREMAINING$\\' --critical-charge-remaining=\\'$_SERVICECRITICALCHARGEREMAINING$\\' --warning-charge-remaining-time=\\'$_SERVICEWARNINGCHARGEREMAININGTIME$\\' --critical-charge-remaining-time=\\'$_SERVICECRITICALCHARGEREMAININGTIME$\\' --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\' --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Eltek-Enexus-SNMP-Battery",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_eltek_enexus_snmp.pl --plugin=hardware::devices::eltek::enexus::snmp::plugin --mode=alarms --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-alarms-active=\\'$_SERVICEWARNINGALARMSACTIVE$\\' --critical-alarms-active=\\'$_SERVICECRITICALALARMSACTIVE$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Eltek-Enexus-SNMP-Alarms",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les modules Eltek eNexus (SmartPack2 V2.x, SmartPack S V2.x and Compack V2.x) via SNMP}\r\n{EN: Template to check Eltek eNexus (SmartPack2 V2.x, SmartPack S V2.x and Compack V2.x) using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Eltek eNexus (SmartPack2 V2.x, SmartPack S V2.x and Compack V2.x) using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "eltek-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Eltek-Enexus-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Device-Eltek-Enexus-Outputs-SNMP",
+                "HW-Device-Eltek-Enexus-Load-SNMP",
+                "HW-Device-Eltek-Enexus-Battery-SNMP",
+                "HW-Device-Eltek-Enexus-Alarms-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "eltek-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* change command 'load'",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Eltek eNexus (SmartPack2 V2.x, SmartPack S V2.x and Compack V2.x) via SNMP :\r\n* Alarms\r\n* Battery\r\n* Load\r\n* Outputs"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les modules Eltek eNexus (SmartPack2 V2.x, SmartPack S V2.x et Compack V2.x) via SNMP :\r\n* Alarms\r\n* Battery\r\n* Load\r\n* Outputs"
+            }
+        ],
+        "discovery_category": "hardware-server",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Devices-Eltek-Enexus-Snmp\r\n\r\n# Centreon Configuration\r\n## Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Device-Eltek-Enexus-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\n\r\nClick on the *Save* button.",
+        "name": "Eltek eNexus",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_eltek_enexus_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Devices-Eltek-Enexus-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-devices-eltek-enexus-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Hardware",
+            "Energy",
+            "SNMP",
+            "Eltek",
+            "eNexus",
+            "SmartPack",
+            "Compack"
+        ],
+        "update_date": "1585217223",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le des sorties.}\r\n\r\n{EN: Check outputs.}",
+            "active_checks_enabled": 2,
+            "alias": "Outputs",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Eltek-Enexus-SNMP-Outputs",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /notenergized|disconnected/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Eltek-Enexus-Outputs-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'alimentation.}\r\n\r\n{EN: Check load.}",
+            "active_checks_enabled": 2,
+            "alias": "Load",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Eltek-Enexus-SNMP-Load",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /minor|warning/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /error|major|critical/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Eltek-Enexus-Load-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la batterie.}\r\n\r\n{EN: Check battery.}",
+            "active_checks_enabled": 2,
+            "alias": "Battery",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Eltek-Enexus-SNMP-Battery",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /minor|warning/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /error|major|critical/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Eltek-Enexus-Battery-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de l'\u00e9tat des alarmes.}\r\n\r\n{EN: Check alarms status.}",
+            "active_checks_enabled": 2,
+            "alias": "Alarms",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Eltek-Enexus-SNMP-Alarms",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} eq \"alarm\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Eltek-Enexus-Alarms-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,241 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aeg_acm.pl --plugin=hardware::devices::aeg::acm::snmp::plugin --mode=rectifier-status --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\' --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\' --warning-faulty-count=\\'$_SERVICEWARNINGFAULTYCOUNT$\\'  --critical-faulty-count=\\'$_SERVICECRITICALFAULTYCOUNT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Aeg-Acm-SNMP-Rectifier-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aeg_acm.pl --plugin=hardware::devices::aeg::acm::snmp::plugin --mode=load-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\' --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\' --warning-power=\\'$_SERVICEWARNINGPOWER$\\'   --critical-power=\\'$_SERVICECRITICALPOWER$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Aeg-Acm-SNMP-Load-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aeg_acm.pl --plugin=hardware::devices::aeg::acm::snmp::plugin --mode=battery-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\' --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\' --warning-current1=\\'$_SERVICEWARNINGCURRENT1$\\' --critical-current1=\\'$_SERVICECRITICALCURRENT1$\\' --warning-current2=\\'$_SERVICEWARNINGCURRENT2$\\' --critical-current2=\\'$_SERVICECRITICALCURRENT2$\\' --warning-temperature=\\'$_SERVICEWARNINGTEMPERATURE$\\' --critical-temperature=\\'$_SERVICECRITICALTEMPERATURE$\\' --warning-temperature1=\\'$_SERVICEWARNINGTEMPERATURE1$\\' --critical-temperature1=\\'$_SERVICECRITICALTEMPERATURE1$\\' --warning-temperature2=\\'$_SERVICEWARNINGTEMPERATURE2$\\' --critical-temperature2=\\'$_SERVICECRITICALTEMPERATURE2$\\' --warning-amphourmeter=\\'$_SERVICEWARNINGAMPHOURMETER$\\' --critical-amphourmeter=\\'$_SERVICECRITICALAMPHOURMETER$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Aeg-Acm-SNMP-Battery-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aeg_acm.pl --plugin=hardware::devices::aeg::acm::snmp::plugin --mode=alarms-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Aeg-Acm-SNMP-Alarm-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aeg_acm.pl --plugin=hardware::devices::aeg::acm::snmp::plugin --mode=ac-status --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Aeg-Acm-SNMP-Ac-Status",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check AEG ACM modules using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "aeg-64.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Aeg-Acm-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Device-Aeg-Acm-Rectifier-Status-SNMP",
+                "HW-Device-Aeg-Acm-Load-Status-SNMP",
+                "HW-Device-Aeg-Acm-Battery-Status-SNMP",
+                "HW-Device-Aeg-Acm-Alarm-Status-SNMP",
+                "HW-Device-Aeg-Acm-Ac-Status-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAACXBIWXMAAAsSAAALEgHS3X78AAADXElEQVR42u2YTUhVQRTH78vIiufLl9gHVppWCwmKpKzAFkGkKymSjAqK7INSIqJdm4psVSREBBESptaiWikRZRFkRZDoKgOTFn1/aJmivtL+AycYpzn3zX1PV50//NA398x/5p575+t6nkgkEolEIpFIJBKJRCKRSCQSiUTecDRtNsgGORoLQUZAn3SwgMhmPBW5GnlEZsC2JoFlYBvYD7aDtSCNOAvCLkaFYASMWhgEiwLc/A/Gx4VfoMyhnZngFHjn4/Oa/q/2HA0f+XTsvGMCpoDWJBKg+Abm+bSxGXwO4KceYK7rK1XFmHxXr5SjRwpoZ3zugEYLTaBPi7sbi86weR9l3tTnoBKUq4dleCnqXBMwlTJm63xlgLHZwngU+NTJBA0U1w+mG9fLmJuvVXOBETsfPBz7AMMhl44v93mVXoLQRCVAq7sRFFmG6BeLXzeYxvhMBjUU16t+u3S8Ic54Kp7oBDB+Jxm/Aw5114N8l0bUchSLk4Amxw7fTyQBuL4azBpbFlblbyxeQyAynvuAi5r5K+YGfoPFSSSgaDg9Ev4HPCFwk2JaDK88xqt1vDdBA2SsZtC54D3TcE0SCXDhhOFVwsTVMRujanCV4TDX4dPmmo+/xxNdEpNIwBNzssLvLUzsZUu7EVpBOP8ej6nUQwFqDsih8gwfs6oEE3ADXDBo0xKba/HawHhdZ9ouAJ+YOptsFY5pAbeMa42MUWfMZ0kMMgmiLEttfEAp4zWH2/z4tF9vie+zBaaCt3oQeEG0+WyKFCXjvQr4+D2zeMW4gxrKr7kmoCKJyap5IhJAW+lUo6yc8TsSIAE/bTNmp3Fo6Lcw6LMkLmE6cC/BfYCa8btoPsjSykN0jjD9vqpl0uLDDd0KPWirdqHDzLqRqGbGsHY0ErHVecrE76LNTiGxCqyh8/xtLe4jiFq2wx0Wzw9gt4qnIb2O2TYrziijlXSAGDBOU1lx9ufsUPj7ZNXHB+b1C8IIN7/QTTYl4NlLp8WQpy15JvVxvrx0+TTwIM6mJQjn/IbJUDSi2ikFjx28umk/k6HfTDHYq7GPWBpnfK4AewwqiHxtAtsJDiWIGpYpAVYH9YltBx2WLoErKoHgIJ1sQ55IJBKJRCKRSCQSiUQikUgkEon+Y/0BrFaijBjEWQEAAAAASUVORK5CYII=",
+            "name": "aeg-64.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "- Created to Stable version",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor AEG ACM Module via SNMP :\r\n* Ac status\r\n* Alarm status\r\n* Battery status\r\n* Load status\r\n* Rectifier status\r\n"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les modules de management AEG ACM via SNMP :\r\n* Ac status\r\n* Alarm status\r\n* Battery status\r\n* Load status\r\n* Rectifier status"
+            }
+        ],
+        "discovery_category": "hardware-server",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAAsSAAALEgHS3X78AAAHB0lEQVR42u2ca2wUVRTHW2yp0t12dwEBJUQaJeALIRUhKPigoBA0RmKRFFMTrUZRI9EP8jQYJQh8UDEqUQmgDWqw0WiM71iUEkQhBp8xPoiiFlR8QNktup5Db+M67M7cc+fO7BT+v+SfJt2ZM2funLn3nvuYkhIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYJ1MMl5DGhKE4VNIE3I0kXRhHl1Eurjr91gswButII0jjVc63+Gfm5/dPubqEtKkPJrsEB+XCvghHq+uM5/0DOld0nalVtJzpGWkRtKoTLKqTJ1XS+okHeT/23RoKukQKSvULlJ/6wWUiJeT3Q8M/LGlP7lMbN5TRzJZogKzWdmX+sOBsjPnf60H+8VLbQXAKh+FtTCAN2R8ER9+t34lDbZ0P1NI2wLwsb7EooP/GDrxA6nccgCcROqIQBC8kU7FSn3cxyBSS4D+fUfqYzMIWg0duSaAWqCO9E0EguA2Q/+5P7EnBP8W2y547ljtEzqxOaDOUiWprcgBcIA0Quh3k0Gf6jfSm6QNpNdIezXP2881pu2Cv9+goGoDCoJFQj8eIV0h0NXqGjtcbG7tTFb30vT3RmFz+gVphrMZpQyrTPm3vRi1wFDS38KCXxdQACwU+tFkcp1sVy/9KtKPBeyeGkA21eLVhnemqo6jY+Z69Ik+DKLgvxcWPOemA3pqAORcL0Va67D5aZreSI/zBpN+EfjZRulub4FfI0lfFrCVyXj4Jy2E0wxqgKBSwgVhBoDjbd6p0rdhrrVH1/EvC3zs8LJZwKeEy3USNgt9dYRSwqIEgEGwSHxc5uNavUgrHfbes3kzg1R1no1CShj1AFB9B8mo5V+kfhbKZSbpRdLDVkdj1Ri0n7Sp7VgKADVHIfHv0SjPNHEb87uF3PncYygAnhD6NzbKAXC3pcGTdT01AOj8aWpupD7reWyM2+N2gW+7O6srS6P68HmK8idLAWAtJQwrAFTfZ6PDVoPHOWcJfWuO8tt/U6FhXtLTBkGwqEgBcGcmUTVAUwPp+DNJ89RQrNPWUx6+NQp9uyuiDz/Go01fFXCaJ4mGdA02iG52d2dSf6DDpZDnF3EeYJblIfMrBc/kBLXYZZJQI7MGhTyzgMM70n27pkPVggSrBRjxANiYrary8m2N0OYFmvfcm/SxD99XaBfwwerqUjrhowKGGnKcGl2MlLBIAbBLZ1mYWrolsTtG855H+Z3BlK4DyF8ICecMVfztsFPCIgQAT+ZM1PRtg9D2OE27vB7y81DGYlwe6twCKZLUmfU9LADuFfj2mND2ZIHt/qRXDPzn2cyhuhc5z2VxQtx5fDoR5+biE6FDadLAEANgMWm4hqapYVlHxqM/q6ayB4lvs4Wdcx5neF54jfGSwn2hgJGlLudcH+ayJYMAaBLYviXnvH3ab85/508POjWmcy4X2P9ZYni4y5RvrcWxb18pocFbph0A2VSK7c8mLedBHQPf+gqnzVsMrnGpZDZWYvhJF0M71O9OrVE95GxYKWGQAWBpoGqTZN1fWjhdLgyA3bpGT1Ztc5idqy1HaQDcIPRvitD+ZZIOoK7RlUUaXBlzFAZAH257g5oPsB4AdFCS9EeRAmB9TwoAzoR4GDx7ZELkPO5WgX88pF4TUADsDWJyxabEKWExAkDNjN6j9gSwzffzpcU5x5cJVwW9mkno7esTBgDrOq/qqt1lCneP2pCgqwNBp4RhB4CaUMm3+rbR47xhwg01y7MnVur4M0N4/7wnYbRO3vu//JE7hoZvSovBSFVF1AJALet2m/au0xxWl8yarndbzcu7f+n3lwxesun5nKsmfVvghEYfb8wZBg4+6DXTlmP/WaFtPv6OHN3O+/tyxO31HPWXV0A9rqpvtw0dzVn98pghzLC4Jl3KS8W4mTmUODw1P0hV/SYbSzktrXSOKc9RW5D8Dx/mv2mTTaW8+uZsF5u8QeMhH7uWbelrfnmE5VFXYIFJkOpU6xPKu52oUcuGdaok/gDBzT4CYJYPx1/nETWHvXNC2lmrU6hjDcukRjhI5EebjvhiiOEHCUxvtsLnA1siGKUMU/P81IzpZBW34Q0uq638imveqdl8X+oxzPWv9VELPODjRhY4bN0XgYf/ViYV71ViAbXTt570juGWO2eHfZXnN4J4h47KX7fm0bY84iVfMR8BMFA1OZtdxHv9t+SoTW1DizlsxXhBppp6/ixk8TzICre832d/abAaPl6rrrXf44G3q+8GLFHfbigrAUcPmdThZoI76qerTGCC+jtC2vkEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAdPgXEXTPDnahFqEAAAAASUVORK5CYII=",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Devices-Aeg-Acm-Snmp\r\n\r\n# Centreon Configuration\r\n## Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Device-Aeg-Acm-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\n\r\nClick on the *Save* button.",
+        "name": "AEG ACM",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_aeg_acm.pl",
+                "package_name": "centreon-plugin-Hardware-Devices-Aeg-Acm-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-devices-aeg-acm-snmp",
+        "status": "stable",
+        "status_message": "Passage from Dev to stable",
+        "tags": [
+            "Hardware",
+            "Devices",
+            "AEG",
+            "SNMP"
+        ],
+        "update_date": "1545301710",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le de l'\u00e9tat des alarmes.}\r\n\r\n{EN: Check alarms status.}",
+            "active_checks_enabled": 2,
+            "alias": "Rectifier-Status",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Aeg-Acm-SNMP-Rectifier-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /ok|notInstalled/i"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Device-Aeg-Acm-Rectifier-Status-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le des statistiques de l'installation de chargement.}\r\n\r\n{EN: Check load plant statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Load-Status",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Aeg-Acm-SNMP-Load-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "HW-Device-Aeg-Acm-Load-Status-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de l'\u00e9tat des alarmes.}\r\n\r\n{EN: Check alarms status.}",
+            "active_checks_enabled": 2,
+            "alias": "Battery-Status",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Aeg-Acm-SNMP-Battery-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /onBattery/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /disconnected/i || %{status} =~ /shutdown/i"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Device-Aeg-Acm-Battery-Status-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de l'\u00e9tat des alarmes.}\r\n\r\n{EN: Check alarms status.}",
+            "active_checks_enabled": 2,
+            "alias": "Alarm-Status",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Aeg-Acm-SNMP-Alarm-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Device-Aeg-Acm-Alarm-Status-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de l'\u00e9tat de l'installation AC.}\r\n\r\n{EN: Check AC plant status.}",
+            "active_checks_enabled": 2,
+            "alias": "Ac-Status",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Aeg-Acm-SNMP-Ac-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /true/i"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Device-Aeg-Acm-Ac-Status-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

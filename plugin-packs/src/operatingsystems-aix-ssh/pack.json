@@ -1,0 +1,292 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "OS-AIX-SSH-Storages-Discover",
+                "command_for_macro": "OS-AIX-SSH-Storages-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$name$",
+                        "order": 0,
+                        "pattern": "(/dev.*|/run.*|/sys.*|/boot)",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "OS-AIX-SSH"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERMOUNT",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "OS-AIX-SSH-Disk-Name",
+                "service_display_name": "Disk-$name$",
+                "service_template": "OS-AIX-Storage-SSH"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aix_local.pl --plugin=os::aix::local::plugin  --mode=list-storages --mode=list-storages --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "OS-AIX-SSH-Storages-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aix_local.pl --plugin=os::aix::local::plugin  --mode=list-storages --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "OS-AIX-SSH-Storages-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aix_local.pl --plugin=os::aix::local::plugin  --mode=process --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --filter-command=\\'$_SERVICEFILTERCOMMAND$\\' --filter-ppid=\\'$_SERVICEFILTERPPID$\\' --filter-state=\\'$_SERVICFILERSTATE$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-total=\\'$_SERVICEWARNINGTOTAL$\\' --critical-total=\\'$_SERVICECRITICALTOTAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-AIX-SSH-Process",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aix_local.pl --plugin=os::aix::local::plugin  --mode=lvsync --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --filter-type=\\'$_SERVICEFILTERTYPE$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\'  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-AIX-SSH-Lvsync",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aix_local.pl --plugin=os::aix::local::plugin  --mode=errpt --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --filter-resource=\\'$_SERVICEFILTERRESOURCE$\\' --filter-id=\\'$_SERVICEFILTERID$\\' --error-type=\\'$_SERVICEERRORTYPE$\\' --error-class=\\'$_SERVICEERRORCLASS$\\' --error-id=\\'$_SERVICEERRORID$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-AIX-SSH-Errpt",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aix_local.pl --plugin=os::aix::local::plugin  --mode=cmd-return --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --manage-returns=\\'$_SERVICEMANAGERETURNS$\\' --exec-command=\\'$_SERVICEEXECCOMMAND$\\' --exec-command-path=\\'$_SERVICEEXECCOMMANDPATH$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-AIX-SSH-Cmd-Return",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aix_local.pl --plugin=os::aix::local::plugin  --mode=inodes --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --filter-mount=\\'$_SERVICEFILTERMOUNT$\\' --filter-fs=\\'$_SERVICEFILTERFS$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-AIX-SSH-Inodes",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aix_local.pl --plugin=os::aix::local::plugin  --mode=storage --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --filter-fs=\\'$_SERVICEFILTERFS$\\' --filter-mount=\\'$_SERVICEFILTERMOUNT$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-AIX-SSH-Storage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les serveurs AIX via SSH}\r\n{EN: Template to check AIX server using SSH protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check AIX server using SSH protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "aix-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "OS-AIX-SSH",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "OS-AIX-Process-SSH",
+                "OS-AIX-Lvsync-SSH",
+                "OS-AIX-Errpt-SSH"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "aix-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix(pack) : Update command in AIX SSH",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor AIX operating system via SSH:\r\n* Cmd-Return\r\n* Disk\r\n* Process\r\n* Errpt\r\n* Lvsync\r\n* Inodes"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller les syst\u00e8mes d\\'exploitation Aix via SSH :\r\n* Cmd-Return\r\n* Disk\r\n* Process\r\n* Errpt\r\n* Lvsync\r\n* Inodes"
+            }
+        ],
+        "discovery_category": "operating-system",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAH4AAAB+CAYAAADiI6WIAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAABeQSURBVHhe7Z0LlBXFmcer+84dWUAgwAgJg7x8oQuuJyowQyKgQjRmUdfFiOjZmPUcXzG7Ma6iJ4mbPYIm4SRqNnrWTbJZUU84amR9hZei4SGiR8UHRgxiUAMCiiBGuDNdW/+vqy59762q7r63+84d6N85l66u28z09Ff1vaq6imVkZGRkZGRkZGRkdHMceTxgmf34l1q4k+vl5JxjHYf1k9UE5+447vANLuMfyiqik3W+4nS4u59dw95dftPyDll9QHHACH7STZOaxrV7o3MsN4Yz5yzxp7UIQZ8mv64azvgW8c9TjDtvMOY9zzo61s498w/b5Nfdlm4t+OufmDScNblnOcyZHiZkIcB14p/X5CnBGVvlcOdI5vAWWeXjsMniZw6WZxVQY/CcBaIhLOquDaHbCR7CdnK5i5nLL9cJh3O2VEjmD47jveV1cCHYzj3VCsb/Xc4Q0aiGwSyI3zlD+zvRqDw+u8B3PP2Taev2yOqGplsI/ruLxvZqcgd+QwjgUvHgx8pqAoIWD34hZx1Pr1nprk/bJsNnYE1NJzHmTtM1BO6x24UmWLB6FV/TyP5BQwvef8jNlzsu+3dZRfi92vtpI/QwkwaCOXA4v2bVSr6gERtAQwqeHmaTO8dxnAtkFT1IIfCbnULht41qU2cvntwuNMEM0VCvllUN2wAaSvBQ6Xl34N1lAof9vGLu1KdWyqqGh/4Op+WaoKZSDWDO6U/dJ6u6lIYQPEKxtnZnBnPce2VVYgLHzx4/jrWWx/Eec/qLP75NhGnbhCO4RlYTiOPdAt9Sq2YxNIB1vOBNv+WM5ZtkVZfQ5YK/bsmXx7hO03zltKFnCIGfV43AVSzv8vw5IkQ7Jqg5qoUaoAgDHcYfRZRQjcBwXxPacjeUNADhBK5e1XlNV6n/LhO87mF4nH/r2ZXeXXEeRpxYPimk574ornPp+y45Ycr8+0Qj93jH1FtPf+YVuqCOdIngyVvPN99XfADw0gv7ZkZVrVChze6A6dxxrisP7+pNNeHbDUsmzxT3Pk9FAWjwt5z+5M/pyzpRd8GT5+s6DxRDH+5dGNXh0Xn7jYJvopw7C3zbvChawHdkWx4ONv6Ct+3seoWndRX87MWnfl+pdjwo4eRMiGIzqbE4zpWNKHAdQgv8IGoDuH7JlKtcx7kD5Xqq/roInux5u/u/SnCc8/tXr/QuDlON1MPz7sKuVufVggYgHLg5YX+ndHAXKy3IPW9i2uFr6oL3hZ57oqjSxMOYO3XZD+lLA9Lxmye0QzER0l3xTUB4lEJ+T3N+qWrkaQs/VcGX2zHx14Tac6HWzxQ+wC+LPsABArQcKxS+bXNgq+kk1ZKa4OmPmOhujqq+ys3BgUiU3l8v4efkMVH233w0tQVbPnSE+5q4foKsOiARnaC3+BsvmThrJG8aNWzlpuWbPPlVEdSJ7+5vbXU7hfAn4zNx1vC1K+7ZtEFekgiJ9/jKFmsXOlS747qPydODhrDcRdznGBdXHhODnLLIQkd4d/AJHdAzas6vI6dOAyKB1Ss7z6AGIhDPaYU/+pcMiQoeManyxH3bFCb0/enagxHyf4TwEc7JqhKKwsd4AXCdB0wNJS6JqXrcfM7J0w3aHJKDwYmrBpt2lKHeOjQUaAA0hqjpYROJ9HiEbUhAoEw3tqpzDn2hIRO6Hpsqhx+AjB7KMBEY3KIvaiARwVOsjtaIcEU4LKbWSOo9E7oREr5BlSONi8EclGEia7X3NQseI03KmaMY1eClZjY9IhaHDyN4ytmDvYempXIV1CR4ukE5a0bY9duNNkq0zkzo0VAOH3whWVUCRvCgWXEdpqnJ6tjU1uPz+dtwwI1gNgnVlYHGARUmTzMiAKHCF5KnJdCIn8e/iTLMpikiCKNqwVMvVvZaqHidXadW25z3VVNGLPBsYUblaQlCsz6uVD6mrZm0g42qBE+/SNgYlDH4YFLxlMzppkOqDYEwozS1TAPv6LwURzzf8e3uZVQZg6oEjxmxZItAofBtOpYBFaSSORnVg/kIuh6NCSzKy8dEjriOXmzB4yYwXwxlStRovHhco+L6jNpAj6ap5xowMZVCaAGmcVNlRGILPtjbMb2IKsuA6ilqhIzaESpf16PhV+ElDZQRNcXp9bEEX97bdXPK4MWrOWQZyWEK3fBqliwyvFgqi6HEEnyU3q5CvIxkgZevc/TQ69EJUXYcdqPOH9ARS/CYx05HQ2+nyZFZSjY1MLVcFktQnRCdckKbQzn9MCILnrx0NRGws1ObXDDdWEYymHo9OqHq9cLFn0vHECILnt5HE2BsWDcXHo5F1tvTx9S5PKfwOxzROU25/iCRBE92w+WXoyy8yFupsoy44URGdaBz6QSL0TsV2mExCTpaiCR4YTfGKadun7djIVUGQMPIBmHqiEGwnLObqSA7qY2Iqt6lBALywzqnDg1DFjPqgUGwWC2EjqKThg3eRBJ8MfXKvZ/SsRzHuVKWMuqASbDIosIHQ9lhTadQpYHQOXfwIt187m2U+b59h5WnaOHUNedaPpGnieKKFnfesdfLs0qefXch+/PHJUvXReLmU80Dhjcu8+eUgEG9RrBThpv91Ze2LGVv7nhOntn56lFXsF75koU1i7yx/Vm2buuT8iwawou/fe7UZRXjJGrCC7Tz3NOXnS6rKwjt8W6T04YjHAddXj7vDLC2rFpo7TOaHT94ivFz6siL5ZXpsHXP20L4w7W/G59zR3+XGmcYRw04mbUNPVf7M/CppvEWtXAF3jL8i1lRtmRO6F37y4MKaCVHHe40WUicMMEe0f+LrGe+rzxLh3vWfU+WKjn0kP7s5CFfk2d60DDQQEw88sc72M7PtsqzeOhi+gLf8ZIsMiwLI4sVhAp+f2zuLfKPZbhcO3JUK3m3Bwk2jLGDJslSOkAoqzY/JM8q+drR36J7NYGGgQaiY8vujey59x6RZ/FR2jgIJXMi2Hmr4IMtinfy12WxCE2rkmFe0oz4XLT5Gyd94auylB5PbLiL7d5bssB1CVOPuESWSkGDQMMwseC1ucwTxrpaitq4HM95EAfhwFU0DIVV8LzJO1QWaeBfFvdDS3umw7RR/yxLdgYfOpL16zFInqUDhPPQ+p/Is0pgv3X3cM7o78hSJdAi8CFqwZQpxTq+foFNpqMGq+CxBDiOSnVU4p4oC4kCuw2BRuWEzxud18SA9/7yFrPnPXUUzX8sgoYAx00HtAe0SBLo7DyWZcMR2tjk4Nl7PFZspkLpct9FHH6MLCVKXLs9bsjfy1K6PPrmf8pSJRDy4X2Pk2eMXTT2P2SpEmiPWlR8kKBWVmDFbllkWNxRFkuwO3dyHXes607n5VhUSS2Y7DY8YB1wnhBzp82nhY/Zb181D0BOP9oPqxG+mTQWtEbU2D8KSisHCYbdWHZdFkuwCl7ZEIfzjVQRgPLzKTh2UJGmh/bC+4vYWx++IM9KOfawxN4gtvLqB8vJG9eB+x7fOt0avtm0RjUUtXIZavq1iOeHUUUZ9h4v0Xn0JhVSKyZ7DYEXvM/Y+m165XPayH+KlEypFahoeOMm4MWbwjdoC2iNRCnfXaMI177Kpkj/ScXEZK9X/pkiFLZu63I66kCmrx7AG7fF9jqgJeKmZZNAaIQjZLEEo+Bt6b60gJ029Za3P/IDC/QYk6odMyi17HEFi9/6lTW2L8eWAayF0MkvBgfcKPgwVW5yGmrhxCFnyFIpSs0r1r6vXz0F8bQti5YkuB9bbB9k6cb/qTotWy1Gh1wSSdUHwwOFyWmoFthnCE6HUvMKm7qPmvFLAnjnJmdTAa3w9Kb6701QvpdeOZEEv/q53EeymBo2+6zUvMKm7tsP/wdZqg/ljbKcPft2JhazJ0kkwaflwQdBGKSjXM0rTOoeAzv1UvdhI28AId7YQfoMXlcSSfA6RJy4UxZrBoIypTdNPcqm7ke3GMcmEsU28hbkzCMvq1tjVJjie4VR8GHLieti+2qx2eVyNa+wqftThn1dltIDiSbbyFsQNA7bgE0qGON7n6p7fJLY7DIe2IzjbtB+ejXrpzJBvaY9QSOuIKHR0kgrqwydEdoTt5JIgtcNBCQFVKBtwgUemOljU7NpTtCAzY4ySaScb5xwawrZRXuGrjhEW4b1LtQEfd1AALbYlsWa+OIX0pm5NWn4hbKULGio5/+teZm537x0gzGxg4YaNlUrNtzRCz5kAM3e/LB9Ng4aR6HWlRUVac2gwUNOQ7XaVLwaebvvFfO7JfALkpw4Ur5nHggOoGEPPaosI0Tw0j4YHAVafL8G4k64iEvSI3YYb4eJMbH4T7+kI2bNmhxPkKSjJ2z8O7JYJBh+Ox3ublkswSp4ZR+M+WCTmonIuFaz2kPvifoxqdYkJ2jANs8c47+QqqM8LWvLzcM/SCq2F9HVe7JYJJhON0VnVsGrKTxAN2ijUzNxMAkGvWXBa3Mif9a893/yf5YCdR+cFVMLpwyfaXQm0fBWvEOLgBVBI0CjNGGK7XG/k0fMinzfOl9LpdPNU+bCenwgR6+box1sGHGxjcSZsnIm/vThi7JUSRIjdrDJGO838fiGu7TZRdukC/zt5Sofb9sM7Xss6533/ROc20Aop/O1irNvTVPmBFbBy3exyLPXzdEOS/LYsNlfW1ZOx7u71stSJRj4qTWEss2fg3bCrBwdSDLBBJiAv6AcUNX7d+/dwd75+FVKah3Wa5g14ydkU/HmMijOnGL8UarQEP5E5Bs0wkvUJtOrcfAgCJuajztLBYMgtokRtUzQgC22OaBhc+NhAmzj9sHYfsenvrke2vcYep9u0077voOcdTwti0WCs25tGjlCV/DfoDG9i2VrVSYgiKTUvOKVrRXPoEi179iFxeyw4WFz42ECYApM4Dkgtsd1A3oOYZ/s+4imXg/pcxRr6Xm41oQo1qx0K1Rd8O0am0YOF3xHx1pZ0tp5XuhYIouRsdnduGpeYVP31Y7YhYVdUSdO2iZoAsT2CG0xq6d38+fIkXxv15vsgddvkVdUEmbfwzRxpK1JZi+d8hckBIRG0245Ir5/WXyfrVlbR3RbmUAjt03MFegkZHPHaF6P59xJR9MSGx6fLUsZdWL1Kl4RSgdXJgnTxJEEH1hRSbsSAzbQl8WMOiA07+3alLlcmQTxu24tgyCRBC9XVKJkgMvzFW8z0qu5NaZvM6IjOuJ/y2KRkuXmImjgaKpeIJwJWktVRB5X67x73uHVvDNSRjjogLr95YMrk0TRwJEFr1ZUArpVrhA6KK2QkSIe16fz5IqW0Ly6lcnKiSx4yuKp2R6u8ws6lmO6qYxEINut2Q2EtolRURXnkWLMWDtN+rtJ+RsLmXZG7OrQbsLQc9jxg6awPj0Gitj9ELZr73a2aec69sgffy6vQNx8FRvebyzrc8hAVvD2sl2fbWcvb32Srd78O/ruyP7+eg9LNv6avRLIK1xywo9Zvx6HsZ2ffcB+9eK1srZ+GJ/5klOXIMFGDeO0J4+X1VYi93iAX1pU54Ze7/GOWbJYdzCQctZRV7KhfUezvoe0sJ75Pmxw75FsfOvZJFAA4eEc9fge1+F6/L/h/cawvkKwyKDhg2RKEAgd9TjWGzx3XQiHFC2ETicxNG4swRPyh6NX63Y7pAigizz8ca1+/v/Twi721Nvz6bPlk41s88frqcdDsKP6n0DXIC+OzNuz7z7MPt67jY5hufGuBB1KF8KpRY1Fw9ii0wYmYgs+Sq8veNtph6R6gx4MIFSMiuFzz8vfY3c970+D/vyh+18c3fDhWlLtaBD/9fy/lJiCRgNxu86T93t7cQ2DdPekIQK9Xrc3GnmV3EtntqMF9FwA1f2dCb8pqndF8N16qPvLTryDzIPphUb4CrOO/2Hx8zf51CYbG0FPLvBtFaEyzavLuzQsi2uCW5REISePsVhxz6bNEy8acbRobWO4w9rHX3joXavmb/VzxJLcqOHrW4e6bcL+pDeproxde3ewoweMYzm3iXp/a59j2MlDzqIRMEyC/KxjD+vV7NeDvj1aaNx7wtCzSfgf7NnExg6ezFp6Di1+j7L65HOHUP1fC7vZamEa6oLHz//RtDUVL6/MvHHE1x3H9W26x78y/5vLK+be2ahK8OBLF7Q+4+Ry14pe39tlvXqvuOft38uviE3LN3nimt8LKVyEa2R1qkBwL21ZJn5lTgh7AOvR1IsaAQT9147d7N1db1AD2PjRi6ynaAC98n1JmPigweD/HjXw5KLg4Ru8/8kGtv3TzfRR19dL8FDxc6c+WbHwD7J0Obc3vaYLf0qY35/RFzGoTtULENcHtrW+2rSasmiN58nTuoCeC3v9oxUXlAybKqcOwImb//L32c3PnMvWb/fVPwRa/s4dQjxcpz4QeL3wvXj9fr0lO1IZNnwMo2rBg+CGd9hgUJfKJWdQ7ZeSMrDpsNu6eet7Oz6lI77/x+P0K2JjEkTDsK9wms6LF5HUmcWcvPCjwgZjTNQkeNyYCDNo1yOhzo07IIuWO6eY9UsJOGlw2ODYXdt+L/u3ifdTbA4KnXvZ2vceoxge3//d4NPYTZMeYzd++SE2eqDfy+EYBpM1XQklajQClTtz0xQlPM+4Dl2QmgQPEGYUVb5oiTovHw1k9crOM9IUPkI3qG0IGSAxAxDTP7j+x6TesXQJ7DaAag+GfwjpGgFTdo60qdyZm7RsYd9M7dBsRGKlbG2otCHKXqFzhG6+F25+wkT3BYSBsioVxgyaRFk3qG5TL0ZqF/xl91sNk7gxzXACsxefeht8KZRNjSMOiQkenmY+N/AtqHxqkfsKY03qSrTcdbhOVmUIbEK/fsmUq9S2rbbr4lCzqlcgaRO09xCu1tkTjWH1Cm9o2ja/OwFTae7pk9uLQhfPDP4SfVEjifV4RckIHm5U2HadLSK13557ojjAcJBiU9slz1JoUXSYWux6kKoTOCaQ1Wu/aMQO4eiJsIONRPauadSw+5HQkZcQOEd9a6vbT1xnXa/lQITMoce/YhI68vBuU47GRJTpnH/pM4lt+pR4j1eo3ZBQtvV8QLGpDFMOBsjMCa/cFIOjpzPXeSDMX6qF1AQPyoVf8LadbZoWJJ2+pWl7/F0NnDPYaUsnKKp30MkLY3Ujc7WSquBBifBDWi/Z/bbcPBW2HEhI1X6eLQyjHIjj3otyWj1dkbrgQUk4Iv4gXvAm2N7ronHmvLvwQOn9Yb0cxOkgSVAXwYNyFSaehvUVH4AewB1nXneN+WHeeEfnpbZGTiYu33yfim7C7H9S1E3wACN4GMxRgsSQImbr2KYDQ/23tTszulMDIOFx76aw7FrQicM5nsfqld7FSYVsNuoqeEAZPrfl4WILF2oNiZ8wB6Y7NAAIDi+W2Ho4kL7MDUq1ExE0YJLUXfCKoN0HUXq/gnoKc2c0ghMoGu460cPvxgsnUdRzRS+P4POkQZcJHpSrfiJGy/d7jjOVOc6s4hh1HYCwsZsjXiaNGmr5tjx/W/A+66nay+lSwQMIb3y7e1lJ76cHy6+IOwLlZ7ucNiwOkGRDQK/0l4TxFmGhiDiOF5k2p+WaoFrH34fp0mnE51HpcsErKIRryt0dzN1X2wAUeOhNXv8WJ+ccK35uP1qhM2RVZ2zpgd0dhPp+B2vIVauCdQIHGJDBzKWu6OVBGkbwCmkDfyHUfzGGRwNwOL91n7djYRQfoCshld7UfHm5wKHWMT8u7TAtKg0neIWuAQDusdtFv1lQrRZIA/TuZnfAdBFxXKe53x8U+LZ5jdZgG1bwCmMD8O3unaIRLMNm+fV+sH7PbjqJOe6/Bs2TolEFrmh4wSvwoHk+f754yDeWRAESypIxvhBrv3V6Ozcm/cDJBxG+gggjpzGXzzDdg5D4TXi5satteBjdRvBBKAzk+XOwGJNOAApfEOx1rLkryjujbKeCTRmwPr/HnP7i4bSJJzTZ+juE/yF+9t0d3vZfN7r/EaRbCj7IfpVbn1jejzScB7vKxCRFtxd8OVIlDxEmYZgfvjGEcrGnd5EPwdlTKrzD8qAd7ofbuqugyzngBG+DkkWWPfSwWnejhFsZGRkZGRkZGRkZEWHs/wGe+wjAqJcMLQAAAABJRU5ErkJggg==",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "AIX SSH",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_aix_local.pl",
+                "package_name": "centreon-plugin-Operatingsystems-Aix-Local",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "operatingsystems-aix-ssh",
+        "status": "stable",
+        "status_message": "fix(pack) : Update command in AIX SSH",
+        "tags": [
+            "Aix",
+            "IBM",
+            "Operating System",
+            "OS",
+            "SSH"
+        ],
+        "update_date": "1610568629",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les processus AIX via SSH.}\r\n\r\n{EN: Check AIX processes by SSH.}",
+            "active_checks_enabled": 2,
+            "alias": "Process",
+            "check_timeperiod": "",
+            "command_name": "OS-AIX-SSH-Process",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "OS-AIX-Process-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier la synchronisation des volumes logiques AIX via SSH.}\r\n\r\n{EN: Check AIX logical volume synchronisation by SSH.}",
+            "active_checks_enabled": 2,
+            "alias": "Lvsync",
+            "check_timeperiod": "",
+            "command_name": "OS-AIX-SSH-Lvsync",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{state} =~ /stale/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-AIX-Lvsync-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les erreurs AIX via SSH.}\r\n\r\n{EN: Check AIX erreur pront by SSH.}",
+            "active_checks_enabled": 2,
+            "alias": "Errpt",
+            "check_timeperiod": "",
+            "command_name": "OS-AIX-SSH-Errpt",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEERRORTYPE$",
+                    "password": false,
+                    "value": "INFO, PEND, PERF, PERM, TEMP, UNKN"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEERRORCLASS$",
+                    "password": false,
+                    "value": "0"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-AIX-Errpt-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le retour de script AIX via SSH.}\r\n\r\n{EN: Check AIX command/script return by SSH.}",
+            "active_checks_enabled": 2,
+            "alias": "Cmd-Return",
+            "check_timeperiod": "",
+            "command_name": "OS-AIX-SSH-Cmd-Return",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "OS-AIX-Cmd-Return-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les inodes AIX via SSH.}\r\n\r\n{EN: Check AIX inodes by SSH.}",
+            "active_checks_enabled": 2,
+            "alias": "Inode",
+            "check_timeperiod": "",
+            "command_name": "OS-AIX-SSH-Inodes",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "OS-AIX-Inode-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le stockage AIX via SSH.}\r\n\r\n{EN: Check AIX storage by SSH.}",
+            "active_checks_enabled": 2,
+            "alias": "Storage",
+            "check_timeperiod": "",
+            "command_name": "OS-AIX-SSH-Storage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "OS-AIX-Storage-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

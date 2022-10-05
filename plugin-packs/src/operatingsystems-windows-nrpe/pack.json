@@ -1,0 +1,795 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c  check_service -a \\\\\\\"filter=$_SERVICEFILTER$\\\\\\\" \\\\\\\"service=$_SERVICESERVICE$\\\\\\\"  \\\\\\\"exclude=$_SERVICEEXCLUDE$\\\\\\\" \\\\\\\"exclude=$_SERVICEEXCLUDE2$\\\\\\\" \\\\\\\"warning=$_SERVICEWARNING$\\\\\\\" \\\\\\\"critical=$_SERVICECRITICAL$\\\\\\\" \\'top-syntax=$_SERVICETOPSYNTAX$\\'  \\'detail-syntax=$_SERVICEDETAILSYNTAX$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Windows-NRPE-Services-Auto",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_memory -a \\\\\\\"detail-syntax=$_SERVICEDETAILSYNTAX$\\\\\\\" \\\\\\\"warning=$_SERVICEWARNING$\\\\\\\" \\\\\\\"critical=$_SERVICECRITICAL$\\\\\\\" \\\\\\\"perf-config=$_SERVICEPERFCONFIG$\\\\\\\" \\\\\\\"filter=$_SERVICEFILTER$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Windows-NRPE-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$  -c check_drivesize -a \\\\\\\"drive=$_SERVICEDRIVE$\\\\\\\" \\\\\\\"perf-config=$_SERVICEPERFCONFIG$\\\\\\\" \\\\\\\"filter=$_SERVICEFILTER$\\\\\\\" \\\\\\\"warning=$_SERVICEWARNING$\\\\\\\" \\\\\\\"critical=$_SERVICECRITICAL$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Windows-NRPE-Disks",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_cpu -a \\\\\\\"warning=$_SERVICEWARNING$\\\\\\\" \\\\\\\"critical=$_SERVICECRITICAL$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Windows-NRPE-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c  check_service -a \\\\\\\"filter=$_SERVICEFILTER$\\\\\\\" \\\\\\\"service=$_SERVICESERVICE$\\\\\\\"  \\\\\\\"exclude=$_SERVICEEXCLUDE$\\\\\\\" \\\\\\\"ok=$_SERVICEOK$\\\\\\\" \\\\\\\"warning=$_SERVICEWARNING$\\\\\\\" \\\\\\\"critical=$_SERVICECRITICAL$\\\\\\\" \\'top-syntax=$_SERVICETOPSYNTAX$\\'  \\'detail-syntax=$_SERVICEDETAILSYNTAX$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Windows-NRPE-Services-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_tasksched -a \\\\\\\"filter=$_SERVICEFILTER$\\\\\\\" \\\\\\\"warning=$_SERVICEWARNING$\\\\\\\" \\\\\\\"critical=$_SERVICECRITICAL$\\\\\\\" \\\\\\\"perf-config=$_SERVICEPERFCONFIG$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Windows-NRPE-Tasksched",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_uptime -a \\\\\\\"warning=$_SERVICEWARNING$\\\\\\\" \\\\\\\"critical=$_SERVICECRITICAL$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Windows-NRPE-Uptime",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_pagefile -a \\'detail-syntax=$_SERVICEDETAILSYNTAX$\\' \\\\\\\"warning=$_SERVICEWARNING$\\\\\\\" \\\\\\\"critical=$_SERVICECRITICAL$\\\\\\\" \\\\\\\"perf-config=$_SERVICEPERFCONFIG$\\\\\\\" \\\\\\\"filter=$_SERVICEFILTER$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Windows-NRPE-Swap",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_pdh -a \\\\\\\"counter=$_SERVICECOUNTERNAME$\\\\\\\" \\\\\\\"warning=value > $_SERVICEWARNING$\\\\\\\" \\\\\\\"critical=value > $_SERVICECRITICAL$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Windows-NRPE-Counter",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_process -a \\'process=$_SERVICEPROCESS$\\' \\\\\\\"warning=$_SERVICEWARNING$\\\\\\\"  \\\\\\\"critical=$_SERVICECRITICAL$\\\\\\\" \\'top-syntax=$_SERVICETOPSYNTAX$\\' \\'detail-syntax=$_SERVICEDETAILSYNTAX$\\' \\\\\\\"filter=$_SERVICEFILTER$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Windows-NRPE-Process",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_files -a \\\\\\\"paths=$_SERVICEPATHS$\\\\\\\" \\\\\\\"pattern=$_SERVICEPATTERN$\\\\\\\" \\\\\\\"warning=$_SERVICEWARNING$\\\\\\\" \\\\\\\"critical=$_SERVICECRITICAL$\\\\\\\" top-syntax=\\'$_SERVICETOPSYNTAX$\\' detail-syntax=\\'$_SERVICEDETAILSYNTAX$\\' filter=\\\\\\\"$_SERVICEFILTER$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Windows-NRPE-Files",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_eventlog -a \\\\\\\"file=$_SERVICEFILE$\\\\\\\" \\\\\\\"filter=$_SERVICEFILTER$\\\\\\\" \\'top-syntax=$_SERVICETOPSYNTAX$\\' \\'detail-syntax=$_SERVICEDETAILSYNTAX$\\' \\\\\\\"warning=$_SERVICEWARNING$\\\\\\\" \\\\\\\"critical=$_SERVICECRITICAL$\\\\\\\" $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "OS-Windows-NRPE-Eventlog",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_logfiles -a \\'--logfile=\\\\\\\"$_SERVICELOGFILE$\\\\\\\" --tag=\\\\\\\"$_SERVICETAG$\\\\\\\" --criticalpattern=\\\\\\\"$_SERVICECRITICAL$\\\\\\\" --warningpattern=\\\\\\\"$_SERVICEWARNING$\\\\\\\" \\'\\\"",
+            "name": "OS-Windows-NRPE-Logfiles-Simple",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/$_HOSTNRPECLIENT$ -H $HOSTADDRESS$ -p $_HOSTNRPEPORT$ -t $_HOSTNRPETIMEOUT$ $_HOSTNRPEEXTRAOPTIONS$ -c check_centreon_plugins -a \\'os::windows::local::plugin\\' \\'time\\'  \\' --ntp-hostname=\\\\\\\"$_SERVICENTPADDR$\\\\\\\" --warning=\\\\\\\"$_SERVICEWARNING$\\\\\\\" --critical=\\\\\\\"$_SERVICECRITICAL$  $_SERVICEEXTRAOPTIONS$ \\'\\\"",
+            "name": "OS-Windows-NRPE-Ntp",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les serveurs Windows via NRPE (NSClientpp 0.4.3)}\r\n{EN: Template to check Windows server using NRPE protocol (NSClientpp 0.4.3)}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Windows server using NRPE protocol (NSClientpp 0.4.3)",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "iis-128-2.png",
+            "macros": [
+                {
+                    "key": "$_HOSTNRPECLIENT$",
+                    "value": "check_centreon_nrpe"
+                },
+                {
+                    "key": "$_HOSTNRPEEXTRAOPTIONS$",
+                    "value": "-u -m 8192"
+                },
+                {
+                    "key": "$_HOSTNRPEPORT$",
+                    "value": "5666"
+                },
+                {
+                    "key": "$_HOSTNRPETIMEOUT$",
+                    "value": "30"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Windows-NRPE",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "OS-Windows-Services-Auto-NRPE",
+                "OS-Windows-Memory-NRPE",
+                "OS-Windows-Disks-NRPE",
+                "OS-Windows-Cpu-NRPE"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABGdBTUEAALGPC/xhBQAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAOwgAADsIBFShKgAAAAXdJREFUeNrt0kENgEAMRNFqQRGOMIMJMEWCgbIC2Nve5jX56X3y6t23Tmtc/XXc1WkVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALAWwGwMZWQEAIwAgAAQAEoEUOfTaU0HucYLCwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABY2wdAJk7gki710QAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAABJ0RVh0RVhJRjpPcmllbnRhdGlvbgAxhFjs7wAAAABJRU5ErkJggg==",
+            "name": "iis-128-2.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ deprecate Pack",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Microsoft Windows Server via NRPE:\r\n* Counter-Active-Sessions\r\n* Counter-Generic\r\n* Cpu\r\n* Disk\r\n* EventLog\r\n* Files\r\n* Logfiles\r\n* Memory\r\n* NTP\r\n* Process\r\n* Services-Auto\r\n* Services\r\n* Swap\r\n* Task\r\n* Uptime"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un serveur Microsoft Windows via NRPE :\r\n* Counter-Active-Sessions\r\n* Counter-Generic\r\n* Cpu\r\n* Disk\r\n* EventLog\r\n* Files\r\n* Logfiles\r\n* Memory\r\n* NTP\r\n* Process\r\n* Services-Auto\r\n* Services\r\n* Swap\r\n* Task\r\n* Uptime"
+            }
+        ],
+        "discovery_category": "operating-system",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABGdBTUEAALGPC/xhBQAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAAOwgAADsIBFShKgAAAAXdJREFUeNrt0kENgEAMRNFqQRGOMIMJMEWCgbIC2Nve5jX56X3y6t23Tmtc/XXc1WkVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALAWwGwMZWQEAIwAgAAQAEoEUOfTaU0HucYLCwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABY2wdAJk7gki710QAAABh0RVh0U29mdHdhcmUAcGFpbnQubmV0IDQuMC45bDN+TgAAABJ0RVh0RVhJRjpPcmllbnRhdGlvbgAxhFjs7wAAAABJRU5ErkJggg==",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Windows NRPE",
+        "plugins_requirements": [],
+        "requirement": [],
+        "slug": "operatingsystems-windows-nrpe",
+        "status": "deprecated",
+        "status_message": "",
+        "tags": [
+            "Microsoft",
+            "NRPE",
+            "NSClient++",
+            "Operating System",
+            "Server",
+            "SNMP",
+            "System",
+            "Windows"
+        ],
+        "update_date": "1628772948",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier si les services automatiques sont d\u00e9marr\u00e9s.}\r\n\r\n{EN: Check that all auto-start services are running.}",
+            "active_checks_enabled": 2,
+            "alias": "Services-Auto",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NRPE-Services-Auto",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": "start_type = 'auto'"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICESERVICE$",
+                    "password": false,
+                    "value": "*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "not state_is_perfect()"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "not state_is_ok()"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETOPSYNTAX$",
+                    "password": false,
+                    "value": "${problem_list}"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEDETAILSYNTAX$",
+                    "password": false,
+                    "value": "${name}=${state} (${start_type})"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-Windows-Services-Auto-NRPE",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire vive (RAM)}\r\n\r\n{EN: Check the rate of the utilization of memory (RAM)}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NRPE-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "used > 90%"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEDETAILSYNTAX$",
+                    "password": false,
+                    "value": "%(type) free: %(free) used: %(used) size: %(size)"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "show-all"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": "type = 'physical'"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEPERFCONFIG$",
+                    "password": false,
+                    "value": "used(unit:B)used %(ignored:true)"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "used > 80%"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-Windows-Memory-NRPE",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le taux d'utilisation des disques Windows.}\r\n\r\n{EN: Check Windows disk usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Disks",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NRPE-Disks",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEDRIVE$",
+                    "password": false,
+                    "value": "*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERFCONFIG$",
+                    "password": false,
+                    "value": "used(unit:B)used %(ignored:true)"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": "type = 'fixed' and name not regexp '.*System Reserved.*'"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "total_used>80%"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "total_used>90%"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "show-all"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-Windows-Disks-NRPE",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine. Ce contr\u00f4le pourra remonter la moyenne du taux d'utilisation des CPU ainsi que le taux par CPU pour les CPU multi-coeur.}\r\n\r\n{EN: Check the rate of utilization of CPU for the machine. This check can give the average CPU utilization rate and the rate per CPU for multi-core CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NRPE-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "time = '5m' and load > 80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "time = '5m' and load > 90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "show-all"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-Windows-Cpu-NRPE",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'\u00e9tat des services Windows.}\r\n\r\n{EN: Check windows services states.}",
+            "active_checks_enabled": 2,
+            "alias": "Services-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NRPE-Services-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "not state_is_ok()"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEDETAILSYNTAX$",
+                    "password": false,
+                    "value": "${name}=${state} (${start_type})"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXCLUDE$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": "name in ('TEST')"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEOK$",
+                    "password": false,
+                    "value": "state_is_ok()"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICESERVICE$",
+                    "password": false,
+                    "value": "*"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICETOPSYNTAX$",
+                    "password": false,
+                    "value": "${problem_list}"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXCLUDE2$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-Windows-Services-Generic-Name-NRPE",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les t\u00e2ches planifi\u00e9es Windows.}\r\n\r\n{EN: Check windows scheduled task.}",
+            "active_checks_enabled": 2,
+            "alias": "Task-Generic",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NRPE-Tasksched",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": "enabled eq 1"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERFCONFIG$",
+                    "password": false,
+                    "value": "*(ignored:true)"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-Windows-Task-Generic-NRPE",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'uptime Windows.}\r\n\r\n{EN: Check windows uptime.}",
+            "active_checks_enabled": 2,
+            "alias": "Uptime",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NRPE-Uptime",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-Windows-Uptime-NRPE",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire virtuelle (SWAP)}\r\n\r\n{EN: Check the rate of the utilization of virtual memory (SWAP)}",
+            "active_checks_enabled": 2,
+            "alias": "Swap",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NRPE-Swap",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEDETAILSYNTAX$",
+                    "password": false,
+                    "value": "${name} ${used} (${size})"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERFCONFIG$",
+                    "password": false,
+                    "value": "used(unit:B)used %(ignored:true)"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": "size > 0"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "show-all"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-Windows-Swap-NRPE",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de r\u00e9cup\u00e9rer la valeur d'un compteur de performance.}\r\n\r\n{EN: Check the content of a performance counter.}",
+            "active_checks_enabled": 2,
+            "alias": "Counter-Generic",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NRPE-Counter",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "OS-Windows-Counter-Generic-NRPE",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le des processus (\u00e9tat, taille m\u00e9moire, nombres,...).}\r\n\r\n{EN: Checks processes (state, memory size, numbers,...).}",
+            "active_checks_enabled": 2,
+            "alias": "Process-generic",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NRPE-Process",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETOPSYNTAX$",
+                    "password": false,
+                    "value": "${status}: ${problem_list}"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEDETAILSYNTAX$",
+                    "password": false,
+                    "value": "${exe}=${state}"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "show-all"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-Windows-Process-Generic-NRPE",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier des fichiers/r\u00e9pertoires (taille, dernier acc\u00e8s,..).}\r\n\r\n{EN: Check files/directories (size, last access,...).}",
+            "active_checks_enabled": 2,
+            "alias": "Files-Generic",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NRPE-Files",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETOPSYNTAX$",
+                    "password": false,
+                    "value": "${status}: ${problem_count}/${count} files (${problem_list})"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEDETAILSYNTAX$",
+                    "password": false,
+                    "value": "${name}"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "show-all"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-Windows-Files-Generic-NRPE",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les \u00e9v\u00e9nements en erreurs dans les eventlogs.}\r\n\r\n{EN: Check eventlogs errors.}",
+            "active_checks_enabled": 2,
+            "alias": "Eventlog-Generic",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NRPE-Eventlog",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": "written > -60m and level in ('error', 'warning')"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETOPSYNTAX$",
+                    "password": false,
+                    "value": "${status}: ${count} ${problem_list}"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEDETAILSYNTAX$",
+                    "password": false,
+                    "value": "${source} ${id}"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "count>0"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "count>5"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "unique=1"
+                }
+            ],
+            "max_check_attempts": 1,
+            "name": "OS-Windows-Eventlog-Generic-NRPE",
+            "normal_check_interval": 60,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Controle les fichiers de logs.}\r\n\r\n{EN: Check log files.}",
+            "active_checks_enabled": 2,
+            "alias": "Logfiles-Generic",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NRPE-Logfiles-Simple",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "OS-Windows-Logfiles-Generic-NRPE",
+            "normal_check_interval": 10,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la synchronisation avec un serveur NTP.}\r\n\r\n{EN: Check the synchronization with an NTP server.}",
+            "active_checks_enabled": 2,
+            "alias": "Ntp",
+            "check_timeperiod": "",
+            "command_name": "OS-Windows-NRPE-Ntp",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "-1:1"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "-2:2"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "OS-Windows-Ntp-NRPE",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de sessions actives.}\r\n\r\n{EN: Check active sessions.}",
+            "active_checks_enabled": 2,
+            "alias": "Active-Sessions",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOUNTERNAME$",
+                    "password": false,
+                    "value": "\\\\Terminal Services\\\\Active Sessions"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "show-all"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "OS-Windows-Counter-Active-Sessions-NRPE",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "OS-Windows-Counter-Generic-NRPE",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

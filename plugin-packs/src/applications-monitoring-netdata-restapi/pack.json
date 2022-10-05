@@ -1,0 +1,445 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-Monitoring-Netdata-Restapi-Disks-Discover",
+                "command_for_macro": "App-Monitoring-Netdata-Restapi-Disks-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-Monitoring-Netdata-Restapi"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FSNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "App-Monitoring-Netdata-Restapi-Disk-Name",
+                "service_display_name": "Disk-$name$",
+                "service_template": "App-Monitoring-Netdata-Restapi-Disks-Global"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-Monitoring-Netdata-Restapi-Disks-Discover",
+                "command_for_macro": "App-Monitoring-Netdata-Restapi-Disks-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-Monitoring-Netdata-Restapi"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FSNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "App-Monitoring-Netdata-Restapi-Inodes-Name",
+                "service_display_name": "Inodes-$name$",
+                "service_template": "App-Monitoring-Netdata-Restapi-Inodes-Global"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-Monitoring-Netdata-Restapi-Interfaces-Discover",
+                "command_for_macro": "App-Monitoring-Netdata-Restapi-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-Monitoring-Netdata-Restapi"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "INTERFACENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "App-Monitoring-Netdata-Restapi-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "App-Monitoring-Netdata-Restapi-Traffic-Global"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_netdata_restapi.pl --plugin=apps::monitoring::netdata::restapi::plugin --mode=list-disks --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNETDATAAPIPORT$\\' --proto=\\'$_HOSTNETDATAAPIPROTOCOL$\\'  --endpoint=\\'$_HOSTNETDATAAPIENDPOINT$\\' --verbose --disco-format\\\"",
+            "name": "App-Monitoring-Netdata-Restapi-Disks-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_netdata_restapi.pl --plugin=apps::monitoring::netdata::restapi::plugin --mode=list-disks --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNETDATAAPIPORT$\\' --proto=\\'$_HOSTNETDATAAPIPROTOCOL$\\' --endpoint=\\'$_HOSTNETDATAAPIENDPOINT$\\' --verbose --disco-show\\\"",
+            "name": "App-Monitoring-Netdata-Restapi-Disks-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_netdata_restapi.pl --plugin=apps::monitoring::netdata::restapi::plugin --mode=list-charts --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNETDATAAPIPORT$\\' --proto=\\'$_HOSTNETDATAAPIPROTOCOL$\\' --endpoint=\\'$_HOSTNETDATAAPIENDPOINT$\\' --verbose --disco-format\\\"",
+            "name": "App-Monitoring-Netdata-Restapi-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_netdata_restapi.pl --plugin=apps::monitoring::netdata::restapi::plugin --mode=list-charts --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNETDATAAPIPORT$\\' --proto=\\'$_HOSTNETDATAAPIPROTOCOL$\\' --endpoint=\\'$_HOSTNETDATAAPIENDPOINT$\\' --verbose --disco-show\\\"",
+            "name": "App-Monitoring-Netdata-Restapi-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_netdata_restapi.pl --plugin=apps::monitoring::netdata::restapi::plugin --mode=traffic --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNETDATAAPIPORT$\\' --proto=\\'$_HOSTNETDATAAPIPROTOCOL$\\' --endpoint=\\'$_HOSTNETDATAAPIENDPOINT$\\' $_HOSTEXTRAOPTIONS$ --interface-name=\\'$_SERVICEINTERFACENAME$\\' --speed=\\'$_SERVICEINTERFACESPEED$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Monitoring-Netdata-Restapi-Traffic",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_netdata_restapi.pl --plugin=apps::monitoring::netdata::restapi::plugin --mode=swap --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNETDATAAPIPORT$\\' --proto=\\'$_HOSTNETDATAAPIPROTOCOL$\\' --endpoint=\\'$_HOSTNETDATAAPIENDPOINT$\\' $_HOSTEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Monitoring-Netdata-Restapi-Swap",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_netdata_restapi.pl --plugin=apps::monitoring::netdata::restapi::plugin --mode=memory --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNETDATAAPIPORT$\\' --proto=\\'$_HOSTNETDATAAPIPROTOCOL$\\' --endpoint=\\'$_HOSTNETDATAAPIENDPOINT$\\' $_HOSTEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' --warning-buffer=\\'$_SERVICEWARNINGBUFFER$\\' --critical-buffer=\\'$_SERVICECRITICALBUFFER$\\' --warning-cached=\\'$_SERVICEWARNINGCACHED$\\' --critical-cached=\\'$_SERVICECRITICALCACHED$\\' \\\\r\\\\n--warning-shared=\\'$_SERVICEWARNINGSHARED$\\' --critical-shared=\\'$_SERVICECRITICALSHARED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Monitoring-Netdata-Restapi-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_netdata_restapi.pl --plugin=apps::monitoring::netdata::restapi::plugin --mode=load --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNETDATAAPIPORT$\\' --proto=\\'$_HOSTNETDATAAPIPROTOCOL$\\' --endpoint=\\'$_HOSTNETDATAAPIENDPOINT$\\' $_HOSTEXTRAOPTIONS$ --warning-load1=\\'$_SERVICEWARNINGLOAD1$\\' --critical-load1=\\'$_SERVICECRITICALLOAD1$\\' --warning-load5=\\'$_SERVICEWARNINGLOAD5$\\' --critical-load5=\\'$_SERVICECRITICALLOAD5$\\' --warning-load15=\\'$_SERVICEWARNINGLOAD15$\\' --critical-load15=\\'$_SERVICECRITICALLOAD15$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Monitoring-Netdata-Restapi-Load",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_netdata_restapi.pl --plugin=apps::monitoring::netdata::restapi::plugin --mode=inodes --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNETDATAAPIPORT$\\' --proto=\\'$_HOSTNETDATAAPIPROTOCOL$\\' --endpoint=\\'$_HOSTNETDATAAPIENDPOINT$\\' $_HOSTEXTRAOPTIONS$ --fs-name=\\'$_SERVICEFSNAME$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Monitoring-Netdata-Restapi-Inodes",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_netdata_restapi.pl --plugin=apps::monitoring::netdata::restapi::plugin --mode=disks --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNETDATAAPIPORT$\\' --proto=\\'$_HOSTNETDATAAPIPROTOCOL$\\' --endpoint=\\'$_HOSTNETDATAAPIENDPOINT$\\' $_HOSTEXTRAOPTIONS$ --fs-name=\\'$_SERVICEFSNAME$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-free=\\'$_SERVICEWARNINGFREE$\\' --critical-free=\\'$_SERVICECRITICALFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' --warning-count=\\'$_SERVICEWARNINGCOUNT$\\' --critical-count=\\'$_SERVICECRITICALCOUNT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Monitoring-Netdata-Restapi-Disks",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_netdata_restapi.pl --plugin=apps::monitoring::netdata::restapi::plugin --mode=cpu --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNETDATAAPIPORT$\\' --proto=\\'$_HOSTNETDATAAPIPROTOCOL$\\' --endpoint=\\'$_HOSTNETDATAAPIENDPOINT$\\' $_HOSTEXTRAOPTIONS$ --warning-core=\\'$_SERVICEWARNINGCORE$\\' --critical-core=\\'$_SERVICECRITICALCORE$\\' \\\\r\\\\n--warning-average=\\'$_SERVICEWARNINGAVERAGE$\\' --critical-average=\\'$_SERVICECRITICALAVERAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Monitoring-Netdata-Restapi-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_netdata_restapi.pl --plugin=apps::monitoring::netdata::restapi::plugin --mode=alarms --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTNETDATAAPIPORT$\\' --proto=\\'$_HOSTNETDATAAPIPROTOCOL$\\' --endpoint=\\'$_HOSTNETDATAAPIENDPOINT$\\' $_HOSTEXTRAOPTIONS$ --filter-status=\\'$_SERVICEALARMSTATUS$\\' --warning-alarms-total=\\'$_SERVICEWARNINGALARMSTOTAL$\\' --critical-alarms-total=\\'$_SERVICECRITICALALARMSTOTAL$\\' --warning-alarms-warning=\\'$_SERVICEWARNINGALARMSWARNING$\\' --critical-alarms-warning=\\'$_SERVICECRITICALALARMSWARNING$\\' --warning-alarms-critical=\\'$_SERVICEWARNINGALARMSCRITICAL$\\' --critical-alarms-critical=\\'$_SERVICECRITICALALARMSCRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Monitoring-Netdata-Restapi-Alarms",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les serveurs *Nix via L'API de l'agent Netdata}\r\n{EN: Template to monitor *Nix Servers using Netdata Rest API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to monitor *Nix Servers using Netdata Rest API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "app-monitoring-netdata-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTNETDATAAPIPORT$",
+                    "value": "19999"
+                },
+                {
+                    "key": "$_HOSTNETDATAAPIPROTOCOL$",
+                    "value": "http"
+                },
+                {
+                    "key": "$_HOSTNETDATAAPIENDPOINT$",
+                    "value": "/api/v1"
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Netdata-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Monitoring-Netdata-Restapi-Traffic-Global",
+                "App-Monitoring-Netdata-Restapi-Swap",
+                "App-Monitoring-Netdata-Restapi-Memory",
+                "App-Monitoring-Netdata-Restapi-Load",
+                "App-Monitoring-Netdata-Restapi-Inodes-Global",
+                "App-Monitoring-Netdata-Restapi-Disks-Global",
+                "App-Monitoring-Netdata-Restapi-Cpu",
+                "App-Monitoring-Netdata-Restapi-Alarms"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "app-monitoring-netdata-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix(pack)missing-icon",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin-Pack to monitor *Nix based systems hosting the NetData agent through its API:\r\n\r\n* Alarms\r\n* Custom chart data\r\n* Cpu\r\n* Disk (by name or global)\r\n* Inodes (by name or global)\r\n* Load\r\n* Memory\r\n* Swap\r\n* Traffic (by interface name or global)"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin-Pack pour superviser les serveurs *Nix h\u00e9bergeant l\\'agent Netdata en utilisant l\\'API de dernier:\r\n\r\n* Alarmes\r\n* Custom chart data\r\n* Cpu\r\n* Disques (par nom ou \\\"global\\\")\r\n* Inodes (par nom ou \\\"global\\\")\r\n* Load\r\n* M\u00e9moire\r\n* Swap\r\n* Trafic (par interface ou \\\"global\\\")"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' \r\n",
+        "name": "Netdata RestAPI",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_monitoring_netdata_restapi.pl",
+                "package_name": "centreon-plugin-Applications-Monitoring-Netdata-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-monitoring-netdata-restapi",
+        "status": "stable",
+        "status_message": "fix(pack)missing-icon",
+        "tags": [
+            "Netdata",
+            "Restapi",
+            "API",
+            "OS",
+            "Linux",
+            "Operating System"
+        ],
+        "update_date": "1594967694",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante des interfaces. Pour chaque contr\u00f4le appara\u00eetra le nom de l'interface (\u00ab\u00a0label\u00a0\u00bb raccourci d\u00e9crivant l'interface).}\r\n\r\n{EN: Check the bandwidth of interfaces. For each checks the name of the interface will appear (\u00ab label \u00bb shortcut describing the interface).}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "App-Monitoring-Netdata-Restapi-Traffic",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERFACENAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Netdata-Restapi-Traffic-Global",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire virtuelle (SWAP)}\r\n\r\n{EN: Check virtual memory usage (SWAP)}",
+            "active_checks_enabled": 2,
+            "alias": "Swap",
+            "check_timeperiod": "",
+            "command_name": "App-Monitoring-Netdata-Restapi-Swap",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Netdata-Restapi-Swap",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire vive (RAM).}\r\n\r\n{EN: Check the rate of the utilization of memory (RAM).}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "App-Monitoring-Netdata-Restapi-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Netdata-Restapi-Memory",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la charge serveur.}\r\n\r\n{EN: Check the server load average.}",
+            "active_checks_enabled": 2,
+            "alias": "Load",
+            "check_timeperiod": "",
+            "command_name": "App-Monitoring-Netdata-Restapi-Load",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Netdata-Restapi-Load",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'inodes disponible d'un disque.}\r\n\r\n{EN: Check the rate of free inodes on the disk.}",
+            "active_checks_enabled": 2,
+            "alias": "Inodes-Global",
+            "check_timeperiod": "",
+            "command_name": "App-Monitoring-Netdata-Restapi-Inodes",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFSNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Netdata-Restapi-Inodes-Global",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'espace libre disponible des disques. Pour chaque contr\u00f4le appara\u00eetra le point de montage des disques (\u00ab\u00a0label\u00a0\u00bb). Les seuils pourront \u00eatre en pourcentage, en espace libre restant.}\r\n\r\n{EN: Check the rate of free space on disks. For each checks the mount point of disks will appear (\u00ab label \u00bb). Thresholds can be in percentage or in free space remaining.}",
+            "active_checks_enabled": 2,
+            "alias": "Disks-Global",
+            "check_timeperiod": "",
+            "command_name": "App-Monitoring-Netdata-Restapi-Disks",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFSNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Netdata-Restapi-Disks-Global",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine. Ce contr\u00f4le pourra remonter la moyenne du taux d'utilisation des CPU ainsi que le taux par CPU pour les CPU multi-coeur.}\r\n\r\n{EN: Check the rate of utilization of CPU for the machine. This check can give the average CPU utilization rate and the rate per CPU for multi-core CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "App-Monitoring-Netdata-Restapi-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Netdata-Restapi-Cpu",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Liste les alarmes actives remont\u00e9es par Netdata sur le serveur.}\r\n\r\n{EN: Check current active alarms from Netdata on the server.}",
+            "active_checks_enabled": 2,
+            "alias": "Alarms",
+            "check_timeperiod": "",
+            "command_name": "App-Monitoring-Netdata-Restapi-Alarms",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Netdata-Restapi-Alarms",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

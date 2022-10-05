@@ -1,0 +1,272 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$USER1$\\\\/check_icmp -H $HOSTADDRESS$ -w 3000.0,80% -c 5000.0,100% -p 1\\\"",
+            "name": "base_host_alive",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_centreon_poller.pl --plugin=apps::centreon::local::plugin --mode=dummy --status=\\'$_HOSTDUMMYSTATUS$\\' --output=\\'$_HOSTDUMMYOUTPUT$\\'\\\"",
+            "name": "App-Monitoring-Centreon-Host-Dummy",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$USER1$\\\\/check_icmp -H $HOSTADDRESS$ -n $_SERVICEPACKETNUMBER$ -w $_SERVICEWARNING$ -c $_SERVICECRITICAL$\\\"",
+            "name": "base_centreon_ping",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_centreon_poller.pl --plugin=apps::centreon::local::plugin --mode=dummy --status=\\'$_SERVICEDUMMYSTATUS$\\' --output=\\'$_SERVICEDUMMYOUTPUT$\\'\\\"",
+            "name": "App-Monitoring-Centreon-Service-Dummy",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "",
+            "active_checks_enabled": 1,
+            "alias": "generic-active-host",
+            "check_interval": 5,
+            "check_timeperiod": "24x7",
+            "checks_enabled": 2,
+            "command_name": "base_host_alive",
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "host_retry_check_interval": 1,
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "generic-active-host",
+            "notification_timeperiod": "24x7",
+            "parent_template": [],
+            "passive_checks_enabled": 0,
+            "services": [
+                "Base-Ping-LAN"
+            ],
+            "snmp_community": "public",
+            "snmp_version": "2c"
+        },
+        {
+            "_comment": "",
+            "active_checks_enabled": 0,
+            "alias": "generic-passive-host",
+            "check_interval": 1,
+            "check_timeperiod": "24x7",
+            "checks_enabled": 2,
+            "command_name": "App-Monitoring-Centreon-Host-Dummy",
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [
+                {
+                    "key": "$_HOSTDUMMYSTATUS$",
+                    "value": "OK"
+                },
+                {
+                    "key": "$_HOSTDUMMYOUTPUT$",
+                    "value": "Host is OK"
+                }
+            ],
+            "max_check_attempts": 1,
+            "name": "generic-passive-host",
+            "notification_timeperiod": "24x7",
+            "parent_template": [],
+            "passive_checks_enabled": 1,
+            "services": [],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "_comment": "",
+            "active_checks_enabled": 1,
+            "alias": "generic-dummy-host",
+            "check_interval": 15,
+            "check_timeperiod": "24x7",
+            "checks_enabled": 2,
+            "command_name": "App-Monitoring-Centreon-Host-Dummy",
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "host_retry_check_interval": 1,
+            "icon": "",
+            "macros": [
+                {
+                    "key": "$_HOSTDUMMYSTATUS$",
+                    "value": "OK"
+                },
+                {
+                    "key": "$_HOSTDUMMYOUTPUT$",
+                    "value": "This is a dummy check"
+                }
+            ],
+            "max_check_attempts": 1,
+            "name": "generic-dummy-host",
+            "notification_timeperiod": "24x7",
+            "parent_template": [],
+            "passive_checks_enabled": 0,
+            "services": [],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "_comment": "",
+            "active_checks_enabled": 1,
+            "alias": "Generic-Active-Cloud-Host",
+            "check_interval": 5,
+            "check_timeperiod": "24x7",
+            "checks_enabled": 2,
+            "command_name": "base_host_alive",
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "host_retry_check_interval": 1,
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Generic-Active-Cloud-Host",
+            "notification_timeperiod": "24x7",
+            "parent_template": [],
+            "passive_checks_enabled": 0,
+            "services": [],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* add cloud generic host\r\n* change pack name",
+        "dependencies": [],
+        "description": [
+            {
+                "lang": "en",
+                "value": "This Plugin Pack brings the basic elements required for the installation of other Packs.\r\n\r\nIt can be used to deploy really basic active or passive monitoring."
+            },
+            {
+                "lang": "fr",
+                "value": "Ce Plugin Pack am\u00e8ne les \u00e9l\u00e9ments de base n\u00e9cessaires \u00e0 l\\'installation des autres Packs.\r\n\r\nIl peut \u00eatre utilis\u00e9 pour d\u00e9ployer une supervision active ou passive vraiment basique."
+            }
+        ],
+        "discovery_category": "operating-system",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAHwAAAB8CAYAAACrHtS+AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMDY3IDc5LjE1Nzc0NywgMjAxNS8wMy8zMC0yMzo0MDo0MiAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTUgKFdpbmRvd3MpIiB4bXBNTTpJbnN0YW5jZUlEPSJ4bXAuaWlkOkIzN0FDQUU0Mjk4QjExRTZCNzQxREJBRTE2RUNGQTYxIiB4bXBNTTpEb2N1bWVudElEPSJ4bXAuZGlkOkIzN0FDQUU1Mjk4QjExRTZCNzQxREJBRTE2RUNGQTYxIj4gPHhtcE1NOkRlcml2ZWRGcm9tIHN0UmVmOmluc3RhbmNlSUQ9InhtcC5paWQ6QjM3QUNBRTIyOThCMTFFNkI3NDFEQkFFMTZFQ0ZBNjEiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6QjM3QUNBRTMyOThCMTFFNkI3NDFEQkFFMTZFQ0ZBNjEiLz4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz6eQ6MpAAASPUlEQVR42uxd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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n\r\nThere is no prerequisites needed for this Plugin Pack.\r\n\r\nThis Plugin Pack gives you all basic templates.\r\n\r\nYou can use it to create your own service templates, active as well as passive, with the following templates:\r\n\r\n* generic-active-service \r\n* generic-passive-service\r\n\r\nSame for hosts:\r\n\r\n* generic-active-host\r\n* generic-passive-host\r\n\r\n## Centreon Configuration\r\n\r\n### Create a host using the appropriate template\r\n\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as shown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>generic-host-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\nThe following service will be created and linked to the host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"27%\" />\r\n<col width=\"72%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Service</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Ping</p></td>\r\n<td align=\"left\"><p>Monitor host response time</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\n### Service Macro configuration\r\n\r\nThe following macros must be configured on services:\r\n\r\n<table>\r\n<col width=\"25%\" />\r\n<col width=\"12%\" />\r\n<col width=\"33%\" />\r\n<col width=\"17%\" />\r\n<col width=\"11%\" />\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Service</th>\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default Value</th>\r\n<th align=\"left\">Example</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Ping</p></td>\r\n<td align=\"left\"><p>PACKETNUMBER</p></td>\r\n<td align=\"left\"><p>Number of packet</p></td>\r\n<td align=\"left\"><p>5</p></td>\r\n<td align=\"left\"><p>5</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Ping</p></td>\r\n<td align=\"left\"><p>WARNING</p></td>\r\n<td align=\"left\"><p>Warning threshold</p></td>\r\n<td align=\"left\"><p>200,20%</p></td>\r\n<td align=\"left\"><p>200,20%</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Ping</p></td>\r\n<td align=\"left\"><p>CRITICAL</p></td>\r\n<td align=\"left\"><p>Critical Threshold</p></td>\r\n<td align=\"left\"><p>400,50%</p></td>\r\n<td align=\"left\"><p>400,50%</p></td>\r\n</tr>\r\n</tbody>\r\n</table>",
+        "name": "Base Pack",
+        "plugins_requirements": [],
+        "requirement": [],
+        "slug": "base-generic",
+        "status": "stable",
+        "status_message": "add cloud generic host",
+        "tags": [
+            "base",
+            "generic"
+        ],
+        "update_date": "1571147118",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": null,
+            "active_checks_enabled": 2,
+            "alias": "Ping",
+            "check_timeperiod": "",
+            "command_name": "base_centreon_ping",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPACKETNUMBER$",
+                    "password": false,
+                    "value": "5"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "200,20%"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "400,50%"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Base-Ping-LAN",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 1,
+            "alias": "generic-active-service",
+            "check_timeperiod": "24x7",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 0,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "generic-active-service",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "24x7",
+            "parent_template": null,
+            "passive_checks_enabled": 0,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": null,
+            "active_checks_enabled": 0,
+            "alias": "generic-passive-service",
+            "check_timeperiod": "24x7",
+            "command_name": "App-Monitoring-Centreon-Service-Dummy",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 1,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEDUMMYSTATUS$",
+                    "password": false,
+                    "value": "OK"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEDUMMYOUTPUT$",
+                    "password": false,
+                    "value": "Service is OK"
+                }
+            ],
+            "max_check_attempts": 1,
+            "name": "generic-passive-service",
+            "normal_check_interval": 1,
+            "notification_timeperiod": "24x7",
+            "parent_template": null,
+            "passive_checks_enabled": 1,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": [
+        {
+            "alias": "24_Hours_A_Day,_7_Days_A_Week",
+            "exceptions": [],
+            "friday": "00:00-24:00",
+            "inclusions": [],
+            "monday": "00:00-24:00",
+            "name": "24x7",
+            "saturday": "00:00-24:00",
+            "sunday": "00:00-24:00",
+            "thursday": "00:00-24:00",
+            "tuesday": "00:00-24:00",
+            "wednesday": "00:00-24:00"
+        }
+    ]
+}

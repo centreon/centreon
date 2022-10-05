@@ -1,0 +1,191 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_protocol_ldap.pl --plugin=apps::protocols::ldap::plugin --mode=login --hostname=$HOSTADDRESS$ --username=\\'$_HOSTLDAPUSERNAME$\\' --password=\\'$_HOSTLDAPPASSWORD$\\' $_HOSTLDAPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\'  --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Protocol-LDAP-Login",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_protocol_ldap.pl --plugin=apps::protocols::ldap::plugin --mode=search --hostname=$HOSTADDRESS$ --username=\\'$_HOSTLDAPUSERNAME$\\' --password=\\'$_HOSTLDAPPASSWORD$\\' $_HOSTLDAPEXTRAOPTIONS$ --search-base=\\'$_SERVICESEARCHBASE$\\' --search-filter=\\'$_SERVICESEARCHFILTER$\\' --warning-entries=\\'$_SERVICEWARNINGENTRIES$\\' --critical-entries=\\'$_SERVICECRITICALENTRIES$\\' --warning-time=\\'$_SERVICEWARNINGTIME$\\' --critical-time=\\'$_SERVICECRITICALTIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Protocol-LDAP-Search",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check a LDAP Server",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [
+                {
+                    "key": "$_HOSTLDAPEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTLDAPPASSWORD$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTLDAPUSERNAME$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Protocol-LDAP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Protocol-LDAP-Login"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Change search macros command",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor LDAP server:\r\n* Login\r\n* Search object"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un annuaire LDAP :\r\n* Login\r\n* Search object"
+            }
+        ],
+        "discovery_category": "protocol",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\nThis chapter describes the prerequisites installation needed by plugins\r\nto run.\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Protocol-Ldap\r\n\r\n### Remote server\r\nThe remote server must have an LDAP service running and available. A\r\nuser and password dedicated to monitoring is needed for security\r\nreasons.\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Protocol-LDAP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "LDAP Server",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_protocol_ldap.pl",
+                "package_name": "centreon-plugin-Applications-Protocol-Ldap",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-protocol-ldap",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Authentication",
+            "LDAP",
+            "LDAPS"
+        ],
+        "update_date": "1540832080",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le un acc\u00e8s vers un serveur LDAP.}\r\n\r\n{EN: Check login to a LDAP server.}",
+            "active_checks_enabled": 2,
+            "alias": "LDAP-Login",
+            "check_timeperiod": "",
+            "command_name": "App-Protocol-LDAP-Login",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Protocol-LDAP-Login",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le une recherche vers un serveur LDAP.}\r\n\r\n{EN: Check search to a LDAP server.}",
+            "active_checks_enabled": 2,
+            "alias": "LDAP-Search",
+            "check_timeperiod": "",
+            "command_name": "App-Protocol-LDAP-Search",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICESEARCHBASE$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICESEARCHFILTER$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Protocol-LDAP-Search",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

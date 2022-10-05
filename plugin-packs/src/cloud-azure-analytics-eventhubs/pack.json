@@ -1,0 +1,1404 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Analytics-EventHubs-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Analytics Event Hubs resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.EventHub/namespaces/HUB123456ABCD78",
+                            "location": "westeurope",
+                            "name": "HUB123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.EventHub/namespaces"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.EventHub/clusters/HUB789012EFGH34",
+                            "location": "westus",
+                            "name": "HUB789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.EventHub/clusters"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": "discovery.results.id"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCETYPE",
+                                "is_password": false,
+                                "source": "discovery.results.type"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Analytics-EventHubs-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Event Hubs",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Filter Resource Type",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "FILTERTYPE",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-analytics-eventhubs",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Analytics-EventHubs-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Analytics Event Hubs resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.EventHub/namespaces/HUB123456ABCD78",
+                            "location": "westeurope",
+                            "name": "HUB123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.EventHub/namespaces"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.EventHub/clusters/HUB789012EFGH34",
+                            "location": "westus",
+                            "name": "HUB789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.EventHub/clusters"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCETYPE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.type"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Analytics-EventHubs-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Event Hubs",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Filter Resource Type",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "FILTERTYPE",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-analytics-eventhubs",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Analytics-EventHubs-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Analytics Event Hubs resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.EventHub/namespaces/HUB123456ABCD78",
+                            "location": "westeurope",
+                            "name": "HUB123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.EventHub/namespaces"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.EventHub/clusters/HUB789012EFGH34",
+                            "location": "westus",
+                            "name": "HUB789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.EventHub/clusters"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCETYPE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.type"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Analytics-EventHubs-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Event Hubs",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Filter Resource Type",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "FILTERTYPE",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-analytics-eventhubs",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_analytics_eventhubs_api.pl --plugin=cloud::azure::analytics::eventhubs::plugin --mode=throughput --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --resource-type=\\'$_HOSTAZURERESOURCETYPE$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-outgoing-bytes=\\'$_SERVICEWARNINGOUTGOINGBYTES$\\' --critical-outgoing-bytes=\\'$_SERVICECRITICALOUTGOINGBYTES$\\' --warning-captured-bytes=\\'$_SERVICEWARNINGCAPTUREDBYTES$\\' --critical-captured-bytes=\\'$_SERVICECRITICALCAPTUREDBYTES$\\' --warning-incoming-bytes=\\'$_SERVICEWARNINGINCOMINGBYTES$\\' --critical-incoming-bytes=\\'$_SERVICECRITICALINCOMINGBYTES$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Analytics-EventHubs-Api-Throughput",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_analytics_eventhubs_api.pl --plugin=cloud::azure::analytics::eventhubs::plugin --mode=requests --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --resource-type=\\'$_HOSTAZURERESOURCETYPE$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-incoming-requests=\\'$_SERVICEWARNINGINCOMINGREQUESTS$\\' --critical-incoming-requests=\\'$_SERVICECRITICALINCOMINGREQUESTS$\\' --warning-throttled-requests=\\'$_SERVICEWARNINGTHROTTLEDREQUESTS$\\' --critical-throttled-requests=\\'$_SERVICECRITICALTHROTTLEDREQUESTS$\\' --warning-successful-requests=\\'$_SERVICEWARNINGSUCCESSFULREQUESTS$\\' --critical-successful-requests=\\'$_SERVICECRITICALSUCCESSFULREQUESTS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Analytics-EventHubs-Api-Requests",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_analytics_eventhubs_api.pl --plugin=cloud::azure::analytics::eventhubs::plugin --mode=messages --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --resource-type=\\'$_HOSTAZURERESOURCETYPE$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-captured-messages=\\'$_SERVICEWARNINGCAPTUREDMESSAGES$\\' --critical-captured-messages=\\'$_SERVICECRITICALCAPTUREDMESSAGES$\\' --warning-outgoing-messages=\\'$_SERVICEWARNINGOUTGOINGMESSAGES$\\' --critical-outgoing-messages=\\'$_SERVICECRITICALOUTGOINGMESSAGES$\\' --warning-incoming-messages=\\'$_SERVICEWARNINGINCOMINGMESSAGES$\\' --critical-incoming-messages=\\'$_SERVICECRITICALINCOMINGMESSAGES$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Analytics-EventHubs-Api-Messages",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_analytics_eventhubs_api.pl --plugin=cloud::azure::analytics::eventhubs::plugin --mode=health --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --resource-type=\\'$_HOSTAZURERESOURCETYPE$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --ok-status=\\'$_SERVICEOKSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Analytics-EventHubs-Api-Health",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_analytics_eventhubs_api.pl --plugin=cloud::azure::analytics::eventhubs::plugin --mode=errors --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --resource-type=\\'$_HOSTAZURERESOURCETYPE$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-server-errors=\\'$_SERVICEWARNINGSERVERERRORS$\\' --critical-server-errors=\\'$_SERVICECRITICALSERVERERRORS$\\' --warning-user-errors=\\'$_SERVICEWARNINGUSERERRORS$\\' --critical-user-errors=\\'$_SERVICECRITICALUSERERRORS$\\' --warning-quota-exceeded-errors=\\'$_SERVICEWARNINGQUOTAEXCEEDEDERRORS$\\' --critical-quota-exceeded-errors=\\'$_SERVICECRITICALQUOTAEXCEEDEDERRORS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Analytics-EventHubs-Api-Errors",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_analytics_eventhubs_api.pl --plugin=cloud::azure::analytics::eventhubs::plugin --mode=connections --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --resource-type=\\'$_HOSTAZURERESOURCETYPE$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-closed-connections=\\'$_SERVICEWARNINGCLOSEDCONNECTIONS$\\' --critical-closed-connections=\\'$_SERVICECRITICALCLOSEDCONNECTIONS$\\' --warning-active-connections=\\'$_SERVICEWARNINGACTIVECONNECTIONS$\\' --critical-active-connections=\\'$_SERVICECRITICALACTIVECONNECTIONS$\\' --warning-opened-connections=\\'$_SERVICEWARNINGOPENEDCONNECTIONS$\\' --critical-opened-connections=\\'$_SERVICECRITICALOPENEDCONNECTIONS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Analytics-EventHubs-Api-Connections",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_analytics_eventhubs_api.pl --plugin=cloud::azure::analytics::eventhubs::plugin --mode=backlog --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --resource-type=\\'$_HOSTAZURERESOURCETYPE$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-backlog-capture=\\'$_SERVICEWARNINGBACKLOGCAPTURE$\\' --critical-backlog-capture=\\'$_SERVICECRITICALBACKLOGCAPTURE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Analytics-EventHubs-Api-Backlog",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_analytics_eventhubs_api.pl --statefile-suffix='autodiscovery' --plugin=cloud::azure::analytics::eventhubs::plugin --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --filter-type='$_FILTERTYPE$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Analytics-EventHubs-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les instances Azure Event Hubs via l'API}\r\n{EN: Template to check Azure Event Hubs resources service using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Analytics Event Hubs service using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-analytics-eventhub-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCETYPE$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Analytics-EventHubs",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Analytics-EventHubs-Throughput-Api",
+                "Cloud-Azure-Analytics-EventHubs-Requests-Api",
+                "Cloud-Azure-Analytics-EventHubs-Messages-Api",
+                "Cloud-Azure-Analytics-EventHubs-Health-Api",
+                "Cloud-Azure-Analytics-EventHubs-Errors-Api",
+                "Cloud-Azure-Analytics-EventHubs-Connections-Api",
+                "Cloud-Azure-Analytics-EventHubs-Backlog-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-analytics-eventhub-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ Add proper tag management",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin-Pack to monitor Azure Event Hubs service using RestAPI or AZCLI.**\r\n\r\n*namespaces* & *clusters* are supported.\r\nAvailable Host template and related Services:\r\n\r\n|Cloud-Azure-Analytics-EventHubs-custom|\r\n|---|\r\n|Backlog|\r\n|Connections|\r\n|Errors|\r\n|Health|\r\n|Messages|\r\n|Requests|\r\n|Throughput|\r\n\r\nThis Plugin-Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin-Pack pour superviser les ressources Azure Event Hubs via RestAPI ou AZCLI.**\r\n\r\nCe Plugin-Pack est compatible avec les ressources de type *namespaces* & *clusters*.\r\nMod\u00e8le d\\'h\u00f4te disponibles et services associ\u00e9s:\r\n\r\n|Cloud-Azure-Analytics-EventHubs-custom|\r\n|---|\r\n|Backlog|\r\n|Connections|\r\n|Errors|\r\n|Health|\r\n|Messages|\r\n|Requests|\r\n|Throughput|\r\n\r\nCe Plugin-Pack fournit un *provider* Host Discovery pour le module d\\'auto-d\u00e9couverte d\\'H\u00f4tes"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure Event Hubs",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_analytics_eventhubs_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Analytics-EventHubs-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-analytics-eventhubs",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Azure",
+            "Microsoft",
+            "Analytics",
+            "Cloud",
+            "API",
+            "Restapi",
+            "HostDisco"
+        ],
+        "update_date": "1636822569",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le trafic sur les espaces de nom ou clusters Azure Event Hubs.}\r\n\r\n{EN: Check Azure Event Hubs namespaces & clusters throughput.}",
+            "active_checks_enabled": 2,
+            "alias": "Throughput",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Analytics-EventHubs-Api-Throughput",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Analytics-EventHubs-Throughput-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les requ\u00eates des espaces de nom ou clusters Azure Event Hubs.}\r\n\r\n{EN: Check Azure Event Hubs namespaces & clusters requests.}",
+            "active_checks_enabled": 2,
+            "alias": "Requests",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Analytics-EventHubs-Api-Requests",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Analytics-EventHubs-Requests-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les messages des espaces de nom ou clusters Azure Event Hubs.}\r\n\r\n{EN: Check Azure Event Hubs namespaces & clusters messages.}",
+            "active_checks_enabled": 2,
+            "alias": "Messages",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Analytics-EventHubs-Api-Messages",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Analytics-EventHubs-Messages-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la disponibilit\u00e9 des ressources Azure Event Hubs.}\r\n\r\n{EN: Check Azure Event Hubs health.}",
+            "active_checks_enabled": 2,
+            "alias": "Health",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Analytics-EventHubs-Api-Health",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEOKSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^Available$/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^Unavailable$/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^Unknown$/"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Analytics-EventHubs-Health-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les erreurs des espaces de nom ou clusters Azure Event Hubs.}\r\n\r\n{EN: Check Azure Event Hubs namespaces & clusters errors.}",
+            "active_checks_enabled": 2,
+            "alias": "Errors",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Analytics-EventHubs-Api-Errors",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Analytics-EventHubs-Errors-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les connexions aux espaces de nom ou clusters Azure Event Hubs.}\r\n\r\n{EN: Check Azure Event Hubs namespaces & clusters connections.}",
+            "active_checks_enabled": 2,
+            "alias": "Connections",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Analytics-EventHubs-Api-Connections",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Analytics-EventHubs-Connections-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le backlog des espaces de nom ou clusters Azure Event Hubs.}\r\n\r\n{EN: Check Azure Event Hubs namespaces & clusters backlog.}",
+            "active_checks_enabled": 2,
+            "alias": "Backlog",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Analytics-EventHubs-Api-Backlog",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Analytics-EventHubs-Backlog-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

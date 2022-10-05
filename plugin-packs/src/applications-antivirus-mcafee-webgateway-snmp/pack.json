@@ -1,0 +1,257 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mcafee_webgateway_snmp.pl --plugin=apps::antivirus::mcafee::webgateway::snmp::plugin --mode=versions --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --warning-dat-version=\\'$_SERVICEWARNINGDATVERSION$\\' --critical-dat-version=\\'$_SERVICECRITICALDATVERSION$\\' --warning-tsdb-version=\\'$_SERVICEWARNINGTSDBVERSION$\\' --critical-tsdb-version=\\'$_SERVICECRITICALTSDBVERSION$\\' --warning-proactive-version=\\'$_SERVICEWARNINGPROACTIVEVERSION$\\' --critical-proactive-version=\\'$_SERVICECRITICALPROACTIVEVERSION$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Antivirus-Mcafee-Webgateway-SNMP-Versions",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mcafee_webgateway_snmp.pl --plugin=apps::antivirus::mcafee::webgateway::snmp::plugin --mode=https-statistics --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --warning-requests=\\'$_SERVICEWARNINGREQUESTS$\\' --critical-requests=\\'$_SERVICECRITICALREQUESTS$\\' --warning-client-to-proxy=\\'$_SERVICEWARNINGCLIENTTOPROXY$\\' --critical-client-to-proxy=\\'$_SERVICECRITICALCLIENTTOPROXY$\\' --warning-server-to-proxy=\\'$_SERVICEWARNINGSERVERTOPROXY$\\' --critical-server-to-proxy=\\'$_SERVICECRITICALSERVERTOPROXY$\\' --warning-proxy-to-client=\\'$_SERVICEWARNINGPROXYTOCLIENT$\\' --critical-proxy-to-client=\\'$_SERVICECRITICALPROXYTOCLIENT$\\' --warning-proxy-to-server=\\'$_SERVICEWARNINGPROXYTOSERVER$\\' --critical-proxy-to-server=\\'$_SERVICECRITICALPROXYTOSERVER$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Antivirus-Mcafee-Webgateway-SNMP-Https-Statistics",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mcafee_webgateway_snmp.pl --plugin=apps::antivirus::mcafee::webgateway::snmp::plugin --mode=http-statistics --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --warning-requests=\\'$_SERVICEWARNINGREQUESTS$\\' --critical-requests=\\'$_SERVICECRITICALREQUESTS$\\' --warning-client-to-proxy=\\'$_SERVICEWARNINGCLIENTTOPROXY$\\' --critical-client-to-proxy=\\'$_SERVICECRITICALCLIENTTOPROXY$\\' --warning-server-to-proxy=\\'$_SERVICEWARNINGSERVERTOPROXY$\\' --critical-server-to-proxy=\\'$_SERVICECRITICALSERVERTOPROXY$\\' --warning-proxy-to-client=\\'$_SERVICEWARNINGPROXYTOCLIENT$\\' --critical-proxy-to-client=\\'$_SERVICECRITICALPROXYTOCLIENT$\\' --warning-proxy-to-server=\\'$_SERVICEWARNINGPROXYTOSERVER$\\' --critical-proxy-to-server=\\'$_SERVICECRITICALPROXYTOSERVER$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Antivirus-Mcafee-Webgateway-SNMP-Http-Statistics",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mcafee_webgateway_snmp.pl --plugin=apps::antivirus::mcafee::webgateway::snmp::plugin --mode=detections --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --warning-malware-detected=\\'$_SERVICEWARNINGMALWAREDETECTED$\\' --critical-malware-detected=\\'$_SERVICECRITICALMALWAREDETECTED$\\' --warning-category=\\'$_SERVICEWARNINGCATEGORY$\\' --critical-category=\\'$_SERVICECRITICALCATEGORY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Antivirus-Mcafee-Webgateway-SNMP-Detections",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mcafee_webgateway_snmp.pl --plugin=apps::antivirus::mcafee::webgateway::snmp::plugin --mode=connections --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --warning-legitimate=\\'$_SERVICEWARNINGLEGITIMATE$\\' --critical-legitimate=\\'$_SERVICECRITICALLEGITIMATE$\\' --warning-blocked=\\'$_SERVICEWARNINGBLOCKED$\\' --critical-blocked=\\'$_SERVICECRITICALBLOCKED$\\' --warning-blocked-by-am=\\'$_SERVICEWARNINGBLOCKEDBYAM$\\' --critical-blocked-by-am=\\'$_SERVICECRITICALBLOCKEDBYAM$\\' --warning-blocked-by-mf=\\'$_SERVICEWARNINGBLOCKEDBYMF$\\' --critical-blocked-by-mf=\\'$_SERVICECRITICALBLOCKEDBYMF$\\' --warning-blocked-by-uf=\\'$_SERVICEWARNINGBLOCKEDBYUF$\\' --critical-blocked-by-uf=\\'$_SERVICECRITICALBLOCKEDBYUF$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Antivirus-Mcafee-Webgateway-SNMP-Connections",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mcafee_webgateway_snmp.pl --plugin=apps::antivirus::mcafee::webgateway::snmp::plugin --mode=clients --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --warning-clients=\\'$_SERVICEWARNINGCLIENTS$\\' --critical-clients=\\'$_SERVICECRITICALCLIENTS$\\' --warning-sockets=\\'$_SERVICEWARNINGSOCKETS$\\' --critical-sockets=\\'$_SERVICECRITICALSOCKETS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Antivirus-Mcafee-Webgateway-SNMP-Clients",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_mcafee_webgateway_snmp.pl --plugin=apps::antivirus::mcafee::webgateway::snmp::plugin --mode=ftp-statistics --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --warning-client-to-proxy=\\'$_SERVICEWARNINGCLIENTTOPROXY$\\' --critical-client-to-proxy=\\'$_SERVICECRITICALCLIENTTOPROXY$\\' --warning-server-to-proxy=\\'$_SERVICEWARNINGSERVERTOPROXY$\\' --critical-server-to-proxy=\\'$_SERVICECRITICALSERVERTOPROXY$\\' --warning-proxy-to-client=\\'$_SERVICEWARNINGPROXYTOCLIENT$\\' --critical-proxy-to-client=\\'$_SERVICECRITICALPROXYTOCLIENT$\\' --warning-proxy-to-server=\\'$_SERVICEWARNINGPROXYTOSERVER$\\' --critical-proxy-to-server=\\'$_SERVICECRITICALPROXYTOSERVER$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Antivirus-Mcafee-Webgateway-SNMP-Ftp-Statistics",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check McAfee Web Gateway using SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "mcafee-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Antivirus-Mcafee-Webgateway-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Antivirus-Mcafee-Webgateway-Versions-SNMP",
+                "App-Antivirus-Mcafee-Webgateway-Https-Statistics-SNMP",
+                "App-Antivirus-Mcafee-Webgateway-Http-Statistics-SNMP",
+                "App-Antivirus-Mcafee-Webgateway-Detections-SNMP",
+                "App-Antivirus-Mcafee-Webgateway-Connections-SNMP",
+                "App-Antivirus-Mcafee-Webgateway-Clients-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAH4AAAB+CAYAAADiI6WIAAAEkklEQVR42u3dP04bQRTH8S1SRPFGAsLuuuQCnMBS5Jo6FWcAKX9Myx1ooxSh4QhRIiSgSs8pOAaZcbxobXnNejzz5t/3SVsFBYnP0/J+O2teUVAURVEURVEUlWHdNc2pum7ux+Mjfhr+aloUb75W705mdfkoBv8wHj/rSzfAXV1PYJAFnx2OTmdV+XRRv3/Wlzj8y9U0jzSA25oVxejbYXnZYncvf/DdBlD/fq+6Eio79Xnv7VEfeDjwi+u+aZ701/1pmhF05uAXdXmzCTw4+O6lfgVc0gDDS0FO9MA2BDxo+G4DkARen9C3AY8CvpsEaID+CT1ZeJLA5gk9ffiVBsghCZyXZWUTPG74lSSQYgNsM6FnB7/UAIkkgcWEfusKPCn42KOgHthMIhnwkSYBWxM68D0NEFoSaCd0H+DZwIcUBV1N6MAPbQDhJOB6QgfeIAq6HASlJnTgA0gCPiZ04C00gGkS8DmhA+8hCoYwoQMvmARsH5oAH3AD6CQQ4oQOvOPruvnwEDs48AbXj/rgL/DAAw888MADDzzwwAMPPPDAA2/2PD0HeH3K5+KkL1p4fYiiH6HOX6pomqf04OePhSf/z/XtPyKOGr79/9sG0M/UY4efVeWVPg9YfqED+LXwS9+rrieuGsAl/PxotyhG69/kAf5V+LZum+bY9hxgG16f4c9f3ugBB94A/uXXgPo6dQe4Cgl+PrAp8OnAFz6BN4BvS79Tp1+t8gm/mM63fsUb+B3glxrAMAmYw5c3X/ZHx+Zv6wK/M/wuSWBbeD2wrU7owHuGN0kCQ+E3TejABwTfbYBNSWATfDuhTx18Qgd4x/DdJLCuAdbB64FN/xGiqcOPZAEvBN+XBLrwi49GiXwIE3hh+G4DqO939r0++K0RbAxswEcA77uABx544IEHHnjggQceeOCBBx544IEHHnjggQceeOCBBx544IEHHnjggQceeOCBBx544IEHHnjggQceeOCBBx544IEHHnjggQceeOCBBx74yOB9rAOXLpf75uOFX1kHnlIDSGyzjB7e1TpwP7d0uX3zScF3G+CXuk3GgD31tG8+SXiTdeA+wH3um08avtsAfevApUv/qVOFfeZ733wW8EP2wUuAh7RvPi94D1Ew1H3zecILREE9sIUIDryjKOhjQgfeUxR8mdAjAAfeQhScT+geIxnwwlEwtAk9WPjFCrDHWPHbJPCz2vuoN0HGvlBYN61olnWxBJBt0sOXG9relWN0B4ixAWKEd7krx7hsLAEEfvNyw2nIx9Xt6g+pdeApw0vuyrH3K0B4H3xa8PK7ctw0gMN14CnB64HtPJJ3D7Z7BqAaQN0BboEPbELPKQn4hg9yQhdtAE9JwBd8FBN6ylFQGt5033wedwDBJCAHn8CELtoAVXXiMgm4hre1bz7bchUFXcFnM6HHeihkEz7rCV0yCag7wFUI8BL75inLSWAXeCb0iA+FzOCZ0KOPgtvAM6EnlASGwDOhR9wAfYdCffBM6IklgdUouArPhJ5w6Q9XtEmghWdCzywJXFcHn77sj475aVAURVEUlUr9AxHgnc7iBusEAAAAAElFTkSuQmCC",
+            "name": "mcafee-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* add versions check",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor McAfee Web Gateway application using SNMP:\r\n* Clients\r\n* Connections\r\n* Detections\r\n* FTP statistics\r\n* HTTP statistics\r\n* HTTPS statistics\r\n* Versions"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser l\\'application McAfee Web Gateway via SNMP:\r\n* Clients\r\n* Connexions\r\n* D\u00e9tections\r\n* Statistiques FTP\r\n* Statistiques HTTP\r\n* Statistiques HTTPS\r\n* Versions"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAH4AAAB+CAYAAADiI6WIAAAE2UlEQVR42u2aTW5TMRDHs2CB2iCxaPLKrhfgBNmwRmLDsmcoEoJWFSyy4QS9RI5QCUWiXKGn6DHA49rF8Rvb8/JBG/j9JEv9eM57nv94PDMvoxEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPzT/Oi605vj45NNP+d8NDr8fDSefxiPJ6Vrrt3/fkwmb9f5/JvR6Jl7zrOtr386nTkbLB6G+33I/O9dd7jsutdiRxnys/xtH4Rf/Dw+/vWz626HLloQoUXwi+mLXzI+vnxedCJxsHCvKxHSeg9xmJuuW8rcba9fPts/UxzODmbbOSdemfvnM672R/hk4bKgljAi8MV0vIiCDxI+3Oe6Eh3SHelEv4vzdmGD6FRxyK5tzZFrVNHd2EYE/fvCx4d3xvbHQOYATtzZ+XS8zAUfLHwYpdAv93Wiz/Prd2EDccKVZ3I2MTjkvGC35b6c8YuS5z44gFvk5dHBOyf4bUnwdYXXQn8a2nctfGnn1s5pedaeAzsbyWc9xm73dnU2dM/wyecbliO7JXwcLcE3Ej4J/XlotwgvUUPWEeeFaLXQIpZ1/SJk7fixnulhTfMVR5YI4+a0kkC/AVxCmz6jX6NslMzBQmI690e1W/f+CG8ceUZdigyWXELm1yJdyWnEsNnRcGq5TnWw0lzJsyobIDpnfEa/YZx94xgsvPcw8ejs3MsFlkxeSrjHEt6Xdw3DpCJq4pfO6Vr+YX4+Z0frmvLQXKwWBkamQcKnHpg6gIh6PhnfuXEmgifJ3kbC13as9r+aaH6XOoNrDpEnXdo53RNLKe0swvdKxHD/0DM5yzdV6piaQ8e5fr5ik3XK8KrwqQN8mY7fv1FC36bCa7sjJJSz0vWaYdPFx2ZPuqY8bCvheqGF/jxsWoSXM7iWAwRxl5rdFVssW+WnpQpZS/ga2xA+Ztd+x7pFPXh/4fo8uSotXOaXEqheCRccR+lrXPXspZR/cUdqn20K2WEN1pxr42rnqQgfky3L9b3dOjDU9bLysLPDOGuVdrXkTjtCrHlI2M1368y3NMOerPDW63uGH9j/H7qr8ncErax+k8R1nWixVrdwH4XvNV0K/XXtBZSWH1h2Y5ojtITPz2CfcCalVmmoekjJZpg75N3H3gqv1t/uLF7JDdKdkzRLWiWcpeRqCZ/fIy8n5fnkGjXpzEq5UKmc5A0hS3NqZ8JLlv8YwteaI6UzUnahmrXfl0qLfPRCbhJVWsKHxtKd1kzSSrm8ItHCfUx8Le9T1j7vxKNq7UQR/Pzo8FTq+scSXiuJav0A/9InEywmVEMSQGvnTptv7d7V3vztrIGTlxhpmKkJ/reF1+r1muhaxtz6Ykd+fTSytWXrz95Klp6HceXFy+2Qjt9o2xmuXHM5GX+z9Opr38DZtvAr556IIY2T+5cUi5jYpb3sIW/gSm1XmWMVPnm9PIsvW/zRIme0+1vz/tnc8GUZ01x7XdvwrpbgsXc/gv0jvBJdWoX3vXsX+t9skl3C08GXG9kRsCL4/RcyZgj+jxJrxoe3c/dfuZphmf8ESSS+Hhy8whIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAT5HfXKixsCdJTh0AAAAASUVORK5CYII=",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Antivirus-Mcafee-Webgateway-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](https://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Antivirus-Mcafee-Webgateway-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "McAfee Web Gateway",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_mcafee_webgateway_snmp.pl",
+                "package_name": "centreon-plugin-Applications-Antivirus-Mcafee-Webgateway-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-antivirus-mcafee-webgateway-snmp",
+        "status": "stable",
+        "status_message": "add versions check",
+        "tags": [
+            "Application",
+            "Antivirus",
+            "McAfee",
+            "Web",
+            "Web Gateway",
+            "SNMP",
+            "Security"
+        ],
+        "update_date": "1551096822",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les versions des bases de donn\u00e9es de signature.}\r\n\r\n{EN: Check virus definition databases version.}",
+            "active_checks_enabled": 2,
+            "alias": "Versions",
+            "check_timeperiod": "",
+            "command_name": "App-Antivirus-Mcafee-Webgateway-SNMP-Versions",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Antivirus-Mcafee-Webgateway-Versions-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le numbre de requ\u00eate et le trafic r\u00e9seau HTTPS client/proxy, serveur/proxy, proxy/client et proxy/serveur.}\n\n{EN: Check client/proxy, server/proxy, proxy/client and proxy/server HTTPS network traffic and requests count.}",
+            "active_checks_enabled": 2,
+            "alias": "Https-Statistics",
+            "check_timeperiod": "",
+            "command_name": "App-Antivirus-Mcafee-Webgateway-SNMP-Https-Statistics",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Antivirus-Mcafee-Webgateway-Https-Statistics-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le numbre de requ\u00eate et le trafic r\u00e9seau HTTP client/proxy, serveur/proxy, proxy/client et proxy/serveur.}\n\n{EN: Check client/proxy, server/proxy, proxy/client and proxy/server HTTP network traffic and requests count.}",
+            "active_checks_enabled": 2,
+            "alias": "Http-Statistics",
+            "check_timeperiod": "",
+            "command_name": "App-Antivirus-Mcafee-Webgateway-SNMP-Http-Statistics",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Antivirus-Mcafee-Webgateway-Http-Statistics-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de malware d\u00e9tect\u00e9, par cat\u00e9gories.}\n\n{EN: Check malware detection count, by categories.}",
+            "active_checks_enabled": 2,
+            "alias": "Detections",
+            "check_timeperiod": "",
+            "command_name": "App-Antivirus-Mcafee-Webgateway-SNMP-Detections",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Antivirus-Mcafee-Webgateway-Detections-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de connexions l\u00e9gitimes et bloqu\u00e9es.}\n\n{EN: Check legetimate and blocked connections.}",
+            "active_checks_enabled": 2,
+            "alias": "Connections",
+            "check_timeperiod": "",
+            "command_name": "App-Antivirus-Mcafee-Webgateway-SNMP-Connections",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Antivirus-Mcafee-Webgateway-Connections-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de clients connect\u00e9s, le nombre de socket r\u00e9seau ouvert.}\n\n{EN: Check connected clients count, open network sockets count.}",
+            "active_checks_enabled": 2,
+            "alias": "Clients",
+            "check_timeperiod": "",
+            "command_name": "App-Antivirus-Mcafee-Webgateway-SNMP-Clients",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Antivirus-Mcafee-Webgateway-Clients-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le trafic r\u00e9seau FTP client/proxy, serveur/proxy, proxy/client et proxy/serveur.}\n\n{EN: Check client/proxy, server/proxy, proxy/client and proxy/server FTP network traffic.}",
+            "active_checks_enabled": 2,
+            "alias": "Ftp-Statistics",
+            "check_timeperiod": "",
+            "command_name": "App-Antivirus-Mcafee-Webgateway-SNMP-Ftp-Statistics",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Antivirus-Mcafee-Webgateway-Ftp-Statistics-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

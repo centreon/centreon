@@ -1,0 +1,146 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_ses_api.pl --plugin=cloud::aws::ses::plugin --mode=emails --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --dimension=\\'$_SERVICEDIMENSION$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-emails-rejected=\\'$_SERVICEWARNINGEMAILSREJECTED$\\' --critical-emails-rejected=\\'$_SERVICECRITICALEMAILSREJECTED$\\' --warning-emails-delivered=\\'$_SERVICEWARNINGEMAILSDELIVERED$\\' --critical-emails-delivered=\\'$_SERVICECRITICALEMAILSDELIVERED$\\' --warning-emails-spam=\\'$_SERVICEWARNINGEMAILSSPAM$\\' --critical-emails-spam=\\'$_SERVICECRITICALEMAILSSPAM$\\' --warning-emails-sent=\\'$_SERVICEWARNINGEMAILSSENT$\\' --critical-emails-sent=\\'$_SERVICECRITICALEMAILSSENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Ses-Api-Emails",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Amazon Simple Email Service (Amazon SES) instance via l'API}\r\n{EN: Template to check Amazon Simple Email Service (Amazon SES) instance using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Amazon Simple Email Service (Amazon SES) instance using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "aws-ses-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAWSACCESSKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSSECRETKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSREGION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSCUSTOMMODE$",
+                    "value": "awscli"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Ses",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Aws-Ses-Emails-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "aws-ses-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Promote to stable",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Amazon SES (Simple Email Service).**\r\n\r\nAvailable host templates and related services:\r\n\r\n|Cloud-Aws-Ses|\r\n|---|\r\n|Emails|\r\n"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser le service Amazon SES (Simple Email Service).**\r\n\r\nMod\u00e8les d\\'h\u00f4te disponibles et leurs services :\r\n\r\n|Cloud-Aws-Ses|\r\n|---|\r\n|Emails|\r\n"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Amazon SES",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_aws_ses_api.pl",
+                "package_name": "centreon-plugin-Cloud-Aws-Ses-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-aws-ses",
+        "status": "stable",
+        "status_message": "Promote to stable",
+        "tags": [
+            "Amazon",
+            "Cloud",
+            "AWS",
+            "SES"
+        ],
+        "update_date": "1607534955",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'activit\u00e9 des emails envoy\u00e9s.}\r\n\r\n{EN: Check emails sending activity.}",
+            "active_checks_enabled": 2,
+            "alias": "Emails",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Ses-Api-Emails",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "3600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Ses-Emails-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

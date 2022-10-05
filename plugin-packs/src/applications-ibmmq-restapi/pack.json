@@ -1,0 +1,254 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-Ibmmq-Restapi-Queue-Managers-Discover",
+                "command_for_macro": "App-Ibmmq-Restapi-Queue-Managers-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-Ibmmq-Restapi"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "QMGRNAME",
+                        "value": "$name$"
+                    }
+                ],
+                "name": "App-Ibmmq-Restapi-Queue-Manager-Name",
+                "service_display_name": "Queue-Manager-$name$",
+                "service_template": "App-Ibmmq-Queue-Managers-Restapi"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-Ibmmq-Restapi-Queues-Discover",
+                "command_for_macro": "App-Ibmmq-Restapi-Queues-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$type$",
+                        "order": 0,
+                        "pattern": "alias",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "App-Ibmmq-Restapi"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "QMGRNAME",
+                        "value": "$qmgr$"
+                    },
+                    {
+                        "is_empty": null,
+                        "name": "QUEUENAME",
+                        "value": "$name$"
+                    }
+                ],
+                "name": "App-Ibmmq-Restapi-Queue-Name",
+                "service_display_name": "Queue-$qmgr$-$name$",
+                "service_template": "App-Ibmmq-Queues-Restapi"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ibmmq_restapi.pl --plugin=apps::mq::ibmmq::restapi::plugin --mode=list-queue-managers --hostname=127.0.0.1 --api-username=none --api-password=none --disco-format\\\"",
+            "name": "App-Ibmmq-Restapi-Queue-Managers-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ibmmq_restapi.pl --plugin=apps::mq::ibmmq::restapi::plugin --mode=list-queue-managers --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTIBMMQAPIUSERNAME$\\' --api-password=\\'$_HOSTIBMMQAPIPASSWORD$\\' --port=\\'$_HOSTIBMMQAPIPORT$\\' --proto=\\'$_HOSTIBMMQAPIPROTO$\\' --url-path=\\'$_HOSTIBMMQAPIURLPATH$\\' $_HOSTIBMMQAPIEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "App-Ibmmq-Restapi-Queue-Managers-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ibmmq_restapi.pl --plugin=apps::mq::ibmmq::restapi::plugin --mode=list-queues --hostname=127.0.0.1 --api-username=none --api-password=none --disco-format\\\"",
+            "name": "App-Ibmmq-Restapi-Queues-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ibmmq_restapi.pl --plugin=apps::mq::ibmmq::restapi::plugin --mode=list-queues --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTIBMMQAPIUSERNAME$\\' --api-password=\\'$_HOSTIBMMQAPIPASSWORD$\\' --port=\\'$_HOSTIBMMQAPIPORT$\\' --proto=\\'$_HOSTIBMMQAPIPROTO$\\' --url-path=\\'$_HOSTIBMMQAPIURLPATH$\\' $_HOSTIBMMQAPIEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "App-Ibmmq-Restapi-Queues-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ibmmq_restapi.pl --plugin=apps::mq::ibmmq::restapi::plugin --mode=queues --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTIBMMQAPIUSERNAME$\\' --api-password=\\'$_HOSTIBMMQAPIPASSWORD$\\' --port=\\'$_HOSTIBMMQAPIPORT$\\' --proto=\\'$_HOSTIBMMQAPIPROTO$\\' --url-path=\\'$_HOSTIBMMQAPIURLPATH$\\' $_HOSTIBMMQAPIEXTRAOPTIONS$ --qmgr-name=\\'$_SERVICEQMGRNAME$\\' --filter-qmgr-name=\\'$_SERVICEFILTERQMGRNAME$\\' --queue-name=\\'$_SERVICEQUEUENAME$\\' --filter-queue-name=\\'$_SERVICEFILTERQUEUENAME$\\' --warning-connections-input=\\'$_SERVICEWARNINGCONNECTIONSINPUT$\\' --critical-connections-input=\\'$_SERVICECRITICALCONNECTIONSINPUT$\\' --warning-messages-depth=\\'$_SERVICEWARNINGMESSAGESDEPTH$\\' --critical-messages-depth=\\'$_SERVICECRITICALMESSAGESDEPTH$\\' --warning-message-oldest=\\'$_SERVICEWARNINGMESSAGEOLDEST$\\' --critical-message-oldest=\\'$_SERVICECRITICALMESSAGEOLDEST$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Ibmmq-Restapi-Queues",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ibmmq_restapi.pl --plugin=apps::mq::ibmmq::restapi::plugin --mode=queue-managers --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTIBMMQAPIUSERNAME$\\' --api-password=\\'$_HOSTIBMMQAPIPASSWORD$\\' --port=\\'$_HOSTIBMMQAPIPORT$\\' --proto=\\'$_HOSTIBMMQAPIPROTO$\\' --url-path=\\'$_HOSTIBMMQAPIURLPATH$\\' $_HOSTIBMMQAPIEXTRAOPTIONS$ --qmgr-name=\\'$_SERVICEQMGRNAME$\\' --filter-qmgr-name=\\'$_SERVICEFILTERQMGRNAME$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-connections=\\'$_SERVICEWARNINGCONNECTIONS$\\' --critical-connections=\\'$_SERVICECRITICALCONNECTIONS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Ibmmq-Restapi-Queue-Managers",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser IBM MQ via la Rest API}\r\n{EN: Template to check IBM MQ using Rest API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check IBM MQ using Rest API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "ibm-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTIBMMQAPIPORT$",
+                    "value": "9443"
+                },
+                {
+                    "key": "$_HOSTIBMMQAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTIBMMQAPIURLPATH$",
+                    "value": "/ibmmq/rest/v1/admin"
+                },
+                {
+                    "key": "$_HOSTIBMMQAPIEXTRAOPTIONS$",
+                    "value": "--http-backend=curl --insecure"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Ibmmq-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Ibmmq-Queues-Restapi",
+                "App-Ibmmq-Queue-Managers-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAAsSAAALEgHS3X78AAAE50lEQVR42u2cX2gcVRSHy1prt6IhsbaNttmkFlGDJdUQ8SH0QYKClYoggT4UbS2RFpvd1CjFaksfVaLFh4IiCq1iVUREpBCk7qTVIt2XUmMRg9AW/0AeNBVUEOu9OOh02dk9d+bcccl+H/wgD/eec+beX5Izs3dnwQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaDIKxfJezxqvyndvBjmjKhltMOpwXJerPdRyY8q9ulm5nhEb9JJn/VR1ERMZ5KylP42OGt3fs+tTyWIv81DDnpQGOKBcT6WVDBDVlFHv/2CAszc9eSLh5gdX2rXEAHr6zWhLxgawGkj427/BQy0VmiAAgJa+DfzIsw5V5dti9GET6l2jtkidbR5z7Xbco1c91THRyk1gLe3KoAm0+tlosXDzb/FYRwUDXK4TGRnAaqPQAM/5NsApz5qsuqBSBjmT6vPuYvmKsM52z7meFRrgkMcaDtMEAQBAzP+fY0bnBTqrlG+TMJ/VJuEz9E6HmFYPCGs97Ri3ls4ZLY+JP6gQ3+pYmg2ZFnaTc0oG2ObQwW4TGmClY2d8t7DWWaVOvBgT/3Wl+NMYQB7zd6MlGRvgVI3YeaNfmsEA+41eE+gVJQMMCvNZDQoN0O4Qc7dDrS85xG2ktqrYvYqx99PMAEACuktBh9H1Ai1VyrdYmM+HFjrWulQ5fz6Mm1eO25F4Q5q8CdTUN93F8lWOtc4q13A4jPumctxpDFBfF436EtQ66xD/L8G4X+0zAbuWwuNsf2CA9LK3WusT1io1wIzRceHYo8Jx7wiNktoAw0aPC7RVyQC3CvNpqTdFrY8Ic9inmwPKddt12iocO0w3CwDJn8zdJ9CQUr5Vwnxa6kxR6z3CHOv/Gf9ZXqnmJWH+IeH4wTQbMt+bwAtGt/luAu34rp1TOfPzdynr/b5Q+vfE0hx3ATr6wajbtwEin62kqXUiEgsDKOrLnvAsoGcDrBE+E4hTf9YGWGt0l0D9SgZYJsznQ3nHWu8Uxu2rmndHwvoGVj89GY3TL5y3lm4WAJL9SR4xekagcaV864T5rNbJYgbXOsTc7FDrmDDmjhpzNzrUZPVQjRjjwrkj87UJ9HEk7GJhtLzIVxMYmbvZsfl7rEaMOc4E6hvgkrShTWmAa8JP/6QvsmjDANkZ4GHfBgjnvyWcfyRmvn8DdJWmFkqlY4CpnDSfHSuJuXr0uNN1FMbKOd21qX3SqGssEF3rqmKQa4a9AYD5eqv3otEHfhVcF8n3qP98ifVe1+h/j4TDc/VpYx6ss/adDeb21Jn7tsY120AV/8/ag5WRwpv5BRGVqkU+rxBzJm4Te/d9ZXOciZlnvzeYq2OAOY1rxgCXa2+WBghzPBUz74UG89QMcCT8pqtHBcurnmCdbkLZN2asqFrkSYW4nzTYyBti5vU1mHdS47ppggAAWvo28OPwrJpHBSsi+fb4zyfSTL2XRYe1fqGQpyzchwPh+PeF489orEOr3gV8a0/1ChbZ+11AJNeD4fidwvHcBibQ10bbC8IvgmZsgEVGP9pjcVkbYJ/RG34VtEcKHw7ff5OVXg43/fY1T5x0/fc4oXD9zzvkG3IYe1Bjb2iCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJqNvwHNnenmiznmwAAAAABJRU5ErkJggg==",
+            "name": "ibm-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor IBM MQ using Rest API:\r\n* Queues\r\n* Queue managers"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser IBM MQ via l\\'API Rest :\r\n* Queues\r\n* Queue managers"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAACXBIWXMAAAsSAAALEgHS3X78AAAE50lEQVR42u2cX2gcVRSHy1prt6IhsbaNttmkFlGDJdUQ8SH0QYKClYoggT4UbS2RFpvd1CjFaksfVaLFh4IiCq1iVUREpBCk7qTVIt2XUmMRg9AW/0AeNBVUEOu9OOh02dk9d+bcccl+H/wgD/eec+beX5Izs3dnwQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaDIKxfJezxqvyndvBjmjKhltMOpwXJerPdRyY8q9ulm5nhEb9JJn/VR1ERMZ5KylP42OGt3fs+tTyWIv81DDnpQGOKBcT6WVDBDVlFHv/2CAszc9eSLh5gdX2rXEAHr6zWhLxgawGkj427/BQy0VmiAAgJa+DfzIsw5V5dti9GET6l2jtkidbR5z7Xbco1c91THRyk1gLe3KoAm0+tlosXDzb/FYRwUDXK4TGRnAaqPQAM/5NsApz5qsuqBSBjmT6vPuYvmKsM52z7meFRrgkMcaDtMEAQBAzP+fY0bnBTqrlG+TMJ/VJuEz9E6HmFYPCGs97Ri3ls4ZLY+JP6gQ3+pYmg2ZFnaTc0oG2ObQwW4TGmClY2d8t7DWWaVOvBgT/3Wl+NMYQB7zd6MlGRvgVI3YeaNfmsEA+41eE+gVJQMMCvNZDQoN0O4Qc7dDrS85xG2ktqrYvYqx99PMAEACuktBh9H1Ai1VyrdYmM+HFjrWulQ5fz6Mm1eO25F4Q5q8CdTUN93F8lWOtc4q13A4jPumctxpDFBfF436EtQ66xD/L8G4X+0zAbuWwuNsf2CA9LK3WusT1io1wIzRceHYo8Jx7wiNktoAw0aPC7RVyQC3CvNpqTdFrY8Ic9inmwPKddt12iocO0w3CwDJn8zdJ9CQUr5Vwnxa6kxR6z3CHOv/Gf9ZXqnmJWH+IeH4wTQbMt+bwAtGt/luAu34rp1TOfPzdynr/b5Q+vfE0hx3ATr6wajbtwEin62kqXUiEgsDKOrLnvAsoGcDrBE+E4hTf9YGWGt0l0D9SgZYJsznQ3nHWu8Uxu2rmndHwvoGVj89GY3TL5y3lm4WAJL9SR4xekagcaV864T5rNbJYgbXOsTc7FDrmDDmjhpzNzrUZPVQjRjjwrkj87UJ9HEk7GJhtLzIVxMYmbvZsfl7rEaMOc4E6hvgkrShTWmAa8JP/6QvsmjDANkZ4GHfBgjnvyWcfyRmvn8DdJWmFkqlY4CpnDSfHSuJuXr0uNN1FMbKOd21qX3SqGssEF3rqmKQa4a9AYD5eqv3otEHfhVcF8n3qP98ifVe1+h/j4TDc/VpYx6ss/adDeb21Jn7tsY120AV/8/ag5WRwpv5BRGVqkU+rxBzJm4Te/d9ZXOciZlnvzeYq2OAOY1rxgCXa2+WBghzPBUz74UG89QMcCT8pqtHBcurnmCdbkLZN2asqFrkSYW4nzTYyBti5vU1mHdS47ppggAAWvo28OPwrJpHBSsi+fb4zyfSTL2XRYe1fqGQpyzchwPh+PeF489orEOr3gV8a0/1ChbZ+11AJNeD4fidwvHcBibQ10bbC8IvgmZsgEVGP9pjcVkbYJ/RG34VtEcKHw7ff5OVXg43/fY1T5x0/fc4oXD9zzvkG3IYe1Bjb2iCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJqNvwHNnenmiznmwAAAAABJRU5ErkJggg==",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "IBM MQ Rest API",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_ibmmq_restapi.pl",
+                "package_name": "centreon-plugin-Applications-Ibmmq-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-ibmmq-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "IBM",
+            "MQ",
+            "Restapi",
+            "Application"
+        ],
+        "update_date": "1632746195",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les queues.}\r\n\r\n{EN: Check queues.}",
+            "active_checks_enabled": 2,
+            "alias": "Queues",
+            "check_timeperiod": "",
+            "command_name": "App-Ibmmq-Restapi-Queues",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Ibmmq-Queues-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les queue managers.}\r\n\r\n{EN: Check queue managers.}",
+            "active_checks_enabled": 2,
+            "alias": "Queue-Managers",
+            "check_timeperiod": "",
+            "command_name": "App-Ibmmq-Restapi-Queue-Managers",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{mgr_status} !~ /running/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Ibmmq-Queue-Managers-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

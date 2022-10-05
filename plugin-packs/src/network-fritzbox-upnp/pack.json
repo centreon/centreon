@@ -1,0 +1,164 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_fritzbox_upnp.pl --plugin=network::fritzbox::upnp::plugin --mode=traffic --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTUPNPPORT$\\' --proto=\\'$_HOSTUPNPPROTO$\\' $_HOSTUPNPEXTRAOPTIONS$ --unit=\\'$_SERVICEUNIT$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Fritzbox-UPNP-Traffic",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_fritzbox_upnp.pl --plugin=network::fritzbox::upnp::plugin --mode=system --hostname=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTUPNPPORT$\\' --proto=\\'$_HOSTUPNPPROTO$\\' $_HOSTUPNPEXTRAOPTIONS$ --unit=\\'$_SERVICEUNIT$\\' --warning-connection-status=\\'$_SERVICEWARNINGCONNECTIONSTATUS$\\' --critical-connection-status=\\'$_SERVICECRITICALCONNECTIONSTATUS$\\' --warning-uptime=\\'$_SERVICEWARNINGUPTIME$\\' --critical-uptime=\\'$_SERVICECRITICALUPTIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Fritzbox-UPNP-System",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser une Fritz!Box via l'API UPnP.}\r\n{EN: Template to check Fritz!Box through UPnP API.}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Fritz!Box using UPnP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "fritzbox-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTUPNPPROTO$",
+                    "value": "http"
+                },
+                {
+                    "key": "$_HOSTUPNPPORT$",
+                    "value": "49000"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Fritzbox-UPNP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Fritzbox-Traffic-UPNP",
+                "Net-Fritzbox-System-UPNP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "fritzbox-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* break: new mode system (replace up-status)\r\n* break: new thresholds for service traffic",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Fritz!Box equipments:\r\n* System\r\n* Traffic"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les \u00e9quipements Fritz!Box :\r\n* System\r\n* Traffic"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Fritz!Box UPnP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_fritzbox_upnp.pl",
+                "package_name": "centreon-plugin-Network-Fritzbox-Upnp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "centreon-plugin-Network-Fritzbox",
+                "version": "20171013-1"
+            }
+        ],
+        "slug": "network-fritzbox-upnp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Network",
+            "fritzbox",
+            "SNMP",
+            "Fritz!Box"
+        ],
+        "update_date": "1631532799",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau de l'interface WAN.}\r\n\r\n{EN: Check wan traffic interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic",
+            "check_timeperiod": "",
+            "command_name": "Net-Fritzbox-UPNP-Traffic",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNIT$",
+                    "password": false,
+                    "value": "percent_delta"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Fritzbox-Traffic-UPNP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le syst\u00e8me: connexion et uptime.}\r\n\r\n{EN: Checks system: connection status and uptime.}",
+            "active_checks_enabled": 2,
+            "alias": "System",
+            "check_timeperiod": "",
+            "command_name": "Net-Fritzbox-UPNP-System",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNIT$",
+                    "password": false,
+                    "value": "s"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Fritzbox-System-UPNP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

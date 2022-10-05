@@ -1,0 +1,454 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Versa-SNMP-Sdwan-Discover",
+                "command_for_macro": "Net-Versa-SNMP-Sdwan-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Versa-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERORG",
+                        "value": "^$org_name$$"
+                    },
+                    {
+                        "is_empty": null,
+                        "name": "FILTERPOLICY",
+                        "value": "^$policy_name$$"
+                    },
+                    {
+                        "is_empty": null,
+                        "name": "FILTERRULE",
+                        "value": "^$rule_name$$"
+                    }
+                ],
+                "name": "Net-Versa-SNMP-Sdwan-Name",
+                "service_display_name": "Sdwan-$rule_name$",
+                "service_template": "Net-Versa-Sdwan-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Versa-SNMP-Ipsec-Discover",
+                "command_for_macro": "Net-Versa-SNMP-Ipsec-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Versa-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERORG",
+                        "value": "^$org_name$$"
+                    }
+                ],
+                "name": "Net-Versa-SNMP-Ipsec-Name",
+                "service_display_name": "Ipsec-$org_name$",
+                "service_template": "Net-Versa-Ipsec-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Versa-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Versa-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Versa-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "INTERFACENAME",
+                        "value": "^$name$$"
+                    },
+                    {
+                        "is_empty": null,
+                        "name": "EXTRAOPTIONS",
+                        "value": "--verbose --no-skipped-counters --use-new-perfdata --filter-perfdata=\".*traffic.*\""
+                    }
+                ],
+                "name": "Net-Versa-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Versa-Interfaces-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Versa-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Versa-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Versa-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "INTERFACENAME",
+                        "value": "^$name$$"
+                    },
+                    {
+                        "is_empty": null,
+                        "name": "EXTRAOPTIONS",
+                        "value": "--verbose --no-skipped-counters --use-new-perfdata --filter-perfdata=\".*error|discard.*\""
+                    }
+                ],
+                "name": "Net-Versa-SNMP-Packet-Errors-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Versa-Interfaces-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_versa_snmp.pl --plugin=network::versa::snmp::plugin --mode=list-sdwan --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Versa-SNMP-Sdwan-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_versa_snmp.pl --plugin=network::versa::snmp::plugin --mode=list-sdwan --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Versa-SNMP-Sdwan-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_versa_snmp.pl --plugin=network::versa::snmp::plugin --mode=list-ipsec --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Versa-SNMP-Ipsec-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_versa_snmp.pl --plugin=network::versa::snmp::plugin --mode=list-ipsec --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Versa-SNMP-Ipsec-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_versa_snmp.pl --plugin=network::versa::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Versa-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_versa_snmp.pl --plugin=network::versa::snmp::plugin --mode=list-interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Versa-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_versa_snmp.pl --plugin=network::versa::snmp::plugin --mode=devices --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-vsn-id=\\'$_SERVICEFILTERVSNID$\\' --warning-cpu-utilization=\\'$_SERVICEWARNINGCPUUTILIZATION$\\' --critical-cpu-utilization=\\'$_SERVICECRITICALCPUUTILIZATION$\\' --warning-memory-usage=\\'$_SERVICEWARNINGMEMORYUSAGE$\\' --critical-memory-usage=\\'$_SERVICECRITICALMEMORYUSAGE$\\' --warning-sessions-active=\\'$_SERVICEWARNINGSESSIONSACTIVE$\\' --critical-sessions-active=\\'$_SERVICECRITICALSESSIONSACTIVE$\\' --warning-sessions-active-prct=\\'$_SERVICEWARNINGSESSIONSACTIVEPRCT$\\' --critical-sessions-active-prct=\\'$_SERVICECRITICALSESSIONSACTIVEPRCT$\\' --warning-sessions-failed=\\'$_SERVICEWARNINGSESSIONSFAILED$\\' --critical-sessions-failed=\\'$_SERVICECRITICALSESSIONSFAILED$\\' --warning-sessions-failed-prct=\\'$_SERVICEWARNINGSESSIONSFAILEDPRCT$\\' --critical-sessions-failed-prct=\\'$_SERVICECRITICALSESSIONSFAILEDPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Versa-SNMP-Devices",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_versa_snmp.pl --plugin=network::versa::snmp::plugin --mode=interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --add-errors --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Versa-SNMP-Interfaces",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_versa_snmp.pl --plugin=network::versa::snmp::plugin --mode=ipsec --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-org=\\'$_SERVICEFILTERORG$\\' --warning-packets-in=\\'$_SERVICEWARNINGPACKETSIN$\\' --critical-packets-in=\\'$_SERVICECRITICALPACKETSIN$\\' --warning-packets-invalid=\\'$_SERVICEWARNINGPACKETSINVALID$\\' --critical-packets-invalid=\\'$_SERVICECRITICALPACKETSINVALID$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-packets-out=\\'$_SERVICEWARNINGPACKETSOUT$\\' --critical-packets-out=\\'$_SERVICECRITICALPACKETSOUT$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' --warning-ike-disconnected=\\'$_SERVICEWARNINGIKEDISCONNECTED$\\' --critical-ike-disconnected=\\'$_SERVICECRITICALIKEDISCONNECTED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Versa-SNMP-Ipsec",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_versa_snmp.pl --plugin=network::versa::snmp::plugin --mode=qos-policy --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-org=\\'$_SERVICEFILTERORG$\\' --filter-policy=\\'$_SERVICEFILTERPOLICY$\\' --filter-rule=\\'$_SERVICEFILTERRULE$\\' --warning-qos-policy-hit=\\'$_SERVICEWARNINGQOSPOLICYHIT$\\' --critical-qos-policy-hit=\\'$_SERVICECRITICALQOSPOLICYHIT$\\' --warning-qos-policy-sessions-deny=\\'$_SERVICEWARNINGQOSPOLICYSESSIONSDENY$\\' --critical-qos-policy-sessions-deny=\\'$_SERVICECRITICALQOSPOLICYSESSIONSDENY$\\' --warning-qos-policy-packets-dropped=\\'$_SERVICEWARNINGQOSPOLICYPACKETSDROPPED$\\' --critical-qos-policy-packets-dropped=\\'$_SERVICECRITICALQOSPOLICYPACKETSDROPPED$\\' --warning-qos-policy-traffic-dropped=\\'$_SERVICEWARNINGQOSPOLICYTRAFFICDROPPED$\\' --critical-qos-policy-traffic-dropped=\\'$_SERVICECRITICALQOSPOLICYTRAFFICDROPPED$\\' --warning-qos-policy-packets-forwarded=\\'$_SERVICEWARNINGQOSPOLICYPACKETSFORWARDED$\\' --critical-qos-policy-packets-forwarded=\\'$_SERVICECRITICALQOSPOLICYPACKETSFORWARDED$\\' --warning-qos-policy-traffic-forwarded=\\'$_SERVICEWARNINGQOSPOLICYTRAFFICFORWARDED$\\' --critical-qos-policy-traffic-forwarded=\\'$_SERVICECRITICALQOSPOLICYTRAFFICFORWARDED$\\' --warning-appqos-policy-hit=\\'$_SERVICEWARNINGAPPQOSPOLICYHIT$\\' --critical-appqos-policy-hit=\\'$_SERVICECRITICALAPPQOSPOLICYHIT$\\' --warning-appqos-policy-packets-dropped=\\'$_SERVICEWARNINGAPPQOSPOLICYPACKETSDROPPED$\\' --critical-appqos-policy-packets-dropped=\\'$_SERVICECRITICALAPPQOSPOLICYPACKETSDROPPED$\\' --warning-appqos-policy-traffic-dropped=\\'$_SERVICEWARNINGAPPQOSPOLICYTRAFFICDROPPED$\\' --critical-appqos-policy-traffic-dropped=\\'$_SERVICECRITICALAPPQOSPOLICYTRAFFICDROPPED$\\' --warning-appqos-policy-packets-forwarded=\\'$_SERVICEWARNINGAPPQOSPOLICYPACKETSFORWARDED$\\' --critical-appqos-policy-packets-forwarded=\\'$_SERVICECRITICALAPPQOSPOLICYPACKETSFORWARDED$\\' --warning-appqos-policy-traffic-forwarded=\\'$_SERVICEWARNINGAPPQOSPOLICYTRAFFICFORWARDED$\\' --critical-appqos-policy-traffic-forwarded=\\'$_SERVICECRITICALAPPQOSPOLICYTRAFFICFORWARDED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Versa-SNMP-Qos-Policy",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_versa_snmp.pl --plugin=network::versa::snmp::plugin --mode=sdwan --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-org=\\'$_SERVICEFILTERORG$\\' --filter-policy=\\'$_SERVICEFILTERPOLICY$\\' --filter-rule=\\'$_SERVICEFILTERRULE$\\' --warning-hit=\\'$_SERVICEWARNINGHIT$\\' --critical-hit=\\'$_SERVICECRITICALHIT$\\' --warning-packets-in=\\'$_SERVICEWARNINGPACKETSIN$\\' --critical-packets-in=\\'$_SERVICECRITICALPACKETSIN$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-packets-out=\\'$_SERVICEWARNINGPACKETSOUT$\\' --critical-packets-out=\\'$_SERVICECRITICALPACKETSOUT$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Versa-SNMP-Sdwan",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_versa_snmp.pl --plugin=network::versa::snmp::plugin --mode=bgp-peers --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-as=\\'$_SERVICEFILTERAS$\\' --filter-local-addr=\\'$_SERVICEFILTERLOCALADDR$\\' --filter-remote-addr=\\'$_SERVICEFILTERREMOTEADDR$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-update-last=\\'$_SERVICEWARNINGUPDATELAST$\\' --critical-update-last=\\'$_SERVICECRITICALUPDATELAST$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Versa-SNMP-Bgp-Peers",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Versa Networks en SNMP}\r\n{EN: Template to check Versa Networks devices using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Versa equipments in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "versa-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Versa-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Versa-Devices-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "versa-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "New service template and disco rules",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Versa Networks device via SNMP:\r\n* Devices (cpu, memory, sessions)\r\n* Interfaces\r\n* IPsec\r\n* QoS policies\r\n* SD-Wan rules"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un \u00e9quipement Versa Networks via SNMP :\r\n* Devices (cpu, memory, sessions)\r\n* Interfaces\r\n* IPsec\r\n* QoS policies\r\n* SD-Wan rules"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "",
+        "name": "Versa SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_versa_snmp.pl",
+                "package_name": "centreon-plugin-Network-Versa-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-versa-snmp",
+        "status": "stable",
+        "status_message": "New service template and disco rules",
+        "tags": [
+            "Versa",
+            "SNMP",
+            "SD-WAN",
+            "Network"
+        ],
+        "update_date": "1598541173",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des syst\u00e8mes (processeur, m\u00e9moire et sessions.}\r\n\r\n{EN: Check device system statistics (cpu, memory, sessions).}",
+            "active_checks_enabled": 2,
+            "alias": "Devices",
+            "check_timeperiod": "",
+            "command_name": "Net-Versa-SNMP-Devices",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Versa-Devices-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces.}\r\n\r\n{EN: Check interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "Net-Versa-SNMP-Interfaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} !~ /up|dormant/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --no-skipped-counters --use-new-perfdata"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Versa-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les tunnels IPsec.}\r\n\r\n{EN: Check IPsec tunnels.}",
+            "active_checks_enabled": 2,
+            "alias": "Ipsec",
+            "check_timeperiod": "",
+            "command_name": "Net-Versa-SNMP-Ipsec",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Versa-Ipsec-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les politiques QoS.}\r\n\r\n{EN: Check QoS policies.}",
+            "active_checks_enabled": 2,
+            "alias": "Qos-Policy",
+            "check_timeperiod": "",
+            "command_name": "Net-Versa-SNMP-Qos-Policy",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Versa-Qos-Policy-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les r\u00e8gles SD-Wan.}\r\n\r\n{EN: Check SD-Wan rules.}",
+            "active_checks_enabled": 2,
+            "alias": "Sdwan",
+            "check_timeperiod": "",
+            "command_name": "Net-Versa-SNMP-Sdwan",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Versa-Sdwan-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des syst\u00e8mes (processeur, m\u00e9moire et sessions.}\r\n\r\n{EN: Check device system statistics (cpu, memory, sessions).}",
+            "active_checks_enabled": 2,
+            "alias": "Bgp-Peers",
+            "check_timeperiod": "",
+            "command_name": "Net-Versa-SNMP-Bgp-Peers",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{state} !~ /established/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Versa-Bgp-Peers-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

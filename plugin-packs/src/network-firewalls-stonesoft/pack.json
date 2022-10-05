@@ -1,0 +1,538 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-StoneSoft-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-StoneSoft-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Stonesoft-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-StoneSoft-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Stonesoft-Traffic-Global-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stonesoft.pl --plugin=network::stonesoft::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-StoneSoft-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stonesoft.pl --plugin=network::stonesoft::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-StoneSoft-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stonesoft.pl --plugin=network::stonesoft::snmp::plugin --mode=rejected-packets --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Stonesoft-SNMP-Rejected-Packets",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stonesoft.pl --plugin=network::stonesoft::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Stonesoft-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stonesoft.pl --plugin=network::stonesoft::snmp::plugin --mode=dropped-packets --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Stonesoft-SNMP-Dropped-Packets",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stonesoft.pl --plugin=network::stonesoft::snmp::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\'  --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-StoneSoft-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stonesoft.pl --plugin=network::stonesoft::snmp::plugin --mode=connections --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-connections=\\'$_SERVICEWARNINGCONNECTIONS$\\'  --critical-connections=\\'$_SERVICECRITICALCONNECTIONS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-StoneSoft-SNMP-Connections",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stonesoft.pl --plugin=network::stonesoft::snmp::plugin --mode=storage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --storage=\\'$_SERVICEFILTER$\\' --regexp --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-StoneSoft-SNMP-Disk-global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stonesoft.pl --plugin=network::stonesoft::snmp::plugin --mode=storage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --storage \\'$_SERVICEDISKNAME$\\' --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-StoneSoft-SNMP-Disk-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stonesoft.pl --plugin=network::stonesoft::snmp::plugin --mode=cluster-state --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-StoneSoft-SNMP-Cluster-State",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stonesoft.pl --plugin=network::stonesoft::snmp::plugin --mode=cluster-load --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\'  --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-StoneSoft-SNMP-Cluster-Load",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stonesoft.pl --plugin=network::stonesoft::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-StoneSoft-SNMP-Traffic-Global",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stonesoft.pl --plugin=network::stonesoft::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$$$\\' --name --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-StoneSoft-SNMP-Traffic-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_stonesoft.pl --plugin=network::stonesoft::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACEID$\\' --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-StoneSoft-SNMP-Traffic-ID",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les firewalls Stonesoft Firewall en SNMP}\r\n{EN: Template to check Stonesoft Firewall using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Stonesoft Firewall using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Stonesoft-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Stonesoft-Rejected-Packets-SNMP",
+                "Net-Stonesoft-Memory-SNMP",
+                "Net-Stonesoft-Dropped-Packets-SNMP",
+                "Net-Stonesoft-Cpu-SNMP",
+                "Net-Stonesoft-Connections-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ tag / doc update",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Stonesoft firewall via SNMP:\r\n* Cluster-Load\r\n* Cluster-State\r\n* Connections\r\n* Cpu\r\n* Disk (by name or global)\r\n* Dropper-Packets\r\n* Memory\r\n* Rejected-Packets\r\n* Traffic (by interface name, ID or all interfaces)"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un pare-feu Stonesoft via SNMP :\r\n* Cluster-Load\r\n* Cluster-State\r\n* Connections\r\n* Cpu\r\n* Disk (by name or global)\r\n* Dropper-Packets\r\n* Memory\r\n* Rejected-Packets\r\n* Traffic (by interface name, ID or all interfaces)"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Stonesoft",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_stonesoft.pl",
+                "package_name": "centreon-plugin-Network-Firewalls-Stonesoft",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Network-Firewalls-Stonesoft",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "network-firewalls-stonesoft",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Firewall",
+            "Hardware",
+            "SNMP",
+            "Stonesoft",
+            "Forcepoint",
+            "Security"
+        ],
+        "update_date": "1628799957",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de paquets rejet\u00e9s par seconde.}\r\n\r\n{EN: Check count of rejected packets.}",
+            "active_checks_enabled": 2,
+            "alias": "Rejected-Packets",
+            "check_timeperiod": "",
+            "command_name": "Net-Stonesoft-SNMP-Rejected-Packets",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-Stonesoft-Rejected-Packets-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire.}\r\n\r\n{EN: Check the rate of the utilization of memory.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Stonesoft-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Stonesoft-Memory-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de paquets dropp\u00e9s par seconde.}\r\n\r\n{EN: Check count of dropped packets.}",
+            "active_checks_enabled": 2,
+            "alias": "Dropped-Packets",
+            "check_timeperiod": "",
+            "command_name": "Net-Stonesoft-SNMP-Dropped-Packets",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-Stonesoft-Dropped-Packets-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU.}\r\n\r\n{EN: Check the rate of utilization of CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-StoneSoft-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Stonesoft-Cpu-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les connexions.}\r\n\r\n{EN: Check connections.}",
+            "active_checks_enabled": 2,
+            "alias": "Connections",
+            "check_timeperiod": "",
+            "command_name": "Net-StoneSoft-SNMP-Connections",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALCONNECTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGCONNECTIONS$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Stonesoft-Connections-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilization des disques.}\r\n\r\n{EN: Check the rate of utilization on disks.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-StoneSoft-SNMP-Disk-global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": "^(?!(/)$)"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "80"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Stonesoft-Disk-Global-SNMP",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilization des disques.}\r\n\r\n{EN: Check the rate of utilization on disks.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-StoneSoft-SNMP-Disk-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-Stonesoft-Disk-Name-SNMP",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du cluster.}\r\n\r\n{EN: Check the state of the cluster.}",
+            "active_checks_enabled": 2,
+            "alias": "Cluster-State",
+            "check_timeperiod": "",
+            "command_name": "Net-StoneSoft-SNMP-Cluster-State",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-Stonesoft-Cluster-State-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la charge consomm\u00e9e par le cluster.}\r\n\r\n{EN: Check the load of the cluster.}",
+            "active_checks_enabled": 2,
+            "alias": "Cluster-Load",
+            "check_timeperiod": "",
+            "command_name": "Net-StoneSoft-SNMP-Cluster-Load",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-Stonesoft-Cluster-Load-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante de l'interface.}\r\n\r\n{EN: Check the bandwidth of the interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-StoneSoft-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Stonesoft-Traffic-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante de l'interface.}\r\n\r\n{EN: Check the bandwidth of the interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-StoneSoft-SNMP-Traffic-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-Stonesoft-Traffic-Generic-Name-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la bande passante de l'interface.}\r\n\r\n{EN: Check the bandwidth of the interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-ID",
+            "check_timeperiod": "",
+            "command_name": "Net-StoneSoft-SNMP-Traffic-ID",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Net-Stonesoft-Traffic-Generic-ID-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,1097 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Database-MariaDB-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Database for MariaDB resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.DBforMariaDB/servers/SVC123456ABCD78",
+                            "location": "westeurope",
+                            "name": "SVC123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.DBforMariaDB/servers"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.DBforMariaDB/servers/SVC789012EFGH34",
+                            "location": "westus",
+                            "name": "SVC789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.DBforMariaDBService/servers"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCETYPE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.type"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Database-MariaDB-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Database for MariaDB",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-database-mariadb",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Database-MariaDB-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Database for MariaDB resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.DBforMariaDB/servers/SVC123456ABCD78",
+                            "location": "westeurope",
+                            "name": "SVC123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.DBforMariaDB/servers"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.DBforMariaDB/servers/SVC789012EFGH34",
+                            "location": "westus",
+                            "name": "SVC789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.DBforMariaDBService/servers"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCETYPE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.type"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Database-MariaDB-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Database for MariaDB",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-database-mariadb",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_mariadb_api.pl --plugin=cloud::azure::database::mariadb::plugin --mode=traffic --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-MariaDB-Api-Traffic",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_mariadb_api.pl --plugin=cloud::azure::database::mariadb::plugin --mode=storage --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-serverlog-percent=\\'$_SERVICEWARNINGSERVERLOGPERCENT$\\' --critical-serverlog-percent=\\'$_SERVICECRITICALSERVERLOGPERCENT$\\' --warning-storage-percent=\\'$_SERVICEWARNINGSTORAGEPERCENT$\\' --critical-storage-percent=\\'$_SERVICECRITICALSTORAGEPERCENT$\\' --warning-storage-backup=\\'$_SERVICEWARNINGSTORAGEBACKUP$\\' --critical-storage-backup=\\'$_SERVICECRITICALSTORAGEBACKUP$\\' --warning-storage-used=\\'$_SERVICEWARNINGSTORAGEUSED$\\' --critical-storage-used=\\'$_SERVICECRITICALSTORAGEUSED$\\' --warning-storage-limit=\\'$_SERVICEWARNINGSTORAGELIMIT$\\' --critical-storage-limit=\\'$_SERVICECRITICALSTORAGELIMIT$\\' --warning-serverlog-usage=\\'$_SERVICEWARNINGSERVELOGUSAGE$\\' --critical-serverlog-usage=\\'$_SERVICECRITICALSERVELOGUSAGE$\\' --warning-serverlog-limit=\\'$_SERVICEWARNINGSERVERLOGLIMIT$\\' --critical-serverlog-limit=\\'$_SERVICECRITICALSERVERLOGLIMIT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-MariaDB-Api-Storage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_mariadb_api.pl --plugin=cloud::azure::database::mariadb::plugin --mode=replication --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-slave-latency-seconds=\\'$_SERVICEWARNINGSLAVELATENCY$\\' --critical-slave-latency-seconds=\\'$_SERVICECRITICALSLAVELATENCY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-MariaDB-Api-Replication",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_mariadb_api.pl --plugin=cloud::azure::database::mariadb::plugin --mode=memory --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-memory-usage=\\'$_SERVICEWARNINGMEMORYUSAGE$\\' --critical-memory-usage=\\'$_SERVICECRITICALMEMORYUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-MariaDB-Api-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_mariadb_api.pl --plugin=cloud::azure::database::mariadb::plugin --mode=io-consumption --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-ioconsumption-usage=\\'$_SERVICEWARNINGIOCONSUMPTIONUSAGE$\\' --critical-ioconsumption-usage=\\'$_SERVICECRITICALIOCONSUMPTIONUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-Mariadb-Api-Io-Consumption",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_mariadb_api.pl --plugin=cloud::azure::database::mariadb::plugin --mode=cpu --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-cpu-usage=\\'$_SERVICEWARNINGCPUUSAGE$\\' --critical-cpu-usage=\\'$_SERVICECRITICALCPUUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-MariaDB-Api-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_mariadb_api.pl --plugin=cloud::azure::database::mariadb::plugin --mode=connections --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-connections-failed=\\'$_SERVICEWARNINGCONNECTIONSFAILED$\\' --critical-connections-failed=\\'$_SERVICECRITICALCONNECTIONSFAILED$\\' --warning-connections-active=\\'$_SERVICEWARNINGCONNECTIONSACTIVE$\\' --critical-connections-active=\\'$_SERVICECRITICALCONNECTIONSACTIVE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-MariaDB-Api-Connections",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_database_mariadb_api.pl --statefile-suffix=\\'autodiscovery\\' --plugin=cloud::azure::database::mariadb::plugin --custommode=\\'api\\' --mode=discovery --subscription=\\'$_AZURESUBSCRIPTION$\\' --tenant=\\'$_AZURETENANT$\\' --client-id=\\'$_AZURECLIENTID$\\' --client-secret=\\'$_AZURECLIENTSECRET$\\' --timeout=\\'$_TIMEOUT$\\' --proxyurl=\\'$_PROXYURL$\\' --resource-group=\\'$_RESOURCEGROUP$\\' --location=\\'$_LOCATION$\\' $_EXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Database-MariaDB-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les instances Azure Database for MariaDB via l&#39;API}\r\n{EN: Template to check Azure Database for MariaDB resources using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Database for MariaDB service using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 0,
+            "command_name": null,
+            "icon": "az-database-mariadb-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-MariaDB",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Database-MariaDB-Traffic-Api",
+                "Cloud-Azure-Database-MariaDB-Storage-Api",
+                "Cloud-Azure-Database-MariaDB-Replication-Api",
+                "Cloud-Azure-Database-MariaDB-Memory-Api",
+                "Cloud-Azure-Database-MariaDB-IO-Consumption-Api",
+                "Cloud-Azure-Database-MariaDB-Cpu-Api",
+                "Cloud-Azure-Database-MariaDB-Connections-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-database-mariadb-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "excluding generic dummy htpl",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Azure Database for MariaDB resources using RestAPI or AZCLI.**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|Cloud-Azure-Database-MariaDB-custom|\r\n|---|\r\n|Cpu|\r\n|Memory|\r\n|Traffic|\r\n|Storage|\r\n|Connections|\r\n|Replication|\r\n|Io-consumption|\r\n\r\n\r\nThis Plugin Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin Pack pour superviser les ressources Azure Database for MariaDB via RestAPI ou AZCLI.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponibles et services associ\u00e9s:\r\n\r\n|Cloud-Azure-Database-MariaDB-custom|\r\n|---|\r\n|Cpu|\r\n|Memory|\r\n|Traffic|\r\n|Storage|\r\n|Connections|\r\n|Replication|\r\n|Io-consumption|\r\n\r\nCe Plugin Pack fournit un *provider* Host Discovery pour le module d\\'auto-d\u00e9couverte d\\'H\u00f4tes"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 20.10.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure Database for MariaDB",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_database_mariadb_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Database-MariaDB-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-database-mariadb",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Restapi",
+            "API",
+            "Azure",
+            "Database",
+            "MariaDB",
+            "MySQL",
+            "Microsoft"
+        ],
+        "update_date": "1652276979",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du r\u00e9seau de l'instance Azure Database for MariaDB.}\r\n{EN: Check Azure Database for MariaDB network usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-MariaDB-Api-Traffic",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-MariaDB-Traffic-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques de stockage de l'instance Azure Database for MariaDB.}\r\n{EN: Check Azure Database for MariaDB storage statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Storage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-MariaDB-Api-Storage",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT15M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Maximum"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-MariaDB-Storage-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la r\u00e9plication de l'instance Azure Database for MariaDB.}\r\n{EN: Check Azure Database for MariaDB replication status.}",
+            "active_checks_enabled": 2,
+            "alias": "Replication",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-MariaDB-Api-Replication",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Maximum"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--zeroed"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-MariaDB-Replication-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation de la m\u00e9moire de l'instance Azure Database for MariaDB.}\r\n{EN: Check Azure Database for MariaDB memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-MariaDB-Api-Memory",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-MariaDB-Memory-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les \u00e9critures/lectures de l'instance Azure Database for MariaDB.}\r\n{EN: Check Azure Database for MariaDB IO usage.}",
+            "active_checks_enabled": 2,
+            "alias": "IO-Consumption",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-Mariadb-Api-Io-Consumption",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Maximum"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-MariaDB-IO-Consumption-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le CPU de l'instance Azure Database for MariaDB.}\r\n{EN: Check Azure Database for MariaDB CPU usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-MariaDB-Api-Cpu",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-MariaDB-Cpu-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques de connexions de l'instance Azure Database for MariaDB.}\r\n{EN: Check Azure Database for MariaDB connections statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Connections",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Database-MariaDB-Api-Connections",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Database-MariaDB-Connections-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

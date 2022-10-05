@@ -1,0 +1,325 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sap_hana.pl --plugin=database::sap::hana::plugin --servernode=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTSAPHANAPORT$\\' --username=\\'$_HOSTSAPHANAUSERNAME$\\' --password=\\'$_HOSTSAPHANAPASSWORD$\\' $_HOSTSAPHANAEXTRAOPTIONS$ --mode=volume-usage --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --filter-name=\\'$_SERVICEFILTERNAME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Sap-Hana-Volume-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sap_hana.pl --plugin=database::sap::hana::plugin --servernode=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTSAPHANAPORT$\\' --username=\\'$_HOSTSAPHANAUSERNAME$\\' --password=\\'$_HOSTSAPHANAPASSWORD$\\' $_HOSTSAPHANAEXTRAOPTIONS$ --mode=host-memory --warning-physical-usage=\\'$_SERVICEWARNINGPHYSICALUSAGE$\\' --critical-physical-usage=\\'$_SERVICECRITICALPHYSICALUSAGE$\\' --warning-swap-usage=\\'$_SERVICEWARNINGSWAPUSAGE$\\' --critical-swap-usage=\\'$_SERVICECRITICALSWAPUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Sap-Hana-Host-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sap_hana.pl --plugin=database::sap::hana::plugin --servernode=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTSAPHANAPORT$\\' --username=\\'$_HOSTSAPHANAUSERNAME$\\' --password=\\'$_HOSTSAPHANAPASSWORD$\\' $_HOSTSAPHANAEXTRAOPTIONS$ --mode=host-cpu --warning-user=\\'$_SERVICEWARNINGUSER$\\' --critical-user=\\'$_SERVICECRITICALUSER$\\' --warning-sys=\\'$_SERVICEWARNINGSYS$\\' --critical-sys=\\'$_SERVICECRITICALSYS$\\' --warning-idle=\\'$_SERVICEWARNINGIDLE$\\' --critical-idle=\\'$_SERVICECRITICALIDLE$\\' --warning-wait=\\'$_SERVICEWARNINGWAIT$\\' --critical-wait=\\'$_SERVICECRITICALWAIT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Sap-Hana-Host-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sap_hana.pl --plugin=database::sap::hana::plugin --servernode=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTSAPHANAPORT$\\' --username=\\'$_HOSTSAPHANAUSERNAME$\\' --password=\\'$_HOSTSAPHANAPASSWORD$\\' $_HOSTSAPHANAEXTRAOPTIONS$ --mode=disk-usage --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --filter-name=\\'$_SERVICEFILTERNAME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Sap-Hana-Disk-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sap_hana.pl --plugin=database::sap::hana::plugin --servernode=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTSAPHANAPORT$\\' --username=\\'$_HOSTSAPHANAUSERNAME$\\' --password=\\'$_HOSTSAPHANAPASSWORD$\\' $_HOSTSAPHANAEXTRAOPTIONS$ --mode=connection-time --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Sap-Hana-Connection-Time",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sap_hana.pl --plugin=database::sap::hana::plugin --servernode=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTSAPHANAPORT$\\' --username=\\'$_HOSTSAPHANAUSERNAME$\\' --password=\\'$_HOSTSAPHANAPASSWORD$\\' $_HOSTSAPHANAEXTRAOPTIONS$ --mode=connected-users --warning-users=\\'$_SERVICEWARNINGUSERS$\\' --critical-users=\\'$_SERVICECRITICALUSERS$\\' --filter-username=\\'$_SERVICEFILTERUSERNAME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Sap-Hana-Connected-Users",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sap_hana.pl --plugin=database::sap::hana::plugin --servernode=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTSAPHANAPORT$\\' --username=\\'$_HOSTSAPHANAUSERNAME$\\' --password=\\'$_HOSTSAPHANAPASSWORD$\\' $_HOSTSAPHANAEXTRAOPTIONS$ --mode=blocked-transactions --warning-blocked-transactions=\\'$_SERVICEWARNINGBLOCKEDTRANSACTIONS$\\' --critical-blocked-transactions=\\'$_SERVICECRITICALBLOCKEDTRANSACTIONS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Sap-Hana-Blocked-Transactions",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sap_hana.pl --plugin=database::sap::hana::plugin --servernode=\\'$HOSTADDRESS$\\' --port=\\'$_HOSTSAPHANAPORT$\\' --username=\\'$_HOSTSAPHANAUSERNAME$\\' --password=\\'$_HOSTSAPHANAPASSWORD$\\' $_HOSTSAPHANAEXTRAOPTIONS$ --mode=sql --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' --format=\\'$_SERVICEFORMAT$\\' --sql-statement=\\\\\\\"$_SERVICESQLSTATEMENT$\\\\\\\" --perfdata-name=\\'$_SERVICEPERFDATANAME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Sap-Hana-Sql",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check SAP Hana Database",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [
+                {
+                    "key": "$_HOSTSAPHANAEXTRAOPTIONS$",
+                    "value": "--connect-options=\"LongReadLen=1000000,LongTruncOk=1\""
+                },
+                {
+                    "key": "$_HOSTSAPHANAPORT$",
+                    "value": "30013"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Sap-Hana",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-DB-Sap-Hana-Volume-Usage",
+                "App-DB-Sap-Hana-Host-Memory",
+                "App-DB-Sap-Hana-Host-Cpu",
+                "App-DB-Sap-Hana-Disk-Usage",
+                "App-DB-Sap-Hana-Connection-Time",
+                "App-DB-Sap-Hana-Connected-Users",
+                "App-DB-Sap-Hana-Blocked-Transactions"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Change plugin name in command lines",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor SAP HANA databases :\r\n* Blocked-Transactions\r\n* Connected-Users\r\n* Connection-Time\r\n* Disk-Usage\r\n* Host-Cpu\r\n* Host-Memory\r\n* Sql-Generic\r\n* Volume-Usage"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les bases de donn\u00e9es SAP HANA :\r\n* Blocked-Transactions\r\n* Connected-Users\r\n* Connection-Time\r\n* Disk-Usage\r\n* Host-Cpu\r\n* Host-Memory\r\n* Sql-Generic\r\n* Volume-Usage"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "/9j/4AAQSkZJRgABAQEASABIAAD/4QAYRXhpZgAASUkqAAgAAAAAAAAAAAAAAP/hA29odHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo0NEQ3MzJCNjBEMjA2ODExQUZGRENCMENEREVDMTlFMCIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDoyOEMwMzc5NjM3OTkxMUUwODZFRUJFNjQ5NDgxQzdDMCIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDoyOEMwMzc5NTM3OTkxMUUwODZFRUJFNjQ5NDgxQzdDMCIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkRERkNGQTUzMTkyMDY4MTFBRkZEQ0IwQ0RERUMxOUUwIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjQ0RDczMkI2MEQyMDY4MTFBRkZEQ0IwQ0RERUMxOUUwIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites \r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Databases-Sap-Hana\r\n\r\n### Sap Hana Client\r\nTo monitor Sap Hana DB, you need to install SAP Hana Linux Client.\r\nThe client is on SAP support website (an account is needed).\r\n\r\n    # yum install unixODBC perl-DBD-ODBC\r\n\r\n### Configuration of freetds.conf file\r\nThe /etc/odbcinst.ini file have to be modified. Add following lines:\r\n\r\n    [HDBODBC]\r\n    Description = \"SmartCloudPT HANA\"\r\n    Driver=/usr/sap/hdbclient/libodbcHDB.so\r\n\r\n### User account \r\n\r\nAn user with rights on SYS schema is needed.\r\n\r\n### Test the connection\r\n\r\nAn example of command to test database connection:\r\n\r\n   # /usr/sap/hdbclient/hdbsql -n saphanadb_servername:31041 -d databasename -u username -p password\r\n\r\n## Centreon Configuration\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-DB-Sap-Hana-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "SAP HANA",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_sap_hana.pl",
+                "package_name": "centreon-plugin-Applications-Databases-Sap-Hana",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "centreon-plugin-Applications-Databases-Sap-Hana",
+                "version": "20170807-1"
+            }
+        ],
+        "slug": "applications-databases-sap-hana",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "SNMP",
+            "HANA",
+            "Database",
+            "Application"
+        ],
+        "update_date": "1503649463",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Controle permettant de verifier l'utilisation des volumes.} {EN: Check volume usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Volume-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Sap-Hana-Volume-Usage",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Sap-Hana-Volume-Usage",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Controle permettant de verifier l'utilisation memoires du systeme.} {EN: Check host memory usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Host-Memory",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Sap-Hana-Host-Memory",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Sap-Hana-Host-Memory",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Controle permettant de verifier l'utilisation processeur du systeme.} {EN: Check host cpu usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Host-Cpu",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Sap-Hana-Host-Cpu",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Sap-Hana-Host-Cpu",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Controle permettant de verifier l'utilisation des disques.} {EN: Check disk usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Disk-Usage",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Sap-Hana-Disk-Usage",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Sap-Hana-Disk-Usage",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Controle permettant de verifier la duree de connexion au serveur.} {EN: Check the connection time to the server.}",
+            "active_checks_enabled": 2,
+            "alias": "Connection-Time",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Sap-Hana-Connection-Time",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Sap-Hana-Connection-Time",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00c3\u00b4le permettant de v\u00c3\u00a9rifier le nombre d'utilisateurs connect\u00c3\u00a9s.} {EN: Check total connected users.}",
+            "active_checks_enabled": 2,
+            "alias": "Connected-Users",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Sap-Hana-Connected-Users",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Sap-Hana-Connected-Users",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Controle permettant de verifier les transactions bloquees.} {EN: Check total  blocked transactions.}",
+            "active_checks_enabled": 2,
+            "alias": "Blocked-Transactions",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Sap-Hana-Blocked-Transactions",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Sap-Hana-Blocked-Transactions",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Controle permettant d'utiliser une requete SQL personnalisee.} {EN: Check using a custom SQL request.}",
+            "active_checks_enabled": 2,
+            "alias": "Sql-Generic",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Sap-Hana-Sql",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFORMAT$",
+                    "password": false,
+                    "value": "value: %i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERFDATANAME$",
+                    "password": false,
+                    "value": "value"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Sap-Hana-Sql-Generic",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

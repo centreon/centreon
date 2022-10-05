@@ -1,0 +1,141 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_protocol_x509.pl --plugin=apps::protocols::x509::plugin --mode=certificate --custommode=\\'$_SERVICECUSTOMMODE$\\' --hostname=\\'$HOSTADDRESS$\\' --port=$_SERVICEPORT$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Protocol-X509-Certificate",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour v\u00e9rifier un certificat X509}\r\n{EN: Template to check a X509's certificate}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check a X509's certificate",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Protocol-X509",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Protocol-X509-Certificate"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ tag update",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor a public key infrastructure (PKI) \r\n* Certificate"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller une infrastructure \u00e0 cl\u00e9s publiques (PKI)\r\n* Certificate"
+            }
+        ],
+        "discovery_category": "protocol",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "X509 Certificat",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_protocol_x509.pl",
+                "package_name": "centreon-plugin-Applications-Protocol-X509",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Applications-Protocol-X509",
+                "version": "20160324-2"
+            }
+        ],
+        "slug": "applications-protocol-x509",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Certificate",
+            "Cryptography",
+            "PKI",
+            "SSL",
+            "TLS",
+            "X.509",
+            "X509",
+            "Securiy"
+        ],
+        "update_date": "1628799997",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier la date d'expiration d'un certificat X509.}\r\n\r\n{EN: Check expiration date of a X509's certificate.}",
+            "active_checks_enabled": 2,
+            "alias": "X509-Certificate",
+            "check_timeperiod": "",
+            "command_name": "App-Protocol-X509-Certificate",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECUSTOMMODE$",
+                    "password": false,
+                    "value": "tcp"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPORT$",
+                    "password": false,
+                    "value": "443"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{expiration} < 60"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{expiration} < 30"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Protocol-X509-Certificate",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,324 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Network-Libraesva-SNMP-Interfaces-Discover",
+                "command_for_macro": "Network-Libraesva-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Libraesva-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "INTERFACENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Libraesva-SNMP-Interface-Name",
+                "service_display_name": "Interface-$name$",
+                "service_template": "Net-Libraesva-Interfaces-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Network-Libraesva-SNMP-Storages-Discover",
+                "command_for_macro": "Network-Libraesva-SNMP-Storages-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$name$",
+                        "order": 0,
+                        "pattern": "(/dev.*|/run.*|/sys.*|/boot)",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Libraesva-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Libraesva-SNMP-Storage-Name",
+                "service_display_name": "Storage-$name$",
+                "service_template": "Net-Libraesva-Storage-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_libraesva_snmp.pl --plugin=network::libraesva::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Network-Libraesva-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_libraesva_snmp.pl --plugin=network::libraesva::snmp::plugin --mode=list-interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Network-Libraesva-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_libraesva_snmp.pl --plugin=network::libraesva::snmp::plugin --mode=list-storages --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Network-Libraesva-SNMP-Storages-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_libraesva_snmp.pl --plugin=network::libraesva::snmp::plugin --mode=list-storages --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Network-Libraesva-SNMP-Storages-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_libraesva_snmp.pl --plugin=network::libraesva::snmp::plugin --mode=system --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-mails-sent=\\'$_SERVICEWARNINGMAILSSENT$\\' --critical-mails-sent=\\'$_SERVICECRITICALMAILSSENT$\\' --warning-mails-received=\\'$_SERVICEWARNINGMAILSRECEIVED$\\' --critical-mails-received=\\'$_SERVICECRITICALMAILSRECEIVED$\\' --warning-mails-rejected=\\'$_SERVICEWARNINGMAILSREJECTED$\\' --critical-mails-rejected=\\'$_SERVICECRITICALMAILSREJECTED$\\' --warning-mails-bounced=\\'$_SERVICEWARNINGMAILSBOUNCED$\\' --critical-mails-bounced=\\'$_SERVICECRITICALMAILSBOUNCED$\\' --warning-messages-spam=\\'$_SERVICEWARNINGMESSAGESSPAM$\\' --critical-messages-spam=\\'$_SERVICECRITICALMESSAGESSPAM$\\' --warning-messages-virus=\\'$_SERVICEWARNINGMESSAGESVIRUS$\\' --critical-messages-virus=\\'$_SERVICECRITICALMESSAGESVIRUS$\\' --warning-mails-queue-in=\\'$_SERVICEWARNINGMAILSQUEUEIN$\\' --critical-mails-queue-in=\\'$_SERVICECRITICALMAILSQUEUEIN$\\' --warning-mails-queue-out=\\'$_SERVICEWARNINGMAILSQUEUEOUT$\\' --critical-mails-queue-out=\\'$_SERVICECRITICALMAILSQUEUEOUT$\\' --warning-cluster-status=\\'$_SERVICEWARNINGCLUSTERSTATUS$\\' --critical-cluster-status=\\'$_SERVICECRITICALCLUSTERSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Network-Libraesva-SNMP-System",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_libraesva_snmp.pl --plugin=network::libraesva::snmp::plugin --mode=swap --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Network-Libraesva-SNMP-Swap",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_libraesva_snmp.pl --plugin=network::libraesva::snmp::plugin --mode=memory --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-swap=\\'$_SERVICEWARNINGSWAP$\\' --critical-swap=\\'$_SERVICECRITICALSWAP$\\' --warning-swap-free=\\'$_SERVICEWARNINGSWAPFREE$\\' --critical-swap-free=\\'$_SERVICECRITICALSWAPFREE$\\' --warning-swap-prct=\\'$_SERVICEWARNINGSWAPPRCT$\\' --critical-swap-prct=\\'$_SERVICECRITICALSWAPPRCT$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' --warning-buffer=\\'$_SERVICEWARNINGBUFFER$\\' --critical-buffer=\\'$_SERVICECRITICALBUFFER$\\' --warning-cached=\\'$_SERVICEWARNINGCACHED$\\' --critical-cached=\\'$_SERVICECRITICALCACHED$\\' --warning-shared=\\'$_SERVICEWARNINGSHARED$\\' --critical-shared=\\'$_SERVICECRITICALSHARED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Network-Libraesva-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_libraesva_snmp.pl --plugin=network::libraesva::snmp::plugin --mode=load --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Network-Libraesva-SNMP-Load",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_libraesva_snmp.pl --plugin=network::libraesva::snmp::plugin --mode=interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --add-errors --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Network-Libraesva-SNMP-Interfaces",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_libraesva_snmp.pl --plugin=network::libraesva::snmp::plugin --mode=storage --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --storage=\\'$_SERVICEFILTER$\\' --name --regexp --display-transform-src=\\'$_SERVICETRANSFORMSRC$\\' --display-transform-dst=\\'$_SERVICETRANSFORMDST$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Network-Libraesva-SNMP-Storage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Libraesva en SNMP}\r\n{EN: Template to check Libraesva devices using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Libraesva using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Libraesva-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Libraesva-System-SNMP",
+                "Net-Libraesva-Swap-SNMP",
+                "Net-Libraesva-Memory-SNMP",
+                "Net-Libraesva-Load-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Libraesva network equipment via SNMP:\r\n* Interfaces\r\n* Load\r\n* Memory\r\n* Storage\r\n* Swap\r\n* System\r\n\r\n"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les \u00e9quipements Libraesva via SNMP :\r\n* Interfaces\r\n* Load\r\n* Memory\r\n* Storage\r\n* Swap\r\n* System"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Libraesva SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_libraesva_snmp.pl",
+                "package_name": "centreon-plugin-Network-Libraesva-Snmp",
+                "package_version": "20220616"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-libraesva-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Network",
+            "SNMP",
+            "Libraesva"
+        ],
+        "update_date": "1653984480",
+        "version": "22.06.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le syst\u00e8me.}\r\n\r\n{EN: Check system.}",
+            "active_checks_enabled": 2,
+            "alias": "System",
+            "check_timeperiod": "",
+            "command_name": "Network-Libraesva-SNMP-System",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Libraesva-System-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le swap.}\r\n\r\n{EN: Check swap.}",
+            "active_checks_enabled": 2,
+            "alias": "Swap",
+            "check_timeperiod": "",
+            "command_name": "Network-Libraesva-SNMP-Swap",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Libraesva-Swap-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation des m\u00e9moires.}\r\n\r\n{EN: Check the rate of the utilization of memories.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Network-Libraesva-SNMP-Memory",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Libraesva-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la charge serveur.}\r\n\r\n{EN: Check the server load average.}",
+            "active_checks_enabled": 2,
+            "alias": "Load",
+            "check_timeperiod": "",
+            "command_name": "Network-Libraesva-SNMP-Load",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Libraesva-Load-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces.}\r\n\r\n{EN: Check interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "Network-Libraesva-SNMP-Interfaces",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} !~ /up|dormant/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Libraesva-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des disques du mat\u00e9riel}\r\n\r\n{EN: Check storage device usages.}",
+            "active_checks_enabled": 2,
+            "alias": "Storage",
+            "check_timeperiod": "",
+            "command_name": "Network-Libraesva-SNMP-Storage",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Libraesva-Storage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

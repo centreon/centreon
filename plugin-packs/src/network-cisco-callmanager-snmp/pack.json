@@ -1,0 +1,212 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cisco_callmanager_snmp.pl --plugin=network::cisco::callmanager::snmp::plugin --mode=phone-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-total-registered=\\'$_SERVICEWARNINGTOTALREGISTERED$\\' --critical-total-registered=\\'$_SERVICECRITICALTOTALREGISTERED$\\' --warning-total-unregistered=\\'$_SERVICEWARNINGTOTALUNREGISTERED$\\' --critical-total-unregistered=\\'$_SERVICECRITICALTOTALUNREGISTERED$\\' --warning-total-rejected=\\'$_SERVICEWARNINGTOTALREJECTED$\\' --critical-total-rejected=\\'$_SERVICECRITICALTOTALREJECTED$\\' --warning-total-unknown=\\'$_SERVICEWARNINGTOTALUNKNOWN$\\' --critical-total-unknown=\\'$_SERVICECRITICALTOTALUNKNOWN$\\' --warning-total-partiallyregistered=\\'$_SERVICEWARNINGTOTALPARTIALLYREGISTERED$\\' --critical-total-partiallyregistered=\\'$_SERVICECRITICALTOTALPARTIALLYREGISTERED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Cisco-Callmanager-SNMP-Phone-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cisco_callmanager_snmp.pl --plugin=network::cisco::callmanager::snmp::plugin --mode=mediadevice-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-total-registered=\\'$_SERVICEWARNINGTOTALREGISTERED$\\' --critical-total-registered=\\'$_SERVICECRITICALTOTALREGISTERED$\\' --warning-total-unregistered=\\'$_SERVICEWARNINGTOTALUNREGISTERED$\\' --critical-total-unregistered=\\'$_SERVICECRITICALTOTALUNREGISTERED$\\' --warning-total-rejected=\\'$_SERVICEWARNINGTOTALREJECTED$\\' --critical-total-rejected=\\'$_SERVICECRITICALTOTALREJECTED$\\' --warning-total-unknown=\\'$_SERVICEWARNINGTOTALUNKNOWN$\\' --critical-total-unknown=\\'$_SERVICECRITICALTOTALUNKNOWN$\\' --warning-total-partiallyregistered=\\'$_SERVICEWARNINGTOTALPARTIALLYREGISTERED$\\' --critical-total-partiallyregistered=\\'$_SERVICECRITICALTOTALPARTIALLYREGISTERED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Cisco-Callmanager-SNMP-Mediadevice-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cisco_callmanager_snmp.pl --plugin=network::cisco::callmanager::snmp::plugin --mode=gateway-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-total-registered=\\'$_SERVICEWARNINGTOTALREGISTERED$\\' --critical-total-registered=\\'$_SERVICECRITICALTOTALREGISTERED$\\' --warning-total-unregistered=\\'$_SERVICEWARNINGTOTALUNREGISTERED$\\' --critical-total-unregistered=\\'$_SERVICECRITICALTOTALUNREGISTERED$\\' --warning-total-rejected=\\'$_SERVICEWARNINGTOTALREJECTED$\\' --critical-total-rejected=\\'$_SERVICECRITICALTOTALREJECTED$\\' --warning-total-unknown=\\'$_SERVICEWARNINGTOTALUNKNOWN$\\' --critical-total-unknown=\\'$_SERVICECRITICALTOTALUNKNOWN$\\' --warning-total-partiallyregistered=\\'$_SERVICEWARNINGTOTALPARTIALLYREGISTERED$\\' --critical-total-partiallyregistered=\\'$_SERVICECRITICALTOTALPARTIALLYREGISTERED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Cisco-Callmanager-SNMP-Gateway-Usage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_cisco_callmanager_snmp.pl --plugin=network::cisco::callmanager::snmp::plugin --mode=ccm-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-phones-registered=\\'$_SERVICEWARNINGPHONESREGISTERED$\\' --critical-phones-registered=\\'$_SERVICECRITICALPHONESREGISTERED$\\' --warning-phones-unregistered=\\'$_SERVICEWARNINGPHONESUNREGISTERED$\\' --critical-phones-unregistered=\\'$_SERVICECRITICALPHONESUNREGISTERED$\\' --warning-phones-rejected=\\'$_SERVICEWARNINGPHONESREJECTED$\\' --critical-phones-rejected=\\'$_SERVICECRITICALPHONESREJECTED$\\' --warning-gateways-registered=\\'$_SERVICEWARNINGGATEWAYSREGISTERED$\\' --critical-gateways-registered=\\'$_SERVICECRITICALGATEWAYSREGISTERED$\\' --warning-gateways-unregistered=\\'$_SERVICEWARNINGGATEWAYSUNREGISTERED$\\' --critical-gateways-unregistered=\\'$_SERVICECRITICALGATEWAYSUNREGISTERED$\\' --warning-gateways-rejected=\\'$_SERVICEWARNINGGATEWAYSREJECTED$\\' --critical-gateways-rejected=\\'$_SERVICECRITICALGATEWAYSREJECTED$\\' --warning-mediadevices-registered=\\'$_SERVICEWARNINGMEDIADEVICESREGISTERED$\\' --critical-mediadevices-registered=\\'$_SERVICECRITICALMEDIADEVICESREGISTERED$\\' --warning-mediadevices-unregistered=\\'$_SERVICEWARNINGMEDIADEVICESUNREGISTERED$\\' --critical-mediadevices-unregistered=\\'$_SERVICECRITICALMEDIADEVICESUNREGISTERED$\\' --warning-mediadevices-rejected=\\'$_SERVICEWARNINGMEDIADEVICESREJECTED$\\' --critical-mediadevices-rejected=\\'$_SERVICECRITICALMEDIADEVICESREJECTED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Cisco-Callmanager-SNMP-Ccm-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les instances Cisco Call Manager en SNMP}\r\n{EN: Template to check Cisco Call Manager instances using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Cisco Call Manager using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "cisco-esa-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Cisco-Callmanager-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Cisco-Callmanager-Phone-Usage-SNMP",
+                "Net-Cisco-Callmanager-Mediadevice-Usage-SNMP",
+                "Net-Cisco-Callmanager-Gateway-Usage-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "cisco-esa-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ logo update",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Cisco Call Manager via SNMP:\r\n* CCM usage\r\n* Gateway usage\r\n* Device media usage\r\n* Phone usage"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser Cisco Call Manager via SNMP :\r\n* Utilisation de CCM\r\n* Utilisation des paserelles\r\n* Utilisation des boites vocales\r\n* Utilisation des t\u00e9l\u00e9phones"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Cisco Call Manager",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_cisco_callmanager_snmp.pl",
+                "package_name": "centreon-plugin-Network-Cisco-Callmanager-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-cisco-callmanager-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Network",
+            "Cisco",
+            "Phone",
+            "Voice gateway",
+            "SNMP"
+        ],
+        "update_date": "1628770898",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des t\u00e9l\u00e9phones par statuts.}\r\n\r\n{EN: Check phones usage by status.}",
+            "active_checks_enabled": 2,
+            "alias": "Phone-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Cisco-Callmanager-SNMP-Phone-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /^registered/"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Cisco-Callmanager-Phone-Usage-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des boites vocales par statuts.}\r\n\r\n{EN: Check voicemail usage by status.}",
+            "active_checks_enabled": 2,
+            "alias": "Mediadevice-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Cisco-Callmanager-SNMP-Mediadevice-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /^registered/"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Cisco-Callmanager-Mediadevice-Usage-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des paserelles par statuts.}\r\n\r\n{EN: Check gateways usage by status.}",
+            "active_checks_enabled": 2,
+            "alias": "Gateway-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Cisco-Callmanager-SNMP-Gateway-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /^registered/"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Cisco-Callmanager-Gateway-Usage-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation de tous les \u00e9l\u00e9ments du CCM par statuts.}\r\n\r\n{EN: Check all components usage by status.}",
+            "active_checks_enabled": 2,
+            "alias": "Ccm-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Cisco-Callmanager-SNMP-Ccm-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /up/"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-Cisco-Callmanager-Ccm-Usage-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

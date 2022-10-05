@@ -1,0 +1,716 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "database_id": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "project": {
+                            "type": "string"
+                        },
+                        "region": {
+                            "type": "string"
+                        },
+                        "state": {
+                            "type": "string"
+                        },
+                        "tier": {
+                            "type": "string"
+                        },
+                        "version": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Gcp-CloudSQL-MySQL-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Google MySQL instances",
+                    "discovery_examples": [
+                        {
+                            "database_id": "centreon-dev:centreon-mysql",
+                            "instance_type": null,
+                            "ip_addresses": [
+                                {
+                                    "ip_address": "10.57.32.3",
+                                    "type": "PRIVATE"
+                                }
+                            ],
+                            "name": "centreon-mysql",
+                            "project": "centreon-dev",
+                            "region": "europe-west1",
+                            "state": "RUNNABLE",
+                            "tier": "db-n1-standard-1",
+                            "version": "MYSQL_5_7"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.GCPKEYFILEPATH",
+                                "is_password": false,
+                                "source": "discovery.parameters.KEYFILEPATH"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.GCPDIMENSIONVALUE",
+                                "is_password": false,
+                                "source": "discovery.results.database_id"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Gcp-CloudSQL-MySQL-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Google CloudSQL MySQL",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Key File Path",
+                                "group": "GCP",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "KEYFILEPATH",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Scope endpoint",
+                                "group": "GCP",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "SCOPEENDPOINT",
+                                "type": "text",
+                                "value": "https://www.googleapis.com/auth/cloud-platform"
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": "--http-backend=curl"
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "gcp-cloudsql-mysql",
+                    "type": "gcp",
+                    "uuid_attributes": [
+                        "database_id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "database_id": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "project": {
+                            "type": "string"
+                        },
+                        "region": {
+                            "type": "string"
+                        },
+                        "state": {
+                            "type": "string"
+                        },
+                        "tier": {
+                            "type": "string"
+                        },
+                        "version": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Gcp-CloudSQL-MySQL-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Google MySQL instances",
+                    "discovery_examples": [
+                        {
+                            "database_id": "centreon-dev:centreon-mysql",
+                            "instance_type": null,
+                            "ip_addresses": [
+                                {
+                                    "ip_address": "10.57.32.3",
+                                    "type": "PRIVATE"
+                                }
+                            ],
+                            "name": "centreon-mysql",
+                            "project": "centreon-dev",
+                            "region": "europe-west1",
+                            "state": "RUNNABLE",
+                            "tier": "db-n1-standard-1",
+                            "version": "MYSQL_5_7"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.GCPKEYFILEPATH",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.KEYFILEPATH"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.GCPDIMENSIONVALUE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.database_id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Gcp-CloudSQL-MySQL-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Google CloudSQL MySQL",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Key File Path",
+                                "group": "GCP",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "KEYFILEPATH",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Scope endpoint",
+                                "group": "GCP",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "SCOPEENDPOINT",
+                                "type": "text",
+                                "value": "https://www.googleapis.com/auth/cloud-platform"
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": "--http-backend=curl"
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "gcp-cloudsql-mysql",
+                    "type": "gcp",
+                    "uuid_attributes": [
+                        "database_id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_gcp_cloudsql_mysql_api.pl --plugin=cloud::google::gcp::cloudsql::mysql::plugin --mode=storage --proxyurl=\\'$_HOSTPROXYURL$\\' --key-file=\\'$_HOSTGCPKEYFILEPATH$\\' --scope-endpoint=\\'$_HOSTGCPSCOPEENDPOINT$\\' --dimension-name=\\'$_HOSTGCPDIMENSIONNAME$\\' --dimension-operator=\\'$_HOSTGCPDIMENSIONOPERATOR$\\' --dimension-value=\\'$_HOSTGCPDIMENSIONVALUE$\\' $_HOSTGCPEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-space-usage=\\'$_SERVICEWARNINGSPACEUSAGE$\\' --critical-space-usage=\\'$_SERVICECRITICALSPACEUSAGE$\\' --warning-read-operations=\\'$_SERVICEWARNINGREADOPERATIONS$\\' --critical-read-operations=\\'$_SERVICECRITICALREADOPERATIONS$\\' --warning-write-operations=\\'$_SERVICEWARNINGWRITEOPERATIONS$\\' --critical-write-operations=\\'$_SERVICECRITICALWRITEOPERATIONS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Gcp-CloudSQL-MySQL-Api-Storage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_gcp_cloudsql_mysql_api.pl --plugin=cloud::google::gcp::cloudsql::mysql::plugin --mode=queries --proxyurl=\\'$_HOSTPROXYURL$\\' --key-file=\\'$_HOSTGCPKEYFILEPATH$\\' --scope-endpoint=\\'$_HOSTGCPSCOPEENDPOINT$\\' --dimension-name=\\'$_HOSTGCPDIMENSIONNAME$\\' --dimension-operator=\\'$_HOSTGCPDIMENSIONOPERATOR$\\' --dimension-value=\\'$_HOSTGCPDIMENSIONVALUE$\\' $_HOSTGCPEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-questions=\\'$_SERVICEWARNINGQUESTIONS$\\' --critical-questions=\\'$_SERVICECRITICALQUESTIONS$\\' --warning-queries=\\'$_SERVICEWARNINGQUERIES$\\' --critical-queries=\\'$_SERVICECRITICALQUERIES$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Gcp-CloudSQL-MySQL-Api-Queries",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_gcp_cloudsql_mysql_api.pl --plugin=cloud::google::gcp::cloudsql::mysql::plugin --mode=network --proxyurl=\\'$_HOSTPROXYURL$\\' --key-file=\\'$_HOSTGCPKEYFILEPATH$\\' --scope-endpoint=\\'$_HOSTGCPSCOPEENDPOINT$\\' --dimension-name=\\'$_HOSTGCPDIMENSIONNAME$\\' --dimension-operator=\\'$_HOSTGCPDIMENSIONOPERATOR$\\' --dimension-value=\\'$_HOSTGCPDIMENSIONVALUE$\\' $_HOSTGCPEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-connections=\\'$_SERVICEWARNINGCONNECTIONS$\\' --critical-connections=\\'$_SERVICECRITICALCONNECTIONS$\\' --warning-received-volume=\\'$_SERVICEWARNINGRECEIVEDVOLUME$\\' --critical-received-volume=\\'$_SERVICECRITICALRECEIVEDVOLUME$\\' --warning-sent-volume=\\'$_SERVICEWARNINGSENTVOLUME$\\' --critical-sent-volume=\\'$_SERVICECRITICALSENTVOLUME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Gcp-CloudSQL-MySQL-Api-Network",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_gcp_cloudsql_mysql_api.pl --plugin=cloud::google::gcp::cloudsql::mysql::plugin --mode=innodb --proxyurl=\\'$_HOSTPROXYURL$\\' --key-file=\\'$_HOSTGCPKEYFILEPATH$\\' --scope-endpoint=\\'$_HOSTGCPSCOPEENDPOINT$\\' --dimension-name=\\'$_HOSTGCPDIMENSIONNAME$\\' --dimension-operator=\\'$_HOSTGCPDIMENSIONOPERATOR$\\' --dimension-value=\\'$_HOSTGCPDIMENSIONVALUE$\\' $_HOSTGCPEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-fsyncs-calls=\\'$_SERVICEWARNINGFSYNCSCALLS$\\' --critical-fsyncs-calls=\\'$_SERVICECRITICALFSYNCSCALLS$\\' --warning-fsync-calls-logfile=\\'$_SERVICEWARNINGFSYNCCALLSLOGFILE$\\' --critical-fsync-calls-logfile=\\'$_SERVICECRITICALFSYNCCALLSLOGFILE$\\' --warning-pages-read=\\'$_SERVICEWARNINGPAGESREAD$\\' --critical-pages-read=\\'$_SERVICECRITICALPAGESREAD$\\' --warning-pages-written=\\'$_SERVICEWARNINGPAGESWRITTEN$\\' --critical-pages-written=\\'$_SERVICECRITICALPAGESWRITTEN$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Gcp-CloudSQL-MySQL-Api-Innodb",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_gcp_cloudsql_mysql_api.pl --plugin=cloud::google::gcp::cloudsql::mysql::plugin --mode=cpu --proxyurl=\\'$_HOSTPROXYURL$\\' --key-file=\\'$_HOSTGCPKEYFILEPATH$\\' --scope-endpoint=\\'$_HOSTGCPSCOPEENDPOINT$\\' --dimension-name=\\'$_HOSTGCPDIMENSIONNAME$\\' --dimension-operator=\\'$_HOSTGCPDIMENSIONOPERATOR$\\' --dimension-value=\\'$_HOSTGCPDIMENSIONVALUE$\\' $_HOSTGCPEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-utilization=\\'$_SERVICEWARNINGUTILIZATION$\\' --critical-utilization=\\'$_SERVICECRITICALUTILIZATION$\\' --warning-cores-reserved=\\'$_SERVICEWARNINGCORESRESERVED$\\' --critical-cores-reserved=\\'$_SERVICECRITICALCORESRESERVED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Gcp-CloudSQL-MySQL-Api-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_gcp_cloudsql_mysql_api.pl --plugin=cloud::google::gcp::cloudsql::mysql::plugin --mode=discovery --key-file='$_KEYFILEPATH$' --scope-endpoint='$_SCOPEENDPOINT$' --proxyurl='$_PROXYURL$' --timeout='$_TIMEOUT$' --statefile-suffix='-autodiscovery' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Gcp-CloudSQL-MySQL-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Google Cloud Platform MySQL via l'API}\r\n{EN: Template to check Google Cloud Platform MySQL using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Google Cloud Platform MySQL using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "gcp-cloud-sql-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTGCPKEYFILEPATH$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTGCPDIMENSIONVALUE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTGCPDIMENSIONNAME$",
+                    "value": "resource.labels.database_id"
+                },
+                {
+                    "key": "$_HOSTGCPDIMENSIONOPERATOR$",
+                    "value": "equals"
+                },
+                {
+                    "key": "$_HOSTGCPSCOPEENDPOINT$",
+                    "value": "https://www.googleapis.com/auth/cloud-platform"
+                },
+                {
+                    "key": "$_HOSTGCPEXTRAOPTIONS$",
+                    "value": "--http-backend=curl"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Gcp-CloudSQL-MySQL",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Gcp-CloudSQL-MySQL-Storage-Api",
+                "Cloud-Gcp-CloudSQL-MySQL-Queries-Api",
+                "Cloud-Gcp-CloudSQL-MySQL-Network-Api",
+                "Cloud-Gcp-CloudSQL-MySQL-Innodb-Api",
+                "Cloud-Gcp-CloudSQL-MySQL-Cpu-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "gcp-cloud-sql-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Adding HD v3 provider",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Google CloudSQL MySQL service.**\r\n\r\nAvailable host templates and related services:\r\n\r\n|Cloud-Gcp-CloudSQL-MySQL|\r\n|---|\r\n|Cpu|\r\n|Innodb|\r\n|Network|\r\n|Queries|\r\n|Storage|\r\n\r\nThis pack provides a host discovery rule."
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser Google Stackdriver, permettant de surveiller n\\'importe quelles m\u00e9triques de n\\'importe quelles ressources."
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Google CloudSQL MySQL",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_gcp_cloudsql_mysql_api.pl",
+                "package_name": "centreon-plugin-Cloud-Gcp-CloudSQL-MySQL-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-gcp-cloudsql-mysql",
+        "status": "stable",
+        "status_message": "Adding HD v3 provider",
+        "tags": [
+            "Cloud",
+            "Google",
+            "GCP",
+            "CloudSQL",
+            "MySQL"
+        ],
+        "update_date": "1617293837",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation des disques.}\r\n\r\n{EN: Check storage metrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Storage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Gcp-CloudSQL-MySQL-Api-Storage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Gcp-CloudSQL-MySQL-Storage-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de requ\u00eates.}\r\n\r\n{EN: Check queries.}",
+            "active_checks_enabled": 2,
+            "alias": "Queries",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Gcp-CloudSQL-MySQL-Api-Queries",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Gcp-CloudSQL-MySQL-Queries-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation r\u00e9seau.}\r\n\r\n{EN: Check network metrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Network",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Gcp-CloudSQL-MySQL-Api-Network",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Gcp-CloudSQL-MySQL-Network-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les m\u00e9triques InnoDB.}\r\n\r\n{EN: Check InnoDB metrics.}",
+            "active_checks_enabled": 2,
+            "alias": "Innodb",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Gcp-CloudSQL-MySQL-Api-Innodb",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Gcp-CloudSQL-MySQL-Innodb-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation de la CPU.}\r\n\r\n{EN: Check CPU usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Gcp-CloudSQL-MySQL-Api-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Gcp-CloudSQL-MySQL-Cpu-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

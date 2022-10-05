@@ -1,0 +1,187 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_protocol_imap.pl --plugin=apps::protocols::imap::plugin --mode=login --hostname=$HOSTADDRESS$ --username=\\'$_HOSTIMAPUSERNAME$\\' --password=\\'$_HOSTIMAPPASSWORD$\\' $_HOSTIMAPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\'  --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Protocol-IMAP-Login",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_protocol_imap.pl --plugin=apps::protocols::imap::plugin --mode=search-message --hostname=$HOSTADDRESS$ --username=\\'$_HOSTIMAPUSERNAME$\\' --password=\\'$_HOSTIMAPPASSWORD$\\' $_HOSTIMAPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\'  --critical=\\'$_SERVICECRITICAL$\\' --search=\\'$_SERVICESEARCHFILTER$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Protocol-IMAP-Search-Message",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check an IMAP Server",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [
+                {
+                    "key": "$_HOSTIMAPEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTIMAPPASSWORD$",
+                    "value": "IMAPPASSWORD"
+                },
+                {
+                    "key": "$_HOSTIMAPUSERNAME$",
+                    "value": "IMAPUSERNAME"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Protocol-IMAP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Protocol-IMAP-Login"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Compatibility with Centreon Plugin Packs Manager v2.2.0",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor IMAP server:\r\n* Login\r\n* Search-Message"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack Plugin pour surveiller un serveur IMAP :\r\n* Connexion\r\n* Recherche de message"
+            }
+        ],
+        "discovery_category": "protocol",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\nThis chapter describes the prerequisites installation needed by plugins\r\nto run.\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Protocol-Imap\r\n\r\n\r\n### Remote server\r\nThe remote server must have an IMAP service running and available.\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Protocol-IMAP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Onglet <em>Relations</em> &gt; Parent Hostgroups</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\nThis service was automatically created for this host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"29%\" />\r\n<col width=\"65%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Service</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IMAP-Login</p></td>\r\n<td align=\"left\"><p>Monitor user connection</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"34%\" />\r\n<col width=\"65%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Optionnal Service</th>\r\n<th align=\"left\">Description</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Search-Message-Generic</p></td>\r\n<td align=\"left\"><p>Monitor messages in a mailbox</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\n### Host Macro Configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"20%\" />\r\n<col width=\"47%\" />\r\n<col width=\"19%\" />\r\n<col width=\"13%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n<th align=\"left\">Example</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IMAPUSERNAME</p></td>\r\n<td align=\"left\"><p>the imap user</p></td>\r\n<td align=\"left\"><p>IMAPUSERNAME</p></td>\r\n<td align=\"left\"><p>foo</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>IMAPPASSWORD</p></td>\r\n<td align=\"left\"><p>the imap user's password</p></td>\r\n<td align=\"left\"><p>IMAPPASSWORD</p></td>\r\n<td align=\"left\"><p>bar</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\n## Monitor your IMAP Server with SSL or TLS\r\n### What you need to configure\r\nOn your Host or Host template, please set the following macro :\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IMAPEXTRAOPTIONS</p></td>\r\n<td align=\"left\"><p>--ssl</p></td>\r\n</tr>\r\n</tbody>\r\n</table>",
+        "name": "IMAP Server",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_protocol_imap.pl",
+                "package_name": "centreon-plugin-Applications-Protocol-Imap",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Applications-Protocol-Imap",
+                "version": "20160324-2"
+            }
+        ],
+        "slug": "applications-protocol-imap",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Email",
+            "IMAP",
+            "Server"
+        ],
+        "update_date": "1486389228",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier la connexion d'un utilisateur IMAP.}\r\n\r\n{EN: Check user connection to an IMAP server.}",
+            "active_checks_enabled": 2,
+            "alias": "IMAP-Login",
+            "check_timeperiod": "",
+            "command_name": "App-Protocol-IMAP-Login",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Protocol-IMAP-Login",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier les messages d'une bo\u00eete aux lettres via un filtre de recherche IMAP.}\r\n\r\n{EN: Check messages in a mailbox with an IMAP filter.}",
+            "active_checks_enabled": 2,
+            "alias": "Search-Message-Generic",
+            "check_timeperiod": "",
+            "command_name": "App-Protocol-IMAP-Search-Message",
+            "discovery_list_mode": "A",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICESEARCHFILTER$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "App-Protocol-IMAP-Search-Message-Generic",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

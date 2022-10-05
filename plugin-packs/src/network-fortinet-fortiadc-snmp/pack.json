@@ -1,0 +1,408 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Fortinet-Fortiadc-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Fortinet-Fortiadc-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Fortinet-Fortiadc-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "INTERFACENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Fortinet-Fortiadc-SNMP-Interface-Name",
+                "service_display_name": "Interface-$name$",
+                "service_template": "Net-Fortinet-Fortiadc-Interfaces-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Fortinet-Fortiadc-SNMP-Virtual-Servers-Discover",
+                "command_for_macro": "Net-Fortinet-Fortiadc-SNMP-Virtual-Servers-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$state$",
+                        "order": 0,
+                        "pattern": "enable",
+                        "type": "inclusion"
+                    },
+                    {
+                        "object": "$state$",
+                        "order": 1,
+                        "pattern": ".*",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Fortinet-Fortiadc-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    },
+                    {
+                        "is_empty": null,
+                        "name": "FILTERVDOM",
+                        "value": "^$vdom$$"
+                    }
+                ],
+                "name": "Net-Fortinet-Fortiadc-SNMP-Virtual-Server-Name",
+                "service_display_name": "Virtual-Server--$vdom$-$name$",
+                "service_template": "Net-Fortinet-Fortiadc-Virtual-Servers-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_fortinet_fortiadc_snmp.pl --plugin=network::fortinet::fortiadc::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Fortinet-Fortiadc-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_fortinet_fortiadc_snmp.pl --plugin=network::fortinet::fortiadc::snmp::plugin --mode=list-interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Fortinet-Fortiadc-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_fortinet_fortiadc_snmp.pl --plugin=network::fortinet::fortiadc::snmp::plugin --mode=list-virtual-servers --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Fortinet-Fortiadc-SNMP-Virtual-Servers-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_fortinet_fortiadc_snmp.pl --plugin=network::fortinet::fortiadc::snmp::plugin --mode=list-virtual-servers --hostname=\\'$HOSTADDRESS$\\' --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Fortinet-Fortiadc-SNMP-Virtual-Servers-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_fortinet_fortiadc_snmp.pl --plugin=network::fortinet::fortiadc::snmp::plugin --mode=virtual-servers --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --filter-vdom=\\'$_SERVICEFILTERVDOM$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-virtualserver-connections=\\'$_SERVICEWARNINGVIRTUALSERVERCONNECTIONS$\\' --critical-virtualserver-connections=\\'$_SERVICECRITICALVIRTUALSERVERCONNECTIONS$\\' --warning-virtualserver-throughput=\\'$_SERVICEWARNINGVIRTUALSERVERTHROUGHPUT$\\' --critical-virtualserver-throughput=\\'$_SERVICECRITICALVIRTUALSERVERTHROUGHPUT$\\' --warning-virtualservers-detected=\\'$_SERVICEWARNINGVIRTUALSERVERSDETECTED$\\' --critical-virtualservers-detected=\\'$_SERVICECRITICALVIRTUALSERVERSDETECTED$\\' --warning-virtualservers-healthy=\\'$_SERVICEWARNINGVIRTUALSERVERSHEALTHY$\\' --critical-virtualservers-healthy=\\'$_SERVICECRITICALVIRTUALSERVERSHEALTHY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Fortinet-Fortiadc-SNMP-Virtual-Servers",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_fortinet_fortiadc_snmp.pl --plugin=network::fortinet::fortiadc::snmp::plugin --mode=uptime --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-uptime=\\'$_SERVICEWARNINGUPTIME$\\' --critical-uptime=\\'$_SERVICECRITICALUPTIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Fortinet-Fortiadc-SNMP-Uptime",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_fortinet_fortiadc_snmp.pl --plugin=network::fortinet::fortiadc::snmp::plugin --mode=security --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-ddos-status=\\'$_SERVICEWARNINGDDOSSTATUS$\\' --critical-ddos-status=\\'$_SERVICECRITICALDDOSSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Fortinet-Fortiadc-SNMP-Security",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_fortinet_fortiadc_snmp.pl --plugin=network::fortinet::fortiadc::snmp::plugin --mode=memory --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Fortinet-Fortiadc-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_fortinet_fortiadc_snmp.pl --plugin=network::fortinet::fortiadc::snmp::plugin --mode=hardware --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Fortinet-Fortiadc-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_fortinet_fortiadc_snmp.pl --plugin=network::fortinet::fortiadc::snmp::plugin --mode=cpu --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-core-2s=\\'$_SERVICEWARNINGCORE2S$\\' --critical-core-2s=\\'$_SERVICECRITICALCORE2S$\\' --warning-core-1m=\\'$_SERVICEWARNINGCORE1M$\\' --critical-core-1m=\\'$_SERVICECRITICALCORE1M$\\' --warning-core-5m=\\'$_SERVICEWARNINGCORE5M$\\' --critical-core-5m=\\'$_SERVICECRITICALCORE5M$\\' --warning-average-2s=\\'$_SERVICEWARNINGAVERAGE2S$\\' --critical-average-2s=\\'$_SERVICECRITICALAVERAGE2S$\\' --warning-average-1m=\\'$_SERVICEWARNINGAVERAGE1M$\\' --critical-average-1m=\\'$_SERVICECRITICALAVERAGE1M$\\' --warning-average-5m=\\'$_SERVICEWARNINGAVERAGE5M$\\' --critical-average-5m=\\'$_SERVICECRITICALAVERAGE5M$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Fortinet-Fortiadc-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_fortinet_fortiadc_snmp.pl --plugin=network::fortinet::fortiadc::snmp::plugin --mode=interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --add-errors --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Fortinet-Fortiadc-SNMP-Interfaces",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Fortinet FortiADC en SNMP}\r\n{EN: Template to check Fortinet FortiADC using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Fortinet FortiADC using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "fortinet-64.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Fortinet-Fortiadc-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Fortinet-Fortiadc-Virtual-Servers-SNMP",
+                "Net-Fortinet-Fortiadc-Uptime-SNMP",
+                "Net-Fortinet-Fortiadc-Security-SNMP",
+                "Net-Fortinet-Fortiadc-Memory-SNMP",
+                "Net-Fortinet-Fortiadc-Hardware-SNMP",
+                "Net-Fortinet-Fortiadc-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "fortinet-64.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Fortinet FortiADC via SNMP:\r\n* Cpu\r\n* Hardware\r\n* Interfaces\r\n* Memory\r\n* Security\r\n* Uptime\r\n* Virtual servers"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser un Fortinet FortiADC via SNMP :\r\n* Cpu\r\n* Hardware\r\n* Interfaces\r\n* Memory\r\n* Security\r\n* Uptime\r\n* Virtual servers"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAABGlBMVEVHcEwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2MCUAAAAAAAAAAAAAAAA/DAkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADyLiQAAADvLiTjLCIAAAAAAAAAAADvLiTvLiTxLiTuLiQAAAAAAAANAgIAAAAUAwPvLiQAAADuLiTuLiQAAAAAAADwLiQAAAAAAADuLiTuLiQAAAAAAADvLiTuLiQAAADyLyTuLiQAAAAAAAAAAADLJx4AAADyLiQAAAAAAADuLiTuLiTwLiTzLyXuLiTzLyUAAAAAAAD2MCbuLiTwLiTuLiQAAAAAAADuLiQAAAAAAADuLiTuLiT9MSdaEQ7xLiQAAADuLiTyLyVtxyiLAAAAW3RSTlMAnP7trvX4wvt1GCGCJdsr2OcC0huKFsplbRESTH0Ec7xgvdMM4zZYCqgU8aPuW5QlhDBQ5ti1317frB0q5Xq4BsVQj0Ctj2YUdCGZaC/IQUdGSqHAn5f2ZSDLfM/ckwAAAuxJREFUeF7t1VtT2kAYxvEHSNIIIConIxqtnOWkooCgCqJVxXPt8aXf/2s0uyHDMjDtML3ozfu7CLM7m+yfhAlgjDHGGGOMMcYYY4wxxhhjjDEGlD6oUr44HnePjnIvkd3qyUl5y/58lMsdZIGGsmrnS6GItfXYZCa2hO1+qpLE+vtk8iIRBRAqpZTr70SnxgDOaErqx+3uyHF5eiw+PtlydGPjwSRVp4gwKYbwEa3EkTBIESgA0RYpjPzhsjIEIIaK1N7lr9mATBrr0wG6NR3gQ91PsTjCBqmWQ4iukMKcE+DvW0ue80Lxe/nkJJd7juweuY8g5wwzXRFgDtyF24OA2DEftnw6+UtiMvyKoRegJ7bdZRXRKQPere3x9a1g8mFpyWmInYspGWDWMYedFXoYEwFGCK74BZEGx1uAzAJcPi8gEPSWtcS1RUAY05zzSxsQZEApvu8pAs8HW45HjLXF6C4tAxohuSi0uTwO2HQCPs4EeJ3BGPl9MsAnd4iGepDWdoi0SQCZ+pjZagAHI+EGrrUnOYyIADJ0yfDLh/73gBU3wNuB+tG5AYrVArA1EtoYkz/CsgxQLV8tEOBJHc4P0M9WXYHY5p/ugD8wXqgTfQguEqCfiTP1i/l3wKxsBF3xYBF4vGnX2u2IF/DSrtXatawIMF6TQWHvqkXG+SIBw6I4M5605wcMocreptO3t3ave9/t3qeRTQu2DIjCFeqTf7BIQBgKJWDNDfBBdTeqVsvll8jTt2p1dGBfl6vVau5eBhx6ASnyJxYJSIUTrkEiqgRsFOYF1Eazb8Kf6X8KUDWUgLwIOCOzAlX3Wg3oyYC2DcsJyHsBMaI6HA2d6AGuivdfYOxPXkRUwmFrNqBP1NwD8m8A6lrHwpTT6+NM5vleHHN39tdMJnPXA147WikEVzJxockvnq80O1dwWVpzsIdCR6sE4dqoNzULceeoyIuAsNY8LwLFK/xvjDHGGGOMMcYYY4wxxhhjjLHfby70eo5fNBwAAAAASUVORK5CYII=",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Fortinet FortiADC SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_fortinet_fortiadc_snmp.pl",
+                "package_name": "centreon-plugin-Network-Fortinet-Fortiadc-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-fortinet-fortiadc-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Fortinet",
+            "FortiADC",
+            "SNMP",
+            "Network"
+        ],
+        "update_date": "1643292074",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les serveurs virtuels.}\r\n\r\n{EN: Check virtual servers.}",
+            "active_checks_enabled": 2,
+            "alias": "Virtual-Servers",
+            "check_timeperiod": "",
+            "command_name": "Net-Fortinet-Fortiadc-SNMP-Virtual-Servers",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} eq \"unhealthy\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Fortinet-Fortiadc-Virtual-Servers-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Dur\u00e9e depuis laquelle le serveur tourne sans interruption.}\r\n\r\n{EN: Time since the server has been working and available.}",
+            "active_checks_enabled": 2,
+            "alias": "Uptime",
+            "check_timeperiod": "",
+            "command_name": "Net-Fortinet-Fortiadc-SNMP-Uptime",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Fortinet-Fortiadc-Uptime-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la s\u00e9curit\u00e9 DDoS.}\r\n\r\n{EN: Check security.}",
+            "active_checks_enabled": 2,
+            "alias": "Security",
+            "check_timeperiod": "",
+            "command_name": "Net-Fortinet-Fortiadc-SNMP-Security",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALDDOSSTATUS$",
+                    "password": false,
+                    "value": "%{status} eq \"attacking\""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Fortinet-Fortiadc-Security-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation de la m\u00e9moire vive.}\r\n\r\n{EN: Check the rate of the utilization of memory.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Fortinet-Fortiadc-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Fortinet-Fortiadc-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du mat\u00e9riel.}\r\n\r\n{EN: Check hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware",
+            "check_timeperiod": "",
+            "command_name": "Net-Fortinet-Fortiadc-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Fortinet-Fortiadc-Hardware-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine.}\r\n\r\n{EN: Check the rate of utilization of CPU for the machine.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Fortinet-Fortiadc-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Fortinet-Fortiadc-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces.}\r\n\r\n{EN: Check interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "Net-Fortinet-Fortiadc-SNMP-Interfaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} !~ /up|dormant/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "ifname"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Fortinet-Fortiadc-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

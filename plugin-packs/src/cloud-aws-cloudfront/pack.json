@@ -1,0 +1,260 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_cloudfront_api.pl --plugin=cloud::aws::cloudfront::plugin --mode=throughput --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --id=\\'$_HOSTAWSINSTANCEID$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-bytes-uploaded=\\'$_SERVICEWARNINGBYTESUPLOADED$\\' --critical-bytes-uploaded=\\'$_SERVICECRITICALBYTESUPLOADED$\\' --warning-bytes-downloaded=\\'$_SERVICEWARNINGBYTESDOWNLOADED$\\' --critical-bytes-downloaded=\\'$_SERVICECRITICALBYTESDOWNLOADED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Cloudfront-Api-Throughput",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_cloudfront_api.pl --plugin=cloud::aws::cloudfront::plugin --mode=requests --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --id=\\'$_HOSTAWSINSTANCEID$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-requests=\\'$_SERVICEWARNINGREQUESTS$\\' --critical-requests=\\'$_SERVICECRITICALREQUESTS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Cloudfront-Api-Requests",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_cloudfront_api.pl --plugin=cloud::aws::cloudfront::plugin --mode=errors --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --id=\\'$_HOSTAWSINSTANCEID$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --statistic=\\'$_SERVICESTATISTIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-errorrate-4xx=\\'$_SERVICEWARNINGERRORRATE4XX$\\' --critical-errorrate-4xx=\\'$_SERVICECRITICALERRORRATE4XX$\\' --warning-errorrate-total=\\'$_SERVICEWARNINGERRORRATETOTAL$\\' --critical-errorrate-total=\\'$_SERVICECRITICALERRORRATETOTAL$\\' --warning-errorrate-5xx=\\'$_SERVICEWARNINGERRORRATE5XX$\\' --critical-errorrate-5xx=\\'$_SERVICECRITICALERRORRATE5XX$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Cloudfront-Api-Errors",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Amazon CloudFront via l'API}\r\n{EN: Template to check Amazon CloudFront using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Amazon CloudFront using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "aws-cloudfront-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSACCESSKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSSECRETKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSCUSTOMMODE$",
+                    "value": "paws"
+                },
+                {
+                    "key": "$_HOSTAWSINSTANCEID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-CloudFront",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Aws-Cloudfront-Throughput-Api",
+                "Cloud-Aws-Cloudfront-Requests-Api",
+                "Cloud-Aws-Cloudfront-Errors-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAH4AAAB+CAYAAADiI6WIAAAHDUlEQVR42u2db0wTZxzHeeE7tlcLAip/BmVKDCraVlhlQztR65/iYrYMh1syNIpVNjROh9RSijpJIK1uTgFjttAZE/8tRiINkGWwN+4fWWbi/sRF46rxBREoCr541ufKwVHO0l57be/u+02+ISHQ3u/3+d7z3B3PUxISIAiCIAiCZCZLccJL6IKC1FiSnNhqVJlbjCrPYL369qBVrUNXFAC8rTSHsPY0aBkPN2j7EQAFAPcHjwAoBPiLwCMAMgc+E3gEQKbAgwWPAMgMeKjgEQCZABcKHgGQOPBwwSMAEgUeKfAIgMSARxo8AhBBWYoTZokFXCzw3AAMW5flgaIAnS7NzBQTupjgGfg2rRMUAR4CeAjgIYCHAF4eOqp/+ZXbO3JTAT64W9gLparsHkvCLFk8ePE1QuP22k4fcDzcvygR4CfrbDXmlLUZc1z0mK5uWzA2VK99NGzVlkkqAIGWOPk/5PDYNGYaBL4C5Qp+AnRpjpPvmK6Wz+e8hvdkifcAhLLEib9RGteQTW2iT7xooXIB71inSmoxZhm8Z7S9zahyz3RMXPBxHYBwljgF8n81S3+QMvi7B/PvBAM6GPBxFYBILnHi8yPzMiJl8Lerlwg6pkDgYxoAIX88AfjIgucGwFOvNsTt/TXAiwM+qs8LAB7gAR7gAR7gAR7gAR7gAR7gAR7gAR7gAR7gAR7gAR7gAR7gAR7gAR7gAR7gAR7g/d24NpMcK8kgR/RppP29HNJbuZD8/ekSgJcD+GbDqwzgwyvTyKHieeSTFXPIntdTye4ZfKB4Lqlfk05atmSTKx/MZ0LxsHYZwMcTeKFwhfqwft60UAQ6/j+qFwO8wOXJ5OSGLAauRZ/OABYbrhDv0flCcWJ9BhOKmxW5TCh+qcoD+HDmyoE6Nblfs5QxbSh15/ZcpslNGzL/rSxMcUcTtPf9+quL5vTRINJQUtsNWeTLjdmMw70GAXgBRe8sSMn0ebZuV2FyGXVlQaq9sjDV6bVrJqDjP+dkf5e+Dvua3PcZ3wIlysWn5MDzDctVuukXT3RY5A6NrNmzOZQLqgGL+pKQGsoXJSeyQIsTQt+UcHajqjzUC03q+rd8vWFNe8Q6mOmDrwcPavM7owLetio1o2F1+q06fXrfvqI517xwv4/GHMqaNuL8u6p7F7e+1tfx0YLzsdhFZFudtpPWX7sy7R4FuK9o7gRA/7CL1Y/mjRl/0R5078g9FTf76SaHXJ93L08xsMOnzylmdljlDsN0vp78XoqJ/iz9Xb7hNt7kXys9frYWnmnF7Ve/c2p/6DQztYdCRiYIgiAIgiAIgiAIgiAIgiAIgiAIgiAIgiBIrhq64Uh62tGcyfpZt90w2m0vo1/Z7/VYLJJfccLWMupqyqP1UT/vPqnj1i6ZOumHGN+0bJ7NPXhaDFuYrziHeazb4WT9vOek22si0O6J1+pymLgBGTzz4YJY9IDWf/8bi4pbN6fe/jBq9drh4vaO21dqbt/pCRS1ols3LVSxK0i7DqwnfUe2kDunTeRB+yEycK1BcMFjnY1krOMY49FrteTZxWqfv95Onp55h/HIqU1TVpiONJfcigX4yxUFe7kraS9VFDC94PaDNe0J69Euu7DedNun9OXpuW1MP5g+nNpcF5Wig1lX3162mGnCT8ffJ3e+2DkJkR70OMSJAxf5/77QoZRvZGJGIu/I5H8mBXMWRWJd/YvC4j7/8XS4AfzEtrw8bsBHZUPF50VkuKnkO2YO5Zliwpxepg273Dm6o0q/90L5UlE2VPxWow8t/FZtmazAP7EVksfNRjLg2DwxWoxe+YyEDzPyHrx+nPz5lYlx75G3Se/BtaTTtALghe2WVfMOjb83V5C75/Yxc+ZIZ1NMQAecc8f9T00BwIu9P/7GnlVMKOgcGclQMHCvW6dcZHpOvCHq/niAj9AnYvCFgnt1zd5NCIEL8PgMHIAHeIAHeIAHeIAHeIAHeIAHeIAHeIAHeIAHeIAHeIAHeIAHeIAHeIAHeIAHeIAHeIAH+NDhOwE+duCHbRo3hd5jicGHGwcbAICPHPiYAg81AKHtjtG4hmxq08+mhWukDH6gTnO5xZhlaDPm2NuMKne44OMKeLABCAi6QdvvsWnMg1a1jluUkGuJeALvv72L1jO+9coZCvi4Bj5TAKYVYtPYPfVqw8P9ixIjeREZz+D9dcaYlde6KdvkHRFcfOAlBZwP3rdb85yeo4WXaBFDh/KTxLx7kBJ4/63nTBCMKvOv5rU/ShZ4rG4bpQoeAngI4AEe4AEe4AEe4OUpxzpVEsArVI0lyYn03lZK4CX94EUpAQBwhQYAwBUaAABXaAAAXKEBAHCFBiAo4A3afv+1ApDEAxAMcHRThgEAcIUGAMAVGgAAV2AAbuzSXXxsLXwT3YAUo/8Bz+fQuKxGEPsAAAAASUVORK5CYII=",
+            "name": "aws-cloudfront-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* bump version",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Amazon CloudFront service.**\r\n\r\nAvailable host templates and related services:\r\n\r\n|Cloud-Aws-CloudFront-custom|\r\n|---|\r\n|Throughput|\r\n|Requests|\r\n|Errors|\r\n\r\n*Since version 3.3.0, thresholds in custom macros have been aligned to new performance data format of plugin.*"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser le service Amazon CloudFront.**\r\n\r\nMod\u00e8les d\\'h\u00f4te disponibles et leurs services :\r\n\r\n|Cloud-Aws-CloudFront-custom|\r\n|---|\r\n|Throughput|\r\n|Requests|\r\n|Errors|\r\n\r\n*Depuis la version 3.3.0, les macros personnalis\u00e9es de seuils ont \u00e9t\u00e9 modifi\u00e9es pour correspondre aux nouvelles donn\u00e9es de performance du plugin.*"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n\r\n## Prerequisites\r\n\r\n### Centreon Plugin\r\n\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Cloud-Aws-Cloudfront-Api\r\n\r\nTo use it, you can either install 'awscli' (AWS Command Line Interface) or 'paws' (Perl AWS SDK).\r\n\r\n### Install awscli\r\n\r\nOn CentOS, install with following commands:\r\n\r\n    # yum install awscli\r\n\r\n## Centreon Configuration\r\n\r\n### Create a host using the appropriate template\r\n\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Field</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>Name</p></td>\r\n            <td align=\"left\"><p><em>Name of the host</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Alias</p></td>\r\n            <td align=\"left\"><p><em>Description</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>IP Address / DNS</p></td>\r\n            <td align=\"left\"><p><em>Can be localhost</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Monitored from</p></td>\r\n            <td align=\"left\"><p><em>Poller used to monitor</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>Templates</p></td>\r\n            <td align=\"left\"><p>Cloud-Aws-CloudFront-custom</p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nThe following host macros should be set as shown:\r\n\r\n<table>\r\n    <thead>\r\n        <tr class=\"header\">\r\n            <th align=\"left\" width=\"10%\">Macro</th>\r\n            <th align=\"left\" width=\"20%\">Value</th>\r\n        </tr>\r\n    </thead>\r\n    <tbody>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSACCESSKEY</p></td>\r\n            <td align=\"left\"><p><em>AWS access key</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSSECRETKEY</p></td>\r\n            <td align=\"left\"><p><em>AWS secret key</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSCUSTOMMODE</p></td>\r\n            <td align=\"left\"><p><em>Plugin custom mode: awscli or paws</em></p></td>\r\n        </tr>\r\n        <tr>\r\n            <td align=\"left\"><p>AWSINSTANCEID</p></td>\r\n            <td align=\"left\"><p><em>Instance ID</em></p></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n\r\nCheck the *Create Services linked to the Template too* box and click on the *Save* button.\r\n\r\nThe following services will be created:\r\n\r\n* Cloudfront-Errors\r\n* Cloudfront-Requests\r\n* Cloudfront-Throughput\r\n",
+        "name": "Amazon CloudFront",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_aws_cloudfront_api.pl",
+                "package_name": "centreon-plugin-Cloud-Aws-Cloudfront-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-aws-cloudfront",
+        "status": "stable",
+        "status_message": "bump version",
+        "tags": [
+            "Amazon",
+            "AWS",
+            "CloudFront",
+            "Cloud"
+        ],
+        "update_date": "1571155859",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les d\u00e9bits montant et descendant.}\r\n\r\n{EN: Check upload and download throughputs.}",
+            "active_checks_enabled": 2,
+            "alias": "Cloudfront-Throughput",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Cloudfront-Api-Throughput",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "sum"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--per-sec --verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Cloudfront-Throughput-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de requ\u00eates.}\r\n\r\n{EN: Check requests number.}",
+            "active_checks_enabled": 2,
+            "alias": "Cloudfront-Requests",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Cloudfront-Api-Requests",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "sum"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--per-sec --verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Cloudfront-Requests-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le pourcentage d'erreurs d'acc\u00e8s aux pages.}\r\n\r\n{EN: Check pages access errors.}",
+            "active_checks_enabled": 2,
+            "alias": "Cloudfront-Errors",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Cloudfront-Api-Errors",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATISTIC$",
+                    "password": false,
+                    "value": "average"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "600"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "60"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Cloudfront-Errors-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

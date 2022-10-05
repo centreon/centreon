@@ -1,0 +1,168 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Cloud-Aws-Sqs-Api-Queues-Discover",
+                "command_for_macro": "Cloud-Aws-Sqs-Api-Queues-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Cloud-Aws-Sqs"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "QUEUENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Cloud-Aws-Sqs-Queues",
+                "service_display_name": "Sqs-Queue-$name$",
+                "service_template": "Cloud-Aws-Sqs-Queues-Api"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_sqs_api.pl --plugin=cloud::aws::sqs::plugin --mode=list-queues --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' $_HOSTEXTRAOPTIONS$ --disco-format\\\"",
+            "name": "Cloud-Aws-Sqs-Api-Queues-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_sqs_api.pl --plugin=cloud::aws::sqs::plugin --mode=list-queues --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' $_HOSTEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Cloud-Aws-Sqs-Api-Queues-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_aws_sqs_api.pl --plugin=cloud::aws::sqs::plugin --mode=queues --custommode=\\'$_HOSTAWSCUSTOMMODE$\\' --aws-secret-key=\\'$_HOSTAWSSECRETKEY$\\' --aws-access-key=\\'$_HOSTAWSACCESSKEY$\\' --region=\\'$_HOSTAWSREGION$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --queue-name=\\'$_SERVICEQUEUENAME$\\' --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --period=\\'$_SERVICEPERIOD$\\' --warning-messages-notvisible=\\'$_SERVICEWARNINGMESSAGESNOTVISIBLE$\\' --critical-messages-notvisible=\\'$_SERVICECRITICALMESSAGESNOTVISIBLE$\\' --warning-messages-oldest-age=\\'$_SERVICEWARNINGMESSAGESOLDESTAGE$\\' --critical-messages-oldest-age=\\'$_SERVICECRITICALMESSAGESOLDESTAGE$\\' --warning-messages-visible=\\'$_SERVICEWARNINGMESSAGESVISIBLE$\\' --critical-messages-visible=\\'$_SERVICECRITICALMESSAGESVISIBLE$\\' --warning-messages-delayed=\\'$_SERVICEWARNINGMESSAGESDELAYED$\\' --critical-messages-delayed=\\'$_SERVICECRITICALMESSAGESDELAYED$\\' --warning-messages-deleted=\\'$_SERVICEWARNINGMESSAGESDELETED$\\' --critical-messages-deleted=\\'$_SERVICECRITICALMESSAGESDELETED$\\' --warning-messages-sent=\\'$_SERVICEWARNINGMESSAGESSENT$\\' --critical-messages-sent=\\'$_SERVICECRITICALMESSAGESSENT$\\' --warning-messages-empty-receives=\\'$_SERVICEWARNINGMESSAGESEMPTYRECEIVES$\\' --critical-messages-empty-receives=\\'$_SERVICECRITICALMESSAGESEMPTYRECEIVES$\\' --warning-messages-received=\\'$_SERVICEWARNINGMESSAGESRECEIVED$\\' --critical-messages-received=\\'$_SERVICECRITICALMESSAGESRECEIVED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Aws-Sqs-Api-Queues",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les files d'attente Amazon Simple Queue Service (Amazon SQS) via l'API}\r\n{EN: Template to check Amazon Simple Queue Service (Amazon SQS) volumes using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Amazon SQS using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "aws-sqs-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAWSACCESSKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSSECRETKEY$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSREGION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAWSCUSTOMMODE$",
+                    "value": "awscli"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Sqs",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Aws-Sqs-Queues-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "aws-sqs-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Initial version",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin-Pack to monitor Amazon SQS (Simple Queue Service) resources.**\r\n\r\nAvailable host template and related services:\r\n\r\n|Cloud-Aws-Sqs-Custom|\r\n|---|\r\n|SQS-Queues|\r\n\r\nThis pack provides a service discovery rule."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin-Pack pour superviser les resources Amazon SQS (Simple Queue Service).**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponible et service associ\u00e9:\r\n\r\n|Cloud-Aws-Sqs-Custom|\r\n|---|\r\n|Ebs-Queues|\r\n\r\nCe pack fournit une r\u00e8gle de d\u00e9couverte de services."
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Amazon SQS",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_aws_sqs_api.pl",
+                "package_name": "centreon-plugin-Cloud-Aws-Sqs-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-aws-sqs",
+        "status": "stable",
+        "status_message": "Initial export",
+        "tags": [
+            "AWS",
+            "Amazon",
+            "Messaging",
+            "API"
+        ],
+        "update_date": "1596558275",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le la file d'attente Amazon SQS.}\r\n\r\n{EN: Check Amazon SQS queues.}",
+            "active_checks_enabled": 2,
+            "alias": "Sqs-Queues",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Aws-Sqs-Api-Queues",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Cloud-Aws-Sqs-Queues-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

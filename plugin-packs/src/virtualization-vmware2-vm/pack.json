@@ -1,0 +1,1182 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v3.0": [
+                {
+                    "attributes": {
+                        "annotation": {
+                            "type": "string"
+                        },
+                        "cluster": {
+                            "type": "string"
+                        },
+                        "datacenter": {
+                            "type": "string"
+                        },
+                        "esx": {
+                            "type": "string"
+                        },
+                        "folder": {
+                            "type": "string"
+                        },
+                        "guest_ip": {
+                            "type": "string"
+                        },
+                        "guest_name": {
+                            "type": "string"
+                        },
+                        "guest_state": {
+                            "type": "string"
+                        },
+                        "hardware": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "os": {
+                            "type": "string"
+                        },
+                        "power_state": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "uuid": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Virt-VMWare2-VM-HostDiscovery-v2",
+                    "credentials": {},
+                    "default_template": "generic-active-host",
+                    "description": "Discover VMWare Virtual Machine",
+                    "discovery_examples": [
+                        {
+                            "annotation": "Production server for front access 1",
+                            "cluster": "Production",
+                            "datacenter": "DC12",
+                            "esx": "esx-dc12-prd0001.domain.local",
+                            "folder": "/vm/production/front",
+                            "guest_ip": "10.2.3.4",
+                            "guest_name": "front-prod-1.domain.local",
+                            "guest_state": "running",
+                            "hardware": "vmx-04",
+                            "name": "front-prod-1",
+                            "os": "sles10Guest",
+                            "power_state": "poweredOn",
+                            "type": "vm",
+                            "uuid": "d90ca300-529d-440a-bf67-4563617c5216"
+                        },
+                        {
+                            "annotation": "Production server for front access 1",
+                            "cluster": "Production",
+                            "datacenter": "DC12",
+                            "esx": "esx-dc12-prd0001.domain.local",
+                            "folder": "/vm/production/front",
+                            "guest_ip": "10.2.3.4",
+                            "guest_name": "front-prod-1.domain.local",
+                            "guest_state": "running",
+                            "hardware": "vmx-04",
+                            "name": "front-prod-1",
+                            "os": "sles10Guest",
+                            "power_state": "poweredOn",
+                            "type": "vm",
+                            "uuid": "d90ca300-529d-440a-bf67-4563617c5216"
+                        },
+                        {
+                            "annotation": "Production server for front access 1",
+                            "cluster": "Production",
+                            "datacenter": "DC12",
+                            "esx": "esx-dc12-prd0001.domain.local",
+                            "folder": "/vm/production/front",
+                            "guest_ip": "10.2.3.4",
+                            "guest_name": "front-prod-1.domain.local",
+                            "guest_state": "running",
+                            "hardware": "vmx-04",
+                            "name": "front-prod-1",
+                            "os": "sles10Guest",
+                            "power_state": "poweredOn",
+                            "type": "vm",
+                            "uuid": "d90ca300-529d-440a-bf67-4563617c5216"
+                        },
+                        {
+                            "annotation": "Production server for front access 1",
+                            "cluster": "Production",
+                            "datacenter": "DC12",
+                            "esx": "esx-dc12-prd0001.domain.local",
+                            "folder": "/vm/production/front",
+                            "guest_ip": "10.2.3.4",
+                            "guest_name": "front-prod-1.domain.local",
+                            "guest_state": "running",
+                            "hardware": "vmx-04",
+                            "name": "front-prod-1",
+                            "os": "sles10Guest",
+                            "power_state": "poweredOn",
+                            "type": "vm",
+                            "uuid": "d90ca300-529d-440a-bf67-4563617c5216"
+                        },
+                        {
+                            "annotation": "Production server for front access 1",
+                            "cluster": "Production",
+                            "datacenter": "DC12",
+                            "esx": "esx-dc12-prd0001.domain.local",
+                            "folder": "/vm/production/front",
+                            "guest_ip": "10.2.3.4",
+                            "guest_name": "front-prod-1.domain.local",
+                            "guest_state": "running",
+                            "hardware": "vmx-04",
+                            "name": "front-prod-1",
+                            "os": "sles10Guest",
+                            "power_state": "poweredOn",
+                            "type": "vm",
+                            "uuid": "d90ca300-529d-440a-bf67-4563617c5216"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.CENTREONVMWAREHOST",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.CENTREONVMWAREHOST"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.CENTREONVMWAREPORT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.CENTREONVMWAREPORT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.CENTREONVMWARECONTAINER",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.CENTREONVMWARECONTAINER"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.VMNAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.VMUUID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.uuid"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Virt-VMWare2-VM-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "VMWare VM",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Connector Server Hostname",
+                                "group": "Centreon VMware Connector",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "CENTREONVMWAREHOST",
+                                "type": "text",
+                                "value": "localhost"
+                            },
+                            {
+                                "description": "Connector Port",
+                                "group": "Centreon VMware Connector",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "CENTREONVMWAREPORT",
+                                "type": "text",
+                                "value": 5700
+                            },
+                            {
+                                "description": "Connector Container",
+                                "group": "Centreon VMware Connector",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "CENTREONVMWARECONTAINER",
+                                "type": "text",
+                                "value": "default"
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": false,
+                    "slug": "vmware-vm",
+                    "type": "vmware",
+                    "uuid_attributes": [
+                        "uuid"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "annotation": {
+                            "type": "string"
+                        },
+                        "cluster": {
+                            "type": "string"
+                        },
+                        "custom_attributes": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "datacenter": {
+                            "type": "string"
+                        },
+                        "esx": {
+                            "type": "string"
+                        },
+                        "folder": {
+                            "type": "string"
+                        },
+                        "guest_ip": {
+                            "type": "string"
+                        },
+                        "guest_name": {
+                            "type": "string"
+                        },
+                        "guest_state": {
+                            "type": "string"
+                        },
+                        "hardware": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "os": {
+                            "type": "string"
+                        },
+                        "power_state": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        },
+                        "uuid": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Virt-VMWare2-VM-HostDiscovery-v2",
+                    "credentials": {},
+                    "default_template": "generic-active-host",
+                    "description": "Discover VMWare Virtual Machine",
+                    "discovery_examples": [
+                        {
+                            "annotation": "Production server for front access 1",
+                            "cluster": "Production",
+                            "custom_attributes": [
+                                {
+                                    "key": "backup",
+                                    "value": "yes"
+                                }
+                            ],
+                            "datacenter": "DC12",
+                            "esx": "esx-dc12-prd0001.domain.local",
+                            "folder": "/vm/production/front",
+                            "guest_ip": "10.2.3.4",
+                            "guest_name": "front-prod-1.domain.local",
+                            "guest_state": "running",
+                            "hardware": "vmx-04",
+                            "name": "front-prod-1",
+                            "os": "sles10Guest",
+                            "power_state": "poweredOn",
+                            "type": "vm",
+                            "uuid": "d90ca300-529d-440a-bf67-4563617c5216"
+                        },
+                        {
+                            "annotation": "Production server for front access 1",
+                            "cluster": "Production",
+                            "custom_attributes": [
+                                {
+                                    "key": "monitoring",
+                                    "value": "yes"
+                                }
+                            ],
+                            "datacenter": "DC12",
+                            "esx": "esx-dc12-prd0001.domain.local",
+                            "folder": "/vm/production/front",
+                            "guest_ip": "10.2.3.4",
+                            "guest_name": "front-prod-1.domain.local",
+                            "guest_state": "running",
+                            "hardware": "vmx-04",
+                            "name": "front-prod-1",
+                            "os": "sles10Guest",
+                            "power_state": "poweredOn",
+                            "type": "vm",
+                            "uuid": "d90ca300-529d-440a-bf67-4563617c5216"
+                        },
+                        {
+                            "annotation": "Production server for front access 1",
+                            "cluster": "Production",
+                            "datacenter": "DC12",
+                            "esx": "esx-dc12-prd0001.domain.local",
+                            "folder": "/vm/production/front",
+                            "guest_ip": "10.2.3.4",
+                            "guest_name": "front-prod-1.domain.local",
+                            "guest_state": "running",
+                            "hardware": "vmx-04",
+                            "name": "front-prod-1",
+                            "os": "sles10Guest",
+                            "power_state": "poweredOn",
+                            "type": "vm",
+                            "uuid": "d90ca300-529d-440a-bf67-4563617c5216"
+                        },
+                        {
+                            "annotation": "Production server for front access 1",
+                            "cluster": "Production",
+                            "datacenter": "DC12",
+                            "esx": "esx-dc12-prd0001.domain.local",
+                            "folder": "/vm/production/front",
+                            "guest_ip": "10.2.3.4",
+                            "guest_name": "front-prod-1.domain.local",
+                            "guest_state": "running",
+                            "hardware": "vmx-04",
+                            "name": "front-prod-1",
+                            "os": "sles10Guest",
+                            "power_state": "poweredOn",
+                            "type": "vm",
+                            "uuid": "d90ca300-529d-440a-bf67-4563617c5216"
+                        },
+                        {
+                            "annotation": "Production server for front access 1",
+                            "cluster": "Production",
+                            "datacenter": "DC12",
+                            "esx": "esx-dc12-prd0001.domain.local",
+                            "folder": "/vm/production/front",
+                            "guest_ip": "10.2.3.4",
+                            "guest_name": "front-prod-1.domain.local",
+                            "guest_state": "running",
+                            "hardware": "vmx-04",
+                            "name": "front-prod-1",
+                            "os": "sles10Guest",
+                            "power_state": "poweredOn",
+                            "type": "vm",
+                            "uuid": "d90ca300-529d-440a-bf67-4563617c5216"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.CENTREONVMWAREHOST",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.CENTREONVMWAREHOST"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.CENTREONVMWAREPORT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.CENTREONVMWAREPORT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.CENTREONVMWARECONTAINER",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.CENTREONVMWARECONTAINER"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.VMNAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.VMUUID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.uuid"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Virt-VMWare2-VM-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "VMWare VM",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Connector Server Hostname",
+                                "group": "Centreon VMware Connector",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "CENTREONVMWAREHOST",
+                                "type": "text",
+                                "value": "localhost"
+                            },
+                            {
+                                "description": "Connector Port",
+                                "group": "Centreon VMware Connector",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "CENTREONVMWAREPORT",
+                                "type": "text",
+                                "value": 5700
+                            },
+                            {
+                                "description": "Connector Container",
+                                "group": "Centreon VMware Connector",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "CENTREONVMWARECONTAINER",
+                                "type": "text",
+                                "value": "default"
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": false,
+                    "slug": "vmware-vm",
+                    "type": "vmware",
+                    "uuid_attributes": [
+                        "uuid"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_vmware_connector_client.pl --plugin=apps::vmware::connector::plugin --mode=tools-vm --custommode=connector --connector-hostname=\\'$_HOSTCENTREONVMWAREHOST$\\' --connector-port=\\'$_HOSTCENTREONVMWAREPORT$\\' --container=\\'$_HOSTCENTREONVMWARECONTAINER$\\' $_HOSTCENTREONVMWAREEXTRAOPTIONS$ --vm-hostname=\\'$_HOSTVMNAME$\\' --filter-uuid=\\'$_HOSTVMUUID$\\' --tools-notinstalled-status=\\'$_SERVICENOTINSTALLEDSTATUS$\\'  --tools-notrunning-status=\\'$_SERVICENOTRUNNINGSTATUS$\\'  --tools-notup2date-status=\\'$_SERVICENOTUP2DATESTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-VMWare2-VM-Tools-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_vmware_connector_client.pl --plugin=apps::vmware::connector::plugin --mode=thinprovisioning-vm --custommode=connector --connector-hostname=\\'$_HOSTCENTREONVMWAREHOST$\\' --connector-port=\\'$_HOSTCENTREONVMWAREPORT$\\' --container=\\'$_HOSTCENTREONVMWARECONTAINER$\\' $_HOSTCENTREONVMWAREEXTRAOPTIONS$ --vm-hostname=\\'$_HOSTVMNAME$\\' --filter-uuid=\\'$_HOSTVMUUID$\\' --thinprovisioning-status=\\'$_SERVICESTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-VMWare2-VM-ThinProvisioning-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_vmware_connector_client.pl --plugin=apps::vmware::connector::plugin --mode=status-vm --custommode=connector --connector-hostname=\\'$_HOSTCENTREONVMWAREHOST$\\' --connector-port=\\'$_HOSTCENTREONVMWAREPORT$\\' --container=\\'$_HOSTCENTREONVMWARECONTAINER$\\' $_HOSTCENTREONVMWAREEXTRAOPTIONS$ --vm-hostname=\\'$_HOSTVMNAME$\\' --filter-uuid=\\'$_HOSTVMUUID$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --unknown-overall-status=\\'$_SERVICEUNKNOWNOVERALLSTATUS$\\' --warning-overall-status=\\'$_SERVICEWARNINGOVERALLSTATUS$\\' --critical-overall-status=\\'$_SERVICECRITICALOVERALLSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-VMWare2-VM-Status-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_vmware_connector_client.pl --plugin=apps::vmware::connector::plugin --mode=snapshot-vm --custommode=connector --connector-hostname=\\'$_HOSTCENTREONVMWAREHOST$\\' --connector-port=\\'$_HOSTCENTREONVMWAREPORT$\\' --container=\\'$_HOSTCENTREONVMWARECONTAINER$\\' $_HOSTCENTREONVMWAREEXTRAOPTIONS$ --vm-hostname=\\'$_HOSTVMNAME$\\' --filter-uuid=\\'$_HOSTVMUUID$\\' --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-VMWare2-VM-Snapshot-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_vmware_connector_client.pl --plugin=apps::vmware::connector::plugin --mode=limit-vm --custommode=connector --connector-hostname=\\'$_HOSTCENTREONVMWAREHOST$\\' --connector-port=\\'$_HOSTCENTREONVMWAREPORT$\\' --container=\\'$_HOSTCENTREONVMWARECONTAINER$\\' $_HOSTCENTREONVMWAREEXTRAOPTIONS$ --vm-hostname=\\'$_HOSTVMNAME$\\' --filter-uuid=\\'$_HOSTVMUUID$\\' --warning-disk-status=\\'$_SERVICEWARNINGDISKSTATUS$\\' --critical-disk-status=\\'$_SERVICECRITICALDISKSTATUS$\\' --warning-memory-status=\\'$_SERVICEWARNINGMEMORYSTATUS$\\' --critical-memory-status=\\'$_SERVICECRITICALMEMORYSTATUS$\\' --warning-cpu-status=\\'$_SERVICEWARNINGCPUSTATUS$\\' --critical-cpu-status=\\'$_SERVICECRITICALCPUSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-VMWare2-VM-Limit-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_vmware_connector_client.pl --plugin=apps::vmware::connector::plugin --mode=cpu-vm --custommode=connector --connector-hostname=\\'$_HOSTCENTREONVMWAREHOST$\\' --connector-port=\\'$_HOSTCENTREONVMWAREPORT$\\' --container=\\'$_HOSTCENTREONVMWARECONTAINER$\\' $_HOSTCENTREONVMWAREEXTRAOPTIONS$ --vm-hostname=\\'$_HOSTVMNAME$\\' --filter-uuid=\\'$_HOSTVMUUID$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-total-cpu=\\'$_SERVICEWARNINGUSAGE$\\' --critical-total-cpu=\\'$_SERVICECRITICALUSAGE$\\' --warning-total-cpu-mhz=\\'$_SERVICEWARNINGUSAGEMHZ$\\' --critical-total-cpu-mhz=\\'$_SERVICECRITICALUSAGEMHZ$\\' --warning-cpu-ready=\\'$_SERVICEWARNINGREADY$\\' --critical-cpu-ready=\\'$_SERVICECRITICALREADY$\\' --warning-cpu=\\'$_SERVICEWARNINGCPU$\\' --critical-cpu=\\'$_SERVICECRITICALCPU$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-VMWare2-VM-Cpu-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_vmware_connector_client.pl --plugin=apps::vmware::connector::plugin --mode=datastore-vm --custommode=connector --connector-hostname=\\'$_HOSTCENTREONVMWAREHOST$\\' --connector-port=\\'$_HOSTCENTREONVMWAREPORT$\\' --container=\\'$_HOSTCENTREONVMWARECONTAINER$\\' $_HOSTCENTREONVMWAREEXTRAOPTIONS$ --vm-hostname=\\'$_HOSTVMNAME$\\' --filter-uuid=\\'$_HOSTVMUUID$\\' --datastore-name=\\'$_SERVICEFILTERDATASTORENAME$\\' --filter-datastore --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-max-total-latency=\\'$_SERVICEWARNINGMAXTOTALLATENCY$\\' --critical-max-total-latency=\\'$_SERVICECRITICALMAXTOTALLATENCY$\\' --warning-read=\\'$_SERVICEWARNINGREAD$\\' --critical-read=\\'$_SERVICECRITICALREAD$\\' --warning-write=\\'$_SERVICEWARNINGWRITE$\\' --critical-write=\\'$_SERVICECRITICALWRITE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-VMWare2-VM-Datastore-Iops-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_vmware_connector_client.pl --plugin=apps::vmware::connector::plugin --mode=memory-vm --custommode=connector --connector-hostname=\\'$_HOSTCENTREONVMWAREHOST$\\' --connector-port=\\'$_HOSTCENTREONVMWAREPORT$\\' --container=\\'$_HOSTCENTREONVMWARECONTAINER$\\' $_HOSTCENTREONVMWAREEXTRAOPTIONS$ --vm-hostname=\\'$_HOSTVMNAME$\\' --filter-uuid=\\'$_HOSTVMUUID$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\'  --warning-consumed=\\'$_SERVICEWARNING$\\' --critical-consumed=\\'$_SERVICECRITICAL$\\' --warning-active=\\'$_SERVICEWARNINGACTIVE$\\' --critical-active=\\'$_SERVICECRITICALACTIVE$\\' --warning-overhead=\\'$_SERVICEWARNINGOVERHEAD$\\' --critical-overhead=\\'$_SERVICECRITICALOVERHEAD$\\' --warning-ballooning=\\'$_SERVICEWARNINGBALLOONING$\\' --critical-ballooning=\\'$_SERVICECRITICALBALLOONING$\\' --warning-shared=\\'$_SERVICEWARNINGSHARED$\\' --critical-shared=\\'$_SERVICECRITICALSHARED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-VMWare2-VM-Memory-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_vmware_connector_client.pl --plugin=apps::vmware::connector::plugin --mode=swap-vm --custommode=connector --connector-hostname=\\'$_HOSTCENTREONVMWAREHOST$\\' --connector-port=\\'$_HOSTCENTREONVMWAREPORT$\\' --container=\\'$_HOSTCENTREONVMWARECONTAINER$\\' $_HOSTCENTREONVMWAREEXTRAOPTIONS$ --vm-hostname=\\'$_HOSTVMNAME$\\' --filter-uuid=\\'$_HOSTVMUUID$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-swap-in=\\'$_SERVICEWARNINGSWAPIN$\\' --critical-swap-in=\\'$_SERVICECRITICALSWAPIN$\\'  --warning-swap-out=\\'$_SERVICEWARNINGSWAPOUT$\\' --critical-swap-out=\\'$_SERVICECRITICALSWAPOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-VMWare2-VM-Swap-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_vmware_connector_client.pl --plugin=apps::vmware::connector::plugin --mode=device-vm --custommode=connector --connector-hostname=\\'$_HOSTCENTREONVMWAREHOST$\\' --connector-port=\\'$_HOSTCENTREONVMWAREPORT$\\' --container=\\'$_HOSTCENTREONVMWARECONTAINER$\\' $_HOSTCENTREONVMWAREEXTRAOPTIONS$ --vm-hostname=\\'$_HOSTVMNAME$\\' --filter-uuid=\\'$_HOSTVMUUID$\\' --device=\\'$_SERVICEFILTERDEVICE$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-total-device-connected=\\'$_SERVICEWARNINGTOTALDEVICECONNECTED$\\' --critical-total-device-connected=\\'$_SERVICECRITICALTOTALDEVICECONNECTED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Virt-VMWare2-VM-Device-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_vmware_connector_client.pl --plugin=apps::vmware::connector::plugin --mode=discovery --custommode=\\'connector\\' --connector-hostname=\\'$_VMWARECONNECTORHOSTNAME$\\' --connector-port=\\'$_VMWARECONNECTORPORT$\\' --container=\\'$_VMWARECONNECTORCONTAINER$\\' --resource-type=\\'vm\\' --timeout=\\'$_TIMEOUT$\\' $_EXTRAOPTIONS$\\\"",
+            "name": "Virt-VMWare2-VM-HostDiscovery",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_vmware_connector_client.pl --plugin=apps::vmware::connector::plugin --mode=discovery --custommode=\\'connector\\' --connector-hostname=\\'$_CENTREONVMWAREHOST$\\' --connector-port=\\'$_CENTREONVMWAREPORT$\\' --container=\\'$_CENTREONVMWARECONTAINER$\\' --resource-type=\\'vm\\' --timeout=\\'$_TIMEOUT$\\' $_EXTRAOPTIONS$\\\"",
+            "name": "Virt-VMWare2-VM-HostDiscovery-v2",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser la couche VMWare des machines virtuelles via le connecteur centreon-vmware connector}\r\n{EN: Template to check VMWare Virtual Machine using centreon-vmware connector}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check VMWare Virtual Machine using centreon-vmware connector",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "icon": "vmware-vm-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTCENTREONVMWARECONTAINER$",
+                    "value": "default"
+                },
+                {
+                    "key": "$_HOSTCENTREONVMWAREHOST$",
+                    "value": "localhost"
+                },
+                {
+                    "key": "$_HOSTCENTREONVMWAREPORT$",
+                    "value": "5700"
+                },
+                {
+                    "key": "$_HOSTVMWAREEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTVMUUID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTVMNAME$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Virt-VMWare2-VM",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Virt-VMWare2-Vm-Tools-Generic",
+                "Virt-VMWare2-Vm-Thinprovisioning-Generic",
+                "Virt-VMWare2-Vm-Status-Generic",
+                "Virt-VMWare2-Vm-Snapshot-Generic",
+                "Virt-VMWare2-Vm-Limit-Generic"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "vmware-vm-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ fix unwanted undef macro deletion",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor VMware Virtual Machine (VM) via VMware Perl SDK.**\r\n\r\nAvailable host templates and related services:\r\n\r\n|Virt-VMWare2-VM|\r\n|---|\r\n|Vm-Limit|\r\n|Vm-Snapshot|\r\n|Vm-Status|\r\n|Vm-Thinprovisioning|\r\n|Vm-Tools|\r\n\r\nOther service templates available:\r\n\r\n* Virt-VMWare2-Vm-Cpu-Generic\r\n* Virt-VMWare2-Vm-Datastore-Iops-Generic\r\n* Virt-VMWare2-Vm-Device-Generic\r\n* Virt-VMWare2-Vm-Memory-Generic\r\n* Virt-VMWare2-Vm-Swap-Generic\r\n\r\nThis pack provides a host discovery rule.\r\n\r\n(Compatibility with Cenreon VMware Connector version >= 3)"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser une machine virtuelle VMware via VMware Perl SDK.**\r\n\r\nMod\u00e8les d\\'h\u00f4te disponibles et leurs services :\r\n\r\n|Virt-VMWare2-VM|\r\n|---|\r\n|Vm-Limit|\r\n|Vm-Snapshot|\r\n|Vm-Status|\r\n|Vm-Thinprovisioning|\r\n|Vm-Tools|\r\n\r\nAutre mod\u00e8les de service disponible :\r\n\r\n* Virt-VMWare2-Vm-Cpu-Generic\r\n* Virt-VMWare2-Vm-Datastore-Iops-Generic\r\n* Virt-VMWare2-Vm-Device-Generic\r\n* Virt-VMWare2-Vm-Memory-Generic\r\n* Virt-VMWare2-Vm-Swap-Generic\r\n\r\nCe pack fournit une r\u00e8gle de d\u00e9couverte d\\'h\u00f4te.\r\n\r\n(Compatibilit\u00e9 avec la version du Connecteur VMware >= 3)"
+            }
+        ],
+        "discovery_category": "virtualization",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\nThis chapter describes the prerequisites installation needed by plugins to run.\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Virtualization-Vmware2-Connector-Plugin\r\n\r\n### Installation of the VMware daemon\r\nInstall this daemon on each needed poller:\r\n\r\n    # yum install centreon-plugin-Virtualization-VMWare-daemon\r\n\r\n### Configuration of the VMware daemon\r\nThe daemon \"centreon-vmware\" has a configuration file \"/etc/centreon/centreon\\_vmware.pm\" of the following structure:\r\n\r\n    %centreon_vmware_config =   \r\n        vsphere_server => {\r\n                        'default' => {'url' => 'https://vcenter/sdk',\r\n                                     'username' => 'XXXXXXX',\r\n                                     'password' => 'XXXXXX'}\r\n                        }, \r\n        port => 5700\r\n    };  \r\n\r\nThen start daemon with command:\r\n\r\n    # service centreon_vmware start\r\n\r\nYou can configure multiple vCenter / vSphere / ESX connections using this structure:\r\n\r\n    %centreon_vmware_config = (\r\n        vsphere_server => {\r\n                        'default' => {'url' => 'https://vcenter/sdk',\r\n                                     'username' => 'XXXXXXX',\r\n                                     'password' => 'XXXXXX'},\r\n                        'other' => {'url' => 'https://other_vcenter/sdk',\r\n                                     'username' => 'XXXXXXX',\r\n                                     'password' => 'XXXXXX'},\r\n                        },\r\n        port => 5700\r\n    );\r\n    1;\r\n\r\nNotice: use \"CENTREONVMWARECONTAINER\" host macro definition to select your configuration.\r\n\r\n* The \"vsphere\\_server\" attribute allows you to configure access to\r\ndifferent VirtualCenter. It is necessary to have at least the entry\r\n'default'. So, if you have only one vcenter, you can configure it with\r\nthe name \"default\".\r\n* The \"url\" attribute allows you to configure the URL of the vcenter.\r\n* The \"username\" attribute allows you to configure the user who can\r\nconnect to the vcenter. This user must have at least \"read only\" access\r\nto the vcenter.\r\n* The \"password\" attribute allows you to configure the password of the\r\nuser.\r\n* The \"port\" attribute allows you to configure the listening port of\r\n\"centreon-vmware\" connector.\r\n\r\n### System configuration\r\nThe daemon \"centreon_vmware\" is a system service that must be started by default.\r\nAfter installation and configuration, you will have to perform the following procedure.\r\n\r\n#### With SysV (Enterprise Linux 6 compatible distributions)\r\n\r\n    chkconfig centreon_vmware on\r\n    service centreon_vmware start\r\n\r\n#### With SystemD (Enterprise Linux 7 compatible distributions)\r\n\r\n    systemctl enable centreon_vmware\r\n    systemctl start centreon_vmware\r\n\r\n#### Checking the daemon configuration \r\n\r\nPlease make sure that the daemon configuration works fine, by looking for errors in /var/log/centreon/centreon_vmware.log.\r\n\r\n## Centreon configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"52%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Virt-VMWare2-VM-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick the *Save* button.\r\n\r\n### Host macro configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"25%\" />\r\n<col width=\"44%\" />\r\n<col width=\"18%\" />\r\n<col width=\"12%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n<th align=\"left\">Example</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>CENTREONVMWAREPORT</p></td>\r\n<td align=\"left\"><p>Port of Centreon-Vmware daemon</p></td>\r\n<td align=\"left\"><p>5700</p></td>\r\n<td align=\"left\"><p>570</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>CENTREONVMWARECONTAINER</p></td>\r\n<td align=\"left\"><p>Container to use</p></td>\r\n<td align=\"left\"><p>default</p></td>\r\n<td align=\"left\"><p>default</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>CENTREONVMWAREHOST</p></td>\r\n<td align=\"left\"><p>Host of Centreon-Vmware daemon</p></td>\r\n<td align=\"left\"><p>localhost</p></td>\r\n<td align=\"left\"><p>localhost</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>VMNAME</p></td>\r\n<td align=\"left\"><p>Name of the VM to monitor</p></td>\r\n<td align=\"left\"></td>\r\n<td align=\"left\"><p>srvi-esx</p></td>\r\n</tr>\r\n</tbody>\r\n</table>",
+        "name": "VMware VM",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_vmware_connector_client.pl",
+                "package_name": "centreon-plugin-Virtualization-Vmware2-Connector-Plugin",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "virtualization-vmware2-vm",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "vCenter",
+            "Virtual",
+            "Virtual Machine",
+            "VMware",
+            "vSphere"
+        ],
+        "update_date": "1650969702",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'\u00e9tat des vmtools d'une machine virtuelle.}\r\n{EN: Check vmtools state of a virtual machine.}",
+            "active_checks_enabled": 2,
+            "alias": "Vm-Tools",
+            "check_timeperiod": "",
+            "command_name": "Virt-VMWare2-VM-Tools-Name",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICENOTINSTALLEDSTATUS$",
+                    "password": false,
+                    "value": "critical"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICENOTRUNNINGSTATUS$",
+                    "password": false,
+                    "value": "critical"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICENOTUP2DATESTATUS$",
+                    "password": false,
+                    "value": "warning"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Virt-VMWare2-Vm-Tools-Generic",
+            "normal_check_interval": 20,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier si une machine virtuelle poss\u00e8de un disque en mode 'thinprovisioning' ou non.}\r\n{EN: Check if a virtual machine has a disk in mode 'thinprovisioning' or not.}",
+            "active_checks_enabled": 2,
+            "alias": "Vm-Thinprovisioning",
+            "check_timeperiod": "",
+            "command_name": "Virt-VMWare2-VM-ThinProvisioning-Name",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATUS$",
+                    "password": false,
+                    "value": "active,WARNING"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Virt-VMWare2-Vm-Thinprovisioning-Generic",
+            "normal_check_interval": 20,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'\u00e9tat global d'une machine virtuelle.}\r\n{EN: Check global status of a virtual machine.}",
+            "active_checks_enabled": 2,
+            "alias": "Vm-Status",
+            "check_timeperiod": "",
+            "command_name": "Virt-VMWare2-VM-Status-Name",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{connection_state} !~ /^connected$/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNOVERALLSTATUS$",
+                    "password": false,
+                    "value": "%{overall_status} =~ /gray/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOVERALLSTATUS$",
+                    "password": false,
+                    "value": "%{overall_status} =~ /yellow/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOVERALLSTATUS$",
+                    "password": false,
+                    "value": "%{overall_status} =~ /red/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Virt-VMWare2-Vm-Status-Generic",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier l'\u00e2ge des snapshosts sur la machine virtuelle.}\r\n{EN: Check snapshot age of a virtual machine.}",
+            "active_checks_enabled": 2,
+            "alias": "Vm-Snapshot",
+            "check_timeperiod": "",
+            "command_name": "Virt-VMWare2-VM-Snapshot-Name",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": "259200"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": "432000"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Virt-VMWare2-Vm-Snapshot-Generic",
+            "normal_check_interval": 20,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier la d\u00e9finition de limites (cpu, m\u00e9moire) sur une machine virtuelle.}\r\n{EN: Check limit definition (cpu, memory) on a virtual machine.}",
+            "active_checks_enabled": 2,
+            "alias": "Vm-Limit",
+            "check_timeperiod": "",
+            "command_name": "Virt-VMWare2-VM-Limit-Name",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALDISKSTATUS$",
+                    "password": false,
+                    "value": "%{connection_state} !~ /^connected$/i || %{limit} != -1"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALMEMORYSTATUS$",
+                    "password": false,
+                    "value": "%{connection_state} !~ /^connected$/i || %{limit} != -1"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALCPUSTATUS$",
+                    "password": false,
+                    "value": "%{connection_state} !~ /^connected$/i || %{limit} != -1"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Virt-VMWare2-Vm-Limit-Generic",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le taux d'utilisation CPU d'une machine virtuelle.}\r\n{EN: Check CPU usage of a virtual machine.}",
+            "active_checks_enabled": 2,
+            "alias": "Vm-Cpu",
+            "check_timeperiod": "",
+            "command_name": "Virt-VMWare2-VM-Cpu-Name",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{connection_state} !~ /^connected$/i or %{power_state}  !~ /^poweredOn$/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGUSAGE$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALUSAGE$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGREADY$",
+                    "password": false,
+                    "value": "5"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALREADY$",
+                    "password": false,
+                    "value": "10"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Virt-VMWare2-Vm-Cpu-Generic",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le taux d'utilisation des datastores rattach\u00e9es \u00e0 une machine virtuelle. (IOPS r\u00e9alis\u00e9s par la machine virtuelle)}{EN: Check datastores IOPS linked to the virtual machine. (IOPS done by the virtual machine)}",
+            "active_checks_enabled": 2,
+            "alias": "Vm-Datastores-Iops",
+            "check_timeperiod": "",
+            "command_name": "Virt-VMWare2-VM-Datastore-Iops-Name",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERDATASTORENAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{connection_state} !~ /^connected$/i or %{power_state}  !~ /^poweredOn$/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Virt-VMWare2-Vm-Datastores-Iops-Generic",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le taux d'utilisation m\u00e9moire d'une machine virtuelle.}\r\n{EN: Check memory usage of a virtual machine.}",
+            "active_checks_enabled": 2,
+            "alias": "Vm-Memory",
+            "check_timeperiod": "",
+            "command_name": "Virt-VMWare2-VM-Memory-Name",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{connection_state} !~ /^connected$/i or %{power_state}  !~ /^poweredOn$/i"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Virt-VMWare2-Vm-Memory-Generic",
+            "normal_check_interval": 20,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier si une machine virtuelle swappe.}\r\n{EN: Check if a virtual machine is swapping.}",
+            "active_checks_enabled": 2,
+            "alias": "Vm-Swap",
+            "check_timeperiod": "",
+            "command_name": "Virt-VMWare2-VM-Swap-Name",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{connection_state} !~ /^connected$/i or %{power_state}  !~ /^poweredOn$/i"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Virt-VMWare2-Vm-Swap-Generic",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le taux d'utilisation CPU d'une machine virtuelle.}\r\n{EN: Check CPU usage of a virtual machine.}",
+            "active_checks_enabled": 2,
+            "alias": "Vm-Device",
+            "check_timeperiod": "",
+            "command_name": "Virt-VMWare2-VM-Device-Name",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{connection_state} !~ /^connected$/i"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Virt-VMWare2-Vm-Device-Generic",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

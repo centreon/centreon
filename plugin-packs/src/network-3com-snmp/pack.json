@@ -1,0 +1,431 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-3com-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-3com-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-3com-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-3com-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-3com-Traffic-Global-SNMP"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-3com-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-3com-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-3com-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTER",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-3com-SNMP-Traffic-Name_1",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-3com-Traffic-Global-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_3com.pl --plugin=network::3com::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-3com-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_3com.pl --plugin=network::3com::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-3com-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_3com.pl --plugin=network::3com::snmp::plugin --mode=memory --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-3com-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_3com.pl --plugin=network::3com::snmp::plugin --mode=hardware --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-3com-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_3com.pl --plugin=network::3com::snmp::plugin --mode=cpu --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-5m=\\'$_SERVICEWARNINGUSAGE5M$\\' --critical-5m=\\'$_SERVICECRITICALUSAGE5M$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-3com-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_3com.pl --plugin=network::3com::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACEID$\\' --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-3com-SNMP-Traffic-Id",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_3com.pl --plugin=network::3com::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'^$_SERVICEINTERFACENAME$$$\\' --name --add-status --add-traffic --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-3com-SNMP-Traffic-Name",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_3com.pl --plugin=network::3com::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-3com-SNMP-Traffic-Global",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements 3com (legacy) en SNMP}\r\n{EN: Template to check 3com devices using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check 3com devices using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-3com-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-3com-Memory-SNMP",
+                "Net-3com-Hardware-Global-SNMP",
+                "Net-3com-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* add disco capabilities",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor 3com network equipment via SNMP:\r\n* Cpu\r\n* Global\r\n* Memory\r\n* Traffic (by interface name, ID or global)"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller des \u00e9quipements r\u00e9seau 3com via SNMP :\r\n* Cpu\r\n* Global\r\n* Memory\r\n* Traffic (by interface name, ID or global)"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-3com-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-3com-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "3com Network",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_3com.pl",
+                "package_name": "centreon-plugin-Network-3com-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Network-3com-Snmp",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "network-3com-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "3com",
+            "Hardware",
+            "Hub",
+            "Network",
+            "Router",
+            "SNMP",
+            "Switch"
+        ],
+        "update_date": "1584623634",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation des m\u00e9moires.}\r\n\r\n{EN: Check the rate of the utilization of memories.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-3com-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECRITICALUSAGE$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEWARNINGUSAGE$",
+                    "password": false,
+                    "value": "80"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-3com-Memory-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le mat\u00e9riel.}\r\n\r\n{EN: Check hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-3com-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": null,
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": null,
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-3com-Hardware-Global-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine.}\r\n\r\n{EN: Check the rate of utilization of CPU for the machine.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-3com-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-3com-Cpu-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau d'une interface r\u00e9seau.}\r\n\r\n{EN: Check traffic of an network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Id",
+            "check_timeperiod": "",
+            "command_name": "Net-3com-SNMP-Traffic-Id",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-3com-Traffic-Generic-Id-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau d'une interface r\u00e9seau.}\r\n\r\n{EN: Check traffic of an network interface.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Generic-Name",
+            "check_timeperiod": "",
+            "command_name": "Net-3com-SNMP-Traffic-Name",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-3com-Traffic-Generic-Name-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau de plusieurs interfaces r\u00e9seau.}\r\n\r\n{EN: Check traffic of multiple network interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-3com-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Net-3com-Traffic-Global-SNMP",
+            "normal_check_interval": 5,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

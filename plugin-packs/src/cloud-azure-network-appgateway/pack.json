@@ -1,0 +1,1537 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v2.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-AppGateway-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Network Application Gateway resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Network/applicationGateways/APP123456ABCD78",
+                            "location": "westeurope",
+                            "name": "APP123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/applicationGateways"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Network/applicationGateways/APP789012EFGH34",
+                            "location": "westus",
+                            "name": "APP789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/applicationGateways"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": "discovery.results.name"
+                            },
+                            "type": "association"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURESUBSCRIPTION"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURETENANT"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": "discovery.credentials.AZURECLIENTID"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": "discovery.credentials.AZURECLIENTSECRET"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": "discovery.results.id"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": "discovery.results.resourceGroup"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": "discovery.parameters.PROXYURL"
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-AppGateway-V1-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Application Gateway",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-network-appgateway",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-AppGateway-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Network Application Gateway resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Network/applicationGateways/APP123456ABCD78",
+                            "location": "westeurope",
+                            "name": "APP123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/applicationGateways"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Network/applicationGateways/APP789012EFGH34",
+                            "location": "westus",
+                            "name": "APP789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/applicationGateways"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-AppGateway-V1-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Application Gateway",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-network-appgateway",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "kind": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "sku": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Network-AppGateway-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Microsoft Azure Network Application Gateway resources",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.Network/applicationGateways/APP123456ABCD78",
+                            "location": "westeurope",
+                            "name": "APP123456ABCD78",
+                            "resourceGroup": "RSG1234",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/applicationGateways"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.Network/applicationGateways/APP789012EFGH34",
+                            "location": "westus",
+                            "name": "APP789012EFGH34",
+                            "resourceGroup": "RSG2345",
+                            "sku": [
+                                {
+                                    "key": "tier",
+                                    "value": "Regional"
+                                },
+                                {
+                                    "key": "name",
+                                    "value": "Standard"
+                                }
+                            ],
+                            "type": "Microsoft.Network/applicationGateways"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Network-AppGateway-V1-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Application Gateway",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "azure-network-appgateway",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_appgateway_api.pl --plugin=cloud::azure::network::appgateway::plugin --mode=units --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-estimated-billed-units=\\'$_SERVICEWARNINGESTIMATEDBILLEDUNITS$\\' --critical-estimated-billed-units=\\'$_SERVICECRITICALESTIMATEDBILLEDUNITS$\\' --warning-fixed-billable-units=\\'$_SERVICEWARNINGFIXEDBILLABLEUNITS$\\' --critical-fixed-billable-units=\\'$_SERVICECRITICALFIXEDBILLABLEUNITS$\\' --warning-compute-units=\\'$_SERVICEWARNINGCOMPUTEUNITS$\\' --critical-compute-units=\\'$_SERVICECRITICALCOMPUTEUNITS$\\' --warning-capacity-units=\\'$_SERVICEWARNINGCAPACITYUNITS$\\' --critical-capacity-units=\\'$_SERVICECRITICALCAPACITYUNITS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-AppGateway-Api-Units",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_appgateway_api.pl --plugin=cloud::azure::network::appgateway::plugin --mode=throughput --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-throughput=\\'$_SERVICEWARNINGTHROUGHPUT$\\' --critical-throughput=\\'$_SERVICECRITICALTHROUGHPUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-AppGateway-Api-Throughput",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_appgateway_api.pl --plugin=cloud::azure::network::appgateway::plugin --mode=requests --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-failed-requests=\\'$_SERVICEWARNINGFAILEDREQUESTS$\\' --critical-failed-requests=\\'$_SERVICECRITICALFAILEDREQUESTS$\\' --warning-total-requests=\\'$_SERVICEWARNINGTOTALREQUESTS$\\' --critical-total-requests=\\'$_SERVICECRITICALTOTALREQUESTS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-AppGateway-Api-Requests",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_appgateway_api.pl --plugin=cloud::azure::network::appgateway::plugin --mode=health --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --resource-type=\\'$_HOSTAZURERESOURCETYPE$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --ok-status=\\'$_SERVICEOKSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-AppGateway-Api-Health",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_appgateway_api.pl --plugin=cloud::azure::network::appgateway::plugin --mode=gateway-time --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-total-time=\\'$_SERVICEWARNINGTOTALTIME$\\' --critical-total-time=\\'$_SERVICECRITICALTOTALTIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-AppGateway-Api-Gateway-Time",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_appgateway_api.pl --plugin=cloud::azure::network::appgateway::plugin --mode=connections --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-current-connections=\\'$_SERVICEWARNINGCURRENTCONNECTIONS$\\' --critical-current-connections=\\'$_SERVICECRITICALCURRENTCONNECTIONS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-AppGateway-Api-Connections",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_appgateway_api.pl --plugin=cloud::azure::network::appgateway::plugin --mode=clients-traffic --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-clients-bytes-received=\\'$_SERVICEWARNINGCLIENTSBYTESRECEIVED$\\' --critical-clients-bytes-received=\\'$_SERVICECRITICALCLIENTSBYTESRECEIVED$\\' --warning-clients-bytes-sent=\\'$_SERVICEWARNINGCLIENTSBYTESSENT$\\' --critical-clients-bytes-sent=\\'$_SERVICECRITICALCLIENTSBYTESSENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-AppGateway-Api-Clients-Traffic",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_appgateway_api.pl --plugin=cloud::azure::network::appgateway::plugin --mode=backend-time --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-connect-time=\\'$_SERVICEWARNINGCONNECTTIME$\\' --critical-connect-time=\\'$_SERVICECRITICALCONNECTTIME$\\' --warning-lastbyte-response-time=\\'$_SERVICEWARNINGLASTBYTERESPONSETIME$\\' --critical-lastbyte-response-time=\\'$_SERVICECRITICALLASTBYTERESPONSETIME$\\' --warning-firstbyte-response-time=\\'$_SERVICEWARNINGFIRSTBYTERESPONSETIME$\\' --critical-firstbyte-response-time=\\'$_SERVICECRITICALFIRSTBYTERESPONSETIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-AppGateway-Api-Backend-Time",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_appgateway_api.pl --plugin=cloud::azure::network::appgateway::plugin --mode=backend-status --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-response-status=\\'$_SERVICEWARNINGRESPONSESTATUS$\\' --critical-response-status=\\'$_SERVICECRITICALRESPONSESTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-AppGateway-Api-Backend-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_network_appgateway_api.pl --plugin=cloud::azure::network::appgateway::plugin --mode=backend-health --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --filter-dimension=\\'$_SERVICEFILTERDIMENSION$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --aggregation=\\'$_SERVICEAGGREGATION$\\' --warning-healthy-host-count=\\'$_SERVICEWARNINGHEALTHYHOSTCOUNT$\\' --critical-healthy-host-count=\\'$_SERVICECRITICALHEALTHYHOSTCOUNT$\\' --warning-unhealthy-host-count=\\'$_SERVICEWARNINGUNHEALTHYHOSTCOUNT$\\' --critical-unhealthy-host-count=\\'$_SERVICECRITICALUNHEALTHYHOSTCOUNT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Network-AppGateway-Api-Backend-Health",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_network_appgateway_api.pl --statefile-suffix='autodiscovery' --plugin=cloud::azure::network::appgateway::plugin --custommode='api' --mode=discovery --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Network-AppGateway-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les instances Azure Application Gateway v2 via l'API}\r\n{EN: Template to check Azure Application Gateway v2 resources service using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Network Application Gateway (version 2) service using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-network-appgateway-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCETYPE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-AppGateway-V2",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Network-AppGateway-Units-Api",
+                "Cloud-Azure-Network-AppGateway-Throughput-Api",
+                "Cloud-Azure-Network-AppGateway-Requests-Api",
+                "Cloud-Azure-Network-AppGateway-Health-Api",
+                "Cloud-Azure-Network-AppGateway-Gateway-Time-Api",
+                "Cloud-Azure-Network-AppGateway-Connections-Api",
+                "Cloud-Azure-Network-AppGateway-Clients-Traffic-Api",
+                "Cloud-Azure-Network-AppGateway-Backend-Time-Api",
+                "Cloud-Azure-Network-AppGateway-Backend-Status-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les instances Azure Application Gateway v1 via l'API}\r\n{EN: Template to check Azure Application Gateway v1 resources service using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Network Application Gateway (version 1) service using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-network-appgateway-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCEGROUP$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURERESOURCETYPE$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURESUBSCRIPTION$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURETENANT$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTAZURECLIENTSECRET$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTPROXYURL$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-AppGateway-V1",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Network-AppGateway-Throughput-Api",
+                "Cloud-Azure-Network-AppGateway-Requests-Api",
+                "Cloud-Azure-Network-AppGateway-Health-Api",
+                "Cloud-Azure-Network-AppGateway-Connections-Api",
+                "Cloud-Azure-Network-AppGateway-Backend-Health-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-network-appgateway-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ add proper tags management",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin-Pack to monitor Azure Application Gateway service using RestAPI or AZCLI.**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|Cloud-Azure-Network-AppGateway-custom|\r\n|---|\r\n|Backend-Status|\r\n|Backend-Time|\r\n|Clients-Traffic|\r\n|Connections|\r\n|Gateway-Time|\r\n|Health|\r\n|Requests|\r\n|Throughput|\r\n|Units|\r\n\r\nThis Plugin-Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin-Pack pour superviser les resources Azure Application Gateway via RestAPI ou AZCLI.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponibles et services associ\u00e9s:\r\n\r\n|Cloud-Azure-Network-AppGateway-custom|\r\n|---|\r\n|Backend-Status|\r\n|Backend-Time|\r\n|Clients-Traffic|\r\n|Connections|\r\n|Gateway-Time|\r\n|Health|\r\n|Requests|\r\n|Throughput|\r\n|Units|\r\n\r\nCe Plugin-Pack fournit un *provider* Host Discovery pour le module d\\'auto-d\u00e9couverte d\\'H\u00f4tes"
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module >= 19.10.1\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure Application Gateway",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_network_appgateway_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Network-AppGateway-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-network-appgateway",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Cloud",
+            "Azure",
+            "Microsoft",
+            "Network",
+            "WAF",
+            "Gateway",
+            "HostDisco",
+            "API",
+            "Restapi"
+        ],
+        "update_date": "1636824501",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les unit\u00e9s des ressources Azure Application Gateway.}\r\n\r\n{EN: Check Azure Application Gateway units.}",
+            "active_checks_enabled": 2,
+            "alias": "Units",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-AppGateway-Api-Units",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-AppGateway-Units-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le transit des ressources Azure Application Gateway.}\r\n\r\n{EN: Check Azure Application Gateway throughput.}",
+            "active_checks_enabled": 2,
+            "alias": "Throughput",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-AppGateway-Api-Throughput",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-AppGateway-Throughput-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les requ\u00eates des ressources Azure Application Gateway.}\r\n\r\n{EN: Check Azure Application Gateway requests.}",
+            "active_checks_enabled": 2,
+            "alias": "Requests",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-AppGateway-Api-Requests",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-AppGateway-Requests-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la sant\u00e9 des ressources Azure Application Gateway.}\r\n\r\n{EN: Check Azure Application Gateway health.}",
+            "active_checks_enabled": 2,
+            "alias": "Health",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-AppGateway-Api-Health",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEOKSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^Available$/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^Unavailable$/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /^Unknown$/"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-AppGateway-Health-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le temps de r\u00e9ponse des ressources Azure Application Gateway.}\r\n\r\n{EN: Check Azure Application Gateway response time.}",
+            "active_checks_enabled": 2,
+            "alias": "Gateway-Time",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-AppGateway-Api-Gateway-Time",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-AppGateway-Gateway-Time-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les connexions aux ressources Azure Application Gateway.}\r\n\r\n{EN: Check Azure Application Gateway connections.}",
+            "active_checks_enabled": 2,
+            "alias": "Connections",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-AppGateway-Api-Connections",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-AppGateway-Connections-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le trafic client des ressources Azure Application Gateway.}\r\n\r\n{EN: Check Azure Application Gateway clients traffic.}",
+            "active_checks_enabled": 2,
+            "alias": "Clients-Traffic",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-AppGateway-Api-Clients-Traffic",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-AppGateway-Clients-Traffic-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le temps de r\u00e9ponse des backends Azure Application Gateway.}\r\n\r\n{EN: Check Azure Application Gateway backend response time.}",
+            "active_checks_enabled": 2,
+            "alias": "Backend-Time",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-AppGateway-Api-Backend-Time",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-AppGateway-Backend-Time-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut des backends Azure Application Gateway.}\r\n\r\n{EN: Check Azure Application Gateway backend status.}",
+            "active_checks_enabled": 2,
+            "alias": "Backend-Status",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-AppGateway-Api-Backend-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Total"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-AppGateway-Backend-Status-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la disponibilit\u00e9 des h\u00f4tes backends Azure Application Gateway v1.}\r\n\r\n{EN: Check Azure Application Gateway v1 host backend status.}",
+            "active_checks_enabled": 2,
+            "alias": "Backend-Health",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Network-AppGateway-Api-Backend-Health",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEAGGREGATION$",
+                    "password": false,
+                    "value": "Average"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Network-AppGateway-Backend-Health-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,199 @@
+{
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sun_sfxxk.pl --plugin=hardware::server::sun::sfxxk::plugin --mode=failover --hostname=$HOSTADDRESS$ --remote $_HOSTSSHEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Sun-Sfxxk-PSSH-Failover",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sun_sfxxk.pl --plugin=hardware::server::sun::sfxxk::plugin --mode=environment --hostname=$HOSTADDRESS$ --remote $_HOSTSSHEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Sun-Sfxxk-PSSH-Environment",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_sun_sfxxk.pl --plugin=hardware::server::sun::sfxxk::plugin --mode=boards --hostname=$HOSTADDRESS$ --remote $_HOSTSSHEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Sun-Sfxxk-PSSH-Boards",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check Sun server sfxxk (sf12k, sf15k, sf20k, sf25k) using SSH protocol (no plugins on system controller)",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "Hardware-Sun-64.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSSHEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Server-Sun-Sfxxk-PSSH",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Sun-Sfxxk-Failover-Status-PSSH",
+                "HW-Sun-Sfxxk-Environment-PSSH",
+                "HW-Sun-Sfxxk-Boards-PSSH"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "Hardware-Sun-64.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Compatibility with Centreon Plugin Packs Manager v2.2.0",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Sun SFxxK servers via SNMP:\r\n* Failover-Status\r\n* Boards\r\n* Environment"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les serveurs Sun SFxxK via SNMP :\r\n* Failover-Status\r\n* Boards\r\n* Environment"
+            }
+        ],
+        "discovery_category": "hardware-server",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\nThis chapter describes the prerequisites installation needed by plugins\r\nto run.\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Servers-Sun-Sfxxk-Pssh\r\n The plugin for the following template has 2 modes:\r\n-   SSH with 'plink' command:\r\n    -   no ssh key exchange needed\r\n    -   Host macro example: 'SSHEXTRAOPTIONS' = --ssh-command='plink'\r\n        --ssh-option='-l=[user]' --ssh-option='-pw=[pass]'\r\n        --ssh-option='-batch'\r\n-   SSH with 'ssh' command:\r\n    -   ssh key exchange needed\r\n    -   Host macros: 'SSHEXTRAOPTIONS' = --ssh-command='plink'\r\n        --ssh-option='-l=[user]' --ssh-option='-pw=[pass]'\r\n        --ssh-option='-batch'\r\n\r\n### User permissions\r\nThe user on the system controller needs permissions to execute following\r\ncommands:\r\n-   showfailover\r\n-   showenvironment\r\n-   showboards\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Server-Sun-Sfxxk-PSSH-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Sun SFxxK",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_sun_sfxxk.pl",
+                "package_name": "centreon-plugin-Hardware-Servers-Sun-Sfxxk-Pssh",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "ces-plugins-Hardware-Servers-Sun-Sfxxk-Pssh",
+                "version": "20160324-1"
+            }
+        ],
+        "slug": "hardware-servers-sun-sfxxk-pssh",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Hardware",
+            "Servers",
+            "SFxxk",
+            "Sun"
+        ],
+        "update_date": "1486389223",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le statut du failover 'system controller'.}\n\n{EN: Check system controller failover status.}",
+            "active_checks_enabled": 2,
+            "alias": "Failover-Status",
+            "check_timeperiod": "",
+            "command_name": "HW-Sun-Sfxxk-PSSH-Failover",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Sun-Sfxxk-Failover-Status-PSSH",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'environnement du sun 'sfxxk'.}\r\n\r\n{EN: Check Sun 'sfxxk' environment.}",
+            "active_checks_enabled": 2,
+            "alias": "Environment",
+            "check_timeperiod": "",
+            "command_name": "HW-Sun-Sfxxk-PSSH-Environment",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEREMOTE$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Sun-Sfxxk-Environment-PSSH",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les 'boards' du sun 'sfxxk'.}\r\n\r\n{EN: Check Sun 'sfxxk' boards.}",
+            "active_checks_enabled": 2,
+            "alias": "Boards",
+            "check_timeperiod": "",
+            "command_name": "HW-Sun-Sfxxk-PSSH-Boards",
+            "discovery_list_mode": "H",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEREMOTE$",
+                    "password": false,
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "HW-Sun-Sfxxk-Boards-PSSH",
+            "normal_check_interval": 30,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,252 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": null,
+                "changes": [],
+                "command_for_discovery": "Net-Dlink-Dgs3100-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Dlink-Dgs3100-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Dlink-Dgs3100-SNMP"
+                ],
+                "macros": [],
+                "name": "Net-Dlink-Dgs3100-SNMP-Traffic-Name",
+                "service_display_name": "Traffic-$name$",
+                "service_template": "Net-Dlink-Dgs3100-Traffic-Global-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dlink_dgs3100_snmp.pl --plugin=network::dlink::dgs3100::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Dlink-Dgs3100-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dlink_dgs3100_snmp.pl --plugin=network::dlink::dgs3100::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Dlink-Dgs3100-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dlink_dgs3100_snmp.pl --plugin=network::dlink::dgs3100::snmp::plugin --mode=hardware --hostname=\\'$HOSTADDRESS$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' $_HOSTSNMPEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Dlink-Dgs3100-SNMP-Hardware",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dlink_dgs3100_snmp.pl --plugin=network::dlink::dgs3100::snmp::plugin --mode=cpu --hostname=\\'$HOSTADDRESS$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning=\\'$_SERVICEWARNING$\\' --critical=\\'$_SERVICECRITICAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Dlink-Dgs3100-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_dlink_dgs3100_snmp.pl --plugin=network::dlink::dgs3100::snmp::plugin --mode=interfaces --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEFILTER$\\' --name --add-status --add-traffic --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGIN$\\' --critical-in-traffic=\\'$_SERVICECRITICALIN$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUT$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Dlink-Dgs3100-SNMP-Traffic-Global",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser le mat\u00e9riel D-Link DGS 3100 en SNMP}\r\n{EN: Host Template to check D-Link DGS 3100 devices using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check D-Link DGS 3100 using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Dlink-Dgs3100-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Dlink-Dgs3100-Hardware-Global-SNMP",
+                "Net-Dlink-Dgs3100-Cpu-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* update logo",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor D-Link DGS 3100 equipment via SNMP:\r\n* Cpu\r\n* Hardware\r\n* Traffic (by interface name)"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller un \u00e9quipement D-Link DGS 3100 via SNMP : \r\n* Cpu\r\n* Hardware\r\n* Traffic (by interface name)"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Dlink-Dgs3100-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your equipment\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp).\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Dlink-Dgs3100-SNMP-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "D-Link DGS 3100",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_dlink_dgs3100_snmp.pl",
+                "package_name": "centreon-plugin-Network-Dlink-Dgs3100-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-dlink-dgs3100-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "D-Link",
+            "DGS 3100",
+            "Network",
+            "SNMP"
+        ],
+        "update_date": "1602767427",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le mat\u00e9riel.}\r\n\r\n{EN: Check hardware.}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Dlink-Dgs3100-SNMP-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Dlink-Dgs3100-Hardware-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le du taux d'utilisation du CPU de la machine. Ce contr\u00f4le pourra remonter la moyenne du taux d'utilisation des CPU.}\r\n\r\n{EN: Check the rate of utilization of CPU for the machine. This check can give the average utilization rate of CPU.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Dlink-Dgs3100-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING$",
+                    "password": false,
+                    "value": ",,90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL$",
+                    "password": false,
+                    "value": ",,95"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Dlink-Dgs3100-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le traffic r\u00e9seau de plusieurs interfaces r\u00e9seau.}\r\n\r\n{EN: Check traffic of multiple network interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic-Global",
+            "check_timeperiod": "",
+            "command_name": "Net-Dlink-Dgs3100-SNMP-Traffic-Global",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTER$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGIN$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALIN$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGOUT$",
+                    "password": false,
+                    "value": "80"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALOUT$",
+                    "password": false,
+                    "value": "90"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Dlink-Dgs3100-Traffic-Global-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

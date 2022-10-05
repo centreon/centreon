@@ -1,0 +1,694 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_restapi.pl --plugin=apps::redis::restapi::plugin --mode=shards-stats --hostname=$HOSTADDRESS$ --port=\\'$_HOSTREDISPORT$\\' --username=\\'$_HOSTREDISUSERNAME$\\' --password=\\'$_HOSTREDISPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --interval=$_SERVICEINTERVAL$ --filter-counters=\\'status\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-rdb-changes-since-last-save=\\'$_SERVICEWARNINGCHANGES$\\' --critical-rdb-changes-since-last-save=\\'$_SERVICECRITICALCHANGES$\\' --warning-last-save-time=\\'$_SERVICEWARNINGLASTSAVE$\\' --critical-last-save-time=\\'$_SERVICECRITICALLASTSAVE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Restapi-Shards-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_restapi.pl --plugin=apps::redis::restapi::plugin --mode=nodes-stats --hostname=$HOSTADDRESS$ --port=\\'$_HOSTREDISPORT$\\' --username=\\'$_HOSTREDISUSERNAME$\\' --password=\\'$_HOSTREDISPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --interval=$_SERVICEINTERVAL$ --filter-counters=\\'status|uptime\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-uptime=\\'$_SERVICEWARNINGUPTIME$\\' --critical-uptime=\\'$_SERVICECRITICALUPTIME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Restapi-Nodes-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_restapi.pl --plugin=apps::redis::restapi::plugin --mode=databases-stats --hostname=$HOSTADDRESS$ --port=\\'$_HOSTREDISPORT$\\' --username=\\'$_HOSTREDISUSERNAME$\\' --password=\\'$_HOSTREDISPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --interval=$_SERVICEINTERVAL$ --filter-counters=\\'status\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Restapi-Databases-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_restapi.pl --plugin=apps::redis::restapi::plugin --mode=cluster-stats --hostname=$HOSTADDRESS$ --port=\\'$_HOSTREDISPORT$\\' --username=\\'$_HOSTREDISUSERNAME$\\' --password=\\'$_HOSTREDISPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --interval=$_SERVICEINTERVAL$ --filter-counters=\\'^(?=.*storage)(?!.*flash).*\\' --warning-persistent-storage=\\'$_SERVICEWARNINGPERSISTENT$\\' --critical-persistent-storage=\\'$_SERVICECRITICALPERSISTENT$\\' --warning-ephemeral-storage=\\'$_SERVICEWARNINGEPHEMERAL$\\' --critical-ephemeral-storage=\\'$_SERVICECRITICALEPHEMERAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Restapi-Cluster-Storage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_restapi.pl --plugin=apps::redis::restapi::plugin --mode=cluster-stats --hostname=$HOSTADDRESS$ --port=\\'$_HOSTREDISPORT$\\' --username=\\'$_HOSTREDISUSERNAME$\\' --password=\\'$_HOSTREDISPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --interval=$_SERVICEINTERVAL$ --filter-counters=\\'memory\\' --warning-memory=\\'$_SERVICEWARNINGUSED$\\' --critical-memory=\\'$_SERVICECRITICALUSED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Restapi-Cluster-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_restapi.pl --plugin=apps::redis::restapi::plugin --mode=cluster-stats --hostname=$HOSTADDRESS$ --port=\\'$_HOSTREDISPORT$\\' --username=\\'$_HOSTREDISUSERNAME$\\' --password=\\'$_HOSTREDISPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --interval=$_SERVICEINTERVAL$ --filter-counters=\\'cpu\\' --warning-cpu-system=\\'$_SERVICEWARNINGCPUSYSTEM$\\' --critical-cpu-system=\\'$_SERVICECRITICALCPUSYSTEM$\\' --warning-cpu-user=\\'$_SERVICEWARNINGCPUUSER$\\' --critical-cpu-user=\\'$_SERVICECRITICALCPUUSER$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Restapi-Cluster-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_restapi.pl --plugin=apps::redis::restapi::plugin --mode=cluster-stats --hostname=$HOSTADDRESS$ --port=\\'$_HOSTREDISPORT$\\' --username=\\'$_HOSTREDISUSERNAME$\\' --password=\\'$_HOSTREDISPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --interval=$_SERVICEINTERVAL$ --filter-counters=\\'connection|traffic|requests\\' --warning-connections=\\'$_SERVICEWARNINGCONNECTIONS$\\' --critical-connections=\\'$_SERVICECRITICALCONNECTIONS$\\' --warning-requests=\\'$_SERVICEWARNINGREQUESTSRATE$\\' --critical-requests=\\'$_SERVICECRITICALREQUESTSRATE$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Restapi-Cluster-Connections",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_restapi.pl --plugin=apps::redis::restapi::plugin --mode=cluster-stats --hostname=$HOSTADDRESS$ --port=\\'$_HOSTREDISPORT$\\' --username=\\'$_HOSTREDISUSERNAME$\\' --password=\\'$_HOSTREDISPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --interval=$_SERVICEINTERVAL$ --filter-counters=\\'flash\\' --warning-flash-storage=\\'$_SERVICEWARNINGFLASH$\\' --critical-flash-storage=\\'$_SERVICECRITICALFLASH$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Restapi-Cluster-Flash",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_restapi.pl --plugin=apps::redis::restapi::plugin --mode=databases-stats --hostname=$HOSTADDRESS$ --port=\\'$_HOSTREDISPORT$\\' --username=\\'$_HOSTREDISUSERNAME$\\' --password=\\'$_HOSTREDISPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --interval=$_SERVICEINTERVAL$ --filter-counters=\\'mem\\' --warning-memory=\\'$_SERVICEWARNINGUSED$\\' --critical-memory=\\'$_SERVICECRITICALUSED$\\' --warning-mem-frag-ratio=\\'$_SERVICEWARNINGFRAGRATIO$\\' --critical-mem-frag-ratio=\\'$_SERVICECRITICALFRAGRATIO$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Restapi-Databases-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_restapi.pl --plugin=apps::redis::restapi::plugin --mode=databases-stats --hostname=$HOSTADDRESS$ --port=\\'$_HOSTREDISPORT$\\' --username=\\'$_HOSTREDISUSERNAME$\\' --password=\\'$_HOSTREDISPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --interval=$_SERVICEINTERVAL$ --filter-counters=\\'connections|rates|latency|keys|objects|traffic\\' --warning-connections=\\'$_SERVICEWARNINGCONNECTIONS$\\' --critical-connections=\\'$_SERVICECRITICALCONNECTIONS$\\' --warning-total-rates=\\'$_SERVICEWARNINGTOTALRATES$\\' --critical-total-rates=\\'$_SERVICECRITICALTOTALRATES$\\' --warning-other-rates=\\'$_SERVICEWARNINGOTHERRATES$\\' --critical-other-rates=\\'$_SERVICECRITICALOTHERRATES$\\' --warning-read-rates=\\'$_SERVICEWARNINGREADRATES$\\' --critical-read-rates=\\'$_SERVICECRITICALREADRATES$\\' --warning-write-rates=\\'$_SERVICEWARNINGWRITERATES$\\' --critical-write-rates=\\'$_SERVICECRITICALWRITERATES$\\' --warning-latency=\\'$_SERVICEWARNINGLATENCY$\\' --critical-latency=\\'$_SERVICECRITICALLATENCY$\\' --warning-other-latency=\\'$_SERVICEWARNINGOTHERLATENCY$\\' --critical-other-latency=\\'$_SERVICECRITICALOTHERLATENCY$\\' --warning-read-latency=\\'$_SERVICEWARNINGREADLATENCY$\\' --critical-read-latency=\\'$_SERVICECRITICALREADLATENCY$\\' --warning-write-latency=\\'$_SERVICEWARNINGWRITELATENCY$\\' --critical-write-latency=\\'$_SERVICECRITICALWRITELATENCY$\\' --warning-keys=\\'$_SERVICEWARNINGKEYS$\\' --critical-keys=\\'$_SERVICECRITICALKEYS$\\' --warning-evicted-objects=\\'$_SERVICEWARNINGEVICTEDOBJECTS$\\' --critical-evicted-objects=\\'$_SERVICECRITICALEVICTEDOBJECTS$\\' --warning-expired-objects=\\'$_SERVICEWARNINGEXPIREDOBJECTS$\\' --critical-expired-objects=\\'$_SERVICECRITICALEXPIREDOBJECTS$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Restapi-Databases-Operations",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_restapi.pl --plugin=apps::redis::restapi::plugin --mode=nodes-stats --hostname=$HOSTADDRESS$ --port=\\'$_HOSTREDISPORT$\\' --username=\\'$_HOSTREDISUSERNAME$\\' --password=\\'$_HOSTREDISPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --interval=$_SERVICEINTERVAL$ --filter-counters=\\'connection|traffic\\' --warning-connections=\\'$_SERVICEWARNINGCONNECTIONS$\\' --critical-connections=\\'$_SERVICECRITICALCONNECTIONS$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Restapi-Nodes-Connections",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_restapi.pl --plugin=apps::redis::restapi::plugin --mode=nodes-stats --hostname=$HOSTADDRESS$ --port=\\'$_HOSTREDISPORT$\\' --username=\\'$_HOSTREDISUSERNAME$\\' --password=\\'$_HOSTREDISPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --interval=$_SERVICEINTERVAL$ --filter-counters=\\'cpu\\' --warning-cpu-system=\\'$_SERVICEWARNINGCPUSYSTEM$\\' --critical-cpu-system=\\'$_SERVICECRITICALCPUSYSTEM$\\' --warning-cpu-user=\\'$_SERVICEWARNINGCPUUSER$\\' --critical-cpu-user=\\'$_SERVICECRITICALCPUUSER$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Restapi-Nodes-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_restapi.pl --plugin=apps::redis::restapi::plugin --mode=nodes-stats --hostname=$HOSTADDRESS$ --port=\\'$_HOSTREDISPORT$\\' --username=\\'$_HOSTREDISUSERNAME$\\' --password=\\'$_HOSTREDISPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --interval=$_SERVICEINTERVAL$ --filter-counters=\\'flash\\' --warning-flash-storage=\\'$_SERVICEWARNINGFLASH$\\' --critical-flash-storage=\\'$_SERVICECRITICALFLASH$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Restapi-Nodes-Flash",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_restapi.pl --plugin=apps::redis::restapi::plugin --mode=nodes-stats --hostname=$HOSTADDRESS$ --port=\\'$_HOSTREDISPORT$\\' --username=\\'$_HOSTREDISUSERNAME$\\' --password=\\'$_HOSTREDISPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --interval=$_SERVICEINTERVAL$ --filter-counters=\\'memory\\' --warning-memory=\\'$_SERVICEWARNINGUSED$\\' --critical-memory=\\'$_SERVICECRITICALUSED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Restapi-Nodes-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_restapi.pl --plugin=apps::redis::restapi::plugin --mode=nodes-stats --hostname=$HOSTADDRESS$ --port=\\'$_HOSTREDISPORT$\\' --username=\\'$_HOSTREDISUSERNAME$\\' --password=\\'$_HOSTREDISPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --interval=$_SERVICEINTERVAL$ --filter-counters=\\'^(?=.*storage)(?!.*flash).*\\' --warning-persistent-storage=\\'$_SERVICEWARNINGPERSISTENT$\\' --critical-persistent-storage=\\'$_SERVICECRITICALPERSISTENT$\\' --warning-ephemeral-storage=\\'$_SERVICEWARNINGEPHEMERAL$\\' --critical-ephemeral-storage=\\'$_SERVICECRITICALEPHEMERAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Restapi-Nodes-Storage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_restapi.pl --plugin=apps::redis::restapi::plugin --mode=shards-stats --hostname=$HOSTADDRESS$ --port=\\'$_HOSTREDISPORT$\\' --username=\\'$_HOSTREDISUSERNAME$\\' --password=\\'$_HOSTREDISPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --interval=$_SERVICEINTERVAL$ --filter-counters=\\'mem\\' --warning-memory=\\'$_SERVICEWARNINGUSED$\\' --critical-memory=\\'$_SERVICECRITICALUSED$\\' --warning-mem-frag-ratio=\\'$_SERVICEWARNINGFRAGRATIO$\\' --critical-mem-frag-ratio=\\'$_SERVICECRITICALFRAGRATIO$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Restapi-Shards-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_restapi.pl --plugin=apps::redis::restapi::plugin --mode=shards-stats --hostname=$HOSTADDRESS$ --port=\\'$_HOSTREDISPORT$\\' --username=\\'$_HOSTREDISUSERNAME$\\' --password=\\'$_HOSTREDISPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --interval=$_SERVICEINTERVAL$ --filter-counters=\\'clients|rates|requests|keys|objects\\' --warning-connected-clients=\\'$_SERVICEWARNINGCONNECTEDCLIENTS$\\' --critical-connected-clients=\\'$_SERVICECRITICALCONNECTEDCLIENTS$\\' --warning-blocked-clients=\\'$_SERVICEWARNINGBLOCKEDCLIENTS$\\' --critical-blocked-clients=\\'$_SERVICECRITICALBLOCKEDCLIENTS$\\' --warning-requests=\\'$_SERVICEWARNINGREQUESTS$\\' --critical-requests=\\'$_SERVICECRITICALREQUESTS$\\' --warning-read-rates=\\'$_SERVICEWARNINGREADRATES$\\' --critical-read-rates=\\'$_SERVICECRITICALREADRATES$\\' --warning-write-rates=\\'$_SERVICEWARNINGWRITERATES$\\' --critical-write-rates=\\'$_SERVICECRITICALWRITERATES$\\' --warning-keys=\\'$_SERVICEWARNINGKEYS$\\' --critical-keys=\\'$_SERVICECRITICALKEYS$\\' --warning-volatile-keys=\\'$_SERVICEWARNINGVOLATILEKEYS$\\' --critical-volatile-keys=\\'$_SERVICECRITICALVOLATILEKEYS$\\' --warning-evicted-objects=\\'$_SERVICEWARNINGEVICTEDOBJECTS$\\' --critical-evicted-objects=\\'$_SERVICECRITICALEVICTEDOBJECTS$\\' --warning-expired-objects=\\'$_SERVICEWARNINGEXPIREDOBJECTS$\\' --critical-expired-objects=\\'$_SERVICECRITICALEXPIREDOBJECTS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Restapi-Shards-Operations",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_restapi.pl --plugin=apps::redis::restapi::plugin --mode=databases-stats --hostname=$HOSTADDRESS$ --port=\\'$_HOSTREDISPORT$\\' --username=\\'$_HOSTREDISUSERNAME$\\' --password=\\'$_HOSTREDISPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --interval=$_SERVICEINTERVAL$ --filter-counters=\\'cpu\\' --warning-total-cpu=\\'$_SERVICEWARNINGTOTALCPU$\\' --critical-total-cpu=\\'$_SERVICECRITICALTOTALCPU$\\' --warning-fork-cpu=\\'$_SERVICEWARNINGFORKCPU$\\' --critical-fork-cpu=\\'$_SERVICECRITICALFORKCPU$\\' --warning-main-thread-cpu=\\'$_SERVICEWARNINGMAINTHREADCPU$\\' --critical-main-thread-cpu=\\'$_SERVICECRITICALMAINTHREADCPU$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Restapi-Databases-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_redis_restapi.pl --plugin=apps::redis::restapi::plugin --mode=shards-stats --hostname=$HOSTADDRESS$ --port=\\'$_HOSTREDISPORT$\\' --username=\\'$_HOSTREDISUSERNAME$\\' --password=\\'$_HOSTREDISPASSWORD$\\' $_HOSTEXTRAOPTIONS$ --interval=$_SERVICEINTERVAL$ --filter-counters=\\'cpu\\' --warning-total-cpu=\\'$_SERVICEWARNINGTOTALCPU$\\' --critical-total-cpu=\\'$_SERVICECRITICALTOTALCPU$\\' --warning-fork-cpu=\\'$_SERVICEWARNINGFORKCPU$\\' --critical-fork-cpu=\\'$_SERVICECRITICALFORKCPU$\\' --warning-main-thread-cpu=\\'$_SERVICEWARNINGMAINTHREADCPU$\\' --critical-main-thread-cpu=\\'$_SERVICECRITICALMAINTHREADCPU$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Redis-Restapi-Shards-Cpu",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les clusters RedisLabs Enterprise}\r\n{EN: Template to check RedisLabs Enterprise clusters}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check RedisLabs Enterprise clusters",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "RedisLabs-96.png",
+            "macros": [
+                {
+                    "key": "$_HOSTREDISPORT$",
+                    "value": "9443"
+                },
+                {
+                    "key": "$_HOSTREDISUSERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTREDISPASSWORD$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Redis-Restapi-Shards-Status",
+                "App-Redis-Restapi-Nodes-Status",
+                "App-Redis-Restapi-Databases-Status",
+                "App-Redis-Restapi-Cluster-Storage",
+                "App-Redis-Restapi-Cluster-Memory",
+                "App-Redis-Restapi-Cluster-Cpu",
+                "App-Redis-Restapi-Cluster-Connections"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAADVRocKAAAAe1BMVEW1JRH////akoj14t/9+fj46uj+/PzcmI+9Oii4Lhu3LBj57evy2NX68O/mtK3KYlPsyMPWhXrPcmXovLbYi4G/RDO7NiT039zfoJfjraXHW0zDTj7blYvObmDUgXW+QjDSem7uzsrkrqfIXlDEUULqwLrNal3mtrDBSjnXSrQmAAAEiklEQVRogbWa54KqMBCFg3QFRIqKqxQV9f2f8BIIkDKUAPf8Wlc8H2kzyQBSZOSqWK7MT9C8y/TSDN4WItpbt8AsD1sBXC/PEKTfqZxuzBRACz970J205RFqawBOeh5xb3ROL0sBxXHSvdGnWAJw5trXCEcW4KYS9ljpwHgPADxr2pKTFc4HuIG0PVYONQICOPC0n1YMjAQAeI5N/HHZ3gzAbrE9ljkFMPJV/tVsGgcYy4aXVj4KWHv/WOkIQHJ12bmnGoqhhydm2USDgKuU/dmkAumTntrJAMCX8g/YZaXl/Vf7AgSo06GZkjAf6fZbOgAwbjL+O8GfIRwBgCnjfwT8mTl4FQCqTICwu4R/8a5X32jHoZ9MtsoDZNJL10HOu/54jsh8SsQ2toBQxh+RMfTt5mN8JQCNuqZkAJpUhH41PzrU027/8PtRoPo5NmiA3BIjPXSq/szu9P6roK/yKIAmlyFJcszQsWRmkf6jr/pRgGTIClZR/8iIVMb+cuImYtgDfrDRkIDMaHzFdfruAHJBqG0B3Te7qo/37z/gRmqAbJbhMm/5wf/EewqfDWcpAWi2JOBEubtmM8M/9acvc93ZaABfwcG+q4r77Ubmdwov1VJSTXInf529H5CBzZq1p7E+ZQMQeshuOlmrw4ed9mPqEEK7n760XXIjq8FljdIGICyCNhS6lV/ah3alC7lB+/mAk6V9DLnvW2U1wBF6qPMMMm7CqOQKaqJqVGY78DlLxQBxlXU/SJjbxyJXxPC5RgjJTwzIhwGC2hagB/TtSXBKMYBfHmOAe3dNYAhfiv7oVgEMMZUN+hfUinmzkUhRoZxuVwBV/PeA/eHKrMh9RA2vG8Ep94CgQCR66/djLO5q9oFXzwLdewxl9AIp3jRAG7i9GmJZY9uFL4KSGeevitNgthIEHThY/4v8gbCXiZRoAuDGK/wxAJi9DOCxxh9Fky14rvKfBgjhS1Lm1CADHSil68Q01ZefmRs9EZAwKcC6Q3OlErHbPQ5grFkCtRyk6COAcq0/ciszcdOyXQ9ZOOGIcXw7wBEDxNP3doAIA8R4vR0gxABxlLcDHOqNlxAuNwP8NTs7IRxsBtg1ACErbwZwGoCwXrcCxAo5gPAReyvArgVc/hNAbwH8pnUjQH3oQVBQ2whQ9ABuA7wNoCmHEDO2FrINoKABbEjdBEAqJq0Zc47qAMCOY7YcFsDEi27nv2LT1ZZnO4BLLec7+Z8ue0Lvlbk8gB5nUvfUpOqQrLoiFbVFySnCjjnpy6uvelIAbcUxgNPNgACSpd8RUYVftjjur90oNqJL11x5HzivLRDzvIs7LkkW70A9lRGAZH0TUqKMAta2Yc8/6BIP3eXy5YvQ2eftgFO9s/xYGYuPlqG6hPtZ6P8AHmbChY/rkgVhJ5DVQGVFfUn7H1XQabA25Mk9ks2+Az7DxSfNnB+amEdqcwG4qDvvDGiZI69XjL/2oHnTOefljb5ZMflmiGqOpYm3CQ+tBKCSngTQ2ovzp1BWXQbAcv0kCm6/zDpb2e8WREkx8x2duYDF+gdDJjHZ5P21fgAAAABJRU5ErkJggg==",
+            "name": "RedisLabs-96.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* please use applications-redis-rlec-restapi",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor RedisLabs Entreprise clusters :\r\n* Cluster-Connections\r\n* Cluster-Cpu\r\n* Cluster-Flash\r\n* Cluster-Memory\r\n* Cluster-Storage\r\n* Databases-Cpu\r\n* Databases-Memory\r\n* Databases-Operations\r\n* Databases-Status\r\n* Nodes-Connections\r\n* Nodes-Cpu\r\n* Nodes-Flash\r\n* Nodes-Memory\r\n* Nodes-Status\r\n* Nodes-Storage\r\n* Shards-Cpu\r\n* Shards-Memory\r\n* Shards-Operations\r\n* Shards-Status"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pour superviser les clusters RedisLabs Entreprise :\r\n* Cluster-Connections\r\n* Cluster-Cpu\r\n* Cluster-Flash\r\n* Cluster-Memory\r\n* Cluster-Storage\r\n* Databases-Cpu\r\n* Databases-Memory\r\n* Databases-Operations\r\n* Databases-Status\r\n* Nodes-Connections\r\n* Nodes-Cpu\r\n* Nodes-Flash\r\n* Nodes-Memory\r\n* Nodes-Status\r\n* Nodes-Storage\r\n* Shards-Cpu\r\n* Shards-Memory\r\n* Shards-Operations\r\n* Shards-Status"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAMAAADVRocKAAAAe1BMVEW1JRH////akoj14t/9+fj46uj+/PzcmI+9Oii4Lhu3LBj57evy2NX68O/mtK3KYlPsyMPWhXrPcmXovLbYi4G/RDO7NiT039zfoJfjraXHW0zDTj7blYvObmDUgXW+QjDSem7uzsrkrqfIXlDEUULqwLrNal3mtrDBSjnXSrQmAAAEiklEQVRogbWa54KqMBCFg3QFRIqKqxQV9f2f8BIIkDKUAPf8Wlc8H2kzyQBSZOSqWK7MT9C8y/TSDN4WItpbt8AsD1sBXC/PEKTfqZxuzBRACz970J205RFqawBOeh5xb3ROL0sBxXHSvdGnWAJw5trXCEcW4KYS9ljpwHgPADxr2pKTFc4HuIG0PVYONQICOPC0n1YMjAQAeI5N/HHZ3gzAbrE9ljkFMPJV/tVsGgcYy4aXVj4KWHv/WOkIQHJ12bmnGoqhhydm2USDgKuU/dmkAumTntrJAMCX8g/YZaXl/Vf7AgSo06GZkjAf6fZbOgAwbjL+O8GfIRwBgCnjfwT8mTl4FQCqTICwu4R/8a5X32jHoZ9MtsoDZNJL10HOu/54jsh8SsQ2toBQxh+RMfTt5mN8JQCNuqZkAJpUhH41PzrU027/8PtRoPo5NmiA3BIjPXSq/szu9P6roK/yKIAmlyFJcszQsWRmkf6jr/pRgGTIClZR/8iIVMb+cuImYtgDfrDRkIDMaHzFdfruAHJBqG0B3Te7qo/37z/gRmqAbJbhMm/5wf/EewqfDWcpAWi2JOBEubtmM8M/9acvc93ZaABfwcG+q4r77Ubmdwov1VJSTXInf529H5CBzZq1p7E+ZQMQeshuOlmrw4ed9mPqEEK7n760XXIjq8FljdIGICyCNhS6lV/ah3alC7lB+/mAk6V9DLnvW2U1wBF6qPMMMm7CqOQKaqJqVGY78DlLxQBxlXU/SJjbxyJXxPC5RgjJTwzIhwGC2hagB/TtSXBKMYBfHmOAe3dNYAhfiv7oVgEMMZUN+hfUinmzkUhRoZxuVwBV/PeA/eHKrMh9RA2vG8Ep94CgQCR66/djLO5q9oFXzwLdewxl9AIp3jRAG7i9GmJZY9uFL4KSGeevitNgthIEHThY/4v8gbCXiZRoAuDGK/wxAJi9DOCxxh9Fky14rvKfBgjhS1Lm1CADHSil68Q01ZefmRs9EZAwKcC6Q3OlErHbPQ5grFkCtRyk6COAcq0/ciszcdOyXQ9ZOOGIcXw7wBEDxNP3doAIA8R4vR0gxABxlLcDHOqNlxAuNwP8NTs7IRxsBtg1ACErbwZwGoCwXrcCxAo5gPAReyvArgVc/hNAbwH8pnUjQH3oQVBQ2whQ9ABuA7wNoCmHEDO2FrINoKABbEjdBEAqJq0Zc47qAMCOY7YcFsDEi27nv2LT1ZZnO4BLLec7+Z8ue0Lvlbk8gB5nUvfUpOqQrLoiFbVFySnCjjnpy6uvelIAbcUxgNPNgACSpd8RUYVftjjur90oNqJL11x5HzivLRDzvIs7LkkW70A9lRGAZH0TUqKMAta2Yc8/6BIP3eXy5YvQ2eftgFO9s/xYGYuPlqG6hPtZ6P8AHmbChY/rkgVhJ5DVQGVFfUn7H1XQabA25Mk9ks2+Az7DxSfNnB+amEdqcwG4qDvvDGiZI69XjL/2oHnTOefljb5ZMflmiGqOpYm3CQ+tBKCSngTQ2ovzp1BWXQbAcv0kCm6/zDpb2e8WREkx8x2duYDF+gdDJjHZ5P21fgAAAABJRU5ErkJggg==",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n    # yum install centreon-plugin-Applications-Redis-Restapi\r\n\r\n## Centreon Configuration\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Redis-Restapi</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Host Macro Configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"23%\" />\r\n<col width=\"53%\" />\r\n<col width=\"24%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>REDISPORT</p></td>\r\n<td align=\"left\"><p>Redis server port</p></td>\r\n<td align=\"left\"><p>6379</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>REDISUSERNAME</p></td>\r\n<td align=\"left\"><p>Redis server username</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>REDISPASSWORD</p></td>\r\n<td align=\"left\"><p>Redis server password</p></td>\r\n<td align=\"left\"><p></p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n",
+        "name": "Redis Restapi",
+        "plugins_requirements": [],
+        "requirement": [
+            {
+                "name": "centreon-plugin-Applications-Redis-Restapi",
+                "version": "20171222-1"
+            }
+        ],
+        "slug": "applications-redis-restapi",
+        "status": "deprecated",
+        "status_message": "",
+        "tags": [
+            "Redis",
+            "Clustering",
+            "Restapi"
+        ],
+        "update_date": "1540832064",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le status de la r\u00e9plication.}\r\n{EN: Check replication status.}",
+            "active_checks_enabled": 2,
+            "alias": "Shards-Status",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Restapi-Shards-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "5min"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /inactive/i | %{backup} =~ /failed/i | %{sync} =~ /link_down/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Restapi-Shards-Status",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status de la r\u00e9plication.}\r\n{EN: Check replication status.}",
+            "active_checks_enabled": 2,
+            "alias": "Nodes-Status",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Restapi-Nodes-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "5min"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /down/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Restapi-Nodes-Status",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status de la r\u00e9plication.}\r\n{EN: Check replication status.}",
+            "active_checks_enabled": 2,
+            "alias": "Databases-Status",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Restapi-Databases-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "5min"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /creation-failed/i |  %{backup_status} =~ /failed/i | %{export_status} =~ /failed/i |  %{import_status} =~ /failed/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Restapi-Databases-Status",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status de la r\u00e9plication.}\r\n{EN: Check replication status.}",
+            "active_checks_enabled": 2,
+            "alias": "Cluster-Storage",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Restapi-Cluster-Storage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "15min"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Restapi-Cluster-Storage",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status de la r\u00e9plication.}\r\n{EN: Check replication status.}",
+            "active_checks_enabled": 2,
+            "alias": "Cluster-Memory",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Restapi-Cluster-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "15min"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Restapi-Cluster-Memory",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status de la r\u00e9plication.}\r\n{EN: Check replication status.}",
+            "active_checks_enabled": 2,
+            "alias": "Cluster-Cpu",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Restapi-Cluster-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "15min"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Restapi-Cluster-Cpu",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status de la r\u00e9plication.}\r\n{EN: Check replication status.}",
+            "active_checks_enabled": 2,
+            "alias": "Cluster-Connections",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Restapi-Cluster-Connections",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "5min"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Restapi-Cluster-Connections",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status de la r\u00e9plication.}\r\n{EN: Check replication status.}",
+            "active_checks_enabled": 2,
+            "alias": "Cluster-Flash",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Restapi-Cluster-Flash",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "15min"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Restapi-Cluster-Flash",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status de la r\u00e9plication.}\r\n{EN: Check replication status.}",
+            "active_checks_enabled": 2,
+            "alias": "Databases-Memory",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Restapi-Databases-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "15min"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Restapi-Databases-Memory",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status de la r\u00e9plication.}\r\n{EN: Check replication status.}",
+            "active_checks_enabled": 2,
+            "alias": "Databases-Operations",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Restapi-Databases-Operations",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "5min"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Restapi-Databases-Operations",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status de la r\u00e9plication.}\r\n{EN: Check replication status.}",
+            "active_checks_enabled": 2,
+            "alias": "Nodes-Connections",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Restapi-Nodes-Connections",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "5min"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Restapi-Nodes-Connections",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status de la r\u00e9plication.}\r\n{EN: Check replication status.}",
+            "active_checks_enabled": 2,
+            "alias": "Nodes-Cpu",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Restapi-Nodes-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "15min"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Restapi-Nodes-Cpu",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status de la r\u00e9plication.}\r\n{EN: Check replication status.}",
+            "active_checks_enabled": 2,
+            "alias": "Nodes-Flash",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Restapi-Nodes-Flash",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "15min"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Restapi-Nodes-Flash",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status de la r\u00e9plication.}\r\n{EN: Check replication status.}",
+            "active_checks_enabled": 2,
+            "alias": "Nodes-Memory",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Restapi-Nodes-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "15min"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Restapi-Nodes-Memory",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status de la r\u00e9plication.}\r\n{EN: Check replication status.}",
+            "active_checks_enabled": 2,
+            "alias": "Nodes-Storage",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Restapi-Nodes-Storage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "15min"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Restapi-Nodes-Storage",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status de la r\u00e9plication.}\r\n{EN: Check replication status.}",
+            "active_checks_enabled": 2,
+            "alias": "Shards-Memory",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Restapi-Shards-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "15min"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Restapi-Shards-Memory",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status de la r\u00e9plication.}\r\n{EN: Check replication status.}",
+            "active_checks_enabled": 2,
+            "alias": "Shards-Operations",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Restapi-Shards-Operations",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "5min"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Restapi-Shards-Operations",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status de la r\u00e9plication.}\r\n{EN: Check replication status.}",
+            "active_checks_enabled": 2,
+            "alias": "Databases-Cpu",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Restapi-Databases-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "15min"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Restapi-Databases-Cpu",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le status de la r\u00e9plication.}\r\n{EN: Check replication status.}",
+            "active_checks_enabled": 2,
+            "alias": "Shards-Cpu",
+            "check_timeperiod": "",
+            "command_name": "App-Redis-Restapi-Shards-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "15min"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Redis-Restapi-Shards-Cpu",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

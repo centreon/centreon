@@ -1,0 +1,683 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v3.0": [
+                {
+                    "attributes": {
+                        "station_id": {
+                            "type": "string"
+                        },
+                        "station_name": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "App-Monitoring-Kadiska-Restapi-Station-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Kadiska Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "KADISKAAPICLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Kadiska Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "KADISKAAPICLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Kadiska Stations",
+                    "discovery_examples": [
+                        {
+                            "station_id": "station:kdoqm3j6xp",
+                            "station_name": "RT-Paris"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.station_name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.station_name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.station_name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.KADISKAAPICLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.KADISKAAPICLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.KADISKAAPICLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.KADISKAAPICLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.STATIONNAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.station_name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "App-Monitoring-Kadiska-Station-Restapi-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Kadiska Stations",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Kadiska API hostname",
+                                "group": "Kadiska",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "KADISKAAPIHOSTNAME",
+                                "type": "text",
+                                "value": "app.kadiska.com"
+                            },
+                            {
+                                "description": "API Port",
+                                "group": "Kadiska",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "KADISKAAPIPORT",
+                                "type": "text",
+                                "value": "443"
+                            },
+                            {
+                                "description": "API Protocol",
+                                "group": "Kadiska",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "KADISKAAPIPROTO",
+                                "type": "text",
+                                "value": "https"
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "app-monitoring-kadiska-station",
+                    "type": "kadiska",
+                    "uuid_attributes": [
+                        "station_id"
+                    ]
+                },
+                {
+                    "attributes": {
+                        "watcher_id": {
+                            "type": "string"
+                        },
+                        "watcher_name": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "App-Monitoring-Kadiska-Restapi-Watcher-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Kadiska Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "KADISKAAPICLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Kadiska Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "KADISKAAPICLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Kadiska Watchers",
+                    "discovery_examples": [
+                        {
+                            "watcher_id": "watcher:kdoqm3j6xp",
+                            "watcher_name": "MyProduction"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.watcher_name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.watcher_name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.watcher_name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.KADISKAAPICLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.KADISKAAPICLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.KADISKAAPICLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.KADISKAAPICLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.WATCHERNAME",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.watcher_name"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "App-Monitoring-Kadiska-Watcher-Restapi-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Kadiska Watchers",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Kadiska API hostname",
+                                "group": "Kadiska",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "KADISKAAPIHOSTNAME",
+                                "type": "text",
+                                "value": "app.kadiska.com"
+                            },
+                            {
+                                "description": "API Port",
+                                "group": "Kadiska",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "KADISKAAPIPORT",
+                                "type": "text",
+                                "value": "443"
+                            },
+                            {
+                                "description": "API Protocol",
+                                "group": "Kadiska",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "KADISKAAPIPROTO",
+                                "type": "text",
+                                "value": "https"
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": ""
+                            }
+                        ]
+                    },
+                    "proxy": true,
+                    "slug": "app-monitoring-kadiska-watcher",
+                    "type": "kadiska",
+                    "uuid_attributes": [
+                        "watcher_id"
+                    ]
+                }
+            ]
+        },
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-Monitoring-Kadiska-Restapi-Target-Statistics-Discover",
+                "command_for_macro": "App-Monitoring-Kadiska-Restapi-Target-Statistics-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-Monitoring-Kadiska-Station-Restapi"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "TARGETNAME",
+                        "value": "$target$"
+                    }
+                ],
+                "name": "App-Monitoring-Kadiska-Restapi-Target-Statistics",
+                "service_display_name": "$target$ Statistics",
+                "service_template": "App-Monitoring-Kadiska-Restapi-Target-Statistics"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_kadiska_restapi.pl --plugin=apps::monitoring::kadiska::plugin --mode=list-targets --client-id=none --client-secret=none --station-name=none --disco-format\\\"",
+            "name": "App-Monitoring-Kadiska-Restapi-Target-Statistics-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_kadiska_restapi.pl --plugin=apps::monitoring::kadiska::plugin --mode=list-targets --client-id=$_HOSTKADISKAAPICLIENTID$ --client-secret=$_HOSTKADISKAAPICLIENTSECRET$ --station-name=$_HOSTSTATIONNAME$ --period=\\'31\\' port=\\'$_HOSTKADISKAAPIPORT$\\' --proto=\\'$_HOSTKADISKAAPIPROTO$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "App-Monitoring-Kadiska-Restapi-Target-Statistics-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_kadiska_restapi.pl --plugin=apps::monitoring::kadiska::plugin --mode=nettracer-statistics --client-id=$_HOSTKADISKAAPICLIENTID$ --client-secret=$_HOSTKADISKAAPICLIENTSECRET$ --filter-station-name=$_HOSTSTATIONNAME$ --filter-tracer=\\'$_SERVICETARGETNAME$\\' --period=$_SERVICEPERIOD$ --port=\\'$_HOSTKADISKAAPIPORT$\\' --proto=\\'$_HOSTKADISKAAPIPROTO$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Monitoring-Kadiska-Restapi-Target-Statistics",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_kadiska_restapi.pl --plugin=apps::monitoring::kadiska::plugin --mode=watcher-statistics --client-id=$_HOSTKADISKAAPICLIENTID$ --client-secret=$_HOSTKADISKAAPICLIENTSECRET$ --filter-watcher-name=$_HOSTWATCHERNAME$ --period=$_SERVICEPERIOD$ --port=\\'$_HOSTKADISKAAPIPORT$\\' --proto=\\'$_HOSTKADISKAAPIPROTO$\\' --timeout=\\'$_HOSTTIMEOUT$\\' $_HOSTEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Monitoring-Kadiska-Restapi-Watcher-Statistics",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_kadiska_restapi.pl --plugin=apps::monitoring::kadiska::plugin --mode=list-watchers --hostname=\\'$_KADISKAAPIHOSTNAME$\\' --client-id=$_KADISKAAPICLIENTID$ --client-secret=$_KADISKAAPICLIENTSECRET$ --port=\\'$_KADISKAAPIPORT$\\' --proto=\\'$_KADISKAAPIPROTO$\\' --timeout=\\'$_TIMEOUT$\\' --proxyurl=\\'$_PROXYURL$\\' $_EXTRAOPTIONS$\\\"",
+            "name": "App-Monitoring-Kadiska-Restapi-Watcher-HostDiscovery",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_monitoring_kadiska_restapi.pl --plugin=apps::monitoring::kadiska::plugin --mode=list-stations --hostname=\\'$_KADISKAAPIHOSTNAME$\\' --client-id=$_KADISKAAPICLIENTID$ --client-secret=$_KADISKAAPICLIENTSECRET$ --port=\\'$_KADISKAAPIPORT$\\' --proto=\\'$_KADISKAAPIPROTO$\\' --timeout=\\'$_TIMEOUT$\\' --proxyurl=\\'$_PROXYURL$\\' $_EXTRAOPTIONS$\\\"",
+            "name": "App-Monitoring-Kadiska-Restapi-Station-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les stations Kadiska via Rest API}\r\n{EN: Template to monitor Kadiska stations using Rest API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to monitor Kadiska stations through Rest API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 0,
+            "command_name": null,
+            "icon": "kadiska-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTSTATIONNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTKADISKAAPIPORT$",
+                    "value": "443"
+                },
+                {
+                    "key": "$_HOSTKADISKAAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTKADISKAAPICLIENTID$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTKADISKAAPICLIENTSECRET$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Kadiska-Station-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Monitoring-Kadiska-Restapi-Target-Statistics"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        },
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les watchers Kadiska via Rest API}\r\n{EN: Template to monitor Kadiska watchers using Rest API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to monitor Kadiska stations through Rest API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 0,
+            "command_name": null,
+            "icon": "kadiska-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTEXTRAOPTIONS$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTWATCHERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTKADISKAAPIPORT$",
+                    "value": "443"
+                },
+                {
+                    "key": "$_HOSTKADISKAAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTKADISKAAPICLIENTSECRET$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTKADISKAAPICLIENTID$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Kadiska-Watcher-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-dummy-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Monitoring-Kadiska-Restapi-Watcher-Statistics"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "kadiska-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "apply enhancement suggestions",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin-Pack to monitor Kadiska resources through its Rest API.**\r\n\r\nAvailable Host templates and related Services:\r\n\r\n|App-Monitoring-Kadiska-Station-Restapi-custom|\r\n|App-Monitoring-Kadiska-Watcher-Restapi-custom|\r\n|---|\r\n|Target-Statistics|\r\n|Watcher-Statistics|\r\n\r\nThis Plugin-Pack provides two Host discovery *providers* for Kadiska Stations and Watchers, to be used with the Host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin-Pack pour superviser les ressources Kadiska via Rest API.**\r\n\r\nMod\u00e8les d\\'h\u00f4tes et de services disponibles avec ce pack:\r\n\r\n|App-Monitoring-Kadiska-Station-Restapi-custom|\r\n|App-Monitoring-Kadiska-Watcher-Restapi-custom|\r\n|---|\r\n|Target-Statistics|\r\n|Watcher-Statistics|\r\n\r\nCe Plugin Pack apporte deux fournisseurs de d\u00e9couverte pour les Stations et Watchers Kadiska, \u00e0 utiliser \u00e0 l\\'aide du module de d\u00e9couverte d\\'h\u00f4te."
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Kadiska Rest API",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_monitoring_kadiska_restapi.pl",
+                "package_name": "centreon-plugin-Applications-Monitoring-Kadiska-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-monitoring-kadiska-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "API",
+            "Network"
+        ],
+        "update_date": "1652367644",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les donn\u00e9es de performances des targets Kadiska via Rest API.}\r\n\r\n{EN: Checking performance metrics from Kadiska targets using Rest API.}",
+            "active_checks_enabled": 2,
+            "alias": "Target-Statistics",
+            "check_timeperiod": "",
+            "command_name": "App-Monitoring-Kadiska-Restapi-Target-Statistics",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "15"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Kadiska-Restapi-Target-Statistics",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les donn\u00e9es de performances des watchers Kadiska via Rest API.}\r\n\r\n{EN: Checking performance metrics from Kadiska watchers using Rest API.}",
+            "active_checks_enabled": 2,
+            "alias": "Watcher-Statistics",
+            "check_timeperiod": "",
+            "command_name": "App-Monitoring-Kadiska-Restapi-Watcher-Statistics",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEPERIOD$",
+                    "password": false,
+                    "value": "15"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Monitoring-Kadiska-Restapi-Watcher-Statistics",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

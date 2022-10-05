@@ -1,0 +1,314 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-DB-Elasticsearch-Nodes-Discover",
+                "command_for_macro": "App-DB-Elasticsearch-Nodes-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-DB-Elasticsearch"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "App-DB-Elasticsearch-Node-Statistics",
+                "service_display_name": "Node-$name$",
+                "service_template": "App-DB-Elasticsearch-Node-Statistics"
+            },
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-DB-Elasticsearch-Indices-Discover",
+                "command_for_macro": "App-DB-Elasticsearch-Indices-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-DB-Elasticsearch"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "App-DB-Elasticsearch-Indice-Statistics",
+                "service_display_name": "Indice-$name$",
+                "service_template": "App-DB-Elasticsearch-Indice-Statistics"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_elasticsearch.pl --plugin=database::elasticsearch::restapi::plugin --mode=list-nodes --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "App-DB-Elasticsearch-Nodes-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_elasticsearch.pl --plugin=database::elasticsearch::restapi::plugin --mode=list-nodes --hostname=$HOSTADDRESS$ --port=\\'$_HOSTELASTICSEARCHPORT$\\' --proto=\\'$_HOSTELASTICSEARCHPROTO$\\' --username=\\'$_HOSTELASTICSEARCHUSERNAME$\\' --password=\\'$_HOSTELASTICSEARCHPASSWORD$\\' $_HOSTELASTICSEARCHEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "App-DB-Elasticsearch-Nodes-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_elasticsearch.pl --plugin=database::elasticsearch::restapi::plugin --mode=list-indices --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "App-DB-Elasticsearch-Indices-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_elasticsearch.pl --plugin=database::elasticsearch::restapi::plugin --mode=list-indices --hostname=$HOSTADDRESS$ --port=\\'$_HOSTELASTICSEARCHPORT$\\' --proto=\\'$_HOSTELASTICSEARCHPROTO$\\' --username=\\'$_HOSTELASTICSEARCHUSERNAME$\\' --password=\\'$_HOSTELASTICSEARCHPASSWORD$\\' $_HOSTELASTICSEARCHEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "App-DB-Elasticsearch-Indices-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_elasticsearch.pl --plugin=database::elasticsearch::restapi::plugin --mode=node-statistics --hostname=$HOSTADDRESS$ --port=\\'$_HOSTELASTICSEARCHPORT$\\' --proto=\\'$_HOSTELASTICSEARCHPROTO$\\' --proto=$_HOSTELASTICSEARCHPROTO$ --username=\\'$_HOSTELASTICSEARCHUSERNAME$\\' --password=\\'$_HOSTELASTICSEARCHPASSWORD$\\' $_HOSTELASTICSEARCHEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-jvm-heap-usage=\\'$_SERVICEWARNINGJVMHEAPUSAGE$\\' --critical-jvm-heap-usage=\\'$_SERVICECRITICALJVMHEAPUSAGE$\\' --warning-disk-free=\\'$_SERVICEWARNINGDISKFREE$\\' --critical-disk-free=\\'$_SERVICECRITICALDISKFREE$\\' --warning-documents-total=\\'$_SERVICEWARNINGDOCUMENTSTOTAL$\\' --critical-documents-total=\\'$_SERVICECRITICALDOCUMENTSTOTAL$\\' --warning-data-size=\\'$_SERVICEWARNINGDATASIZE$\\' --critical-data-size=\\'$_SERVICECRITICALDATASIZE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Elasticsearch-Node-Statistics",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_elasticsearch.pl --plugin=database::elasticsearch::restapi::plugin --mode=license --hostname=$HOSTADDRESS$ --port=\\'$_HOSTELASTICSEARCHPORT$\\' --proto=\\'$_HOSTELASTICSEARCHPROTO$\\' --username=\\'$_HOSTELASTICSEARCHUSERNAME$\\' --password=\\'$_HOSTELASTICSEARCHPASSWORD$\\' $_HOSTELASTICSEARCHEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Elasticsearch-License",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_elasticsearch.pl --plugin=database::elasticsearch::restapi::plugin --mode=indice-statistics --hostname=$HOSTADDRESS$ --port=\\'$_HOSTELASTICSEARCHPORT$\\' --proto=\\'$_HOSTELASTICSEARCHPROTO$\\' --proto=$_HOSTELASTICSEARCHPROTO$ --username=\\'$_HOSTELASTICSEARCHUSERNAME$\\' --password=\\'$_HOSTELASTICSEARCHPASSWORD$\\' $_HOSTELASTICSEARCHEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-documents-total=\\'$_SERVICEWARNINGDOCUMENTSTOTAL$\\' --critical-documents-total=\\'$_SERVICECRITICALDOCUMENTSTOTAL$\\' --warning-data-size-primaries=\\'$_SERVICEWARNINGDATAPRIMARIESFREE$\\' --critical-data-size-primaries=\\'$_SERVICECRITICALDATAPRIMARIESFREE$\\' --warning-data-size-total=\\'$_SERVICEWARNINGDATASIZETOTAL$\\' --critical-data-size-total=\\'$_SERVICECRITICALDATASIZETOTAL$\\' --warning-shards-active=\\'$_SERVICEWARNINGSHARDSACTIVE$\\' --critical-shards-active=\\'$_SERVICECRITICALSHARDSACTIVE$\\' --warning-shards-unassigned=\\'$_SERVICEWARNINGSHARDSUNASSIGNED$\\' --critical-shards-unassigned=\\'$_SERVICECRITICALSHARDSUNASSIGNED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Elasticsearch-Indice-Statistics",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_elasticsearch.pl --plugin=database::elasticsearch::restapi::plugin --mode=cluster-statistics --hostname=$HOSTADDRESS$ --port=\\'$_HOSTELASTICSEARCHPORT$\\' --proto=\\'$_HOSTELASTICSEARCHPROTO$\\' --proto=$_HOSTELASTICSEARCHPROTO$ --username=\\'$_HOSTELASTICSEARCHUSERNAME$\\' --password=\\'$_HOSTELASTICSEARCHPASSWORD$\\' $_HOSTELASTICSEARCHEXTRAOPTIONS$ --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-nodes-total=\\'$_SERVICEWARNINGNODESTOTAL$\\' --critical-nodes-total=\\'$_SERVICECRITICALNODESTOTAL$\\' --warning-nodes-data=\\'$_SERVICEWARNINGNODESDATA$\\' --critical-nodes-data=\\'$_SERVICECRITICALNODESDATA$\\' --warning-nodes-coordinating=\\'$_SERVICEWARNINGNODESCOORDINATING$\\' --critical-nodes-coordinating=\\'$_SERVICECRITICALNODESCOORDINATING$\\' --warning-nodes-master=\\'$_SERVICEWARNINGNODESMASTER$\\' --critical-nodes-master=\\'$_SERVICECRITICALNODESMASTER$\\' --warning-nodes-ingest=\\'$_SERVICEWARNINGNODESINGEST$\\' --critical-nodes-ingest=\\'$_SERVICECRITICALNODESINGEST$\\' --warning-indices-total=\\'$_SERVICEWARNINGINDICESTOTAL$\\' --critical-indices-total=\\'$_SERVICECRITICALINDICESTOTAL$\\' --warning-shards-total=\\'$_SERVICEWARNINGSHARDSTOTAL$\\' --critical-shards-total=\\'$_SERVICECRITICALSHARDSTOTAL$\\' --warning-shards-active-count=\\'$_SERVICEWARNINGSHARDSACTIVE$\\' --critical-shards-active-count=\\'$_SERVICECRITICALSHARDSACTIVE$\\' --warning-shards-unassigned=\\'$_SERVICEWARNINGSHARDSUNASSIGNED$\\' --critical-shards-unassigned=\\'$_SERVICECRITICALSHARDSUNASSIGNED$\\' --warning-shards-relocating=\\'$_SERVICEWARNINGSHARDSRELOCATING$\\' --critical-shards-relocating=\\'$_SERVICECRITICALSHARDSRELOCATING$\\' --warning-shards-initializing=\\'$_SERVICEWARNINGSHARDSINITIALIZING$\\' --critical-shards-initializing=\\'$_SERVICECRITICALSHARDSINITIALIZING$\\' --warning-tasks-pending=\\'$_SERVICEWARNINGTASKSPENDING$\\' --critical-tasks-pending=\\'$_SERVICECRITICALTASKSPENDING$\\' --warning-documents-total=\\'$_SERVICEWARNINGDOCUMENTSTOTAL$\\' --critical-documents-total=\\'$_SERVICECRITICALDOCUMENTSTOTAL$\\' --warning-data-size=\\'$_SERVICEWARNINGDATASIZE$\\' --critical-data-size=\\'$_SERVICECRITICALDATASIZE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Elasticsearch-Cluster-Statistics",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser un serveur Elasticsearch}\r\n{EN: Template to check an Elasticsearch Server}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Elasticsearch server",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "elasticsearch-128-2.png",
+            "macros": [
+                {
+                    "key": "$_HOSTELASTICSEARCHPORT$",
+                    "value": "9200"
+                },
+                {
+                    "key": "$_HOSTELASTICSEARCHPROTO$",
+                    "value": "http"
+                },
+                {
+                    "key": "$_HOSTELASTICSEARCHUSERNAME$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTELASTICSEARCHPASSWORD$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTELASTICSEARCHEXTRAOPTIONS$",
+                    "value": ""
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Elasticsearch",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-DB-Elasticsearch-Node-Statistics",
+                "App-DB-Elasticsearch-License",
+                "App-DB-Elasticsearch-Indice-Statistics",
+                "App-DB-Elasticsearch-Cluster-Statistics"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "elasticsearch-128-2.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "second --proto option deleted",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Elasticsearch database:\r\n* Cluster-Statistics\r\n* Node-Statistics\r\n* Indice-Statistics\r\n* License"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser une base de donn\u00e9es Elasticsearch :\r\n* Cluster-Statistics\r\n* Node-Statistics\r\n* Indice-Statistics\r\n* License"
+            }
+        ],
+        "discovery_category": "database",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAH8AAAB/CAYAAADGvR0TAAAEC0lEQVR42u3aTWrbQBjGcS20UxcNsfa6gCDQ0C4EJdnqCDqDz2ByBV2hCy26aZNASxCNaXAO4FOo+y5KaRPVY0bw5u1I/lJI5Px/MDSN5dFonvmyW88DAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgP32a/o6MmU69Xx6Y4+ZgP/ORtnd7ai4n42q+9tR/aDMDsu72eH49/eDmMGwR0ygi8Dn/wXeVhYD4efNq5CeG7AfV16wnOnrhv5gAIwqM2joxYEu82YGbxW8KGYroDcHxoS2a/BN+XNzkOzYnNqWx2S2qXTgsZmJVthn2WGP7yn4nmZ+3+EHjg6a2HskAw6/sM8QbT/rbw9zs9fvUswnA3Nm6Omh+g6/tB21bzN/9/CfiBkomZ15/orwAxuUma15y3siW19mr206JLF1zcXr8vqgpV2mxOI+ka1X19/w7e9TR52+bUezTOtrAtGWSPSLlIh7hyr8WLTZ1TfPSi4CbkraEf5E/K4SYXoqYFlK25G1o3i2o+Ss8e179LVhSz3y/pnj9cmK9tVqYNWqXwrx3kq9L1fhVx1tczs6OomO353WW5e3J9WiLEbzySYjLRSd49vRrhvsmvmxY/A0wc3F/u3b30eqY/Wyr8NP1KAJxexr7jcWdcZi0DTtD9QgCsQ1ccd5I1Khx2J2N3Vloh/0zJ/bOgLRF+Hjhm/Lm7fvsw1PqE34zVI1F8tX157fLImF6BAZztyxXK4bfq7a4Lq2sj/LwR6LQZO1tE+fMyaqTZFjNZATpVyx56eO/u3O5Pj4NOkjfLMCbDD7i5YlUDZYh6+X1UpdHzi2hnjD8Gs1W/WePVb1Jx1Lvl66U7U0Vy3ht7VxssGBL3vO4U86Zphr2Y/UsirryByHtVx08Cbhl2u0Sw+yQGwXbZ3ti7BDtcWsCj9ec+ZvHv4TLfuxOLQE6lDkCj9Vo993zPxE1BWJ8NvOFK7wU9EuX5zQPbXPhmpflXt+qJZs37F0+yK0VeF74lljUW/89OFvd+CTB7Ra/ewK31cneNeyr1/XD1+ucdoPVFvktYWjrXnLpxF5jT6Q6j/XCT/r2E62D78ZANuWHr5ebT735h0zX1+bitmTiFnbHLTG6vO5/J6gEKElLV+NxjbMQnRgvKJ+fQ/ZTv3aWLR/LJ5P/t3rqDsXM9/19W6i+gZoc32RL0qxW7nMvKsPAZ05NOXn2Jte1r2Ub+f8k+7wZv9i5vY1AK7P2W8GufzvHPzFhI4corMzf7l/M+Nf+Bng+mK+QfDV8j3Yp21gMZOnl2XL8j5fHu6+foroqJeyLZiwv3zkv2kDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeAT/ANaicBu/myZuAAAAAElFTkSuQmCC",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\nThis chapter describes the prerequisites installation needed by plugins\r\nto run.\r\n\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Databases-Elasticsearch\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-DB-Elascticsearch-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Host Macro Configuration\r\nThe following macros must be configured on host:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"24%\" />\r\n<col width=\"44%\" />\r\n<col width=\"17%\" />\r\n<col width=\"12%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Macro</th>\r\n<th align=\"left\">Description</th>\r\n<th align=\"left\">Default value</th>\r\n<th align=\"left\">Example</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>ELASTICSEARCHPORT</p></td>\r\n<td align=\"left\"><p>The Elasticsearch instance port</p></td>\r\n<td align=\"left\"><p>9200</p></td>\r\n<td align=\"left\"><p>1234</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>ELASTICSEARCHPROTO</p></td>\r\n<td align=\"left\"><p>The Elasticsearch instance protocol</p></td>\r\n<td align=\"left\"><p>http</p></td>\r\n<td align=\"left\"><p>https</p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>ELASTICSEARCHUSERNAME</p></td>\r\n<td align=\"left\"><p>The Elasticsearch instance username</p></td>\r\n<td align=\"left\"><p></p></td>\r\n<td align=\"left\"><p>centreon</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>ELASTICSEARCHPASSWORD</p></td>\r\n<td align=\"left\"><p>The Elasticsearch instance password</p></td>\r\n<td align=\"left\"><p></p></td>\r\n<td align=\"left\"><p>centreon</p></td>\r\n</tr>\r\n</tbody>\r\n</table>",
+        "name": "Elasticsearch",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_elasticsearch.pl",
+                "package_name": "centreon-plugin-Applications-Databases-Elasticsearch",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-databases-elasticsearch",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Database",
+            "DB",
+            "ElasticSearch",
+            "Elastic",
+            "NoSQL"
+        ],
+        "update_date": "1568879625",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques des noeuds dans un cluster Elasticsearch.}\r\n{EN: Check nodes statistics in a Elasticsearch cluster.}",
+            "active_checks_enabled": 2,
+            "alias": "Node-Statistics",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Elasticsearch-Node-Statistics",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-DB-Elasticsearch-Node-Statistics",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut de la licence.}\r\n{EN: Check license status.}",
+            "active_checks_enabled": 2,
+            "alias": "License",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Elasticsearch-License",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} !~ /active/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Elasticsearch-License",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistics des indices d'un cluster Elasticsearch.}\r\n{EN: Check the statistics of indices of a Elasticsearch cluster.}",
+            "active_checks_enabled": 2,
+            "alias": "Indice-Statistics",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Elasticsearch-Indice-Statistics",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /yellow/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /red/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Elasticsearch-Indice-Statistics",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de l'\u00e9tat d'un cluster Elasticsearch.}\r\n{EN: Check the state of a Elasticsearch cluster.}",
+            "active_checks_enabled": 2,
+            "alias": "Cluster-Statistics",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Elasticsearch-Cluster-Statistics",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /yellow/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /red/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Elasticsearch-Cluster-Statistics",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

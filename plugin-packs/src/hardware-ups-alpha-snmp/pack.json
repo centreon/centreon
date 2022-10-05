@@ -1,0 +1,161 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_alpha_snmp.pl --plugin=hardware::ups::alpha::snmp::plugin --mode=battery-status --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-load=\\'$_SERVICEWARNINGLOAD$\\' --critical-load=\\'$_SERVICECRITICALLOAD$\\' --warning-current=\\'$_SERVICEWARNINGCURRENT$\\' --critical-current=\\'$_SERVICECRITICALCURRENT$\\' --warning-voltage=\\'$_SERVICEWARNINGVOLTAGE$\\' --critical-voltage=\\'$_SERVICECRITICALVOLTAGE$\\' --warning-temperature=\\'$_SERVICEWARNINGTEMPERATURE$\\' --critical-temperature=\\'$_SERVICECRITICALTEMPERATURE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Alpha-SNMP-Battery-Status",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_ups_alpha_snmp.pl --plugin=hardware::ups::alpha::snmp::plugin --mode=alarms --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-UPS-Alpha-SNMP-Alarms",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "active_checks_enabled": 2,
+            "alias": "Template to check UPS Alpha using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "alpha-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-UPS-Alpha-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-UPS-Alpha-Battery-Status-SNMP",
+                "HW-UPS-Alpha-Alarms-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "alpha-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Alpha UPS in SNMP:\r\n* Alarms\r\n* Battery-Status"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser les UPS Alpha en SNMP :\r\n* Alarms\r\n* Battery-Status"
+            }
+        ],
+        "discovery_category": "ups-pdu",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites \r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Ups-Alpha-Snmp\r\n\r\n### SNMP\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the monitoring server\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp)\r\n\r\n## Centreon Configuration\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-UPS-Alpha-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Alpha UPS SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_ups_alpha_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Ups-Alpha-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-ups-alpha-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "UPS",
+            "Alpha",
+            "SNMP",
+            "Hardware"
+        ],
+        "update_date": "1570171389",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de la batterie.}\r\n\r\n{EN: Check battery status.}",
+            "active_checks_enabled": 2,
+            "alias": "Battery-Status",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Alpha-SNMP-Battery-Status",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNKNOWNSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /unknown/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /batteryLow/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /batteryDepleted/i"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-UPS-Alpha-Battery-Status-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les alarmes.}\r\n\r\n{EN: Check alarms.}",
+            "active_checks_enabled": 2,
+            "alias": "Alarms",
+            "check_timeperiod": "",
+            "command_name": "HW-UPS-Alpha-SNMP-Alarms",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-UPS-Alpha-Alarms-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

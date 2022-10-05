@@ -1,0 +1,268 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Meru-SNMP-Interfaces-Discover",
+                "command_for_macro": "Net-Meru-SNMP-Interfaces-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [
+                    {
+                        "object": "$status$",
+                        "order": 0,
+                        "pattern": "down",
+                        "type": "exclusion"
+                    }
+                ],
+                "host_templates": [
+                    "Net-Meru-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "INTERFACENAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Meru-SNMP-Interface-Name",
+                "service_display_name": "Interface-$name$",
+                "service_template": "Net-Meru-Interfaces-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_meru_snmp.pl --plugin=network::meru::snmp::plugin --mode=list-interfaces --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Meru-SNMP-Interfaces-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_meru_snmp.pl --plugin=network::meru::snmp::plugin --mode=list-interfaces --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --oid-display=ifdesc --oid-filter=ifdesc --disco-show\\\"",
+            "name": "Net-Meru-SNMP-Interfaces-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_meru_snmp.pl --plugin=network::meru::snmp::plugin --mode=wireless --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-accesspoints-online=\\'$_SERVICEWARNINGACCESSPOINTSONLINE$\\' --critical-accesspoints-online=\\'$_SERVICECRITICALACCESSPOINTSONLINE$\\' --warning-stations-wireless=\\'$_SERVICEWARNINGSTATIONSWIRELESS$\\' --critical-stations-wireless=\\'$_SERVICECRITICALSTATIONSWIRELESS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Meru-SNMP-Wireless",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_meru_snmp.pl --plugin=network::meru::snmp::plugin --mode=memory --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Meru-SNMP-Memory",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_meru_snmp.pl --plugin=network::meru::snmp::plugin --mode=cpu --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-cpu-utilization=\\'$_SERVICEWARNINGCPUUTILIZATION$\\' --critical-cpu-utilization=\\'$_SERVICECRITICALCPUUTILIZATION$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Meru-SNMP-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_meru_snmp.pl --plugin=network::meru::snmp::plugin --mode=alarms --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-alarms-critical=\\'$_SERVICEWARNINGALARMSCRITICAL$\\' --critical-alarms-critical=\\'$_SERVICECRITICALALARMSCRITICAL$\\' --warning-alarms-major=\\'$_SERVICEWARNINGALARMSMAJOR$\\' --critical-alarms-major=\\'$_SERVICECRITICALALARMSMAJOR$\\' --warning-alarms-minor=\\'$_SERVICEWARNINGALARMSMINOR$\\' --critical-alarms-minor=\\'$_SERVICECRITICALALARMSMINOR$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Meru-SNMP-Alarms",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_meru_snmp.pl --plugin=network::meru::snmp::plugin --mode=interfaces --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --interface=\\'$_SERVICEINTERFACENAME$\\' --name --add-status --add-traffic --add-errors --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-in-traffic=\\'$_SERVICEWARNINGINTRAFFIC$\\' --critical-in-traffic=\\'$_SERVICECRITICALINTRAFFIC$\\' --warning-out-traffic=\\'$_SERVICEWARNINGOUTTRAFFIC$\\' --critical-out-traffic=\\'$_SERVICECRITICALOUTTRAFFIC$\\' --warning-in-discard=\\'$_SERVICEWARNINGINDISCARD$\\' --critical-in-discard=\\'$_SERVICECRITICALINDISCARD$\\' --warning-out-discard=\\'$_SERVICEWARNINGOUTDISCARD$\\' --critical-out-discard=\\'$_SERVICECRITICALOUTDISCARD$\\' --warning-in-error=\\'$_SERVICEWARNINGINERROR$\\' --critical-in-error=\\'$_SERVICECRITICALINERROR$\\' --warning-out-error=\\'$_SERVICEWARNINGOUTERROR$\\' --critical-out-error=\\'$_SERVICECRITICALOUTERROR$\\' --oid-filter=\\'$_SERVICEOIDFILTER$\\' --oid-display=\\'$_SERVICEOIDDISPLAY$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Meru-SNMP-Interfaces",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser les \u00e9quipements Meru Networks en SNMP}\r\n{EN: Template to check Meru Networks devices using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Meru equipments in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Meru-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Meru-Wireless-SNMP",
+                "Net-Meru-Memory-SNMP",
+                "Net-Meru-Cpu-SNMP",
+                "Net-Meru-Alarms-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin pack to monitor Meru Networks devices in SNMP.**\r\n\r\nAvailable host template and related services:\r\n\r\n|Net-Meru-SNMP|\r\n|---|\r\n|Alarms|\r\n|Cpu|\r\n|Memory|\r\n|Interfaces|\r\n|Wireless|"
+            },
+            {
+                "lang": "fr",
+                "value": "**Plugin pack pour superviser les Meru Networks via SNMP.**\r\n\r\nMod\u00e8le d\\'h\u00f4te disponible et ses services :\r\n\r\n|Net-Meru-SNMP|\r\n|---|\r\n|Alarms|\r\n|Cpu|\r\n|Memory|\r\n|Interfaces|\r\n|Wireless|"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "Meru Networks SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_meru_snmp.pl",
+                "package_name": "centreon-plugin-Network-Meru-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "network-meru-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Meru",
+            "Network",
+            "SNMP"
+        ],
+        "update_date": "1614782150",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques wireless.}\r\n\r\n{EN: Check wireless statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Wireless",
+            "check_timeperiod": "",
+            "command_name": "Net-Meru-SNMP-Wireless",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Meru-Wireless-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le la m\u00e9moire.}\r\n\r\n{EN: Check memory.}",
+            "active_checks_enabled": 2,
+            "alias": "Memory",
+            "check_timeperiod": "",
+            "command_name": "Net-Meru-SNMP-Memory",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Meru-Memory-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation processeur.}\r\n\r\n{EN: Check cpu usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu",
+            "check_timeperiod": "",
+            "command_name": "Net-Meru-SNMP-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Meru-Cpu-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les alarmes.}\r\n\r\n{EN: Check alarms.}",
+            "active_checks_enabled": 2,
+            "alias": "Alarms",
+            "check_timeperiod": "",
+            "command_name": "Net-Meru-SNMP-Alarms",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Meru-Alarms-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les interfaces.}\r\n\r\n{EN: Check interfaces.}",
+            "active_checks_enabled": 2,
+            "alias": "Interfaces",
+            "check_timeperiod": "",
+            "command_name": "Net-Meru-SNMP-Interfaces",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{admstatus} eq \"up\" and %{opstatus} !~ /up|dormant/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDFILTER$",
+                    "password": false,
+                    "value": "ifdesc"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEOIDDISPLAY$",
+                    "password": false,
+                    "value": "ifdesc"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose --no-skipped-counters --use-new-perfdata"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Meru-Interfaces-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

@@ -1,0 +1,176 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_pexip_infinity_managementapi.pl --plugin=hardware::devices::pexip::infinity::managementapi::plugin --mode=conferences --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTMANAGEMENTAPIUSERNAME$\\' --api-password=\\'$_HOSTMANAGEMENTAPIPASSWORD$\\' --port=\\'$_HOSTMANAGEMENTAPIPORT$\\' --proto=\\'$_HOSTMANAGEMENTAPIPROTO$\\' $_HOSTMANAGEMENTAPIEXTRAOPTIONS$ --warning-participants-callquality-good=\\'$_SERVICEWARNINGPARTICIPANTSCALLQUALITYGOOD$\\' --critical-participants-callquality-good=\\'$_SERVICECRITICALPARTICIPANTSCALLQUALITYGOOD$\\' --warning-participants-callquality-ok=\\'$_SERVICEWARNINGPARTICIPANTSCALLQUALITYOK$\\' --critical-participants-callquality-ok=\\'$_SERVICECRITICALPARTICIPANTSCALLQUALITYOK$\\' --warning-participants-callquality-bad=\\'$_SERVICEWARNINGPARTICIPANTSCALLQUALITYBAD$\\' --critical-participants-callquality-bad=\\'$_SERVICECRITICALPARTICIPANTSCALLQUALITYBAD$\\' --warning-participants-callquality-terrible=\\'$_SERVICEWARNINGPARTICIPANTSCALLQUALITYTERRIBLE$\\' --critical-participants-callquality-terrible=\\'$_SERVICECRITICALPARTICIPANTSCALLQUALITYTERRIBLE$\\' --warning-participants-callquality-unknown=\\'$_SERVICEWARNINGPARTICIPANTSCALLQUALITYUNKNOWN$\\' --critical-participants-callquality-unknown=\\'$_SERVICECRITICALPARTICIPANTSCALLQUALITYUNKNOWN$\\' --warning-conferences-total=\\'$_SERVICEWARNINGCONFERENCESTOTAL$\\' --critical-conferences-total=\\'$_SERVICECRITICALCONFERENCESTOTAL$\\' --warning-participants-total=\\'$_SERVICEWARNINGPARTICIPANTSTOTAL$\\' --critical-participants-total=\\'$_SERVICECRITICALPARTICIPANTSTOTAL$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Pexip-Infinity-Managementapi-Conferences",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_pexip_infinity_managementapi.pl --plugin=hardware::devices::pexip::infinity::managementapi::plugin --mode=alarms --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTMANAGEMENTAPIUSERNAME$\\' --api-password=\\'$_HOSTMANAGEMENTAPIPASSWORD$\\' --port=\\'$_HOSTMANAGEMENTAPIPORT$\\' --proto=\\'$_HOSTMANAGEMENTAPIPROTO$\\' $_HOSTMANAGEMENTAPIEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Pexip-Infinity-Managementapi-Alarms",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Pexip Infinity manager via la ManagementAPI}\r\n{EN: Template to check Pexip Infinity manager using ManagementAPI}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Pexip Infinity manager using Management API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "pexip-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTMANAGEMENTAPIPROTO$",
+                    "value": "https"
+                },
+                {
+                    "key": "$_HOSTMANAGEMENTAPIPORT$",
+                    "value": "443"
+                },
+                {
+                    "key": "$_HOSTMANAGEMENTAPIEXTRAOPTIONS$",
+                    "value": "--http-backend=curl --insecure"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Pexip-Infinity-Managementapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Device-Pexip-Infinity-Conferences-Managementapi",
+                "HW-Device-Pexip-Infinity-Alarms-Managementapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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RERERERERERERERERERERERERERERERERERERETy+x+gvf4NQBJZ8wAAAABJRU5ErkJggg==",
+            "name": "pexip-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* use --insecure option",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Pexip Infinity manager using ManagementAPI :\r\n* Alarms\r\n* Conferences"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser Pexip Infinity manager via la ManagementAPI:\r\n* Alarms\r\n* Conferences"
+            }
+        ],
+        "discovery_category": "hardware-server",
+        "email": "imp@centreon.com",
+        "icon": "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RERERERERERERERERERERERERERERERERERERETy+x+gvf4NQBJZ8wAAAABJRU5ErkJggg==",
+        "monitoring_procedure": "",
+        "name": "Pexip Infinity ManagementAPI",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_pexip_infinity_managementapi.pl",
+                "package_name": "centreon-plugin-Hardware-Devices-Pexip-Infinity-Managementapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-devices-pexip-infinity-managementapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Pexip",
+            "Infinity",
+            "ManagementAPI",
+            "Video",
+            "Visioconference"
+        ],
+        "update_date": "1600420826",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le nombre de conf\u00e9rences et la qualit\u00e9 d'appels des participants.}\r\n\r\n{EN: Check number of conferences and participant quality call.}",
+            "active_checks_enabled": 2,
+            "alias": "Conferences",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Pexip-Infinity-Managementapi-Conferences",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Pexip-Infinity-Conferences-Managementapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les alarmes.}\r\n\r\n{EN: Check alarms.}",
+            "active_checks_enabled": 2,
+            "alias": "Alarms",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Pexip-Infinity-Managementapi-Alarms",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{level} =~ /warning|minor/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{level} =~ /critical|major|error/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Pexip-Infinity-Alarms-Managementapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

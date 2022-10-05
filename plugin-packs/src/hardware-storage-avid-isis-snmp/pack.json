@@ -1,0 +1,193 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser le stockage Avid ISIS (5xxx, 7xxx) via SNMP}\r\n{EN: Template to check Avid ISIS storage (5xxx, 7xxx) using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Avid ISIS storage (5xxx, 7xxx) using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "Avid.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Storage-Avid-Isis-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Hardware-Storage-Avid-Isis-Usage-SNMP",
+                "Hardware-Storage-Avid-Isis-Status-SNMP",
+                "Hardware-Storage-Avid-Isis-Performance-SNMP",
+                "Hardware-Storage-Avid-Isis-Hardware-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "Avid.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix generic-active-host",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Storage Avid Isis using SNMP:\r\n* Hardware\r\n* Performance\r\n* Status\r\n* Usage"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller Storage Avid Isis \u00e0 l\\'aide de SNMP :\r\n* Hardware\r\n* Performance\r\n* Status\r\n* Usage"
+            }
+        ],
+        "discovery_category": "storage",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Storage-Avid-Isis-Snmp\r\n\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the equipment\r\n\r\n### Configure SNMP on your server\r\nFollow constructor procedure for your equipment.\r\n\r\n### SNMP Permissions\r\nRead-Only access.\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp)\r\n\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Storage-Avid-Isis-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Avid Isis",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_avid_isis_snmp.pl",
+                "package_name": "centreon-plugin-Hardware-Storage-Avid-Isis-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-storage-avid-isis-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "SNMP",
+            "avid",
+            "isis",
+            "Storage",
+            "Hardware"
+        ],
+        "update_date": "1555075847",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4ler du mat\u00e9riel (LSI-MegaRAID-SAS-MIB).}\n\n{EN:Check hardware (LSI-MegaRAID-SAS-MIB).}",
+            "active_checks_enabled": 2,
+            "alias": "Usage",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNITS$",
+                    "password": false,
+                    "value": "%"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Hardware-Storage-Avid-Isis-Usage-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4ler du mat\u00e9riel (LSI-MegaRAID-SAS-MIB).}\n\n{EN:Check hardware (LSI-MegaRAID-SAS-MIB).}",
+            "active_checks_enabled": 2,
+            "alias": "Status",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNING-STATUS$",
+                    "password": false,
+                    "value": ""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICAL-STATUS$",
+                    "password": false,
+                    "value": "%{state} !~/Online/i"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Hardware-Storage-Avid-Isis-Status-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4ler du mat\u00e9riel (LSI-MegaRAID-SAS-MIB).}\n\n{EN:Check hardware (LSI-MegaRAID-SAS-MIB).}",
+            "active_checks_enabled": 2,
+            "alias": "Performance",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "Hardware-Storage-Avid-Isis-Performance-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        },
+        {
+            "_comment": "{FR: Contr\u00f4ler du mat\u00e9riel (LSI-MegaRAID-SAS-MIB).}\n\n{EN:Check hardware (LSI-MegaRAID-SAS-MIB).}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware",
+            "check_timeperiod": "",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICENO-COMPONENT$",
+                    "password": false,
+                    "value": "critical"
+                }
+            ],
+            "max_check_attempts": 3,
+            "name": "Hardware-Storage-Avid-Isis-Hardware-SNMP",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}

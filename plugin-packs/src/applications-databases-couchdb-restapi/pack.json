@@ -1,0 +1,128 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_couchdb_restapi.pl --plugin=database::couchdb::restapi::plugin --mode=server --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTCOUCHDBAPIUSERNAME$\\' --api-password=\\'$_HOSTCOUCHDBAPIPASSWORD$\\' --port=\\'$_HOSTCOUCHDBPORT$\\' --proto=\\'$_HOSTCOUCHDBPROTO$\\' $_HOSTCOUCHDBEXTRAOPTIONS$ --filter-db-name=\\'$_SERVICEFILTERDBNAME$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-compaction-status=\\'$_SERVICEWARNINGCOMPACTIONSTATUS$\\' --critical-compaction-status=\\'$_SERVICECRITICALCOMPACTIONSTATUS$\\' --warning-database-size-active=\\'$_SERVICEWARNINGDATABASESIZEACTIVE$\\' --critical-database-size-active=\\'$_SERVICECRITICALDATABASESIZEACTIVE$\\' --warning-database-size-file=\\'$_SERVICEWARNINGDATABASESIZEFILE$\\' --critical-database-size-file=\\'$_SERVICECRITICALDATABASESIZEFILE$\\' --warning-database-documents-current=\\'$_SERVICEWARNINGDATABASEDOCUMENTSCURRENT$\\' --critical-database-documents-current=\\'$_SERVICECRITICALDATABASEDOCUMENTSCURRENT$\\' --warning-database-documents-deleted=\\'$_SERVICEWARNINGDATABASEDOCUMENTSDELETED$\\' --critical-database-documents-deleted=\\'$_SERVICECRITICALDATABASEDOCUMENTSDELETED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-DB-Couchdb-Restapi-Server",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser CouchDB via Rest API}\r\n{EN: Template to check CouchDB using Rest API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check CouchDB using Rest API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "couchdb-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTCOUCHDBPORT$",
+                    "value": "5984"
+                },
+                {
+                    "key": "$_HOSTCOUCHDBPROTO$",
+                    "value": "http"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Couchdb-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-DB-Couchdb-Server-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "couchdb-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor a CouchDB application database using Rest API.\r\n* Server (status and db statistics)"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack Plugin pour surveiller les bases de donn\u00e9es d\\'application CouchDB en utilisant la Rest API.\r\n* Server (statut et les statistiques des bases de donn\u00e9es)"
+            }
+        ],
+        "discovery_category": "database",
+        "email": "imp@centreon.com",
+        "icon": "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAYAAADDPmHLAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAABhjSURBVHic7Z17fFTVtcd/a5/JCxUE5J3wMiEEhIrgC0HzyZxJjDa9Vz8XbbW1rY9a+9KWkgnt1ZvWahOKUqu2ar2tj2q1WK31gUwmIVW0inCtYiAv5JGAIBQShUySOWev+8c8cjKZmSQzcyaYnO/nk89n9j77rHVy9jr7ufbegMWIhpKhZPfMmekpaWlLSYolAH+BGTNAmAHCKWCcnqznOAlhENrAOAHGXiLsAfh9ltjqIf2tnObmLrMfwLQXz4CyPyfvUoCvB1AE4BSzdA1TTgB4jYn+kNm48zUCpBlKTDGA1uzcqwC6E4Q5ZsgfgdSD+fbM5obnEi04oQawJy9vik2TjwJ0WSLlWgR5xetVbpy1p+5gogQmzABa5s5dQDpeBZCZKJkW4eAWKcVl03ft/DAR0hJiAC2z83JI4c0AJiZCnkW//FuQXDa1sbE+XkFxG8Cu2bPHpCqp7xEwK15ZFoPiowzWFo1vbv40HiEi3qdIE6m/sTJ/SJjtIdt98QqJqwRomTPnPGLxdrxyLGKGwbQ0s3nn27EKiKsEIKmUw8r8oYRA/NP4BMTIwdzcWZqkZiSgGrGIC6koOHNKff2eWG6OOfO8Ol0dz/0WCUNInVfEfHPMaomtwZ6TBI5j4C0mA9i6eHEKgc6NValFwrmA8/NtsdwYkwFMOn48D0B6LPdamEJ6S8uhubHcGJMBkG5N8pxskIKcWO6LsQ0grPH+kw3mmPIkNgMgOS6m+yzMgzA+lttiMgCGsOr/kw3mjFhui6nlSEQbIdnLgicRUzaA82E1CpONB8AWJm4mSYdIKDWxCEnIMG5TdnbaKEq5mMG3ArgsUXIt+sAAXiGi+zqk941E+AwmPKP8E0TPApiZaNkjGQZ2M8mrpzc2vptIuaZ8qS3z548TXfpGJiwxQ/4I5F1OVS7Nqqs7mmjBAzKApuzstAxKUQlyHkCZDEwE8VFi7JFQXs9s2rGFfMVTkP1nnpXFQtsKy0soXg6BtSWZzc2txkgGqDVn3nkC+sVMmAmmcQR8AnCrJFHXKb3VA6kiohqAPxPvZOAKAkZHSfoBJN+WuathU6/7s3OvZ6L/7e8hLKJA+EZmY/3jxqjW3NwC6PRrEBZEuo2BTwl4HqzdHmo8RiJ2A1ty5n6fhbYTwNf7yXwAWAhBVS3ZudcaI9vSbH8CuKWfey0is+/gaac8bYxoyc69FpJc0TIfAPx59g2Qbef+7LzvREoX1gBa58xdTcBvMLjFHAoR/X5fdvaZgYj5dXXdYPrLIGRYGGDQs0u2bfMGwi2z83KI6FEAyiDEnMrED7Zk5znDXexjAC05c68B4+7BPy4AIENQykpjBIHfiFHWiIfAr/cKK7wSMY63EHHF/py5XwmN72UAu2eefToB98aioAcuMYZ0BQnttowkUjRb6LsrCZtwoBDu3TV79hhjVC8DsKV4VgOYFJcSIPPQrLOCMj459dTDCOkhWAwInrj7wyOBwJ68vCkApsYlkDE5TaT2qgqCBsCAINBX41EQoFORZwR+L9m2zcvAZ4mQO7LgdgL0QEh0xzbZ0wfC19nQhggawIGcPDvitLCgUKH1ajwSkPABjOEOg44Zw6TooxIkeur+3NxLAoGeEoC4OEEKwnGs/yQWRojM+2hYUjCve9oAzAvNUgjg3ybKHpYQ40j/qWImmNeGRiCZZwCMD0yTPUyR4PfNki0oxAB2zzz7dAATzFIY2p+16B/BtNks2cyYfDg39zTAbwBpwtvfUG9cpCqoAbjNTB3DCsKxlDRlU/8JY6dL18cAfgPQSJpqABMaGj4D0+/M1DGsYH5gYl3dcTNVCKKeEkAQn2amMgDQu1N+BeAjs/V8/qFdXm9GnKOx/aMjZTTgNwBJlGK2whn7th8DySsZiGtDg+EMA5+ykFfO2vMv06tLhZAKJHlxZ2Zj4/uk4FwwtidT7+eEesliaVZDQ1J7TElf3ZtZX9/o1TrPA/BtAE3J1n8S0gTCzR7Wzp7RvKMu2cpjcguPl1l79nQCeBjAwwdycvIkKctZYgGBJ4BoMginDsVzmQ7jOJgPMugwCWwXrL8xtalp51A+0pAYgBH/CxjSlzCSsTZ4GOFYBjDCGbIqYNfs2WPSROo8As5g8IhcVkagTgaOZECri3e/v1hJqgEwQAfm5F3FzLcBOBeA4nMVGpkryQJuUh7Y9NacuVvAvC6zuWF9Mp8haQZQN39+6n6vfBLMVyVL5+cIBcCFILqwNTv32YNjTv2a0RvYTJLWBhjdpd9jZf4AILp6yqcn1iZLXVIMYF929plEuCUZuoYDDHy3ZXZeTFu+DJakGAAJ23UY3GKGkY4iBPfx4TeD5BgA80XJ0DOckISkvLMktQFoWnL0DB8EkJR3liQDYOvAqEHCgOk+GkCyqgCQ5QMweJLiQpecEoBgLREfPEl5Z0kxAAYsr+BBQqCkvDMBADbSTTmUMABDPgHA9FMwhxGdXhueNFMB+/Pc7xVMnWYqy2ps3A/QXWbqGFYQ7py5c+fHpqrQhQfwGwDrisdMZQAwrWnnLxhYC2upeDSYwWumNdb/0nRNpPUYAIRmugEQwFlN9asY4kIAzwCmrn37vHEEwDNM8oKspgZn6I5rZkCK76O3AQArigdacj7MrKYd7wD4CgPUOmfOVALOELoYcte0oUAqUpNEh7MaGj5ORqYbEV02gwF40jxIMbUZ0AcCGI2N+wHsT6piCwCASPV2AP4qYOaef7UD6BjSJ7JIJscnNDR8BvgNwF/8WIM1IwQG9gV+2wyRewnINV15fr6tdf/B/yDAAcZZIJwBwPSlaScpXjCOgGg7g6syp03+O9XWamYrJaa9gd9BAxCMvWyya96BOXOWte4/+ETwrOGR6QrYG0IuwBcR8O39+w9+tD8397ppDQ1vmquTgyVAcChYgnaZqbMle+4lkkWNddB0VGazpJoDc+YtN1MJgYN5bZgL4JgPIO6PpuzsNCI8hZFb1A+GVMn6U3Xz56eapYBICeZ1jwF0Ht8CoNsMhRki5WokycFheEBZo7u0mI+D7YeuE7J7SyAQNICs1lYPgG0mKXWYJHfYQkSqSZLfNZ4jEDIdTNWm6GSeb4rc4Uw/28HHQa0x0MsAJHsfgzlDkmNNkDmsYYYpZzNKiWeN4V4GML25eReAuEsBKW0neseQHj6lRSQI6DUe0PedxiR1y/RdOz80xvTxCGLgoXjVpOsidKbP2il08PR6h1Kj+N8hyz4rjvoYQGZT/fMAbQmNHwStk3Z/eCgkzqzG5bCFgK3G8Kw9dQcBHIhD5NvTmhueC43sYwAEMAt5E4DYpgeJ/x4axaS/FJOsEQwxXg4T2+fdDhCPlHRTuCnnsE6hWQ0NHzDzjQAG6yvYoYPvCY3MbGx8Lc5SZaTx9tTmeldopGTvWviOjB0MOhFdH1r3B4joFZzV3PAUA18bhEKNgBtnNDb22QySALYJ+WXEV4SNFA4oCsKuC5ze3LyLgBsQ0kCMQgeYr5nWuPOZSAmiuoVnNdU/TYIXMdGLiF4a/J8gUTCtqf7PkRJMbmjY7fUqi0H0FxhOwrAIogN4JkWznTOlvn5PpETTmur/LEF2AO9FkSWZ+W9QsCizuSHqqW0Dno87MHv+dBbSAeKFEpgAxr9JYLckfn16Q8PW/iX0liUVvQCEhQBNAJA2mPuHEV0AHwbwPum2mmm7PhyUT8a+3NwlgulilpgFwngBHAbTB2DFNVhZFhYWFhYWFhYWI4iovYCSkpJRnZ2dFwI4S0o5jogEgHYAnxDRDq/X+2FtbW1yFxRYJJSwBmC32ycJIX7CzDcByIhyfyeAGrfbfbkpTzfEOByOO5h5BoB0t9t9bRxyrmDmiEe4A+ggoo+llI02m61648aNAzoxzOFw/JmZz4hwuQvAUSJqBvDm0aNHX98WZu/BPkuyVFVdRER/Z+ZMQ7QXwF74TvsInDB2GnwnWV9WUlIy6qWXXhp2C0uYuQy+DyDedYzTAUT18GFmEBF0XYeqqjuklD+uqanZ0I/cZQAyoyVg9g3/jx07dm9BQcEtoTJ7GUB+fv5kAK8x80R/VBMz364oyssul6vXfLTD4ZhKRIullJd1d3ePgbWyaKBsRYjPBTOnE9FEABfD5zs5TwjxqsPhWFNVVeUMJySETgD3GcIKgNHwHQV8AYAzAMwQQrxYWFioulyu4OYTvQzAZrP9DkAg87dqmuaora0Nu1dNVVXVAfjG9q2ZvsGx2e12l0W66K8uHgQwhZlLVVU95na7K/qR6Ykks7i4OK27u/suIloJIEVK+XMA+YHrwbmAoqKibABf8ge7hRBfi5T5FuZRVVX1AjOr6Dlc62cFBQUzYpW3YcOGruXLl5cC2O2PuqikpCR4EHXQAHRdv8EQfs7lctXHqtQiPqqrq3cACBwdlyqEuCkeeeXl5ZKIAk45No/HMzlwzVgFLDP8/ms8CgPk5+efqijKdURUBGAmgAwiOszMW5j56erq6ncj3auqahmAcwBA07Qf1dbWtkZItwzADwCAmV+srq5+KpJMh8NhZ+ZrASyCr478FMABZt4qhHipqqqq30mtwsLCs3RdLwAwnYgyiOgQEW10uVzv9HfvYBBCPCGlLPcHVQD/HY88Zg725qSUwd6fDQBWrFihHDt2bJEhQdwuXA6H4xJmfhq+hojxQXIALCWiW1VVfVTTtO/Uhl8QuQzA5QCgKEp5FFXTAawAACIKezCl3xCfYOYrwlw+m4guY+Y7CgsLp7tcrrCzaHa7fSGA+6WUFxP19J6ZGcz8M7vd/ujy5ctvLi8vT8iGWy6Xa7fdbt9DRDMBLCkuLh69YcOGWPdbJCDoZt7W3t7ee3VwW1vbJACB3Tw9NTU1+xAHDofjbGZ+FcAoAExEf2XmKmY+QUQ5RHSDv5t5U0pKSiqAb8Sjrx/IZrM9hZ72zSEAjwLYQUSKlHICEZ0F4GJN07IQfpn86UT0LoBU+FZPbWHmPUR0JoALAYCIbty8efO7AB5J2IP7+vAzASi6rk8HENarpz9UVb0Vvg8FAB40jgf4dghhHmNI34441wYw8+/hz3xmvsbtdvfySMnPz/+1oii1RPQFZv66qqp/crvd7nh0RkJV1SvRk/kNmqYtq62tDduvX7FiRaQdzW3weTb/WgjxiMvl+sQg/4foqa+/iwQaAHzGGiDaOgGlsLBwcSCgaZpis9kmSSlnAPgigCL48vRRTdPKjTfaAEAIMVrKYMkVV3++sLDwfCnlEn/w1erq6j7uSLW1tW2qqn4PwBv+qO8BMMUAmPkHgSKbmb8fKfMBYP369ZE8ldo9Hs+sN99887PQC8eOHXtg7Nix/w1fBi2w2+3jq6urE+IGz8wew7OPj5J0tJQy2H4RQsCQn4DvgM4yt9v9fOiNvn0CtV47RMW1al/X9cuCgoj6uCEHcLvdm9GzP1Bhfn5+wjeKKikpGUVEF/qDh5YvXx7rohdvuMwHgG3btnkNLWwiooQd9CCEMBpktPejw+d6b/zbCeAwfK58OQCeU1V1g6qqs403BqqAdkNcXDt7E9HZgd/M3NxP8ib4Rr4yiCgXQEKPTu3q6lqAniXp7yWqgRYKMx82BKN9qYOVO8rwO1rJ/Knb7V4S7oKqqmOIaAUzVwC4FMA/CwoKzqupqdkLBDaK7G0Ap0epCwdCYCQRzPxJtIQAgtdTUlImxaEzLFLK4EQJMx9MtHwDRw16ok2eDZbgxyiECFsC9Yfb7W6vqqp6lIguha+kmCiEqAzKBYAJEyYcBhAY609tb2+f3lfUwDC+ACHE8X7SGrs1CT9TgJmDZxALIczcq9g4JZ7Io3GM+bA7YqoB4B/j2OwPXhkYDRRAsPETdDOWUp4TqyIiOm74HXWFKxEZpzLbQy4H2yWKosS0q7nRwIzF6ecEAhCorzuXLl2aiP0UA1VsSldX13Sg97qAfxp+xzO/bxyxmxgxFQD/DBgAQNO0/SHXgl9VSDd1wNhsNmMVFHOpNhQUFBSci56u3z8S0X5h5mD/X9O00UBvAzBuT/7lgoKCWLd0CXZHdF0P2zABgBUrVqQy80J/8GhNTU2vUTxmDnbXpJQx7S8wZsyY7ejp1p5TXFz8uVl/oCjK9YbgK4mQSURZgd9C+FZwBw3A7XZvR0+/PEMI8VAsjUEhxF/hL76J6PpI3bu2trZrAATq6OcQMvjEzMYj5RchBtavX98NILDG7jRN05JyFFu8qKqq+tdmAsAnHo/nsXhl2u328QDs/uAht9u9GwhZGqbr+i3oadB8sa2tbYPdbp8XTmBRUdE4VVUvV1X14aKioimBeJfLtZuIArtQ5Npstt8uXry41+5gDodjCXNwEWmXruv3IgRFUYKLI4UQ38rPz+/l+pSfn2+z2+3/xcxRzyEQQlTAb1zMfI/dbj83XLri4uLR+fn5p0eTZTZ2u328w+G4A74vXgEAInJGGoMYKKqqziaiFwAEqtI/wv9Oen2dmzZtqrPb7d8koscApDGzg4jqVFVtBrAHgEZE45h5sn9sGgC4q6vrVqMcIrqVmZcAyAZw09ixYwsdDsdrAE4w81xmLjTo/vGmTZsaQh/a5XLVq6r6CoDLmTnTZrNtV1X1b/AZ6EwAS+FrY+yDrwcTthfhcrnesdvtdxLRHQDGEdFbDoejSkq5A4CNiCYAmOv1ehempqYuA5DQWb0w2FVVfdgQtsE315DrfzeBUpeZ+adut/uxAcgcFSITRJTGzGP9Po0L0POxv+fxeO42Ku9FdXX1MwUFBfuEEPcCON8fne3/C/qY+dEAuEI9g10u1yf+2cBH4GtQzmDmm0NUHSGiH1ZVVf0p0n+VkpLyTa/XuxG+KmAygG8bLncT0eNCiB/puv43ABE3V6yurv4fh8NxlJnvBHAaMxcTUXFIsg7E2dUaIAuAvhtAGd8rEW1h5pXV1dWbQ9NFIA3At8LJM8xcdgN4XNO0UmOJErZ+rqmpeQvABYWFhYt1Xb/EP+s1FoCHiNqY+WNmfj89PX3rK6+8ciycDL/L2BeLioq+oOt6MXw7hJ5CRIcAvO31ejfU1tZGHSfYsGHD4fz8/PNSUlKuYObl8H3xRwFs1zTthdra2oMAoKrqfcy8QVGUmkiyqqqq7isqKnpS1/X/BLAYPj+5o8x8QFGUfwGoCfV7BPA8fDOAUYtgIvqAmdcDADOHm01sAhDtWPg2+AbF9kopXYFRuv5g5pcRZeSRmduJ6AgRfSCldCVqjsLCwsLCImk4nc7fOp1OUzbxHJFn9XzeIKKzQhbqJIwkHR5tcbJilQBJoKys7Fwp5fmjRo16yOPxXOn/op+trKysA4DVq1ePl1JeTkRzABzTNO3JtWvXRp1KX7Vq1ZlCiIuIaAoztxFRQ3p6+uuBOYPS0tJcIURWenr6W+Xl5UFfgtLS0jwhxLSurq43161b57FKgCTAzEuJ6FcdHR2vA/g9M5f4B6CwatWqs6WU9QDuZeaFzHyLoigfOp3OiJtF+zOxGcCvmHkFgJXMvMnj8fzRkEww80udnZ1Bd3Kn0zmGiKqZuXTdunWdgFUFJJN0ABs7OjomVlZWLqqoqKgFQIqiPM7MHk3T5lZWVn4pIyNjHoAWZl4TSZAQ4qCmaRMqKysnVVZWLqmsrJwD4A8AristLc0EgDVr1uxk5ruZeWVpaWkeABDR3QBG2Wy2G+AfCrYMIIkIIV69//77g44pTqdzHjMvJKI/3nPPPUcAoLy8vBvAi0R0fiQ5FRUVxwLpAzBzLQD41xEAAEaNGvVLANuJ6KGysrLFzHwzM//wrrvuCg5WWW2AIYSI5vqHbIudTmee4dIcDGAzyPLy8lNPnDgxxWazKbqupwIAM48zXNdWrVp1oxBiCzO/ysxVa9asecwowzKAIYSZA/4JG4noHyHXIjqBrl69ep6U8gGPx7NcCHFASqkRUWAyrFepfsopp3zg8Xjq4Zt/+AtCpt0tAxhCiOigf2OIoxUVFQNeFyGlfApAmq7rc9auXbsbAEpLS68koj5rOjs6On5ARHkANhBRxcqVK18yVh9WG2AI0TTtHQCfMvNXysvLB5MXOcz8ciDzI1FWVjabiH4B4Dfd3d1fBSBsNtuDxjRWCTCErF279oTT6fwJgAc8Hs9bTqfzeQBdzDwNQN2aNWsej3DrFiHEVU6n8w34lqwtIKLv+EuT88vLy2sAHPd3C48D+Pm6devay8rKbmfm35WVlT1XUVGxHrBKgKQghGgCsF7X9aOh1yorKx+Eb8FGK4CvAriGiGYQUVMgjZTyAAyLVqWUNzHzR/BNMb8AoFjX9W/CtyLotq6urqmdnZ0r4Ns/6LbKysp2AEhPT38EgIuZV5aXlwdd5i1GMP8PqRZe+kclsSkAAAAASUVORK5CYII=",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Database-Couchdb-Restapi\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-DB-Couchdb-Restapi-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "CouchDB Rest API",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_couchdb_restapi.pl",
+                "package_name": "centreon-plugin-Applications-Database-Couchdb-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-databases-couchdb-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Application",
+            "Database",
+            "Restapi",
+            "CouchDB"
+        ],
+        "update_date": "1577712399",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le le statut du serveur et les statistiques des bases de donn\u00e9es.}\r\n\r\n{EN: Check server status and database stastistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Server",
+            "check_timeperiod": "",
+            "command_name": "App-DB-Couchdb-Restapi-Server",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-DB-Couchdb-Server-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

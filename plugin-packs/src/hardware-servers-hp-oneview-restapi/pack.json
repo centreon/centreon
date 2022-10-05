@@ -1,0 +1,157 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hp_oneview_restapi.pl --plugin=hardware::server::hp::oneview::restapi::plugin --mode=storage-pools --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTAPIUSERNAME$\\' --api-password=\\'$_HOSTAPIPASSWORD$\\' --port=\\'$_HOSTAPIPORT$\\' $_HOSTAPIEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --unknown-status=\\'$_SERVICEUNKNOWNSTATUS$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-usage=\\'$_SERVICEWARNINGUSAGE$\\' --critical-usage=\\'$_SERVICECRITICALUSAGE$\\' --warning-usage-free=\\'$_SERVICEWARNINGUSAGEFREE$\\' --critical-usage-free=\\'$_SERVICECRITICALUSAGEFREE$\\' --warning-usage-prct=\\'$_SERVICEWARNINGUSAGEPRCT$\\' --critical-usage-prct=\\'$_SERVICECRITICALUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Server-Hp-Oneview-Restapi-Storage-Pools",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_hp_oneview_restapi.pl --plugin=hardware::server::hp::oneview::restapi::plugin --mode=hardware --hostname=\\'$HOSTADDRESS$\\' --api-username=\\'$_HOSTAPIUSERNAME$\\' --api-password=\\'$_HOSTAPIPASSWORD$\\' --port=\\'$_HOSTAPIPORT$\\' $_HOSTAPIEXTRAOPTIONS$ --component=\\'$_SERVICECOMPONENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Server-Hp-Oneview-Restapi-Hardware",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser HP OneView via l'API Rest}\r\n{EN: Template to check HP OneView using Rest API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Hp OneView with Restapi",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "hp-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "HW-Server-Hp-Oneview-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Server-Hp-Oneview-Storage-Pools-Restapi",
+                "HW-Server-Hp-Oneview-Hardware-Global-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "hp-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* Initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor HP OneView with Rest API:\r\n* Hardware\r\n* Storage pools"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour superviser HP OneView via la Rest API :\r\n* Hardware\r\n* Storage pools"
+            }
+        ],
+        "discovery_category": "hardware-server",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Hardware-Servers-Hp-Oneview-Restapi\r\n\r\n## Centreon Configuration\r\n### Create a new HP OneView server\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>HW-Server-Hp-Oneview-Restapi-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "HP OneView Rest API",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_hp_oneview_restapi.pl",
+                "package_name": "centreon-plugin-Hardware-Servers-Hp-Oneview-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-servers-hp-oneview-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "HP",
+            "OneView",
+            "Restapi",
+            "Hardware",
+            "Synergy"
+        ],
+        "update_date": "1570447517",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les stockages.}\r\n\r\n{EN: Check storage pools.}",
+            "active_checks_enabled": 2,
+            "alias": "Storage-Pools",
+            "check_timeperiod": "",
+            "command_name": "HW-Server-Hp-Oneview-Restapi-Storage-Pools",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Server-Hp-Oneview-Storage-Pools-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les composants.}\r\n\r\n{EN: Check components (servers, enclosures).}",
+            "active_checks_enabled": 2,
+            "alias": "Hardware-Global",
+            "check_timeperiod": "",
+            "command_name": "HW-Server-Hp-Oneview-Restapi-Hardware",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECOMPONENT$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": ":",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Server-Hp-Oneview-Hardware-Global-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

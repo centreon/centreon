@@ -1,0 +1,125 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_nvidia_gpu_smi_ssh.pl --plugin=hardware::devices::nvidia::gpu::smi::plugin --mode=stats --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-fb-memory-usage=\\'$_SERVICEWARNINGFBMEMORYUSAGE$\\' --critical-fb-memory-usage=\\'$_SERVICECRITICALFBMEMORYUSAGE$\\' --warning-fb-memory-usage-free=\\'$_SERVICEWARNINGFBMEMORYUSAGEFREE$\\' --critical-fb-memory-usage-free=\\'$_SERVICECRITICALFBMEMORYUSAGEFREE$\\' --warning-fb-memory-usage-prct=\\'$_SERVICEWARNINGFBMEMORYUSAGEPRCT$\\' --critical-fb-memory-usage-prct=\\'$_SERVICECRITICALFBMEMORYUSAGEPRCT$\\' --warning-bar1-memory-usage=\\'$_SERVICEWARNINGBAR1MEMORYUSAGE$\\' --critical-bar1-memory-usage=\\'$_SERVICECRITICALBAR1MEMORYUSAGE$\\' --warning-bar1-memory-usage-free=\\'$_SERVICEWARNINGBAR1MEMORYUSAGEFREE$\\' --critical-bar1-memory-usage-free=\\'$_SERVICECRITICALBAR1MEMORYUSAGEFREE$\\' --warning-bar1-memory-usage-prct=\\'$_SERVICEWARNINGBAR1MEMORYUSAGEPRCT$\\' --critical-bar1-memory-usage-prct=\\'$_SERVICECRITICALBAR1MEMORYUSAGEPRCT$\\' --warning-gpu-utilization=\\'$_SERVICEWARNINGGPUUTILIZATION$\\' --critical-gpu-utilization=\\'$_SERVICECRITICALGPUUTILIZATION$\\' --warning-gpu-memory-utilization=\\'$_SERVICEWARNINGGPUMEMORYUTILIZATION$\\' --critical-gpu-memory-utilization=\\'$_SERVICECRITICALGPUMEMORYUTILIZATION$\\' --warning-gpu-encoder-utilization=\\'$_SERVICEWARNINGGPUENCODERUTILIZATION$\\' --critical-gpu-encoder-utilization=\\'$_SERVICECRITICALGPUENCODERUTILIZATION$\\' --warning-gpu-decoder-utilization=\\'$_SERVICEWARNINGGPUDECODERUTILIZATION$\\' --critical-gpu-decoder-utilization=\\'$_SERVICECRITICALGPUDECODERUTILIZATION$\\' --warning-devices-gpu-total=\\'$_SERVICEWARNINGDEVICESGPUTOTAL$\\' --critical-devices-gpu-total=\\'$_SERVICECRITICALDEVICESGPUTOTAL$\\' --warning-power=\\'$_SERVICEWARNINGPOWER$\\' --critical-power=\\'$_SERVICECRITICALPOWER$\\' --warning-temperature=\\'$_SERVICEWARNINGTEMPERATURE$\\' --critical-temperature=\\'$_SERVICECRITICALTEMPERATURE$\\' --warning-fan-speed=\\'$_SERVICEWARNINGFANSPEED$\\' --critical-fan-speed=\\'$_SERVICECRITICALFANSPEED$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "HW-Device-Nvidia-Gpu-Smi-Ssh-Stats",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4ler les GPU NVIDIA avec la commande smi en SSH.}\r\n{EN: Check NVIDIA GPU devices using system management interface program (smi) in SSH.}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check NVIDIA GPU devices using system management interface program (smi) in SSH",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "nvidia-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSSHBACKEND$",
+                    "value": "libssh"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Nvidia-Gpu-Smi-SSH",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "HW-Device-Nvidia-Gpu-Smi-Stats-Ssh"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "nvidia-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Pack to monitor NVIDIA GPU devices using system management interface program (smi) in SSH:\r\n* Stats"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack pour superviser les GPU NVIDIA avec la commande smi en SSH :\r\n* Stats"
+            }
+        ],
+        "discovery_category": "hardware-server",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs' ",
+        "name": "NVIDIA GPU SMI SSH",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_nvidia_gpu_smi_ssh.pl",
+                "package_name": "centreon-plugin-Hardware-Devices-Nvidia-Gpu-Smi-Ssh",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "hardware-devices-nvidia-gpu-smi-ssh",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "NVIDIA",
+            "GPU",
+            "SMI",
+            "SSH",
+            "Hardware"
+        ],
+        "update_date": "1638175513",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques GPU.}\r\n{EN: Check GPU statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Gpu-Stats",
+            "check_timeperiod": "",
+            "command_name": "HW-Device-Nvidia-Gpu-Smi-Ssh-Stats",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "HW-Device-Nvidia-Gpu-Smi-Stats-Ssh",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

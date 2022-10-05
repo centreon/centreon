@@ -1,0 +1,163 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "Net-Oracle-Otd-SNMP-Vservers-Discover",
+                "command_for_macro": "Net-Oracle-Otd-SNMP-Vservers-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "Net-Oracle-Otd-SNMP"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "Net-Oracle-Otd-SNMP-Vserver-Name",
+                "service_display_name": "Vserver-$name$",
+                "service_template": "Net-Oracle-Otd-Vserver-Usage-SNMP"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle_otd.pl --plugin=network::oracle::otd::snmp::plugin --mode=list-vservers --hostname=127.0.0.1 --disco-format\\\"",
+            "name": "Net-Oracle-Otd-SNMP-Vservers-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle_otd.pl --plugin=network::oracle::otd::snmp::plugin --mode=list-vservers --hostname=$HOSTADDRESS$ --snmp-version=$_HOSTSNMPVERSION$ --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --disco-show\\\"",
+            "name": "Net-Oracle-Otd-SNMP-Vservers-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_oracle_otd.pl --plugin=network::oracle::otd::snmp::plugin --mode=vserver-usage --hostname=$HOSTADDRESS$ --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --filter-counters=\\'$_SERVICEFILTERCOUNTERS$\\' --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-in=\\'$_SERVICEWARNINGIN$\\' --critical-in=\\'$_SERVICECRITICALIN$\\' --warning-out=\\'$_SERVICEWARNINGOUT$\\' --critical-out=\\'$_SERVICECRITICALOUT$\\' --warning-count-request=\\'$_SERVICEWARNINGCOUNTREQUEST$\\' --critical-count-request=\\'$_SERVICECRITICALCOUNTREQUEST$\\' --warning-count-2xx=\\'$_SERVICEWARNINGCOUNT2XX$\\' --critical-count-2xx=\\'$_SERVICECRITICALCOUNT2XX$\\' --warning-count-3xx=\\'$_SERVICEWARNINGCOUNT3XX$\\' --critical-count-3xx=\\'$_SERVICECRITICALCOUNT3XX$\\' --warning-count-4xx=\\'$_SERVICEWARNINGCOUNT4XX$\\' --critical-count-4xx=\\'$_SERVICECRITICALCOUNT4XX$\\' --warning-count-5xx=\\'$_SERVICEWARNINGCOUNT5XX$\\' --critical-count-5xx=\\'$_SERVICECRITICALCOUNT5XX$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Net-Oracle-Otd-SNMP-Vserver-Usage",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Oracle Traffic Director using SNMP protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "oracle-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "Net-Oracle-Otd-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Net-Oracle-Otd-Vserver-Usage-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "oracle-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "+ fix service disco command & deps",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Oracle Traffic Director :\r\n* Vserver-Usage"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller les \u00e9quipement Oracle Traffic Director  :\r\n* Vserver-Usage"
+            }
+        ],
+        "discovery_category": "network",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites \r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Network-Oracle-Otd-Snmp\r\n\r\n### SNMP\r\nBe sure to have with you the following information:\r\n* Read-Only SNMP community\r\n* IP Address of the monitoring server\r\n\r\n### Troubleshooting\r\nRead [Troubleshooting SNMP](http://documentation.centreon.com/docs/centreon-plugins/en/latest/user/guide.html#snmp)\r\n\r\n## Centreon Configuration\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>Net-Oracle-Otd-SNMP-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Traffic Director",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_oracle_otd.pl",
+                "package_name": "centreon-plugin-Network-Oracle-Otd-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [
+            {
+                "name": "centreon-plugin-Network-Oracle-Otd-Snmp",
+                "version": "20170807-1"
+            }
+        ],
+        "slug": "network-oracle-otd-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Oracle",
+            "Network"
+        ],
+        "update_date": "1586980373",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Controle l'utilisation des 'vservers'.}\r\n\r\n{EN: Check vservers usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Vserver-Usage",
+            "check_timeperiod": "",
+            "command_name": "Net-Oracle-Otd-SNMP-Vserver-Usage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEFILTERNAME$",
+                    "password": false,
+                    "value": ".*"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Net-Oracle-Otd-Vserver-Usage-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

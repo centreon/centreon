@@ -1,0 +1,169 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_wallix_bastion_snmp.pl --plugin=apps::wallix::bastion::snmp::plugin --mode=system --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --warning-sessions-total=\\'$_SERVICEWARNINGSESSIONSTOTAL$\\' --critical-sessions-total=\\'$_SERVICECRITICALSESSIONSTOTAL$\\' --warning-sessions-primary=\\'$_SERVICEWARNINGSESSIONSPRIMARY$\\' --critical-sessions-primary=\\'$_SERVICECRITICALSESSIONSPRIMARY$\\' --warning-sessions-secondary=\\'$_SERVICEWARNINGSESSIONSSECONDARY$\\' --critical-sessions-secondary=\\'$_SERVICECRITICALSESSIONSSECONDARY$\\' --warning-sessions-ghost=\\'$_SERVICEWARNINGSESSIONSGHOST$\\' --critical-sessions-ghost=\\'$_SERVICECRITICALSESSIONSGHOST$\\' --warning-requests-pending=\\'$_SERVICEWARNINGREQUESTSPENDING$\\' --critical-requests-pending=\\'$_SERVICECRITICALREQUESTSPENDING$\\' --warning-services-status=\\'$_SERVICEWARNINGSERVICESSTATUS$\\' --critical-services-status=\\'$_SERVICECRITICALSERVICESSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Wallix-Bastion-SNMP-System",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_wallix_bastion_snmp.pl --plugin=apps::wallix::bastion::snmp::plugin --mode=license --hostname=\\'$HOSTADDRESS$\\' --snmp-version=\\'$_HOSTSNMPVERSION$\\' --snmp-community=\\'$_HOSTSNMPCOMMUNITY$\\' $_HOSTSNMPEXTRAOPTIONS$ --unit=\\'$_SERVICEUNIT$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-expires=\\'$_SERVICEWARNINGEXPIRES$\\' --critical-expires=\\'$_SERVICECRITICALEXPIRES$\\' --warning-license-usage=\\'$_SERVICEWARNINGLICENSEUSAGE$\\' --critical-license-usage=\\'$_SERVICECRITICALLICENSEUSAGE$\\' --warning-license-free=\\'$_SERVICEWARNINGLICENSEFREE$\\' --critical-license-free=\\'$_SERVICECRITICALLICENSEFREE$\\' --warning-license-usage-prct=\\'$_SERVICEWARNINGLICENSEUSAGEPRCT$\\' --critical-license-usage-prct=\\'$_SERVICECRITICALLICENSEUSAGEPRCT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Wallix-Bastion-SNMP-License",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser l'application WALLIX Bastion en SNMP}\r\n{EN: Template to check WALLIX Bastion using SNMP protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check WALLIX Bastion in SNMP",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "wallix-128.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Wallix-Bastion-SNMP",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Wallix-Bastion-System-SNMP",
+                "App-Wallix-Bastion-License-SNMP"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "wallix-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor Wallix Bastion application using SNMP:\r\n* License\r\n* System"
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin pack pour surveiller une application Wallix Bastion via SNMP :\r\n* License\r\n* System"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "-",
+        "name": "Wallix Bastion SNMP",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_wallix_bastion_snmp.pl",
+                "package_name": "centreon-plugin-Applications-Wallix-Bastion-Snmp",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-wallix-bastion-snmp",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "WALLIX",
+            "Bastion",
+            "Security",
+            "SNMP",
+            "Application"
+        ],
+        "update_date": "1637069020",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du syst\u00e8me.}\r\n\r\n{EN: Check system.}",
+            "active_checks_enabled": 2,
+            "alias": "System",
+            "check_timeperiod": "",
+            "command_name": "App-Wallix-Bastion-SNMP-System",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSERVICESSTATUS$",
+                    "password": false,
+                    "value": "%{status} eq \"unreachable\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Wallix-Bastion-System-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat de la license.}\r\n\r\n{EN: Check license.}",
+            "active_checks_enabled": 2,
+            "alias": "License",
+            "check_timeperiod": "",
+            "command_name": "App-Wallix-Bastion-SNMP-License",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEUNIT$",
+                    "password": false,
+                    "value": "s"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} eq \"expired\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Wallix-Bastion-License-SNMP",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

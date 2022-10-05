@@ -1,0 +1,944 @@
+{
+    "autodiscovery": {
+        "host_rules": {
+            "v3.0": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Compute-Aks-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Azure Kubernetes Service Cluster.",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.ContainerService/managedClusters/ELPUS001",
+                            "location": "westus",
+                            "name": "ELPUS001",
+                            "resourceGroup": "RSG2345",
+                            "tags": [
+                                {
+                                    "key": "env",
+                                    "value": "prod"
+                                },
+                                {
+                                    "key": "datacenter",
+                                    "value": "003"
+                                }
+                            ],
+                            "type": "Microsoft.ContainerService/managedClusters"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.ContainerService/managedClusters/JDOlMS45",
+                            "location": "westeurope",
+                            "name": "JDOlMS45",
+                            "resourceGroup": "RSG1234",
+                            "tags": [
+                                {
+                                    "key": "env",
+                                    "value": "dev"
+                                }
+                            ],
+                            "type": "Microsoft.ContainerService/managedClusters"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Compute-Aks-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Kubernetes Service",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": false,
+                    "slug": "azure-compute-aks",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ],
+            "v3.1": [
+                {
+                    "attributes": {
+                        "id": {
+                            "type": "string"
+                        },
+                        "location": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "resourceGroup": {
+                            "type": "string"
+                        },
+                        "tags": {
+                            "properties": [
+                                "key",
+                                "value"
+                            ],
+                            "type": "array"
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    },
+                    "command": "Cloud-Azure-Compute-Aks-Api-HostDiscovery",
+                    "credentials": {
+                        "fields": [
+                            {
+                                "description": "Azure Subscription ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURESUBSCRIPTION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Tenant ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURETENANT",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client ID",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTID",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Azure Client Secret",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "AZURECLIENTSECRET",
+                                "type": "password",
+                                "value": null
+                            }
+                        ],
+                        "test": {
+                            "command": "the-command"
+                        }
+                    },
+                    "default_template": "generic-dummy-host",
+                    "description": "Discover Azure Kubernetes Service Cluster.",
+                    "discovery_examples": [
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG2345/providers/Microsoft.ContainerService/managedClusters/ELPUS001",
+                            "location": "westus",
+                            "name": "ELPUS001",
+                            "resourceGroup": "RSG2345",
+                            "tags": [
+                                {
+                                    "key": "env",
+                                    "value": "prod"
+                                },
+                                {
+                                    "key": "datacenter",
+                                    "value": "003"
+                                }
+                            ],
+                            "type": "Microsoft.ContainerService/managedClusters"
+                        },
+                        {
+                            "id": "/subscriptions/1abcd23e-456f-78ab-90cd-1234ef567890/resourceGroups/RSG1234/providers/Microsoft.ContainerService/managedClusters/JDOlMS45",
+                            "location": "westeurope",
+                            "name": "JDOlMS45",
+                            "resourceGroup": "RSG1234",
+                            "tags": [
+                                {
+                                    "key": "env",
+                                    "value": "dev"
+                                }
+                            ],
+                            "type": "Microsoft.ContainerService/managedClusters"
+                        }
+                    ],
+                    "mappers_rules": [
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.name",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.alias",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.ip",
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.name"
+                                    }
+                                ]
+                            },
+                            "type": "property"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURESUBSCRIPTION",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURESUBSCRIPTION"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURETENANT",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURETENANT"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTID",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTID"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURECLIENTSECRET",
+                                "is_password": true,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.credentials.AZURECLIENTSECRET"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCE",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.id"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.AZURERESOURCEGROUP",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.results.resourceGroup"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "destination": "host.macros.PROXYURL",
+                                "is_password": false,
+                                "source": [
+                                    {
+                                        "type": "discovery",
+                                        "value": "discovery.parameters.PROXYURL"
+                                    }
+                                ]
+                            },
+                            "type": "macro"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "value": "Cloud-Azure-Compute-Aks-custom"
+                            },
+                            "type": "template"
+                        },
+                        {
+                            "parameters": {
+                                "conditions": [],
+                                "type": "from_job",
+                                "value": ""
+                            },
+                            "type": "monitoring"
+                        }
+                    ],
+                    "name": "Microsoft Azure Kubernetes Service",
+                    "parameters": {
+                        "fields": [
+                            {
+                                "description": "Resource Group Name",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "RESOURCEGROUP",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Location",
+                                "group": "Azure",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "LOCATION",
+                                "type": "text",
+                                "value": null
+                            },
+                            {
+                                "description": "Timeout",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": true,
+                                "name": "TIMEOUT",
+                                "type": "text",
+                                "value": 10
+                            },
+                            {
+                                "description": "Extra Options",
+                                "group": "Additional parameters",
+                                "hidden": false,
+                                "locked": false,
+                                "mandatory": false,
+                                "name": "EXTRAOPTIONS",
+                                "type": "text",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "proxy": false,
+                    "slug": "azure-compute-aks",
+                    "type": "azure",
+                    "uuid_attributes": [
+                        "id"
+                    ]
+                }
+            ]
+        },
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_compute_aks_api.pl --plugin=cloud::azure::compute::aks::plugin --mode=health --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' --ok-status=\\'$_SERVICESTATUSOK$\\' --warning-status=\\'$_SERVICESTATUSWARNING$\\' --critical-status=\\'$_SERVICESTATUSCRITICAL$\\' --unknown-status=\\'$_SERVICESTATUSUNKNOWN$\\' $_HOSTEXTRAOPTIONS$  $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Compute-Aks-Api-Health",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_compute_aks_api.pl --plugin=cloud::azure::compute::aks::plugin --mode=unneeded-nodes --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --warning-unneeded-nodes=\\'$_SERVICEWARNINGUNNEEDEDNODES$\\' --critical-unneeded-nodes=\\'$_SERVICECRITICALUNNEEDEDNODES$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Compute-Aks-Api-Unneeded-Nodes",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_compute_aks_api.pl --plugin=cloud::azure::compute::aks::plugin --mode=traffic --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Compute-Aks-Api-Traffic",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_compute_aks_api.pl --plugin=cloud::azure::compute::aks::plugin --mode=storage --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --warning-storage-used=\\'$_SERVICEWARNINGSTORAGEUSED$\\' --critical-storage-used=\\'$_SERVICECRITICALSTORAGEUSED$\\' --warning-storage-percent=\\'$_SERVICEWARNINGSTORAGEPERCENT$\\' --critical-storage-percent=\\'$_SERVICECRITICALSTORAGEPERCENT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Compute-Aks-Api-Storage",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_compute_aks_api.pl --plugin=cloud::azure::compute::aks::plugin --mode=cpu --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --warning-cpu-usage=\\'$_SERVICEWARNINGCPUUSAGE$\\' --critical-cpu-usage=\\'$_SERVICECRITICALCPUUSAGE$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Compute-Aks-Api-Cpu",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_azure_compute_aks_api.pl --plugin=cloud::azure::compute::aks::plugin --mode=allocatable-resources --custommode=\\'$_HOSTAZURECUSTOMMODE$\\' --resource=\\'$_HOSTAZURERESOURCE$\\' --resource-group=\\'$_HOSTAZURERESOURCEGROUP$\\' --subscription=\\'$_HOSTAZURESUBSCRIPTION$\\' --tenant=\\'$_HOSTAZURETENANT$\\' --client-id=\\'$_HOSTAZURECLIENTID$\\' --client-secret=\\'$_HOSTAZURECLIENTSECRET$\\' --proxyurl=\\'$_HOSTPROXYURL$\\' $_HOSTEXTRAOPTIONS$ --filter-metric=\\'$_SERVICEFILTERMETRIC$\\' --timeframe=\\'$_SERVICETIMEFRAME$\\' --interval=\\'$_SERVICEINTERVAL$\\' --warning-allocatable-memory-bytes=\\'$_SERVICEWARNINGALLOCATABLEMEMORY$\\' --critical-allocatable-memory-bytes=\\'$_SERVICECRITICALALLOCATABLEMEMORY$\\' --warning-allocatable-cpu-cores=\\'$_SERVICEWARNINGALLOCATABLECPUCORES$\\' --critical-allocatable-cpu-cores=\\'$_SERVICECRITICALALLOCATABLECPUCORES$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "Cloud-Azure-Compute-Aks-Api-Allocatable-Resources",
+            "type": "2"
+        },
+        {
+            "line": "\"$CENTREONPLUGINS$\\/centreon_azure_compute_aks_api.pl --plugin=cloud::azure::compute::aks::plugin --custommode='api' --mode=discovery --statefile-suffix='autodiscovery' --subscription='$_AZURESUBSCRIPTION$' --tenant='$_AZURETENANT$' --client-id='$_AZURECLIENTID$' --client-secret='$_AZURECLIENTSECRET$' --timeout='$_TIMEOUT$' --proxyurl='$_PROXYURL$' --resource-group='$_RESOURCEGROUP$' --location='$_LOCATION$' $_EXTRAOPTIONS$\"",
+            "name": "Cloud-Azure-Compute-Aks-Api-HostDiscovery",
+            "type": "4"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser un Cluster Azure Kubernetes Service via l'API}\r\n{EN: Template to check Azure Kubernetes Service Cluster using API}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Azure Compute Aks using API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": "Cloud-Azure-Compute-Aks-Api-Health",
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "az-compute-aks-128.png",
+            "macros": [
+                {
+                    "key": "$_HOSTAZURECUSTOMMODE$",
+                    "value": "api"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Compute-Aks",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "Generic-Active-Cloud-Host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "Cloud-Azure-Compute-Aks-Unneeded-Nodes-Api",
+                "Cloud-Azure-Compute-Aks-Traffic-Api",
+                "Cloud-Azure-Compute-Aks-Storage-Api",
+                "Cloud-Azure-Compute-Aks-Health-Api",
+                "Cloud-Azure-Compute-Aks-Cpu-Usage-Api",
+                "Cloud-Azure-Compute-Aks-Allocatable-Resources-Api"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "az-compute-aks-128.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "Adding description to pack, modifying icon",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "**Plugin Pack to monitor Azure Kubernetes Service Cluster using RestAPI or AZCLI**\r\n\r\nAvailable Host template and related Services:\r\n\r\n|Cloud-Azure-Compute-Aks-custom|\r\n|---|\r\n|Allocatable-resources|\r\n|Cpu-Usage|\r\n|Health|\r\n|Storage|\r\n|Traffic|\r\n|Unneeded-nodes|\r\n\r\nThis Plugin-Pack provides a Host discovery *provider* to be used with the Host discovery module."
+            },
+            {
+                "lang": "fr",
+                "value": ""
+            }
+        ],
+        "discovery_category": "cloud",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Azure Kubernetes Service",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_azure_compute_aks_api.pl",
+                "package_name": "centreon-plugin-Cloud-Azure-Compute-Aks-Api",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "cloud-azure-compute-aks",
+        "status": "stable",
+        "status_message": "Stable status after successful tests",
+        "tags": [
+            "API",
+            "HostDisco",
+            "Restapi",
+            "Azure",
+            "Kubernetes"
+        ],
+        "update_date": "1641287672",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le du nombre de noeuds inutiles sur le Cluster AKS.}\r\n\r\n{EN: Check amount of unneeded nodes on AKS Cluster.}",
+            "active_checks_enabled": 2,
+            "alias": "Unneeded-nodes",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Compute-Aks-Api-Unneeded-Nodes",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Compute-Aks-Unneeded-Nodes-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'utilisation du r\u00e9seau du Cluster AKS.}\r\n\r\n{EN: Check AKS Cluster network usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Traffic",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Compute-Aks-Api-Traffic",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Compute-Aks-Traffic-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le les statistiques de stockage du Cluster AKS.}\r\n\r\n{EN: Check AKS Cluster storage.}",
+            "active_checks_enabled": 2,
+            "alias": "Storage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Compute-Aks-Api-Storage",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Compute-Aks-Storage-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le statut du Cluster AKS.}\r\n\r\n{EN: Check AKS Cluster state.}",
+            "active_checks_enabled": 2,
+            "alias": "Health",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Compute-Aks-Api-Health",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATUSOK$",
+                    "password": false,
+                    "value": "%{status} =~ /^Available$/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATUSCRITICAL$",
+                    "password": false,
+                    "value": "%{status} =~ /^Unavailable$/"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICESTATUSUNKNOWN$",
+                    "password": false,
+                    "value": "%{status} =~ /^Unknown$/"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Compute-Aks-Health-Api",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le le CPU du Cluster AKS.}\r\n\r\n{EN: Check AKS Cluster CPU Usage.}",
+            "active_checks_enabled": 2,
+            "alias": "Cpu-Usage",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Compute-Aks-Api-Cpu",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Compute-Aks-Cpu-Usage-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le de la m\u00e9moire et des coeurs CPU allouables restants sur le Cluster AKS.}\r\n\r\n{EN: Check memory and CPU cores allocatable for AKS Cluster.}",
+            "active_checks_enabled": 2,
+            "alias": "Allocatable-resources",
+            "check_timeperiod": "",
+            "command_name": "Cloud-Azure-Compute-Aks-Api-Allocatable-Resources",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICETIMEFRAME$",
+                    "password": false,
+                    "value": "900"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEINTERVAL$",
+                    "password": false,
+                    "value": "PT5M"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "Cloud-Azure-Compute-Aks-Allocatable-Resources-Api",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

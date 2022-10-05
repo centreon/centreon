@@ -1,0 +1,216 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_pacemaker_ssh.pl --plugin=apps::pacemaker::local::plugin --mode=crm --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --filter-resource-name=\\'$_SERVICEFILTERRESOURCENAME$\\' --warning-nodes-online=\\'$_SERVICEWARNINGNODESONLINE$\\' --critical-nodes-online=\\'$_SERVICECRITICALNODESONLINE$\\' --warning-nodes-offline=\\'$_SERVICEWARNINGNODESOFFLINE$\\' --critical-nodes-offline=\\'$_SERVICECRITICALNODESOFFLINE$\\' --warning-nodes-standby=\\'$_SERVICEWARNINGNODESSTANDBY$\\' --critical-nodes-standby=\\'$_SERVICECRITICALNODESSTANDBY$\\' --warning-clone-resource-status=\\'$_SERVICEWARNINGCLONERESOURCESTATUS$\\' --critical-clone-resource-status=\\'$_SERVICECRITICALCLONERESOURCESTATUS$\\' --warning-clone-resource-actions-failed=\\'$_SERVICEWARNINGCLONERESOURCEACTIONSFAILED$\\' --critical-clone-resource-actions-failed=\\'$_SERVICECRITICALCLONERESOURCEACTIONSFAILED$\\' --warning-clone-resource-migration-failed=\\'$_SERVICEWARNINGCLONERESOURCEMIGRATIONFAILED$\\' --critical-clone-resource-migration-failed=\\'$_SERVICECRITICALCLONERESOURCEMIGRATIONFAILED$\\' --warning-connection-status=\\'$_SERVICEWARNINGCONNECTIONSTATUS$\\' --critical-connection-status=\\'$_SERVICECRITICALCONNECTIONSTATUS$\\' --warning-cluster-actions-failed=\\'$_SERVICEWARNINGCLUSTERACTIONSFAILED$\\' --critical-cluster-actions-failed=\\'$_SERVICECRITICALCLUSTERACTIONSFAILED$\\' --warning-resource-status=\\'$_SERVICEWARNINGRESOURCESTATUS$\\' --critical-resource-status=\\'$_SERVICECRITICALRESOURCESTATUS$\\' --warning-resource-actions-failed=\\'$_SERVICEWARNINGRESOURCEACTIONSFAILED$\\' --critical-resource-actions-failed=\\'$_SERVICECRITICALRESOURCEACTIONSFAILED$\\' --warning-resource-migration-failed=\\'$_SERVICEWARNINGRESOURCEMIGRATIONFAILED$\\' --critical-resource-migration-failed=\\'$_SERVICECRITICALRESOURCEMIGRATIONFAILED$\\' --warning-quorum-status=\\'$_SERVICEWARNINGQUORUMSTATUS$\\' --critical-quorum-status=\\'$_SERVICECRITICALQUORUMSTATUS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Pacemaker-SSH-CRM",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_pacemaker_ssh.pl --plugin=apps::pacemaker::local::plugin --mode=constraints --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ --resource=\\'$_SERVICERESOURCENAME$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Pacemaker-SSH-Constraints",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_pacemaker_ssh.pl --plugin=apps::pacemaker::local::plugin --mode=clustat --hostname=\\'$HOSTADDRESS$\\' --ssh-backend=\\'$_HOSTSSHBACKEND$\\' --ssh-username=\\'$_HOSTSSHUSERNAME$\\' --ssh-password=\\'$_HOSTSSHPASSWORD$\\' --ssh-port=\\'$_HOSTSSHPORT$\\' $_HOSTSSHEXTRAOPTIONS$ $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Pacemaker-SSH-Clustat",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4ler l'\u00e9tat de l'outil de clustering Pacemaker} {EN: Check pacemaker cluster health.}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Pacemaker clustering tool through SSH",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "",
+            "macros": [
+                {
+                    "key": "$_HOSTSSHBACKEND$",
+                    "value": "libssh"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Pacemaker-SSH",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Pacemaker-CRM-SSH",
+                "App-Pacemaker-Constraints-SSH",
+                "App-Pacemaker-Clustat-SSH"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [],
+    "information": {
+        "author": "centreon",
+        "changelog": "* break: update service crm",
+        "dependencies": [],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin-pack to check Pacemaker clustering software through command line (can use SSH)\r\n* Clustat\r\n* Constraints\r\n* CRM"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack de plugin pour superviser l\\'application Pacemaker en ligne de commande (possible par SSH)\r\n* Clustat\r\n* Constraints\r\n* CRM"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n##  Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Pacemaker-Ssh\r\n\r\n### SSH\r\nSSH key exchange mut be done between poller and monitored server.\r\n\r\n## Centreon Configuration\r\n### Create a new host\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"58%\" />\r\n<col width=\"41%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Pacemaker-SSH-custom</p></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.\r\n\r\n### Create a new service\r\n\r\nPick the service you want to deploy. Choose CRM and/or Constraints service template if you use CRM shell for cluster administration. Use Clustat if you have a Redhat clustat cluster. \r\n",
+        "name": "Pacemaker",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_pacemaker_ssh.pl",
+                "package_name": "centreon-plugin-Applications-Pacemaker-Ssh",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-pacemaker-ssh",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Clustering",
+            "Pacemaker"
+        ],
+        "update_date": "1600155065",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du cluster via la commande crm_mon} {EN: Check cluster state with crm_mon command.}",
+            "active_checks_enabled": 2,
+            "alias": "CRM",
+            "check_timeperiod": "",
+            "command_name": "App-Pacemaker-SSH-CRM",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALNODESOFFLINE$",
+                    "password": false,
+                    "value": "0"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALCLONERESOURCESTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /failed/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALCONNECTIONSTATUS$",
+                    "password": false,
+                    "value": "%{connection_status} =~ /failed/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALCLUSTERACTIONSFAILED$",
+                    "password": false,
+                    "value": "0"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALRESOURCESTATUS$",
+                    "password": false,
+                    "value": "%{status} =~ /stopped|failed/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALRESOURCEMIGRATIONFAILED$",
+                    "password": false,
+                    "value": "0"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALQUORUMSTATUS$",
+                    "password": false,
+                    "value": "%{quorum_status} =~ /noQuorum/i"
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Pacemaker-CRM-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le si une contrainte est en place sur une ressource du cluster} {EN: Check if there is any constraints applied to a cluster resource.}",
+            "active_checks_enabled": 2,
+            "alias": "Constraints",
+            "check_timeperiod": "",
+            "command_name": "App-Pacemaker-SSH-Constraints",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICERESOURCENAME$",
+                    "password": false,
+                    "value": "RESOURCENAME"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Pacemaker-Constraints-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le l'\u00e9tat du cluster via la commande clustat} {EN: Check cluster state with clustat command.}",
+            "active_checks_enabled": 2,
+            "alias": "Clustat",
+            "check_timeperiod": "",
+            "command_name": "App-Pacemaker-SSH-Clustat",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Pacemaker-Clustat-SSH",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

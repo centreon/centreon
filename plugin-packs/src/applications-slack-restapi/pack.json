@@ -1,0 +1,222 @@
+{
+    "autodiscovery": {
+        "rules": [
+            {
+                "_comment": "",
+                "changes": [],
+                "command_for_discovery": "App-Slack-Restapi-Services-Discover",
+                "command_for_macro": "App-Slack-Restapi-Services-Macro",
+                "custom_dispay_scan": "",
+                "custom_variables": "",
+                "disable_elements": "0",
+                "enabled": "0",
+                "exceptions": [],
+                "host_templates": [
+                    "App-Slack-Restapi"
+                ],
+                "macros": [
+                    {
+                        "is_empty": null,
+                        "name": "FILTERNAME",
+                        "value": "^$name$$"
+                    }
+                ],
+                "name": "App-Slack-Restapi-Services-Name",
+                "service_display_name": "Service-$name$",
+                "service_template": "App-Slack-Services-Restapi"
+            }
+        ]
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_slack_restapi.pl --plugin=apps::slack::restapi::plugin --mode=list-services --verbose --disco-format\\\"",
+            "name": "App-Slack-Restapi-Services-Macro",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_slack_restapi.pl --plugin=apps::slack::restapi::plugin --mode=list-services --verbose --disco-show\\\"",
+            "name": "App-Slack-Restapi-Services-Discover",
+            "type": "4"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_slack_restapi.pl --plugin=apps::slack::restapi::plugin --mode=services $_HOSTSLACKAPIEXTRAOPTIONS$ --filter-name=\\'$_SERVICEFILTERNAME$\\' --warning-status=\\'$_SERVICEWARNINGSTATUS$\\' --critical-status=\\'$_SERVICECRITICALSTATUS$\\' --warning-services=\\'$_SERVICEWARNINGSERVICES$\\' --critical-services=\\'$_SERVICECRITICALSERVICES$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Slack-Restapi-Services",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_slack_restapi.pl --plugin=apps::slack::restapi::plugin --mode=count-members --api-token=\\'$_HOSTSLACKAPITOKEN$\\' $_HOSTSLACKAPIEXTRAOPTIONS$ --warning-count=\\'$_SERVICEWARNINGCOUNT$\\' --critical-count=\\'$_SERVICECRITICALCOUNT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Slack-Restapi-Count-Members",
+            "type": "2"
+        },
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_slack_restapi.pl --plugin=apps::slack::restapi::plugin --mode=count-channels --api-token=\\'$_HOSTSLACKAPITOKEN$\\' $_HOSTSLACKAPIEXTRAOPTIONS$ --warning-members=\\'$_SERVICEWARNINGMEMBERS$\\' --critical-members=\\'$_SERVICECRITICALMEMBERS$\\' --warning-count=\\'$_SERVICEWARNINGCOUNT$\\' --critical-count=\\'$_SERVICECRITICALCOUNT$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Slack-Restapi-Count-Channels",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Slack.}\r\n{EN: Template to check Slack.",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Slack using Rest API",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "slack-128-2.png",
+            "macros": [
+                {
+                    "key": "$_HOSTSLACKAPITOKEN$",
+                    "value": ""
+                },
+                {
+                    "key": "$_HOSTSLACKAPIEXTRAOPTIONS$",
+                    "value": "--http-backend=curl --insecure"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Slack-Restapi",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Slack-Services-Restapi",
+                "App-Slack-Count-Members-Restapi",
+                "App-Slack-Count-Channels-Restapi"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "slack-128-2.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* initial release",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin-pack to check Slack:\r\n* Count-Channels\r\n* Count-Members\r\n* Services\r\n\r\nThis Plugin-Pack includes a service discovery rule."
+            },
+            {
+                "lang": "fr",
+                "value": "Plugin-pack pour superviser Slack:\r\n* Count-Channels\r\n* Count-Members\r\n* Services\r\n\r\nCe Plugin-Pack comprend une r\u00e8gle de d\u00e9couverte de services."
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# The documentation page of this Plugin-Pack requires a newer version of the Plugin Pack Manager module:\r\n\r\n* 19.04.2 or later\r\n* 19.10.1 or later\r\n* 20.04.0 or later\r\n\r\n# The related documentation is also available online on https://docs.centreon.com/, chapter 'Plugin Packs'",
+        "name": "Slack",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_slack_restapi.pl",
+                "package_name": "centreon-plugin-Applications-Slack-Restapi",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-slack-restapi",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Slack",
+            "Social",
+            "Development"
+        ],
+        "update_date": "1628664114",
+        "version": "22.05.0",
+        "website": "www.centreon.com"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de contr\u00f4ler le statut des services.}\r\n\r\n{EN: Check services status.}",
+            "active_checks_enabled": 2,
+            "alias": "Services",
+            "check_timeperiod": "",
+            "command_name": "App-Slack-Restapi-Services",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [
+                {
+                    "description": "",
+                    "key": "$_SERVICEWARNINGSTATUS$",
+                    "password": false,
+                    "value": "%{status} eq \"active\" and %{type} eq \"incident\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICECRITICALSTATUS$",
+                    "password": false,
+                    "value": "%{status} eq \"active\" and %{type} eq \"outage\""
+                },
+                {
+                    "description": "",
+                    "key": "$_SERVICEEXTRAOPTIONS$",
+                    "password": false,
+                    "value": "--verbose"
+                }
+            ],
+            "max_check_attempts": 0,
+            "name": "App-Slack-Services-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de compter le nombres d'utilisateurs.}\r\n\r\n{EN: Check number of users.}",
+            "active_checks_enabled": 2,
+            "alias": "Count-Members",
+            "check_timeperiod": "",
+            "command_name": "App-Slack-Restapi-Count-Members",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Slack-Count-Members-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        },
+        {
+            "_comment": "{FR: Contr\u00f4le permettant de v\u00e9rifier le nombre de cha\u00eene.}\r\n\r\n{EN: Check number of channel.}",
+            "active_checks_enabled": 2,
+            "alias": "Count-Channels",
+            "check_timeperiod": "",
+            "command_name": "App-Slack-Restapi-Count-Channels",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Slack-Count-Channels-Restapi",
+            "normal_check_interval": 0,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 0
+        }
+    ],
+    "timeperiods": []
+}

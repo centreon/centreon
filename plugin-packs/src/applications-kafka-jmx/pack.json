@@ -1,0 +1,114 @@
+{
+    "autodiscovery": {
+        "rules": []
+    },
+    "commands": [
+        {
+            "line": "\\\"$CENTREONPLUGINS$\\\\/centreon_kafka_jmx.pl --plugin=apps::java::kafka::jmx::plugin --mode=global-stats --custommode=jolokia --url=\\'$_HOSTJOLOKIAURL$\\' --username=\\'$_HOSTJOLOKIAUSERNAME$\\' --password=\\'$_HOSTJOLOKIAPASSWORD$\\' $_HOSTJOLOKIAEXTRAOPTIONS$ --warning-under-replicated-partitions=\\'$_SERVICEWARNINGUNDERREPLICATEDPARTITIONS$\\' --critical-under-replicated-partitions=\\'$_SERVICECRITICALUNDERREPLICATEDPARTITIONS$\\' --warning-offline-partitions-count=\\'$_SERVICEWARNINGOFFLINEPARTITIONSCOUNT$\\' --critical-offline-partitions-count=\\'$_SERVICECRITICALOFFLINEPARTITIONSCOUNT$\\' --warning-partition-count=\\'$_SERVICEWARNINGPARTITIONCOUNT$\\' --critical-partition-count=\\'$_SERVICECRITICALPARTITIONCOUNT$\\' --warning-leader-count=\\'$_SERVICEWARNINGLEADERCOUNT$\\' --critical-leader-count=\\'$_SERVICECRITICALLEADERCOUNT$\\' --warning-active-controller-count=\\'$_SERVICEWARNINGACTIVECONTROLLERCOUNT$\\' --critical-active-controller-count=\\'$_SERVICECRITICALACTIVECONTROLLERCOUNT$\\' --warning-unclean-leader-elections=\\'$_SERVICEWARNINGUNCLEANLEADERELECTIONS$\\' --critical-unclean-leader-elections=\\'$_SERVICECRITICALUNCLEANLEADERELECTIONS$\\' --warning-traffic-in=\\'$_SERVICEWARNINGTRAFFICIN$\\' --critical-traffic-in=\\'$_SERVICECRITICALTRAFFICIN$\\' --warning-traffic-out=\\'$_SERVICEWARNINGTRAFFICOUT$\\' --critical-traffic-out=\\'$_SERVICECRITICALTRAFFICOUT$\\' --warning-total-fetch-requests=\\'$_SERVICEWARNINGTOTALFETCHREQUESTS$\\' --critical-total-fetch-requests=\\'$_SERVICECRITICALTOTALFETCHREQUESTS$\\' $_SERVICEEXTRAOPTIONS$\\\"",
+            "name": "App-Kafka-Jmx-Global-Stats",
+            "type": "2"
+        }
+    ],
+    "host_templates": [
+        {
+            "_comment": "{FR: Mod\u00e8le pour superviser Apache Kafka via JMX}\r\n{EN: Template to check Apache Kafka using JMX protocol}",
+            "active_checks_enabled": 2,
+            "alias": "Template to check Apache Kafka using JMX protocol",
+            "check_interval": 0,
+            "check_timeperiod": "",
+            "checks_enabled": 2,
+            "command_name": null,
+            "discovery_arguments": "",
+            "discovery_command_name": "",
+            "icon": "kafka-64.png",
+            "macros": [],
+            "max_check_attempts": 0,
+            "name": "App-Kafka-JMX",
+            "notification_timeperiod": "",
+            "parent_template": [
+                "generic-active-host"
+            ],
+            "passive_checks_enabled": 2,
+            "services": [
+                "App-Kafka-Global-Stats-JMX"
+            ],
+            "snmp_community": null,
+            "snmp_version": null
+        }
+    ],
+    "images": [
+        {
+            "icon": "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",
+            "name": "kafka-64.png"
+        }
+    ],
+    "information": {
+        "author": "Centreon",
+        "changelog": "* fix generic-active-host",
+        "dependencies": [
+            {
+                "name": "base-generic",
+                "version": "22.05.0"
+            }
+        ],
+        "description": [
+            {
+                "lang": "en",
+                "value": "Plugin pack to monitor a Apache Kafka server using JMX/Jolokia protocol.\r\nSeveral indicators are available but not linked to the template of host.\r\nYou have to use them manually:\r\n* Global Statistics"
+            },
+            {
+                "lang": "fr",
+                "value": "Pack Plugin pour surveiller les serveurs d\\'application Kafka en utilisant le protocole JMX/Jolokia .\r\nDe nombreux indicateurs sont disponibles mais ne sont pas associ\u00e9s au mod\u00e8le d\\'h\u00f4te.\r\nIls doivent \u00eatre d\u00e9ploy\u00e9s manuellement :\r\n* Statistiques Global"
+            }
+        ],
+        "discovery_category": "applications",
+        "email": "imp@centreon.com",
+        "icon": "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",
+        "monitoring_procedure": "# Monitoring procedure\r\n## Prerequisites\r\n### Centreon Plugin\r\nInstall this plugin on each needed poller:\r\n\r\n    # yum install centreon-plugin-Applications-Kafka-Jmx\r\n\r\nPlease install jolokia agent on your java application server\r\n[Jolikia download page](https://jolokia.org/download.html). Ask to\r\nyour admin to deploy it and give you the URL.\r\n\r\n\r\n## Centreon Configuration\r\n### Create a host using the appropriate template\r\nGo to *Configuration &gt; Hosts* and click *Add*. Then, fill the form as\r\nshown by the following table:\r\n\r\n<table>\r\n<colgroup>\r\n<col width=\"35%\" />\r\n<col width=\"64%\" />\r\n</colgroup>\r\n<thead>\r\n<tr class=\"header\">\r\n<th align=\"left\">Field</th>\r\n<th align=\"left\">Value</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host name</p></td>\r\n<td align=\"left\"><p><em>Name of the host</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Alias</p></td>\r\n<td align=\"left\"><p><em>Host description</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>IP</p></td>\r\n<td align=\"left\"><p><em>Host IP Address</em></p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p>Monitored from</p></td>\r\n<td align=\"left\"><p><em>Monitoring Poller to use</em></p></td>\r\n</tr>\r\n<tr class=\"odd\">\r\n<td align=\"left\"><p>Host Multiple Templates</p></td>\r\n<td align=\"left\"><p>App-Kafka-JMX-custom</p></td>\r\n</tr>\r\n<tr class=\"even\">\r\n<td align=\"left\"><p><em>Relations &gt; Parent Hostgroups</em> tab</p></td>\r\n<td align=\"left\"></td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n\r\nClick on the *Save* button.",
+        "name": "Kafka",
+        "plugins_requirements": [
+            {
+                "executable_name": "centreon_kafka_jmx.pl",
+                "package_name": "centreon-plugin-Applications-Kafka-Jmx",
+                "package_version": "20220518"
+            }
+        ],
+        "requirement": [],
+        "slug": "applications-kafka-jmx",
+        "status": "stable",
+        "status_message": "",
+        "tags": [
+            "Kafka",
+            "JMX",
+            "Web server",
+            "Application",
+            "HTTP",
+            "HTTPS"
+        ],
+        "update_date": "1568120618",
+        "version": "22.05.0",
+        "website": "www.centreon"
+    },
+    "schema_version": 1,
+    "service_templates": [
+        {
+            "_comment": "{FR: Contr\u00f4ler les statistiques global Kafka.}\r\n\r\n{EN: Check kafka global statistics.}",
+            "active_checks_enabled": 2,
+            "alias": "Global-Stats",
+            "check_timeperiod": "",
+            "command_name": "App-Kafka-Jmx-Global-Stats",
+            "discovery_list_mode": "",
+            "icon": "",
+            "is_volatile": 2,
+            "macros": [],
+            "max_check_attempts": 3,
+            "name": "App-Kafka-Global-Stats-JMX",
+            "normal_check_interval": 15,
+            "notification_timeperiod": "",
+            "parent_template": "generic-active-service",
+            "passive_checks_enabled": 2,
+            "retry_check_interval": 1
+        }
+    ],
+    "timeperiods": []
+}
