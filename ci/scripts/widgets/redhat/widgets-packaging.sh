@@ -3,10 +3,7 @@
 set -ex
 
 VERSION=$1
-COMMIT=$2
-now=`date +%s`
-
-export RELEASE="$now.$COMMIT"
+RELEASE=$2
 
 if [ ! -d /root/rpmbuild/SOURCES ] ; then
     mkdir -p /root/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
