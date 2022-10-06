@@ -59,9 +59,7 @@ for pack in listdir('$PROJECT/src'):
         output += '%%package %s\n' % pack
         output += 'Summary:  Centreon pack\n'
         output += 'Version:  %s\n' % data['information']['version']
-        output += 'Requires: centreon-pp-manager >= 2.0\n'
-        output += 'Obsoletes: ces-pack-@OLDPACK@\n'
-        output += 'Provides: ces-pack-@OLDPACK@\n\n'
+        output += 'Requires: centreon-pp-manager >= 2.0\n\n'
         output += '%%description %s\n' % pack
         output += '%s\n\n' % pack
         output += '%%files %s\n' % pack
