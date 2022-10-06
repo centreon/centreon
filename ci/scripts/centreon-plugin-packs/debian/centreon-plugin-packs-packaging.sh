@@ -115,6 +115,7 @@ for pack in listdir('$PROJECT/src'):
         ), 'w+'
     ) as wjson:
         json.dump(data, wjson, indent=4)
+        wjson.write("\n")
 
     print('Package %s processed!' % pack)
 
