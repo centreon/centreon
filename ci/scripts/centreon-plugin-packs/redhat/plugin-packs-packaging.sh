@@ -2,6 +2,7 @@
 
 set -ex
 
+PROJECT="centreon-plugin-packs"
 VERSION=$1
 COMMIT=$2
 now=`date +%s`
@@ -13,10 +14,10 @@ if [ ! -d /root/rpmbuild/SOURCES ] ; then
 fi
 
 cd /src
-if [ -d plugin-packs/packs ]; then
-    rm -rf plugin-packs/packs
+if [ -d $PROJECT/packs ]; then
+    rm -rf $PROJECT/packs
 fi
-mkdir -p plugin-packs/packs
+mkdir -p $PROJECT/packs
 /usr/bin/python3 << EOF
 import json
 from os import listdir
@@ -51,8 +52,8 @@ rm -rf \$RPM_BUILD_ROOT
 
 """
 
-for pack in listdir('plugin-packs/src'):
-    with open('plugin-packs/src/%s/pack.json' % pack) as jfile:
+for pack in listdir('$PROJECT/src'):
+    with open('$PROJECT/src/%s/pack.json' % pack) as jfile:
         data = json.loads(jfile.read())
 
         output += '%%package %s\n' % pack
@@ -71,7 +72,7 @@ for pack in listdir('plugin-packs/src'):
 
         # Make source json package
         with open(
-            'plugin-packs/packs/pluginpack_%s-%s.json' % (
+            '$PROJECT/packs/pluginpack_%s-%s.json' % (
                 pack,
                 data['information']['version']
             ), 'w+'

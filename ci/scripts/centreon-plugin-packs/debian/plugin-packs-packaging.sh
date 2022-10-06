@@ -2,6 +2,7 @@
 
 set -ex
 
+PROJECT="centreon-plugin-packs"
 VERSION=$1
 COMMIT=$2
 now=`date +%s`
@@ -17,7 +18,7 @@ mkdir -p /build/debian/source
 echo "3.0 (quilt)" > /build/debian/source/format
 cat <<EOF > /build/debian/copyright
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: centreon-plugin-packs
+Upstream-Name: $PROJECT
 Upstream-Contact: Luiz Costa <me@luizgustavo.pro.br>
 Source: https://www.centreon.com
 
@@ -58,15 +59,15 @@ EOF
 
 # Make configuration package files
 cd /src
-if [ -d plugin-packs/packs ]; then
-    rm -rf plugin-packs/packs
+if [ -d $PROJECT/packs ]; then
+    rm -rf $PROJECT/packs
 fi
-mkdir -p plugin-packs/packs
+mkdir -p $PROJECT/packs
 python3 << EOF
 import json
 from os import listdir
 
-output = """Source: centreon-plugin-packs
+output = """Source: $PROJECT
 Section: net
 Priority: optional
 Maintainer: Luiz Costa <me@luizgustavo.pro.br>
@@ -75,8 +76,8 @@ Standards-Version: 4.5.0
 Homepage: https://www.centreon.com
 """
 
-for pack in listdir('plugin-packs/src'):
-    with open('plugin-packs/src/%s/pack.json' % pack) as jfile:
+for pack in listdir('$PROJECT/src'):
+    with open('$PROJECT/src/%s/pack.json' % pack) as jfile:
         data = json.loads(jfile.read())
 
     # Set package names to lowercase (Debian case)
@@ -108,7 +109,7 @@ for pack in listdir('plugin-packs/src'):
         )
 
     with open(
-        'plugin-packs/packs/pluginpack_%s-%s.json' % (
+        '$PROJECT/packs/pluginpack_%s-%s.json' % (
             pack,
             data['information']['version']
         ), 'w+'
@@ -123,12 +124,12 @@ with open('/build/debian/control', 'w+') as DebianControl:
 
 EOF
 
-mkdir -p /build/plugin-packs
-(cd /src && tar czpf - plugin-packs) | dd of=/build/plugin-packs-$VERSION.tar.gz
-cp -rv /src/plugin-packs /build/plugin-packs
-cp -rv /build/debian /build/plugin-packs/
+mkdir -p /build/$PROJECT
+(cd /src && tar czpf - $PROJECT) | dd of=/build/$PROJECT-$VERSION.tar.gz
+cp -rv /src/$PROJECT /build/$PROJECT
+cp -rv /build/debian /build/$PROJECT/
 
-cd /build/plugin-packs
+cd /build/$PROJECT
 debmake -f "${AUTHOR}" -e "${AUTHOR_EMAIL}" -u "$VERSION" -y -r "$RELEASE"
 debuild-pbuilder
 cd /build

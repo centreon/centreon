@@ -6,16 +6,16 @@ on:
     branches:
       - develop
     paths:
-      - '.github/workflows/docker-builder-packaging-plugin-packs.yml'
-      - 'ci/docker/Dockerfile.packaging-plugin-packs-centos7'
-      - 'ci/docker/Dockerfile.packaging-plugin-packs-alma8'
-      - 'ci/docker/Dockerfile.packaging-plugin-packs-bullseye'
+      - '.github/workflows/docker-builder-packaging-centreon-plugin-packs.yml'
+      - 'ci/docker/Dockerfile.packaging-centreon-plugin-packs-centos7'
+      - 'ci/docker/Dockerfile.packaging-centreon-plugin-packs-alma8'
+      - 'ci/docker/Dockerfile.packaging-centreon-plugin-packs-bullseye'
   pull_request:
     paths:
-      - '.github/workflows/docker-builder-packaging-plugin-packs.yml'
-      - 'ci/docker/Dockerfile.packaging-plugin-packs-centos7'
-      - 'ci/docker/Dockerfile.packaging-plugin-packs-alma8'
-      - 'ci/docker/Dockerfile.packaging-plugin-packs-bullseye'
+      - '.github/workflows/docker-builder-packaging-centreon-plugin-packs.yml'
+      - 'ci/docker/Dockerfile.packaging-centreon-plugin-packs-centos7'
+      - 'ci/docker/Dockerfile.packaging-centreon-plugin-packs-alma8'
+      - 'ci/docker/Dockerfile.packaging-centreon-plugin-packs-bullseye'
 
 env:
   version: "22.10"
@@ -28,11 +28,11 @@ jobs:
 
       matrix:
         include:
-          - project: plugin-packs
+          - project: centreon-plugin-packs
             distrib: centos7
-          - project: plugin-packs
+          - project: centreon-plugin-packs
             distrib: alma8
-          - project: plugin-packs
+          - project: centreon-plugin-packs
             distrib: bullseye
     steps:
       - name: Checkout sources

@@ -1,36 +1,36 @@
-name: plugin-packs
+name: centreon-plugin-packs
 
 on:
   workflow_dispatch:
   pull_request:
     paths:
-      - '.github/workflows/plugin-packs.yml'
-      - 'plugin-packs/**'
+      - '.github/workflows/centreon-plugin-packs.yml'
+      - 'centreon-plugin-packs/**'
   push:
     branches:
       - develop
     paths:
-      - '.github/workflows/plugin-packs.yml'
-      - 'plugin-packs/**'
+      - '.github/workflows/centreon-plugin-packs.yml'
+      - 'centreon-plugin-packs/**'
     tags:
-      - plugin-packs-22.10.**
+      - centreon-plugin-packs-22.10.**
 
 env:
   version: "22.10"
 
 jobs:
-  plugin-packs-packaging-rpm:
+  centreon-plugin-packs-packaging-rpm:
     runs-on: [self-hosted, common]
 
     strategy:
       matrix:
         include:
-          - image: packaging-plugin-packs-centos7
+          - image: packaging-centreon-plugin-packs-centos7
             distrib: el7
-            path: plugin-packs/redhat
-          - image: packaging-plugin-packs-alma8
+            path: centreon-plugin-packs/redhat
+          - image: packaging-centreon-plugin-packs-alma8
             distrib: el8
-            path: plugin-packs/redhat
+            path: centreon-plugin-packs/redhat
 
     steps:
       - name: Checkout sources
@@ -54,7 +54,7 @@ jobs:
       - name: Package
         uses: ./.github/actions/runner-docker
         with:
-          script_name: ${{ matrix.path }}/plugin-packs-packaging
+          script_name: ${{ matrix.path }}/centreon-plugin-packs-packaging
           image_name: ${{ matrix.image }}
           image_version: ${{ env.version }}
           params: ${{ env.version }}.${{ steps.get_version.outputs.minor_version }} ${{ steps.get_version.outputs.release }}
@@ -69,20 +69,20 @@ jobs:
       - name: Use cache RPM files
         uses: actions/cache@v3
         env:
-          cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-plugin-packs
+          cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-centreon-plugin-packs
         with:
           path: ./*.rpm
           key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
 
-  plugin-packs-packaging-deb:
+  centreon-plugin-packs-packaging-deb:
     runs-on: [self-hosted, common]
 
     strategy:
       matrix:
         include:
-          - image: packaging-plugin-packs-bullseye
+          - image: packaging-centreon-plugin-packs-bullseye
             distrib: bullseye
-            path: plugin-packs/debian
+            path: centreon-plugin-packs/debian
 
     steps:
       - name: Checkout sources
@@ -106,7 +106,7 @@ jobs:
       - name: Package
         uses: ./.github/actions/runner-docker
         with:
-          script_name: ${{ matrix.path }}/plugin-packs-packaging
+          script_name: ${{ matrix.path }}/centreon-plugin-packs-packaging
           image_name: ${{ matrix.image }}
           image_version: ${{ env.version }}
           params: ${{ env.version }}.${{ steps.get_version.outputs.minor_version }} ${{ steps.get_version.outputs.release }}
@@ -114,21 +114,21 @@ jobs:
       - name: Use cache DEB files
         uses: actions/cache@v3
         env:
-          cache-name-debbuild: cache-${{ github.sha }}-${{ github.run_id }}-debbuild-plugin-packs
+          cache-name-debbuild: cache-${{ github.sha }}-${{ github.run_id }}-debbuild-centreon-plugin-packs
         with:
           path: ./*.deb
           key: ${{ env.cache-name-debbuild }}-${{ matrix.distrib }}
 
 #
 #  delivery-rpm:
-#    needs: [plugin-packs-packaging-rpm]
+#    needs: [centreon-plugin-packs-packaging-rpm]
 #    runs-on: [self-hosted, common]
 #    strategy:
 #      matrix:
 #        include:
-#          - module_name: plugin-packs
+#          - module_name: centreon-plugin-packs
 #            distrib: el7
-#          - module_name: plugin-packs
+#          - module_name: centreon-plugin-packs
 #            distrib: el8
 #    steps:
 #      - name: Checkout sources
@@ -144,12 +144,12 @@ jobs:
 #          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 #
 #  delivery-debian:
-#    needs: [plugin-packs-packaging-deb]
+#    needs: [centreon-plugin-packs-packaging-deb]
 #    runs-on: [self-hosted, common]
 #    strategy:
 #      matrix:
 #        include:
-#          - module_name: plugin-packs
+#          - module_name: centreon-plugin-packs
 #            distrib: bullseye
 #    steps:
 #      - name: Checkout sources
