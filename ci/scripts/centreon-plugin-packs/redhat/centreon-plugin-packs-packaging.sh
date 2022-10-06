@@ -37,7 +37,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:      noarch
 
 %prep
-%setup -q -n packs
+%setup -q -n centreon-plugin-packs
 
 %description
 Centreon Pack root package. Not meant to be installed.
