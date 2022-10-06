@@ -2,7 +2,7 @@ FROM docker-proxy.registry.apps.centreon.com/centos:7
 
 RUN <<EOF
 
-yum -y install git gettext rpm-build dos2unix
+yum -y install git gettext rpm-build dos2unix python3
 yum clean all
 
 EOF
