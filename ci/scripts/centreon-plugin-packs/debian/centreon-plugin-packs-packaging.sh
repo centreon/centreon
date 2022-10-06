@@ -127,7 +127,7 @@ EOF
 
 mkdir -p /build/$PROJECT
 (cd /src && tar czpf - $PROJECT/packs) | dd of=/build/$PROJECT-$VERSION.tar.gz
-cp -rv /src/$PROJECT /build/$PROJECT
+cp -rv /src/$PROJECT/packs /build/$PROJECT
 cp -rv /build/debian /build/$PROJECT/
 
 cd /build/$PROJECT
