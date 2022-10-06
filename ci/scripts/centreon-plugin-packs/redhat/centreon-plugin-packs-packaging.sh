@@ -61,7 +61,7 @@ for pack in listdir('$PROJECT/src'):
         output += 'Version:  %s\n' % data['information']['version']
         output += 'Requires: centreon-pp-manager >= 2.0\n\n'
         output += 'Description:\n  %s\n\n' % pack
-        output += '%%files %s\n' % pack
+        output += 'files %s\n' % pack
         output += '%%defattr(-,root,root,-)\n'
         output += '%%{_datadir}/centreon-packs/pluginpack_%s-%s.json' % (
             pack, data['information']['version']
