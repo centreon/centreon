@@ -124,7 +124,7 @@ with open('/build/debian/control', 'w+') as DebianControl:
 EOF
 
 mkdir -p /build/plugin-packs
-(cd /src && tar czvpf - plugin-packs) | dd of=plugin-packs-$VERSION.tar.gz
+(cd /src && tar czpf - plugin-packs) | dd of=/build/plugin-packs-$VERSION.tar.gz
 cp -rv /src/plugin-packs /build/plugin-packs
 cp -rv /build/debian /build/plugin-packs/
 

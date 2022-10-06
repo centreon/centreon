@@ -55,7 +55,7 @@ for pack in listdir('plugin-packs/src'):
     with open('plugin-packs/src/%s/pack.json' % pack) as jfile:
         data = json.loads(jfile.read())
 
-        output += '%package %s\n' % pack
+        output += '%%package %s\n' % pack
         output += 'Summary:  Centreon pack\n'
         output += 'Version:  %s\n' % data['information']['version']
         output += 'Requires: centreon-pp-manager >= 2.0\n'
