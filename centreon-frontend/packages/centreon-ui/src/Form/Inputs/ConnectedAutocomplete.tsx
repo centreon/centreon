@@ -16,6 +16,7 @@ import { InputPropsWithoutGroup, InputType } from './models';
 const defaultFilterKey = 'name';
 
 const ConnectedAutocomplete = ({
+  dataTestId,
   getDisabled,
   required,
   getRequired,
@@ -107,6 +108,7 @@ const ConnectedAutocomplete = ({
       <div />
     ) : (
       <AutocompleteField
+        dataTestId={dataTestId}
         disableClearable={false}
         disabled={disabled}
         error={error}

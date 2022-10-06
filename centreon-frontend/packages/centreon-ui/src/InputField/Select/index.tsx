@@ -42,6 +42,7 @@ export interface SelectEntry {
 type Props = {
   ariaLabel?: string;
   compact?: boolean;
+  dataTestId?: string;
   error?: string;
   label?: string;
   onChange;
@@ -50,6 +51,7 @@ type Props = {
 } & Omit<SelectProps, 'error'>;
 
 const SelectField = ({
+  dataTestId,
   options,
   onChange,
   selectedOptionId,
@@ -91,6 +93,7 @@ const SelectField = ({
             [classes.noLabelInput]: !label && !compact,
             [classes.compact]: compact,
           }),
+          'data-testid': dataTestId,
           ...inputProps,
         }}
         renderValue={(id): string => {

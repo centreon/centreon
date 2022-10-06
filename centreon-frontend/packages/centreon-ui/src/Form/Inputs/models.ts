@@ -40,6 +40,7 @@ export interface InputProps {
   custom?: {
     Component: React.ComponentType<InputPropsWithoutGroup>;
   };
+  dataTestId?: string;
   fieldName: string;
   fieldsTable?: {
     additionalFieldsToMemoize?: Array<string>;

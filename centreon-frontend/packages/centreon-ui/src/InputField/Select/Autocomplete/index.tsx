@@ -19,6 +19,7 @@ import { searchLabel } from '../../translatedLabels';
 
 export type Props = {
   autoFocus?: boolean;
+  dataTestId?: string;
   displayOptionThumbnail?: boolean;
   displayPopupIcon?: boolean;
   endAdornment?: React.ReactElement;
@@ -118,6 +119,7 @@ type DisableClearable = boolean;
 type FreeSolo = boolean;
 
 const AutocompleteField = ({
+  dataTestId,
   options,
   label,
   placeholder,
@@ -156,7 +158,7 @@ const AutocompleteField = ({
       }}
       InputProps={{
         ...params.InputProps,
-
+        'data-testid': dataTestId,
         endAdornment: (
           <>
             {endAdornment && (

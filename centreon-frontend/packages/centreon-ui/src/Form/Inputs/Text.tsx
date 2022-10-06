@@ -10,6 +10,7 @@ import PasswordEndAdornment from './PasswordEndAdornment';
 import { InputPropsWithoutGroup, InputType } from './models';
 
 const Text = ({
+  dataTestId,
   label,
   fieldName,
   type,
@@ -91,6 +92,7 @@ const Text = ({
         ariaLabel={t(label)}
         disabled={disabled}
         error={error as string | undefined}
+        inputProps={{ 'data-testid': dataTestId }}
         label={t(label)}
         required={isRequired}
         type={getInputType()}

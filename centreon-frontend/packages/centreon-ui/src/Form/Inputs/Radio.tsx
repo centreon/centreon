@@ -15,6 +15,7 @@ import { useMemoComponent } from '../..';
 import { InputPropsWithoutGroup } from './models';
 
 const Radio = ({
+  dataTestId,
   fieldName,
   label,
   radio,
@@ -68,7 +69,10 @@ const Radio = ({
               control={
                 <MUIRadio
                   disabled={disabled}
-                  inputProps={{ 'aria-label': t(optionLabel) }}
+                  inputProps={{
+                    'aria-label': t(optionLabel),
+                    'data-testid': dataTestId,
+                  }}
                 />
               }
               key={optionLabel}

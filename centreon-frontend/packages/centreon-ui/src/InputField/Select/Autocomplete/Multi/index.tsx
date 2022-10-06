@@ -38,6 +38,7 @@ export interface Props
 }
 
 const MultiAutocompleteField = ({
+  dataTestId,
   value,
   options,
   disableSortedOptions = false,
@@ -78,6 +79,7 @@ const MultiAutocompleteField = ({
       disableCloseOnSelect
       displayOptionThumbnail
       multiple
+      dataTestId={dataTestId}
       getLimitTagsText={getLimitTagsText}
       options={autocompleteOptions}
       renderOption={(renderProps, option, { selected }): JSX.Element => (

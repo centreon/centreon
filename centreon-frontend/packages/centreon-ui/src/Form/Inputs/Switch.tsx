@@ -11,6 +11,7 @@ import { useMemoComponent } from '../..';
 import { InputPropsWithoutGroup } from './models';
 
 const Switch = ({
+  dataTestId,
   fieldName,
   change,
   label,
@@ -50,7 +51,10 @@ const Switch = ({
           <MUISwitch
             checked={value}
             disabled={disabled}
-            inputProps={{ 'aria-label': t(label) }}
+            inputProps={{
+              'aria-label': t(label),
+              'data-testid': dataTestId,
+            }}
             onChange={changeSwitchValue}
           />
         }
