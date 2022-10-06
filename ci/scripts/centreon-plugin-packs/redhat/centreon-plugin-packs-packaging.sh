@@ -31,7 +31,7 @@ Group:          Applications/System
 License:        Proprietary
 URL:            https://www.centreon.com
 
-Source0:        packs.tar.gz
+Source0:        $PROJECT-$VERSION.tar.gz
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:      noarch
