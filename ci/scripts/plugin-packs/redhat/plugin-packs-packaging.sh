@@ -12,11 +12,12 @@ if [ ! -d /root/rpmbuild/SOURCES ] ; then
     mkdir -p /root/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 fi
 
-rm -rf /src/plugin-packs/packs
-mkdir -p /src/plugin-packs/packs
 cd /src
-
-python << EOF
+if [ -d plugin-packs/packs ]; then
+    rm -rf plugin-packs/packs
+fi
+mkdir -p plugin-packs/packs
+/usr/bin/python3 << EOF
 import json
 from os import listdir
 

@@ -58,6 +58,10 @@ EOF
 
 # Make configuration package files
 cd /src
+if [ -d plugin-packs/packs ]; then
+    rm -rf plugin-packs/packs
+fi
+mkdir -p plugin-packs/packs
 python3 << EOF
 import json
 from os import listdir
