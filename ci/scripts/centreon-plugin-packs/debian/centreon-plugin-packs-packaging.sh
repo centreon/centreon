@@ -125,7 +125,7 @@ with open('/build/debian/control', 'w+') as DebianControl:
 EOF
 
 mkdir -p /build/$PROJECT
-(cd /src && tar czpf - $PROJECT) | dd of=/build/$PROJECT-$VERSION.tar.gz
+(cd /src && tar czpf - $PROJECT/packs) | dd of=/build/$PROJECT-$VERSION.tar.gz
 cp -rv /src/$PROJECT /build/$PROJECT
 cp -rv /build/debian /build/$PROJECT/
 

@@ -89,11 +89,11 @@ EOF
 
 rm -rf /tmp/$PROJECT-$VERSION
 mkdir /tmp/$PROJECT-$VERSION
-cp -rp plugin-packs/packs/* /tmp/$PROJECT-$VERSION/
+cp -rp $PROJECT/packs/* /tmp/$PROJECT-$VERSION/
 (cd /tmp && tar czf /root/rpmbuild/SOURCES/$PROJECT-$VERSION.tar.gz $PROJECT-$VERSION)
 rm -rf /root/rpmbuild/RPMS/*
 
-cd /tmp/$PROJECT
+cd /tmp/$PROJECT-$VERSION
 rpmbuild -ba /tmp/centreon-plugin-packs.spec
 cp -r /root/rpmbuild/RPMS/noarch/*.rpm .
 chmod 777 *.rpm
