@@ -56,12 +56,12 @@ for pack in listdir('$PROJECT/src'):
     with open('$PROJECT/src/%s/pack.json' % pack) as jfile:
         data = json.loads(jfile.read())
 
-        output += 'Package: %s\n' % pack
+        output += '%%package %s\n' % pack
         output += 'Summary:  Centreon pack\n'
         output += 'Version:  %s\n' % data['information']['version']
         output += 'Requires: centreon-pp-manager >= 2.0\n\n'
-        output += 'Description:\n  %s\n\n' % pack
-        output += 'files %s\n' % pack
+        output += '%%description %s\n  %s\n\n' % (pack, pack)
+        output += '%%files %s\n' % pack
         output += '%%defattr(-,root,root,-)\n'
         output += '%%{_datadir}/centreon-packs/pluginpack_%s-%s.json' % (
             pack, data['information']['version']
