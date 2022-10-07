@@ -66,6 +66,7 @@ for pack in listdir('$PROJECT/src'):
         output += '%%{_datadir}/centreon-packs/pluginpack_%s-%s.json' % (
             pack, data['information']['version']
         )
+        output += '\n\n\n'
 
         # Make source json package
         with open(
