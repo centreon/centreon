@@ -100,6 +100,6 @@ cp -r /root/rpmbuild/RPMS/noarch/*.rpm .
 chmod 777 *.rpm
 cd ..
 
-find /src -type f -iname '*.rpm' | xargs cp -vt /src/
+find /tnp -type f -iname '*.rpm' | xargs cp -v /src/
 
 exit 0
