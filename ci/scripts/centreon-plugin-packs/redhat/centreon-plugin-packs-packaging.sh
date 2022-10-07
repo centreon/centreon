@@ -84,6 +84,9 @@ with open(
 
 EOF
 
+# debug
+cat /tmp/centreon-plugin-packs.spec
+
 rm -rf /tmp/$PROJECT-$VERSION
 mkdir /tmp/$PROJECT-$VERSION
 cp -rp $PROJECT/packs/* /tmp/$PROJECT-$VERSION/
