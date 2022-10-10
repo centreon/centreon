@@ -39,7 +39,7 @@ const useStyles = makeStyles<StyleProps>()((theme, { severityCode }) => ({
   submenuItem: {
     '&:hover': {
       background: equals(theme.palette.mode, ThemeMode.dark)
-        ? theme.palette.primary.main
+        ? theme.palette.primary.dark
         : theme.palette.primary.light,
       color: equals(theme.palette.mode, ThemeMode.dark)
         ? theme.palette.common.white

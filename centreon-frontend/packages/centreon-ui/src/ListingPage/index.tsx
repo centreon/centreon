@@ -13,7 +13,7 @@ import ListingSkeleton from './ListingSkeleton';
 const useStyles = makeStyles()((theme) => {
   return {
     filters: {
-      borderBottom: `1px solid ${theme.palette.primary.main}`,
+      borderBottom: `1px solid ${theme.palette.divider}`,
       margin: theme.spacing(0, 3),
     },
     listing: {

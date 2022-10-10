@@ -68,11 +68,6 @@ const useStyles = makeStyles<Props>()((theme, { severityCode }) => ({
   chip: {
     '&:hover': { ...getStatusColors({ severityCode, theme }) },
     ...getStatusColors({ severityCode, theme }),
-    borderRadius: theme.spacing(1.25),
-    fontSize: theme.typography.body2.fontSize,
-    height: theme.spacing(2.5),
-    lineHeight: theme.spacing(2.5),
-    minWidth: theme.spacing(2.5),
   },
 }));
 
@@ -89,7 +84,6 @@ const StatusChip = ({
       className={classes.chip}
       clickable={clickable}
       label={label}
-      size="small"
       {...rest}
     />
   );
