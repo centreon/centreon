@@ -60,6 +60,7 @@ export type Props = {
   EndAdornment?: React.FC;
   StartAdornment?: React.FC;
   ariaLabel?: string;
+  dataTestId?: string;
   displayErrorInTooltip?: boolean;
   error?: string;
   open?: boolean;
@@ -75,6 +76,7 @@ const TextField = React.forwardRef(
       label,
       error,
       ariaLabel,
+      dataTestId,
       transparent = false,
       size,
       displayErrorInTooltip = false,
@@ -119,6 +121,7 @@ const TextField = React.forwardRef(
               [classes.small]: isSizeEqualTo(Size.small),
               [classes.compact]: isSizeEqualTo(Size.compact),
             }),
+            'data-testid': dataTestId,
           }}
           label={label}
           ref={ref}

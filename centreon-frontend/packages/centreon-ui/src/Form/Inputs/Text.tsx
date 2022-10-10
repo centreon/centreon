@@ -90,9 +90,9 @@ const Text = ({
         fullWidth
         EndAdornment={passwordEndAdornment}
         ariaLabel={t(label)}
+        dataTestId={dataTestId}
         disabled={disabled}
         error={error as string | undefined}
-        inputProps={{ 'data-testid': dataTestId }}
         label={t(label)}
         required={isRequired}
         type={getInputType()}
