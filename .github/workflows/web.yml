@@ -106,6 +106,7 @@ jobs:
 #          path: checkstyle-phpstan.xml
 
 
+
   centreon-web-frontend-lint:
     runs-on: ubuntu-22.04
 
