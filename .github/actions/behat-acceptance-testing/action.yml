@@ -34,5 +34,5 @@ runs:
 
   steps:
     - name: "Run Behat"
-      run: docker run --shm-size 6gb -e PROJECT="${{ inputs.project }}" -e IMAGE_VERSION="${{ inputs.image_version }}" -e DISTRIB="${{ inputs.distrib }}" -e REGISTRY=${{ inputs.registry }} -e REGISTRY_USERNAME=${{ inputs.registry_username }} -e REGISTRY_PASSWORD=${{ inputs.registry_password }} -e TAGS=${{ inputs.tags }} -v "/dev/shm:/dev/shm" -v "$PWD:/tmp" -v "/var/run/docker.sock:/var/run/docker.sock" -w "/tmp" --entrypoint "/tmp/ci/scripts/behat-acceptance-testing.sh" --net="host" ${{ inputs.registry }}/behat:${{ inputs.behat_image_version }}
+      run: docker run --shm-size 6g -e PROJECT="${{ inputs.project }}" -e IMAGE_VERSION="${{ inputs.image_version }}" -e DISTRIB="${{ inputs.distrib }}" -e REGISTRY=${{ inputs.registry }} -e REGISTRY_USERNAME=${{ inputs.registry_username }} -e REGISTRY_PASSWORD=${{ inputs.registry_password }} -e TAGS=${{ inputs.tags }} -v "/dev/shm:/dev/shm" -v "$PWD:/tmp" -v "/var/run/docker.sock:/var/run/docker.sock" -w "/tmp" --entrypoint "/tmp/ci/scripts/behat-acceptance-testing.sh" --net="host" ${{ inputs.registry }}/behat:${{ inputs.behat_image_version }}
       shell: bash

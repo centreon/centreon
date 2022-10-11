@@ -10,5 +10,5 @@ RUN apt-get -y update && apt-get -y dist-upgrade \
   && curl -L "https://github.com/docker/compose/releases/download/v2.11.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose && docker-compose --version \
   && wget -O- https://packages.sury.org/php/apt.gpg | gpg --dearmor | tee /etc/apt/trusted.gpg.d/php.gpg  > /dev/null 2>&1 \
   && echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list \
-  && apt-get update -y && apt-get install -y php8.1-fpm php8.1-cli php8.1-xml php8.1-simplexml php8.1-curl php8.1-dom php8.1-zip  \
+  && apt-get update -y && apt-get install -y php8.1-fpm php8.1-cli php8.1-xml php8.1-simplexml php8.1-curl php8.1-dom php8.1-zip php8.1-mysql  \
   && wget https://raw.githubusercontent.com/composer/getcomposer.org/d366ce4e77501dd11a28baace02e702dd9f1c203/web/installer -O - -q | php -- --quiet && mv composer.phar /usr/local/bin/composer && composer -v
