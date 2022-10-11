@@ -21,4 +21,7 @@ services:
     - "4444"
     - "5900"
     volumes:
-    - /dev/shm:/dev/shm
+    - type: tmpfs
+      target: /dev/shm
+      tmpfs:
+        size: 2000000000
