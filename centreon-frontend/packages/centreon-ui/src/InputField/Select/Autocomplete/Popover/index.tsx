@@ -20,10 +20,12 @@ export type Props = Omit<AutocompleteProps, 'renderTags' | 'multiple'> &
     'multiple'
   >;
 
-const useStyles = makeStyles()(() => ({
+const useStyles = makeStyles()((theme) => ({
   chip: {
+    borderRadius: theme.spacing(1.5),
     cursor: 'pointer',
     display: 'flex',
+    height: theme.spacing(3),
     justifyContent: 'space-between',
     width: '100%',
   },
