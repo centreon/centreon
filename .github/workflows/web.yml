@@ -108,8 +108,7 @@ jobs:
 
 
   centreon-web-frontend-lint:
-    runs-on: ubuntu-22.04
-
+    runs-on: [self-hosted, common]
     steps:
       - uses: actions/setup-node@v3
         with:
@@ -133,7 +132,7 @@ jobs:
           path: centreon/checkstyle.xml
 
   centreon-web-frontend-unit-test:
-    runs-on: ubuntu-22.04
+    runs-on: [self-hosted, common]
 
     steps:
       - uses: actions/setup-node@v3
@@ -159,7 +158,7 @@ jobs:
           junit_files: "centreon/junit.xml"
 
   centreon-web-backend-unit-test:
-    runs-on: ubuntu-22.04
+    runs-on: [self-hosted, common]
 
     steps:
       - uses: actions/checkout@v3
@@ -350,7 +349,7 @@ jobs:
           tags: docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
   centreon-web-test-e2e:
-    runs-on: ubuntu-22.04
+    runs-on: [self-hosted, common]
     needs: [centreon-web-dockerize]
 
     steps:
@@ -388,7 +387,7 @@ jobs:
           junit_files: centreon/tests/e2e/cypress-result.xml
 
   centreon-web-test-performances:
-    runs-on: ubuntu-22.04
+    runs-on: [self-hosted, common]
     needs: [centreon-web-dockerize]
 
     steps:
