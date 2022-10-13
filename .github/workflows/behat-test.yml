@@ -39,6 +39,7 @@ jobs:
           echo "features=$(find ${{ inputs.features_path }} -type f -name "*.feature" -printf "%P\n" | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
 
   behat-test-run:
+    name: ""
     needs: [behat-test-list]
     runs-on: [self-hosted, common]
     strategy:

@@ -432,7 +432,7 @@ jobs:
     with:
       module_name: centreon
       image_name: run-centreon-open-source
-      features_path: features
+      features_path: tests/api/features
       config_file: tests/api/behat.yml
     secrets:
       nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
