@@ -426,8 +426,21 @@ jobs:
           name: lighthouse-report
           path: centreon/lighthouse/report/lighthouseci-index.html
 
-  legacy-e2e-test:
+  api-integration-test:
     needs: [centreon-web-dockerize]
+    uses: ./.github/workflows/behat-test.yml
+    with:
+      module_name: centreon
+      image_name: run-centreon-open-source
+      features_path: features
+      config_file: tests/api/behat.yml
+    secrets:
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+
+  legacy-e2e-test:
+    needs: [api-integration-test]
     uses: ./.github/workflows/behat-test.yml
     with:
       module_name: centreon
