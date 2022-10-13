@@ -91,7 +91,7 @@ jobs:
           mkdir -p xunit-reports/$(dirname ${{ matrix.feature }})
           sed 's#@WEB_IMAGE@#docker.centreon.com/${{ inputs.image_name }}-centos7:${{ github.head_ref || github.ref_name }}#g' ./.github/docker/docker-compose.yml > ${{ inputs.module_name }}/docker-compose.yml
           cd ${{ inputs.module_name }}
-          ./vendor/bin/behat --config="${{ inputs.config_file }}"" --format=pretty --out=std --format=junit --out="../xunit-reports/${{ matrix.feature }}" "${{ inputs.features_path }}/${{ matrix.feature }}"
+          ./vendor/bin/behat --config="${{ inputs.config_file }}" --format=pretty --out=std --format=junit --out="../xunit-reports/${{ matrix.feature }}" "${{ inputs.features_path }}/${{ matrix.feature }}"
 
       - uses: actions/upload-artifact@v3
         if: ${{ failure() }}
