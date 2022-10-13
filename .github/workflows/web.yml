@@ -168,10 +168,13 @@ jobs:
         with:
           php-version: 8.1
           coverage: none
+        env:
+          runner: self-hosted
 
       - name: Install dependencies
-        run: composer install --optimize-autoloader
-        working-directory: centreon
+        uses: ramsey/composer-install@v2
+        with:
+          composer-options: "--optimize-autoloader"
 
       - name: Unit test
         run: XDEBUG_MODE=coverage composer run-script test:ci
