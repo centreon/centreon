@@ -48,6 +48,8 @@ class BackupContext extends CentreonContext
      */
     public function theBackupProcessStarts()
     {
+        $this->container->execute('yum install -y --disablerepo="*" --enablerepo="base" which', 'web');
+
         // The backup task is scheduled to run sometime during the
         // night. We will check that it is scheduled but for testing
         // purposes we will launch it directly instead.
