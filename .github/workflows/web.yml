@@ -109,6 +109,7 @@ jobs:
 
   centreon-web-frontend-lint:
     runs-on: [self-hosted, common]
+    if: ${{ false }}
     steps:
       - uses: actions/setup-node@v3
         with:
@@ -133,6 +134,7 @@ jobs:
 
   centreon-web-frontend-unit-test:
     runs-on: [self-hosted, common]
+    if: ${{ false }}
 
     steps:
       - uses: actions/setup-node@v3
@@ -159,6 +161,7 @@ jobs:
 
   centreon-web-backend-unit-test:
     runs-on: [self-hosted, common]
+    if: ${{ false }}
 
     steps:
       - uses: actions/checkout@v3
@@ -191,13 +194,13 @@ jobs:
 
   centreon-web-package-rpm:
     runs-on: [self-hosted, common]
-    needs: [
+#    needs: [
 #     centreon-web-backend-lint-phpcs,
 #     centreon-web-backend-lint-phpstan,
-      centreon-web-backend-unit-test,
-      centreon-web-frontend-lint,
-      centreon-web-frontend-unit-test,
-    ]
+#      centreon-web-backend-unit-test,
+#      centreon-web-frontend-lint,
+#      centreon-web-frontend-unit-test,
+#    ]
 
     strategy:
       matrix:
@@ -251,6 +254,7 @@ jobs:
 
   centreon-web-package-deb:
     runs-on: [self-hosted, common]
+    if: ${{ false }}
     needs:
       [
 #        centreon-web-backend-lint-phpcs,
@@ -303,7 +307,8 @@ jobs:
 
   centreon-web-dockerize:
     runs-on: [self-hosted, common]
-    needs: [centreon-web-package-rpm, centreon-web-package-deb]
+    needs: [centreon-web-package-rpm]
+#    needs: [centreon-web-package-rpm, centreon-web-package-deb]
 
     strategy:
       matrix:
@@ -354,6 +359,7 @@ jobs:
 
   centreon-web-test-e2e:
     runs-on: [self-hosted, common]
+    if: ${{ false }}
     needs: [centreon-web-dockerize]
 
     steps:
@@ -392,6 +398,7 @@ jobs:
 
   centreon-web-test-performances:
     runs-on: [self-hosted, common]
+    if: ${{ false }}
     needs: [centreon-web-dockerize]
 
     steps:
@@ -433,6 +440,7 @@ jobs:
 
   centreon-web-deliver-rpm:
     runs-on: [self-hosted, common]
+    if: ${{ false }}
     needs: [centreon-web-test-e2e]
 
     strategy:
@@ -459,6 +467,7 @@ jobs:
 
   centreon-web-deliver-deb:
     needs: [centreon-web-test-e2e]
+    if: ${{ false }}
     runs-on: [self-hosted, common]
     strategy:
       matrix:
