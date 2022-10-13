@@ -18,7 +18,7 @@ class InfluxdbContext extends CentreonContext
      */
     public function aCentreonServerWithInfluxDB()
     {
-        $this->launchCentreonWebContainer('web_influxdb');
+        $this->launchCentreonWebContainer('docker_compose_web', ['web', 'webdriver', 'influxdb']);
         $this->iAmLoggedIn();
         $this->container->execute('influx -execute "create database metrics"', 'influxdb');
     }

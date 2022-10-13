@@ -44,3 +44,8 @@ services:
     image: docker.centreon.com/mon-mediawiki-22.10:latest
     ports: ["80"]
     profiles: ["mediawiki"]
+
+  influxdb:
+    image: docker-proxy.centreon.com/influxdb:latest
+    ports: ["8083", "8086"]
+    profiles: ["influxdb"]
