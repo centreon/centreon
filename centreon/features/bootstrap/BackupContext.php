@@ -48,16 +48,16 @@ class BackupContext extends CentreonContext
      */
     public function theBackupProcessStarts()
     {
-        $this->container->execute('yum install -y --disablerepo="*" --enablerepo="base" which', 'web');
+        $this->container->execute('yum install -y --disablerepo="*" --enablerepo="base" which', $this->webService);
 
         // The backup task is scheduled to run sometime during the
         // night. We will check that it is scheduled but for testing
         // purposes we will launch it directly instead.
-        $cron = $this->container->execute('cat /etc/cron.d/centreon', 'web', true);
+        $cron = $this->container->execute('cat /etc/cron.d/centreon', $this->webService, true);
         if (!preg_match('/centreon-backup.pl/m', $cron['output'])) {
             throw new \Exception('centreon-backup is not scheduled');
         }
-        $this->container->execute('/usr/share/centreon/cron/centreon-backup.pl', 'web');
+        $this->container->execute('/usr/share/centreon/cron/centreon-backup.pl', $this->webService);
     }
 
     /**
@@ -66,6 +66,6 @@ class BackupContext extends CentreonContext
     public function theDataIsBackedUp($dataType)
     {
         $file = '/var/cache/centreon/backup/' . date('Y-m-d') . '-central.tar.gz';
-        $this->container->execute('ls ' . $file, 'web');
+        $this->container->execute('ls ' . $file, $this->webService);
     }
 }

@@ -133,7 +133,7 @@ class InfluxdbContext extends CentreonContext
             function ($context) {
                 $retval = $context->container->execute(
                     'cat /var/lib/centreon-broker/central-broker-master-stats.json',
-                    'web',
+                    $this->webService,
                     false
                 );
                 if ($retval['exit_code'] === 0) {

@@ -16,14 +16,14 @@ class CentreonModuleAPIContext extends CentreonAPIContext
     {
         $this->container->execute(
             'mkdir /usr/share/centreon/www/modules/centreon-test',
-            'web',
+            $this->webService,
             true
         );
 
         $this->container->copyToContainer(
             __DIR__ . '/../assets/centreon-test.conf.php',
             '/usr/share/centreon/www/modules/centreon-test/conf.php',
-            'web'
+            $this->webService
         );
     }
 }

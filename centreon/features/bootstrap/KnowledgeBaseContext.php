@@ -130,7 +130,7 @@ class KnowledgeBaseContext extends CentreonContext
         $this->assertFind('css', 'input[name="wpSave"]')->click();
 
         /* cron */
-        $this->container->execute("php /usr/share/centreon/cron/centKnowledgeSynchronizer.php", 'web');
+        $this->container->execute("php /usr/share/centreon/cron/centKnowledgeSynchronizer.php", $this->webService);
 
         /* Apply config */
         $this->restartAllPollers();
@@ -170,7 +170,7 @@ class KnowledgeBaseContext extends CentreonContext
         $this->assertFind('css', 'input[name="wpSave"]')->click();
 
         /* cron */
-        $this->container->execute("php /usr/share/centreon/cron/centKnowledgeSynchronizer.php", 'web');
+        $this->container->execute("php /usr/share/centreon/cron/centKnowledgeSynchronizer.php", $this->webService);
 
         /* Apply config */
         $this->restartAllPollers();
