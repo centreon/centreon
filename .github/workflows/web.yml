@@ -370,6 +370,7 @@ jobs:
           ./dist_linux/docker-slim build --expose 80 --http-probe-start-wait 5 --http-probe-retry-count 3 --http-probe-cmd /centreon/login --preserve-path-file ./ci/scripts/docker-slim/includes.txt \
           --tag docker.registry.apps.centreon.com/${{ matrix.project }}-slim-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }} --pull \
           docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+          docker push docker.registry.apps.centreon.com/${{ matrix.project }}-slim-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
       - uses: docker/build-push-action@v3
         with:
