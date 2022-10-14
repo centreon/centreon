@@ -54,7 +54,7 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v2
         with:
-          registry: docker.centreon.com
+          registry: docker.registry.apps.centreon.com
           username: ${{ secrets.nexus_username }}
           password: ${{ secrets.nexus_password }}
 
@@ -89,9 +89,9 @@ jobs:
           rm -rf xunit-reports
           mkdir -p xunit-reports/$(dirname ${{ matrix.feature }})
           sed \
-            -e 's#@WEB_IMAGE@#docker.apps.registry.centreon.com/${{ inputs.image_name }}-centos7:${{ github.head_ref || github.ref_name }}#g' \
-            -e 's#@WEB_FRESH_IMAGE@#docker.apps.registry.centreon.com/${{ inputs.image_name }}-fresh-centos7:${{ github.head_ref || github.ref_name }}#g' \
-            -e 's#@WEB_WIDGETS_IMAGE@#docker.apps.registry.centreon.com/${{ inputs.image_name }}-widgets-centos7:${{ github.head_ref || github.ref_name }}#g' \
+            -e 's#@WEB_IMAGE@#docker.registry.apps.centreon.com/${{ inputs.image_name }}-centos7:${{ github.head_ref || github.ref_name }}#g' \
+            -e 's#@WEB_FRESH_IMAGE@#docker.registry.apps.centreon.com/${{ inputs.image_name }}-fresh-centos7:${{ github.head_ref || github.ref_name }}#g' \
+            -e 's#@WEB_WIDGETS_IMAGE@#docker.registry.apps.centreon.com/${{ inputs.image_name }}-widgets-centos7:${{ github.head_ref || github.ref_name }}#g' \
             ./.github/docker/docker-compose.yml > ${{ inputs.module_name }}/docker-compose.yml
           cd ${{ inputs.module_name }}
           ./vendor/bin/behat --config="${{ inputs.config_file }}" --format=pretty --out=std --format=junit --out="../xunit-reports/${{ matrix.feature }}" "${{ inputs.features_path }}/${{ matrix.feature }}"
