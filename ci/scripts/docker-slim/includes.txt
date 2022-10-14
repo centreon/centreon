@@ -1,0 +1,10 @@
+/etc/centreon
+/usr/share/centreon
+/var/lib/centreon
+/var/log/centreon
+/var/lib/mysql/centreon
+/var/lib/mysql/centreon_storage
+/var/lib/php/session
+/opt/rh/httpd24/root
+/usr/lib/centreon/plugins
+/usr/lib64/nagios/plugins/check_icmp:4755#0#0

@@ -81,6 +81,8 @@ service mysql stop
 
 EOF
 
+EXPOSE 80 3306
+
 ENTRYPOINT ["/usr/share/centreon/container.sh"]
 
 FROM web_fresh AS web_standard

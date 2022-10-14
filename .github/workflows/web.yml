@@ -359,6 +359,18 @@ jobs:
           push: true
           tags: docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
+      - name: Download DockerSlim
+        run: |
+          curl -L -o ds.tar.gz https://downloads.dockerslim.com/releases/1.38.0/dist_linux.tar.gz
+          tar -xvf ds.tar.gz
+          chmod +x ./dist_linux/docker-slim
+
+      - name: Minify
+        run: |
+          ./dist_linux/docker-slim build --expose 80 --http-probe-start-wait 5 --http-probe-retry-count 3 --http-probe-cmd /centreon/login --preserve-path-file ./ci/scripts/docker-slim/includes.txt \
+          --tag docker.registry.apps.centreon.com/${{ matrix.project }}-slim-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }} \
+          docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+
       - uses: docker/build-push-action@v3
         with:
           file: ci/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
