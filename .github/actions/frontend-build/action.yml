@@ -4,8 +4,6 @@ inputs:
   base_directory:
     description: The base directory
     required: true
-  frontend_directory:
-    description: The frontend directory
   cache_key:
     description: "The frontend static directory cache key"
     required: true
@@ -21,12 +19,12 @@ runs:
     - name: Install dependencies
       uses: bahmutov/npm-install@v1
       with:
-        working-directory: ${{ inputs.frontend_directory }}
+        working-directory: ${{ inputs.base_directory }}
         install-command: npm ci --legacy-peer-deps
 
     - name: Build frontend
       run: npm run build
-      working-directory: ${{ inputs.frontend_directory }}
+      working-directory: ${{ inputs.base_directory }}
       shell: bash
 
     - name: Cache static directory

@@ -31,7 +31,6 @@ jobs:
       - uses: ./.github/actions/frontend-build
         with:
           base_directory: ${{ env.base_directory }}
-          frontend_directory: ${{ env.frontend_directory }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-static
 
   backend-dependencies:
