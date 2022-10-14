@@ -22,7 +22,7 @@ env:
 
 
 jobs:
-  web-frontend-build:
+  frontend-build:
     runs-on: [self-hosted, common]
 
     steps:
@@ -34,7 +34,7 @@ jobs:
           frontend_directory: ${{ env.frontend_directory }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-static
 
-  web-backend-dependencies:
+  backend-dependencies:
     runs-on: [self-hosted, common]
 
     steps:
