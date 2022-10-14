@@ -313,7 +313,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - project: run-centreon-open-source
+          - project: centreon-web
             distrib: centos7
             distrib_rpm: el7
             module_name: web
@@ -357,6 +357,15 @@ jobs:
           push: true
           tags: docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
+      - uses: docker/build-push-action@v3
+        with:
+          file: ci/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
+          target: web_widgets
+          context: .
+          pull: true
+          push: true
+          tags: docker.registry.apps.centreon.com/${{ matrix.project }}-widgets-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+
   centreon-web-test-e2e:
     runs-on: [self-hosted, common]
     if: ${{ false }}
@@ -376,7 +385,7 @@ jobs:
       - name: Cypress e2e testing
         uses: ./.github/actions/cypress-e2e-testing
         with:
-          image: docker.centreon.com/run-centreon-open-source-centos7
+          image: docker.centreon.com/centreon-web-centos7
           image_version: ${{ github.head_ref || github.ref_name }}
           image_cypress_version: ${{ env.version }}
           module: centreon
@@ -415,7 +424,7 @@ jobs:
         uses: ./.github/actions/lighthouse-performance-testing
         with:
           path: "centreon/lighthouse"
-          image: docker.centreon.com/run-centreon-open-source-centos7
+          image: docker.centreon.com/centreon-web-centos7
           image_version: ${{ github.head_ref || github.ref_name }}
           image_lighthouse_version: ${{ env.version }}
           module: centreon
@@ -431,7 +440,7 @@ jobs:
     uses: ./.github/workflows/behat-test.yml
     with:
       module_name: centreon
-      image_name: run-centreon-open-source
+      image_name: centreon-web
       features_path: tests/api/features
       config_file: tests/api/behat.yml
     secrets:
@@ -444,7 +453,7 @@ jobs:
     uses: ./.github/workflows/behat-test.yml
     with:
       module_name: centreon
-      image_name: run-centreon-open-source
+      image_name: centreon-web
       features_path: features
     secrets:
       nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}

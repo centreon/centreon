@@ -88,7 +88,11 @@ jobs:
           mkdir acceptance-logs
           rm -rf xunit-reports
           mkdir -p xunit-reports/$(dirname ${{ matrix.feature }})
-          sed 's#@WEB_IMAGE@#docker.centreon.com/${{ inputs.image_name }}-centos7:${{ github.head_ref || github.ref_name }}#g' ./.github/docker/docker-compose.yml > ${{ inputs.module_name }}/docker-compose.yml
+          sed \
+            's#@WEB_IMAGE@#docker.centreon.com/${{ inputs.image_name }}-centos7:${{ github.head_ref || github.ref_name }}#g' \
+            's#@WEB_FRESH_IMAGE@#docker.centreon.com/${{ inputs.image_name }}-fresh-centos7:${{ github.head_ref || github.ref_name }}#g' \
+            's#@WEB_WIDGETS_IMAGE@#docker.centreon.com/${{ inputs.image_name }}-widgets-centos7:${{ github.head_ref || github.ref_name }}#g' \
+            ./.github/docker/docker-compose.yml > ${{ inputs.module_name }}/docker-compose.yml
           cd ${{ inputs.module_name }}
           ./vendor/bin/behat --config="${{ inputs.config_file }}" --format=pretty --out=std --format=junit --out="../xunit-reports/${{ matrix.feature }}" "${{ inputs.features_path }}/${{ matrix.feature }}"
 
