@@ -211,6 +211,7 @@ jobs:
 
   centreon-web-package-rpm:
     runs-on: [self-hosted, common]
+    needs: [source-dependencies]
 #    needs: [
 #     centreon-web-backend-lint-phpcs,
 #     centreon-web-backend-lint-phpstan,
