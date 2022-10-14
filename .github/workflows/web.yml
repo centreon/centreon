@@ -21,6 +21,21 @@ env:
 
 
 jobs:
+  source-dependencies:
+    runs-on: [self-hosted, common]
+    steps:
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 17
+
+      - uses: actions/checkout@v3
+
+      - uses: bahmutov/npm-install@v1
+        with:
+          install-command: npm ci --legacy-peer-deps
+
+      - run: npm run build
+
 #  centreon-web-backend-lint-phpcs:
 #    runs-on: ubuntu-22.04
 #    if: ${{ github.event_name != 'workflow_dispatch' }}
