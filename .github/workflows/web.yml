@@ -36,6 +36,7 @@ jobs:
           install-command: npm ci --legacy-peer-deps
 
       - run: npm run build
+        working-directory: centreon
 
 #  centreon-web-backend-lint-phpcs:
 #    runs-on: ubuntu-22.04
