@@ -169,9 +169,9 @@ try {
     set_error_handler($log_error);
 
     if (defined('_CENTREON_VARLIB_')) {
-        $centcore_pipe = _CENTREON_VARLIB_ . "/centcore.cmd";
+        $centcore_pipe = _CENTREON_VARLIB_ . '/centcore/external-cmd-' . microtime(true) . '.cmd';
     } else {
-        $centcore_pipe = "/var/lib/centreon/centcore.cmd";
+        $centcore_pipe = '/var/lib/centreon/centcore/external-cmd-' . microtime(true) . '.cmd';
     }
 
     $stdout = "";
