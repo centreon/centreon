@@ -1,0 +1,36 @@
+name: frontend-build
+description: Build Frontend
+inputs:
+  base_directory:
+    description: The base directory
+    required: true
+  frontend_directory:
+    description: The frontend directory
+  cache_key:
+    description: "The frontend static directory cache key"
+    required: true
+
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 17
+
+    - name: Install dependencies
+      uses: bahmutov/npm-install@v1
+      with:
+        working-directory: ${{ inputs.frontend_directory }}
+        install-command: npm ci --legacy-peer-deps
+
+    - name: Build frontend
+      run: npm run build
+      working-directory: ${{ inputs.frontend_directory }}
+      shell: bash
+
+    - name: Cache static directory
+      uses: actions/cache@v3
+      with:
+        path: ${{ inputs.base_directory }}/static
+        key: ${{ inputs.cache_key }}
