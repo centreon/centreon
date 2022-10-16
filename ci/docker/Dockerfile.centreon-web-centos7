@@ -46,6 +46,10 @@ RUN <<EOF
 rm -f /tmp/rpms-centreon/centreon-22.10*.rpm /tmp/rpms-centreon/centreon-central-22.10*.rpm
 yum install -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb libfaketime
 
+rm -f /usr/share/centreon/www/.env.local.php
+echo "APP_DEBUG=true" >> /usr/share/centreon/www/.env
+echo "DEBUG_LEVEL=100" >> /usr/share/centreon/www/.env
+
 touch /var/log/php-fpm/centreon-error.log
 chown apache:apache /var/log/php-fpm/centreon-error.log
 
