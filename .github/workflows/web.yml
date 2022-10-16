@@ -29,8 +29,10 @@ jobs:
       - uses: ./.github/actions/frontend-build
         with:
           base_directory: ${{ env.base_directory }}
+          index_file: ${{ env.base_directory }}/www/index.html
           static_directory: ${{ env.base_directory }}/www/static
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-static
+          index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
+          static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
 
   backend-dependencies:
     runs-on: [self-hosted, common]
@@ -242,6 +244,8 @@ jobs:
       - uses: ./.github/actions/package
         with:
           package_extension: rpm
+          frontend_index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
+          frontend_index_file: ${{ env.base_directory }}/www/index.html
           frontend_static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
           frontend_static_directory: ${{ env.base_directory }}/www/static
           backend_vendor_cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor

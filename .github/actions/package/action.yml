@@ -4,6 +4,10 @@ inputs:
   package_extension:
     description: The package extension (deb or rpm)
     required: true
+  frontend_index_cache_key:
+    description: The index.html cache key
+  frontend_index_file:
+    description: The index.html file path
   frontend_static_cache_key:
     description: The static directory cache key
   frontend_static_directory:
@@ -45,6 +49,13 @@ runs:
       with:
         module_name: ${{ inputs.module_name }}
       id: get_version
+
+    - name: Restore static directory cache
+      if: "${{ inputs.frontend_index_file != '' && inputs.frontend_index_cache_key != '' }}"
+      uses: actions/cache@v3
+      with:
+        path: ${{ inputs.frontend_index_file }}
+        key: ${{ inputs.frontend_index_cache_key }}
 
     - name: Restore static directory cache
       if: "${{ inputs.frontend_static_directory != '' && inputs.frontend_static_cache_key != '' }}"
