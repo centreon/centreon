@@ -1,7 +1,4 @@
 #!/bin/sh
 
 # Start Centreon Engine daemon.
-cat /etc/centreon-engine/centengine.cfg
-su - centreon-engine -c "/usr/sbin/centengine /etc/centreon-engine/centengine.cfg &"
-pid=`su - centreon-engine -c "echo \\$!"`
-echo "$pid" > "/var/run/centengine.pid"
+/etc/init.d/centengine start

@@ -18,8 +18,6 @@ on:
 env:
   version: "22.10"
   base_directory: centreon
-  frontend_directory: ./centreon/www/front_src/src
-
 
 jobs:
   frontend-build:
@@ -31,6 +29,7 @@ jobs:
       - uses: ./.github/actions/frontend-build
         with:
           base_directory: ${{ env.base_directory }}
+          static_directory: ${{ env.base_directory }}/www/static
           cache_key: ${{ github.sha }}-${{ github.run_id }}-static
 
   backend-dependencies:

@@ -4,6 +4,9 @@ inputs:
   base_directory:
     description: The base directory
     required: true
+  static_directory:
+    description: The static directory
+    required: true
   cache_key:
     description: "The frontend static directory cache key"
     required: true
@@ -30,5 +33,5 @@ runs:
     - name: Cache static directory
       uses: actions/cache@v3
       with:
-        path: ${{ inputs.base_directory }}/static
+        path: ${{ inputs.static_directory }}
         key: ${{ inputs.cache_key }}
