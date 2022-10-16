@@ -39,7 +39,7 @@ runs:
     - name: Cache index.html file
       uses: actions/cache@v3
       with:
-        path: ${{ inputs.index.file }}
+        path: ${{ inputs.index_file }}
         key: ${{ inputs.index_cache_key }}
 
     - name: Cache static directory
