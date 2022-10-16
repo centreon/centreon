@@ -243,7 +243,7 @@ jobs:
         with:
           package_extension: rpm
           frontend_static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
-          frontend_static_directory: ${{ env.base_directory }}/static
+          frontend_static_directory: ${{ env.base_directory }}/www/static
           backend_vendor_cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
           backend_vendor_directory: ${{ env.base_directory }}/vendor
           image_name: ${{ matrix.image }}
