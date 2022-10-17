@@ -82,7 +82,7 @@ class RestApiContext extends CentreonContext
         exec(
             'npm install -g newman && newman run' .
             ' tests/rest_api/' . $this->restCollection .
-            ' --no-color --disable-unicode --reporter-cli-no-assertions' .
+            ' --color off --disable-unicode --reporter-cli-no-assertions' .
             ' --environment ' . $this->envfile .
             ' > ' . $this->logfile,
             $output,
