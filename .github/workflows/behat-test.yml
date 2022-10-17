@@ -88,6 +88,7 @@ jobs:
           mkdir acceptance-logs
           rm -rf xunit-reports
           mkdir -p xunit-reports/$(dirname ${{ matrix.feature }})
+          docker pull docker.registry.apps.centreon.com/${{ inputs.image_name }}-centos7:${{ github.head_ref || github.ref_name }}
           sed \
             -e 's#@WEB_IMAGE@#docker.registry.apps.centreon.com/${{ inputs.image_name }}-centos7:${{ github.head_ref || github.ref_name }}#g' \
             -e 's#@WEB_FRESH_IMAGE@#docker.registry.apps.centreon.com/${{ inputs.image_name }}-fresh-centos7:${{ github.head_ref || github.ref_name }}#g' \
