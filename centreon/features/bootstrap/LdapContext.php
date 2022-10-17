@@ -25,6 +25,7 @@ class LdapContext extends CentreonContext
 
         $this->parameters['centreon_user'] = 'centreon-ldap';
         $this->parameters['centreon_password'] = 'centreon-ldap';
+        sleep(3600);
 
         $this->iAmLoggedIn();
     }
