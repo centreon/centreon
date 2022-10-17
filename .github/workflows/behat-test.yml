@@ -101,7 +101,7 @@ jobs:
           #docker pull $WEB_IMAGE
           cd ${{ inputs.module_name }}
           ./vendor/bin/behat --config="${{ inputs.config_file }}" --format=pretty --out=std --format=junit --out="../xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
-          find ./xunit-reports/* -type f | xargs grep -l -E "<testsuites.+></testsuites>" | awk '{print $1}' | xargs rm
+          find ./xunit-reports/* -type f | xargs grep -l -E "<testsuites.+></testsuites>" | xargs rm
 
       - uses: actions/upload-artifact@v3
         if: ${{ failure() }}
