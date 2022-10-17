@@ -457,6 +457,7 @@ jobs:
     needs: [centreon-web-dockerize]
     uses: ./.github/workflows/behat-test.yml
     with:
+      name: api
       module_name: centreon
       image_name: centreon-web
       features_path: tests/api/features
@@ -470,6 +471,7 @@ jobs:
     needs: [api-integration-test]
     uses: ./.github/workflows/behat-test.yml
     with:
+      name: e2e
       module_name: centreon
       image_name: centreon-web
       features_path: features

@@ -1,6 +1,9 @@
 on:
   workflow_call:
     inputs:
+      name:
+        required: true
+        type: string
       module_name:
         required: true
         type: string
@@ -84,18 +87,22 @@ jobs:
 
       - name: Behat acceptance testing
         run: |
+          SELENIUM_IMAGE="docker-proxy.registry.apps.centreon.com/selenium/standalone-chrome:3.141.59-oxygen"
+          WEB_MAGE="docker.registry.apps.centreon.com/${{ inputs.image_name }}-centos7:${{ github.head_ref || github.ref_name }}"
           rm -rf acceptance-logs
           mkdir acceptance-logs
           rm -rf xunit-reports
-          mkdir -p xunit-reports/$(dirname ${{ matrix.feature }})
-          docker pull docker.registry.apps.centreon.com/${{ inputs.image_name }}-centos7:${{ github.head_ref || github.ref_name }}
+          mkdir -p xunit-reports
           sed \
-            -e 's#@WEB_IMAGE@#docker.registry.apps.centreon.com/${{ inputs.image_name }}-centos7:${{ github.head_ref || github.ref_name }}#g' \
+            -e 's#@SELENIUM_IMAGE@#$SELENIUM_IMAGE#g' \
+            -e 's#@WEB_IMAGE@#$WEB_IMAGE#g' \
             -e 's#@WEB_FRESH_IMAGE@#docker.registry.apps.centreon.com/${{ inputs.image_name }}-fresh-centos7:${{ github.head_ref || github.ref_name }}#g' \
             -e 's#@WEB_WIDGETS_IMAGE@#docker.registry.apps.centreon.com/${{ inputs.image_name }}-widgets-centos7:${{ github.head_ref || github.ref_name }}#g' \
             ./.github/docker/docker-compose.yml > ${{ inputs.module_name }}/docker-compose.yml
+          docker pull $SELENIUM_IMAGE
+          docker pull $WEB_IMAGE
           cd ${{ inputs.module_name }}
-          ./vendor/bin/behat --config="${{ inputs.config_file }}" --format=pretty --out=std --format=junit --out="../xunit-reports/$(dirname ${{ matrix.feature }})" "${{ inputs.features_path }}/${{ matrix.feature }}"
+          ./vendor/bin/behat --config="${{ inputs.config_file }}" --format=pretty --out=std --format=junit --out="../xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
 
       - uses: actions/upload-artifact@v3
         if: ${{ failure() }}
@@ -108,8 +115,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ github.job }}-test-reports
-          path: xunit-reports/$(dirname ${{ matrix.feature }})
+          name: ${{ inputs.name }}-test-reports
+          path: xunit-reports
 
   behat-test-report:
     needs: [behat-test-run]
@@ -120,13 +127,13 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
-          name: ${{ github.job }}-test-reports
+          name: ${{ inputs.name }}-test-reports
           path: xunit-reports
 
       - name: Publish tests report
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: ${{ always() }}
         with:
-          check_name: ${{ inputs.module_name }}-behat-tests-report
+          check_name: ${{ inputs.name }}-tests-report
           comment_mode: failures
           junit_files: xunit-reports/*.xml

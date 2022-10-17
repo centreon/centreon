@@ -19,7 +19,7 @@ services:
     links: ["openldap", "squid-simple", "squid-basic-auth", "mediawiki"]
 
   webdriver:
-    image: docker-proxy.centreon.com/selenium/standalone-chrome:3.141.59-oxygen
+    image: "@SELENIUM_IMAGE@"
     environment: ["SCREEN_WIDTH=1600", "SCREEN_HEIGHT=2000"]
     ports: ["4444", "5900"]
     profiles: ["webdriver"]
