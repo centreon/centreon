@@ -89,10 +89,8 @@ jobs:
         run: |
           SELENIUM_IMAGE="docker-proxy.registry.apps.centreon.com/selenium/standalone-chrome:3.141.59-oxygen"
           WEB_IMAGE="docker.registry.apps.centreon.com/${{ inputs.image_name }}-centos7:${{ github.head_ref || github.ref_name }}"
-          rm -rf acceptance-logs
-          mkdir acceptance-logs
-          rm -rf xunit-reports
-          mkdir -p xunit-reports
+          rm -rf acceptance-logs && mkdir acceptance-logs
+          rm -rf xunit-reports && mkdir xunit-reports
           sed \
             -e "s#@SELENIUM_IMAGE@#$SELENIUM_IMAGE#g" \
             -e "s#@WEB_IMAGE@#$WEB_IMAGE#g" \
@@ -103,6 +101,8 @@ jobs:
           docker pull $WEB_IMAGE
           cd ${{ inputs.module_name }}
           ./vendor/bin/behat --config="${{ inputs.config_file }}" --format=pretty --out=std --format=junit --out="../xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
+          rm -rf xunit-report && mkdir xunit-report
+          mv ${{ inputs.features_path }}/$(echo "${{ matrix.feature }}"" | sed "s#.feature#.xml#g" ) xunit-report/
 
       - uses: actions/upload-artifact@v3
         if: ${{ failure() }}
@@ -116,7 +116,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ inputs.name }}-test-reports
-          path: xunit-reports
+          path: xunit-report
 
   behat-test-report:
     needs: [behat-test-run]
