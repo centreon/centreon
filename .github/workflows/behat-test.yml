@@ -126,7 +126,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: ${{ inputs.name }}-test-reports
-          path: xunit-reports
+          path: ${{ inputs.name }}-xunit-reports
 
       - name: Publish tests report
         uses: EnricoMi/publish-unit-test-result-action@v2
@@ -134,4 +134,4 @@ jobs:
         with:
           check_name: ${{ inputs.name }}-tests-report
           comment_mode: failures
-          junit_files: xunit-reports/*.xml
+          junit_files: ${{ inputs.name }}-xunit-reports/**/*.xml
