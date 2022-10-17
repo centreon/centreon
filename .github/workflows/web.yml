@@ -133,7 +133,7 @@ jobs:
 
   centreon-web-frontend-lint:
     runs-on: [self-hosted, common]
-    if: ${{ false }}
+
     steps:
       - uses: actions/setup-node@v3
         with:
@@ -158,7 +158,6 @@ jobs:
 
   centreon-web-frontend-unit-test:
     runs-on: [self-hosted, common]
-    if: ${{ false }}
 
     steps:
       - uses: actions/setup-node@v3
@@ -185,7 +184,6 @@ jobs:
 
   centreon-web-backend-unit-test:
     runs-on: [self-hosted, common]
-    if: ${{ false }}
 
     steps:
       - uses: actions/checkout@v3
@@ -218,14 +216,15 @@ jobs:
 
   centreon-web-package-rpm:
     runs-on: [self-hosted, common]
-    needs: [frontend-build, backend-dependencies]
-#    needs: [
+    needs: [
+      backend-dependencies,
 #     centreon-web-backend-lint-phpcs,
 #     centreon-web-backend-lint-phpstan,
-#      centreon-web-backend-unit-test,
-#      centreon-web-frontend-lint,
-#      centreon-web-frontend-unit-test,
-#    ]
+      centreon-web-backend-unit-test,
+      frontend-build,
+      centreon-web-frontend-lint,
+      centreon-web-frontend-unit-test,
+    ]
 
     strategy:
       matrix:
@@ -261,15 +260,15 @@ jobs:
 
   centreon-web-package-deb:
     runs-on: [self-hosted, common]
-    if: ${{ false }}
-    needs:
-      [
-#        centreon-web-backend-lint-phpcs,
-#        centreon-web-backend-lint-phpstan,
-        centreon-web-backend-unit-test,
-        centreon-web-frontend-lint,
-        centreon-web-frontend-unit-test,
-      ]
+    needs: [
+      backend-dependencies,
+#     centreon-web-backend-lint-phpcs,
+#     centreon-web-backend-lint-phpstan,
+      centreon-web-backend-unit-test,
+      frontend-build,
+      centreon-web-frontend-lint,
+      centreon-web-frontend-unit-test,
+    ]
 
     strategy:
       matrix:
@@ -314,8 +313,10 @@ jobs:
 
   centreon-web-dockerize:
     runs-on: [self-hosted, common]
-    needs: [centreon-web-package-rpm]
-#    needs: [centreon-web-package-rpm, centreon-web-package-deb]
+    needs: [
+      centreon-web-package-rpm,
+      centreon-web-package-deb
+    ]
 
     strategy:
       matrix:
@@ -362,19 +363,6 @@ jobs:
           push: true
           tags: docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
-      #- name: Download DockerSlim
-      #  run: |
-      #    curl -L -o ds.tar.gz https://downloads.dockerslim.com/releases/1.38.0/dist_linux.tar.gz
-      #    tar -xvf ds.tar.gz
-      #    chmod +x ./dist_linux/docker-slim
-
-      #- name: Minify
-      #  run: |
-      #    ./dist_linux/docker-slim build --expose 80 --http-probe-start-wait 5 --http-probe-retry-count 3 --http-probe-cmd /centreon/login --preserve-path-file ./ci/scripts/docker-slim/includes.txt \
-      #    --tag docker.registry.apps.centreon.com/${{ matrix.project }}-slim-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }} --pull \
-      #    docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
-      #    docker push docker.registry.apps.centreon.com/${{ matrix.project }}-slim-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
-
       - uses: docker/build-push-action@v3
         with:
           file: ci/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
@@ -386,7 +374,6 @@ jobs:
 
   centreon-web-test-e2e:
     runs-on: [self-hosted, common]
-    if: ${{ false }}
     needs: [centreon-web-dockerize]
 
     steps:
@@ -425,7 +412,6 @@ jobs:
 
   centreon-web-test-performances:
     runs-on: [self-hosted, common]
-    if: ${{ false }}
     needs: [centreon-web-dockerize]
 
     steps:
@@ -482,8 +468,11 @@ jobs:
 
   centreon-web-deliver-rpm:
     runs-on: [self-hosted, common]
-    if: ${{ false }}
-    needs: [centreon-web-test-e2e]
+    needs: [
+      centreon-web-test-e2e,
+      centreon-web-test-performances,
+      legacy-e2e-test
+    ]
 
     strategy:
       matrix:
@@ -508,9 +497,12 @@ jobs:
           nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
   centreon-web-deliver-deb:
-    needs: [centreon-web-test-e2e]
-    if: ${{ false }}
     runs-on: [self-hosted, common]
+    needs: [
+      centreon-web-test-e2e,
+      centreon-web-test-performances,
+      legacy-e2e-test
+    ]
     strategy:
       matrix:
         include:

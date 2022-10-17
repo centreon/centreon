@@ -80,7 +80,7 @@ class RestApiContext extends CentreonContext
         file_put_contents($this->envfile, $env);
         $this->logfile = tempnam(sys_get_temp_dir(), $this->logFilePrefix);
         exec(
-            'newman run' .
+            'npm install -g newman && newman run' .
             ' tests/rest_api/' . $this->restCollection .
             ' --no-color --disable-unicode --reporter-cli-no-assertions' .
             ' --environment ' . $this->envfile .
