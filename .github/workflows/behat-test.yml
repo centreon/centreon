@@ -107,7 +107,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: acceptance-test-reports
+          name: ${{ github.workflow }}-test-reports
           path: xunit-reports/${{ matrix.feature }}
 
   behat-test-report:
@@ -119,7 +119,7 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
-          name: acceptance-test-reports
+          name: ${{ github.workflow }}-test-reports
           path: xunit-reports
 
       - name: Publish tests report
@@ -128,4 +128,4 @@ jobs:
         with:
           check_name: ${{ inputs.module_name }}-behat-tests-report
           comment_mode: failures
-          junit_files: ./xunit-reports/**/*.xml
+          junit_files: xunit-reports/*.xml
