@@ -97,12 +97,12 @@ jobs:
             -e "s#@WEB_FRESH_IMAGE@#docker.registry.apps.centreon.com/${{ inputs.image_name }}-fresh-centos7:${{ github.head_ref || github.ref_name }}#g" \
             -e "s#@WEB_WIDGETS_IMAGE@#docker.registry.apps.centreon.com/${{ inputs.image_name }}-widgets-centos7:${{ github.head_ref || github.ref_name }}#g" \
             ./.github/docker/docker-compose.yml > ${{ inputs.module_name }}/docker-compose.yml
-          docker pull $SELENIUM_IMAGE
-          docker pull $WEB_IMAGE
+          #docker pull $SELENIUM_IMAGE
+          #docker pull $WEB_IMAGE
           cd ${{ inputs.module_name }}
           ./vendor/bin/behat --config="${{ inputs.config_file }}" --format=pretty --out=std --format=junit --out="../xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
           rm -rf xunit-report && mkdir xunit-report
-          mv ${{ inputs.features_path }}/$(echo "${{ matrix.feature }}"" | sed "s#.feature#.xml#g" ) xunit-report/
+          mv ${{ inputs.features_path }}/$(echo "${{ matrix.feature }}" | sed "s#.feature#.xml#g" ) xunit-report/
 
       - uses: actions/upload-artifact@v3
         if: ${{ failure() }}
