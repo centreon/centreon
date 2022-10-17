@@ -94,10 +94,10 @@ jobs:
           rm -rf xunit-reports
           mkdir -p xunit-reports
           sed \
-            -e 's#@SELENIUM_IMAGE@#$SELENIUM_IMAGE#g' \
-            -e 's#@WEB_IMAGE@#$WEB_IMAGE#g' \
-            -e 's#@WEB_FRESH_IMAGE@#docker.registry.apps.centreon.com/${{ inputs.image_name }}-fresh-centos7:${{ github.head_ref || github.ref_name }}#g' \
-            -e 's#@WEB_WIDGETS_IMAGE@#docker.registry.apps.centreon.com/${{ inputs.image_name }}-widgets-centos7:${{ github.head_ref || github.ref_name }}#g' \
+            -e "s#@SELENIUM_IMAGE@#$SELENIUM_IMAGE#g" \
+            -e "s#@WEB_IMAGE@#$WEB_IMAGE#g" \
+            -e "s#@WEB_FRESH_IMAGE@#docker.registry.apps.centreon.com/${{ inputs.image_name }}-fresh-centos7:${{ github.head_ref || github.ref_name }}#g" \
+            -e "s#@WEB_WIDGETS_IMAGE@#docker.registry.apps.centreon.com/${{ inputs.image_name }}-widgets-centos7:${{ github.head_ref || github.ref_name }}#g" \
             ./.github/docker/docker-compose.yml > ${{ inputs.module_name }}/docker-compose.yml
           docker pull $SELENIUM_IMAGE
           docker pull $WEB_IMAGE
