@@ -7,4 +7,5 @@ chown -R apache. /etc/centreon-engine/*
 chmod -R 664 /etc/centreon-engine/*
 
 # Start Centreon Engine daemon.
-/etc/init.d/centengine start
+service centengine start
+service centengine reload

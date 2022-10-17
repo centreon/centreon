@@ -7,4 +7,5 @@ chown -R apache. /etc/centreon-broker/*
 chmod -R 664 /etc/centreon-broker/*
 
 # Start Centreon Broker daemons.
-/etc/init.d/cbd start
+service cbd start
+service cbd reload
