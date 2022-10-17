@@ -26,33 +26,33 @@ runs:
         fi
         case "$BRANCHNAME" in
           MON* | dev*)
-            echo "::set-output name=minor_version::0"
-            echo "::set-output name=release::`date +%s`.${{ github.sha }}"
+            echo "minor_version=0" >> $GITHUB_ENV
+            echo "release=`date +%s`.${{ github.sha }}" >> $GITHUB_ENV
             ;;
           master)
-            echo "::set-output name=minor_version::0"
-            echo "::set-output name=release::0"
+            echo "minor_version=0" >> $GITHUB_ENV
+            echo "release=0" >> $GITHUB_ENV
             ;;
           release* | hotfix*)
             MAJOR_VERSION=$(echo $GITHUB_REF_NAME | grep -oP '([0-9]{2}\.[0-9]{2})')
             OLDV=$(git tag --sort=-v:refname --list "centreon-${{ inputs.module_name }}-$MAJOR_VERSION*" | head -n 1)
             if [ -z "$OLDV" ]; then
-              echo "::set-output name=minor_version::0"
-              echo "::set-output name=release::0"
+              echo "minor_version=0" >> $GITHUB_ENV
+              echo "release=0" >> $GITHUB_ENV
             else
-              echo "::set-output name=minor_version::$(echo $OLDV | grep -oP '([0-9]+$)')+1"
-              echo "::set-output name=release::0"
+              echo "minor_version=$(echo $OLDV | grep -oP '([0-9]+$)')+1" >> $GITHUB_ENV
+              echo "release=0" >> $GITHUB_ENV
             fi
             ;;
           ^[0-9]{2}\.[0-9]{2}.)
             MAJOR_VERSION=$(echo $GITHUB_REF_NAME | grep -oP '([0-9]{2}\.[0-9]{2})')
             OLDV=$(git tag --sort=-v:refname --list "centreon-${{ inputs.module_name }}-$MAJOR_VERSION*" | head -n 1)
             if [ -z "$OLDV" ]; then
-              echo "::set-output name=minor_version::0"
-              echo "::set-output name=release::0"
+              echo "minor_version=0" >> $GITHUB_ENV
+              echo "release=0" >> $GITHUB_ENV
             else
-              echo "::set-output name=minor_version::$(echo $OLDV | grep -oP '([0-9]+$)')"
-              echo "::set-output name=release::0"
+              echo "minor_version=$(echo $OLDV | grep -oP '([0-9]+$)')" >> $GITHUB_ENV
+              echo "release=0" >> $GITHUB_ENV
             fi
             ;;
           *)
