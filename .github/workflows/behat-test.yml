@@ -95,7 +95,7 @@ jobs:
             -e 's#@WEB_WIDGETS_IMAGE@#docker.registry.apps.centreon.com/${{ inputs.image_name }}-widgets-centos7:${{ github.head_ref || github.ref_name }}#g' \
             ./.github/docker/docker-compose.yml > ${{ inputs.module_name }}/docker-compose.yml
           cd ${{ inputs.module_name }}
-          ./vendor/bin/behat --config="${{ inputs.config_file }}" --format=pretty --out=std --format=junit --out="../xunit-reports/${{ matrix.feature }}" "${{ inputs.features_path }}/${{ matrix.feature }}"
+          ./vendor/bin/behat --config="${{ inputs.config_file }}" --format=pretty --out=std --format=junit --out="../xunit-reports/$(dirname ${{ matrix.feature }})" "${{ inputs.features_path }}/${{ matrix.feature }}"
 
       - uses: actions/upload-artifact@v3
         if: ${{ failure() }}
@@ -109,7 +109,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ github.workflow }}-test-reports
-          path: xunit-reports/${{ matrix.feature }}
+          path: xunit-reports/$(dirname ${{ matrix.feature }})
 
   behat-test-report:
     needs: [behat-test-run]
