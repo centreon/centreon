@@ -108,7 +108,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: acceptance-test-reports
-          path: xunit-reports
+          path: xunit-reports/${{ matrix.feature }}
 
   behat-test-report:
     needs: [behat-test-run]
