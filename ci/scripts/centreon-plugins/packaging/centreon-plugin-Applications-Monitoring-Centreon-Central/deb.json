@@ -1,0 +1,8 @@
+{
+    "dependencies": [
+        "libjson-perl",
+        "libxml-libxml-perl",
+        "libdbi-perl",
+        "libdbd-mysql-perl"
+    ]
+}
