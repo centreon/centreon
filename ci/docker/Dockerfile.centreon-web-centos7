@@ -44,7 +44,7 @@ COPY *.rpm /tmp/rpms-centreon/
 RUN <<EOF
 
 rm -f /tmp/rpms-centreon/centreon-22.10*.rpm /tmp/rpms-centreon/centreon-central-22.10*.rpm
-yum install -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb libfaketime
+yum install -y /tmp/rpms-centreon/centreon-*.rpm centreon-broker-cbd centreon-broker-influxdb libfaketime cronie
 
 rm -f /usr/share/centreon/.env.local.php
 echo "APP_DEBUG=true" >> /usr/share/centreon/.env
