@@ -18,7 +18,7 @@ Feature:
     When I want to generate the monitoring server configuration #1
     Then the response code should be 204
 
-    WhenI wait 5 seconds
+    When I wait 5 seconds
     And I want to reload the monitoring server configuration #1
     Then the response code should be 204
 
