@@ -15,7 +15,6 @@ runs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: 8.1
-        working-directory: ${{ inputs.base_directory }}
       env:
         runner: self-hosted
 
