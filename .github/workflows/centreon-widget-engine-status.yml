@@ -17,6 +17,7 @@ on:
 
 env:
   version: "22.10"
+  module: "centreon-widget-engine-status"
 
 jobs:
   widget-packaging-rpm:
@@ -44,35 +45,17 @@ jobs:
           module_name: ${{ env.module }}
         id: get_version
 
-      - name: Login to Registry
-        uses: docker/login-action@v2
+      - uses: ./.github/actions/package
         with:
-          registry: docker.registry.apps.centreon.com
-          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-
-      - name: Package
-        uses: ./.github/actions/runner-docker
-        with:
-          script_name: ${{ matrix.path }}/centreon-widget-engine-status-packaging
+          package_extension: rpm
           image_name: ${{ matrix.image }}
-          image_version: ${{ env.version }}
-          params: ${{ env.version }}.${{ steps.get_version.outputs.minor_version }} ${{ steps.get_version.outputs.release }}
-
-      - name: Sign
-        uses: ./.github/actions/runner-docker
-        with:
-          script_name: rpm-signing
-          image_name: rpm-signing
-          image_version: ubuntu
-
-      - name: Use cache RPM files
-        uses: actions/cache@v3
-        env:
-          cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-centreon-widget-engine-status
-        with:
-          path: ./*.rpm
-          key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
+          script_name: ${{ matrix.path }}/centreon-widget-engine-status-packaging
+          module_name: ${{ env.module }}
+          version: ${{ env.version }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+          sign: true
+          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
   widget-packaging-deb:
     runs-on: [self-hosted, common]
@@ -90,34 +73,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 'Get minor and release version'
-        uses: ./.github/actions/get-package-version
+      - uses: ./.github/actions/package
         with:
-          module_name: ${{ env.module }}
-        id: get_version
-
-      - name: Login to Registry
-        uses: docker/login-action@v2
-        with:
-          registry: docker.registry.apps.centreon.com
-          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-
-      - name: Package
-        uses: ./.github/actions/runner-docker
-        with:
-          script_name: ${{ matrix.path }}/centreon-widget-engine-status-packaging
+          package_extension: deb
           image_name: ${{ matrix.image }}
-          image_version: ${{ env.version }}
-          params: ${{ env.version }}.${{ steps.get_version.outputs.minor_version }} ${{ steps.get_version.outputs.release }}
-
-      - name: Use cache DEB files
-        uses: actions/cache@v3
-        env:
-          cache-name-debbuild: cache-${{ github.sha }}-${{ github.run_id }}-debbuild-centreon-widget-engine-status
-        with:
-          path: ./*.deb
-          key: ${{ env.cache-name-debbuild }}-${{ matrix.distrib }}
+          script_name: ${{ matrix.path }}/centreon-widget-engine-status-packaging
+          module_name: ${{ env.module }}
+          version: ${{ env.version }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
   delivery-rpm:
     needs: [widget-packaging-rpm]
@@ -141,6 +106,7 @@ jobs:
           version: ${{ env.version }}
           nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
           nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
 
   delivery-debian:
     needs: [widget-packaging-deb]
@@ -162,3 +128,4 @@ jobs:
           version: ${{ env.version }}
           nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
           nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
