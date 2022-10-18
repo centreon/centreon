@@ -39,12 +39,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 'Get minor and release version'
-        uses: ./.github/actions/get-package-version
-        with:
-          module_name: ${{ env.module }}
-        id: get_version
-
       - uses: ./.github/actions/package
         with:
           package_extension: rpm

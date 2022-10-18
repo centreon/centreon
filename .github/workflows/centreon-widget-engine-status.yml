@@ -21,7 +21,6 @@ env:
 
 jobs:
   widget-packaging-rpm:
-    run-name: ${{ env.module }}-packaging-rpm
     runs-on: [self-hosted, common]
 
     strategy:
