@@ -14,19 +14,19 @@ bash /tmp/mariadb_repo_setup
 sed -ri 's/10\../10.5/' /etc/yum.repos.d/mariadb.repo
 rm -f /tmp/mariadb_repo_setup
 yum install -y MariaDB-server MariaDB-client
-rpm -e --nodeps galera-4
-rm -f /var/lib/mysql/ib_logfile0
-echo "[server]
-log_output=FILE
-general_log_file=/var/lib/mysql/queries.log
-general_log=0
-slow_query_log_file=/var/lib/mysql/slow_queries.log
-slow_query_log=1
-innodb_file_per_table
-innodb_flush_method=O_DIRECT
-innodb_log_file_size=4M
-innodb_fast_shutdown=0
-" > /etc/my.cnf.d/container.cnf
+#rpm -e --nodeps galera-4
+#rm -f /var/lib/mysql/ib_logfile0
+#echo "[server]
+#log_output=FILE
+#general_log_file=/var/lib/mysql/queries.log
+#general_log=0
+#slow_query_log_file=/var/lib/mysql/slow_queries.log
+#slow_query_log=1
+#innodb_file_per_table
+#innodb_flush_method=O_DIRECT
+#innodb_log_file_size=4M
+#innodb_fast_shutdown=0
+#" > /etc/my.cnf.d/container.cnf
 
 curl -o centreon-release.rpm "https://yum.centreon.com/standard/22.10/el7/stable/noarch/RPMS/centreon-release-22.10-1.el7.centos.noarch.rpm"
 yum install -y centreon-release.rpm
