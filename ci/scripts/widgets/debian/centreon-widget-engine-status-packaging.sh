@@ -13,7 +13,7 @@ export RELEASE="$now.$COMMIT"
 AUTHOR="Luiz Costa"
 AUTHOR_EMAIL="me@luizgustavo.pro.br"
 
-cd /src/widgets/$PROJECT
+cd /src/widgets
 
 if [ -d /build ]; then
     rm -rf /build

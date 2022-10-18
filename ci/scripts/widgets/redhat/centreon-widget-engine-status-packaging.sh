@@ -14,7 +14,7 @@ if [ ! -d /root/rpmbuild/SOURCES ] ; then
     mkdir -p /root/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
 fi
 
-cd /src/widgets/$PROJECT
+cd /src/widgets
 
 rm -rf /tmp/$PROJECT-$VERSION
 mkdir /tmp/$PROJECT-$VERSION
