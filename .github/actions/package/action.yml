@@ -52,7 +52,7 @@ runs:
     - name: Login to Registry
       uses: docker/login-action@v2
       with:
-        registry: docker.centreon.com
+        registry: docker.registry.apps.centreon.com
         username: ${{ inputs.nexus_username }}
         password: ${{ inputs.nexus_password }}
 
