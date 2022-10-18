@@ -5,7 +5,7 @@ pidfile='/var/run/centengine.pid'
 service_start() {
     echo "centenginedevscript: starting centengine"
     if [ \! -f "$pidfile" ] ; then
-        pid=`su - centreon-engine -c "/usr/sbin/centengine /etc/centreon-engine/centengine.cfg > /var/log/centreon-engine/centengine.log & echo \\$!"`
+        pid=`su - centreon-engine -c "/usr/sbin/centengine /etc/centreon-engine/centengine.cfg > /dev/null 2>&1 & echo \\$!"`
         echo "$pid" > "$pidfile"
         echo "centenginedevscript: centengine started with pid $pid"
     else
