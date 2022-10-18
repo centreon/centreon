@@ -10,6 +10,10 @@ inputs:
   image_version:
     description: "image_version"
     required: true
+  module_name:
+    description: "module_name"
+    required: true
+    default: 'None'
   centreon_pat:
     description: "Secret"
     required: false
@@ -20,5 +24,5 @@ runs:
   using: "composite"
 
   steps:
-    - run: docker run -i -e TOKEN=${{ inputs.centreon_pat }} --entrypoint /src/ci/scripts/${{ inputs.script_name }}.sh -v "$PWD:/src" docker.registry.apps.centreon.com/${{ inputs.image_name }}:${{ inputs.image_version}} ${{ inputs.params }}
+    - run: docker run -i -e TOKEN=${{ inputs.centreon_pat }} -e MODULE=${{ inputs.module_name }} --entrypoint /src/ci/scripts/${{ inputs.script_name }}.sh -v "$PWD:/src" docker.registry.apps.centreon.com/${{ inputs.image_name }}:${{ inputs.image_version}} ${{ inputs.params }}
       shell: bash

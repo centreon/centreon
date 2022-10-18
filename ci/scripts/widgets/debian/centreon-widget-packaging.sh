@@ -2,7 +2,7 @@
 
 set -ex
 
-PROJECT="centreon-widget-engine-status"
+PROJECT="$MODULE"
 
 VERSION=$1
 COMMIT=$2

@@ -62,6 +62,7 @@ runs:
         script_name: ${{ inputs.script_name }}
         image_name: ${{ inputs.image_name }}
         image_version: ${{ inputs.version }}
+        module_name: ${{ inputs.module_name }}
         params: ${{ inputs.version }}.${{ steps.get_version.outputs.minor_version }} ${{ steps.get_version.outputs.release }}
 
     - name: Sign
