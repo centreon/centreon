@@ -1,0 +1,131 @@
+name: centreon-widget-live-top10-memory-usage
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/centreon-widget-live-top10-memory-usage.yml'
+      - 'widgets/centreon-widget-live-top10-memory-usage/**'
+  push:
+    branches:
+      - develop
+    paths:
+      - '.github/workflows/centreon-widget-live-top10-memory-usage.yml'
+      - 'widgets/centreon-widget-live-top10-memory-usage/**'
+    tags:
+      - centreon-widget-live-top10-memory-usage-22.10.**
+
+env:
+  version: "22.10"
+  module: "centreon-widget-live-top10-memory-usage"
+
+jobs:
+  widget-packaging-rpm:
+    runs-on: [self-hosted, common]
+
+    strategy:
+      matrix:
+        include:
+          - image: packaging-widgets-centos7
+            distrib: el7
+            path: widgets/redhat
+          - image: packaging-widgets-alma8
+            distrib: el8
+            path: widgets/redhat
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: 'Get minor and release version'
+        uses: ./.github/actions/get-package-version
+        with:
+          module_name: ${{ env.module }}
+        id: get_version
+
+      - uses: ./.github/actions/package
+        with:
+          package_extension: rpm
+          image_name: ${{ matrix.image }}
+          script_name: ${{ matrix.path }}/centreon-widget-packaging
+          module_name: ${{ env.module }}
+          version: ${{ env.version }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+          sign: true
+          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+  widget-packaging-deb:
+    runs-on: [self-hosted, common]
+
+    strategy:
+      matrix:
+        include:
+          - image: packaging-widgets-bullseye
+            distrib: bullseye
+            path: widgets/debian
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/package
+        with:
+          package_extension: deb
+          image_name: ${{ matrix.image }}
+          script_name: ${{ matrix.path }}/centreon-widget-packaging
+          module_name: ${{ env.module }}
+          version: ${{ env.version }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+  delivery-rpm:
+    needs: [widget-packaging-rpm]
+    runs-on: [self-hosted, common]
+    strategy:
+      matrix:
+        include:
+          - module_name: widgets
+            distrib: el7
+          - module_name: widgets
+            distrib: el8
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Delivery
+        uses: ./.github/actions/rpm-delivery
+        with:
+          module_name: ${{ matrix.module_name }}
+          distrib: ${{ matrix.distrib }}
+          version: ${{ env.version }}
+          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+
+  delivery-debian:
+    needs: [widget-packaging-deb]
+    runs-on: [self-hosted, common]
+    strategy:
+      matrix:
+        include:
+          - module_name: widgets
+            distrib: bullseye
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Delivery
+        uses: ./.github/actions/deb-delivery
+        with:
+          module_name: ${{ matrix.module_name }}
+          distrib: ${{ matrix.distrib }}
+          version: ${{ env.version }}
+          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
