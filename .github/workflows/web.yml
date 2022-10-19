@@ -17,98 +17,36 @@ on:
 
 env:
   version: "22.10"
-  frontend_directory: ./centreon/www/front_src/src
-
+  base_directory: centreon
 
 jobs:
-#  centreon-web-backend-lint-phpcs:
-#    runs-on: ubuntu-22.04
-#    if: ${{ github.event_name != 'workflow_dispatch' }}
+  frontend-build:
+    runs-on: [self-hosted, common]
 
-#    steps:
-#      - uses: actions/checkout@v3
+    steps:
+      - uses: actions/checkout@v3
 
-#      - name: Get changed files
-#        id: files
-#        uses: jitterbit/get-changed-files@v1
+      - uses: ./.github/actions/frontend-build
+        with:
+          base_directory: ${{ env.base_directory }}
+          index_file: ${{ env.base_directory }}/www/index.html
+          static_directory: ${{ env.base_directory }}/www/static
+          index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
+          static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
 
-#      - name: Setup PHP
-#        uses: shivammathur/setup-php@v2
-#        with:
-#          php-version: 8.1
-#          coverage: none
-#          tools: cs2pr
+  backend-dependencies:
+    runs-on: [self-hosted, common]
 
-#      - run: composer install
-#        working-directory: centreon
+    steps:
+      - uses: actions/checkout@v3
 
-#      - name: Lint
-#        run: |
-#          ./centreon/vendor/bin/phpcs \
-#            --extensions=php \
-#            --standard=./centreon/ruleset.xml \
-#            --report=checkstyle \
-#            --report-file=./checkstyle-phpcs.xml \
-#            ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }}
+      - uses: ./.github/actions/backend-dependencies
+        with:
+          base_directory: ${{ env.base_directory }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
 
-#      - name: Show PHPCS results in PR
-#        if: ${{ always() }}
-#        run: cs2pr checkstyle-phpcs.xml
-
-#      - name: Publish report
-#        if: ${{ always() }}
-#        uses: jwgmeligmeyling/checkstyle-github-action@master
-#        with:
-#          name: centreon-phpcs-report
-#          path: checkstyle-phpcs.xml
-
-#  centreon-web-backend-lint-phpstan:
-#    runs-on: ubuntu-22.04
-#    if: ${{ github.event_name != 'workflow_dispatch' }}
-
-#    steps:
-#      - uses: actions/checkout@v3
-
-#      - name: Get changed files
-#        id: files
-#        uses: jitterbit/get-changed-files@v1
-
-#      - name: Setup PHP
-#        uses: shivammathur/setup-php@v2
-#        with:
-#          php-version: 8.1
-#          coverage: none
-#          tools: cs2pr
-
-#      - run: composer install
-#        working-directory: centreon
-
-#      - name: Lint
-#        run: |
-#          ./centreon/vendor/bin/phpstan \
-#            analyse -c ./centreon/phpstan.neon \
-#            --level 6 \
-#            --memory-limit=512M \
-#            --error-format=checkstyle \
-#            --no-interaction \
-#            --no-progress ${{ steps.files.outputs.added }} ${{ steps.files.outputs.modified }} \
-#            > checkstyle-phpstan.xml
-
-#      - name: Show PHPStan results in PR
-#        if: ${{ always() }}
-#        run: cs2pr ./checkstyle-phpstan.xml
-
-#      - name: Publish report
-#        if: ${{ always() }}
-#        uses: jwgmeligmeyling/checkstyle-github-action@master
-#        with:
-#          name: centreon-phpstan-report
-#          path: checkstyle-phpstan.xml
-
-
-
-  centreon-web-frontend-lint:
-    runs-on: ubuntu-22.04
+  frontend-lint:
+    runs-on: [self-hosted, common]
 
     steps:
       - uses: actions/setup-node@v3
@@ -132,8 +70,8 @@ jobs:
           name: centreon-web-eslint-report
           path: centreon/checkstyle.xml
 
-  centreon-web-frontend-unit-test:
-    runs-on: ubuntu-22.04
+  frontend-unit-test:
+    runs-on: [self-hosted, common]
 
     steps:
       - uses: actions/setup-node@v3
@@ -158,8 +96,8 @@ jobs:
           comment_mode: failures
           junit_files: "centreon/junit.xml"
 
-  centreon-web-backend-unit-test:
-    runs-on: ubuntu-22.04
+  backend-unit-test:
+    runs-on: [self-hosted, common]
 
     steps:
       - uses: actions/checkout@v3
@@ -169,10 +107,14 @@ jobs:
         with:
           php-version: 8.1
           coverage: none
+        env:
+          runner: self-hosted
 
       - name: Install dependencies
-        run: composer install --optimize-autoloader
-        working-directory: centreon
+        uses: ramsey/composer-install@v2
+        with:
+          working-directory: centreon
+          composer-options: "--optimize-autoloader"
 
       - name: Unit test
         run: XDEBUG_MODE=coverage composer run-script test:ci
@@ -186,14 +128,14 @@ jobs:
           comment_mode: failures
           junit_files: "centreon/build/phpunit.xml"
 
-  centreon-web-package-rpm:
+  package-rpm:
     runs-on: [self-hosted, common]
     needs: [
-#     centreon-web-backend-lint-phpcs,
-#     centreon-web-backend-lint-phpstan,
-      centreon-web-backend-unit-test,
-      centreon-web-frontend-lint,
-      centreon-web-frontend-unit-test,
+      backend-dependencies,
+      backend-unit-test,
+      frontend-build,
+      frontend-lint,
+      frontend-unit-test,
     ]
 
     strategy:
@@ -210,52 +152,33 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: "Get minor and release version"
-        uses: ./.github/actions/get-package-version
+      - uses: ./.github/actions/package
         with:
-          module_name: ${{ env.module }}
-        id: get_version
-
-      - name: Login to Registry
-        uses: docker/login-action@v2
-        with:
-          registry: docker.registry.apps.centreon.com
-          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
-
-      - name: Package
-        uses: ./.github/actions/runner-docker
-        with:
-          script_name: web-packaging-rpm
+          package_extension: rpm
+          frontend_index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
+          frontend_index_file: ${{ env.base_directory }}/www/index.html
+          frontend_static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
+          frontend_static_directory: ${{ env.base_directory }}/www/static
+          backend_vendor_cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
+          backend_vendor_directory: ${{ env.base_directory }}/vendor
           image_name: ${{ matrix.image }}
-          image_version: ${{ env.version }}
-          params: ${{ env.version }}.${{ steps.get_version.outputs.minor_version }} ${{ steps.get_version.outputs.release }}
+          script_name: web-packaging-rpm
+          module_name: centreon
+          version: ${{ env.version }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
+          sign: true
+          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
-      - name: Sign
-        uses: ./.github/actions/runner-docker
-        with:
-          script_name: rpm-signing
-          image_name: rpm-signing
-          image_version: ubuntu
-
-      - name: Cache RPM files
-        uses: actions/cache@v3
-        env:
-          cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-web
-        with:
-          path: ./*.rpm
-          key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
-
-  centreon-web-package-deb:
+  package-deb:
     runs-on: [self-hosted, common]
-    needs:
-      [
-#        centreon-web-backend-lint-phpcs,
-#        centreon-web-backend-lint-phpstan,
-        centreon-web-backend-unit-test,
-        centreon-web-frontend-lint,
-        centreon-web-frontend-unit-test,
-      ]
+    needs: [
+      backend-dependencies,
+      backend-unit-test,
+      frontend-build,
+      frontend-lint,
+      frontend-unit-test,
+    ]
 
     strategy:
       matrix:
@@ -298,14 +221,17 @@ jobs:
           path: ./*.deb
           key: ${{ env.cache-name-debbuild }}-${{ matrix.distrib }}
 
-  centreon-web-dockerize:
+  dockerize:
     runs-on: [self-hosted, common]
-    needs: [centreon-web-package-rpm, centreon-web-package-deb]
+    needs: [
+      package-rpm,
+      package-deb
+    ]
 
     strategy:
       matrix:
         include:
-          - project: run-centreon-open-source
+          - project: centreon-web
             distrib: centos7
             distrib_rpm: el7
             module_name: web
@@ -323,11 +249,9 @@ jobs:
 
       - name: Use cache RPM files
         uses: actions/cache@v3
-        env:
-          cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-web
         with:
           path: ./*.rpm
-          key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib_rpm }}
+          key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib_rpm }}
 
       - uses: docker/setup-buildx-action@v2
 
@@ -349,9 +273,18 @@ jobs:
           push: true
           tags: docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
-  centreon-web-test-e2e:
-    runs-on: ubuntu-22.04
-    needs: [centreon-web-dockerize]
+      - uses: docker/build-push-action@v3
+        with:
+          file: ci/docker/Dockerfile.${{ matrix.project }}-${{ matrix.distrib }}
+          target: web_widgets
+          context: .
+          pull: true
+          push: true
+          tags: docker.registry.apps.centreon.com/${{ matrix.project }}-widgets-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+
+  test-e2e:
+    runs-on: [self-hosted, common]
+    needs: [dockerize]
 
     steps:
       - name: Checkout sources
@@ -360,14 +293,14 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v2
         with:
-          registry: docker.centreon.com
+          registry: docker.registry.apps.centreon.com
           username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
           password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
       - name: Cypress e2e testing
         uses: ./.github/actions/cypress-e2e-testing
         with:
-          image: docker.centreon.com/run-centreon-open-source-centos7
+          image: docker.registry.apps.centreon.com/centreon-web-centos7
           image_version: ${{ github.head_ref || github.ref_name }}
           image_cypress_version: ${{ env.version }}
           module: centreon
@@ -387,9 +320,9 @@ jobs:
           comment_mode: failures
           junit_files: centreon/tests/e2e/cypress-result.xml
 
-  centreon-web-test-performances:
-    runs-on: ubuntu-22.04
-    needs: [centreon-web-dockerize]
+  test-performances:
+    runs-on: [self-hosted, common]
+    needs: [dockerize]
 
     steps:
       - uses: actions/checkout@v3
@@ -397,7 +330,7 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v2
         with:
-          registry: docker.centreon.com
+          registry: docker.registry.apps.centreon.com
           username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
           password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
@@ -405,7 +338,7 @@ jobs:
         uses: ./.github/actions/lighthouse-performance-testing
         with:
           path: "centreon/lighthouse"
-          image: docker.centreon.com/run-centreon-open-source-centos7
+          image: docker.registry.apps.centreon.com/centreon-web-centos7
           image_version: ${{ github.head_ref || github.ref_name }}
           image_lighthouse_version: ${{ env.version }}
           module: centreon
@@ -416,18 +349,43 @@ jobs:
           name: lighthouse-report
           path: centreon/lighthouse/report/lighthouseci-index.html
 
-  centreon-web-deliver-rpm:
-    runs-on: [self-hosted, common]
-    needs: [centreon-web-test-e2e]
+  api-integration-test:
+    needs: [dockerize]
+    uses: ./.github/workflows/behat-test.yml
+    with:
+      name: api
+      module_name: centreon
+      image_name: centreon-web
+      features_path: tests/api/features
+      config_file: tests/api/behat.yml
+    secrets:
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
+  legacy-e2e-test:
+    needs: [api-integration-test]
+    uses: ./.github/workflows/behat-test.yml
+    with:
+      name: e2e
+      module_name: centreon
+      image_name: centreon-web
+      features_path: features
+    secrets:
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+
+  deliver-rpm:
+    runs-on: [self-hosted, common]
+    needs: [
+      test-e2e,
+      test-performances,
+      legacy-e2e-test
+    ]
     strategy:
       matrix:
-        include:
-          - module_name: web
-            distrib: el7
-
-          - module_name: web
-            distrib: el8
+        distrib: [el7, el8]
 
     steps:
       - name: Checkout sources
@@ -436,20 +394,23 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/rpm-delivery
         with:
-          module_name: ${{ matrix.module_name }}
+          module_name: web
           distrib: ${{ matrix.distrib }}
           version: ${{ env.version }}
           nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
           nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
-  centreon-web-deliver-deb:
-    needs: [centreon-web-test-e2e]
+  deliver-deb:
     runs-on: [self-hosted, common]
+    needs: [
+      test-e2e,
+      test-performances,
+      legacy-e2e-test
+    ]
     strategy:
       matrix:
-        include:
-          - module_name: web
-            distrib: bullseye
+        distrib: [bullseye]
+
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
@@ -457,7 +418,7 @@ jobs:
       - name: Delivery
         uses: ./.github/actions/deb-delivery
         with:
-          module_name: ${{ matrix.module_name }}
+          module_name: web
           distrib: ${{ matrix.distrib }}
           version: ${{ env.version }}
           nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}

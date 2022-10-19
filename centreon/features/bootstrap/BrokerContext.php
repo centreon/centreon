@@ -58,7 +58,7 @@ class BrokerContext extends CentreonContext
     public function IExportConfiguration()
     {
         $this->reloadAllPollers();
-        $this->container->execute('service cbd restart', 'web');
+        $this->container->execute('service cbd restart', $this->webService);
     }
 
     /**
@@ -66,7 +66,7 @@ class BrokerContext extends CentreonContext
      */
     public function theNewConfigurationIsApplied()
     {
-        $return = $this->container->execute('cat /etc/centreon-broker/watchdog.json', 'web');
+        $return = $this->container->execute('cat /etc/centreon-broker/watchdog.json', $this->webService);
         if (!preg_match('/\/etc\/centreon-broker\/\/?new-name\.json/', $return['output'])) {
             throw new \Exception('new-name.json is not declared in watchdog.json');
         }
