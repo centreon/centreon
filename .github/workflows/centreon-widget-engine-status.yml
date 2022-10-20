@@ -20,7 +20,7 @@ env:
   module: "centreon-widget-engine-status"
 
 jobs:
-  widget-packaging-rpm:
+  packaging-rpm:
     runs-on: [self-hosted, common]
 
     strategy:
@@ -51,7 +51,7 @@ jobs:
           nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
           nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
-  widget-packaging-deb:
+  packaging-deb:
     runs-on: [self-hosted, common]
 
     strategy:
