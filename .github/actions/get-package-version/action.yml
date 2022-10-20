@@ -20,10 +20,13 @@ runs:
       run: |
         if [[ -z "$GITHUB_HEAD_REF" ]];
         then
-          export "BRANCHNAME"="$GITHUB_REF_NAME"
+          BRANCHNAME=$GITHUB_REF_NAME
         else
-          export "BRANCHNAME"="$GITHUB_HEAD_REF"
+          BRANCHNAME=$GITHUB_HEAD_REF
         fi
+
+        echo $BRANCHNAME
+
         case "$BRANCHNAME" in
           MON* | dev*)
             echo "minor_version=0" >> $GITHUB_OUTPUT
