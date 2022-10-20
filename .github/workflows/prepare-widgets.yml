@@ -22,13 +22,16 @@ jobs:
   get-modules:
     runs-on: [self-hosted, common]
     name: Get modules to build
-    container: ubuntu-latest
+    container: ubuntu
     outputs:
       folders: ${{ steps.command.outputs.dirs }}
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: Update cointainer
+        run: apt update -y && apt upgrade -y
 
       - name: Get changed directories
         id: changed-files
