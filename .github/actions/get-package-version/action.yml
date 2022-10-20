@@ -37,24 +37,27 @@ runs:
             echo "release=0" >> $GITHUB_OUTPUT
             ;;
           release* | hotfix*)
+            echo "in release or hotfix"
             MAJOR_VERSION=$(echo $GITHUB_REF_NAME | grep -oP '([0-9]{2}\.[0-9]{2})')
-            OLDV=$(git tag --sort=-v:refname --list "centreon-${{ inputs.module_name }}-$MAJOR_VERSION*" | head -n 1)
-            if [ -z "$OLDV" ]; then
+            echo "major version" $MAJOR_VERSION
+            OLD_VERSION=$(git tag --sort=-v:refname --list "centreon-${{ inputs.module_name }}-$MAJOR_VERSION*" | head -n 1)
+            echo "old version" $OLD_VERSION
+            if [ -z "$OLD_VERSION" ]; then
               echo "minor_version=0" >> $GITHUB_OUTPUT
               echo "release=0" >> $GITHUB_OUTPUT
             else
-              echo "minor_version=$(echo $OLDV | grep -oP '([0-9]+$)')+1" >> $GITHUB_OUTPUT
+              echo "minor_version=$(echo $OLD_VERSION | grep -oP '([0-9]+$)')+1" >> $GITHUB_OUTPUT
               echo "release=0" >> $GITHUB_OUTPUT
             fi
             ;;
           ^[0-9]{2}\.[0-9]{2}.)
             MAJOR_VERSION=$(echo $GITHUB_REF_NAME | grep -oP '([0-9]{2}\.[0-9]{2})')
-            OLDV=$(git tag --sort=-v:refname --list "centreon-${{ inputs.module_name }}-$MAJOR_VERSION*" | head -n 1)
-            if [ -z "$OLDV" ]; then
+            OLD_VERSION=$(git tag --sort=-v:refname --list "centreon-${{ inputs.module_name }}-$MAJOR_VERSION*" | head -n 1)
+            if [ -z "$OLD_VERSION" ]; then
               echo "minor_version=0" >> $GITHUB_OUTPUT
               echo "release=0" >> $GITHUB_OUTPUT
             else
-              echo "minor_version=$(echo $OLDV | grep -oP '([0-9]+$)')" >> $GITHUB_OUTPUT
+              echo "minor_version=$(echo $OLD_VERSION | grep -oP '([0-9]+$)')" >> $GITHUB_OUTPUT
               echo "release=0" >> $GITHUB_OUTPUT
             fi
             ;;
