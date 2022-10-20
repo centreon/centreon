@@ -36,6 +36,7 @@ jobs:
           path: ./widgets
 
   matrix:
+    runs-on: [self-hosted, common]
     name: Matrix Jobs
     needs: [find-jobs]
     container: ubuntu
