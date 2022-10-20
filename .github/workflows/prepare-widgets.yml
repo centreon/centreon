@@ -26,9 +26,7 @@ jobs:
     outputs:
       folders: ${{ steps.jobs.outputs.folders }}
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v1
 
       - id: jobs
         uses: philips-labs/list-folders-action@v1
