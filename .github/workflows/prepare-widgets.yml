@@ -30,8 +30,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Update cointainer
-        run: apt update -y && apt upgrade -y
+      - name: Update cointainer and install git
+        run: apt update -y && apt upgrade -y && apt install -y git
 
       - name: Get changed directories
         id: changed-files
