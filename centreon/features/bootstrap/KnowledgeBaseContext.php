@@ -24,7 +24,7 @@ class KnowledgeBaseContext extends CentreonContext
      */
     public function iAmLoggedInACentreonServerWithWikiInstalled()
     {
-        $this->launchCentreonWebContainer('web_kb');
+        $this->launchCentreonWebContainer('docker_compose_web', ['web', 'webdriver', 'mediawiki']);
         $this->container->waitForAvailableUrl(
             'http://' . $this->container->getHost() . ':' .
             $this->container->getPort(80, 'mediawiki') . '/index.php/Main_Page'
@@ -130,7 +130,7 @@ class KnowledgeBaseContext extends CentreonContext
         $this->assertFind('css', 'input[name="wpSave"]')->click();
 
         /* cron */
-        $this->container->execute("php /usr/share/centreon/cron/centKnowledgeSynchronizer.php", 'web');
+        $this->container->execute("php /usr/share/centreon/cron/centKnowledgeSynchronizer.php", $this->webService);
 
         /* Apply config */
         $this->restartAllPollers();
@@ -170,7 +170,7 @@ class KnowledgeBaseContext extends CentreonContext
         $this->assertFind('css', 'input[name="wpSave"]')->click();
 
         /* cron */
-        $this->container->execute("php /usr/share/centreon/cron/centKnowledgeSynchronizer.php", 'web');
+        $this->container->execute("php /usr/share/centreon/cron/centKnowledgeSynchronizer.php", $this->webService);
 
         /* Apply config */
         $this->restartAllPollers();

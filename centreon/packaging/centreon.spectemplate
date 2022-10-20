@@ -44,7 +44,6 @@ BuildRequires:  gettext
 BuildRequires:  php-cli
 BuildRequires:  php-mbstring
 BuildRequires:  php-xml
-BuildRequires:  nodejs
 BuildRequires:  systemd
 #BuildRequires:  selinux-policy-devel
 #BuildRequires:  policycoreutils

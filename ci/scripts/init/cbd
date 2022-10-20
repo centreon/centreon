@@ -14,11 +14,15 @@ service_start() {
 }
 
 service_stop() {
-    echo "cbddevscript: stopping cbwd"
-    kill -TERM `cat "$pidfile"`
-    sleep 2
-    rm -f "$pidfile"
-    echo "cbddevscript: cbwd stopped"
+    if [ -f "$pidfile" ] ; then
+        echo "cbddevscript: stopping cbwd"
+        kill -TERM `cat "$pidfile"`
+        while ps -p `cat "$pidfile"` > /dev/null; do sleep 1; done
+        rm -f "$pidfile"
+        echo "cbddevscript: cbwd stopped"
+    else
+	    echo "cbddevscript: cbwd is already stopped"
+    fi
 }
 
 service_restart() {
