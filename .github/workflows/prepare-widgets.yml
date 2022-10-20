@@ -7,8 +7,6 @@ on:
       - '.github/workflows/prepare-widgets.yml'
       - 'widgets/centreon-widget-engine-status/**'
   push:
-    branches:
-      - develop
     paths:
       - '.github/workflows/prepare-widgets.yml'
       - 'widgets/centreon-widget-engine-status/**'
