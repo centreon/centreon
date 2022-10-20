@@ -89,7 +89,7 @@ class AcknowledgementContext extends CentreonContext
     {
         $page = new MonitoringServicesPage($this);
 
-        $url = 'http://' . $this->container->getHost() . ':' . $this->container->getPort(80, 'web') .
+        $url = 'http://' . $this->container->getHost() . ':' . $this->container->getPort(80, $this->webService) .
         '/centreon/include/monitoring/external_cmd/cmdPopup.php';
         $page->addAcknowledgementOnService(
             'Centreon-Server',
@@ -109,7 +109,7 @@ class AcknowledgementContext extends CentreonContext
     public function iAcknowledgeTheMetaService()
     {
         $page = new MonitoringServicesPage($this);
-        $url = 'http://' . $this->container->getHost() . ':' . $this->container->getPort(80, 'web') .
+        $url = 'http://' . $this->container->getHost() . ':' . $this->container->getPort(80, $this->webService) .
             '/centreon/include/monitoring/external_cmd/cmdPopup.php';
         $page->addAcknowledgementOnService(
             '_Module_Meta',
