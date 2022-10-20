@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Update cointainer and install git
         run: apt update -y && apt upgrade -y && apt install -y git
@@ -36,8 +36,6 @@ jobs:
       - name: Get changed directories
         id: changed-files
         uses: tj-actions/changed-files@v32
-        with:
-          files: widgets/**
 
       - name: List modules
         id: command
