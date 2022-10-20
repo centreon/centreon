@@ -18,7 +18,7 @@ inputs:
     required: true
   cache_key:
     description: "The cached package key"
-    default: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-${{ inputs.module_name }}-${{ inputs.distrib }}
+    required: true
 
 runs:
   using: "composite"
