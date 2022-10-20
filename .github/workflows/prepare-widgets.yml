@@ -20,9 +20,9 @@ env:
 
 jobs:
   get-modules:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, common]
     name: Get modules to build
-
+    container: ubuntu-latest
     outputs:
       folders: ${{ steps.command.outputs.dirs }}
     steps:
