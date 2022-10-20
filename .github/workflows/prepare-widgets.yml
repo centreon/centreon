@@ -23,9 +23,11 @@ jobs:
     runs-on: [self-hosted, common]
     name: Find Jobs
     container: ubuntu
+    outputs:
+      folders: ${{ steps.command.outputs.dirs }}
     steps:
       - uses: actions/checkout@v3
 
       - name: List modules
-        run: find ./widgets -type d
-
+        id: command
+        run: echo -n "[ "; (cd widgets && find . -maxdepth 1 -type d -printf "%f\n" | sed 1d)|while read MODULE; do echo -n ${MODULE}; echo -n ", "; done | sed 's/\(.*\), /\1 /'; echo -n "]"
