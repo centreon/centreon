@@ -23,29 +23,9 @@ jobs:
     runs-on: [self-hosted, common]
     name: Find Jobs
     container: ubuntu
-    outputs:
-      folders: ${{ steps.jobs.outputs.folders }}
     steps:
-      - uses: actions/checkout@v1
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v3
 
-      - id: jobs
-        uses: philips-labs/list-folder-action@v1
-        with:
-          path: ./widgets
+      - name: List modules
+        run: find ./widgets -t d
 
-  matrix:
-    runs-on: [self-hosted, common]
-    name: Matrix Jobs
-    needs: [find-jobs]
-    container: ubuntu
-    defaults:
-      run:
-        working-directory: ${{ matrix.folder }}
-    strategy:
-      matrix:
-        folder: ${{ fromJson(needs.find-jobs.outputs.folders )}}
-    steps:
-      - name: do something
-        run: echo ${{ matrix.folder }}
