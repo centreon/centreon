@@ -19,15 +19,27 @@ env:
 
 
 jobs:
-  find-jobs:
+  get-modules:
     runs-on: [self-hosted, common]
-    name: Find Jobs
+    name: Get modules to build
     container: ubuntu
     outputs:
       folders: ${{ steps.command.outputs.dirs }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get changed directories
+        id: changed-files
+        uses: tj-actions/changed-files@v32
+        with:
+          files: widgets/**
 
       - name: List modules
         id: command
-        run: echo -n "[ "; (cd widgets && find . -maxdepth 1 -type d -printf "%f\n" | sed 1d)|while read MODULE; do echo -n ${MODULE}; echo -n ", "; done | sed 's/\(.*\), /\1 /'; echo -n "]"
+        #run: echo -n "[ "; (cd widgets && find . -maxdepth 1 -type d -printf "%f\n" | sed 1d)|while read MODULE; do echo -n ${MODULE}; echo -n ", "; done | sed 's/\(.*\), /\1 /'; echo -n "]"
+        run: |
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            echo "$file"
+          done
