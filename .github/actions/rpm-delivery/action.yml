@@ -38,7 +38,8 @@ runs:
           BRANCHNAME=$GITHUB_HEAD_REF
         fi
 
-        echo "[DEBUG] - $BRANCHNAME"
+        echo "[DEBUG] - Branch name: $BRANCHNAME"
+        echo "[DEBUG] - file system ./:" ls -la ./
 
         case "$BRANCHNAME" in
           develop)
@@ -61,7 +62,6 @@ runs:
             ;;
         esac
 
-        echo ls -la ./
 
         for FILE in *.rpm;
         do
