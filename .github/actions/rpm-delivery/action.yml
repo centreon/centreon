@@ -39,7 +39,6 @@ runs:
         fi
 
         echo "[DEBUG] - Branch name: $BRANCHNAME"
-        echo "[DEBUG] - file system ./:" ls -la ./
 
         case "$BRANCHNAME" in
           develop)
@@ -63,7 +62,7 @@ runs:
         esac
 
 
-        for FILE in *.rpm;
+        for FILE in ./*.rpm;
         do
           echo "[DEBUG] - File: $FILE"
           echo "[DEBUG] - Repo: $REPO"
