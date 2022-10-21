@@ -3,11 +3,8 @@
 set -ex
 
 VERSION=$1
-COMMIT=$2
-WIDGET_NAME=$3
-now=`date +%s`
-
-export RELEASE="$now.$COMMIT"
+RELEASE=$2
+WIDGET_NAME=`echo "$3" | sed "#centreon-widget/##"`
 
 AUTHOR="Luiz Costa"
 AUTHOR_EMAIL="me@luizgustavo.pro.br"
