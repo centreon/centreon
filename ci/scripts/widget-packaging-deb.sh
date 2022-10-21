@@ -4,7 +4,7 @@ set -ex
 
 VERSION=$1
 RELEASE=$2
-WIDGET_NAME=`echo "$3" | sed "#widgets/##"`
+WIDGET_NAME=`echo "$3" | sed "s#widgets/##"`
 
 AUTHOR="Luiz Costa"
 AUTHOR_EMAIL="me@luizgustavo.pro.br"

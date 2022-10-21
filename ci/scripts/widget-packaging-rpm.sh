@@ -4,7 +4,7 @@ set -ex
 
 VERSION=$1
 RELEASE=$2
-WIDGET_NAME=`echo "$3" | sed "#widgets/##"`
+WIDGET_NAME=`echo "$3" | sed "s#widgets/##"`
 
 if [ ! -d /root/rpmbuild/SOURCES ] ; then
     mkdir -p /root/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
