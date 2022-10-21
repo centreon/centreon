@@ -84,7 +84,7 @@ runs:
         script_name: ${{ inputs.script_name }}
         image_name: ${{ inputs.image_name }}
         image_version: ${{ inputs.version }}
-        params: ${{ inputs.version }}.${{ steps.get_version.outputs.minor_version }} ${{ steps.get_version.outputs.release }}
+        params: ${{ inputs.version }}.${{ steps.get_version.outputs.minor_version }} ${{ steps.get_version.outputs.release }} ${{ inputs.module_name }}
 
     - name: Sign
       if: ${{ inputs.sign != '' && inputs.package_extension == 'rpm' }}
