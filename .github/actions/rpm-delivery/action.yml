@@ -33,10 +33,13 @@ runs:
       run: |
         if [[ -z "$GITHUB_HEAD_REF" ]];
         then
-          BRANCHNAME="$GITHUB_REF_NAME"
+          BRANCHNAME=$GITHUB_REF_NAME
         else
-          BRANCHNAME="$GITHUB_HEAD_REF"
+          BRANCHNAME=$GITHUB_HEAD_REF
         fi
+
+        echo $BRANCHNAME
+
         case "$BRANCHNAME" in
           develop)
             REPO=unstable
