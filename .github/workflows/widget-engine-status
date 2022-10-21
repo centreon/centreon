@@ -4,14 +4,14 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - '.github/workflows/widget-engine-status.yml'
-      - 'widgets/centreon-widget-engine-status/**'
+      - ".github/workflows/widget-engine-status.yml"
+      - "widgets/centreon-widget-engine-status/**"
   push:
     branches:
       - develop
     paths:
-      - '.github/workflows/centreon-widget-engine-status.yml'
-      - 'widgets/centreon-widget-engine-status/**'
+      - ".github/workflows/centreon-widget-engine-status.yml"
+      - "widgets/centreon-widget-engine-status/**"
     tags:
       - centreon-widget-engine-status-22.10.**
 
