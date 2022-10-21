@@ -7,7 +7,7 @@ inputs:
   distrib:
     description: "The distribution used for packaging"
     required: true
-  nexus_username: 
+  nexus_username:
     description: "Artifact Manager technical username"
     required: true
   nexus_password:
@@ -16,20 +16,18 @@ inputs:
   version:
     description: "Centreon packaged version"
     required: true
-  
+  cache_key:
+    description: "The cached package key"
+    required: true
 
 runs:
   using: "composite"
   steps:
     - name: Use cache RPM files
       uses: actions/cache@v3
-      env:
-        cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-${{ inputs.module_name }}-${{ inputs.distrib }}
       with:
         path: ./*.rpm
-        key: ${{ env.cache-name-rpmbuild }}
-        restore-keys: |
-          ${{ env.cache-name-rpmbuild }}
+        key: ${{ inputs.cache_key }}
 
     - name: Publish RPMS to Nexus
       run: |

@@ -68,11 +68,9 @@ jobs:
 
       - name: Use cache RPM files
         uses: actions/cache@v3
-        env:
-          cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-widgets
         with:
           path: ./*.rpm
-          key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
+          key: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-widgets-${{ matrix.distrib }}
 
   widgets-packaging-deb:
     runs-on: [self-hosted, common]
@@ -113,11 +111,9 @@ jobs:
 
       - name: Use cache DEB files
         uses: actions/cache@v3
-        env:
-          cache-name-debbuild: cache-${{ github.sha }}-${{ github.run_id }}-debbuild-widgets
         with:
           path: ./*.deb
-          key: ${{ env.cache-name-debbuild }}-${{ matrix.distrib }}
+          key: cache-${{ github.sha }}-${{ github.run_id }}-debbuild-widgets-${{ matrix.distrib }}
 
   delivery-rpm:
     needs: [widgets-packaging-rpm]
@@ -141,6 +137,7 @@ jobs:
           version: ${{ env.version }}
           nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
           nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          cache_key: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-widgets-${{ matrix.distrib }}
 
   delivery-debian:
     needs: [widgets-packaging-deb]
@@ -162,3 +159,4 @@ jobs:
           version: ${{ env.version }}
           nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
           nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          cache_key: cache-${{ github.sha }}-${{ github.run_id }}-debbuild-widgets-${{ matrix.distrib }}

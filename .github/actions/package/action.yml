@@ -87,7 +87,7 @@ runs:
         params: ${{ inputs.version }}.${{ steps.get_version.outputs.minor_version }} ${{ steps.get_version.outputs.release }}
 
     - name: Sign
-      if: ${{ inputs.sign != '' }}
+      if: ${{ inputs.sign != '' && inputs.package_extension == 'rpm' }}
       uses: ./.github/actions/runner-docker
       with:
         script_name: rpm-signing

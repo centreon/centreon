@@ -7,7 +7,7 @@ inputs:
   distrib:
     description: "The distribution used for packaging"
     required: true
-  nexus_username: 
+  nexus_username:
     description: "Artifact Manager technical username"
     required: true
   nexus_password:
@@ -16,20 +16,18 @@ inputs:
   version:
     description: "Centreon packaged version"
     required: true
-  
+  cache_key:
+    description: "The cached package key"
+    required: true
 
 runs:
   using: "composite"
   steps:
     - name: Use cache DEB files
       uses: actions/cache@v3
-      env:
-        cache-name-debbuild: cache-${{ github.sha }}-${{ github.run_id }}-debbuild-${{ inputs.module_name }}-${{ inputs.distrib }}
       with:
         path: ./*.deb
-        key: ${{ env.cache-name-debbuild }}
-        restore-keys: |
-          ${{ env.cache-name-debbuild }}
+        key: ${{ inputs.cache_key }}
 
     - name: Publish debS to Nexus
       run: |
