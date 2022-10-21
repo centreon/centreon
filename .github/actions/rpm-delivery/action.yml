@@ -38,7 +38,7 @@ runs:
           BRANCHNAME=$GITHUB_HEAD_REF
         fi
 
-        echo BRANCHNAME
+        echo "[DEBUG] - $BRANCHNAME"
 
         case "$BRANCHNAME" in
           develop)
@@ -65,14 +65,14 @@ runs:
 
         for FILE in *.rpm;
         do
-          echo $FILE
+          echo "[DEBUG] - File: $FILE"
+          echo "[DEBUG] - Repo: $REPO"
 
           VERSION=${{ inputs.version }}
           DISTRIB=$(echo $FILE | grep -oP 'el[0-9]')
           ARCH=$(echo $FILE | grep -oP '(x86_64|noarch)')
           MODULE=$(echo $FILE | grep -oP 'centreon-\K([a-z]+)-([a-z]+)')
 
-          echo "[DEBUG] - Repo: $REPO"
           echo "[DEBUG] - Version: $VERSION"
           echo "[DEBUG] - Distrib: $DISTRIB"
           echo "[DEBUG] - Arch: $ARCH"
