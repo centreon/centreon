@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   pull_request:
     paths:
-      - '.github/workflows/centreon-widget-engine-status.yml'
+      - '.github/workflows/widget-engine-status.yml'
       - 'widgets/centreon-widget-engine-status/**'
   push:
     branches:
