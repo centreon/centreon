@@ -28,7 +28,7 @@ jobs:
       nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
       nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
-  deilvery:
+  delivery:
     needs: [package]
     uses: ./.github/workflows/widget-delivery.yml
     with:
