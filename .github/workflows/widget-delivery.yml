@@ -15,7 +15,6 @@ env:
 
 jobs:
   delivery-rpm:
-    needs: [package]
     runs-on: [self-hosted, common]
     strategy:
       matrix:
@@ -36,7 +35,6 @@ jobs:
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
 
   delivery-deb:
-    needs: [package]
     runs-on: [self-hosted, common]
     strategy:
       matrix:
