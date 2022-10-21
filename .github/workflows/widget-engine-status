@@ -1,4 +1,4 @@
-ame: centreon-widget-engine-status
+name: widget-engine-status
 
 on:
   workflow_dispatch:
@@ -20,8 +20,17 @@ env:
   module: "centreon-widget-engine-status"
 
 jobs:
-  package-and-delivery:
-    uses: ./.github/workflows/widget.yml
+  package:
+    uses: ./.github/workflows/widget-package.yml
+    with:
+      widget_name: engine-status
+    secrets:
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+  deilvery:
+    needs: [package]
+    uses: ./.github/workflows/widget-package.yml
     with:
       widget_name: engine-status
     secrets:
