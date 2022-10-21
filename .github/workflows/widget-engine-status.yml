@@ -30,7 +30,7 @@ jobs:
 
   deilvery:
     needs: [package]
-    uses: ./.github/workflows/widget-package.yml
+    uses: ./.github/workflows/widget-delivery.yml
     with:
       widget_name: engine-status
     secrets:
