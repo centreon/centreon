@@ -61,10 +61,12 @@ runs:
             ;;
         esac
 
+        FILES="*.rpm"
         echo "[DEBUG] - Repo: $REPO"
         ls -la
+        echo "[DEBUG] - Rpm FILES: $FILES"
 
-        for FILE in ./*.rpm;
+        for FILE in $FILES
         do
           echo "[DEBUG] - File: $FILE"
 
