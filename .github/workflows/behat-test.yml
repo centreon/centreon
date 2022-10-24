@@ -98,8 +98,9 @@ jobs:
             -e "s#@WEB_FRESH_IMAGE@#docker.registry.apps.centreon.com/${{ inputs.image_name }}-fresh-centos7:${{ github.head_ref || github.ref_name }}#g" \
             -e "s#@WEB_WIDGETS_IMAGE@#docker.registry.apps.centreon.com/${{ inputs.image_name }}-widgets-centos7:${{ github.head_ref || github.ref_name }}#g" \
             ./.github/docker/docker-compose.yml > ${{ inputs.module_name }}/docker-compose.yml
+          BASE_DIRECTORY=`pwd`
           cd ${{ inputs.module_name }}
-          ./vendor/bin/behat --config="${{ inputs.config_file }}" --format=pretty --out=std --format=junit --out="../xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
+          ./vendor/bin/behat --config="${{ inputs.config_file }}" --format=pretty --out=std --format=junit --out="$BASE_DIRECTORY/xunit-reports" "${{ inputs.features_path }}/${{ matrix.feature }}"
 
       - name: Clean empty reports
         if: always()
