@@ -15,7 +15,7 @@ const beforeScreenshot = async (page) => {
     height: 1000,
     width: 1000,
   });
-  await page.waitFor(600);
+  await page.waitForTimeout(600);
 };
 
 const getStoryKindRegex = () => {

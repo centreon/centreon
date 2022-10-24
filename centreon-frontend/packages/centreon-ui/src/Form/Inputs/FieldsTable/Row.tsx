@@ -1,5 +1,7 @@
+import { Children } from 'react';
+
 import { FormikValues, useFormikContext } from 'formik';
-import { not, path, split, remove } from 'ramda';
+import { not, path, split, remove, inc, is } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { makeStyles } from 'tss-react/mui';
 
@@ -10,22 +12,33 @@ import { getInput } from '..';
 import { InputPropsWithoutGroup } from '../models';
 
 interface StylesProps {
+  actionsCount?: number;
   columns?: number;
 }
 
-const useStyles = makeStyles<StylesProps>()((theme, { columns }) => ({
-  icon: {
-    marginTop: theme.spacing(0.5),
-  },
-  inputsRow: {
-    columnGap: theme.spacing(2),
-    display: 'grid',
-    gridTemplateColumns: `repeat(${columns}, 1fr) ${theme.spacing(6)}`,
-    gridTemplateRows: 'min-content',
-  },
-}));
+const useStyles = makeStyles<StylesProps>()(
+  (theme, { columns, actionsCount }) => ({
+    actions: {
+      alignItems: 'center',
+      display: 'flex',
+      flexGrow: 1,
+    },
+    icon: {
+      marginTop: theme.spacing(0.5),
+    },
+    inputsRow: {
+      columnGap: theme.spacing(2),
+      display: 'grid',
+      gridTemplateColumns: `repeat(${columns}, 1fr) ${theme.spacing(
+        actionsCount ? 4 * actionsCount : 6,
+      )}`,
+      gridTemplateRows: 'min-content',
+    },
+  }),
+);
 
 interface Props {
+  additionalActions?: React.ReactNode;
   columns?: Array<InputPropsWithoutGroup>;
   defaultRowValue?: object | string;
   deleteLabel?: string;
@@ -34,6 +47,7 @@ interface Props {
   index: number;
   isLastElement: boolean;
   label: string;
+  onDeleteRow?: (rowIndex: number) => void;
   tableFieldName: string;
 }
 
@@ -46,9 +60,16 @@ const Row = ({
   getRequired,
   isLastElement,
   deleteLabel,
+  onDeleteRow,
   hasSingleValue,
+  additionalActions,
 }: Props): JSX.Element => {
-  const { classes } = useStyles({ columns: columns?.length });
+  const { classes } = useStyles({
+    actionsCount: additionalActions
+      ? inc(Children.count(additionalActions))
+      : 1,
+    columns: columns?.length,
+  });
   const { t } = useTranslation();
 
   const { setFieldValue, values } = useFormikContext<FormikValues>();
@@ -56,9 +77,15 @@ const Row = ({
   const tableFieldNamePath = split('.', tableFieldName);
 
   const tableValues = path(tableFieldNamePath, values) as Array<unknown>;
+
   const rowValues = tableValues[index];
 
   const deleteRow = (): void => {
+    if (is(Function, onDeleteRow)) {
+      onDeleteRow(index);
+
+      return;
+    }
     setFieldValue(tableFieldName, remove(index, 1, tableValues));
   };
 
@@ -102,14 +129,17 @@ const Row = ({
         );
       })}
       {not(isLastElement) && (
-        <IconButton
-          ariaLabel={deleteLabel && t(deleteLabel)}
-          className={classes.icon}
-          title={deleteLabel && t(deleteLabel)}
-          onClick={deleteRow}
-        >
-          <DeleteIcon />
-        </IconButton>
+        <div className={classes.actions}>
+          <IconButton
+            ariaLabel={deleteLabel && t(deleteLabel)}
+            className={classes.icon}
+            title={deleteLabel && t(deleteLabel)}
+            onClick={deleteRow}
+          >
+            <DeleteIcon />
+          </IconButton>
+          {additionalActions}
+        </div>
       )}
     </div>
   );

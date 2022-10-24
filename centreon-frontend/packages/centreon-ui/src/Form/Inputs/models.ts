@@ -48,6 +48,7 @@ export interface InputProps {
     defaultRowValue: object | string;
     deleteLabel: string;
     getRequired?: ({ values, index }: FieldsTableGetRequiredProps) => boolean;
+    getSortable?: (values: FormikValues) => boolean;
     hasSingleValue?: boolean;
   };
   getDisabled?: (values: FormikValues) => boolean;
@@ -77,6 +78,8 @@ export interface InputProps {
 }
 
 export type InputPropsWithoutGroup = Omit<InputProps, 'group'>;
+
+export type InputPropsWithoutGroupAndType = Omit<InputProps, 'group' | 'type'>;
 
 export interface Group {
   EndIcon?: (props: SvgIconProps) => JSX.Element;

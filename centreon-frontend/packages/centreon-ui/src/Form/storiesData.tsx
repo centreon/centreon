@@ -1,6 +1,6 @@
-import { useFormikContext } from 'formik';
+import { FormikValues, useFormikContext } from 'formik';
 import * as Yup from 'yup';
-import { equals } from 'ramda';
+import { equals, prop } from 'ramda';
 
 import { Typography } from '@mui/material';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
@@ -17,6 +17,7 @@ import {
 
 export interface BasicForm {
   active: boolean;
+  activeSortableFieldsTable: boolean;
   animals: Array<SelectEntry>;
   anotherText: string;
   class: { id: number; name: string } | null;
@@ -32,6 +33,10 @@ export interface BasicForm {
   language: string;
   name: string;
   password: string;
+  roleMapping: Array<{
+    role: SelectEntry;
+    value: string;
+  }>;
   scopes: Array<string>;
   sports: Array<SelectEntry>;
 }
@@ -43,6 +48,9 @@ const selectEntryValidationSchema = Yup.object().shape({
 
 export const basicFormValidationSchema = Yup.object().shape({
   active: Yup.boolean().required('Active is required'),
+  activeSortableFieldsTable: Yup.boolean().required(
+    'Active Sortable FieldsTable is required',
+  ),
   animals: Yup.array().of(selectEntryValidationSchema.required('Required')),
   anotherText: Yup.string(),
   class: selectEntryValidationSchema.nullable().required('Required'),
@@ -57,11 +65,17 @@ export const basicFormValidationSchema = Yup.object().shape({
       role: selectEntryValidationSchema,
     }),
   ),
-  inviteUsers2: Yup.array().of(Yup.string()),
+  inviteUsers2: Yup.array().of(Yup.string().email('Invalid user email')),
   isForced: Yup.boolean().required('Is forced is required'),
   language: Yup.string().required('Language is required'),
   name: Yup.string().required('Name is required'),
   password: Yup.string().required('Password is required'),
+  roleMapping: Yup.array().of(
+    Yup.object({
+      role: selectEntryValidationSchema,
+      value: Yup.string().required('Role value is required'),
+    }),
+  ),
   scopes: Yup.array().of(
     Yup.string().min(3, '3 characters min').required('Required'),
   ),
@@ -70,8 +84,24 @@ export const basicFormValidationSchema = Yup.object().shape({
     .min(2, 'Choose at least 2 sports'),
 });
 
+const roleEntries: Array<SelectEntry> = [
+  {
+    id: 1,
+    name: 'Administrator',
+  },
+  {
+    id: 2,
+    name: 'User',
+  },
+  {
+    id: 3,
+    name: 'Editor',
+  },
+];
+
 export const basicFormInitialValues = {
   active: false,
+  activeSortableFieldsTable: false,
   animals: [],
   class: { id: 0, name: 'Class 0' },
   custom: '',
@@ -83,6 +113,23 @@ export const basicFormInitialValues = {
   language: 'French',
   name: '',
   password: '',
+  roleMapping: [
+    {
+      priority: 0,
+      role: roleEntries[0],
+      value: 'example',
+    },
+    {
+      priority: 1,
+      role: roleEntries[1],
+      value: 'example2',
+    },
+    {
+      priority: 2,
+      role: roleEntries[2],
+      value: 'example3',
+    },
+  ],
   scopes: [],
   sports: [],
 };
@@ -107,21 +154,6 @@ export const basicFormGroups: Array<Group> = [
     TooltipContent: (): JSX.Element => <Typography>Tooltip content</Typography>,
     name: 'Second group',
     order: 2,
-  },
-];
-
-const roleEntries: Array<SelectEntry> = [
-  {
-    id: 1,
-    name: 'Administrator',
-  },
-  {
-    id: 2,
-    name: 'User',
-  },
-  {
-    id: 3,
-    name: 'Editor',
   },
 ];
 
@@ -291,13 +323,13 @@ export const basicFormInputs: Array<InputProps> = [
         },
       ],
       defaultRowValue: {
-        email: 'example',
+        email: 'example@test.fr',
         role: null,
       },
       deleteLabel: 'Delete',
     },
     group: 'First group',
-    label: '',
+    label: 'inviteUsers',
     type: InputType.FieldsTable,
   },
   {
@@ -316,7 +348,45 @@ export const basicFormInputs: Array<InputProps> = [
       hasSingleValue: true,
     },
     group: 'First group',
-    label: '',
+    label: 'inviteUsers2',
+    type: InputType.FieldsTable,
+  },
+  {
+    fieldName: 'activeSortableFieldsTable',
+    group: 'First group',
+    label: 'Active Sortable Fields Table',
+    type: InputType.Switch,
+  },
+  {
+    fieldName: 'roleMapping',
+    fieldsTable: {
+      columns: [
+        {
+          fieldName: 'value',
+          label: 'RoleValue',
+          required: true,
+          type: InputType.Text,
+        },
+        {
+          autocomplete: {
+            creatable: false,
+            options: roleEntries,
+          },
+          fieldName: 'role',
+          label: 'RoleAcl',
+          type: InputType.SingleAutocomplete,
+        },
+      ],
+      defaultRowValue: {
+        role: null,
+        value: '',
+      },
+      deleteLabel: 'Delete',
+      getSortable: (values: FormikValues): boolean =>
+        prop('activeSortableFieldsTable', values),
+    },
+    group: 'First group',
+    label: 'roleMapping',
     type: InputType.FieldsTable,
   },
 ];

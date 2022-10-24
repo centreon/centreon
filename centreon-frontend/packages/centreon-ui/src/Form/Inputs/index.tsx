@@ -15,7 +15,7 @@ import SwitchInput from './Switch';
 import RadioInput from './Radio';
 import TextInput from './Text';
 import ConnectedAutocomplete from './ConnectedAutocomplete';
-import FieldsTable from './FieldsTable';
+import FieldsTable from './FieldsTable/FieldsTable';
 import Grid from './Grid';
 import Custom from './Custom';
 import LoadingSkeleton from './LoadingSkeleton';
