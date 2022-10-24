@@ -89,7 +89,9 @@ jobs:
 
       - run: |
           sudo apt-get update
-          sudo apt-get install chrome
+          sudo apt-get install libnss3
+
+      - uses: browser-actions/setup-chrome@latest
 
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
