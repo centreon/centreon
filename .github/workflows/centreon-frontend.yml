@@ -88,8 +88,9 @@ jobs:
           node-version: 17
 
       - run: |
-          sudo apt-get update
           wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo apt-get update
+          sudo apt-get -f install
           sudo dpkg -i google-chrome-stable_current_amd64.deb
 
       #- uses: browser-actions/setup-chrome@latest
