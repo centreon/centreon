@@ -93,8 +93,6 @@ jobs:
           sudo apt update
           sudo apt install -y google-chrome-stable
 
-      #- uses: browser-actions/setup-chrome@latest
-
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
         working-directory: centreon-frontend
@@ -111,10 +109,10 @@ jobs:
         run: npm t -- --silent --reporters=jest-junit
         working-directory: centreon-frontend/packages/centreon-ui
 
-      - name: Publish report
+      - name: Publish unit tests report
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
-          check_name: "centreon-web-frontend-unit-tests-report"
+          check_name: centreon-frontend-unit-tests-report
           comment_mode: failures
           junit_files: "centreon-frontend/packages/centreon-ui/junit.xml"
