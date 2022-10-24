@@ -19,37 +19,94 @@ env:
   version: "22.10"
 
 jobs:
-  centreon-frontend-test:
+  ui-context-lint:
     runs-on: [self-hosted, common]
 
-    strategy:
-      matrix:
-        include:
-          - rules: frontend
-            image: test-frontend-open-source-bullseye
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 17
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+        working-directory: centreon-frontend
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+        working-directory: centreon-frontend/packages/ui-context
+
+      - name: Lint
+        run: npm run eslint -- -o checkstyle.xml -f checkstyle --quiet
+        working-directory: centreon-frontend/packages/ui-context
+
+      - name: Publish report
+        if: ${{ always() }}
+        uses: jwgmeligmeyling/checkstyle-github-action@master
+        with:
+          name: centreon-frontend-eslint-report
+          path: centreon-frontend/packages/ui-context/checkstyle.xml
+
+  centreon-ui-lint:
+    runs-on: [self-hosted, common]
 
     steps:
-      - name: Checkout sources
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Test centreon-frontend
-        uses: ./.github/actions/runner-docker
+      - uses: actions/setup-node@v3
         with:
-          script_name: frontend-test-${{ matrix.rules }}
-          image_name: ${{ matrix.image }}
-          image_version: ${{ env.version }}
+          node-version: 17
 
-      - name: Publish linting report
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+        working-directory: centreon-frontend
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+        working-directory: centreon-frontend/packages/centreon-ui
+
+      - name: Lint
+        run: npm run eslint -- -o checkstyle.xml -f checkstyle --quiet
+        working-directory: centreon-frontend/packages/centreon-ui
+
+      - name: Publish report
+        if: ${{ always() }}
         uses: jwgmeligmeyling/checkstyle-github-action@master
-        if: always()
         with:
-          name: centreon-frontend-linting-report
-          path: "centreon-frontend/packages/*/checkstyle.xml"
+          name: centreon-frontend-eslint-report
+          path: centreon-frontend/packages/centreon-ui/checkstyle.xml
 
-      - name: Publish unit tests report
+  centreon-ui-unit-test:
+    runs-on: [self-hosted, common]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 17
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+        working-directory: centreon-frontend
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+        working-directory: centreon-frontend/packages/centreon-ui
+
+      - name: Build Storybook
+        run: npm run build:storybook
+        working-directory: centreon-frontend/packages/centreon-ui
+
+      - name: Unit test
+        run: npm t -- --silent --reporters=jest-junit
+        working-directory: centreon-frontend/packages/centreon-ui
+
+      - name: Publish report
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
-          check_name: centreon-frontend-unit-tests-report
+          check_name: "centreon-web-frontend-unit-tests-report"
           comment_mode: failures
           junit_files: "centreon-frontend/packages/centreon-ui/junit.xml"
