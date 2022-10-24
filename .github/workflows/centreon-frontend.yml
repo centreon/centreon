@@ -89,7 +89,7 @@ jobs:
 
       - run: |
           sudo apt-get update
-          sudo apt-get install libnss3
+          sudo apt-get install -y libnss3
 
       - uses: browser-actions/setup-chrome@latest
 
