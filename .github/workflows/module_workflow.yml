@@ -1,0 +1,99 @@
+---
+name: Centreon Module Workflow
+
+on:
+  workflow_call:
+    inputs:
+      module_name:
+        required: true
+        type: string
+    secrets:
+      nexus_username:
+        required: true
+      nexus_password:
+        required: true
+
+jobs:
+  rpm-package:
+    runs-on: common
+    name: Package
+    strategy:
+      matrix:
+        distrib: [el7]
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+
+      - name: Login to Registry
+        uses: docker/login-action@v2
+        with:
+          registry: docker.registry.apps.centreon.com
+          username: ${{ secrets.nexus_username }}
+          password: ${{ secrets.nexus_password }}
+
+      - name: Package
+        uses: ./.github/actions/rpm-packaging
+        with:
+          module_name: ${{ inputs.module_name}}
+          distrib: ${{ matrix.distrib }}
+          version: 22.04
+
+      - name: Use cache RPM files
+        uses: actions/cache@v3
+        env:
+          cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-${{ inputs.module_name}}
+        with:
+          path: ./*.rpm
+          key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
+
+  rpm-delivery:
+    needs: rpm-package
+    runs-on: common
+    name: Delivery
+    strategy:
+      matrix:
+        distrib: [el7]
+    steps:
+      - name: Use cache RPM files
+        uses: actions/cache@v3
+        env:
+          cache-name-rpmbuild: cache-${{ github.sha }}-${{ github.run_id }}-rpmbuild-${{ inputs.module_name}}
+        with:
+          path: ./*.rpm
+          key: ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
+          restore-keys: |
+            ${{ env.cache-name-rpmbuild }}-${{ matrix.distrib }}
+
+      - name: Publish RPMS to Nexus
+        run: |
+          case $GITHUB_HEAD_REF in
+            dev*)
+              REPO=unstable
+              ;;
+            release* | hotfix*)
+              REPO=testing
+              ;;
+            master | main | [0-9]{2}\.[0-9]{2}.)
+              REPO=stable
+              ;;
+            *)
+              echo -n "[INFO] Non conventional branch name. Please rename your branch to meet the requirements"
+              exit 0
+              ;;
+          esac
+
+          for FILE in *.rpm;
+          do
+            VERSION=$(echo $FILE | grep -oP '[0-9]{2}\.[0-9]{2}')
+            DISTRIB=$(echo $FILE | grep -oP 'el[0-9]')
+            ARCH=$(echo $FILE | grep -oP '(x86_64|noarch)')
+            MODULE=$(echo $FILE | grep -oP 'centreon-\K([a-z]+)-([a-z]+)')
+
+            echo "[DEBUG] - Repo: $REPO"
+            echo "[DEBUG] - Version: $VERSION"
+            echo "[DEBUG] - Distrib: $DISTRIB"
+            echo "[DEBUG] - Arch: $ARCH"
+            echo "[DEBUG] - Module: $MODULE"
+
+            curl -v -u ${{ secrets.nexus_username }}:${{ secrets.nexus_password }} --upload-file ./$FILE "http://nexus-svc.nexus.svc.cluster.local:8081/repository/standard/$VERSION/$DISTRIB/$REPO/$ARCH/$MODULE/"
+          done
