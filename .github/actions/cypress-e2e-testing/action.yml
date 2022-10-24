@@ -1,0 +1,26 @@
+name: "Cypress E2E Testing"
+description: "Cypress E2E Testing"
+
+inputs:
+  image:
+    description: "image"
+    required: true
+  image_version:
+    description: "image version"
+    required: true
+  image_cypress_version:
+    description: "image cypress version"
+    required: true
+  module:
+    description: "module"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: "Start Centreon container"
+      run: docker run -p 4000:80 -d -v "/var/run/docker.sock:/var/run/docker.sock" --name e2e-tests-${{ inputs.module }} ${{ inputs.image }}:${{ inputs.image_version }}
+      shell: bash
+
+    - name: "Run Cypress"
+      run: docker run --shm-size 2gb -e MODULE=${{ inputs.module }} -v "$PWD:/tmp" -v "/var/run/docker.sock:/var/run/docker.sock" -w "/tmp" --entrypoint "/tmp/ci/scripts/cypress-e2e-testing.sh" --net="host" docker.registry.apps.centreon.com/cypress:${{ inputs.image_cypress_version }}
+      shell: bash

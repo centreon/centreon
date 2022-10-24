@@ -1,0 +1,37 @@
+name: widget-ntopng-listing
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/widget-ntopng-listing.yml"
+      - "widgets/centreon-widget-ntopng-listing/**"
+  push:
+    branches:
+      - develop
+    paths:
+      - ".github/workflows/centreon-widget-ntopng-listing.yml"
+      - "widgets/centreon-widget-ntopng-listing/**"
+    tags:
+      - centreon-widget-ntopng-listing-22.04.**
+
+env:
+  version: "22.04"
+
+jobs:
+  package:
+    uses: ./.github/workflows/widget-package.yml
+    with:
+      widget_name: ntopng-listing
+    secrets:
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+
+  delivery:
+    needs: [package]
+    uses: ./.github/workflows/widget-delivery.yml
+    with:
+      widget_name: ntopng-listing
+    secrets:
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}

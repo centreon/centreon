@@ -1,8 +1,8 @@
 %define name centreon
 %define version %{VERSION}
-%define release %{RELEASE}%{?dist}
-%define thismajor 22.10.0
-%define nextmajor 22.11.0
+%define release %{REL}%{?dist}
+%define thismajor 22.04.0
+%define nextmajor 22.05.0
 
 #%define selinuxdevel %{_datadir}/selinux/devel
 
@@ -44,7 +44,6 @@ BuildRequires:  gettext
 BuildRequires:  php-cli
 BuildRequires:  php-mbstring
 BuildRequires:  php-xml
-BuildRequires:  nodejs
 BuildRequires:  systemd
 #BuildRequires:  selinux-policy-devel
 #BuildRequires:  policycoreutils
@@ -262,7 +261,7 @@ echo "s:@@LIB_ARCH@@:%{_lib}:g" >> additional/centreon-macroreplacement.txt
 %build
 
 # Replace macros.
-find . -type f | grep -v additional/centreon-macroreplacement.txt | xargs --delimiter='\n' sed -i -f additional/centreon-macroreplacement.txt
+find . -type f -not -path "./vendor/*" | grep -v additional/centreon-macroreplacement.txt | xargs --delimiter='\n' sed -i -f additional/centreon-macroreplacement.txt
 
 # Build selinux configurations
 #(cd selinux && %{__make} -f %{selinuxdevel}/Makefile)

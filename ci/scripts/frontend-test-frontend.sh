@@ -1,4 +1,5 @@
-#!/bin/bash 
+#!/bin/bash
+set -x
 
 cd centreon-frontend
 npm ci --legacy-peer-deps
@@ -11,4 +12,4 @@ cd ../centreon-ui
 npm ci --legacy-peer-deps
 npm run eslint -- -o checkstyle.xml -f checkstyle
 npm run build:storybook
-npm t -- --ci --reporters=jest-junit
+npm t -- --silent --reporters=jest-junit
