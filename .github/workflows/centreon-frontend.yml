@@ -87,7 +87,9 @@ jobs:
         with:
           node-version: 17
 
-      - uses: browser-actions/setup-chrome@latest
+      - run: |
+          sudo apt-get update
+          sudo apt-get install chrome
 
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
