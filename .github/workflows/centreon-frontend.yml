@@ -89,6 +89,8 @@ jobs:
 
       - run: |
           sudo apt-get update
+          sudo apt search chrome
+          sudo apt search google
           sudo apt-get install -y google-chrome
 
       - uses: browser-actions/setup-chrome@latest
