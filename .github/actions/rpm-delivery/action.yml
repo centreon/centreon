@@ -63,7 +63,6 @@ runs:
 
         FILES="*.rpm";
         echo "[DEBUG] - Repo: $REPO"
-        ls -la
         echo "[DEBUG] - Rpm FILES: $FILES"
 
         for FILE in $FILES
