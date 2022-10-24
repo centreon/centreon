@@ -17,11 +17,7 @@ inputs:
     description: "Centreon packaged version"
     required: true
   cache_key:
-<<<<<<< HEAD
-    description: "The cached RPM key"
-=======
     description: "The cached package key"
->>>>>>> develop
     required: true
 
 runs:

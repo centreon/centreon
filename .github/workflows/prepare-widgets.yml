@@ -35,7 +35,7 @@ jobs:
 
       - name: Get changed directories
         id: changed-files
-        uses: tj-actions/changed-files@v32
+        uses: tj-actions/changed-files@v33
 
       - name: List modules
         id: command
