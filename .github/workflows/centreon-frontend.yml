@@ -89,11 +89,10 @@ jobs:
 
       - run: |
           sudo apt-get update
-          sudo apt search chrome
-          sudo apt search google
-          sudo apt-get install -y google-chrome
+          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo dpkg -i google-chrome-stable_current_amd64.deb
 
-      - uses: browser-actions/setup-chrome@latest
+      #- uses: browser-actions/setup-chrome@latest
 
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
