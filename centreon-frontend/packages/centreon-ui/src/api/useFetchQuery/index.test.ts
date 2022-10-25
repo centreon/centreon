@@ -87,6 +87,23 @@ describe('useFetchQuery', () => {
     });
   });
 
+  it("shows an error from the API via the Snackbar and inside the browser's console when the API does not respond", async () => {
+    fetchMock.mockReject(new TypeError('error'));
+
+    renderFetchQuery<User>({
+      getEndpoint: () => '/endpoint',
+      getQueryKey: () => ['queryKey'],
+    });
+
+    await waitFor(() => {
+      expect(mockedShowErrorMessage).toHaveBeenCalledWith(
+        'Something went wrong',
+      );
+    });
+
+    expect(anyLogger().error).toHaveBeenCalledWith('Something went wrong');
+  });
+
   it('shows a default failure message via the Snackbar as fallback', async () => {
     fetchMock.once(JSON.stringify({}), {
       status: 400,
