@@ -4,6 +4,10 @@ inputs:
   package_extension:
     description: The package extension (deb or rpm)
     required: true
+  frontend_index_cache_key:
+    description: The index.html cache key
+  frontend_index_file:
+    description: The index.html file path
   frontend_static_cache_key:
     description: The static directory cache key
   frontend_static_directory:
@@ -80,8 +84,7 @@ runs:
         script_name: ${{ inputs.script_name }}
         image_name: ${{ inputs.image_name }}
         image_version: ${{ inputs.version }}
-        module_name: ${{ inputs.module_name }}
-        params: ${{ inputs.version }}.${{ steps.get_version.outputs.minor_version }} ${{ steps.get_version.outputs.release }}
+        params: ${{ inputs.version }}.${{ steps.get_version.outputs.minor_version }} ${{ steps.get_version.outputs.release }} ${{ inputs.module_name }}
 
     - name: Sign
       if: ${{ inputs.sign != '' && inputs.package_extension == 'rpm' }}
