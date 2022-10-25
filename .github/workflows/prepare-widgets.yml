@@ -58,6 +58,15 @@ jobs:
           echo "matrix=$(echo "$JSON")" >> $GITHUB_OUTPUT
           echo $JSON
 
+  debug:
+    runs-on: [self-hosted, common]
+    name: only debug
+    container: ubuntu
+    steps:
+      - run: |
+        echo "${{ fromJson(needs.get-modules.outputs.matrix) }}"
+
+
   build-widgets:
     name: Build Widget
     needs: get-modules
