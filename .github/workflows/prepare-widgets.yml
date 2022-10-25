@@ -61,7 +61,7 @@ jobs:
   build-widgets:
     name: Build Widget
     needs: get-modules
-    if: "${{ needs.get-modules.outputs.matrix != "{\"include\": {}}" }}"
+    if: needs.get-modules.outputs.matrix != '{"include": []}'
     strategy:
       matrix: ${{ fromJson(needs.get-modules.outputs.matrix) }}
     uses: ./.github/workflows/run-widgets.yml
