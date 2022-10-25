@@ -63,8 +63,8 @@ jobs:
     name: only debug
     container: ubuntu
     steps:
-      - run: |
-        echo "${{ fromJson(needs.get-modules.outputs.matrix) }}"
+      - name: debug
+        run: echo "${{ fromJson(needs.get-modules.outputs.matrix) }}"
 
 
   build-widgets:
