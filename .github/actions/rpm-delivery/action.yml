@@ -50,13 +50,13 @@ runs:
           master | [0-9]{2}\.[0-9]{2}.)
             REPO=stable
             ;;
-          MON*)
-            echo -n "[INFO] NO DELIVERY ON MON BRANCHES"
+          MON* | RL*)
+            echo -n "[INFO] NO DELIVERY ON 'MON' / 'RL' BRANCHES"
             exit 0
             ;;
           *)
             echo -n "[INFO] Non conventional branch name. Please rename your branch to meet the requirements"
-            echo $GITHUB_HEAD_REF
+            echo "Branch: $GITHUB_HEAD_REF"
             exit 1
             ;;
         esac
