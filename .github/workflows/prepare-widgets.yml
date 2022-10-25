@@ -61,9 +61,9 @@ jobs:
   build-widgets:
     name: Build Widget
     needs: get-modules
-    if: contains(needs.get-modules.outputs.matrix, '${{ matrix.module-name }}')
     strategy:
       matrix: ${{ fromJson(needs.get-modules.outputs.matrix) }}
     uses: ./.github/workflows/run-widgets.yml
+    if: ${{ matrix.module-name }}
     with:
       module-name: ${{ matrix.module-name }}
