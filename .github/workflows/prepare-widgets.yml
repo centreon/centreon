@@ -50,14 +50,16 @@ jobs:
           dir = []
           for i in diff:
             if '${{ env.module }}' in i.a_path:
-              dir.append({'module-name': path.dirname(i.a_path)})
+              dir.append(path.dirname(i.a_path))
           print(json.dumps(sorted(set(dir))))
           EOF
 
   build-widgets:
     name: Build Widgets
     needs: get-modules
-    uses: centreon/centreon-gha/.github/workflows/run-widgets.yml@MON-separe-widgets-workflow
     strategy:
-      fail-fast: true
-      matrix: ${{ fromJSON(needs.get-modules.outputs.modules) }}
+      matrix:
+        module-name: ${{ fromJSON(needs.get-modules.outputs.modules) }}
+    uses: ./.github/workflows/run-widgets.yml
+    with:
+      module-name: ${{ matrix.module-name }}
