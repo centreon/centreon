@@ -4,6 +4,11 @@ on:
       module-name:
         required: true
         type: string
+    secrets:
+      nexus_username:
+        required: true
+      nexus_password:
+        required: true
 
 run-name: Widget build ${{ inputs.module-name }}
 
@@ -16,8 +21,8 @@ jobs:
     with:
       widget_name: ${{ inputs.module-name }}
     secrets:
-      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+      nexus_username: ${{ secrets.nexus_username }}
+      nexus_password: ${{ secrets.nexus_password }}
 
   delivery:
     needs: [package]
@@ -25,5 +30,5 @@ jobs:
     with:
       widget_name: ${{ inputs.module-name }}
     secrets:
-      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+      nexus_username: ${{ secrets.nexus_username }}
+      nexus_password: ${{ secrets.nexus_password }}
