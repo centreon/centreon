@@ -27,7 +27,12 @@ jobs:
       folders: ${{ steps.command.outputs.dirs }}
     steps:
       - name: Update cointainer and install git and python3
-        run: apt update -y && apt upgrade -y && apt install -y git python3-git
+        run: |
+          apt update
+          apt upgrade -y
+          apt install -y git python3-git
+          echo $GITHUB_PATH
+          git config --global --add safe.directory $GITHUB_PATH
 
       - uses: actions/checkout@v3
         with:
