@@ -37,6 +37,8 @@ jobs:
         id: command
         #run: echo -n "[ "; (cd widgets && find . -maxdepth 1 -type d -printf "%f\n" | sed 1d)|while read MODULE; do echo -n ${MODULE}; echo -n ", "; done | sed 's/\(.*\), /\1 /'; echo -n "]"
         run: |
+          pwd
+          ls -lha
           cat << EOF | python3
           from os import path
           from git import Repo
