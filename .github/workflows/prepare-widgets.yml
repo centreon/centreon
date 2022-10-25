@@ -43,8 +43,8 @@ jobs:
           from git import Repo
           repo = Repo()
           commits = list(repo.iter_commits())
-          print(commits[0])
           print(commits[1])
+          print(commits[2])
           EOF
 
       - name: Get widget modules
@@ -60,7 +60,7 @@ jobs:
           repo = Repo()
           commits = list(repo.iter_commits())
           dir = { "include": [] }
-          for i in commits[0].diff(commits[1]):
+          for i in commits[1].diff(commits[2]):
             if 'widgets/' in i.a_path:
               module = re.search(r'centreon-widget.*?(?=\/|$)', i.a_path).group()
               if module not in [x['module-name'] for x in dir['include']]:
