@@ -34,7 +34,7 @@ jobs:
 
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: List commits over python3
         run: |
@@ -61,8 +61,8 @@ jobs:
           commits = list(repo.iter_commits())
           dir = { "include": [] }
           for i in commits[1].diff(commits[2]):
-            if 'widgets/' in i.a_path:
-              module = re.search(r'centreon-widget.*?(?=\/|$)', i.a_path).group()
+            if 'widgets/' in path.dirname(i.a_path):
+              module = re.search(r'centreon-widget.*?(?=\/|$)', path.dirname(i.a_path)).group()
               if module not in [x['module-name'] for x in dir['include']]:
                 dir['include'].append({'module-name': module})
           print(json.dumps(dir))
