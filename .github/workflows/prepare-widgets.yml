@@ -38,6 +38,7 @@ jobs:
 
       - name: List commits over python3
         run: |
+          git config --global --add safe.directory $(pwd)
           cat << EOF | python3
           from git import Repo
           repo = Repo()
