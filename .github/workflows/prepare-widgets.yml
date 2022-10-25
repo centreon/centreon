@@ -24,7 +24,7 @@ jobs:
     name: Get modules to build
     container: ubuntu
     outputs:
-      modules: ${{ steps.command.outputs.dirs }}
+      matrix: ${{ steps.command.outputs.matrix }}
     steps:
       - name: Update cointainer and install git and python3
         run: |
@@ -47,22 +47,20 @@ jobs:
           repo = Repo()
           commits = list(repo.iter_commits())
           diff = commits[0].diff(commits[1])
-          dir = { "module-name": [] }
+          dir = { "include": [] }
           for i in diff:
             if '${{ env.module }}' in i.a_path:
-              dir['module-name'].append(path.dirname(i.a_path))
+              dir['include'].append({'module-name': path.dirname(i.a_path)})
           print(json.dumps(sorted(set(dir['module-name']))))
           EOF
           )
-          echo "::set-output name=matrix::$(echo "$JSON")"
+          echo "matrix=$(echo "$JSON")" >> $GITHUB_OUTPUT
 
   build-widgets:
     name: Build Widgets
     needs: get-modules
     strategy:
-      matrix: ${{ fromJson(needs.get-modules.outputs.modules) }}
-        #module-name: ${{ needs.get-modules.outputs.modules }}
-        #module-name: ["centreon-widget-engine-status", "centreon-widget-global-health"]
+      matrix: ${{ fromJson(needs.get-modules.outputs.matrix) }}
     uses: ./.github/workflows/run-widgets.yml
     with:
       module-name: ${{ matrix.module-name }}
