@@ -30,8 +30,8 @@ jobs:
           module_name: ${{ matrix.module_name }}
           distrib: ${{ matrix.distrib }}
           version: ${{ env.version }}
-          nexus_username: ${{ secrets.nexus_username }}
-          nexus_password: ${{ secrets.nexus_password }}
+          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
 
   delivery-deb:
@@ -50,6 +50,6 @@ jobs:
           module_name: ${{ inputs.widget_name }}
           distrib: ${{ matrix.distrib }}
           version: ${{ env.version }}
-          nexus_username: ${{ secrets.nexus_username }}
-          nexus_password: ${{ secrets.nexus_password }}
+          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}

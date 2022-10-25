@@ -16,8 +16,8 @@ jobs:
     with:
       widget_name: ${{ inputs.module-name }}
     secrets:
-      nexus_username: ${{ secrets.nexus_username }}
-      nexus_password: ${{ secrets.nexus_password }}
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
   delivery:
     needs: [package]
@@ -25,5 +25,5 @@ jobs:
     with:
       widget_name: ${{ inputs.module-name }}
     secrets:
-      nexus_username: ${{ secrets.nexus_username }}
-      nexus_password: ${{ secrets.nexus_password }}
+      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
