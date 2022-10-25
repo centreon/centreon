@@ -41,7 +41,7 @@ jobs:
           from os import path
           from git import Repo
           import json
-          repo = Repo()
+          repo = Repo("./")
           commits = list(repo.iter_commits())
           diff = commits[0].diff(commits[1])
           dir = []
