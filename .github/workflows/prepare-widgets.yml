@@ -31,8 +31,6 @@ jobs:
           apt update
           apt upgrade -y
           apt install -y git python3-git
-          echo $GITHUB_PATH
-          git config --global --add safe.directory $GITHUB_PATH
 
       - uses: actions/checkout@v3
         with:
@@ -40,6 +38,7 @@ jobs:
 
       - name: Debug commands
         run: |
+          git config --global --add safe.directory $(pwd)
           git log
 
       - name: Get changed files
