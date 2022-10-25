@@ -51,9 +51,10 @@ jobs:
           for i in diff:
             if '${{ env.module }}' in i.a_path:
               dir['module-name'].append(path.dirname(i.a_path))
-          print(json.dumps(sorted(set(dir))))
-          EOF)
-          echo "::set-output name=matrix::$( echo "$JSON" )"
+          print(json.dumps(sorted(set(dir['module-name']))))
+          EOF
+          )
+          echo "::set-output name=matrix::$(echo "$JSON")"
 
   build-widgets:
     name: Build Widgets
