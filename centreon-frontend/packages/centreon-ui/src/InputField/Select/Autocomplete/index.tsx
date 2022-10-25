@@ -9,6 +9,7 @@ import {
   InputAdornment,
   Autocomplete,
   AutocompleteProps,
+  useTheme,
 } from '@mui/material';
 import { UseAutocompleteProps } from '@mui/material/useAutocomplete';
 
@@ -38,8 +39,8 @@ export type Props = {
 
 type StyledProps = Partial<Pick<Props, 'hideInput'>>;
 
-const textfieldHeight = (hideInput?: boolean): string | number =>
-  hideInput ? 0 : '100%';
+const textfieldHeight = (hideInput?: boolean): number | undefined =>
+  hideInput ? 0 : undefined;
 
 const useStyles = makeStyles<StyledProps>()((theme, { hideInput }) => ({
   input: {
@@ -55,9 +56,7 @@ const useStyles = makeStyles<StyledProps>()((theme, { hideInput }) => ({
     },
     height: textfieldHeight(hideInput),
   },
-  inputEndAdornment: {
-    paddingBottom: '19px',
-  },
+
   inputLabel: {
     '&&': {
       fontSize: theme.typography.body1.fontSize,
@@ -137,7 +136,7 @@ const AutocompleteField = ({
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ hideInput });
   const { t } = useTranslation();
-
+  const theme = useTheme();
   const areSelectEntriesEqual = (option, value): boolean => {
     const identifyingProps = ['id', 'name'];
 
@@ -162,16 +161,14 @@ const AutocompleteField = ({
         endAdornment: (
           <>
             {endAdornment && (
-              <InputAdornment
-                classes={{ root: classes.inputEndAdornment }}
-                position="end"
-              >
-                {endAdornment}
-              </InputAdornment>
+              <InputAdornment position="end">{endAdornment}</InputAdornment>
             )}
             {params.InputProps.endAdornment}
           </>
         ),
+        style: {
+          paddingRight: theme.spacing(5),
+        },
       }}
       autoFocus={autoFocus}
       classes={{

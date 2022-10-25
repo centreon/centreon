@@ -18,7 +18,7 @@ import Option from './Option';
 const useStyles = makeStyles()((theme: Theme) => ({
   compact: {
     fontSize: 'x-small',
-    padding: theme.spacing(0.5),
+    padding: theme.spacing(0.75),
   },
   input: {
     fontSize: theme.typography.body1.fontSize,
@@ -76,12 +76,7 @@ const SelectField = ({
   };
 
   return (
-    <FormControl
-      error={!isNil(error)}
-      fullWidth={fullWidth}
-      size="small"
-      variant="filled"
-    >
+    <FormControl error={!isNil(error)} fullWidth={fullWidth} size="small">
       {label && <InputLabel>{label}</InputLabel>}
       <Select
         disableUnderline
@@ -96,6 +91,7 @@ const SelectField = ({
           'data-testid': dataTestId,
           ...inputProps,
         }}
+        label={label}
         renderValue={(id): string => {
           return getOption(id)?.name;
         }}

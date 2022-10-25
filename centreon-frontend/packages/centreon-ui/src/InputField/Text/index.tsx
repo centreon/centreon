@@ -1,6 +1,6 @@
-import * as React from 'react';
+import { forwardRef } from 'react';
 
-import { equals, isNil, not } from 'ramda';
+import { isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import {
@@ -11,25 +11,15 @@ import {
   Tooltip,
 } from '@mui/material';
 
-enum Size {
-  compact = 'compact',
-  small = 'small',
-}
-
 const useStyles = makeStyles()((theme: Theme) => ({
   compact: {
     fontSize: 'x-small',
-    padding: theme.spacing(0.75),
   },
   input: {
     fontSize: theme.typography.body1.fontSize,
   },
   noLabelInput: {
     padding: theme.spacing(1),
-  },
-  small: {
-    fontSize: 'small',
-    padding: theme.spacing(0.75),
   },
   transparent: {
     backgroundColor: 'transparent',
@@ -64,11 +54,11 @@ export type Props = {
   displayErrorInTooltip?: boolean;
   error?: string;
   open?: boolean;
-  size?: 'small' | 'compact';
+  size?: 'medium' | 'small' | 'compact';
   transparent?: boolean;
 } & Omit<TextFieldProps, 'variant' | 'size' | 'error'>;
 
-const TextField = React.forwardRef(
+const TextField = forwardRef(
   (
     {
       StartAdornment,
@@ -86,8 +76,6 @@ const TextField = React.forwardRef(
   ): JSX.Element => {
     const { classes, cx } = useStyles();
 
-    const isSizeEqualTo = (sizeToCompare: Size): boolean =>
-      equals(size, sizeToCompare);
     const tooltipTitle = displayErrorInTooltip && !isNil(error) ? error : '';
 
     return (
@@ -115,18 +103,11 @@ const TextField = React.forwardRef(
           inputProps={{
             ...rest.inputProps,
             'aria-label': ariaLabel,
-            className: cx(classes.input, {
-              [classes.noLabelInput]:
-                !label && not(isSizeEqualTo(Size.compact)),
-              [classes.small]: isSizeEqualTo(Size.small),
-              [classes.compact]: isSizeEqualTo(Size.compact),
-            }),
             'data-testid': dataTestId,
           }}
           label={label}
           ref={ref}
-          size="small"
-          variant="filled"
+          size={size || 'small'}
           {...rest}
         />
       </Tooltip>

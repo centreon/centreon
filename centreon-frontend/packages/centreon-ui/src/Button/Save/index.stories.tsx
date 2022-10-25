@@ -34,6 +34,10 @@ export const normalWithText = (): JSX.Element => (
   <ButtonSave labelSave="Save" />
 );
 
+export const largeWithText = (): JSX.Element => (
+  <ButtonSave labelSave="Save" size="large" />
+);
+
 export const loadingWithText = (): JSX.Element => (
   <ButtonSave loading labelLoading="Loading" />
 );
