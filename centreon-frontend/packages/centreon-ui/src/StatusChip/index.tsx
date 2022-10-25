@@ -81,11 +81,16 @@ const StatusChip = ({
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles({ label, severityCode });
 
+  const lowerLabel = (name: string): string =>
+    name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+
   return (
     <Chip
       className={cx(classes.chip, className)}
       clickable={clickable}
-      label={label}
+      label={
+        equals(typeof label, 'string') ? lowerLabel(label as string) : label
+      }
       {...rest}
     />
   );

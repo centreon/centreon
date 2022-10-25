@@ -121,6 +121,9 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
     body2: {
       fontSize: '0.75rem',
     },
+    button: {
+      textTransform: 'none',
+    },
     caption: {
       fontSize: '0.625rem',
     },
