@@ -40,27 +40,28 @@ jobs:
         id: command
         run: |
           git config --global --add safe.directory $(pwd)
-          cat << EOF | python3
+          JSON=$(cat << EOF | python3
           from os import path
           from git import Repo
           import json
           repo = Repo()
           commits = list(repo.iter_commits())
           diff = commits[0].diff(commits[1])
-          dir = []
+          dir = { "module-name": [] }
           for i in diff:
             if '${{ env.module }}' in i.a_path:
-              dir.append(path.dirname(i.a_path))
+              dir['module-name'].append(path.dirname(i.a_path))
           print(json.dumps(sorted(set(dir))))
-          EOF
+          EOF)
+          echo "::set-output name=matrix::$( echo "$JSON" )"
 
   build-widgets:
     name: Build Widgets
     needs: get-modules
     strategy:
-      matrix:
+      matrix: ${{ fromJson(needs.get-modules.outputs.modules) }}
         #module-name: ${{ needs.get-modules.outputs.modules }}
-        module-name: ["centreon-widget-engine-status", "centreon-widget-global-health"]
+        #module-name: ["centreon-widget-engine-status", "centreon-widget-global-health"]
     uses: ./.github/workflows/run-widgets.yml
     with:
       module-name: ${{ matrix.module-name }}
