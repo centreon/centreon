@@ -51,7 +51,7 @@ runs:
             REPO=stable
             ;;
           MON* | RL*)
-            echo -n "[INFO] NO DELIVERY ON MON BRANCHES"
+            echo -n "[INFO] NO DELIVERY ON 'MON' / 'RL' BRANCHES"
             exit 0
             ;;
           *)
