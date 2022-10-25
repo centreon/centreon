@@ -52,6 +52,8 @@ jobs:
               module = re.search(r'centreon-widget.*?(?=\/|$)', path.dirname(i.a_path)).group()
               if module not in [x['module-name'] for x in dir['include']]:
                 dir['include'].append({'module-name': module})
+          if dir['include'] == []:
+            dir = []
           print(json.dumps(dir))
           EOF
           )
@@ -61,7 +63,7 @@ jobs:
   build-widgets:
     name: Build Widget
     needs: get-modules
-    if: ${{ needs.get-modules.outputs.matrix }} != '{"include": []}'
+    if: ${{ needs.get-modules.outputs.matrix != '[]' }}
     strategy:
       matrix: ${{ fromJson(needs.get-modules.outputs.matrix) }}
     uses: ./.github/workflows/run-widgets.yml
