@@ -28,7 +28,7 @@ runs:
         echo $BRANCHNAME
 
         case "$BRANCHNAME" in
-          MON* | dev*)
+          MON* | dev* | RL*)
             echo "minor_version=0" >> $GITHUB_OUTPUT
             echo "release=`date +%s`.${{ github.sha }}" >> $GITHUB_OUTPUT
             ;;
@@ -63,7 +63,7 @@ runs:
             ;;
           *)
             echo -n "[INFO] Non conventional branch name. Please rename your branch to meet the requirements"
-            echo $GITHUB_HEAD_REF
+            echo "Branch: $GITHUB_HEAD_REF"
             exit 1
             ;;
         esac
