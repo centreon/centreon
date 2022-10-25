@@ -50,7 +50,7 @@ runs:
           master | [0-9]{2}\.[0-9]{2}.)
             REPO=stable
             ;;
-          MON*)
+          MON* | RL*)
             echo -n "[INFO] NO DELIVERY ON MON BRANCHES"
             exit 0
             ;;

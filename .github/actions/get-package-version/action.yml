@@ -28,7 +28,7 @@ runs:
         echo $BRANCHNAME
 
         case "$BRANCHNAME" in
-          MON* | dev*)
+          MON* | dev* | RL*)
             echo "minor_version=0" >> $GITHUB_OUTPUT
             echo "release=`date +%s`.${{ github.sha }}" >> $GITHUB_OUTPUT
             ;;
