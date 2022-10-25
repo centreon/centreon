@@ -40,6 +40,7 @@ jobs:
         id: command
         run: |
           git config --global --add safe.directory $(pwd)
+          git log
           JSON=$(cat << EOF | python3
           from os import path
           from git import Repo
