@@ -36,17 +36,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Debug commands
+      - name: List modules
+        id: command
         run: |
           git config --global --add safe.directory $(pwd)
-          git log
-
-      - name: Get changed files
-        id: changed-files
-        uses: tj-actions/changed-files@v33
-
-      - name: List all changed files
-        run: |
-          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
-            echo "$file was changed"
-          done
+          cat << EOF | python3
+          from os import path
+          from git import Repo
+          import json
+          repo = Repo()
+          commits = list(repo.iter_commits())
+          diff = commits[0].diff(commits[1])
+          dir = []
+          for i in diff:
+            dir.append(path.dirname(i.a_path))
+          json.dumps(sorted(dir))
+          EOF
