@@ -33,6 +33,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Debug commands
+        run: |
+          git log
+
       - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v33
