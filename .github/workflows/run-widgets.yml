@@ -70,7 +70,7 @@ jobs:
           nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
   delivery-rpm:
-    needs: [widget-packaging-rpm]
+    needs: [packaging-rpm]
     runs-on: [self-hosted, common]
     strategy:
       matrix:
@@ -94,7 +94,7 @@ jobs:
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
 
   delivery-debian:
-    needs: [widget-packaging-deb]
+    needs: [packaging-deb]
     runs-on: [self-hosted, common]
     strategy:
       matrix:
