@@ -34,7 +34,7 @@ jobs:
 
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          fetch-depth: 2
 
       - name: List modules
         id: command
@@ -47,9 +47,8 @@ jobs:
           import re
           repo = Repo()
           commits = list(repo.iter_commits())
-          diff = commits[0].diff(commits[1])
           dir = { "include": [] }
-          for i in diff:
+          for i in commits[0].diff(commits[1]):
             if 'widgets/' in i.a_path:
               module = re.search(r'centreon-widget.*?(?=\/|$)', i.a_path).group()
               if module not in [x['module-name'] for x in dir['include']]:
