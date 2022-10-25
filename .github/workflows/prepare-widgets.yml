@@ -57,7 +57,7 @@ jobs:
   build-widgets:
     name: Build Widgets
     needs: get-modules
-    uses: centreon/centreon-gha/.github/workflows/run-widgets.yml
+    uses: centreon/centreon-gha/.github/workflows/run-widgets.yml@MON-separe-widgets-workflow
     strategy:
       fail-fast: true
       matrix: ${{ fromJSON(needs.get-modules.outputs.modules) }}
