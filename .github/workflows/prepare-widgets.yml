@@ -50,5 +50,5 @@ jobs:
           dir = []
           for i in diff:
             dir.append(path.dirname(i.a_path))
-          json.dumps(sorted(dir))
+          print(json.dumps(sorted(dir)))
           EOF
