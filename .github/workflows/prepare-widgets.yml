@@ -26,12 +26,12 @@ jobs:
     outputs:
       folders: ${{ steps.command.outputs.dirs }}
     steps:
+      - name: Update cointainer and install git and python3
+        run: apt update -y && apt upgrade -y && apt install -y git python3-git
+
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-
-      - name: Update cointainer and install git and python3
-        run: apt update -y && apt upgrade -y && apt install -y python3-git
 
       - name: List modules
         id: command
@@ -43,7 +43,7 @@ jobs:
           from os import path
           from git import Repo
           import json
-          repo = Repo("./")
+          repo = Repo()
           commits = list(repo.iter_commits())
           diff = commits[0].diff(commits[1])
           dir = []
