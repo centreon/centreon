@@ -58,18 +58,10 @@ jobs:
           echo "matrix=$(echo "$JSON")" >> $GITHUB_OUTPUT
           echo $JSON
 
-  debug:
-    runs-on: [self-hosted, common]
-    name: only debug
-    container: ubuntu
-    steps:
-      - name: debug
-        run: echo "${{ fromJson(needs.get-modules.outputs.matrix) }}"
-
-
   build-widgets:
     name: Build Widget
     needs: get-modules
+    if: ${{ needs.get-modules.outputs.matrix }} != '{"include": []}'
     strategy:
       matrix: ${{ fromJson(needs.get-modules.outputs.matrix) }}
     uses: ./.github/workflows/run-widgets.yml
