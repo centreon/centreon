@@ -56,7 +56,7 @@ runs:
             ;;
           *)
             echo -n "[INFO] Non conventional branch name. Please rename your branch to meet the requirements"
-            echo $GITHUB_HEAD_REF
+            echo "Branch: $GITHUB_HEAD_REF"
             exit 1
             ;;
         esac
