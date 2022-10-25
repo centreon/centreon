@@ -36,7 +36,17 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: List modules
+      - name: List commits over python3
+        run: |
+          cat << EOF | python3
+          from git import Repo
+          repo = Repo()
+          commits = list(repo.iter_commits())
+          print(commits[0])
+          print(commits[1])
+          EOF
+
+      - name: Get widget modules
         id: command
         run: |
           git config --global --add safe.directory $(pwd)
@@ -61,7 +71,7 @@ jobs:
           echo $JSON
 
   build-widgets:
-    name: Build Widgets
+    name: Build Widget
     needs: get-modules
     strategy:
       matrix: ${{ fromJson(needs.get-modules.outputs.matrix) }}
