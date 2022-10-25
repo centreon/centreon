@@ -58,6 +58,7 @@ jobs:
           EOF
           )
           echo "matrix=$(echo "$JSON")" >> $GITHUB_OUTPUT
+          echo $JSON
 
   build-widgets:
     name: Build Widgets
