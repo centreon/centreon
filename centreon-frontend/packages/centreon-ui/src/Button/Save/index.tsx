@@ -14,6 +14,7 @@ const useStyles = makeStyles()((theme: Theme) => ({
 }));
 
 interface Props extends Record<string, unknown> {
+  className?: string;
   labelLoading?: string;
   labelSave?: string;
   labelSucceeded?: string;
@@ -41,6 +42,7 @@ const SaveButton = ({
   labelLoading = '',
   labelSave = '',
   size = 'medium',
+  className,
   ...rest
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
@@ -57,7 +59,12 @@ const SaveButton = ({
       <div>
         <LoadingButton
           aria-label="save button"
-          className={cx({ [classes.loadingButton]: !hasLabel })}
+          className={cx(
+            {
+              [classes.loadingButton]: !hasLabel,
+            },
+            className,
+          )}
           color="primary"
           loading={loading}
           loadingPosition={labelLoading ? 'start' : 'center'}

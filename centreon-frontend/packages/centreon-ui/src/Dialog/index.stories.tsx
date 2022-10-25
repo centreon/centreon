@@ -1,10 +1,30 @@
 import { ReactElement } from 'react';
 
-import { Typography } from '@mui/material';
+import { makeStyles } from 'tss-react/mui';
+
+import { Typography, Theme } from '@mui/material';
 
 import Dialog from '.';
 
 export default { title: 'Dialog' };
+
+const useStyles = makeStyles()((theme: Theme) => ({
+  actions: {
+    borderTop: `.2px solid ${theme.palette.common.white}`,
+  },
+  content: {
+    color: theme.palette.common.white,
+  },
+  paper: {
+    background: theme.palette.pending.main,
+  },
+  root: {
+    background: theme.palette.primary.dark,
+  },
+  title: {
+    color: theme.palette.common.white,
+  },
+}));
 
 interface Props {
   children: ReactElement;
@@ -39,3 +59,24 @@ export const confirmDisabledSubmitting = (): JSX.Element => (
     <Typography>Dialog</Typography>
   </Story>
 );
+
+const CustomDialog = (): JSX.Element => {
+  const { classes } = useStyles();
+
+  return (
+    <Dialog
+      open
+      className={classes.root}
+      dialogActionsClassName={classes.actions}
+      dialogContentClassName={classes.content}
+      dialogPaperClassName={classes.paper}
+      dialogTitleClassName={classes.title}
+      onCancel={(): void => undefined}
+      onConfirm={(): void => undefined}
+    >
+      Custom dialog
+    </Dialog>
+  );
+};
+
+export const customDialog = (): JSX.Element => <CustomDialog />;

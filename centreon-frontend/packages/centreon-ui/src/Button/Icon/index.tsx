@@ -14,6 +14,7 @@ const useStyles = makeStyles()((theme) => ({
 
 type Props = {
   ariaLabel?: string;
+  className?: string;
   onClick: (event) => void;
   title?: string;
 } & IconButtonProps;
@@ -21,16 +22,17 @@ type Props = {
 const IconButton = ({
   title = '',
   ariaLabel,
+  className,
   ...props
 }: Props): JSX.Element => {
-  const { classes } = useStyles();
+  const { classes, cx } = useStyles();
 
   return (
     <Tooltip title={title}>
       <span aria-label={undefined}>
         <MuiIconButton
           aria-label={ariaLabel}
-          className={classes.button}
+          className={cx(classes.button, className)}
           color="primary"
           {...props}
         />

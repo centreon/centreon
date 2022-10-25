@@ -74,6 +74,7 @@ interface Props {
   }: CustomDropZoneContentProps) => JSX.Element;
   accept: string;
   changeFiles: (files: FileList | null) => void;
+  className?: string;
   files: FileList | null;
   maxFileSize?: number;
   multiple?: boolean;
@@ -112,6 +113,7 @@ const Dropzone = ({
   accept,
   CustomDropZoneContent,
   maxFileSize,
+  className,
 }: Props): JSX.Element => {
   const hasCustomDropZoneContent = !isNil(CustomDropZoneContent);
   const {
@@ -129,7 +131,10 @@ const Dropzone = ({
     resetFilesStatusAndUploadData,
   });
 
-  const { classes } = useStyles({ hasCustomDropZoneContent, isDraggingOver });
+  const { classes, cx } = useStyles({
+    hasCustomDropZoneContent,
+    isDraggingOver,
+  });
   const { t } = useTranslation();
   const { themeMode } = useAtomValue(userAtom);
 
@@ -137,7 +142,7 @@ const Dropzone = ({
     Component: (
       <div>
         <Box
-          className={classes.dropzone}
+          className={cx(classes.dropzone, className)}
           onClick={!hasCustomDropZoneContent ? openFileExplorer : undefined}
           onDragLeave={dragOver(false)}
           onDragOver={dragOver(true)}

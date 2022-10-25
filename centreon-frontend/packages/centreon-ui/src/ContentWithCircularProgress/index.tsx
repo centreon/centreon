@@ -17,7 +17,9 @@ const useStyles = makeStyles()(() => ({
 interface Props {
   alignCenter?: boolean;
   children: ReactElement;
+  className?: string;
   loading: boolean;
+  loadingContainerClassname?: string;
   loadingIndicatorSize?: number;
 }
 
@@ -26,13 +28,20 @@ const ContentWithCircularLoading = ({
   children,
   loadingIndicatorSize = undefined,
   alignCenter = true,
+  className,
+  loadingContainerClassname,
 }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
 
   if (loading) {
     return (
-      <div className={cx({ [classes.alignCenter]: alignCenter })}>
-        <CircularProgress size={loadingIndicatorSize} />
+      <div
+        className={cx(
+          { [classes.alignCenter]: alignCenter },
+          loadingContainerClassname,
+        )}
+      >
+        <CircularProgress className={className} size={loadingIndicatorSize} />
       </div>
     );
   }

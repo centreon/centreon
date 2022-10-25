@@ -33,18 +33,23 @@ const useStyles = makeStyles<StyleProps>()((theme, { severityCode }) => ({
 }));
 
 export interface Props {
+  className?: string;
   count: number | JSX.Element;
   severityCode: SeverityCode;
 }
 
-const StatusCounter = ({ severityCode, count }: Props): JSX.Element => {
-  const { classes } = useStyles({ severityCode });
+const StatusCounter = ({
+  severityCode,
+  count,
+  className,
+}: Props): JSX.Element => {
+  const { classes, cx } = useStyles({ severityCode });
 
   return (
     <Badge
       badgeContent={numeral(count).format('0a')}
       classes={{
-        badge: classes.badge,
+        badge: cx(classes.badge, className),
       }}
       overlap="circular"
     />

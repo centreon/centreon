@@ -1,6 +1,17 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react';
+import { makeStyles } from 'tss-react/mui';
+
+import { Theme } from '@mui/material';
 
 import ButtonSave from '.';
+
+const useStyles = makeStyles()((theme: Theme) => ({
+  root: {
+    background: theme.palette.error.main,
+    borderRadius: theme.spacing(0.5),
+    width: theme.spacing(10),
+  },
+}));
 
 export default {
   argTypes: {
@@ -61,3 +72,11 @@ export const loadingWithTextAndLargeSize = (): JSX.Element => (
 export const succeededWithTextAndSmallSize = (): JSX.Element => (
   <ButtonSave succeeded labelSucceeded="Succeeded" size="small" />
 );
+
+const CustomButton = (): JSX.Element => {
+  const { classes } = useStyles();
+
+  return <ButtonSave className={classes.root} />;
+};
+
+export const customButton = (): JSX.Element => <CustomButton />;

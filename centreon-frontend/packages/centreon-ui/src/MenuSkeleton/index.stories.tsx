@@ -16,6 +16,9 @@ const useStyles = makeStyles()((theme) => ({
   container: {
     backgroundColor: theme.palette.primary.main,
   },
+  root: {
+    backgroundColor: theme.palette.primary.dark,
+  },
 }));
 
 interface Props {
@@ -47,3 +50,11 @@ export const menuLoader = (): JSX.Element => <MenuLoaderStory />;
 export const menuLoaderWithCustomWidth = (): JSX.Element => (
   <MenuLoaderStory width={40} />
 );
+
+const CustomMenuLoader = (): JSX.Element => {
+  const { classes } = useStyles();
+
+  return <MenuLoader animate={false} className={classes.root} width={40} />;
+};
+
+export const customMenuLoader = (): JSX.Element => <CustomMenuLoader />;

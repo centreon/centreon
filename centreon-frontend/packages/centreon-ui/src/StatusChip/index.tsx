@@ -16,6 +16,7 @@ enum SeverityCode {
 }
 
 interface StatusColorProps {
+  className?: string;
   severityCode: SeverityCode;
   theme: Theme;
 }
@@ -75,13 +76,14 @@ const StatusChip = ({
   severityCode,
   label,
   clickable = false,
+  className,
   ...rest
 }: Props): JSX.Element => {
-  const { classes } = useStyles({ label, severityCode });
+  const { classes, cx } = useStyles({ label, severityCode });
 
   return (
     <Chip
-      className={classes.chip}
+      className={cx(classes.chip, className)}
       clickable={clickable}
       label={label}
       {...rest}

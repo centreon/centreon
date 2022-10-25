@@ -50,6 +50,7 @@ export type Props = {
   EndAdornment?: React.FC;
   StartAdornment?: React.FC;
   ariaLabel?: string;
+  className?: string;
   dataTestId?: string;
   displayErrorInTooltip?: boolean;
   error?: string;
@@ -70,6 +71,7 @@ const TextField = forwardRef(
       transparent = false,
       size,
       displayErrorInTooltip = false,
+      className,
       ...rest
     }: Props,
     ref: React.ForwardedRef<HTMLDivElement>,
@@ -83,9 +85,12 @@ const TextField = forwardRef(
         <MuiTextField
           InputProps={{
             ...rest.InputProps,
-            className: cx({
-              [classes.transparent]: transparent,
-            }),
+            className: cx(
+              {
+                [classes.transparent]: transparent,
+              },
+              className,
+            ),
             disableUnderline: true,
             endAdornment: EndAdornment && (
               <OptionalLabelInputAdornment label={label} position="end">

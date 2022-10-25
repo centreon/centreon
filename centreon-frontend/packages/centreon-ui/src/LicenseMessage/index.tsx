@@ -15,21 +15,22 @@ const useStyles = makeStyles()((theme) => ({
     backgroundColor: alpha(theme.palette.error.main, 0.15),
     marginTop: theme.spacing(8),
     textAlign: 'center',
-    width: '400px',
+    width: theme.spacing(50),
   },
 }));
 
 interface Props {
+  className?: string;
   label?: string;
 }
 
-const LicenseMessage = ({ label }: Props): JSX.Element => {
-  const { classes } = useStyles();
+const LicenseMessage = ({ label, className }: Props): JSX.Element => {
+  const { classes, cx } = useStyles();
   const { t } = useTranslation();
 
   return (
     <div className={classes.divWrapper}>
-      <Paper className={classes.paper}>
+      <Paper className={cx(classes.paper, className)}>
         <Typography component="p">{label || t(labelInvalidLicense)}</Typography>
       </Paper>
     </div>
