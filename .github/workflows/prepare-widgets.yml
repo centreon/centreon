@@ -17,7 +17,6 @@ env:
   version: "22.10"
   module: "widgets"
 
-
 jobs:
   get-modules:
     runs-on: [self-hosted, common]
@@ -36,22 +35,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: List commits over python3
-        run: |
-          git config --global --add safe.directory $(pwd)
-          cat << EOF | python3
-          from git import Repo
-          repo = Repo()
-          commits = list(repo.iter_commits())
-          print(commits[1])
-          print(commits[2])
-          EOF
-
       - name: Get widget modules
         id: command
         run: |
           git config --global --add safe.directory $(pwd)
-          git log
           JSON=$(cat << EOF | python3
           from os import path
           from git import Repo
@@ -74,6 +61,7 @@ jobs:
   build-widgets:
     name: Build Widget
     needs: get-modules
+    if: "${{ needs.get-modules.outputs.matrix != "{\"include\": {}}" }}"
     strategy:
       matrix: ${{ fromJson(needs.get-modules.outputs.matrix) }}
     uses: ./.github/workflows/run-widgets.yml
