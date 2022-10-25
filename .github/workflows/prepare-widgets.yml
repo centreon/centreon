@@ -24,7 +24,7 @@ jobs:
     name: Get modules to build
     container: ubuntu
     outputs:
-      folders: ${{ steps.command.outputs.dirs }}
+      modules: ${{ steps.command.outputs.dirs }}
     steps:
       - name: Update cointainer and install git and python3
         run: |
@@ -50,6 +50,14 @@ jobs:
           dir = []
           for i in diff:
             if '${{ env.module }}' in i.a_path:
-              dir.append(path.dirname(i.a_path))
+              dir.append({'module-name': path.dirname(i.a_path)})
           print(json.dumps(sorted(set(dir))))
           EOF
+
+  build-widgets:
+    name: Build Widgets
+    needs: get-modules
+    uses: centreon/centreon-gha/.github/workflows/run-widgets.yml
+    strategy:
+      fail-fast: true
+      matrix: ${{ fromJSON(needs.get-modules.outputs.modules) }}
