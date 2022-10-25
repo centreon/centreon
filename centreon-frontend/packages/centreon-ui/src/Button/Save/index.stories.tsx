@@ -38,7 +38,7 @@ export const largeWithText = (): JSX.Element => (
   <ButtonSave labelSave="Save" size="large" />
 );
 
-export const loadingWithText = (): JSX.Element => (
+export const loadingWithTextAndMediumSize = (): JSX.Element => (
   <ButtonSave loading labelLoading="Loading" />
 );
 
@@ -52,6 +52,10 @@ export const normalWithTextAndSmallSize = (): JSX.Element => (
 
 export const loadingWithTextAndSmallSize = (): JSX.Element => (
   <ButtonSave loading labelLoading="Loading" size="small" />
+);
+
+export const loadingWithTextAndLargeSize = (): JSX.Element => (
+  <ButtonSave loading labelLoading="Loading" size="large" />
 );
 
 export const succeededWithTextAndSmallSize = (): JSX.Element => (
