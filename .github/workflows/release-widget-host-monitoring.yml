@@ -1,5 +1,5 @@
 ---
-name: Tag centreon frontend releases
+name: Tag centreon widget hostgroup monitoring releases
 
 on:
   pull_request_target:
@@ -11,12 +11,12 @@ on:
       - "!dev*"
     paths:
       - ".github/actions/release/action.yml"
-      - ".github/workflows/release-frontend.yml"
-      - "centreon-frontend/**"
+      - ".github/workflows/release-widget-hostgroup-monitoring.yml"
+      - "widgets/centreon-widget-hostgroup-monitoring/**"
   workflow_dispatch:
 
 env:
-  module: "frontend"
+  module: "widget-hostgroup-monitoring"
 
 jobs:
   release:
