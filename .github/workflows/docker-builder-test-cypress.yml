@@ -32,12 +32,19 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v2
         with:
-          registry: docker.centreon.com
+          registry: docker-proxy.centreon.com
           username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
           password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
       - name: build docker ${{ matrix.project }}
         run: docker build --no-cache . -f ci/docker/Dockerfile.${{ matrix.project }} -t docker.centreon.com/${{ matrix.project }}:${{ env.version }}
 
+      - name: Login to Registry
+        uses: docker/login-action@v2
+        with:
+          registry: docker.centreon.com
+          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          
       - name: push docker ${{ matrix.project }}
         run: docker push docker.centreon.com/${{ matrix.project }}:${{ env.version }}
