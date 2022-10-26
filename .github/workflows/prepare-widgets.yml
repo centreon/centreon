@@ -19,7 +19,7 @@ env:
 
 jobs:
   get-modules:
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
     name: Get modules for building
     outputs:
       matrix: ${{ steps.command.outputs.matrix }}
