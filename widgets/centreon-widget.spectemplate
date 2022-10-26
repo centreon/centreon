@@ -1,0 +1,48 @@
+
+%define thismajor 22.10.0
+%define nextmajor 22.11.0
+
+Summary:    %{summary}
+Name:       %{name}
+Version:    %{version}
+Release:    %{release}%{?dist}
+Source0:    %{name}-%{version}.tar.gz
+
+License:    GPLv2
+Group:      Applications/System
+Url:        http://www.centreon.com
+BuildRoot:  %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildArch:  noarch
+Requires:   centreon-web >= %{thismajor}
+Requires:   centreon-web < %{nextmajor}
+BuildRequires:  dos2unix
+
+%description
+Add homepage with Centreon Widgets
+
+%prep
+%setup -q %{SOURCE0}
+
+%build
+
+%install
+%__rm -rf ${RPM_BUILD_ROOT}/
+
+
+%{__install} -d -m 0755 %buildroot%{_datadir}/centreon/www/widgets
+%{__install} -d -m 0755 %buildroot%{_datadir}/centreon/www/widgets/%{widget_sub_dir}/
+%{__cp} -rp %{widget_sub_dir}/* %buildroot%{_datadir}/centreon/www/widgets/%{widget_sub_dir}/
+
+
+%clean
+%__rm -rf ${RPM_BUILD_ROOT}/
+
+
+%post
+%postun
+%files
+%defattr(-,root,root,-)
+%attr(-,apache,apache)
+%{_datadir}/centreon/www/widgets/%{widget_sub_dir}/
+
+%changelog
