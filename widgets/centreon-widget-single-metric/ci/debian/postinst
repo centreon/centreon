@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if [ "$1" = "configure" ] ; then
+
+  if [ "$(getent passwd www-data)" ]; then
+    chown -R www-data:www-data /usr/share/centreon/www/widgets/single-metric
+  fi
+
+fi
+exit 0
