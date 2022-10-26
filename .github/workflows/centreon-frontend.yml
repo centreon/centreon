@@ -77,42 +77,42 @@ jobs:
           name: centreon-frontend-eslint-report
           path: centreon-frontend/packages/centreon-ui/checkstyle.xml
 
-  centreon-ui-unit-test:
-    runs-on: ubuntu-22.04
+#  centreon-ui-unit-test:
+#    runs-on: ubuntu-22.04
 
-    steps:
-      - uses: actions/checkout@v3
+#    steps:
+#      - uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 17
+#      - uses: actions/setup-node@v3
+#        with:
+#          node-version: 17
 
-      - run: |
-          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-          sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
-          sudo apt update
-          sudo apt install -y google-chrome-stable
+#      - run: |
+#          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+#          sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
+#          sudo apt update
+#          sudo apt install -y google-chrome-stable
 
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-        working-directory: centreon-frontend
+#      - name: Install dependencies
+#        run: npm ci --legacy-peer-deps
+#        working-directory: centreon-frontend
 
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-        working-directory: centreon-frontend/packages/centreon-ui
+#      - name: Install dependencies
+#        run: npm ci --legacy-peer-deps
+#        working-directory: centreon-frontend/packages/centreon-ui
 
-      - name: Build Storybook
-        run: npm run build:storybook
-        working-directory: centreon-frontend/packages/centreon-ui
+#      - name: Build Storybook
+#        run: npm run build:storybook
+#        working-directory: centreon-frontend/packages/centreon-ui
 
-      - name: Unit test
-        run: npm t -- --silent --reporters=jest-junit
-        working-directory: centreon-frontend/packages/centreon-ui
+#      - name: Unit test
+#        run: npm t -- --silent --reporters=jest-junit
+#        working-directory: centreon-frontend/packages/centreon-ui
 
-      - name: Publish unit tests report
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
-        with:
-          check_name: centreon-frontend-unit-tests-report
-          comment_mode: failures
-          junit_files: "centreon-frontend/packages/centreon-ui/junit.xml"
+#      - name: Publish unit tests report
+#        uses: EnricoMi/publish-unit-test-result-action@v2
+#        if: always()
+#        with:
+#          check_name: centreon-frontend-unit-tests-report
+#          comment_mode: failures
+#          junit_files: "centreon-frontend/packages/centreon-ui/junit.xml"
