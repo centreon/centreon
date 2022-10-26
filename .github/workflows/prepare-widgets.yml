@@ -56,7 +56,7 @@ jobs:
           )
           echo "matrix=$(echo "$JSON")" >> $GITHUB_OUTPUT
           echo $JSON
-          if [ "$(echo $JSON)" -eq "[]" ]; then
+          if [ "$(echo $JSON)" == "[]" ]; then
             echo "::notice::There are no modifications to the modules"
           fi
 
