@@ -1,8 +1,9 @@
+import { makeStyles } from 'tss-react/mui';
+
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import makeStyles from '@mui/styles/makeStyles';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   icon: {
     color: theme.palette.common.white,
     cursor: 'pointer',
@@ -16,7 +17,7 @@ interface Props {
 }
 
 const IconToggleSubmenu = ({ rotate, onClick }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const ExpandIcon = rotate ? ExpandLessIcon : ExpandMoreIcon;
 

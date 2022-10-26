@@ -34,7 +34,6 @@ export interface UseFetchQueryState<T>
   extends Omit<QueryObserverBaseResult, 'data'> {
   data?: T;
   fetchQuery: () => Promise<T | ResponseError>;
-  isError: boolean;
   prefetchNextPage: ({ page, getPrefetchQueryKey }) => void;
   prefetchPreviousPage: ({ page, getPrefetchQueryKey }) => void;
   prefetchQuery: ({ endpointParams, queryKey }) => void;
@@ -159,11 +158,13 @@ const useFetchQuery = <T extends object>({
     ? (queryData.data as T)
     : undefined;
 
+  const errorData = queryData.data as ResponseError | undefined;
+
   return {
     ...omit(['data'], queryData),
     data,
+    error: errorData?.isError ? omit(['isError'], errorData) : null,
     fetchQuery,
-    isError: (queryData.data as ResponseError | undefined)?.isError ?? false,
     prefetchNextPage,
     prefetchPreviousPage,
     prefetchQuery,

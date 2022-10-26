@@ -16,9 +16,11 @@ import { InputPropsWithoutGroup, InputType } from './models';
 const defaultFilterKey = 'name';
 
 const ConnectedAutocomplete = ({
+  dataTestId,
   getDisabled,
   required,
   getRequired,
+  hideInput,
   fieldName,
   label,
   connectedAutocomplete,
@@ -91,6 +93,7 @@ const ConnectedAutocomplete = ({
 
   const disabled = getDisabled?.(values) || false;
   const isRequired = required || getRequired?.(values) || false;
+  const hidden = hideInput?.(values) || false;
 
   const AutocompleteField = useMemo(
     () =>
@@ -101,8 +104,11 @@ const ConnectedAutocomplete = ({
   );
 
   return useMemoComponent({
-    Component: (
+    Component: hidden ? (
+      <div />
+    ) : (
       <AutocompleteField
+        dataTestId={dataTestId}
         disableClearable={false}
         disabled={disabled}
         error={error}
@@ -125,6 +131,7 @@ const ConnectedAutocomplete = ({
       isRequired,
       additionalMemoProps,
       connectedAutocomplete,
+      hidden,
     ],
   });
 };

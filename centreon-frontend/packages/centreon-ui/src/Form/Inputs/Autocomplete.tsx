@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 
 import { FormikValues, useFormikContext } from 'formik';
-import { equals, isNil, map, not, prop, type } from 'ramda';
+import { equals, isNil, map, not, path, prop, type } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { FormHelperText, Stack } from '@mui/material';
@@ -39,11 +39,13 @@ const normalizeNewValues = ({
 };
 
 const Autocomplete = ({
+  dataTestId,
   fieldName,
   label,
   required,
   getDisabled,
   getRequired,
+  hideInput,
   change,
   additionalMemoProps,
   autocomplete,
@@ -77,20 +79,29 @@ const Autocomplete = ({
 
   const isCreatable = autocomplete?.creatable;
 
-  const selectedValues = prop(fieldName, values);
+  const selectedValues = path<Array<SelectEntry> | SelectEntry>(
+    [...fieldName.split('.')],
+    values,
+  );
 
   const getError = useCallback((): Array<string> | undefined => {
-    const error = prop(fieldName, errors) as Array<string> | string | undefined;
+    const error = path([...fieldName.split('.')], errors) as
+      | Array<string>
+      | string
+      | undefined;
 
-    if (isMultiple) {
-      const multipleErrors = error as Array<string> | undefined;
-      const formattedErrors = multipleErrors?.map((errorText, index) => {
-        if (isNil(errorText)) {
-          return undefined;
-        }
+    const isStringError = equals(type(error), 'String');
 
-        return `${selectedValues[index]}: ${errorText}`;
-      });
+    if (isMultiple && !isStringError) {
+      const formattedErrors = (error as Array<string> | undefined)?.map(
+        (errorText, index) => {
+          if (isNil(errorText)) {
+            return undefined;
+          }
+
+          return `${selectedValues?.[index]}: ${errorText}`;
+        },
+      );
 
       const filteredErrors = formattedErrors?.filter(Boolean);
 
@@ -109,7 +120,10 @@ const Autocomplete = ({
     [],
   );
 
-  const getValues = useCallback((): SelectEntry | Array<SelectEntry> => {
+  const getValues = useCallback(():
+    | SelectEntry
+    | Array<SelectEntry>
+    | undefined => {
     if (isMultiple && isCreatable) {
       return selectedValues.map((value) => ({
         id: value,
@@ -124,6 +138,7 @@ const Autocomplete = ({
 
   const disabled = getDisabled?.(values) || false;
   const isRequired = required || getRequired?.(values) || false;
+  const hidden = hideInput?.(values) || false;
 
   const additionalLabel =
     inputText && isCreatable ? ` (${labelPressEnterToAccept})` : '';
@@ -134,9 +149,12 @@ const Autocomplete = ({
   );
 
   return useMemoComponent({
-    Component: (
+    Component: hidden ? (
+      <div />
+    ) : (
       <div>
         <AutocompleteField
+          dataTestId={dataTestId}
           disabled={disabled}
           freeSolo={isCreatable}
           inputValue={inputText}
@@ -148,7 +166,7 @@ const Autocomplete = ({
           options={autocomplete?.options || []}
           popupIcon={isCreatable ? null : undefined}
           required={isRequired}
-          value={getValues()}
+          value={getValues() ?? null}
           onChange={changeValues}
           onTextChange={textChange}
         />
@@ -172,6 +190,7 @@ const Autocomplete = ({
       isMultiple,
       autocomplete?.options,
       isCreatable,
+      hidden,
     ],
   });
 };

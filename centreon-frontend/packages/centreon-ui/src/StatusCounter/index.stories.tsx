@@ -1,9 +1,20 @@
 /* eslint-disable react/prop-types */
 import { ComponentMeta, ComponentStory } from '@storybook/react';
+import { makeStyles } from 'tss-react/mui';
+
+import { Theme } from '@mui/material';
 
 import { SeverityCode } from '../StatusChip';
 
 import StatusCounter, { Props } from '.';
+
+const useStyles = makeStyles()((theme: Theme) => ({
+  root: {
+    background: theme.palette.info.main,
+    color: theme.palette.common.white,
+    padding: theme.spacing(3),
+  },
+}));
 
 export default {
   argTypes: {
@@ -62,3 +73,17 @@ SeverityCodeOkBigCount.args = {
   count: 500000,
   severityCode: SeverityCode.Ok,
 };
+
+const CustomStatusCounter = (): JSX.Element => {
+  const { classes } = useStyles();
+
+  return (
+    <StatusCounter
+      className={classes.root}
+      count={4}
+      severityCode={SeverityCode.Ok}
+    />
+  );
+};
+
+export const customStatusCounter = (): JSX.Element => <CustomStatusCounter />;

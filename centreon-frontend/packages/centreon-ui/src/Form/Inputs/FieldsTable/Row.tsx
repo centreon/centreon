@@ -1,35 +1,53 @@
-import { FormikValues, useFormikContext } from 'formik';
-import { not, prop, remove } from 'ramda';
-import { useTranslation } from 'react-i18next';
+import { Children } from 'react';
 
-import { Theme } from '@mui/material';
-import { CreateCSSProperties, makeStyles } from '@mui/styles';
+import { FormikValues, useFormikContext } from 'formik';
+import { not, path, split, remove, inc, is } from 'ramda';
+import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
+
 import DeleteIcon from '@mui/icons-material/Delete';
 
 import { IconButton } from '../../..';
 import { getInput } from '..';
 import { InputPropsWithoutGroup } from '../models';
 
-const useStyles = makeStyles<Theme, { columns }, string>((theme) => ({
-  icon: {
-    marginTop: theme.spacing(0.5),
-  },
-  inputsRow: ({ columns }): CreateCSSProperties => ({
-    columnGap: theme.spacing(2),
-    display: 'grid',
-    gridTemplateColumns: `repeat(${columns}, 1fr) ${theme.spacing(6)}`,
-    gridTemplateRows: 'min-content',
+interface StylesProps {
+  actionsCount?: number;
+  columns?: number;
+}
+
+const useStyles = makeStyles<StylesProps>()(
+  (theme, { columns, actionsCount }) => ({
+    actions: {
+      alignItems: 'center',
+      display: 'flex',
+      flexGrow: 1,
+    },
+    icon: {
+      marginTop: theme.spacing(0.5),
+    },
+    inputsRow: {
+      columnGap: theme.spacing(2),
+      display: 'grid',
+      gridTemplateColumns: `repeat(${columns}, 1fr) ${theme.spacing(
+        actionsCount ? 4 * actionsCount : 6,
+      )}`,
+      gridTemplateRows: 'min-content',
+    },
   }),
-}));
+);
 
 interface Props {
+  additionalActions?: React.ReactNode;
   columns?: Array<InputPropsWithoutGroup>;
-  defaultRowValue?: object;
+  defaultRowValue?: object | string;
   deleteLabel?: string;
   getRequired: () => boolean;
+  hasSingleValue?: boolean;
   index: number;
   isLastElement: boolean;
   label: string;
+  onDeleteRow?: (rowIndex: number) => void;
   tableFieldName: string;
 }
 
@@ -42,32 +60,57 @@ const Row = ({
   getRequired,
   isLastElement,
   deleteLabel,
+  onDeleteRow,
+  hasSingleValue,
+  additionalActions,
 }: Props): JSX.Element => {
-  const classes = useStyles({ columns: columns?.length });
+  const { classes } = useStyles({
+    actionsCount: additionalActions
+      ? inc(Children.count(additionalActions))
+      : 1,
+    columns: columns?.length,
+  });
   const { t } = useTranslation();
 
   const { setFieldValue, values } = useFormikContext<FormikValues>();
 
-  const tableValues = prop(tableFieldName, values);
+  const tableFieldNamePath = split('.', tableFieldName);
+
+  const tableValues = path(tableFieldNamePath, values) as Array<unknown>;
+
   const rowValues = tableValues[index];
 
   const deleteRow = (): void => {
+    if (is(Function, onDeleteRow)) {
+      onDeleteRow(index);
+
+      return;
+    }
     setFieldValue(tableFieldName, remove(index, 1, tableValues));
   };
 
   const changeRow = ({ property, value }): void => {
     const currentRowValue = rowValues || defaultRowValue;
 
-    setFieldValue(`${tableFieldName}.${index}`, {
-      ...currentRowValue,
-      [property]: value,
-    });
+    setFieldValue(
+      `${tableFieldName}.${index}`,
+      hasSingleValue
+        ? value
+        : {
+            ...currentRowValue,
+            [property]: value,
+          },
+    );
   };
 
   return (
     <div className={classes.inputsRow} key={`${label}_${index}`}>
       {columns?.map((field): JSX.Element => {
         const Input = getInput(field.type);
+
+        const inputFieldName = hasSingleValue
+          ? `${tableFieldName}.${index}`
+          : `${tableFieldName}.${index}.${field.fieldName}`;
 
         return (
           <Input
@@ -79,21 +122,24 @@ const Row = ({
                 value,
               })
             }
-            fieldName={`${tableFieldName}.${index}.${field.fieldName}`}
+            fieldName={inputFieldName}
             getRequired={getRequired}
             key={`${label}_${index}_${field.label}`}
           />
         );
       })}
       {not(isLastElement) && (
-        <IconButton
-          ariaLabel={deleteLabel && t(deleteLabel)}
-          className={classes.icon}
-          title={deleteLabel && t(deleteLabel)}
-          onClick={deleteRow}
-        >
-          <DeleteIcon />
-        </IconButton>
+        <div className={classes.actions}>
+          <IconButton
+            ariaLabel={deleteLabel && t(deleteLabel)}
+            className={classes.icon}
+            title={deleteLabel && t(deleteLabel)}
+            onClick={deleteRow}
+          >
+            <DeleteIcon />
+          </IconButton>
+          {additionalActions}
+        </div>
       )}
     </div>
   );

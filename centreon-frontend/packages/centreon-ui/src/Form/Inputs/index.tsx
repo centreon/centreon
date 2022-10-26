@@ -2,9 +2,9 @@ import { Fragment, useMemo } from 'react';
 
 import * as R from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
-import { CreateCSSProperties, makeStyles } from '@mui/styles';
-import { Divider, Theme, Typography } from '@mui/material';
+import { Divider, Typography } from '@mui/material';
 
 import CollapsibleGroup from '../CollapsibleGroup';
 import { GroupDirection } from '..';
@@ -15,7 +15,7 @@ import SwitchInput from './Switch';
 import RadioInput from './Radio';
 import TextInput from './Text';
 import ConnectedAutocomplete from './ConnectedAutocomplete';
-import FieldsTable from './FieldsTable';
+import FieldsTable from './FieldsTable/FieldsTable';
 import Grid from './Grid';
 import Custom from './Custom';
 import LoadingSkeleton from './LoadingSkeleton';
@@ -67,7 +67,7 @@ interface StylesProps {
   groupDirection?: GroupDirection;
 }
 
-const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
+const useStyles = makeStyles<StylesProps>()((theme, { groupDirection }) => ({
   additionalLabel: {
     marginBottom: theme.spacing(0.5),
   },
@@ -77,17 +77,17 @@ const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
     flexDirection: 'row',
     justifyContent: 'flex-end',
   },
-  divider: ({ groupDirection }): CreateCSSProperties => ({
+  divider: {
     margin: R.equals(groupDirection, GroupDirection.Horizontal)
       ? theme.spacing(0, 2)
       : theme.spacing(2, 0),
-  }),
-  groups: ({ groupDirection }): CreateCSSProperties => ({
+  },
+  groups: {
     display: 'flex',
     flexDirection: R.equals(groupDirection, GroupDirection.Horizontal)
       ? 'row'
       : 'column',
-  }),
+  },
   inputWrapper: { width: '100%' },
   inputs: {
     display: 'flex',
@@ -112,7 +112,7 @@ const Inputs = ({
   isCollapsible,
   groupDirection,
 }: Props): JSX.Element => {
-  const classes = useStyles({ groupDirection });
+  const { classes } = useStyles({ groupDirection });
   const { t } = useTranslation();
 
   const groupsName = R.pluck('name', groups);

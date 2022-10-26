@@ -1,58 +1,69 @@
 import * as React from 'react';
 
 import { isNil, omit } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import {
   alpha,
   TableCell,
   TableCellBaseProps,
   TableCellProps,
+  Theme,
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import { Props as DataCellProps } from './DataCell';
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    '&:last-child': {
-      paddingRight: ({ compact }: Props): string =>
-        theme.spacing(compact ? 0 : 2),
+interface GetBackgroundColorProps extends Props {
+  theme: Theme;
+}
+
+const getBackgroundColor = ({
+  isRowHovered,
+  row,
+  rowColorConditions,
+  disableRowCondition,
+  theme,
+}: GetBackgroundColorProps): string => {
+  if (disableRowCondition(row)) {
+    return alpha(theme.palette.common.black, theme.palette.action.focusOpacity);
+  }
+
+  if (isRowHovered) {
+    return alpha(theme.palette.primary.main, theme.palette.action.focusOpacity);
+  }
+
+  const foundCondition = rowColorConditions?.find(({ condition }) =>
+    condition(row),
+  );
+
+  if (!isNil(foundCondition)) {
+    return foundCondition.color;
+  }
+
+  return 'unset';
+};
+
+const useStyles = makeStyles<Props>()(
+  (
+    theme,
+    { isRowHovered, row, rowColorConditions, disableRowCondition, compact },
+  ) => ({
+    root: {
+      '&:last-child': {
+        paddingRight: theme.spacing(compact ? 0 : 2),
+      },
+      backgroundColor: getBackgroundColor({
+        disableRowCondition,
+        isRowHovered,
+        row,
+        rowColorConditions,
+        theme,
+      }),
+      borderBottom: `1px solid ${theme.palette.divider}`,
+      padding: theme.spacing(0, 0, 0, compact ? 0.5 : 1.5),
     },
-    backgroundColor: ({
-      isRowHovered,
-      row,
-      rowColorConditions,
-      disableRowCondition,
-    }: Props): string => {
-      if (disableRowCondition(row)) {
-        return alpha(
-          theme.palette.common.black,
-          theme.palette.action.focusOpacity,
-        );
-      }
-
-      if (isRowHovered) {
-        return alpha(
-          theme.palette.primary.main,
-          theme.palette.action.focusOpacity,
-        );
-      }
-
-      const foundCondition = rowColorConditions?.find(({ condition }) =>
-        condition(row),
-      );
-
-      if (!isNil(foundCondition)) {
-        return foundCondition.color;
-      }
-
-      return 'unset';
-    },
-    borderBottom: `1px solid ${theme.palette.divider}`,
-    padding: ({ compact }: Props): string =>
-      theme.spacing(0, 0, 0, compact ? 0.5 : 1.5),
-  },
-}));
+  }),
+);
 
 interface Props
   extends Pick<
@@ -64,7 +75,7 @@ interface Props
 }
 
 const Cell = (props: Props): JSX.Element => {
-  const classes = useStyles(props);
+  const { classes } = useStyles(props);
 
   const { children } = props;
 

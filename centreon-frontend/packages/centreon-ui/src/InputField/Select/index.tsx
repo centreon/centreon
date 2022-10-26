@@ -1,5 +1,5 @@
-import clsx from 'clsx';
 import { isNil, propEq } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import {
   Select,
@@ -12,14 +12,13 @@ import {
   ListSubheader,
   Divider,
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import Option from './Option';
 
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles()((theme: Theme) => ({
   compact: {
     fontSize: 'x-small',
-    padding: theme.spacing(0.5),
+    padding: theme.spacing(0.75),
   },
   input: {
     fontSize: theme.typography.body1.fontSize,
@@ -43,6 +42,7 @@ export interface SelectEntry {
 type Props = {
   ariaLabel?: string;
   compact?: boolean;
+  dataTestId?: string;
   error?: string;
   label?: string;
   onChange;
@@ -51,6 +51,7 @@ type Props = {
 } & Omit<SelectProps, 'error'>;
 
 const SelectField = ({
+  dataTestId,
   options,
   onChange,
   selectedOptionId,
@@ -62,7 +63,7 @@ const SelectField = ({
   compact = false,
   ...props
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes, cx } = useStyles();
 
   const getOption = (id): SelectEntry => {
     return options.find(propEq('id', id)) as SelectEntry;
@@ -75,12 +76,7 @@ const SelectField = ({
   };
 
   return (
-    <FormControl
-      error={!isNil(error)}
-      fullWidth={fullWidth}
-      size="small"
-      variant="filled"
-    >
+    <FormControl error={!isNil(error)} fullWidth={fullWidth} size="small">
       {label && <InputLabel>{label}</InputLabel>}
       <Select
         disableUnderline
@@ -88,12 +84,14 @@ const SelectField = ({
         fullWidth={fullWidth}
         inputProps={{
           'aria-label': ariaLabel,
-          className: clsx(classes.input, {
+          className: cx(classes.input, {
             [classes.noLabelInput]: !label && !compact,
             [classes.compact]: compact,
           }),
+          'data-testid': dataTestId,
           ...inputProps,
         }}
+        label={label}
         renderValue={(id): string => {
           return getOption(id)?.name;
         }}

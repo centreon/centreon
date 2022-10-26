@@ -10,11 +10,10 @@ import {
   T,
 } from 'ramda';
 import { useAtomValue } from 'jotai';
+import { makeStyles } from 'tss-react/mui';
 
 import PostAddIcon from '@mui/icons-material/PostAdd';
-import { alpha, Box, FormHelperText, Theme, Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-import { CreateCSSProperties } from '@mui/styles';
+import { alpha, Box, FormHelperText, Typography } from '@mui/material';
 
 import { userAtom } from '@centreon/ui-context';
 
@@ -28,40 +27,41 @@ interface StylesProps {
   isDraggingOver: boolean;
 }
 
-const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
-  dropzone: ({
-    hasCustomDropZoneContent,
-    isDraggingOver,
-  }): CreateCSSProperties => ({
-    '&:hover': hasCustomDropZoneContent
-      ? undefined
-      : {
-          backgroundColor: alpha(theme.palette.primary.main, 0.1),
-          border: `${theme.spacing(0.3)} dashed ${theme.palette.primary.main}`,
-          boxShadow: theme.shadows[3],
-          cursor: 'pointer',
-        },
-    border: `${theme.spacing(0.3)} dashed ${
-      hasCustomDropZoneContent && !isDraggingOver
-        ? 'transparent'
-        : theme.palette.primary.main
-    }`,
-    boxShadow: isDraggingOver ? theme.shadows[3] : theme.shadows[0],
-    padding: hasCustomDropZoneContent ? undefined : theme.spacing(1),
-    width: hasCustomDropZoneContent ? '100%' : theme.spacing(50),
+const useStyles = makeStyles<StylesProps>()(
+  (theme, { hasCustomDropZoneContent, isDraggingOver }) => ({
+    dropzone: {
+      '&:hover': hasCustomDropZoneContent
+        ? undefined
+        : {
+            backgroundColor: alpha(theme.palette.primary.main, 0.1),
+            border: `${theme.spacing(0.3)} dashed ${
+              theme.palette.primary.main
+            }`,
+            boxShadow: theme.shadows[3],
+            cursor: 'pointer',
+          },
+      border: `${theme.spacing(0.3)} dashed ${
+        hasCustomDropZoneContent && !isDraggingOver
+          ? 'transparent'
+          : theme.palette.primary.main
+      }`,
+      boxShadow: isDraggingOver ? theme.shadows[3] : theme.shadows[0],
+      padding: hasCustomDropZoneContent ? undefined : theme.spacing(1),
+      width: hasCustomDropZoneContent ? '100%' : theme.spacing(50),
+    },
+    dropzoneInfo: {
+      display: 'grid',
+      gridTemplateRows: hasCustomDropZoneContent
+        ? undefined
+        : 'repeat(2, min-content)',
+      justifyItems: 'center',
+      rowGap: theme.spacing(1),
+    },
+    input: {
+      display: 'none',
+    },
   }),
-  dropzoneInfo: ({ hasCustomDropZoneContent }): CreateCSSProperties => ({
-    display: 'grid',
-    gridTemplateRows: hasCustomDropZoneContent
-      ? undefined
-      : 'repeat(2, min-content)',
-    justifyItems: 'center',
-    rowGap: theme.spacing(1),
-  }),
-  input: {
-    display: 'none',
-  },
-}));
+);
 
 export type CustomDropZoneContentProps = Pick<
   UseDropzoneState,
@@ -74,6 +74,7 @@ interface Props {
   }: CustomDropZoneContentProps) => JSX.Element;
   accept: string;
   changeFiles: (files: FileList | null) => void;
+  className?: string;
   files: FileList | null;
   maxFileSize?: number;
   multiple?: boolean;
@@ -112,6 +113,7 @@ const Dropzone = ({
   accept,
   CustomDropZoneContent,
   maxFileSize,
+  className,
 }: Props): JSX.Element => {
   const hasCustomDropZoneContent = !isNil(CustomDropZoneContent);
   const {
@@ -129,7 +131,10 @@ const Dropzone = ({
     resetFilesStatusAndUploadData,
   });
 
-  const classes = useStyles({ hasCustomDropZoneContent, isDraggingOver });
+  const { classes, cx } = useStyles({
+    hasCustomDropZoneContent,
+    isDraggingOver,
+  });
   const { t } = useTranslation();
   const { themeMode } = useAtomValue(userAtom);
 
@@ -137,7 +142,7 @@ const Dropzone = ({
     Component: (
       <div>
         <Box
-          className={classes.dropzone}
+          className={cx(classes.dropzone, className)}
           onClick={!hasCustomDropZoneContent ? openFileExplorer : undefined}
           onDragLeave={dragOver(false)}
           onDragOver={dragOver(true)}

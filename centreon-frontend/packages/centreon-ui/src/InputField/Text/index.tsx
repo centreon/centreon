@@ -1,7 +1,7 @@
-import * as React from 'react';
+import { forwardRef } from 'react';
 
-import clsx from 'clsx';
-import { equals, isNil, not } from 'ramda';
+import { isNil } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import {
   TextField as MuiTextField,
@@ -10,27 +10,16 @@ import {
   Theme,
   Tooltip,
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
-enum Size {
-  compact = 'compact',
-  small = 'small',
-}
-
-const useStyles = makeStyles((theme: Theme) => ({
+const useStyles = makeStyles()((theme: Theme) => ({
   compact: {
     fontSize: 'x-small',
-    padding: theme.spacing(0.75),
   },
   input: {
     fontSize: theme.typography.body1.fontSize,
   },
   noLabelInput: {
     padding: theme.spacing(1),
-  },
-  small: {
-    fontSize: 'small',
-    padding: theme.spacing(0.75),
   },
   transparent: {
     backgroundColor: 'transparent',
@@ -61,14 +50,16 @@ export type Props = {
   EndAdornment?: React.FC;
   StartAdornment?: React.FC;
   ariaLabel?: string;
+  className?: string;
+  dataTestId?: string;
   displayErrorInTooltip?: boolean;
   error?: string;
   open?: boolean;
-  size?: 'small' | 'compact';
+  size?: 'medium' | 'small' | 'compact';
   transparent?: boolean;
 } & Omit<TextFieldProps, 'variant' | 'size' | 'error'>;
 
-const TextField = React.forwardRef(
+const TextField = forwardRef(
   (
     {
       StartAdornment,
@@ -76,17 +67,17 @@ const TextField = React.forwardRef(
       label,
       error,
       ariaLabel,
+      dataTestId,
       transparent = false,
       size,
       displayErrorInTooltip = false,
+      className,
       ...rest
     }: Props,
     ref: React.ForwardedRef<HTMLDivElement>,
   ): JSX.Element => {
-    const classes = useStyles();
+    const { classes, cx } = useStyles();
 
-    const isSizeEqualTo = (sizeToCompare: Size): boolean =>
-      equals(size, sizeToCompare);
     const tooltipTitle = displayErrorInTooltip && !isNil(error) ? error : '';
 
     return (
@@ -94,9 +85,12 @@ const TextField = React.forwardRef(
         <MuiTextField
           InputProps={{
             ...rest.InputProps,
-            className: clsx({
-              [classes.transparent]: transparent,
-            }),
+            className: cx(
+              {
+                [classes.transparent]: transparent,
+              },
+              className,
+            ),
             disableUnderline: true,
             endAdornment: EndAdornment && (
               <OptionalLabelInputAdornment label={label} position="end">
@@ -114,17 +108,11 @@ const TextField = React.forwardRef(
           inputProps={{
             ...rest.inputProps,
             'aria-label': ariaLabel,
-            className: clsx(classes.input, {
-              [classes.noLabelInput]:
-                !label && not(isSizeEqualTo(Size.compact)),
-              [classes.small]: isSizeEqualTo(Size.small),
-              [classes.compact]: isSizeEqualTo(Size.compact),
-            }),
+            'data-testid': dataTestId,
           }}
           label={label}
           ref={ref}
-          size="small"
-          variant="filled"
+          size={size || 'small'}
           {...rest}
         />
       </Tooltip>

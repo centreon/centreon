@@ -1,14 +1,15 @@
 import * as React from 'react';
 
-import { Paper } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
+import { makeStyles } from 'tss-react/mui';
+
+import { Box } from '@mui/material';
 
 import { useMemoComponent } from '..';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   content: {
     border: 'none',
-    padding: theme.spacing(1),
+    padding: theme.spacing(1, 0),
   },
 }));
 
@@ -18,16 +19,16 @@ export interface FilterProps {
 
 const Filter = React.forwardRef(
   ({ content }: FilterProps, ref): JSX.Element => {
-    const classes = useStyles();
+    const { classes } = useStyles();
 
     return (
-      <Paper
-        square
+      <Box
         className={classes.content}
+        component="div"
         ref={ref as React.RefObject<HTMLDivElement>}
       >
         {content}
-      </Paper>
+      </Box>
     );
   },
 );

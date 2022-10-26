@@ -1,29 +1,29 @@
-import { Theme } from '@mui/material';
-import { CreateCSSProperties, makeStyles } from '@mui/styles';
+import { makeStyles } from 'tss-react/mui';
 
 import { InputPropsWithoutGroup } from './models';
 
 import { getInput } from '.';
 
-const useStyles = makeStyles<
-  Theme,
-  { alignItems; columns; gridTemplateColumns }
->((theme) => ({
-  gridFields: ({
-    columns,
-    gridTemplateColumns,
-    alignItems,
-  }): CreateCSSProperties => ({
-    alignItems: alignItems || 'flex-start',
-    columnGap: theme.spacing(4),
-    display: 'grid',
-    gridTemplateColumns: gridTemplateColumns || `repeat(${columns}, 1fr)`,
-    rowGap: theme.spacing(2),
+interface StylesProps {
+  alignItems?: string;
+  columns?: number;
+  gridTemplateColumns?: string;
+}
+
+const useStyles = makeStyles<StylesProps>()(
+  (theme, { columns, gridTemplateColumns, alignItems }) => ({
+    gridFields: {
+      alignItems: alignItems || 'flex-start',
+      columnGap: theme.spacing(4),
+      display: 'grid',
+      gridTemplateColumns: gridTemplateColumns || `repeat(${columns}, 1fr)`,
+      rowGap: theme.spacing(2),
+    },
   }),
-}));
+);
 
 const Grid = ({ grid }: InputPropsWithoutGroup): JSX.Element => {
-  const classes = useStyles({
+  const { classes } = useStyles({
     alignItems: grid?.alignItems,
     columns: grid?.columns.length,
     gridTemplateColumns: grid?.gridTemplateColumns,

@@ -2,9 +2,9 @@ import { useState } from 'react';
 
 import { equals, length, dec, pipe, inc, filter, isEmpty, not } from 'ramda';
 import { Formik } from 'formik';
+import { makeStyles } from 'tss-react/mui';
 
 import { Dialog, DialogContent } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import Confirm from '../Dialog/Confirm';
 
@@ -12,7 +12,7 @@ import { WizardProps } from './models';
 import Stepper from './Stepper';
 import WizardContent from './WizardContent';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()(() => ({
   dialogContent: {
     display: 'flex',
     padding: 0,
@@ -39,7 +39,7 @@ const Wizard = ({
   confirmDialogLabels = undefined,
   actionsBarLabels = actionsBarLabelsDefaultValues,
 }: WizardProps): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const [currentStep, setCurrentStep] = useState(0);
   const [sendingRequest, setSendingRequest] = useState(false);
   const [openConfirm, setOpenConfirm] = useState(false);

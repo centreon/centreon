@@ -16,7 +16,7 @@ class CentreonModulePlugin {
       };
 
       if (!fs.existsSync(compiler.options.output.path)) {
-        fs.mkdirSync(compiler.options.output.path);
+        fs.mkdirSync(compiler.options.output.path, { recursive: true });
       }
 
       fs.writeFileSync(
@@ -28,14 +28,12 @@ class CentreonModulePlugin {
 }
 
 module.exports = ({
-  assetPublicPath,
   outputPath,
   federatedComponentConfiguration,
 }) => ({
   output: {
     library: '[chunkhash:8]',
     path: outputPath,
-    uniqueName: `wpJsonp-${assetPublicPath}`,
   },
   plugins: [
     new CleanWebpackPlugin({

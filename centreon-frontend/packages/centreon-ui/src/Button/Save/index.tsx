@@ -1,11 +1,20 @@
-import { any, equals, isEmpty, isNil, not, or, pipe } from 'ramda';
+import { any, isEmpty, isNil, not, or, pipe } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
-import { Button, Tooltip } from '@mui/material';
+import { Theme, Tooltip } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 
 import StartIcon from './StartIcon';
 import Content from './Content';
 
+const useStyles = makeStyles()((theme: Theme) => ({
+  loadingButton: {
+    width: theme.spacing(5),
+  },
+}));
+
 interface Props extends Record<string, unknown> {
+  className?: string;
   labelLoading?: string;
   labelSave?: string;
   labelSucceeded?: string;
@@ -24,10 +33,6 @@ interface StartIconConfigProps {
 
 const isNilOrEmpty = (value): boolean => or(isNil(value), isEmpty(value));
 const hasValue = any(pipe(isNilOrEmpty, not));
-const iconSize = 30;
-const smallIconSize = 20;
-
-const baseStyle = { height: 40 };
 
 const SaveButton = ({
   succeeded = false,
@@ -37,10 +42,11 @@ const SaveButton = ({
   labelLoading = '',
   labelSave = '',
   size = 'medium',
+  className,
   ...rest
 }: Props): JSX.Element => {
+  const { classes, cx } = useStyles();
   const hasLabel = hasValue([labelLoading, labelSave, labelSucceeded]);
-  const isSmall = equals('small', size);
 
   const startIconConfig = {
     hasLabel,
@@ -48,38 +54,33 @@ const SaveButton = ({
     succeeded,
   } as StartIconConfigProps;
 
-  const style = hasLabel ? baseStyle : { ...baseStyle, width: 40 };
-
   return (
     <Tooltip placement="bottom" title={tooltipLabel}>
       <div>
-        <Button
+        <LoadingButton
           aria-label="save button"
+          className={cx(
+            {
+              [classes.loadingButton]: !hasLabel,
+            },
+            className,
+          )}
           color="primary"
+          loading={loading}
+          loadingPosition={labelLoading ? 'start' : 'center'}
           size={size}
-          startIcon={
-            <StartIcon
-              iconSize={iconSize}
-              isSmall={isSmall}
-              smallIconSize={smallIconSize}
-              startIconConfig={startIconConfig}
-            />
-          }
-          style={not(isSmall) ? style : undefined}
+          startIcon={<StartIcon startIconConfig={startIconConfig} />}
           variant="contained"
           {...rest}
         >
           {Content({
-            iconSize,
-            isSmall,
             labelLoading,
             labelSave,
             labelSucceeded,
             loading,
-            smallIconSize,
             succeeded,
           })}
-        </Button>
+        </LoadingButton>
       </div>
     </Tooltip>
   );

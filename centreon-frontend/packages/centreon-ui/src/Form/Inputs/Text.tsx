@@ -10,12 +10,14 @@ import PasswordEndAdornment from './PasswordEndAdornment';
 import { InputPropsWithoutGroup, InputType } from './models';
 
 const Text = ({
+  dataTestId,
   label,
   fieldName,
   type,
   required,
   getDisabled,
   getRequired,
+  hideInput,
   change,
   additionalMemoProps,
   text,
@@ -78,13 +80,17 @@ const Text = ({
 
   const disabled = getDisabled?.(values) || false;
   const isRequired = required || getRequired?.(values) || false;
+  const hidden = hideInput?.(values) || false;
 
   return useMemoComponent({
-    Component: (
+    Component: hidden ? (
+      <div />
+    ) : (
       <TextField
         fullWidth
         EndAdornment={passwordEndAdornment}
         ariaLabel={t(label)}
+        dataTestId={dataTestId}
         disabled={disabled}
         error={error as string | undefined}
         label={t(label)}
@@ -102,6 +108,7 @@ const Text = ({
       disabled,
       isRequired,
       additionalMemoProps,
+      hidden,
     ],
   });
 };

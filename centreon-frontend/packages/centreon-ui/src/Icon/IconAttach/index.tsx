@@ -1,9 +1,9 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 
-import makeStyles from '@mui/styles/makeStyles';
+import { makeStyles } from 'tss-react/mui';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   icon: {
     color: theme.palette.text.secondary,
     cursor: 'initial',
@@ -58,7 +58,7 @@ const IconAttach = ({
   title,
   labelNoIcon = 'NO ICON',
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <span className={classes.iconAttach} onClick={onClick}>
