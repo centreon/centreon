@@ -20,7 +20,7 @@ env:
 
 jobs:
   ui-context-lint:
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v3
@@ -49,7 +49,7 @@ jobs:
           path: centreon-frontend/packages/ui-context/checkstyle.xml
 
   centreon-ui-lint:
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v3
@@ -78,7 +78,7 @@ jobs:
           path: centreon-frontend/packages/centreon-ui/checkstyle.xml
 
   centreon-ui-unit-test:
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v3
