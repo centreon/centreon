@@ -298,8 +298,6 @@ export const withFixedPanel = (): JSX.Element => {
     />
   );
 };
-<<<<<<< HEAD
-=======
 
 export const withALongContent = (): JSX.Element => (
   <ListingPage
@@ -320,4 +318,3 @@ export const withALongContent = (): JSX.Element => (
     panelOpen={false}
   />
 );
->>>>>>> centreon-frontend/dev-22.04.x
