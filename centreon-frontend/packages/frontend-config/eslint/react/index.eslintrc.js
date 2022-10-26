@@ -16,7 +16,10 @@ module.exports = {
   plugins: ['react', 'hooks', 'react-hooks', 'babel'],
   root: true,
   rules: {
+<<<<<<< HEAD
     camelcase: ['error', { ignoreDestructuring: true, properties: 'never' }],
+=======
+>>>>>>> centreon-frontend/dev-22.04.x
     'hooks/sort': [
       2,
       {
@@ -34,6 +37,10 @@ module.exports = {
         ],
       },
     ],
+<<<<<<< HEAD
+=======
+    camelcase: ['error', { ignoreDestructuring: true, properties: 'never' }],
+>>>>>>> centreon-frontend/dev-22.04.x
     'import/extensions': [
       'error',
       'ignorePackages',
