@@ -21,7 +21,6 @@ jobs:
   get-modules:
     runs-on: [self-hosted, common]
     name: Get modules for building
-    container: ubuntu-22.04
     outputs:
       matrix: ${{ steps.command.outputs.matrix }}
     steps:
