@@ -298,3 +298,23 @@ export const withFixedPanel = (): JSX.Element => {
     />
   );
 };
+
+export const withALongContent = (): JSX.Element => (
+  <ListingPage
+    filter={<FilterWithContent />}
+    listing={
+      <div>
+        <Typography variant="h1">It</Typography>
+        <Typography variant="h1">is</Typography>
+        <Typography variant="h1">displaying</Typography>
+        <Typography variant="h1">something</Typography>
+        <Typography variant="h1">like</Typography>
+        <Typography variant="h1">a</Typography>
+        <Typography variant="h1">long</Typography>
+        <Typography variant="h1">body</Typography>
+        <Typography variant="h1">content</Typography>
+      </div>
+    }
+    panelOpen={false}
+  />
+);

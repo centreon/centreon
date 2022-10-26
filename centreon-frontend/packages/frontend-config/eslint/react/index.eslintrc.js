@@ -16,7 +16,6 @@ module.exports = {
   plugins: ['react', 'hooks', 'react-hooks', 'babel'],
   root: true,
   rules: {
-    camelcase: ['error', { ignoreDestructuring: true, properties: 'never' }],
     'hooks/sort': [
       2,
       {
@@ -34,6 +33,7 @@ module.exports = {
         ],
       },
     ],
+    camelcase: ['error', { ignoreDestructuring: true, properties: 'never' }],
     'import/extensions': [
       'error',
       'ignorePackages',
