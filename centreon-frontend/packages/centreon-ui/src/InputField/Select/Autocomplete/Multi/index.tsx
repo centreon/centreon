@@ -1,14 +1,14 @@
 import { includes, map, prop, reject } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import { Chip } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import { UseAutocompleteProps } from '@mui/material/useAutocomplete';
 
 import Autocomplete, { Props as AutocompleteProps } from '..';
 import { SelectEntry } from '../..';
 import Option from '../../Option';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   checkbox: {
     marginRight: theme.spacing(1),
     padding: 0,
@@ -38,12 +38,13 @@ export interface Props
 }
 
 const MultiAutocompleteField = ({
+  dataTestId,
   value,
   options,
   disableSortedOptions = false,
   ...props
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   const renderTags = (renderedValue, getTagProps): Array<JSX.Element> =>
     renderedValue.map((option, index) => (
@@ -78,6 +79,7 @@ const MultiAutocompleteField = ({
       disableCloseOnSelect
       displayOptionThumbnail
       multiple
+      dataTestId={dataTestId}
       getLimitTagsText={getLimitTagsText}
       options={autocompleteOptions}
       renderOption={(renderProps, option, { selected }): JSX.Element => (

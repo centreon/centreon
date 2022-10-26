@@ -1,9 +1,9 @@
 import { not } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import { Badge, Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   icon: {
     color: theme.palette.common.white,
     cursor: 'pointer',
@@ -27,7 +27,6 @@ const useStyles = makeStyles((theme) => ({
     cursor: 'pointer',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-between',
   },
 }));
 
@@ -44,7 +43,7 @@ const IconHeader = ({
   onClick,
   pending,
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <span className={classes.iconWrap}>
@@ -57,7 +56,11 @@ const IconHeader = ({
       >
         <Icon className={classes.icon} onClick={onClick} />
       </Badge>
-      <Typography className={classes.iconName} variant="caption">
+      <Typography
+        className={classes.iconName}
+        variant="caption"
+        onClick={onClick}
+      >
         {iconName}
       </Typography>
     </span>

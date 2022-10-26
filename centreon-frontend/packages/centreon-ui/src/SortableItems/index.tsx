@@ -12,6 +12,7 @@ import {
   DragOverEvent,
   DragStartEvent,
   DragEndEvent,
+  Over,
 } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -51,7 +52,7 @@ export interface RootComponentProps {
   isInDragOverlay?: boolean;
 }
 
-interface DragEnd {
+export interface DragEnd {
   event: DragEndEvent;
   items: Array<string>;
 }
@@ -68,7 +69,7 @@ interface Props<T> {
     itemRef,
     index,
     ...other
-  }: ContentProps & T) => JSX.Element;
+  }: ContentProps & T) => JSX.Element | null;
   RootComponent?: ({
     children,
     isInDragOverlay,
@@ -76,10 +77,13 @@ interface Props<T> {
   additionalProps?: Array<unknown>;
   collisionDetection: CollisionDetection;
   getDisableItemCondition?: (item: T) => boolean;
+  getDisableOverItemSortableCondition?: (overItem: Over) => boolean;
   itemProps: Array<string>;
   items: Array<T>;
   memoProps?: Array<unknown>;
   onDragEnd?: (props: DragEnd) => void;
+  onDragOver?: (event: DragOverEvent) => void;
+  onDragStart?: (event: DragStartEvent) => void;
   sortingStrategy: SortingStrategy;
   updateSortableItemsOnItemsChange?: boolean;
 }
@@ -88,7 +92,9 @@ const propertyToFilterItemsOn = 'id';
 
 const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
   items,
+  onDragStart,
   onDragEnd,
+  onDragOver,
   collisionDetection,
   sortingStrategy,
   itemProps,
@@ -97,6 +103,7 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
   RootComponent = DefaultRootComponent,
   Content,
   getDisableItemCondition = (): boolean => false,
+  getDisableOverItemSortableCondition = (): boolean => false,
   updateSortableItemsOnItemsChange = false,
 }: Props<T>): JSX.Element => {
   const getItemsIds = (): Array<string> =>
@@ -126,31 +133,37 @@ const SortableItems = <T extends { [propertyToFilterItemsOn]: string }>({
   );
   const theme = useTheme();
 
+  const isOverItemDisabled = (overItem: Over | null): boolean => {
+    return (overItem && getDisableOverItemSortableCondition(overItem)) || false;
+  };
+
   const dragStart = (event: DragStartEvent): void => {
+    onDragStart?.(event);
     setActiveId(path(['active', propertyToFilterItemsOn], event) as string);
   };
 
   const dragCancel = (): void => setActiveId(null);
 
   const dragEnd = (event: DragEndEvent): void => {
-    setActiveId(null);
-
-    onDragEnd?.({ event, items: sortableItemsIds });
-  };
-
-  const dragOver = (event: DragOverEvent): void => {
     const overId = path(['over', propertyToFilterItemsOn], event);
-
     if (
       pipe(isNil, not)(overId) &&
-      pipe(equals(activeId), not)(overId as string | null)
+      pipe(equals(activeId), not)(overId as string | null) &&
+      not(isOverItemDisabled(event.over))
     ) {
       const oldIndex = indexOf(activeId, sortableItemsIds);
       const newIndex = indexOf(overId, sortableItemsIds);
 
       const newItemsOrder = move<string>(oldIndex, newIndex, sortableItemsIds);
+
       setSortableItemsIds(newItemsOrder);
+      onDragEnd?.({ event, items: newItemsOrder });
     }
+    setActiveId(null);
+  };
+
+  const dragOver = (event: DragOverEvent): void => {
+    onDragOver?.(event);
   };
 
   const getItemById = (id): T | undefined =>

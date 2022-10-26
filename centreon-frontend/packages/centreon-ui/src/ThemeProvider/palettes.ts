@@ -16,11 +16,13 @@ declare module '@mui/material/styles/createPalette' {
 declare module '@mui/material/styles' {
   interface Palette {
     pending: {
+      contrastText: string;
       main: string;
     };
   }
   interface PaletteOptions {
     pending: {
+      contrastText: string;
       main: string;
     };
   }
@@ -61,23 +63,30 @@ export const lightPalette: PaletteOptions = {
   },
   divider: '#E3E3E3',
   error: {
+    contrastText: '#000',
     main: '#FF4A4A',
   },
   info: {
+    contrastText: '#000',
     main: '#1588D1',
   },
   mode: ThemeMode.light,
   pending: {
+    contrastText: '#000',
     main: '#1EBEB3',
   },
   primary: {
+    contrastText: '#fff',
     dark: '#255891',
+    light: '#cde7fc',
     main: '#2E68AA',
   },
   secondary: {
+    contrastText: '#fff',
     main: '#C772D6',
   },
   success: {
+    contrastText: '#000',
     main: '#88B922',
   },
   text: {
@@ -86,6 +95,7 @@ export const lightPalette: PaletteOptions = {
     secondary: '#666666',
   },
   warning: {
+    contrastText: '#000',
     main: '#FD9B27',
   },
 };
@@ -108,29 +118,36 @@ export const darkPalette: PaletteOptions = {
     selectedOpacity: 0.5,
   },
   background: {
-    default: '#000000',
+    default: '#4a4a4a',
     paper: '#212121',
   },
   divider: '#666666',
   error: {
+    contrastText: '#fff',
     main: '#D60101',
   },
   info: {
+    contrastText: '#fff',
     main: '#1CA9F4',
   },
   mode: ThemeMode.dark,
   pending: {
+    contrastText: '#fff',
     main: '#118077',
   },
   primary: {
+    contrastText: '#000',
     dark: '#4974A5',
-    main: '#6EAFF8',
+    light: '#8bbff9',
+    main: '#6eaff8',
   },
   secondary: {
+    contrastText: '#fff',
     main: '#7C1FA2',
   },
   success: {
-    main: '#759F1D',
+    contrastText: '#fff',
+    main: '#5F8118',
   },
   text: {
     disabled: '#666666',
@@ -138,7 +155,8 @@ export const darkPalette: PaletteOptions = {
     secondary: '#B5B5B5',
   },
   warning: {
-    main: '#FC7E00',
+    contrastText: '#fff',
+    main: '#C55400',
   },
 };
 

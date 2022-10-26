@@ -1,8 +1,18 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react';
+import { makeStyles } from 'tss-react/mui';
 
-import { Typography } from '@mui/material';
+import { Typography, Theme } from '@mui/material';
 
 import ContentWithCircularLoading from '.';
+
+const useStyles = makeStyles()((theme: Theme) => ({
+  container: {
+    background: theme.palette.divider,
+  },
+  root: {
+    color: theme.palette.common.black,
+  },
+}));
 
 export default {
   argTypes: {
@@ -51,3 +61,20 @@ export const loadingWithBiggerSize = (): JSX.Element => (
     <Content />
   </ContentWithCircularLoading>
 );
+
+const CustomLoading = (): JSX.Element => {
+  const { classes } = useStyles();
+
+  return (
+    <ContentWithCircularLoading
+      loading
+      className={classes.root}
+      loadingContainerClassname={classes.container}
+      loadingIndicatorSize={50}
+    >
+      <Content />
+    </ContentWithCircularLoading>
+  );
+};
+
+export const customLoading = (): JSX.Element => <CustomLoading />;

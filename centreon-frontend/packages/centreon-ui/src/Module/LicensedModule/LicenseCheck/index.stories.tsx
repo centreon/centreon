@@ -1,11 +1,18 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react';
 import withMock from 'storybook-addon-mock';
+import { makeStyles } from 'tss-react/mui';
 
 import { Alert, Container } from '@mui/material';
 
 import { getModuleLicenseCheckEndpoint } from '../api';
 
 import LicenseCheck from '.';
+
+const useStyles = makeStyles()({
+  container: {
+    height: '100vh',
+  },
+});
 
 export default {
   argTypes: {
@@ -39,10 +46,14 @@ const Module = ({ moduleName }: Props): JSX.Element => (
 );
 
 const Story = ({ moduleName }: Props): JSX.Element => {
+  const { classes } = useStyles();
+
   return (
-    <LicenseCheck moduleName={moduleName}>
-      <Module moduleName={moduleName} />
-    </LicenseCheck>
+    <div className={classes.container}>
+      <LicenseCheck moduleName={moduleName}>
+        <Module moduleName={moduleName} />
+      </LicenseCheck>
+    </div>
   );
 };
 

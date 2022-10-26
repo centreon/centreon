@@ -1,17 +1,16 @@
-import clsx from 'clsx';
+import { makeStyles } from 'tss-react/mui';
 
 import { useTheme } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import LoadingSkeleton from '../LoadingSkeleton';
 
 import BaseRectSkeleton, { useSkeletonStyles } from './BaseSkeleton';
 import ContentSkeleton from './ContentSkeleton';
 
-const headerHeight = 6.5;
+const headerHeight = 8;
 const footerHeight = 3.8;
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   breadcrumbSkeleton: {
     margin: theme.spacing(0.5, 2),
     width: theme.spacing(30),
@@ -43,14 +42,14 @@ const PageSkeleton = ({
   displayHeaderAndNavigation = false,
   animate = true,
 }: PageSkeletonProps): JSX.Element => {
-  const classes = useStyles();
+  const { classes, cx } = useStyles();
   const skeletonClasses = useSkeletonStyles();
   const theme = useTheme();
 
   return (
     <div className={classes.skeletonContainer}>
       <div
-        className={clsx({
+        className={cx({
           [classes.menuContentContainer]: displayHeaderAndNavigation,
         })}
       >
@@ -69,7 +68,7 @@ const PageSkeleton = ({
             )}
             <LoadingSkeleton
               animation={animate ? 'wave' : false}
-              className={clsx(
+              className={cx(
                 classes.breadcrumbSkeleton,
                 skeletonClasses.skeletonLayout,
               )}

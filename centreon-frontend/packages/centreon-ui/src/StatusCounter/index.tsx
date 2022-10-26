@@ -1,49 +1,58 @@
 import numeral from 'numeral';
+import { makeStyles } from 'tss-react/mui';
+import { equals } from 'ramda';
 
-import { Theme } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-import { CreateCSSProperties } from '@mui/styles';
+import { Badge } from '@mui/material';
 
-import { getStatusColors } from '..';
-import { Colors, SeverityCode } from '../StatusChip';
+import { ThemeMode } from '@centreon/ui-context';
+
+import { getStatusColors, SeverityCode } from '../StatusChip';
 
 export interface StyleProps {
   severityCode: SeverityCode;
 }
 
-const useStyles = makeStyles<Theme, StyleProps>((theme) => {
-  const getStatusIconColors = (severityCode: SeverityCode): Colors =>
-    getStatusColors({
-      severityCode,
-      theme,
-    });
+const getColor = (themeMode: string): string =>
+  equals(ThemeMode.dark, themeMode) ? 'white' : 'dark';
 
-  return {
-    statusCounter: ({ severityCode }): CreateCSSProperties<StyleProps> => ({
-      alignItems: 'center',
-      background: getStatusIconColors(severityCode).backgroundColor,
-      borderRadius: '50%',
-      color: getStatusIconColors(severityCode).color,
-      cursor: 'pointer',
-      display: 'inline-flex',
-      fontSize: theme.typography.caption.fontSize,
-      justifyContent: 'center',
-      minHeight: theme.spacing(2),
-      minWidth: theme.spacing(2),
-    }),
-  };
-});
+const useStyles = makeStyles<StyleProps>()((theme, { severityCode }) => ({
+  badge: {
+    background: getStatusColors({ severityCode, theme }).backgroundColor,
+    borderRadius: theme.spacing(1.25),
+    color: theme.palette.common[getColor(theme.palette.mode)],
+    cursor: 'pointer',
+    fontSize: theme.typography.body2.fontSize,
+    height: theme.spacing(2.5),
+    lineHeight: theme.spacing(2.5),
+    minWidth: theme.spacing(2.5),
+    position: 'relative',
+    right: 0,
+    top: 0,
+    transform: 'none',
+  },
+}));
 
 export interface Props {
+  className?: string;
   count: number | JSX.Element;
   severityCode: SeverityCode;
 }
 
-const StatusCounter = ({ severityCode, count }: Props): JSX.Element => {
-  const classes = useStyles({ severityCode });
+const StatusCounter = ({
+  severityCode,
+  count,
+  className,
+}: Props): JSX.Element => {
+  const { classes, cx } = useStyles({ severityCode });
 
   return (
-    <div className={classes.statusCounter}>{numeral(count).format('0a')}</div>
+    <Badge
+      badgeContent={numeral(count).format('0a')}
+      classes={{
+        badge: cx(classes.badge, className),
+      }}
+      overlap="circular"
+    />
   );
 };
 

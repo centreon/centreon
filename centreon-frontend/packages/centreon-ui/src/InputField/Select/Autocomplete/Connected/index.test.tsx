@@ -4,13 +4,13 @@ import {
   waitFor,
   RenderResult,
   act,
-  TestQueryProvider,
   resetMocks,
   mockResponse,
   getFetchCall,
 } from '../../../../testRenderer';
 import buildListingEndpoint from '../../../../api/buildListingEndpoint';
 import { ConditionsSearchParameter } from '../../../../api/buildListingEndpoint/models';
+import TestQueryProvider from '../../../../api/TestQueryProvider';
 
 import SingleConnectedAutocompleteField from './Single';
 

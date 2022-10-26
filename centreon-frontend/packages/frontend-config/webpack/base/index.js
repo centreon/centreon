@@ -33,12 +33,29 @@ const getBaseConfiguration = ({
           },
         },
       },
+      {
+        test: /\.icon.svg$/,
+        use: ['@svgr/webpack'],
+      },
+      {
+        exclude: excludeNodeModulesExceptCentreonUi,
+        test: /\.(bmp|png|jpg|jpeg|gif|svg)$/,
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              limit: 10000,
+              name: '[name].[hash:8].[ext]',
+            },
+          },
+        ],
+      },
     ],
   },
   optimization: {
     splitChunks: {
       chunks: 'all',
-      maxSize: 800 * 1024,
+      maxSize: 400 * 1024,
     },
   },
   output: {
@@ -63,6 +80,12 @@ const getBaseConfiguration = ({
         {
           jotai: {
             requiredVersion: '1.x',
+            singleton: true,
+          },
+        },
+        {
+          'jotai-suspense': {
+            requiredVersion: '0.1.x',
             singleton: true,
           },
         },

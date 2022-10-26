@@ -26,12 +26,12 @@ import {
   uniqBy,
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
-import makeStyles from '@mui/styles/makeStyles';
 import {
   Table,
   TableBody,
-  Paper,
+  Box,
   LinearProgress,
   TableRow,
   useTheme,
@@ -76,7 +76,7 @@ const getVisibleColumns = ({
 
 const loadingIndicatorHeight = 3;
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   actionBar: {
     alignItems: 'center',
     display: 'flex',
@@ -98,10 +98,6 @@ const useStyles = makeStyles((theme) => ({
     height: loadingIndicatorHeight,
     width: '100%',
   },
-  paper: {
-    borderBottom: 'none',
-    overflow: 'auto',
-  },
   table: {
     alignItems: 'center',
     display: 'grid',
@@ -111,10 +107,15 @@ const useStyles = makeStyles((theme) => ({
     display: 'contents',
     position: 'relative',
   },
+  tableWrapper: {
+    borderBottom: 'none',
+    overflow: 'auto',
+  },
 }));
 
 export interface Props<TRow> {
   actions?: JSX.Element;
+  actionsBarMemoProps?: Array<unknown>;
   checkable?: boolean;
   columnConfiguration?: ColumnConfiguration;
   columns: Array<Column>;
@@ -177,8 +178,9 @@ const Listing = <TRow extends { id: RowId }>({
   getId = ({ id }): RowId => id,
   headerMemoProps = [],
   predefinedRowsSelection = [],
+  actionsBarMemoProps = [],
 }: Props<TRow>): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
 
   const [tableTopOffset, setTableTopOffset] = React.useState(0);
@@ -463,6 +465,7 @@ const Listing = <TRow extends { id: RowId }>({
         >
           <ListingActionBar
             actions={actions}
+            actionsBarMemoProps={actionsBarMemoProps}
             columnConfiguration={columnConfiguration}
             columns={columns}
             currentPage={currentPage}
@@ -475,10 +478,9 @@ const Listing = <TRow extends { id: RowId }>({
             onSelectColumns={onSelectColumns}
           />
         </div>
-        <Paper
-          square
-          className={classes.paper}
-          elevation={1}
+        <Box
+          className={classes.tableWrapper}
+          component="div"
           style={{
             maxHeight: tableMaxHeight(),
           }}
@@ -487,6 +489,7 @@ const Listing = <TRow extends { id: RowId }>({
             stickyHeader
             className={classes.table}
             component="div"
+            role={undefined}
             size="small"
             style={{
               gridTemplateColumns: getGridTemplateColumn(),
@@ -511,6 +514,7 @@ const Listing = <TRow extends { id: RowId }>({
             <TableBody
               className={classes.tableBody}
               component="div"
+              role={undefined}
               onMouseLeave={clearHoveredRow}
             >
               {rows.map((row, index) => {
@@ -609,7 +613,7 @@ const Listing = <TRow extends { id: RowId }>({
               )}
             </TableBody>
           </Table>
-        </Paper>
+        </Box>
       </div>
     </>
   );
