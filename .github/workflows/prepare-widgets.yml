@@ -25,15 +25,12 @@ jobs:
     outputs:
       matrix: ${{ steps.command.outputs.matrix }}
     steps:
-      - name: Update cointainer and install git and python3
-        run: |
-          apt update
-          apt upgrade -y
-          apt install -y git python3-git
+      - name: Install git and python3
+        run: apt update && apt install -y git python3-git
 
       - uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          fetch-depth: 2
 
       - name: Get widget modules
         id: command
