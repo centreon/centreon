@@ -9,7 +9,7 @@ import LoadingSkeleton from '../LoadingSkeleton';
 import { CentreonLogo } from '../Logo/CentreonLogo';
 import NotAuthorizedTemplateBackgroundDark from '../../assets/not-authorized-template-background-dark.svg';
 import NotAuthorizedTemplateBackgroundLight from '../../assets/not-authorized-template-background-light.svg';
-import { createImageAtom, Image } from '../Image/Image';
+import { Image } from '..';
 import { useThemeMode } from '../utils/useThemeMode';
 import { typedMemo } from '../utils/typedMemo';
 
@@ -48,8 +48,6 @@ const useStyles = makeStyles()((theme) => ({
     width: '100%',
   },
 }));
-
-const wallpaperAtom = createImageAtom();
 
 interface FallbackPageProps {
   contactAdmin?: string;
@@ -90,7 +88,6 @@ export const FallbackPage: FC<FallbackPageProps> = typedMemo(
         </section>
         <Image
           alt={message}
-          atom={wallpaperAtom}
           className={classes.wallpaper}
           fallback={<LoadingSkeleton className={classes.wallpaper} />}
           imagePath={wallpaper}

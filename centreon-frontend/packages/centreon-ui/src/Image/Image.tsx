@@ -1,81 +1,61 @@
-import { Suspense } from 'react';
+import { FC, Suspense } from 'react';
 
-import { Atom, useAtomValue } from 'jotai';
-import { atomWithPending } from 'jotai-suspense';
-import { isEmpty, isNil } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
-import { Skeleton } from '@mui/material';
+import { useLoadImage } from './useLoadImage';
 
-import { useLoadImage } from '../utils/useLoadImage';
+export enum ImageVariant {
+  Contain = 'contain',
+  Cover = 'cover',
+}
 
 interface Props {
   alt: string;
-  atom: Atom<string>;
   className?: string;
-  fallback?: JSX.Element;
+  fallback: JSX.Element;
   height?: number | string;
   imagePath: string;
+  variant?: ImageVariant;
   width?: number | string;
 }
 
-export const createImageAtom = (): Atom<string> => atomWithPending<string>();
+const useStyles = makeStyles<Pick<Props, 'width' | 'height' | 'variant'>>()(
+  (_, { width, height, variant }) => ({
+    imageContent: {
+      height,
+      objectFit: variant,
+      width,
+    },
+  }),
+);
 
-const ImageContent = ({
-  width,
-  height,
+const ImageContent: FC<Omit<Props, 'fallback'>> = ({
   alt,
-  atom,
   className,
-  fallback,
-}: Omit<Props, 'imagePath'>): JSX.Element | null => {
-  const image = useAtomValue(atom);
-
-  if (isNil(image) || isEmpty(image)) {
-    return fallback || null;
-  }
+  height,
+  width,
+  imagePath,
+  variant = ImageVariant.Cover,
+}) => {
+  const { classes, cx } = useStyles({ height, variant, width });
+  const image = useLoadImage({ alt, imageSrc: imagePath });
+  image.read();
 
   return (
     <img
       alt={alt}
-      className={className}
-      src={image as string}
-      style={{ height, objectFit: 'cover', width }}
+      className={cx(classes.imageContent, className)}
+      src={imagePath}
     />
   );
 };
 
-export const Image = ({
-  imagePath,
-  width,
-  height,
-  alt,
-  fallback = (
-    <Skeleton
-      animation="wave"
-      height={height}
-      variant="rectangular"
-      width={width}
-    />
-  ),
-  atom,
-  className = '',
-}: Props): JSX.Element => {
-  useLoadImage({ atom, imagePath });
-
-  if (isNil(imagePath) || isEmpty(imagePath)) {
-    return fallback;
-  }
-
+const SuspendedImage: FC<Props> = ({ fallback, ...props }) => {
   return (
     <Suspense fallback={fallback}>
-      <ImageContent
-        alt={alt}
-        atom={atom}
-        className={className}
-        fallback={fallback}
-        height={height}
-        width={width}
-      />
+      <ImageContent {...props} />
     </Suspense>
   );
 };
+
+export default SuspendedImage;

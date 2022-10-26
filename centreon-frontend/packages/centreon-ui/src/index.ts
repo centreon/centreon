@@ -154,3 +154,5 @@ export * from './utils/useThemeMode';
 export * from './utils/typedMemo';
 export * from './FallbackPage/FallbackPage';
 export * from './Logo/CentreonLogo';
+export { default as Image } from './Image/Image';
+export type { ImageVariant } from './Image/Image';
