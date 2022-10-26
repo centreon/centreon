@@ -45,7 +45,7 @@ jobs:
           commits = list(repo.iter_commits())
           dir = { "include": [] }
           for i in commits[1].diff(commits[2]):
-            if 'widgets/' in path.dirname(i.a_path):
+            if re.match(r'^widgets\/centreon-widget.*', path.dirname(i.a_path)):
               module = re.search(r'centreon-widget.*?(?=\/|$)', path.dirname(i.a_path)).group()
               if module not in [x['module-name'] for x in dir['include']]:
                 dir['include'].append({'module-name': module})
