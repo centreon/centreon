@@ -22,7 +22,7 @@ env:
 
 jobs:
   create-and-push-docker:
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
 
     strategy:
 
@@ -41,7 +41,7 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v2
         with:
-          registry: docker.registry.apps.centreon.com
+          registry: docker.centreon.com
           username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
           password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
@@ -53,4 +53,4 @@ jobs:
           context: .
           pull: true
           push: true
-          tags: docker.registry.apps.centreon.com/packaging-${{ matrix.project }}-${{ matrix.distrib }}:${{ env.version }}
+          tags: docker.centreon.com/packaging-${{ matrix.project }}-${{ matrix.distrib }}:${{ env.version }}

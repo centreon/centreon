@@ -1,4 +1,4 @@
-FROM debian:bullseye
+FROM docker-proxy.centreon.com/debian:bullseye
 
 # fix locale
 RUN <<EOF
