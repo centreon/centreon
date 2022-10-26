@@ -25,7 +25,7 @@ jobs:
       matrix: ${{ steps.command.outputs.matrix }}
     steps:
       - name: Install git and python3
-        run: apt update && apt install -y git python3-git
+        run: sudo apt update && sudo apt install -y git python3-git
 
       - uses: actions/checkout@v3
         with:
@@ -34,7 +34,7 @@ jobs:
       - name: Get widget modules
         id: command
         run: |
-          git config --global --add safe.directory $(pwd)
+          sudo git config --global --add safe.directory $(pwd)
           JSON=$(cat << EOF | python3
           from os import path
           from git import Repo
