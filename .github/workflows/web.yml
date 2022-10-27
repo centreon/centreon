@@ -63,15 +63,15 @@ jobs:
         run: npm run eslint -- -o checkstyle.xml -f checkstyle --quiet
         working-directory: centreon
 
+      - name: Echo
+        run: echo "CURRENT_DATE=$(date +'%Y-%m-%dT%H:%M:%S')"
+
       - name: Publish report
         if: ${{ always() }}
         uses: jwgmeligmeyling/checkstyle-github-action@master
         with:
           name: centreon-web-eslint-report
           path: centreon/checkstyle.xml
-
-      - name: Echo
-        run: echo "CURRENT_DATE=$(date +'%Y-%m-%dT%H:%M:%S')"
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
