@@ -18,3 +18,5 @@
  * For more information : contact@centreon.com
  *
  */
+
+echo("hello world");
