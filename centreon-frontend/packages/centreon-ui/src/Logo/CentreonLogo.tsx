@@ -19,6 +19,7 @@ export const CentreonLogo: FC = () => {
   return (
     <Image
       alt={t(labelCentreonLogo)}
+      className="logo"
       fallback={<LoadingSkeleton />}
       imagePath={logo}
     />
