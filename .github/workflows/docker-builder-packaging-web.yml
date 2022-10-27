@@ -52,4 +52,4 @@ jobs:
           context: .
           pull: true
           push: true
-          tags: registry-registry-docker.centreon.com/packaging-${{ matrix.project }}-${{ matrix.distrib }}:${{ env.version }}
+          tags: registry-registry-docker.centreon.com/docker-global/packaging-${{ matrix.project }}-${{ matrix.distrib }}:${{ env.version }}

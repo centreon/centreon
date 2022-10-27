@@ -37,7 +37,7 @@ jobs:
           password: ${{ secrets.ARTI_PASSWD }}
 
       - name: build docker ${{ matrix.project }}
-        run: docker build --no-cache . -f ci/docker/Dockerfile.${{ matrix.project }} -t registry-registry-docker.centreon.com/${{ matrix.project }}:${{ env.version }}
+        run: docker build --no-cache . -f ci/docker/Dockerfile.${{ matrix.project }} -t registry-registry-docker.centreon.com/docker-global/${{ matrix.project }}:${{ env.version }}
 
       - name: push docker ${{ matrix.project }}
-        run: docker push registry-registry-docker.centreon.com/${{ matrix.project }}:${{ env.version }}
+        run: docker push registry-registry-docker.centreon.com/docker-global/${{ matrix.project }}:${{ env.version }}

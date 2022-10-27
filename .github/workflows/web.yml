@@ -214,7 +214,7 @@ jobs:
           context: .
           pull: true
           push: true
-          tags: registry-docker.centreon.com/${{ matrix.project }}-fresh-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+          tags: registry-docker.centreon.com/docker-global/${{ matrix.project }}-fresh-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
       - uses: docker/build-push-action@v3
         with:
@@ -223,7 +223,7 @@ jobs:
           context: .
           pull: true
           push: true
-          tags: registry-docker.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+          tags: registry-docker.centreon.com/docker-global/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
       - uses: docker/build-push-action@v3
         with:
@@ -232,7 +232,7 @@ jobs:
           context: .
           pull: true
           push: true
-          tags: registry-docker.centreon.com/${{ matrix.project }}-widgets-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+          tags: registry-docker.centreon.com/docker-global/${{ matrix.project }}-widgets-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
   test-e2e:
     runs-on: ubuntu-22.04
@@ -252,7 +252,7 @@ jobs:
       - name: Cypress e2e testing
         uses: ./.github/actions/cypress-e2e-testing
         with:
-          image: registry-docker.centreon.com/centreon-web-centos7
+          image: registry-docker.centreon.com/docker-global/centreon-web-centos7
           image_version: ${{ github.head_ref || github.ref_name }}
           image_cypress_version: ${{ env.version }}
           module: centreon
@@ -290,7 +290,7 @@ jobs:
         uses: ./.github/actions/lighthouse-performance-testing
         with:
           path: "centreon/lighthouse"
-          image: registry-docker.centreon.com/centreon-web-centos7
+          image: registry-docker.centreon.com/docker-global/centreon-web-centos7
           image_version: ${{ github.head_ref || github.ref_name }}
           image_lighthouse_version: ${{ env.version }}
           module: centreon
