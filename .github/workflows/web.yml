@@ -70,6 +70,9 @@ jobs:
           name: centreon-web-eslint-report
           path: centreon/checkstyle.xml
 
+      - name: Echo
+        run: echo "CURRENT_DATE=$(date +'%Y-%m-%dT%H:%M:%S')"
+
   frontend-unit-test:
     runs-on: ubuntu-22.04
 
