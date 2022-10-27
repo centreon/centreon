@@ -912,14 +912,14 @@ describe(Details, () => {
 
     expect(getByText('Tuesday, January 21, 2020 9:40 AM')).toBeInTheDocument();
     expect(getAllByLabelText('Event')).toHaveLength(3); // 2 events + 1 selected option
-    expect(getByText('Up')).toBeInTheDocument();
+    expect(getByText('UP')).toBeInTheDocument();
     expect(getByText('Tries: 1')).toBeInTheDocument();
     expect(
       getByText('INITIAL HOST STATE: Centreon-Server;UP;HARD;1;'),
     ).toBeInTheDocument();
 
     expect(getByText('Tuesday, January 21, 2020 9:35 AM')).toBeInTheDocument();
-    expect(getByText('Down')).toBeInTheDocument();
+    expect(getByText('DOWN')).toBeInTheDocument();
     expect(getByText('Tries: 3')).toBeInTheDocument();
     expect(
       getByText('INITIAL HOST STATE: Centreon-Server;DOWN;HARD;3;'),
