@@ -1,9 +1,6 @@
 #!/bin/sh
 
 if [ "$1" = "configure" ] ; then
-<<<<<<< HEAD:centreon/packaging/debian/centreon-web-common.postinst
-    update-alternatives --set php /usr/bin/php8.0
-=======
     update-alternatives --set php /usr/bin/php8.1
 
     # Set locales on system to use in translation
@@ -15,7 +12,6 @@ if [ "$1" = "configure" ] ; then
         -e '/^#.* es_ES.UTF-8 /s/^#//' \
         /etc/locale.gen && \
     locale-gen
->>>>>>> centreon/release-22.10.0-next:centreon/ci/debian/centreon-web-common.postinst
 fi
 
 exit 0
