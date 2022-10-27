@@ -1,2 +1,1 @@
-# centreon-monorepoc-open-source
-Open source part of the centreon monorepoc
+MAJOR UPDATE OF DEV PROCESS FOR THE BEST <3

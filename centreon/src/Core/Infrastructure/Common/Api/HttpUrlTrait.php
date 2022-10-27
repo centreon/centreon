@@ -26,6 +26,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\ServerBag;
 use Symfony\Contracts\Service\Attribute\Required;
 
+/**
+ * Description
+ */
 trait HttpUrlTrait
 {
     /**
