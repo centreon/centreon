@@ -1,12 +1,22 @@
 import { useState } from 'react';
 
-import { Button, Paper, Typography } from '@mui/material';
+import { makeStyles } from 'tss-react/mui';
+
+import { Button, Paper, Typography, Theme } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 
 import FileDropZone, {
   CustomDropZoneContentProps,
   transformFileListToArray,
 } from '.';
+
+const useStyles = makeStyles()((theme: Theme) => ({
+  root: {
+    background: theme.palette.divider,
+    borderColor: theme.palette.primary.dark,
+    color: theme.palette.primary.dark,
+  },
+}));
 
 export default {
   title: 'File Drop Zone',
@@ -15,6 +25,7 @@ export default {
 interface Props {
   CustomDropZoneContent?: (props: CustomDropZoneContentProps) => JSX.Element;
   accept: string;
+  className?: string;
   maxFileSize?: number;
   multiple: boolean;
 }
@@ -24,6 +35,7 @@ const Story = ({
   multiple,
   CustomDropZoneContent,
   maxFileSize,
+  className,
 }: Props): JSX.Element => {
   const [files, setFiles] = useState<FileList | null>(null);
 
@@ -33,6 +45,7 @@ const Story = ({
         CustomDropZoneContent={CustomDropZoneContent}
         accept={accept}
         changeFiles={setFiles}
+        className={className}
         files={files}
         maxFileSize={maxFileSize}
         multiple={multiple}
@@ -85,3 +98,11 @@ export const basicSingleImageWithACustomDropZoneContent = (): JSX.Element => (
 export const basicSingleImageWithMaxFileSize = (): JSX.Element => (
   <Story accept="image/*" maxFileSize={1_000_000} multiple={false} />
 );
+
+const CustomFileDropZone = (): JSX.Element => {
+  const { classes } = useStyles();
+
+  return <Story accept="image/*" className={classes.root} multiple={false} />;
+};
+
+export const customFileDropZone = (): JSX.Element => <CustomFileDropZone />;

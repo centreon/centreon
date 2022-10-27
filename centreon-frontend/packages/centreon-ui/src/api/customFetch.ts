@@ -48,24 +48,38 @@ export const customFetch = <T>({
       }
     : defaultOptions;
 
-  return fetch(endpoint, options).then(async (response) => {
-    const data = await response.json();
+  return fetch(endpoint, options)
+    .then(async (response) => {
+      const data = await response.json();
 
-    if (!response.ok) {
+      if (!response.ok) {
+        const defaultError = { code: -1, message: defaultFailureMessage };
+        catchError({ data: data || defaultError, statusCode: response.status });
+
+        return {
+          isError: true,
+          message: data.message || defaultFailureMessage,
+          statusCode: response.status,
+        };
+      }
+
+      if (decoder) {
+        return decoder.decodeToPromise(data);
+      }
+
+      return data;
+    })
+    .catch(() => {
       const defaultError = { code: -1, message: defaultFailureMessage };
-      catchError({ data: data || defaultError, statusCode: response.status });
+      catchError({
+        data: defaultError,
+        statusCode: 0,
+      });
 
       return {
         isError: true,
-        message: data.message || defaultFailureMessage,
-        statusCode: response.status,
+        message: defaultFailureMessage,
+        statusCode: 0,
       };
-    }
-
-    if (decoder) {
-      return decoder.decodeToPromise(data);
-    }
-
-    return data;
-  });
+    });
 };

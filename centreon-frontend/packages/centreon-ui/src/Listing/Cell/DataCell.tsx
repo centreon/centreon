@@ -1,10 +1,9 @@
 import { memo } from 'react';
 
 import { equals, props } from 'ramda';
-import clsx from 'clsx';
+import { makeStyles } from 'tss-react/mui';
 
 import { Tooltip, Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import {
   Column,
@@ -24,7 +23,7 @@ interface Props {
   rowColorConditions?: Array<RowColorCondition>;
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   cell: {
     alignItems: 'center',
     alignSelf: 'stretch',
@@ -50,7 +49,7 @@ const DataCell = ({
   rowColorConditions,
   disableRowCondition,
 }: Props): JSX.Element | null => {
-  const classes = useStyles();
+  const { classes, cx } = useStyles();
 
   const commonCellProps = {
     align: 'left' as const,
@@ -74,7 +73,7 @@ const DataCell = ({
 
       const typography = (
         <Typography
-          className={clsx(classes.text, {
+          className={cx(classes.text, {
             [classes.rowNotHovered]: !isRowHovered || disableRowCondition(row),
           })}
           variant="body2"

@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import { useTranslation } from 'react-i18next';
 import { find, isNil, pipe, propEq, reject } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import {
   Button,
@@ -12,7 +13,6 @@ import {
   PopperPlacementType,
   useTheme,
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import IconReset from '@mui/icons-material/RotateLeft';
 
 import IconButton from '../../../Button/Icon';
@@ -21,7 +21,7 @@ import { SelectEntry } from '..';
 
 import { labelReset } from './translatedLabels';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   button: {
     fontSize: theme.typography.caption.fontSize,
   },
@@ -47,7 +47,7 @@ const IconPopoverMultiAutocomplete = ({
   popperPlacement = 'bottom-start',
 }: Props): JSX.Element => {
   const theme = useTheme();
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = useState();
 

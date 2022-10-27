@@ -2,18 +2,14 @@ import * as React from 'react';
 
 import { useSnackbar, SnackbarContent } from 'notistack';
 import { isNil, not } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import { IconButton, Alert } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import IconClose from '@mui/icons-material/Close';
 
 import Severity from './Severity';
 
-interface PropsStyle {
-  getColor: (theme) => string;
-}
-
-const useStyles = makeStyles<PropsStyle>({
+const useStyles = makeStyles()({
   alertIcon: {
     paddingTop: '10px',
   },
@@ -39,7 +35,7 @@ const Snackbar = React.forwardRef(
     { message, id, severity }: SnackbarProps,
     ref: React.ForwardedRef<HTMLDivElement>,
   ): JSX.Element => {
-    const classes = useStyles();
+    const { classes } = useStyles();
     const { closeSnackbar } = useSnackbar();
     const timeoutId = React.useRef<NodeJS.Timeout | number | undefined>();
 

@@ -1,7 +1,7 @@
 import { length, gte } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import { Stepper as MUIStepper, Step, StepLabel } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import { Step as StepType } from './models';
 import StepIcon from './StepIcon';
@@ -11,7 +11,7 @@ interface Props {
   steps: Array<StepType>;
 }
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   dialogTitle: {
     padding: theme.spacing(0),
   },
@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Stepper = ({ steps, currentStep }: Props): JSX.Element | null => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   if (gte(1, length(steps))) {
     return null;

@@ -1,14 +1,17 @@
-import { makeStyles } from '@mui/styles';
+import { makeStyles } from 'tss-react/mui';
 
-const useStyles = makeStyles(() => ({
+interface StylesProps {
+  panelDynamicAndOpen?: boolean;
+}
+
+const useStyles = makeStyles<StylesProps>()((_, { panelDynamicAndOpen }) => ({
   container: {
     display: 'grid',
     gridTemplateColumns: '1fr auto',
     gridTemplateRows: '1fr',
   },
   content: {
-    gridArea: (panelDynamicAndOpen): string =>
-      panelDynamicAndOpen ? '1 / 1 / 1 / 1' : '1 / 1 / 1 / span 2',
+    gridArea: panelDynamicAndOpen ? '1 / 1 / 1 / 1' : '1 / 1 / 1 / span 2',
   },
   panel: {
     gridArea: '1 / 2',
@@ -30,7 +33,7 @@ const WithPanel = ({
   fixed = false,
 }: Props): JSX.Element => {
   const panelDynamicAndOpen = !!fixed && open;
-  const classes = useStyles(panelDynamicAndOpen);
+  const { classes } = useStyles({ panelDynamicAndOpen });
 
   return (
     <div className={classes.container}>

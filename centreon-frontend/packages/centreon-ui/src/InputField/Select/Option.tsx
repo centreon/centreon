@@ -1,11 +1,11 @@
 import { forwardRef, RefObject } from 'react';
 
 import { isNil } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import { Checkbox, Stack, Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   checkbox: {
     marginRight: theme.spacing(1),
     padding: 0,
@@ -24,7 +24,7 @@ interface Props {
 
 const Option = forwardRef(
   ({ children, checkboxSelected, thumbnailUrl }: Props, ref): JSX.Element => {
-    const classes = useStyles();
+    const { classes } = useStyles();
 
     return (
       <div className={classes.container} ref={ref as RefObject<HTMLDivElement>}>

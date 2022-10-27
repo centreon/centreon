@@ -31,6 +31,7 @@ services:
     profiles: ["openldap"]
 
   squid-simple:
+
     image: registry-docker.centreon.com/docker-global/mon-squid-simple:latest
     ports: ["3128"]
     profiles: ["squid-simple"]

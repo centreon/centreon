@@ -56,4 +56,10 @@ i18n.use(initReactI18next).init({
   resources: {},
 });
 
+window.Image = () => ({
+  onerror: () => {},
+  onload: () => {},
+  src: null,
+});
+
 fetchMock.enableMocks();

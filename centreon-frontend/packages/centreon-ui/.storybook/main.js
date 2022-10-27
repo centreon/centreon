@@ -1,3 +1,6 @@
+const excludeNodeModulesExceptCentreonUi =
+  /node_modules(\\|\/)(?!(centreon-frontend(\\|\/)packages(\\|\/)(ui-context|centreon-ui)))/;
+  
 module.exports = {
   core: {
     builder: 'webpack5',
@@ -50,7 +53,20 @@ module.exports = {
                 },
               },
             }
-          }
+          },
+          {
+            exclude: excludeNodeModulesExceptCentreonUi,
+            test: /\.(bmp|png|jpg|jpeg|gif|svg)$/,
+            use: [
+              {
+                loader: 'url-loader',
+                options: {
+                  limit: 10000,
+                  name: '[name].[hash:8].[ext]',
+                },
+              },
+            ],
+          },
         ],
       },
     }

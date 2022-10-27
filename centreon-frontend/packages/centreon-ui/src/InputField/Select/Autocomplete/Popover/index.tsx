@@ -1,10 +1,10 @@
 import { useState } from 'react';
 
 import { isEmpty } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import { UseAutocompleteProps } from '@mui/material/useAutocomplete';
 import { Avatar, Chip, useTheme } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import { Props as AutocompleteProps } from '..';
 import { SelectEntry } from '../..';
@@ -20,10 +20,12 @@ export type Props = Omit<AutocompleteProps, 'renderTags' | 'multiple'> &
     'multiple'
   >;
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles()((theme) => ({
   chip: {
+    borderRadius: theme.spacing(1.5),
     cursor: 'pointer',
     display: 'flex',
+    height: theme.spacing(3),
     justifyContent: 'space-between',
     width: '100%',
   },
@@ -41,7 +43,7 @@ const PopoverAutocomplete = (
   }: Props): JSX.Element => {
     const [optionsOpen, setOptionsOpen] = useState<boolean>(false);
     const theme = useTheme();
-    const classes = useStyles();
+    const { classes } = useStyles();
 
     const icon = (
       <Chip

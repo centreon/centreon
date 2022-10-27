@@ -1,7 +1,10 @@
-import { Theme, Chip, alpha, ChipProps } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-import { CreateCSSProperties } from '@mui/styles';
+import { makeStyles } from 'tss-react/mui';
+import { equals } from 'ramda';
+
+import { Theme, Chip, ChipProps, alpha } from '@mui/material';
 import { grey } from '@mui/material/colors';
+
+import { ThemeMode } from '@centreon/ui-context';
 
 enum SeverityCode {
   High = 1,
@@ -13,13 +16,13 @@ enum SeverityCode {
 }
 
 interface StatusColorProps {
+  className?: string;
   severityCode: SeverityCode;
   theme: Theme;
 }
 
 export interface Colors {
   backgroundColor: string;
-  color: string;
 }
 
 const getStatusColors = ({ theme, severityCode }: StatusColorProps): Colors => {
@@ -28,27 +31,28 @@ const getStatusColors = ({ theme, severityCode }: StatusColorProps): Colors => {
   const colorMapping = {
     [SeverityCode.High]: {
       backgroundColor: palette.error.main,
-      color: palette.common.white,
+      color: palette.error.contrastText,
     },
     [SeverityCode.Medium]: {
       backgroundColor: palette.warning.main,
-      color: palette.common.black,
+      color: palette.warning.contrastText,
     },
     [SeverityCode.Low]: {
-      backgroundColor: grey[600],
-      color: palette.common.white,
+      backgroundColor:
+        grey[equals(ThemeMode.dark, theme.palette.mode) ? 600 : 300],
+      color: '#000',
     },
     [SeverityCode.Pending]: {
       backgroundColor: palette.pending.main,
-      color: palette.common.white,
+      color: '#fff',
     },
     [SeverityCode.Ok]: {
       backgroundColor: palette.success.main,
-      color: palette.common.black,
+      color: palette.success.contrastText,
     },
     [SeverityCode.None]: {
       backgroundColor: alpha(palette.primary.main, 0.1),
-      color: palette.primary.main,
+      color: palette.text.primary,
     },
   };
 
@@ -61,32 +65,32 @@ export type Props = {
   severityCode: SeverityCode;
 } & ChipProps;
 
-const useStyles = makeStyles<Theme, Props>((theme) => ({
-  chip: ({ severityCode, label }: Props): CreateCSSProperties<Props> => ({
-    ...getStatusColors({ severityCode, theme }),
-    ...(!label && {
-      borderRadius: theme.spacing(1.5),
-      height: theme.spacing(1.5),
-      width: theme.spacing(1.5),
-    }),
+const useStyles = makeStyles<Props>()((theme, { severityCode }) => ({
+  chip: {
     '&:hover': { ...getStatusColors({ severityCode, theme }) },
-  }),
+    ...getStatusColors({ severityCode, theme }),
+  },
 }));
 
 const StatusChip = ({
   severityCode,
   label,
   clickable = false,
+  className,
   ...rest
 }: Props): JSX.Element => {
-  const classes = useStyles({ label, severityCode });
+  const { classes, cx } = useStyles({ label, severityCode });
+
+  const lowerLabel = (name: string): string =>
+    name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
 
   return (
     <Chip
-      className={classes.chip}
+      className={cx(classes.chip, className)}
       clickable={clickable}
-      label={label}
-      size="small"
+      label={
+        equals(typeof label, 'string') ? lowerLabel(label as string) : label
+      }
       {...rest}
     />
   );

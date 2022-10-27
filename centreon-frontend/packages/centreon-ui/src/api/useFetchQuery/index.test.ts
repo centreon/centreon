@@ -1,9 +1,8 @@
-import { renderHook, waitFor } from '@testing-library/react';
-import { RenderHookResult } from '@testing-library/react-hooks';
+import { renderHook, waitFor, RenderHookResult } from '@testing-library/react';
 import fetchMock from 'jest-fetch-mock';
 import anyLogger from 'anylogger';
 
-import { TestQueryProvider } from '../../testRenderer';
+import TestQueryProvider from '../TestQueryProvider';
 
 import useFetchQuery, { UseFetchQueryProps, UseFetchQueryState } from '.';
 
@@ -69,7 +68,7 @@ describe('useFetchQuery', () => {
       status: 400,
     });
 
-    renderFetchQuery<User>({
+    const { result } = renderFetchQuery<User>({
       getEndpoint: () => '/endpoint',
       getQueryKey: () => ['queryKey'],
     });
@@ -79,12 +78,17 @@ describe('useFetchQuery', () => {
     });
 
     expect(anyLogger().error).toHaveBeenCalledWith('custom message');
+
+    await waitFor(() => {
+      expect(result.current.error).toStrictEqual({
+        message: 'custom message',
+        statusCode: 400,
+      });
+    });
   });
 
-  it('shows a default failure message via the Snackbar as fallback', async () => {
-    fetchMock.once(JSON.stringify({}), {
-      status: 400,
-    });
+  it("shows an error from the API via the Snackbar and inside the browser's console when the API does not respond", async () => {
+    fetchMock.mockReject(new TypeError('error'));
 
     renderFetchQuery<User>({
       getEndpoint: () => '/endpoint',
@@ -96,6 +100,32 @@ describe('useFetchQuery', () => {
         'Something went wrong',
       );
     });
+
+    expect(anyLogger().error).toHaveBeenCalledWith('Something went wrong');
+  });
+
+  it('shows a default failure message via the Snackbar as fallback', async () => {
+    fetchMock.once(JSON.stringify({}), {
+      status: 400,
+    });
+
+    const { result } = renderFetchQuery<User>({
+      getEndpoint: () => '/endpoint',
+      getQueryKey: () => ['queryKey'],
+    });
+
+    await waitFor(() => {
+      expect(mockedShowErrorMessage).toHaveBeenCalledWith(
+        'Something went wrong',
+      );
+    });
+
+    await waitFor(() => {
+      expect(result.current.error).toStrictEqual({
+        message: 'Something went wrong',
+        statusCode: 400,
+      });
+    });
   });
 
   it('does not show any message via the Snackbar when the httpCodesBypassErrorSnackbar is passed', async () => {
@@ -103,7 +133,7 @@ describe('useFetchQuery', () => {
       status: 400,
     });
 
-    renderFetchQuery<User>({
+    const { result } = renderFetchQuery<User>({
       getEndpoint: () => '/endpoint',
       getQueryKey: () => ['queryKey'],
       httpCodesBypassErrorSnackbar: [400],
@@ -111,6 +141,13 @@ describe('useFetchQuery', () => {
 
     await waitFor(() => {
       expect(mockedShowErrorMessage).not.toHaveBeenCalled();
+    });
+
+    await waitFor(() => {
+      expect(result.current.error).toStrictEqual({
+        message: 'Something went wrong',
+        statusCode: 400,
+      });
     });
   });
 });

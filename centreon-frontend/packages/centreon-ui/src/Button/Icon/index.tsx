@@ -1,11 +1,12 @@
+import { makeStyles } from 'tss-react/mui';
+
 import {
   IconButton as MuiIconButton,
   IconButtonProps,
   Tooltip,
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   button: {
     padding: theme.spacing(0.25),
   },
@@ -13,6 +14,7 @@ const useStyles = makeStyles((theme) => ({
 
 type Props = {
   ariaLabel?: string;
+  className?: string;
   onClick: (event) => void;
   title?: string;
 } & IconButtonProps;
@@ -20,14 +22,20 @@ type Props = {
 const IconButton = ({
   title = '',
   ariaLabel,
+  className,
   ...props
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes, cx } = useStyles();
 
   return (
-    <Tooltip aria-label={ariaLabel} title={title}>
-      <span>
-        <MuiIconButton className={classes.button} color="primary" {...props} />
+    <Tooltip title={title}>
+      <span aria-label={undefined}>
+        <MuiIconButton
+          aria-label={ariaLabel}
+          className={cx(classes.button, className)}
+          color="primary"
+          {...props}
+        />
       </span>
     </Tooltip>
   );
