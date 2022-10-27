@@ -32,12 +32,12 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v2
         with:
-          registry: registry-registry-docker.centreon.com
+          registry: registry-docker.centreon.com
           username: ${{ secrets.ARTI_USER  }}
           password: ${{ secrets.ARTI_PASSWD }}
 
       - name: build docker ${{ matrix.project }}
-        run: docker build --no-cache . -f ci/docker/Dockerfile.${{ matrix.project }} -t registry-registry-docker.centreon.com/docker-global/${{ matrix.project }}:${{ env.version }}
+        run: docker build --no-cache . -f ci/docker/Dockerfile.${{ matrix.project }} -t registry-docker.centreon.com/docker-global/${{ matrix.project }}:${{ env.version }}
 
       - name: push docker ${{ matrix.project }}
-        run: docker push registry-registry-docker.centreon.com/docker-global/${{ matrix.project }}:${{ env.version }}
+        run: docker push registry-docker.centreon.com/docker-global/${{ matrix.project }}:${{ env.version }}

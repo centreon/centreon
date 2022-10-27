@@ -58,7 +58,7 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v2
         with:
-          registry: registry-registry-docker.centreon.com
+          registry: registry-docker.centreon.com
           username: ${{ secrets.ARTI_USER  }}
           password: ${{ secrets.ARTI_PASSWD }}
 
