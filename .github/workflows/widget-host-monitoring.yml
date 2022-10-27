@@ -24,8 +24,8 @@ jobs:
     with:
       widget_name: hostgroup-monitoring
     secrets:
-      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+      nexus_username: ${{ secrets.ARTI_USER }}
+      nexus_password: ${{ secrets.ARTI_PASSWD }}
 
   delivery:
     needs: [package]
@@ -33,5 +33,5 @@ jobs:
     with:
       widget_name: hostgroup-monitoring
     secrets:
-      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+      nexus_username: ${{ secrets.ARTI_USER }}
+      nexus_password: ${{ secrets.ARTI_PASSWD }}

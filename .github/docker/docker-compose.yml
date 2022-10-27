@@ -1,4 +1,4 @@
-version: '2'
+version: "2"
 services:
   web:
     image: "@WEB_IMAGE@"
@@ -26,26 +26,26 @@ services:
     shm_size: "2g"
 
   openldap:
-    image: docker.centreon.com/mon-openldap:latest
+    image: registry-docker.centreon.com/mon-openldap:latest
     ports: ["389"]
     profiles: ["openldap"]
 
   squid-simple:
-    image: docker.centreon.com/mon-squid-simple:latest
+    image: registry-docker.centreon.com/mon-squid-simple:latest
     ports: ["3128"]
     profiles: ["squid-simple"]
 
   squid-basic-auth:
-    image: docker.centreon.com/mon-squid-basic-auth:latest
+    image: registry-docker.centreon.com/mon-squid-basic-auth:latest
     ports: ["3128"]
     profiles: ["squid-basic-auth"]
 
   mediawiki:
-    image: docker.centreon.com/mon-mediawiki-22.10:latest
+    image: registry-docker.centreon.com/mon-mediawiki-22.10:latest
     ports: ["80"]
     profiles: ["mediawiki"]
 
   influxdb:
-    image: docker.centreon.com/influxdb:latest
+    image: registry-docker.centreon.com/influxdb:latest
     ports: ["8083", "8086"]
     profiles: ["influxdb"]
