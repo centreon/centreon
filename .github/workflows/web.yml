@@ -21,7 +21,7 @@ env:
 
 jobs:
   frontend-build:
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v3
@@ -35,7 +35,7 @@ jobs:
           static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
 
   backend-dependencies:
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v3
@@ -46,7 +46,7 @@ jobs:
           cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
 
   frontend-lint:
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/setup-node@v3
@@ -71,7 +71,7 @@ jobs:
           path: centreon/checkstyle.xml
 
   frontend-unit-test:
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/setup-node@v3
@@ -97,7 +97,7 @@ jobs:
           junit_files: "centreon/junit.xml"
 
   backend-unit-test:
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v3
@@ -129,7 +129,7 @@ jobs:
           junit_files: "centreon/build/phpunit.xml"
 
   package:
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
     needs: [
       backend-dependencies,
       backend-unit-test,
@@ -176,7 +176,7 @@ jobs:
           nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
 
   dockerize:
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
     needs: [package]
 
     strategy:
@@ -234,7 +234,7 @@ jobs:
           tags: docker.registry.apps.centreon.com/${{ matrix.project }}-widgets-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
   test-e2e:
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
     needs: [dockerize]
 
     steps:
@@ -272,7 +272,7 @@ jobs:
           junit_files: centreon/tests/e2e/cypress-result.xml
 
   test-performances:
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
     needs: [dockerize]
 
     steps:
@@ -328,7 +328,7 @@ jobs:
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   deliver-rpm:
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
     needs: [
       test-e2e,
       test-performances,
@@ -353,7 +353,7 @@ jobs:
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
 
   deliver-deb:
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
     needs: [
       test-e2e,
       test-performances,
