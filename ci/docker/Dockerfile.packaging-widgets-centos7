@@ -1,4 +1,4 @@
-FROM docker-proxy.registry.apps.centreon.com/centos:7
+FROM docker-proxy.centreon.com/centos:7
 
 RUN <<EOF
 
