@@ -96,6 +96,17 @@ jobs:
           comment_mode: failures
           junit_files: "centreon/junit.xml"
 
+  web-frontend-component-test:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+        
+      - uses: ./.github/actions/web-frontend-component-test
+        with:
+          working_directory: centreon
+
   backend-unit-test:
     runs-on: ubuntu-22.04
 
