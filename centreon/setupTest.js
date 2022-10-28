@@ -60,7 +60,7 @@ i18n.use(initReactI18next).init({
 });
 
 jest.mock('@centreon/ui-context', () => ({
-  ...jest.requireActual('centreon-frontend/packages/ui-context'),
+  ...jest.requireActual('./packages/ui-context'),
   ThemeMode: 'light',
 }));
 

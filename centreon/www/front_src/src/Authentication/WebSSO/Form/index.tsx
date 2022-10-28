@@ -9,7 +9,7 @@ import {
 } from '../translatedLabels';
 import { putProviderConfiguration } from '../../api';
 import { WebSSOConfiguration, WebSSOConfigurationToAPI } from '../models';
-import { groups } from '../..';
+import { groups } from '../../groups';
 import { Provider } from '../../models';
 import { adaptWebSSOConfigurationToAPI } from '../../api/adapters';
 import FormButtons from '../../FormButtons';

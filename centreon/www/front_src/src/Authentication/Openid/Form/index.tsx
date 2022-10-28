@@ -13,7 +13,7 @@ import {
 import { putProviderConfiguration } from '../../api';
 import { OpenidConfiguration, OpenidConfigurationToAPI } from '../models';
 import FormButtons from '../../FormButtons';
-import { groups } from '../..';
+import { groups } from '../../groups';
 import { Provider } from '../../models';
 import { adaptOpenidConfigurationToAPI } from '../../api/adapters';
 

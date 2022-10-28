@@ -41,11 +41,6 @@ jest.mock('../assets/logo-centreon-colors.png');
 jest.mock('../assets/centreon-wallpaper-xl.jpg');
 jest.mock('../assets/centreon-wallpaper-lg.jpg');
 jest.mock('../assets/centreon-wallpaper-sm.jpg');
-
-jest.mock('@centreon/ui-context', () =>
-  jest.requireActual('centreon-frontend/packages/ui-context'),
-);
-
 const mockNow = '2020-01-01';
 
 const retrievedUser = {

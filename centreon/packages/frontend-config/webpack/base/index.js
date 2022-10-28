@@ -1,9 +1,9 @@
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const path = require('path');
+
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const { ModuleFederationPlugin } = require('webpack').container;
 
-const excludeNodeModulesExceptCentreonUi =
-  /node_modules(\\|\/)(?!(@centreon))/;
+const excludeNodeModulesExceptCentreonUi = /node_modules(\\|\/)(?!(@centreon))/;
 
 const getBaseConfiguration = ({
   moduleName,
@@ -119,6 +119,8 @@ const getBaseConfiguration = ({
   ],
   resolve: {
     alias: {
+      '@centreon/ui': path.resolve('packages', 'centreon-ui'),
+      '@centreon/ui-context': path.resolve('packages', 'ui-context'),
       react: path.resolve('./node_modules/react'),
     },
     extensions: ['.js', '.jsx', '.ts', '.tsx'],

@@ -3,12 +3,12 @@ const os = require('os');
 
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const { merge } = require('webpack-merge');
+
 const {
   getDevConfiguration,
   devJscTransformConfiguration,
   devRefreshJscTransformConfiguration,
-} = require('centreon-frontend/packages/frontend-config/webpack/patch/dev');
-
+} = require('./packages/frontend-config/webpack/patch/dev');
 const getBaseConfiguration = require('./webpack.config');
 
 const devServerPort = 9090;

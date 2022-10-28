@@ -9,26 +9,14 @@ import { TabContext, TabList, TabPanel } from '@mui/lab';
 import { makeStyles } from '@mui/styles';
 
 import { userAtom } from '@centreon/ui-context';
-import { Group } from '@centreon/ui';
 
 import { Provider } from './models';
 import LocalAuthentication from './Local';
 import { labelPasswordSecurityPolicy } from './Local/translatedLabels';
-import {
-  labelOpenIDConnectConfiguration,
-  labelRolesMapping,
-} from './Openid/translatedLabels';
+import { labelOpenIDConnectConfiguration } from './Openid/translatedLabels';
 import OpenidConfiguration from './Openid';
 import WebSSOConfigurationForm from './WebSSO';
 import { labelWebSSOConfiguration } from './WebSSO/translatedLabels';
-import {
-  labelActivation,
-  labelAutoImportUsers,
-  labelAuthenticationConditions,
-  labelIdentityProvider,
-  labelClientAddresses,
-  labelGroupsMapping,
-} from './translatedLabels';
 import { tabAtom, appliedTabAtom } from './tabAtoms';
 import passwordPadlockLogo from './logos/passwordPadlock.svg';
 import providerPadlockLogo from './logos/providerPadlock.svg';
@@ -51,37 +39,6 @@ const panels = [
     image: providerPadlockLogo,
     title: labelWebSSOConfiguration,
     value: Provider.WebSSO,
-  },
-];
-
-export const groups: Array<Group> = [
-  {
-    name: labelActivation,
-    order: 1,
-  },
-  {
-    name: labelIdentityProvider,
-    order: 2,
-  },
-  {
-    name: labelAuthenticationConditions,
-    order: 3,
-  },
-  {
-    name: labelClientAddresses,
-    order: 4,
-  },
-  {
-    name: labelAutoImportUsers,
-    order: 5,
-  },
-  {
-    name: labelRolesMapping,
-    order: 6,
-  },
-  {
-    name: labelGroupsMapping,
-    order: 7,
   },
 ];
 

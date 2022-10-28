@@ -28,10 +28,6 @@ const cancelTokenRequestParam = { cancelToken: {} };
 
 jest.mock('../Navigation/Sidebar/Logo/centreon.png');
 
-jest.mock('@centreon/ui-context', () =>
-  jest.requireActual('centreon-frontend/packages/ui-context'),
-);
-
 const retrievedUser = {
   alias: 'Admin alias',
   default_page: '/monitoring/resources',
