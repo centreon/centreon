@@ -24,12 +24,15 @@ jobs:
     outputs:
       matrix: ${{ steps.command.outputs.matrix }}
     steps:
-      - name: Install git and python3
-        run: sudo apt update && sudo apt install -y git python3-git
-
       - uses: actions/checkout@v3
         with:
           fetch-depth: 2
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+      - run: pip install GitPython
 
       - name: Get widget modules
         id: command
