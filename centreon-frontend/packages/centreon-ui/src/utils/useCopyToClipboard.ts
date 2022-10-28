@@ -18,7 +18,31 @@ const useCopyToClipboard = ({
 
   const copy: CopyFunction = async (text) => {
     if (!navigator?.clipboard) {
-      showErrorMessage(errorMessage);
+      try {
+        const textArea = document.createElement('input') as HTMLInputElement;
+        textArea.setAttribute('type', 'text');
+        textArea.setAttribute('id', 'copy');
+        textArea.setAttribute('value', text);
+        textArea.focus();
+        textArea.select();
+
+        const currentDiv = document.getElementById('root');
+        document.body.insertBefore(textArea, currentDiv);
+
+        textArea.focus();
+        textArea.select();
+        const success = document.execCommand('copy');
+        document.body.removeChild(textArea);
+        if (success) {
+          showSuccessMessage(successMessage);
+
+          return;
+        }
+
+        showErrorMessage(errorMessage);
+      } catch (e) {
+        showErrorMessage(errorMessage);
+      }
 
       return;
     }

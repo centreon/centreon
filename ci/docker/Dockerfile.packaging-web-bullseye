@@ -1,4 +1,4 @@
-FROM docker-proxy.registry.apps.centreon.com/debian:bullseye
+FROM registry-docker.centreon.com/docker-global/debian:bullseye
 
 RUN <<EOF
 

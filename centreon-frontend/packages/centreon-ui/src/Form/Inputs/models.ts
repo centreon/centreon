@@ -40,13 +40,16 @@ export interface InputProps {
   custom?: {
     Component: React.ComponentType<InputPropsWithoutGroup>;
   };
+  dataTestId?: string;
   fieldName: string;
   fieldsTable?: {
     additionalFieldsToMemoize?: Array<string>;
     columns: Array<Omit<InputProps, 'group'>>;
-    defaultRowValue: object;
+    defaultRowValue: object | string;
     deleteLabel: string;
     getRequired?: ({ values, index }: FieldsTableGetRequiredProps) => boolean;
+    getSortable?: (values: FormikValues) => boolean;
+    hasSingleValue?: boolean;
   };
   getDisabled?: (values: FormikValues) => boolean;
   getRequired?: (values: FormikValues) => boolean;
@@ -56,6 +59,7 @@ export interface InputProps {
     gridTemplateColumns?: string;
   };
   group: string;
+  hideInput?: (values: FormikValues) => boolean;
   label: string;
   radio?: {
     options?: Array<{
@@ -74,6 +78,8 @@ export interface InputProps {
 }
 
 export type InputPropsWithoutGroup = Omit<InputProps, 'group'>;
+
+export type InputPropsWithoutGroupAndType = Omit<InputProps, 'group' | 'type'>;
 
 export interface Group {
   EndIcon?: (props: SvgIconProps) => JSX.Element;

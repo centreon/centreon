@@ -5,10 +5,10 @@ import {
   render,
   RenderResult,
   resetMocks,
-  TestQueryProvider,
   waitFor,
 } from '../../../../../testRenderer';
 import { buildListingEndpoint } from '../../../../..';
+import TestQueryProvider from '../../../../../api/TestQueryProvider';
 
 import MultiConnectedAutocompleteField from '.';
 

@@ -1,9 +1,10 @@
 import * as React from 'react';
 
-import { Typography, TypographyProps } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
+import { makeStyles } from 'tss-react/mui';
 
-const useStyles = makeStyles(() => ({
+import { Typography, TypographyProps } from '@mui/material';
+
+const useStyles = makeStyles()(() => ({
   root: {
     fontWeight: 'bold',
   },
@@ -17,7 +18,7 @@ const HeaderLabel = ({
   children,
   className,
 }: Props & Pick<TypographyProps, 'className'>): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <Typography

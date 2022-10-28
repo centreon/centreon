@@ -1,7 +1,8 @@
-import { makeStyles } from '@mui/styles';
+import { makeStyles } from 'tss-react/mui';
+
 import { Skeleton } from '@mui/material';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   listingSkeleton: {
     height: theme.spacing(50),
     margin: theme.spacing(2, 1),
@@ -9,7 +10,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const ListingSkeleton = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <Skeleton

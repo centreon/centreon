@@ -1,9 +1,10 @@
+import { makeStyles } from 'tss-react/mui';
+
 import { StepIconProps } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import Avatar from '@mui/material/Avatar';
 import Check from '@mui/icons-material/Check';
 
-const useStepIconStyles = makeStyles((theme) => ({
+const useStepIconStyles = makeStyles()((theme) => ({
   avatar: {
     fontSize: theme.typography.body2.fontSize,
     height: 20,
@@ -25,7 +26,7 @@ const useStepIconStyles = makeStyles((theme) => ({
 }));
 
 const StepIcon = ({ active, completed, icon }: StepIconProps): JSX.Element => {
-  const classes = useStepIconStyles();
+  const { classes } = useStepIconStyles();
 
   return (
     <div className={classes.root}>

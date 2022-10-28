@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import clsx from 'clsx';
+import { makeStyles } from 'tss-react/mui';
 
 import {
   ClickAwayListener,
@@ -9,11 +9,10 @@ import {
   PopperPlacementType,
   useTheme,
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import { IconButton } from '..';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles()({
   popoverIconButton: {
     padding: 0,
     width: '100%',
@@ -42,7 +41,7 @@ const PopoverMenu = ({
   dataTestId,
 }: Props): JSX.Element => {
   const theme = useTheme();
-  const classes = useStyles();
+  const { classes, cx } = useStyles();
   const [anchorEl, setAnchorEl] = useState();
 
   const isOpen = Boolean(anchorEl);
@@ -72,7 +71,7 @@ const PopoverMenu = ({
     <div>
       <IconButton
         ariaLabel={title}
-        className={clsx(classes.popoverIconButton, className)}
+        className={cx(classes.popoverIconButton, className)}
         data-testid={dataTestId}
         size="large"
         title={title}

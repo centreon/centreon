@@ -1,7 +1,7 @@
 import { isNil } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import { List, ListItem, Slide, Paper } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import ForwardIcon from '@mui/icons-material/ArrowForwardIos';
 
 import Panel from '..';
@@ -13,7 +13,11 @@ import ExpandableSection from './ExpandableSection';
 const panelWidth = 550;
 const closeSecondaryPanelBarWidth = 20;
 
-const useStyles = makeStyles((theme) => ({
+interface StylesProps {
+  hasSecondaryPanel?: boolean;
+}
+
+const useStyles = makeStyles<StylesProps>()((theme, { hasSecondaryPanel }) => ({
   closeIcon: {
     margin: 'auto',
     width: 15,
@@ -28,23 +32,17 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
   },
   container: {
-    display: (hasSecondaryPanel): string =>
-      hasSecondaryPanel ? 'grid' : 'block',
-    gridTemplateColumns: (hasSecondaryPanel): string => {
-      return hasSecondaryPanel
-        ? `1fr ${closeSecondaryPanelBarWidth}px 1fr`
-        : '100%';
-    },
+    display: hasSecondaryPanel ? 'grid' : 'block',
+    gridTemplateColumns: hasSecondaryPanel
+      ? `1fr ${closeSecondaryPanelBarWidth}px 1fr`
+      : '100%',
     height: '100%',
   },
   mainPanel: {
     bottom: 0,
     left: 0,
     overflow: 'auto',
-    position: (
-      hasSecondaryPanel,
-    ): 'static' | 'relative' | 'absolute' | 'sticky' | 'fixed' | 'unset' =>
-      hasSecondaryPanel ? 'unset' : 'absolute',
+    position: hasSecondaryPanel ? 'unset' : 'absolute',
     right: 0,
     top: 0,
     width: panelWidth,
@@ -77,7 +75,9 @@ const SectionPanel = ({
 }: SectionPanelProps): JSX.Element => {
   const hasSecondaryPanel = !isNil(secondaryPanel);
 
-  const classes = useStyles(hasSecondaryPanel);
+  const { classes } = useStyles({
+    hasSecondaryPanel,
+  });
 
   const getWidth = (): number => {
     if (hasSecondaryPanel) {

@@ -1,10 +1,6 @@
-import {
-  renderHook,
-  act,
-  RenderHookResult,
-} from '@testing-library/react-hooks';
 import axios from 'axios';
 import anyLogger from 'anylogger';
+import { RenderHookResult, renderHook, act } from '@testing-library/react';
 
 import useRequest, { RequestResult, RequestParams } from '.';
 

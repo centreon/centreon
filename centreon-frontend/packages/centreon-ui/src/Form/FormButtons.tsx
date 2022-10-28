@@ -3,9 +3,9 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FormikValues, useFormikContext } from 'formik';
 import { not } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import { Button } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import SaveButton from '../Button/Save';
 import useMemoComponent from '../utils/useMemoComponent';
@@ -17,7 +17,7 @@ import {
   labelSaving,
 } from './translatedLabels';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   buttons: {
     alignItems: 'center',
     columnGap: theme.spacing(2),
@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const FormButtons = (): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
   const [submitted, setSubmitted] = useState(false);
 

@@ -1,9 +1,9 @@
 import { memo } from 'react';
 
 import { equals } from 'ramda';
+import { withStyles } from 'tss-react/mui';
 
 import TablePagination from '@mui/material/TablePagination';
-import withStyles from '@mui/styles/withStyles';
 
 const styles = {
   toolbar: {
@@ -27,4 +27,4 @@ const MemoizedPagination = memo(
     equals(prevProps.labelRowsPerPage, nextProps.labelRowsPerPage),
 );
 
-export default withStyles(styles)(MemoizedPagination);
+export default withStyles(MemoizedPagination, styles);

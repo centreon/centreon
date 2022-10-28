@@ -1,6 +1,21 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react';
+import { makeStyles } from 'tss-react/mui';
+
+import { Theme } from '@mui/material';
 
 import StatusChip, { SeverityCode } from '.';
+
+const useStyles = makeStyles()((theme: Theme) => ({
+  root: {
+    '&:hover': {
+      background: theme.palette.primary.dark,
+      cursor: 'pointer',
+    },
+    background: theme.palette.primary.light,
+    borderRadius: 0,
+    width: theme.spacing(50),
+  },
+}));
 
 export default {
   argTypes: {
@@ -48,3 +63,17 @@ export const withHighSeverityCodeAndWithoutLabel = (): JSX.Element => (
 export const withNoneSeverityCodeAndWithoutLabel = (): JSX.Element => (
   <StatusChip severityCode={SeverityCode.None} />
 );
+
+const CustomStatusShip = (): JSX.Element => {
+  const { classes } = useStyles();
+
+  return (
+    <StatusChip
+      className={classes.root}
+      label="Custom ship"
+      severityCode={SeverityCode.Pending}
+    />
+  );
+};
+
+export const customStatusShip = (): JSX.Element => <CustomStatusShip />;

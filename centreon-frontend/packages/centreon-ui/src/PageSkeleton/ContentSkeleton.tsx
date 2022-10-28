@@ -1,5 +1,6 @@
+import { makeStyles } from 'tss-react/mui';
+
 import { useTheme } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 
 import BaseRectSkeleton from './BaseSkeleton';
 
@@ -11,7 +12,7 @@ const paginationHeight = 4;
 const actionBarHeight = 3.75;
 const contentHeight = 40;
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   actionBarPaginationContainer: {
     alignItems: 'center',
     display: 'grid',
@@ -37,7 +38,7 @@ const ContentSkeleton = ({
   animate,
 }: Pick<PageSkeletonProps, 'animate'>): JSX.Element => {
   const theme = useTheme();
-  const classes = useStyles();
+  const { classes } = useStyles();
 
   return (
     <>
