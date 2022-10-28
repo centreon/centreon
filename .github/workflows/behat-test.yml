@@ -59,8 +59,8 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: registry-docker.centreon.com
-          username: ${{ secrets.ARTI_USER  }}
-          password: ${{ secrets.ARTI_PASSWD }}
+          username: ${{ secrets.nexus_username }}
+          password: ${{ secrets.nexus_password }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
