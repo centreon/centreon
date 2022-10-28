@@ -1,0 +1,9 @@
+{
+  "extends": "./base",
+  "compilerOptions": {
+    "paths": {
+      "@centreon/ui": ["./node_modules/centreon-frontend/packages/centreon-ui"],
+      "@centreon/ui-context": ["./node_modules/centreon-frontend/packages/ui-context"]
+    }
+  }
+}

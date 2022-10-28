@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { useAtomValue } from 'jotai';
-import { useLocaleDateTimeFormat } from 'centreon-frontend/packages/centreon-ui/src';
 import { equals, isNil } from 'ramda';
 import clsx from 'clsx';
 
@@ -24,6 +23,7 @@ import {
   Divider,
 } from '@mui/material';
 
+import { useLocaleDateTimeFormat } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
 
 import { Entity, ExtensionsStatus, LicenseProps } from '../models';

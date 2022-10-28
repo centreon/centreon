@@ -6,12 +6,15 @@ on:
     paths:
       - ".github/workflows/web.yml"
       - "centreon/**"
+      - "!centreon/packages"
   push:
     branches:
       - develop
     paths:
       - ".github/workflows/web.yml"
       - "centreon/**"
+      - "!centreon/packages"
+
     tags:
       - centreon-22.10.**
 
