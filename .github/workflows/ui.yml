@@ -17,7 +17,7 @@ on:
 
 env:
   version: "22.10"
-  directory: centreon/packages/centreon-ui
+  directory: "centreon/packages/centreon-ui"
 
 jobs:
   lint:
@@ -31,7 +31,7 @@ jobs:
           node-version: 17
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm ci
         working-directory: ${{ env.directory }}
 
       - name: Lint
@@ -62,7 +62,7 @@ jobs:
           sudo apt install -y google-chrome-stable
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm ci
         working-directory: ${{ env.directory }}
 
       - name: Build Storybook
@@ -83,6 +83,7 @@ jobs:
 
   deliver-npm:
     runs-on: ubuntu-22.04
+    needs: [lint, unit-test]
 
     steps:
       - uses: actions/checkout@v3
