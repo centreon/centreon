@@ -111,6 +111,7 @@
     "jotai": "^1.6.3",
     "jotai-suspense": "^0.1.0",
     "json-loader": "^0.5.7",
+    "notistack": "^2.0.8",
     "numeral": "^2.0.6",
     "pluralize": "^8.0.0",
     "prop-types": "^15.8.1",
