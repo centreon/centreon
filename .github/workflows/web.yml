@@ -276,7 +276,7 @@ jobs:
         if: ${{ failure() }}
         with:
           name: cypress-videos
-          path: centreon/tests/e2e/cypress/results/video
+          path: centreon/tests/e2e/cypress/results/videos
 
       - name: Publish report
         uses: EnricoMi/publish-unit-test-result-action@v2
