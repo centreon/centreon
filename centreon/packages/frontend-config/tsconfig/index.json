@@ -1,9 +1,13 @@
 {
-  "extends": "./base",
   "compilerOptions": {
-    "paths": {
-      "@centreon/ui": ["<rootDir>/packages/ui"],
-      "@centreon/ui-context": ["<rootDir>/packages/ui-context"]
-    }
+    "moduleResolution": "node",
+    "downlevelIteration": true,
+    "module": "es6",
+    "target": "es6",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true
   }
 }

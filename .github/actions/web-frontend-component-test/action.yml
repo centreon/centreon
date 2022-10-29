@@ -33,4 +33,4 @@ runs:
       with:
         check_name: web-frontend-component-tests-report
         comment_mode: failures
-        junit_files: ./**/cypress-component-result.xml
+        junit_files: ${{ inputs.working_directory }}/cypress/results/cypress-fe.xml
