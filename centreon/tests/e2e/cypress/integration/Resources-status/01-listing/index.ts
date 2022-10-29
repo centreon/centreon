@@ -25,9 +25,9 @@ Then('only non-ok resources are displayed', () => {
   cy.contains('service_test_dt');
   cy.contains('service_test_ack');
   cy.contains('service_test_ok').should('not.exist');
-  cy.contains('CRITICAL');
-  cy.contains('OK').should('not.exist');
-  cy.contains('UP').should('not.exist');
+  cy.contains('Critical');
+  cy.get('header').parent().children().eq(1).contains('Ok').should('not.exist');
+  cy.get('header').parent().children().eq(1).contains('Up').should('not.exist');
 });
 
 When('I put in some criterias', () => {
