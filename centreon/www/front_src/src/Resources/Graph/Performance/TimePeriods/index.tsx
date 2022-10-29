@@ -14,8 +14,8 @@ import {
 import makeStyles from '@mui/styles/makeStyles';
 import { CreateCSSProperties } from '@mui/styles';
 
-import { userAtom } from '@centreon/ui-context';
 import { useMemoComponent } from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
 
 import { timePeriods } from '../../../Details/tabs/Graph/models';
 import GraphOptions from '../ExportableGraphWithTimeline/GraphOptions';

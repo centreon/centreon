@@ -2,8 +2,8 @@
   "extends": "./base",
   "compilerOptions": {
     "paths": {
-      "@centreon/ui": ["../../centreon-ui"],
-      "@centreon/ui-context": ["../../ui-context"]
+      "@centreon/ui": ["<rootDir>/packages/ui"],
+      "@centreon/ui-context": ["<rootDir>/packages/ui-context"]
     }
   }
 }

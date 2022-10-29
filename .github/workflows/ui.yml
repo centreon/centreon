@@ -18,6 +18,7 @@ on:
 env:
   version: "22.10"
   directory: "centreon/packages/centreon-ui"
+  centreon_directory: "centreon"
 
 jobs:
   lint:
@@ -32,7 +33,7 @@ jobs:
 
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
-        working-directory: ${{ env.directory }}
+        working-directory: ${{ env.centreon_directory }}
 
       - name: Lint
         run: npm run eslint -- -o checkstyle.xml -f checkstyle
@@ -60,6 +61,10 @@ jobs:
           sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
           sudo apt update
           sudo apt install -y google-chrome-stable
+
+      - name: Install Centreon dependencies
+        run: npm ci --legacy-peer-deps
+        working-directory: ${{ env.centreon_directory }}
 
       - name: Install dependencies
         run: npm ci --legacy-peer-deps

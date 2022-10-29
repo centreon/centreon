@@ -119,7 +119,7 @@ const getBaseConfiguration = ({
   ],
   resolve: {
     alias: {
-      '@centreon/ui': path.resolve('packages', 'centreon-ui'),
+      '@centreon/ui': path.resolve('packages', 'ui'),
       '@centreon/ui-context': path.resolve('packages', 'ui-context'),
       react: path.resolve('./node_modules/react'),
     },

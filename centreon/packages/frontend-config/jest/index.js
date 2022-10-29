@@ -1,6 +1,6 @@
 module.exports = {
   moduleNameMapper: {
-    '@centreon/ui': '<rootDir>/packages/centreon-ui',
+    '@centreon/ui': '<rootDir>/packages/ui',
     '@centreon/ui-context': '<rootDir>/packages/ui-context',
     '\\.(s?css|png|svg|jpg)$': 'identity-obj-proxy',
     '^react($|/.+)': '<rootDir>/node_modules/react$1',
