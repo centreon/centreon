@@ -73,31 +73,31 @@ jobs:
           name: centreon-web-eslint-report
           path: centreon/checkstyle.xml
 
-  # frontend-unit-test:
-  #   runs-on: ubuntu-22.04
+  frontend-unit-test:
+    runs-on: ubuntu-22.04
 
-  #   steps:
-  #     - uses: actions/setup-node@v3
-  #       with:
-  #         node-version: 17
+    steps:
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 17
 
-  #     - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-  #     - name: Install dependencies
-  #       run: npm ci --legacy-peer-deps
-  #       working-directory: centreon
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+        working-directory: centreon
 
-  #     - name: Unit test
-  #       run: npm t -- --silent --reporters=jest-junit
-  #       working-directory: centreon
+      - name: Unit test
+        run: npm t -- --silent --reporters=jest-junit
+        working-directory: centreon
 
-  #     - name: Publish report
-  #       uses: EnricoMi/publish-unit-test-result-action@v2
-  #       if: always()
-  #       with:
-  #         check_name: "centreon-web-frontend-unit-tests-report"
-  #         comment_mode: failures
-  #         junit_files: "centreon/junit.xml"
+      - name: Publish report
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          check_name: "centreon-web-frontend-unit-tests-report"
+          comment_mode: failures
+          junit_files: "centreon/junit.xml"
 
   frontend-component-test:
     runs-on: ubuntu-22.04
@@ -150,7 +150,7 @@ jobs:
         backend-unit-test,
         frontend-build,
         frontend-lint,
-        # frontend-unit-test,
+        frontend-unit-test,
         frontend-component-test
       ]
 
