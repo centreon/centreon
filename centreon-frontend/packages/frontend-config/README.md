@@ -1,3 +1,3 @@
-# Centreon frontend-config
+# Centreon js-config
 
 This repository stores the Frontend build configuration shared accross Centreon's projects.

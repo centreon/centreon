@@ -8,7 +8,7 @@ const {
   getDevConfiguration,
   devJscTransformConfiguration,
   devRefreshJscTransformConfiguration,
-} = require('./packages/frontend-config/webpack/patch/dev');
+} = require('./packages/js-config/webpack/patch/dev');
 const getBaseConfiguration = require('./webpack.config');
 
 const devServerPort = 9090;

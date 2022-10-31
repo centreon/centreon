@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/centreon/centreon-frontend#readme",
   "devDependencies": {
-    "@centreon/frontend-config": "file:../frontend-config",
+    "@centreon/js-config": "file:../js-config",
     "@centreon/ui-context": "file:../ui-context",
     "@storybook/addon-essentials": "^6.5.11",
     "@storybook/addon-storyshots": "^6.5.11",

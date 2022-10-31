@@ -1,5 +1,5 @@
 module.exports = {
-  extends: '../frontend-config/eslint/react/typescript.eslintrc.js',
+  extends: '../js-config/eslint/react/typescript.eslintrc.js',
   overrides: [
     {
       files: ['*.ts', '*.tsx'],

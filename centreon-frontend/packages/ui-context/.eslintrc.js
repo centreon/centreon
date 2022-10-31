@@ -1,3 +1,3 @@
 module.exports = {
-  extends: '../frontend-config/eslint/react/typescript.eslintrc',
+  extends: '../js-config/eslint/react/typescript.eslintrc',
 };

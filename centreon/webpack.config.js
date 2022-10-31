@@ -4,7 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackHarddiskPlugin = require('html-webpack-harddisk-plugin');
 const webpack = require('webpack');
 const { merge } = require('webpack-merge');
-const getBaseConfiguration = require('./packages/frontend-config/webpack/base');
+const getBaseConfiguration = require('./packages/js-config/webpack/base');
 
 module.exports = (jscTransformConfiguration) =>
   merge(
