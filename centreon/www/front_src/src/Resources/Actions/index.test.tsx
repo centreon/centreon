@@ -482,8 +482,11 @@ describe(Actions, () => {
 
     await findByText(labelDowntimeByAdmin);
 
-    userEvent.clear(getByLabelText(labelEndTime));
-    userEvent.type(getByLabelText(labelEndTime), dayjs(mockNow).format('L LT'));
+    // userEvent.clear(getByLabelText(labelEndTime));
+    userEvent.type(
+      getByLabelText(labelEndTime),
+      `{selectall}${dayjs(mockNow).format('L LT')}`,
+    );
 
     await waitFor(() =>
       expect(
@@ -515,7 +518,7 @@ describe(Actions, () => {
 
     await findByText(labelDowntimeByAdmin);
 
-    userEvent.type(getByLabelText(labelStartTime), '{backspace}l');
+    userEvent.type(getByLabelText(labelStartTime), '{backspace}{backspace}');
 
     await waitFor(() => {
       expect(
