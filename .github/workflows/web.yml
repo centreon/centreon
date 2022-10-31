@@ -51,7 +51,7 @@ jobs:
     steps:
       - uses: actions/setup-node@v3
         with:
-          node-version: 17
+          node-version: 16.14.2
 
       - uses: actions/checkout@v3
 
@@ -76,7 +76,7 @@ jobs:
     steps:
       - uses: actions/setup-node@v3
         with:
-          node-version: 17
+          node-version: 16.14.2
 
       - uses: actions/checkout@v3
 
@@ -95,6 +95,17 @@ jobs:
           check_name: "centreon-web-frontend-unit-tests-report"
           comment_mode: failures
           junit_files: "centreon/junit.xml"
+
+  web-frontend-component-test:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+        
+      - uses: ./.github/actions/web-frontend-component-test
+        with:
+          working_directory: centreon
 
   backend-unit-test:
     runs-on: ubuntu-22.04
