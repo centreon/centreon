@@ -33,5 +33,11 @@
     "eslint-plugin-sort-keys-fix": "^1.1.2",
     "eslint-plugin-typescript-sort-keys": "^2.1.0"
   },
-  "homepage": "https://github.com/centreon/centreon-frontend#readme"
+  "homepage": "https://github.com/centreon/centreon-frontend#readme",
+  "files": [
+    "eslint",
+    "jest",
+    "tsconfig",
+    "webpack"
+  ]
 }
