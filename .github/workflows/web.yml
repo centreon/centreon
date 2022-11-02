@@ -360,8 +360,8 @@ jobs:
           module_name: web
           distrib: ${{ matrix.distrib }}
           version: ${{ env.version }}
-          nexus_username: ${{ secrets.ARTI_USER }}
-          nexus_password: ${{ secrets.ARTI_PASSWD }}
+          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
 
   deliver-deb:
@@ -381,6 +381,6 @@ jobs:
           module_name: web
           distrib: ${{ matrix.distrib }}
           version: ${{ env.version }}
-          nexus_username: ${{ secrets.ARTI_USER }}
-          nexus_password: ${{ secrets.ARTI_PASSWD }}
-          cache_key: cache-${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
+          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
