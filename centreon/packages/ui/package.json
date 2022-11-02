@@ -77,6 +77,10 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
+    "dayjs": "^1.10.7",
+    "@dnd-kit/core": "^6.0.5",
+    "@dnd-kit/sortable": "^7.0.1",
+    "numeral": "^2.0.6",
     "@centreon/ui-context": "file:../ui-context",
     "anylogger": "^1.0.11",
     "ulog": "^2.0.0-beta.19",
