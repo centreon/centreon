@@ -1,6 +1,6 @@
 {
   "name": "@centreon/ui",
-  "version": "22.10.3",
+  "version": "22.10.4",
   "description": "Centreon UI Components",
   "main": "src",
   "scripts": {
@@ -93,6 +93,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.4.3",
+    "resize-observer-polyfill": "^1.5.1",
     "tss-react": "^4.0.0",
     "ulog": "^2.0.0-beta.19",
     "yup": "^0.32.11"
