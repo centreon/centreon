@@ -6,12 +6,15 @@ on:
     paths:
       - ".github/workflows/web.yml"
       - "centreon/**"
+      - "!centreon/packages/**"
   push:
     branches:
       - develop
     paths:
       - ".github/workflows/web.yml"
       - "centreon/**"
+      - "!centreon/packages/**"
+
     tags:
       - centreon-22.04.**
 
@@ -108,7 +111,7 @@ jobs:
           php-version: 8.0
           coverage: none
         env:
-          runner: self-hosted
+          runner: ubuntu-22.04
 
       - name: Install dependencies
         uses: ramsey/composer-install@v2
@@ -130,13 +133,14 @@ jobs:
 
   package:
     runs-on: ubuntu-22.04
-    needs: [
-      backend-dependencies,
-      backend-unit-test,
-      frontend-build,
-      frontend-lint,
-      frontend-unit-test,
-    ]
+    needs:
+      [
+        backend-dependencies,
+        backend-unit-test,
+        frontend-build,
+        frontend-lint,
+        frontend-unit-test
+      ]
 
     strategy:
       matrix:
@@ -172,8 +176,8 @@ jobs:
           version: ${{ env.version }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-${{ matrix.package_extension }}-${{ matrix.distrib }}
           sign: true
-          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          nexus_username: ${{ secrets.ARTI_USER }}
+          nexus_password: ${{ secrets.ARTI_PASSWD }}
 
   dockerize:
     runs-on: ubuntu-22.04
@@ -194,9 +198,9 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v2
         with:
-          registry: docker.registry.apps.centreon.com
-          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          registry: registry-docker.centreon.com
+          username: ${{ secrets.ARTI_USER }}
+          password: ${{ secrets.ARTI_PASSWD }}
 
       - name: Use cache RPM files
         uses: actions/cache@v3
@@ -213,7 +217,7 @@ jobs:
           context: .
           pull: true
           push: true
-          tags: docker.registry.apps.centreon.com/${{ matrix.project }}-fresh-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+          tags: registry-docker.centreon.com/docker-global/${{ matrix.project }}-fresh-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
       - uses: docker/build-push-action@v3
         with:
@@ -222,7 +226,7 @@ jobs:
           context: .
           pull: true
           push: true
-          tags: docker.registry.apps.centreon.com/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+          tags: registry-docker.centreon.com/docker-global/${{ matrix.project }}-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
       - uses: docker/build-push-action@v3
         with:
@@ -231,7 +235,7 @@ jobs:
           context: .
           pull: true
           push: true
-          tags: docker.registry.apps.centreon.com/${{ matrix.project }}-widgets-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
+          tags: registry-docker.centreon.com/docker-global/${{ matrix.project }}-widgets-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
   test-e2e:
     runs-on: ubuntu-22.04
@@ -244,14 +248,14 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v2
         with:
-          registry: docker.registry.apps.centreon.com
-          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          registry: registry-docker.centreon.com
+          username: ${{ secrets.ARTI_USER }}
+          password: ${{ secrets.ARTI_PASSWD }}
 
       - name: Cypress e2e testing
         uses: ./.github/actions/cypress-e2e-testing
         with:
-          image: docker.registry.apps.centreon.com/centreon-web-centos7
+          image: registry-docker.centreon.com/docker-global/centreon-web-centos7
           image_version: ${{ github.head_ref || github.ref_name }}
           image_cypress_version: ${{ env.version }}
           module: centreon
@@ -261,7 +265,7 @@ jobs:
         if: ${{ failure() }}
         with:
           name: cypress-videos
-          path: centreon/tests/e2e/cypress/results/video
+          path: centreon/tests/e2e/cypress/results/videos
 
       - name: Publish report
         uses: EnricoMi/publish-unit-test-result-action@v2
@@ -281,15 +285,15 @@ jobs:
       - name: Login to Registry
         uses: docker/login-action@v2
         with:
-          registry: docker.registry.apps.centreon.com
-          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          registry: registry-docker.centreon.com
+          username: ${{ secrets.ARTI_USER }}
+          password: ${{ secrets.ARTI_PASSWD }}
 
       - name: Run lighthouse
         uses: ./.github/actions/lighthouse-performance-testing
         with:
           path: "centreon/lighthouse"
-          image: docker.registry.apps.centreon.com/centreon-web-centos7
+          image: registry-docker.centreon.com/docker-global/centreon-web-centos7
           image_version: ${{ github.head_ref || github.ref_name }}
           image_lighthouse_version: ${{ env.version }}
           module: centreon
@@ -310,8 +314,8 @@ jobs:
       features_path: tests/api/features
       config_file: tests/api/behat.yml
     secrets:
-      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+      nexus_username: ${{ secrets.ARTI_USER }}
+      nexus_password: ${{ secrets.ARTI_PASSWD }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   legacy-e2e-test:
@@ -323,17 +327,13 @@ jobs:
       image_name: centreon-web
       features_path: features
     secrets:
-      nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-      nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+      nexus_username: ${{ secrets.ARTI_USER }}
+      nexus_password: ${{ secrets.ARTI_PASSWD }}
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   deliver-rpm:
     runs-on: ubuntu-22.04
-    needs: [
-      test-e2e,
-      test-performances,
-      legacy-e2e-test
-    ]
+    needs: [test-e2e, test-performances, legacy-e2e-test]
     strategy:
       matrix:
         distrib: [el7, el8]
@@ -348,17 +348,13 @@ jobs:
           module_name: web
           distrib: ${{ matrix.distrib }}
           version: ${{ env.version }}
-          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          nexus_username: ${{ secrets.ARTI_USER }}
+          nexus_password: ${{ secrets.ARTI_PASSWD }}
           cache_key: ${{ github.sha }}-${{ github.run_id }}-rpm-${{ matrix.distrib }}
 
   deliver-deb:
     runs-on: ubuntu-22.04
-    needs: [
-      test-e2e,
-      test-performances,
-      legacy-e2e-test
-    ]
+    needs: [test-e2e, test-performances, legacy-e2e-test]
     strategy:
       matrix:
         distrib: [bullseye]
@@ -373,6 +369,6 @@ jobs:
           module_name: web
           distrib: ${{ matrix.distrib }}
           version: ${{ env.version }}
-          nexus_username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          nexus_password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          nexus_username: ${{ secrets.ARTI_USER }}
+          nexus_password: ${{ secrets.ARTI_PASSWD }}
           cache_key: cache-${{ github.sha }}-${{ github.run_id }}-deb-${{ matrix.distrib }}
