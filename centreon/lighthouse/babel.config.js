@@ -1,3 +1,3 @@
 module.exports = {
-  extends: 'centreon-frontend/packages/frontend-config/babel/typescript',
+  extends: '../packages/js-config/babel/typescript',
 };
