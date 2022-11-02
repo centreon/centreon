@@ -1,6 +1,6 @@
 {
   "name": "centreon",
-  "version": "21.10.0",
+  "version": "22.04.0",
   "description": "centreon web package",
   "scripts": {
     "build": "webpack --mode production --config ./webpack.config.prod.js",
@@ -97,7 +97,6 @@
     "@mui/styles": "^5.3.0",
     "@visx/visx": "2.9.0",
     "axios": "^0.25.0",
-    "centreon-frontend": "https://gitpkg.now.sh/centreon/centreon-gha/centreon-frontend?dev-22.04.x",
     "classnames": "^2.3.1",
     "clsx": "^1.1.1",
     "connected-react-router": "^6.9.2",
@@ -149,5 +148,8 @@
   "jest-junit": {
     "suiteName": "jest tests",
     "output": "./jest-test-results.xml"
-  }
+  },
+  "workspaces": [
+    "packages/*"
+  ]
 }

@@ -1,7 +1,7 @@
 const { mergeDeepRight } = require('ramda');
 
 module.exports = mergeDeepRight(
-  require('centreon-frontend/packages/frontend-config/jest'),
+  require('@centreon/js-config/jest'),
   {
     moduleNameMapper: {
       'd3-array': '<rootDir>/node_modules/d3-array/dist/d3-array.min.js',
