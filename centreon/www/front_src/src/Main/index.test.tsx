@@ -17,6 +17,7 @@ import {
 import { retrievedNavigation } from '../Navigation/mocks';
 import { retrievedFederatedModule } from '../federatedModules/mocks';
 import { navigationEndpoint } from '../Navigation/useNavigation';
+import { labelAuthenticationDenied } from '../FallbackPages/AuthenticationDenied/translatedLabels';
 
 import { labelCentreonIsLoading } from './translatedLabels';
 
@@ -112,9 +113,6 @@ const renderMain = (): RenderResult =>
 const mockDefaultGetRequests = (): void => {
   mockedAxios.get
     .mockResolvedValueOnce({
-      data: retrievedWeb,
-    })
-    .mockResolvedValueOnce({
       data: {
         has_upgrade_available: false,
         is_installed: true,
@@ -122,6 +120,9 @@ const mockDefaultGetRequests = (): void => {
     })
     .mockResolvedValueOnce({
       data: retrievedUser,
+    })
+    .mockResolvedValueOnce({
+      data: retrievedWeb,
     })
     .mockResolvedValueOnce({
       data: retrievedTranslations,
@@ -146,9 +147,6 @@ const mockDefaultGetRequests = (): void => {
 const mockRedirectFromLoginPageGetRequests = (): void => {
   mockedAxios.get
     .mockResolvedValueOnce({
-      data: retrievedWeb,
-    })
-    .mockResolvedValueOnce({
       data: {
         has_upgrade_available: false,
         is_installed: true,
@@ -156,6 +154,9 @@ const mockRedirectFromLoginPageGetRequests = (): void => {
     })
     .mockResolvedValueOnce({
       data: retrievedUser,
+    })
+    .mockResolvedValueOnce({
+      data: retrievedWeb,
     })
     .mockResolvedValueOnce({
       data: retrievedTranslations,
@@ -183,9 +184,6 @@ const mockRedirectFromLoginPageGetRequests = (): void => {
 const mockNotConnectedGetRequests = (): void => {
   mockedAxios.get
     .mockResolvedValueOnce({
-      data: retrievedWeb,
-    })
-    .mockResolvedValueOnce({
       data: {
         has_upgrade_available: false,
         is_installed: true,
@@ -193,6 +191,9 @@ const mockNotConnectedGetRequests = (): void => {
     })
     .mockRejectedValueOnce({
       response: { status: 403 },
+    })
+    .mockResolvedValueOnce({
+      data: retrievedWeb,
     })
     .mockResolvedValueOnce({
       data: retrievedTranslations,
@@ -205,9 +206,6 @@ const mockNotConnectedGetRequests = (): void => {
 const mockInstallGetRequests = (): void => {
   mockedAxios.get
     .mockResolvedValueOnce({
-      data: retrievedWeb,
-    })
-    .mockResolvedValueOnce({
       data: {
         has_upgrade_available: false,
         is_installed: false,
@@ -215,14 +213,14 @@ const mockInstallGetRequests = (): void => {
     })
     .mockRejectedValueOnce({
       response: { status: 403 },
+    })
+    .mockResolvedValueOnce({
+      data: retrievedWeb,
     });
 };
 
 const mockUpgradeAndUserDisconnectedGetRequests = (): void => {
   mockedAxios.get
-    .mockResolvedValueOnce({
-      data: retrievedWeb,
-    })
     .mockResolvedValueOnce({
       data: {
         has_upgrade_available: true,
@@ -231,14 +229,14 @@ const mockUpgradeAndUserDisconnectedGetRequests = (): void => {
     })
     .mockRejectedValueOnce({
       response: { status: 403 },
+    })
+    .mockResolvedValueOnce({
+      data: retrievedWeb,
     });
 };
 
 const mockUpgradeAndUserConnectedGetRequests = (): void => {
   mockedAxios.get
-    .mockResolvedValueOnce({
-      data: retrievedWeb,
-    })
     .mockResolvedValueOnce({
       data: {
         has_upgrade_available: true,
@@ -247,6 +245,9 @@ const mockUpgradeAndUserConnectedGetRequests = (): void => {
     })
     .mockResolvedValueOnce({
       data: retrievedUser,
+    })
+    .mockResolvedValueOnce({
+      data: retrievedWeb,
     })
     .mockResolvedValueOnce({
       data: retrievedTranslations,
@@ -304,6 +305,18 @@ describe('Main', () => {
 
     await waitFor(() => {
       expect(screen.getByLabelText(labelConnect)).toBeInTheDocument();
+    });
+  });
+
+  it('displays the authentication denied page', async () => {
+    window.history.pushState({}, '', '/authentication-denied');
+
+    mockDefaultGetRequests();
+
+    renderMain();
+
+    await waitFor(() => {
+      expect(screen.getByText(labelAuthenticationDenied)).toBeInTheDocument();
     });
   });
 
