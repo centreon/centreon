@@ -5,6 +5,7 @@ import { equals, not, pathEq } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
+import { getData, useRequest, useSnackbar, postData } from '@centreon/ui';
 import {
   acknowledgementAtom,
   aclAtom,
@@ -12,7 +13,6 @@ import {
   downtimeAtom,
   refreshIntervalAtom,
 } from '@centreon/ui-context';
-import { getData, useRequest, useSnackbar, postData } from '@centreon/ui';
 
 import useNavigation from '../Navigation/useNavigation';
 import reactRoutes from '../reactRoutes/routeMap';

@@ -10,7 +10,7 @@ runs:
   steps:
     - uses: actions/setup-node@v3
       with:
-        node-version: 16.14.2
+        node-version: 17
 
     - name: Cypress web component testing
       uses: cypress-io/github-action@v4
@@ -33,4 +33,4 @@ runs:
       with:
         check_name: web-frontend-component-tests-report
         comment_mode: failures
-        junit_files: ./**/cypress-component-result.xml
+        junit_files: ${{ inputs.working_directory }}/cypress/results/cypress-fe.xml

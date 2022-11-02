@@ -1,0 +1,13 @@
+{
+  "name": "@centreon/ui-context",
+  "version": "22.10.1",
+  "description": "Centreon UI shared context",
+  "main": "src",
+  "keywords": [],
+  "author": "centreon@centreon.com",
+  "license": "GPL-2.0",
+  "scripts": {
+    "eslint": "eslint ./src --ext .ts",
+    "eslint:fix": "npm run eslint -- --fix"
+  }
+}

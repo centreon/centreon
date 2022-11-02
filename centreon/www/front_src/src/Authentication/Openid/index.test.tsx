@@ -268,7 +268,7 @@ describe('Openid configuration form', () => {
     expect(screen.getByLabelText(labelRolesAttributePath)).toHaveValue(
       'role attribute path',
     );
-    expect(screen.getAllByLabelText(labelOther).at(1)).toBeChecked();
+    expect(screen.getAllByLabelText(labelOther)[1]).toBeChecked();
     expect(head(screen.getAllByLabelText(labelDefineYourEndpoint))).toHaveValue(
       '/role/endpoint',
     );

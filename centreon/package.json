@@ -36,7 +36,7 @@
     "clean-webpack-plugin": "^4.0.0",
     "clipboardy": "^3.0.0",
     "cross-env": "^7.0.3",
-    "cypress": "^10.6.0",
+    "cypress": "10.6.0",
     "cypress-image-snapshot": "^4.0.1",
     "eslint": "^8.8.0",
     "eslint-config-airbnb": "19.0.4",
@@ -82,17 +82,19 @@
   },
   "dependencies": {
     "@date-io/dayjs": "^2.13.1",
+    "@dnd-kit/core": "^6.0.5",
+    "@dnd-kit/sortable": "^7.0.1",
     "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",
     "@mui/icons-material": "^5.3.1",
     "@mui/lab": "^5.0.0-alpha.63",
     "@mui/material": "^5.4.0",
     "@mui/styles": "^5.3.0",
+    "@mui/x-date-pickers": "^5.0.6",
     "@tanstack/react-query": "^4.1.0",
     "@visx/threshold": "^2.12.2",
     "@visx/visx": "2.9.0",
     "axios": "^0.25.0",
-    "centreon-frontend": "https://gitpkg.now.sh/centreon/centreon-gha/centreon-frontend?develop",
     "classnames": "^2.3.1",
     "clsx": "^1.1.1",
     "connected-react-router": "^6.9.2",
@@ -110,6 +112,7 @@
     "jotai": "^1.6.3",
     "jotai-suspense": "^0.1.0",
     "json-loader": "^0.5.7",
+    "notistack": "^2.0.8",
     "numeral": "^2.0.6",
     "pluralize": "^8.0.0",
     "prop-types": "^15.8.1",
@@ -125,12 +128,15 @@
     "string-argv": "^0.3.1",
     "systemjs": "^6.12.1",
     "ts.data.json": "^2.1.0",
-    "tss-react": "^4.1.3",
+    "tss-react": "^4.4.1",
     "use-deep-compare-effect": "^1.8.1",
     "yup": "^0.32.11"
   },
   "jest-junit": {
     "suiteName": "jest tests",
     "output": "./jest-test-results.xml"
-  }
+  },
+  "workspaces": [
+    "packages/*"
+  ]
 }
