@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai/utils';
 
 import { FormHelperText, Typography, Button, Popover } from '@mui/material';
-import { LocalizationProvider } from '@mui/lab';
+import { LocalizationProvider } from '@mui/x-date-pickers';
 import makeStyles from '@mui/styles/makeStyles';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 

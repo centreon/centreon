@@ -43,7 +43,6 @@ import {
 } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 
-import { userAtom } from '@centreon/ui-context';
 import {
   MemoizedFilter,
   SearchField,
@@ -52,6 +51,7 @@ import {
   useRequest,
   LoadingSkeleton,
 } from '@centreon/ui';
+import { userAtom } from '@centreon/ui-context';
 
 import {
   labelStateFilter,

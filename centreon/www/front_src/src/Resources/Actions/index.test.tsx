@@ -80,10 +80,6 @@ const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 const onRefresh = jest.fn();
 
-jest.mock('@centreon/ui-context', () =>
-  jest.requireActual('centreon-frontend/packages/ui-context'),
-);
-
 const mockUser = {
   alias: 'admin',
   isExportButtonEnabled: true,
@@ -486,8 +482,11 @@ describe(Actions, () => {
 
     await findByText(labelDowntimeByAdmin);
 
-    userEvent.clear(getByLabelText(labelEndTime));
-    userEvent.type(getByLabelText(labelEndTime), dayjs(mockNow).format('L LT'));
+    userEvent.type(getByLabelText(labelEndTime), '{selectall}');
+    userEvent.paste(
+      getByLabelText(labelEndTime),
+      dayjs(mockNow).format('L LT'),
+    );
 
     await waitFor(() =>
       expect(

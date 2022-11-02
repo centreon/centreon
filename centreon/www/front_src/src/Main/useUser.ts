@@ -2,8 +2,8 @@ import { useAtom, atom } from 'jotai';
 import { useUpdateAtom } from 'jotai/utils';
 import { isNil } from 'ramda';
 
-import { User, userAtom } from '@centreon/ui-context';
 import { useRequest, getData } from '@centreon/ui';
+import { User, userAtom } from '@centreon/ui-context';
 
 import { userDecoder } from '../api/decoders';
 import { userEndpoint } from '../api/endpoint';

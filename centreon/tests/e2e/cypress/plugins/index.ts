@@ -1,5 +1,7 @@
+/* eslint-disable default-param-last */
 /* eslint-disable global-require */
 /* eslint-disable @typescript-eslint/no-var-requires */
+/* eslint-disable no-param-reassign */
 
 const webpackPreprocessor = require('@cypress/webpack-preprocessor');
 

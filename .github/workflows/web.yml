@@ -6,12 +6,15 @@ on:
     paths:
       - ".github/workflows/web.yml"
       - "centreon/**"
+      - "!centreon/packages"
   push:
     branches:
       - develop
     paths:
       - ".github/workflows/web.yml"
       - "centreon/**"
+      - "!centreon/packages"
+
     tags:
       - centreon-22.10.**
 
@@ -51,7 +54,7 @@ jobs:
     steps:
       - uses: actions/setup-node@v3
         with:
-          node-version: 16.14.2
+          node-version: 17
 
       - uses: actions/checkout@v3
 
@@ -76,7 +79,7 @@ jobs:
     steps:
       - uses: actions/setup-node@v3
         with:
-          node-version: 16.14.2
+          node-version: 17
 
       - uses: actions/checkout@v3
 
@@ -96,7 +99,7 @@ jobs:
           comment_mode: failures
           junit_files: "centreon/junit.xml"
 
-  web-frontend-component-test:
+  frontend-component-test:
     runs-on: ubuntu-22.04
 
     steps:
@@ -148,6 +151,7 @@ jobs:
         frontend-build,
         frontend-lint,
         frontend-unit-test,
+        frontend-component-test
       ]
 
     strategy:
@@ -273,7 +277,7 @@ jobs:
         if: ${{ failure() }}
         with:
           name: cypress-videos
-          path: centreon/tests/e2e/cypress/results/video
+          path: centreon/tests/e2e/cypress/results/videos
 
       - name: Publish report
         uses: EnricoMi/publish-unit-test-result-action@v2
