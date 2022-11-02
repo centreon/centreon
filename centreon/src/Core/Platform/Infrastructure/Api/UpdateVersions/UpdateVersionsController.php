@@ -48,9 +48,17 @@ class UpdateVersionsController extends AbstractController
         Request $request,
         UpdateVersionsPresenterInterface $presenter
     ): object {
+        $this->denyAccessUnlessGrantedForApiConfiguration();
+
+        /**
+         * @var Contact $contact
+         */
+        $contact = $this->getUser();
+        if (! $contact->isAdmin()) {
             $presenter->setResponseStatus(new UnauthorizedResponse('Only admin user can perform upgrade'));
 
             return $presenter->show();
+        }
 
         $this->info('Validating request body...');
         $this->validateDataSent($request, __DIR__ . '/UpdateVersionsSchema.json');
