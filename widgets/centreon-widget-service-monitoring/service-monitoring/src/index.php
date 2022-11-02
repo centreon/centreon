@@ -160,7 +160,7 @@ $query = 'SELECT SQL_CALC_FOUND_ROWS h.host_id,
         AND cv2.name = \'CRITICALITY_ID\'
     )';
 
-if (isset($preferences['acknowledgement_filter']) && $preferences['acknowledgement_filter'] && $preferences['acknowledgement_filter'] == 'ackByMe') {
+if (isset($preferences['acknowledgement_filter']) &&  $preferences['acknowledgement_filter'] == 'ackByMe') {
     $query .= ' JOIN acknowledgements ack ON (
         s.service_id = ack.service_id
     )';
