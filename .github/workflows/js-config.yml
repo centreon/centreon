@@ -19,7 +19,6 @@ env:
   version: "22.04"
   directory: "centreon/packages/js-config"
   centreon_directory: "centreon"
-  github_repository: "centreon/centreon-gha"
 
 jobs:
   deliver-npm:
@@ -40,7 +39,7 @@ jobs:
           npm version patch -m "js-config-%s" --legacy-peer-deps
           VERSION=js-config-$(node -p "require('./package.json').version")
           git add .
-          git commit -m "chore: release ${{ env.VERSION }}"
+          git commit -m "chore: release ${VERSION}"
           git tag ${VERSION}
         working-directory: ${{ env.directory }}
 
