@@ -34,7 +34,7 @@ jobs:
       with:
         filters: |
           backend:
-            - !(**/*.[jt]sx?|**/front_src/**|**/tests/e2e/**|**/package*|**/lighthouse/**|**/tsconfig.json)
+            - '!(**/*.[jt]sx?|**/front_src/**|**/tests/e2e/**|**/package*|**/lighthouse/**|**/tsconfig.json)''
 
   frontend-build:
     runs-on: ubuntu-22.04
