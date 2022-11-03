@@ -12,8 +12,6 @@ on:
     paths:
       - ".github/workflows/ui.yml"
       - "centreon/packages/ui/**"
-    tags:
-      - centreon-frontend-22.04.**
     tags-ignore:
       - ui-*
 
