@@ -87,9 +87,9 @@ jobs:
           junit_files: ${{ env.directory }}/junit.xml
 
   deliver-npm:
-    if: github.ref == 'refs/heads/dev-22.04.x'
     runs-on: ubuntu-22.04
     needs: [lint, unit-test]
+    if: github.ref == 'refs/heads/dev-22.04.x'
 
     steps:
       - uses: actions/checkout@v3

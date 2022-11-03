@@ -22,8 +22,8 @@ env:
 
 jobs:
   deliver-npm:
-    if: github.ref == 'refs/heads/dev-22.04.x'
     runs-on: ubuntu-22.04
+    if: github.ref == 'refs/heads/dev-22.04.x'
 
     steps:
       - uses: actions/checkout@v3
