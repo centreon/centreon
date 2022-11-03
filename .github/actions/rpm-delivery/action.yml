@@ -42,13 +42,13 @@ runs:
 
         case "$BRANCHNAME" in
           develop)
-            REPO=unstable
+            REPO="-unstable"
             ;;
           release* | hotfix*)
-            REPO=testing
+            REPO="-testing"
             ;;
           master | [0-9]{2}\.[0-9]{2}.)
-            REPO=stable
+            REPO="-stable"
             ;;
           MON*)
             echo -n "[INFO] NO DELIVERY ON MON BRANCHES"
@@ -62,6 +62,7 @@ runs:
         esac
 
         FILES="*.rpm";
+        DELIMITER="-"
         echo "[DEBUG] - Repo: $REPO"
         echo "[DEBUG] - Rpm FILES: $FILES"
 
@@ -76,7 +77,9 @@ runs:
           echo "[DEBUG] - Version: $VERSION"
           echo "[DEBUG] - Distrib: $DISTRIB"
           echo "[DEBUG] - Arch: $ARCH"
+          echo "[DEBUG] - Delimiter: $DELIMITER"
 
-          curl -v -u ${{ inputs.nexus_username }}:${{ inputs.nexus_password }} --upload-file ./$FILE "http://nexus-svc.nexus.svc.cluster.local:8081/repository/standard/$VERSION/$DISTRIB/$REPO/$ARCH/${{ inputs.module_name }}/"
+          curl -v -u ${{ inputs.nexus_username }}:${{ inputs.nexus_password }} -X PUT "https://artifactory.apps.centreon.com/artifactory/rpm-$VERSION$REPO/$DISTRIB/$REPO/$ARCH" -T "$FILE"
+
         done
       shell: bash
