@@ -114,7 +114,7 @@ jobs:
       - name: Push changes to repository
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: git push origin dev-22.04.x && git push --tags
+        run: git push origin develop && git push --tags
 
       - uses: JS-DevTools/npm-publish@v1
         with:
