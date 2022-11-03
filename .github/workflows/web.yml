@@ -23,8 +23,32 @@ env:
   base_directory: centreon
 
 jobs:
+  changes:
+    runs-on: ubuntu-22.04
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+    - uses: dorny/paths-filter@v2
+      id: filter
+      with:
+        filters: |
+          frontend:&frontend
+            - centreon/www/front_src/**
+            - centreon/tests/e2e/**
+            - centreon/lighthouse/**
+            - centreon/package*
+            - centreon/*.js
+            - centreon/*.ts
+            - centreon/tsconfig.json
+          backend:
+            - !*frontend
+
   frontend-build:
     runs-on: ubuntu-22.04
+    needs: changes
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
+
 
     steps:
       - uses: actions/checkout@v3
@@ -50,6 +74,8 @@ jobs:
 
   frontend-lint:
     runs-on: ubuntu-22.04
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
+
 
     steps:
       - uses: actions/setup-node@v3
@@ -75,6 +101,8 @@ jobs:
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
+
 
     steps:
       - uses: actions/setup-node@v3
@@ -101,6 +129,7 @@ jobs:
 
   frontend-component-test:
     runs-on: ubuntu-22.04
+    if: ${{ needs.changes.outputs.frontend == 'true' }}
 
     steps:
       - name: Checkout sources
