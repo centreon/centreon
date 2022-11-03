@@ -100,6 +100,7 @@ jobs:
         run: |
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
           git config user.name "$GITHUB_ACTOR"
+          git config pull.rebase false
           npm version patch -m "js-config-%s" --legacy-peer-deps
           VERSION=ui-$(node -p "require('./package.json').version")
           git add .
