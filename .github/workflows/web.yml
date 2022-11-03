@@ -33,7 +33,7 @@ jobs:
       id: filter
       with:
         filters: |
-          frontend:&frontend
+          frontend: &frontend
             - centreon/www/front_src/**
             - centreon/tests/e2e/**
             - centreon/lighthouse/**
