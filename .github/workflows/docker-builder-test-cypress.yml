@@ -43,8 +43,8 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: docker.centreon.com
-          username: ${{ secrets.NEXUS_RPMS_REPOSITORY_USERNAME }}
-          password: ${{ secrets.NEXUS_RPMS_REPOSITORY_PASSWORD }}
+          username: ${{ secrets.ARTI_USER }}
+          password: ${{ secrets.ARTI_PASSWD }}
           
       - name: push docker ${{ matrix.project }}
         run: docker push registry-docker.centreon.com/docker-global/${{ matrix.project }}:${{ env.version }}
