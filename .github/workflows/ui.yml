@@ -100,13 +100,13 @@ jobs:
         run: |
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
           git config user.name "$GITHUB_ACTOR"
+          cd ${{ env.directory }}
           npm version patch -m "js-config-%s"
           VERSION=ui-$(node -p "require('./package.json').version")
           git tag ${VERSION}
           git remote add origin https://$GITHUB_ACTOR:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY.git
           git push "https://$GITHUB_ACTOR:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY.git" origin/dev-22.04.x --follow-tags
           git push "https://$GITHUB_ACTOR:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY.git" origin/dev-22.04.x --tags
-        working-directory: ${{ env.directory }}
 
       - uses: JS-DevTools/npm-publish@v1
         with:
