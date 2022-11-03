@@ -50,6 +50,7 @@ jobs:
   deliver-npm:
     runs-on: ubuntu-22.04
     needs: [lint]
+    if: github.ref == 'refs/heads/dev-22.04.x'
 
     steps:
       - uses: actions/checkout@v3
