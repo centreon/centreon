@@ -42,6 +42,7 @@ jobs:
           git add .
           git commit -m "chore: release ${{ env.VERSION }}"
           git tag ${VERSION}
+          git checkout "https://$GITHUB_ACTOR:${{ secrets.GITHUB_TOKEN }}@github.com/${{ env.github_repository }}.git" origin dev-22.04.x
           git pull "https://$GITHUB_ACTOR:${{ secrets.GITHUB_TOKEN }}@github.com/${{ env.github_repository }}.git" origin/dev-22.04.x
           git push "https://$GITHUB_ACTOR:${{ secrets.GITHUB_TOKEN }}@github.com/${{ env.github_repository }}.git" origin/dev-22.04.x --follow-tags
           git push "https://$GITHUB_ACTOR:${{ secrets.GITHUB_TOKEN }}@github.com/${{ env.github_repository }}.git" origin/dev-22.04.x --tags
