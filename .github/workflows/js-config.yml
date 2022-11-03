@@ -42,10 +42,12 @@ jobs:
           git add .
           git commit -m "chore: release ${{ env.VERSION }}"
           git tag ${VERSION}
-          git pull origin/dev-22.04.x
-          git push "https://$GITHUB_ACTOR:${{ secrets.GITHUB_TOKEN }}@github.com/${{ env.github_repository }}.git" origin/dev-22.04.x --follow-tags
-          git push "https://$GITHUB_ACTOR:${{ secrets.GITHUB_TOKEN }}@github.com/${{ env.github_repository }}.git" origin/dev-22.04.x --tags
         working-directory: ${{ env.directory }}
+
+      - name: Push changes to repository
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: git push origin dev-22.04.x && git push --tags
 
       - uses: JS-DevTools/npm-publish@v1
         with:
