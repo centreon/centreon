@@ -12,8 +12,6 @@ on:
     paths:
       - ".github/workflows/ui.yml"
       - "centreon/packages/ui-context/**"
-    tags-ignore:
-      - ui-context-*
 
 env:
   version: "22.04"
