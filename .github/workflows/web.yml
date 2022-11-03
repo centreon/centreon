@@ -27,7 +27,6 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
-      frontend: ${{ steps.filter.outputs.backend }}
     steps:
       - uses: dorny/paths-filter@v2
         id: filter
@@ -38,7 +37,6 @@ jobs:
 
   frontend-build:
     runs-on: ubuntu-22.04
-    needs: changes
 
     steps:
       - uses: actions/checkout@v3
@@ -51,22 +49,8 @@ jobs:
           index_cache_key: ${{ github.sha }}-${{ github.run_id }}-index
           static_cache_key: ${{ github.sha }}-${{ github.run_id }}-static
 
-  backend-dependencies:
-    runs-on: ubuntu-22.04
-    needs: changes
-    if: ${{ needs.changes.outputs.backend == 'true' }}
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: ./.github/actions/backend-dependencies
-        with:
-          base_directory: ${{ env.base_directory }}
-          cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
-
   frontend-lint:
     runs-on: ubuntu-22.04
-    if: ${{ needs.changes.outputs.backend == 'true' }}
 
     steps:
       - uses: actions/setup-node@v3
@@ -92,7 +76,6 @@ jobs:
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
-    if: ${{ needs.changes.outputs.backend == 'true' }}
 
     steps:
       - uses: actions/setup-node@v3
@@ -119,7 +102,6 @@ jobs:
 
   frontend-component-test:
     runs-on: ubuntu-22.04
-    if: ${{ needs.changes.outputs.backend == 'true' }}
 
     steps:
       - name: Checkout sources
@@ -128,6 +110,19 @@ jobs:
       - uses: ./.github/actions/web-frontend-component-test
         with:
           working_directory: centreon
+
+  backend-dependencies:
+    runs-on: ubuntu-22.04
+    needs: changes
+    if: ${{ needs.changes.outputs.backend == 'true' }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: ./.github/actions/backend-dependencies
+        with:
+          base_directory: ${{ env.base_directory }}
+          cache_key: ${{ github.sha }}-${{ github.run_id }}-vendor
 
   backend-unit-test:
     runs-on: ubuntu-22.04
@@ -338,7 +333,7 @@ jobs:
           path: centreon/lighthouse/report/lighthouseci-index.html
 
   api-integration-test:
-    needs: [dockerize, changes]
+    needs: [dockerize]
     if: ${{ needs.changes.outputs.backend == 'true' }}
 
     uses: ./.github/workflows/behat-test.yml
