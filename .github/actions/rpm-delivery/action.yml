@@ -62,7 +62,6 @@ runs:
         esac
 
         FILES="*.rpm";
-        DELIMITER="-"
         echo "[DEBUG] - Repo: $REPO"
         echo "[DEBUG] - Rpm FILES: $FILES"
 
@@ -77,7 +76,6 @@ runs:
           echo "[DEBUG] - Version: $VERSION"
           echo "[DEBUG] - Distrib: $DISTRIB"
           echo "[DEBUG] - Arch: $ARCH"
-          echo "[DEBUG] - Delimiter: $DELIMITER"
 
           curl -v -u ${{ inputs.nexus_username }}:${{ inputs.nexus_password }} -X PUT "https://artifactory.apps.centreon.com/artifactory/rpm-$VERSION$REPO/$DISTRIB/$REPO/$ARCH" -T "$FILE"
 
