@@ -12,8 +12,8 @@ on:
     paths:
       - ".github/workflows/js-config.yml"
       - "centreon/packages/js-config/**"
-    tags:
-      - centreon-frontend-22.10.**
+    tags-ignore:
+      - js-config-*
 
 env:
   version: "22.10"
@@ -23,6 +23,7 @@ env:
 jobs:
   deliver-npm:
     runs-on: ubuntu-22.04
+    if: github.ref == 'refs/heads/develop'
 
     steps:
       - uses: actions/checkout@v3
@@ -30,6 +31,24 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 17
+
+      - name: Update JS config version
+        run: |
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+          git config user.name "$GITHUB_ACTOR"
+          git config pull.rebase false
+          npm version patch -m "js-config-%s" --legacy-peer-deps
+          VERSION=js-config-$(node -p "require('./package.json').version")
+          git pull
+          git add .
+          git commit -m "chore: release ${VERSION}"
+          git tag ${VERSION}
+        working-directory: ${{ env.directory }}
+
+      - name: Push changes to repository
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: git push origin develop && git push --tags
 
       - uses: JS-DevTools/npm-publish@v1
         with:
