@@ -29,12 +29,12 @@ jobs:
       backend: ${{ steps.filter.outputs.backend }}
       frontend: ${{ steps.filter.outputs.backend }}
     steps:
-    - uses: dorny/paths-filter@v2
-      id: filter
-      with:
-        filters: |
-          backend:
-            - '!(**/*.[jt]sx?|**/front_src/**|**/tests/e2e/**|**/package*|**/lighthouse/**|**/tsconfig.json)''
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            backend:
+              - '!(**/*.[jt]sx?|**/front_src/**|**/tests/e2e/**|**/package*|**/lighthouse/**|**/tsconfig.json)'
 
   frontend-build:
     runs-on: ubuntu-22.04
@@ -56,7 +56,6 @@ jobs:
     needs: changes
     if: ${{ needs.changes.outputs.backend == 'true' }}
 
-
     steps:
       - uses: actions/checkout@v3
 
@@ -68,7 +67,6 @@ jobs:
   frontend-lint:
     runs-on: ubuntu-22.04
     if: ${{ needs.changes.outputs.backend == 'true' }}
-
 
     steps:
       - uses: actions/setup-node@v3
@@ -95,7 +93,6 @@ jobs:
   frontend-unit-test:
     runs-on: ubuntu-22.04
     if: ${{ needs.changes.outputs.backend == 'true' }}
-
 
     steps:
       - uses: actions/setup-node@v3
@@ -127,7 +124,7 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
-        
+
       - uses: ./.github/actions/web-frontend-component-test
         with:
           working_directory: centreon
@@ -175,7 +172,7 @@ jobs:
         frontend-build,
         frontend-lint,
         frontend-unit-test,
-        frontend-component-test
+        frontend-component-test,
       ]
 
     strategy:
