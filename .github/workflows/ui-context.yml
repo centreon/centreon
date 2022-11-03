@@ -48,6 +48,7 @@ jobs:
           path: ${{ env.directory }}/checkstyle.xml
 
   deliver-npm:
+    if: github.ref == 'refs/heads/dev-22.04.x'
     runs-on: ubuntu-22.04
     needs: [lint]
 
