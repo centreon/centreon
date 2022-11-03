@@ -27,28 +27,18 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       backend: ${{ steps.filter.outputs.backend }}
-      frontend: ${{ steps.filter.outputs.frontend }}
+      frontend: ${{ steps.filter.outputs.backend }}
     steps:
     - uses: dorny/paths-filter@v2
       id: filter
       with:
         filters: |
-          frontend: &frontend
-            - centreon/www/front_src/**
-            - centreon/tests/e2e/**
-            - centreon/lighthouse/**
-            - centreon/package*
-            - centreon/*.js
-            - centreon/*.ts
-            - centreon/tsconfig.json
           backend:
-            - !*frontend
+            - !(**/*.[jt]sx?|**/front_src/**|**/tests/e2e/**|**/package*|**/lighthouse/**|**/tsconfig.json)'
 
   frontend-build:
     runs-on: ubuntu-22.04
     needs: changes
-    if: ${{ needs.changes.outputs.frontend == 'true' }}
-
 
     steps:
       - uses: actions/checkout@v3
@@ -63,6 +53,9 @@ jobs:
 
   backend-dependencies:
     runs-on: ubuntu-22.04
+    needs: changes
+    if: ${{ needs.changes.outputs.backend == 'true' }}
+
 
     steps:
       - uses: actions/checkout@v3
@@ -74,7 +67,7 @@ jobs:
 
   frontend-lint:
     runs-on: ubuntu-22.04
-    if: ${{ needs.changes.outputs.frontend == 'true' }}
+    if: ${{ needs.changes.outputs.backend == 'true' }}
 
 
     steps:
@@ -101,7 +94,7 @@ jobs:
 
   frontend-unit-test:
     runs-on: ubuntu-22.04
-    if: ${{ needs.changes.outputs.frontend == 'true' }}
+    if: ${{ needs.changes.outputs.backend == 'true' }}
 
 
     steps:
@@ -129,7 +122,7 @@ jobs:
 
   frontend-component-test:
     runs-on: ubuntu-22.04
-    if: ${{ needs.changes.outputs.frontend == 'true' }}
+    if: ${{ needs.changes.outputs.backend == 'true' }}
 
     steps:
       - name: Checkout sources
@@ -141,6 +134,8 @@ jobs:
 
   backend-unit-test:
     runs-on: ubuntu-22.04
+    needs: changes
+    if: ${{ needs.changes.outputs.backend == 'true' }}
 
     steps:
       - uses: actions/checkout@v3
@@ -346,7 +341,9 @@ jobs:
           path: centreon/lighthouse/report/lighthouseci-index.html
 
   api-integration-test:
-    needs: [dockerize]
+    needs: [dockerize, changes]
+    if: ${{ needs.changes.outputs.backend == 'true' }}
+
     uses: ./.github/workflows/behat-test.yml
     with:
       name: api
@@ -361,6 +358,8 @@ jobs:
 
   legacy-e2e-test:
     needs: [api-integration-test]
+    if: ${{ needs.changes.outputs.backend == 'true' }}
+
     uses: ./.github/workflows/behat-test.yml
     with:
       name: e2e
