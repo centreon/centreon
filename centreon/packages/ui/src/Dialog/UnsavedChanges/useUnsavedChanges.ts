@@ -66,7 +66,7 @@ const useUnsavedChanges = ({ isValidForm }: Props): UseUnsavedChanges => {
     savePanelChanges,
     setPanelSubmitForm,
     setUnsavedDialogOpened,
-    unsavedDialogOpened,
+    unsavedDialogOpened
   };
 };
 

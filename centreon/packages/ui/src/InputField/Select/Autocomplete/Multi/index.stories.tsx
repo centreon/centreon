@@ -9,7 +9,7 @@ export default { title: 'InputField/Autocomplete/Multi' };
 const options = [
   { id: 0, name: 'First Entity' },
   { id: 1, name: 'Second Entity' },
-  { id: 2, name: 'Third Entity' },
+  { id: 2, name: 'Third Entity' }
 ];
 
 export const openWithThreeOptions = (): JSX.Element => {

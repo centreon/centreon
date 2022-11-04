@@ -26,37 +26,37 @@ const panels = [
     Component: LocalAuthentication,
     image: passwordPadlockLogo,
     title: labelPasswordSecurityPolicy,
-    value: Provider.Local,
+    value: Provider.Local
   },
   {
     Component: OpenidConfiguration,
     image: providerPadlockLogo,
     title: labelOpenIDConnectConfiguration,
-    value: Provider.Openid,
+    value: Provider.Openid
   },
   {
     Component: WebSSOConfigurationForm,
     image: providerPadlockLogo,
     title: labelWebSSOConfiguration,
-    value: Provider.WebSSO,
-  },
+    value: Provider.WebSSO
+  }
 ];
 
 const useStyles = makeStyles((theme) => ({
   box: {
-    overflowY: 'hidden',
+    overflowY: 'hidden'
   },
   container: {
     maxHeight: `calc(100vh - ${theme.spacing(12)})`,
     maxWidth: theme.spacing(125),
-    overflowY: 'hidden',
+    overflowY: 'hidden'
   },
   formContainer: {
     display: 'grid',
     gridTemplateColumns: '1.2fr 0.6fr',
     justifyItems: 'center',
     overflowY: 'hidden',
-    padding: theme.spacing(3),
+    padding: theme.spacing(3)
   },
   image: {
     height: '200px',
@@ -64,15 +64,15 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(0, 5),
     position: 'sticky',
     top: 0,
-    width: '200px',
+    width: '200px'
   },
   panel: {
     overflowY: 'auto',
-    padding: 0,
+    padding: 0
   },
   tabList: {
-    boxShadow: theme.shadows[2],
-  },
+    boxShadow: theme.shadows[2]
+  }
 }));
 
 const scrollMargin = 8;
@@ -116,7 +116,7 @@ const Authentication = (): JSX.Element => {
       panels.map(({ title, value }) => (
         <Tab key={value} label={t(title)} value={value} />
       )),
-    [],
+    []
   );
 
   const tabPanels = useMemo(
@@ -127,7 +127,7 @@ const Authentication = (): JSX.Element => {
             ref={formContainerRef}
             sx={{
               height: `${formContainerHeight}px`,
-              overflowY: 'auto',
+              overflowY: 'auto'
             }}
           >
             <div className={classes.formContainer}>
@@ -137,7 +137,7 @@ const Authentication = (): JSX.Element => {
           </Box>
         </TabPanel>
       )),
-    [themeMode, formContainerHeight],
+    [themeMode, formContainerHeight]
   );
 
   return (

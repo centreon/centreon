@@ -29,7 +29,7 @@ const SortableListContent = ({
   classes,
   itemHover,
   itemClick,
-  deleteValue,
+  deleteValue
 }: Props): ((props: ContentProps) => JSX.Element) => {
   const Content = ({
     attributes,
@@ -40,7 +40,7 @@ const SortableListContent = ({
     style,
     itemRef,
     index,
-    isDragging,
+    isDragging
   }: ContentProps): JSX.Element => {
     const theme = useTheme();
     const labelItemRef = React.useRef<HTMLElement | null>(null);
@@ -62,7 +62,7 @@ const SortableListContent = ({
       itemHover?.({
         anchorElement: labelItemRef.current,
         index,
-        item: { createOption, id, name },
+        item: { createOption, id, name }
       });
 
     const deleteItem = (): void => deleteValue(id);
@@ -86,7 +86,7 @@ const SortableListContent = ({
           }
           size="small"
           style={{
-            backgroundColor: isDragging ? theme.palette.grey[300] : undefined,
+            backgroundColor: isDragging ? theme.palette.grey[300] : undefined
           }}
           onDelete={deleteItem}
           onMouseEnter={mouseEnter}

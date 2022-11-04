@@ -1,7 +1,7 @@
 /* eslint-disable array-callback-return */
 /* eslint-disable consistent-return */
 const config = {
-  story: null,
+  story: null
 };
 const argv = process.argv.slice(0, 2);
 

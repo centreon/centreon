@@ -8,13 +8,13 @@ import { Group, InputProps } from './Inputs/models';
 
 const useStyles = makeStyles()((theme) => ({
   formContainer: {
-    margin: theme.spacing(2, 0, 0),
-  },
+    margin: theme.spacing(2, 0, 0)
+  }
 }));
 
 export enum GroupDirection {
   Horizontal = 'horizontal',
-  Vertical = 'vertical',
+  Vertical = 'vertical'
 }
 
 interface Props<T> {
@@ -40,7 +40,7 @@ const Form = <T extends object>({
   Buttons = FormButtons,
   isLoading = false,
   isCollapsible = false,
-  groupDirection = GroupDirection.Vertical,
+  groupDirection = GroupDirection.Vertical
 }: Props<T>): JSX.Element => {
   const { classes } = useStyles();
 

@@ -9,7 +9,7 @@ import {
   InputAdornment,
   Autocomplete,
   AutocompleteProps,
-  useTheme,
+  useTheme
 } from '@mui/material';
 import { autocompleteClasses } from '@mui/material/Autocomplete';
 import { UseAutocompleteProps } from '@mui/material/useAutocomplete';
@@ -48,16 +48,16 @@ const textfieldHeight = (hideInput?: boolean): number | undefined =>
 const useStyles = makeStyles<StyledProps>()((theme, { hideInput }) => ({
   input: {
     '&:after': {
-      borderBottom: 0,
+      borderBottom: 0
     },
     '&:before': {
       borderBottom: 0,
-      content: 'unset',
+      content: 'unset'
     },
     '&:hover:before': {
-      borderBottom: 0,
+      borderBottom: 0
     },
-    height: textfieldHeight(hideInput),
+    height: textfieldHeight(hideInput)
   },
 
   inputLabel: {
@@ -67,35 +67,35 @@ const useStyles = makeStyles<StyledProps>()((theme, { hideInput }) => ({
       overflow: 'hidden',
       textOverflow: 'ellipsis',
       transform: 'translate(12px, 14px) scale(1)',
-      whiteSpace: 'nowrap',
-    },
+      whiteSpace: 'nowrap'
+    }
   },
   inputLabelShrink: {
     '&&': {
-      maxWidth: '90%',
-    },
+      maxWidth: '90%'
+    }
   },
   inputWithLabel: {
     '&[class*="MuiFilledInput-root"]': {
-      paddingTop: theme.spacing(2),
+      paddingTop: theme.spacing(2)
     },
-    paddingTop: theme.spacing(1),
+    paddingTop: theme.spacing(1)
   },
   inputWithoutLabel: {
     '&[class*="MuiFilledInput-root"][class*="MuiFilledInput-marginDense"]': {
       paddingBottom: hideInput ? 0 : theme.spacing(0.75),
       paddingRight: hideInput ? 0 : theme.spacing(1),
-      paddingTop: hideInput ? 0 : theme.spacing(0.75),
-    },
+      paddingTop: hideInput ? 0 : theme.spacing(0.75)
+    }
   },
   loadingIndicator: {
-    textAlign: 'center',
+    textAlign: 'center'
   },
   options: {
     alignItems: 'center',
     display: 'grid',
     gridAutoFlow: 'column',
-    gridGap: theme.spacing(1),
+    gridGap: theme.spacing(1)
   },
   popper: {
     [`& .${autocompleteClasses.listbox}`]: {
@@ -107,17 +107,17 @@ const useStyles = makeStyles<StyledProps>()((theme, { hideInput }) => ({
             : theme.palette.primary.light,
           color: equals(theme.palette.mode, ThemeMode.dark)
             ? theme.palette.common.white
-            : theme.palette.primary.main,
-        },
+            : theme.palette.primary.main
+        }
       },
-      padding: 0,
+      padding: 0
     },
-    zIndex: theme.zIndex.tooltip + 1,
+    zIndex: theme.zIndex.tooltip + 1
   },
   textfield: {
     height: textfieldHeight(hideInput),
-    visibility: hideInput ? 'hidden' : 'visible',
-  },
+    visibility: hideInput ? 'hidden' : 'visible'
+  }
 }));
 
 const LoadingIndicator = (): JSX.Element => {
@@ -159,7 +159,7 @@ const AutocompleteField = ({
 
     return equals(
       pick(identifyingProps, option),
-      pick(identifyingProps, value),
+      pick(identifyingProps, value)
     );
   };
 
@@ -169,8 +169,8 @@ const AutocompleteField = ({
       InputLabelProps={{
         classes: {
           marginDense: classes.inputLabel,
-          shrink: classes.inputLabelShrink,
-        },
+          shrink: classes.inputLabelShrink
+        }
       }}
       InputProps={{
         ...params.InputProps,
@@ -184,17 +184,17 @@ const AutocompleteField = ({
           </>
         ),
         style: {
-          paddingRight: theme.spacing(5),
-        },
+          paddingRight: theme.spacing(5)
+        }
       }}
       autoFocus={autoFocus}
       classes={{
-        root: classes.textfield,
+        root: classes.textfield
       }}
       error={error}
       inputProps={{
         ...params.inputProps,
-        'aria-label': label,
+        'aria-label': label
       }}
       label={label}
       placeholder={isNil(placeholder) ? t(searchLabel) : placeholder}
@@ -211,10 +211,10 @@ const AutocompleteField = ({
         groupLabel: classes.inputLabel,
         inputRoot: cx([
           classes.input,
-          label ? classes.inputWithLabel : classes.inputWithoutLabel,
+          label ? classes.inputWithLabel : classes.inputWithoutLabel
         ]),
         popper: classes.popper,
-        root: classes.textfield,
+        root: classes.textfield
       }}
       forcePopupIcon={displayPopupIcon}
       getOptionLabel={(option): string =>

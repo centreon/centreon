@@ -9,8 +9,8 @@ const useStyles = makeStyles()(() => ({
     minHeight: minTabHeight,
     minWidth: 'unset',
     paddingBottom: 0,
-    paddingTop: 0,
-  },
+    paddingTop: 0
+  }
 }));
 
 const Tab = (props: TabProps): JSX.Element => {

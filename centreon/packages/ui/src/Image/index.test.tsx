@@ -16,7 +16,7 @@ const renderImage = (): RenderResult =>
         fallback={<p>Loading...</p>}
         imagePath={CentreonLogoLight}
       />
-    </Provider>,
+    </Provider>
   );
 
 const renderNotFoundImage = (): RenderResult =>
@@ -27,7 +27,7 @@ const renderNotFoundImage = (): RenderResult =>
         fallback={<p>Loading...</p>}
         imagePath="another_image"
       />
-    </Provider>,
+    </Provider>
   );
 
 describe('useLoadImage', () => {

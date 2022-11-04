@@ -17,10 +17,10 @@ const useStyles = makeStyles()((theme) => ({
   logo: {
     alignSelf: 'flex-end',
     height: theme.spacing(11),
-    width: '22rem',
+    width: '22rem'
   },
   message: {
-    color: theme.palette.text.primary,
+    color: theme.palette.text.primary
   },
   messageBlock: {
     alignContent: 'center',
@@ -31,7 +31,7 @@ const useStyles = makeStyles()((theme) => ({
     justifyContent: 'center',
     maxWidth: '40%',
     overflow: 'visible',
-    textAlign: 'center',
+    textAlign: 'center'
   },
   notAuthorizedContainer: {
     alignItems: 'center',
@@ -40,13 +40,13 @@ const useStyles = makeStyles()((theme) => ({
     height: '100%',
     justifyItems: 'center',
     position: 'relative',
-    width: '100%',
+    width: '100%'
   },
   wallpaper: {
     height: '100%',
     position: 'absolute',
-    width: '100%',
-  },
+    width: '100%'
+  }
 }));
 
 interface FallbackPageProps {
@@ -95,7 +95,7 @@ export const FallbackPage: FC<FallbackPageProps> = typedMemo(
       </div>
     );
   },
-  equals,
+  equals
 );
 
 FallbackPage.displayName = 'FallbackPage';

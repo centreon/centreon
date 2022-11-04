@@ -10,7 +10,7 @@ import makeStyles from '@mui/styles/makeStyles';
 import ShortTypeChip from '../../../ShortTypeChip';
 import {
   selectedResourcesDetailsAtom,
-  selectResourceDerivedAtom,
+  selectResourceDerivedAtom
 } from '../../detailsAtoms';
 import Card from '../Details/Card';
 import SelectableResourceName from '../Details/SelectableResourceName';
@@ -24,24 +24,24 @@ const useStyles = makeStyles((theme) => ({
     gridColumnGap: theme.spacing(2),
     gridTemplateColumns: '1fr 1fr auto',
     justifyItems: 'flex-start',
-    width: '100%',
+    width: '100%'
   },
   container: {
     display: 'grid',
-    gridGap: theme.spacing(1),
+    gridGap: theme.spacing(1)
   },
   iconValuePair: {
     alignItems: 'center',
     display: 'flex',
     flexDirection: 'row',
-    gridGap: theme.spacing(1),
+    gridGap: theme.spacing(1)
   },
   resources: {
     display: 'flex',
     flexDirection: 'column',
     gridGap: theme.spacing(1),
-    overflow: 'hidden',
-  },
+    overflow: 'hidden'
+  }
 }));
 
 interface Props {
@@ -54,7 +54,7 @@ const Metrics = ({ infiniteScrollTriggerRef, metrics }: Props): JSX.Element => {
 
   const selectResource = useUpdateAtom(selectResourceDerivedAtom);
   const setSelectedResourceDetails = useUpdateAtom(
-    selectedResourcesDetailsAtom,
+    selectedResourcesDetailsAtom
   );
 
   return (
@@ -87,7 +87,7 @@ const Metrics = ({ infiniteScrollTriggerRef, metrics }: Props): JSX.Element => {
                       setSelectedResourceDetails({
                         resourceId: resource.id,
                         resourcesDetailsEndpoint:
-                          resource.links?.endpoints?.details,
+                          resource.links?.endpoints?.details
                       })
                     }
                   />
