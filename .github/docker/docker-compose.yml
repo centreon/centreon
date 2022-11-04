@@ -1,4 +1,4 @@
-version: '2'
+version: "2"
 services:
   web:
     image: "@WEB_IMAGE@"
@@ -46,6 +46,6 @@ services:
     profiles: ["mediawiki"]
 
   influxdb:
-    image: registry-docker.centreon.com/docker-global/influxdb:latest
+    image: registry-docker.centreon.com/docker-global/influxdb:centreon
     ports: ["8083", "8086"]
     profiles: ["influxdb"]
