@@ -63,10 +63,6 @@ default:
       paths: [ "%paths.base%/features/DisableFieldsOnBlockedObjects.feature" ]
       contexts: [ DisableFieldsOnBlockedObjectsContext ]
 
-    backup:
-      paths: [ "%paths.base%/features/Backup.feature" ]
-      contexts: [ BackupContext ]
-
     meta_services_api:
       paths: [ "%paths.base%/features/MetaServicesApi.feature" ]
       contexts: [ MetaServicesApiContext ]
