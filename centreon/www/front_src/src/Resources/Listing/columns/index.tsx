@@ -52,7 +52,6 @@ const useStyles = makeStyles<Theme, StyleProps>((theme) => ({
     padding: theme.spacing(0, 0.5),
   },
   resourceNameItem: {
-    lineHeight: 1,
     marginLeft: theme.spacing(1),
     whiteSpace: 'nowrap',
   },
@@ -60,7 +59,6 @@ const useStyles = makeStyles<Theme, StyleProps>((theme) => ({
     color: isHovered
       ? theme.palette.text.primary
       : theme.palette.text.secondary,
-    lineHeight: 1,
   }),
 }));
 

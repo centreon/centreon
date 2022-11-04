@@ -1,11 +1,11 @@
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 
-import { ListingModel, useRequest } from '@centreon/ui';
+import { useRequest, ListingModel } from '@centreon/ui';
 
 import { listResources } from '../../../Listing/api';
 import { Resource } from '../../../models';
-import { detailsAtom, selectedResourcesDetailsAtom } from '../../detailsAtoms';
 import InfiniteScroll from '../../InfiniteScroll';
+import { detailsAtom, selectResourceDerivedAtom } from '../../detailsAtoms';
 
 import ServiceList from './List';
 import LoadingSkeleton from './LoadingSkeleton';
@@ -16,10 +16,7 @@ const ServicesTab = (): JSX.Element => {
   });
 
   const details = useAtomValue(detailsAtom);
-
-  const setSelectedResourceDetails = useUpdateAtom(
-    selectedResourcesDetailsAtom,
-  );
+  const selectResource = useUpdateAtom(selectResourceDerivedAtom);
 
   const limit = 30;
 
@@ -59,7 +56,7 @@ const ServicesTab = (): JSX.Element => {
           <ServiceList
             infiniteScrollTriggerRef={infiniteScrollTriggerRef}
             services={entities}
-            onSelectService={setSelectedResourceDetails}
+            onSelectService={selectResource}
           />
         );
       }}

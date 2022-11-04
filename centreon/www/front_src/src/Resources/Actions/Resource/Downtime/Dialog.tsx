@@ -151,7 +151,6 @@ const DialogDowntime = ({
             gridTemplateColumns="1fr auto 1fr"
           >
             <DateTimePicker<dayjs.Dayjs>
-              disableMaskedInput
               maxDate={dayjs(maxEndDate)}
               renderInput={renderDateTimePickerTextField(t(labelStartTime))}
               value={values.startTime}
@@ -161,7 +160,6 @@ const DialogDowntime = ({
             />
             <FormHelperText>{t(labelTo)}</FormHelperText>
             <DateTimePicker<dayjs.Dayjs>
-              disableMaskedInput
               renderInput={renderDateTimePickerTextField(t(labelEndTime))}
               value={values.endTime}
               onChange={changeTime('endTime')}

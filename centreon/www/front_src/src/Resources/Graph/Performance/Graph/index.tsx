@@ -1,44 +1,47 @@
 import { memo, MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
 
+import { AddSVGProps } from '@visx/shape/lib/types';
 import {
-  equals,
-  isNil,
-  identity,
-  min,
-  max,
-  not,
-  lt,
-  gte,
-  difference,
-  lte,
-  length,
-} from 'ramda';
-import {
-  Shape,
-  Grid,
-  Scale,
-  Group,
-  Tooltip as VisxTooltip,
   Event,
+  Grid,
+  Group,
+  Scale,
+  Shape,
+  Tooltip as VisxTooltip,
 } from '@visx/visx';
 import { bisector } from 'd3-array';
 import { ScaleLinear } from 'd3-scale';
-import { useTranslation } from 'react-i18next';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
+import {
+  difference,
+  equals,
+  gte,
+  identity,
+  isNil,
+  length,
+  lt,
+  lte,
+  max,
+  min,
+  not,
+  pick,
+  values,
+} from 'ramda';
+import { useTranslation } from 'react-i18next';
 
 import {
+  alpha,
   Button,
+  CircularProgress,
   ClickAwayListener,
   Paper,
-  Typography,
   Theme,
-  alpha,
-  useTheme,
-  CircularProgress,
   Tooltip,
+  Typography,
+  useTheme,
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import { grey } from '@mui/material/colors';
+import makeStyles from '@mui/styles/makeStyles';
 
 import {
   dateTimeFormat,
@@ -46,56 +49,76 @@ import {
   useMemoComponent,
 } from '@centreon/ui';
 
-import AnomalyDetectionEnvelopeThreshold from '../AnomalyDetection/AnomalyDetectionEnvelopeThreshold';
-import { TimeValue, Line as LineModel, AdjustTimePeriodProps } from '../models';
-import {
-  getTime,
-  getMin,
-  getMax,
-  getDates,
-  getUnits,
-  getMetricValuesForUnit,
-  getMetricValuesForLines,
-  getSortedStackedLines,
-  getStackedMetricValues,
-  hasUnitStackedLines,
-} from '../timeSeries';
-import Lines from '../Lines';
+import { CommentParameters } from '../../../Actions/api';
+import useAclQuery from '../../../Actions/Resource/aclQuery';
+import { ResourceDetails } from '../../../Details/models';
+import { TimelineEvent } from '../../../Details/tabs/Timeline/models';
+import { Resource } from '../../../models';
 import {
   labelActionNotPermitted,
   labelAddComment,
 } from '../../../translatedLabels';
-import { TimelineEvent } from '../../../Details/tabs/Timeline/models';
-import { Resource, ResourceType } from '../../../models';
-import { ResourceDetails } from '../../../Details/models';
-import { CommentParameters } from '../../../Actions/api';
-import useAclQuery from '../../../Actions/Resource/aclQuery';
-import memoizeComponent from '../../../memoizedComponent';
-import { CustomFactorsData } from '../AnomalyDetection/models';
+import Lines from '../Lines';
+import {
+  AdditionalDataProps,
+  AdjustTimePeriodProps,
+  GetDisplayAdditionalLinesConditionProps,
+  Line as LineModel,
+  TimeValue,
+} from '../models';
+import {
+  getDates,
+  getMax,
+  getMetricValuesForLines,
+  getMetricValuesForUnit,
+  getMin,
+  getSortedStackedLines,
+  getStackedMetricValues,
+  getTime,
+  getUnits,
+  hasUnitStackedLines,
+} from '../timeSeries';
 
 import AddCommentForm from './AddCommentForm';
 import Annotations from './Annotations';
+import {
+  annotationHoveredAtom,
+  changeAnnotationHoveredDerivedAtom,
+} from './annotationsAtoms';
 import Axes from './Axes';
-import TimeShiftZones, {
-  TimeShiftContext,
-  TimeShiftDirection,
-} from './TimeShiftZones';
 import {
   changeMousePositionAndTimeValueDerivedAtom,
   changeTimeValueDerivedAtom,
   MousePosition,
   mousePositionAtom,
 } from './mouseTimeValueAtoms';
-import {
-  annotationHoveredAtom,
-  changeAnnotationHoveredDerivedAtom,
-} from './annotationsAtoms';
+import TimeShiftZones, {
+  TimeShiftContext,
+  TimeShiftDirection,
+} from './TimeShiftZones';
+
+interface BarProps {
+  className?: string;
+  innerRef?: React.Ref<SVGRectElement>;
+  open: boolean;
+}
+
+const Bar = ({
+  open,
+  ...restProps
+}: AddSVGProps<BarProps, SVGRectElement>): JSX.Element | null => {
+  if (!open) {
+    return null;
+  }
+
+  return <Shape.Bar {...restProps} />;
+};
 
 const propsAreEqual = (prevProps, nextProps): boolean =>
   equals(prevProps, nextProps);
 
 const MemoizedAxes = memo(Axes, propsAreEqual);
-const MemoizedBar = memo(Shape.Bar, propsAreEqual);
+const MemoizedBar = memo(Bar, propsAreEqual);
 const MemoizedGridColumns = memo(Grid.GridColumns, propsAreEqual);
 const MemoizedGridRows = memo(Grid.GridRows, propsAreEqual);
 const MemoizedLines = memo(Lines, propsAreEqual);
@@ -195,14 +218,14 @@ interface GraphContentProps {
   displayEventAnnotations: boolean;
   displayTimeValues: boolean;
   format: (parameters) => string;
+  getDisplayAdditionalLinesCondition?: GetDisplayAdditionalLinesConditionProps;
   height: number;
   hideAddCommentTooltip: () => void;
-  isEditAnomalyDetectionDataDialogOpen?: boolean;
+  interactWithGraph: boolean;
   isInViewport?: boolean;
   lines: Array<LineModel>;
   loading: boolean;
   onAddComment?: (commentParameters: CommentParameters) => void;
-  resizeEnvelopeData?: CustomFactorsData;
   resource: Resource | ResourceDetails;
   shiftTime?: (direction: TimeShiftDirection) => void;
   showAddCommentTooltip: (args) => void;
@@ -213,12 +236,12 @@ interface GraphContentProps {
 }
 
 const getScale = ({
-  values,
+  graphValues,
   height,
   stackedValues,
 }): ScaleLinear<number, number> => {
-  const minValue = min(getMin(values), getMin(stackedValues));
-  const maxValue = max(getMax(values), getMax(stackedValues));
+  const minValue = min(getMin(graphValues), getMin(stackedValues));
+  const maxValue = max(getMax(graphValues), getMax(stackedValues));
 
   const upperRangeValue = minValue === maxValue && maxValue === 0 ? height : 0;
 
@@ -231,7 +254,7 @@ const getScale = ({
 
 export const bisectDate = bisector(identity).center;
 
-const GraphContent = ({
+const GraphContent = <T,>({
   width,
   height,
   timeSeries,
@@ -254,12 +277,14 @@ const GraphContent = ({
   displayEventAnnotations,
   containsMetrics,
   isInViewport,
-  isEditAnomalyDetectionDataDialogOpen,
+  interactWithGraph,
   displayTimeValues,
-  resizeEnvelopeData,
-}: GraphContentProps): JSX.Element => {
+  additionalData,
+  getDisplayAdditionalLinesCondition,
+}: GraphContentProps & AdditionalDataProps<T>): JSX.Element => {
   const classes = useStyles({ onAddComment });
   const { t } = useTranslation();
+  const theme = useTheme();
 
   const [addingComment, setAddingComment] = useState(false);
   const [commentDate, setCommentDate] = useState<Date>();
@@ -280,8 +305,6 @@ const GraphContent = ({
   const changeAnnotationHovered = useUpdateAtom(
     changeAnnotationHoveredDerivedAtom,
   );
-
-  const theme = useTheme();
 
   const graphWidth = width > 0 ? width - margin.left - margin.right : 0;
   const graphHeight = height > 0 ? height - margin.top - margin.bottom : 0;
@@ -325,7 +348,7 @@ const GraphContent = ({
   const [firstUnit, secondUnit, thirdUnit] = getUnits(lines);
 
   const leftScale = useMemo(() => {
-    const values = isNil(thirdUnit)
+    const graphValues = isNil(thirdUnit)
       ? getMetricValuesForUnit({ lines, timeSeries, unit: firstUnit })
       : getMetricValuesForLines({ lines, timeSeries });
 
@@ -341,11 +364,11 @@ const GraphContent = ({
         })
       : [0];
 
-    return getScale({ height: graphHeight, stackedValues, values });
+    return getScale({ graphValues, height: graphHeight, stackedValues });
   }, [timeSeries, lines, firstUnit, graphHeight]);
 
   const rightScale = useMemo(() => {
-    const values = getMetricValuesForUnit({
+    const graphValues = getMetricValuesForUnit({
       lines,
       timeSeries,
       unit: secondUnit,
@@ -362,7 +385,7 @@ const GraphContent = ({
         })
       : [0];
 
-    return getScale({ height: graphHeight, stackedValues, values });
+    return getScale({ graphValues, height: graphHeight, stackedValues });
   }, [timeSeries, lines, secondUnit, graphHeight]);
 
   const getTimeValue = (x: number): TimeValue => {
@@ -514,13 +537,18 @@ const GraphContent = ({
 
   const isLegendClicked = lte(length(lines), 1);
 
-  const isDisplayedThreshold =
-    equals(resource?.type, ResourceType.anomalydetection) && !isLegendClicked;
+  const displayAdditionalLinesCondition =
+    getDisplayAdditionalLinesCondition?.condition(resource) || false;
 
-  const thresholdProps = {
+  const displayAdditionalLines =
+    displayAdditionalLinesCondition || !isLegendClicked;
+
+  const additionalLinesProps = {
+    displayAdditionalLines,
     getTime,
     graphHeight,
     leftScale,
+    lines,
     regularLines,
     rightScale,
     secondUnit,
@@ -558,9 +586,6 @@ const GraphContent = ({
               base={base}
               graphHeight={graphHeight}
               graphWidth={graphWidth}
-              isEditAnomalyDetectionDataDialogOpen={
-                isEditAnomalyDetectionDataDialogOpen
-              }
               leftScale={leftScale}
               lines={lines}
               rightScale={rightScale}
@@ -568,32 +593,22 @@ const GraphContent = ({
               xScale={xScale}
             />
             <MemoizedLines
-              anomalyDetectionEnvelope={
-                isDisplayedThreshold && (
-                  <AnomalyDetectionEnvelopeThreshold {...thresholdProps} />
-                )
-              }
-              anomalyDetectionResizeEnvelope={
-                resizeEnvelopeData?.isResizing &&
-                isDisplayedThreshold && (
-                  <AnomalyDetectionEnvelopeThreshold
-                    {...thresholdProps}
-                    data={resizeEnvelopeData}
-                  />
-                )
-              }
               displayTimeValues={displayTimeValues}
               graphHeight={graphHeight}
-              isEditAnomalyDetectionDataDialogOpen={
-                isEditAnomalyDetectionDataDialogOpen
-              }
               leftScale={leftScale}
               lines={lines}
+              renderAdditionalLines={getDisplayAdditionalLinesCondition?.displayAdditionalLines(
+                {
+                  additionalData,
+                  additionalLinesProps,
+                },
+              )}
               rightScale={rightScale}
               timeSeries={timeSeries}
               timeTick={timeTick}
               xScale={xScale}
             />
+
             {displayEventAnnotations && (
               <MemoizedAnnotations
                 graphHeight={graphHeight}
@@ -602,9 +617,11 @@ const GraphContent = ({
                 xScale={xScale}
               />
             )}
+
             <MemoizedBar
               fill={alpha(theme.palette.primary.main, 0.2)}
               height={graphHeight}
+              open={interactWithGraph}
               stroke={alpha(theme.palette.primary.main, 0.5)}
               width={zoomBarWidth}
               x={zoomBoundaries?.start || 0}
@@ -612,10 +629,7 @@ const GraphContent = ({
             />
             {useMemoComponent({
               Component:
-                displayTimeValues &&
-                containsMetrics &&
-                position &&
-                !isEditAnomalyDetectionDataDialogOpen ? (
+                displayTimeValues && containsMetrics && position ? (
                   <g>
                     <Shape.Line
                       from={{ x: mousePositionX, y: 0 }}
@@ -637,20 +651,19 @@ const GraphContent = ({
                 ),
               memoProps: [mousePosition],
             })}
-            {!isEditAnomalyDetectionDataDialogOpen && (
-              <MemoizedBar
-                className={classes.overlay}
-                fill="transparent"
-                height={graphHeight}
-                width={graphWidth}
-                x={0}
-                y={0}
-                onMouseDown={displayZoomPreview}
-                onMouseLeave={closeTooltip}
-                onMouseMove={displayTooltip}
-                onMouseUp={displayAddCommentTooltip}
-              />
-            )}
+            <MemoizedBar
+              className={classes.overlay}
+              fill="transparent"
+              height={graphHeight}
+              open={interactWithGraph}
+              width={graphWidth}
+              x={0}
+              y={0}
+              onMouseDown={displayZoomPreview}
+              onMouseLeave={closeTooltip}
+              onMouseMove={displayTooltip}
+              onMouseUp={displayAddCommentTooltip}
+            />
           </Group.Group>
           <TimeShiftContext.Provider
             value={useMemo(
@@ -676,7 +689,7 @@ const GraphContent = ({
             <TimeShiftZones />
           </TimeShiftContext.Provider>
         </svg>
-        {addCommentTooltipOpen && !isEditAnomalyDetectionDataDialogOpen && (
+        {addCommentTooltipOpen && (
           <Paper
             className={classes.addCommentTooltip}
             style={{
@@ -706,7 +719,7 @@ const GraphContent = ({
             </Tooltip>
           </Paper>
         )}
-        {addingComment && !isEditAnomalyDetectionDataDialogOpen && (
+        {addingComment && (
           <AddCommentForm
             date={commentDate as Date}
             resource={resource}
@@ -721,7 +734,7 @@ const GraphContent = ({
   );
 };
 
-const memoProps = [
+const propertiesToMemoize = [
   'addCommentTooltipLeft',
   'addCommentTooltipTop',
   'addCommentTooltipOpen',
@@ -739,15 +752,10 @@ const memoProps = [
   'displayEventAnnotations',
   'containsMetrics',
   'isInViewport',
-  'resizeEnvelopeData',
+  'additionalData',
 ];
 
-const MemoizedGraphContent = memoizeComponent<GraphContentProps>({
-  Component: GraphContent,
-  memoProps,
-});
-
-const Graph = (
+const Graph = <T,>(
   props: Omit<
     GraphContentProps,
     | 'addCommentTooltipLeft'
@@ -758,7 +766,8 @@ const Graph = (
     | 'format'
     | 'changeMetricsValue'
     | 'isInViewport'
-  >,
+  > &
+    AdditionalDataProps<T>,
 ): JSX.Element => {
   const { format } = useLocaleDateTimeFormat();
   const {
@@ -769,17 +778,22 @@ const Graph = (
     hideTooltip: hideAddCommentTooltip,
   } = VisxTooltip.useTooltip();
 
-  return (
-    <MemoizedGraphContent
-      {...props}
-      addCommentTooltipLeft={addCommentTooltipLeft}
-      addCommentTooltipOpen={addCommentTooltipOpen}
-      addCommentTooltipTop={addCommentTooltipTop}
-      format={format}
-      hideAddCommentTooltip={hideAddCommentTooltip}
-      showAddCommentTooltip={showAddCommentTooltip}
-    />
-  );
+  const memoProps = pick(propertiesToMemoize, props);
+
+  return useMemoComponent({
+    Component: (
+      <GraphContent
+        {...props}
+        addCommentTooltipLeft={addCommentTooltipLeft}
+        addCommentTooltipOpen={addCommentTooltipOpen}
+        addCommentTooltipTop={addCommentTooltipTop}
+        format={format}
+        hideAddCommentTooltip={hideAddCommentTooltip}
+        showAddCommentTooltip={showAddCommentTooltip}
+      />
+    ),
+    memoProps: [...values(memoProps)],
+  });
 };
 
 export default Graph;
