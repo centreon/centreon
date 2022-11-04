@@ -11,6 +11,9 @@ const getBaseConfiguration = ({
   jscTransformConfiguration,
 }) => ({
   cache: false,
+  experiments: {
+    outputModule: true,
+  },
   module: {
     rules: [
       {
@@ -61,7 +64,7 @@ const getBaseConfiguration = ({
   output: {
     chunkFilename: '[name].[chunkhash:8].chunk.js',
     filename: '[name].[chunkhash:8].js',
-    libraryTarget: 'umd',
+    libraryTarget: 'module',
     umdNamedDefine: true,
   },
   plugins: [

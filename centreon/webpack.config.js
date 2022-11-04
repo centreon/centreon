@@ -14,7 +14,6 @@ module.exports = (jscTransformConfiguration) =>
       entry: ['./www/front_src/src/index.tsx'],
       output: {
         crossOriginLoading: 'anonymous',
-        library: ['name'],
         path: path.resolve(`${__dirname}/www/static`),
         publicPath: './static/',
       },
