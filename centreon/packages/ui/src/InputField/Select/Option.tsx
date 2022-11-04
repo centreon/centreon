@@ -1,9 +1,11 @@
 import { forwardRef, RefObject } from 'react';
 
-import { isNil } from 'ramda';
+import { equals, isNil } from 'ramda';
 import { makeStyles } from 'tss-react/mui';
 
 import { Checkbox, Stack, Typography } from '@mui/material';
+
+import { ThemeMode } from '@centreon/ui-context';
 
 const useStyles = makeStyles()((theme) => ({
   checkbox: {
@@ -11,6 +13,14 @@ const useStyles = makeStyles()((theme) => ({
     padding: 0,
   },
   container: {
+    '&:hover, &.Mui-selected, &.Mui-selected:hover': {
+      background: equals(theme.palette.mode, ThemeMode.dark)
+        ? theme.palette.primary.dark
+        : theme.palette.primary.light,
+      color: equals(theme.palette.mode, ThemeMode.dark)
+        ? theme.palette.common.white
+        : theme.palette.primary.main,
+    },
     alignItems: 'center',
     display: 'flex',
   },

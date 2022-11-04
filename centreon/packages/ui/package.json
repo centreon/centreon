@@ -27,11 +27,13 @@
   },
   "homepage": "https://github.com/centreon/centreon-frontend#readme",
   "devDependencies": {
+    "@mdx-js/react": "^2.1.4",
     "@storybook/addon-essentials": "^6.5.11",
     "@storybook/addon-storyshots": "^6.5.11",
     "@storybook/addon-storyshots-puppeteer": "^6.5.11",
     "@storybook/builder-webpack5": "^6.5.11",
     "@storybook/manager-webpack5": "^6.5.11",
+    "@storybook/mdx2-csf": "^0.0.3",
     "@storybook/react": "^6.5.11",
     "@swc/core": "^1.2.203",
     "@swc/jest": "^0.2.21",

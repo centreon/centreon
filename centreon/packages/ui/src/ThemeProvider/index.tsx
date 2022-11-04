@@ -12,6 +12,7 @@ import {
   InputBaseProps,
   ButtonProps,
 } from '@mui/material';
+import { autocompleteClasses } from '@mui/material/Autocomplete';
 import { ThemeOptions } from '@mui/material/styles/createTheme';
 
 import { ThemeMode, userAtom } from '@centreon/ui-context';
@@ -102,9 +103,46 @@ export const getTheme = (mode: ThemeMode): ThemeOptions => ({
         root: ({ ownerState }) => getInputBaseRootStyle(ownerState),
       },
     },
+    MuiList: {
+      styleOverrides: {
+        root: () => ({
+          '&.MuiMenu-list': {
+            paddingBottom: 0,
+            paddingTop: 0,
+          },
+        }),
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          '&:hover, &.Mui-selected, &.Mui-selected:hover, &.Mui-selected:focus':
+            {
+              background: equals(theme.palette.mode, ThemeMode.dark)
+                ? theme.palette.primary.dark
+                : theme.palette.primary.light,
+              color: equals(theme.palette.mode, ThemeMode.dark)
+                ? theme.palette.common.white
+                : theme.palette.primary.main,
+            },
+          fontSize: theme.typography.body2.fontSize,
+        }),
+      },
+    },
     MuiPaper: {
       defaultProps: {
         variant: 'outlined',
+      },
+      styleOverrides: {
+        root: ({ theme }) => ({
+          [`[role="tooltip"] &, &.MuiMenu-paper, &.${autocompleteClasses.paper}`]:
+            {
+              backgroundColor: theme.palette.background.default,
+              border: 'none',
+              borderRadius: 0,
+              boxShadow: theme.shadows[3],
+            },
+        }),
       },
     },
     MuiTextField: {

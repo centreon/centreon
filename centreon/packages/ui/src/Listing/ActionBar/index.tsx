@@ -24,6 +24,11 @@ const useStyles = makeStyles()((theme) => ({
   pagination: {
     padding: 0,
   },
+  selectMenu: {
+    '& .MuiMenuItem-root': {
+      lineHeight: 1,
+    },
+  },
 }));
 
 type Props = Pick<
@@ -87,8 +92,10 @@ const MemoListingActionBar = ({
           <StyledPagination
             ActionsComponent={PaginationActions}
             SelectProps={{
+              MenuProps: {
+                className: classes.selectMenu,
+              },
               id: labelRowsPerPage,
-              native: true,
             }}
             className={classes.pagination}
             colSpan={3}

@@ -34,6 +34,7 @@ const useStyles = makeStyles<StylesProps>()(
     },
     container: {
       backgroundColor: theme.palette.background.default,
+      borderTopRightRadius: 0,
       display: 'grid',
       gridTemplate: 'auto auto 1fr / 1fr',
       height: '100%',
