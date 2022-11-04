@@ -7,22 +7,22 @@ interface Props {
   graphHeight: number;
 }
 
-// TODO jss-to-tss-react codemod: Unable to handle style definition reliably. ArrowFunctionExpression in CSS prop.
-const useSkeletonStyles = makeStyles()((theme) => ({
-  loadingSkeleton: {
-    display: 'grid',
-    gridGap: theme.spacing(1),
-    gridTemplateRows: ({ graphHeight, displayTitleSkeleton }: Props): string =>
-      `${displayTitleSkeleton ? '1fr' : ''} ${graphHeight}px ${theme.spacing(
-        7,
-      )}`,
-    height: '100%',
-  },
-  loadingSkeletonLine: {
-    paddingBottom: theme.spacing(1),
-    transform: 'none',
-  },
-}));
+const useSkeletonStyles = makeStyles<Props>()(
+  (theme, { graphHeight, displayTitleSkeleton }) => ({
+    loadingSkeleton: {
+      display: 'grid',
+      gridGap: theme.spacing(1),
+      gridTemplateRows: `${
+        displayTitleSkeleton ? '1fr' : ''
+      } ${graphHeight}px ${theme.spacing(7)}`,
+      height: '100%',
+    },
+    loadingSkeletonLine: {
+      paddingBottom: theme.spacing(1),
+      transform: 'none',
+    },
+  }),
+);
 
 const LoadingSkeleton = ({
   graphHeight,

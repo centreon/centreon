@@ -118,9 +118,7 @@ const CustomTimePeriodPickers = ({
   acceptDate,
   isCompact: isMinimalWidth,
 }: Props): JSX.Element => {
-  const { classes } = useStyles(isMinimalWidth, {
-    props: isMinimalWidth,
-  });
+  const { classes } = useStyles();
   const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = useState<Element | null>(null);
   const [start, setStart] = useState<Date>(customTimePeriod.start);
