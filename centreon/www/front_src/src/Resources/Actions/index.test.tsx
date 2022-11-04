@@ -502,8 +502,11 @@ describe(Actions, () => {
 
     await findByText(labelDowntimeByAdmin);
 
-    userEvent.clear(getByLabelText(labelEndTime));
-    userEvent.type(getByLabelText(labelEndTime), dayjs(mockNow).format('L LT'));
+    userEvent.type(getByLabelText(labelEndTime), '{selectall}');
+    userEvent.paste(
+      getByLabelText(labelEndTime),
+      dayjs(mockNow).format('L LT'),
+    );
 
     await waitFor(() =>
       expect(
