@@ -13,12 +13,11 @@ import {
   LinkProps as RouterLinkProps,
 } from 'react-router-dom';
 import { equals } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import makeStyles from '@mui/styles/makeStyles';
-import { CreateCSSProperties } from '@mui/styles';
 
 import { useMemoComponent } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
@@ -49,8 +48,8 @@ interface Props {
   onMouseEnter: (e: MouseEvent<HTMLElement>) => void;
 }
 
-const useStyles = makeStyles((theme) => ({
-  activated: (): CreateCSSProperties => ({
+const useStyles = makeStyles()((theme) => ({
+  activated: {
     '& .MuiListItemText-root': {
       '& .MuiTypography-root': {
         color: 'inherit',
@@ -72,7 +71,7 @@ const useStyles = makeStyles((theme) => ({
     color: isDarkMode(theme)
       ? theme.palette.common.white
       : theme.palette.primary.main,
-  }),
+  },
   arrowIcon: {
     color: 'inherit',
   },
@@ -113,7 +112,7 @@ const MenuItems = ({
   isRoot,
   isDoubleClickedFromRoot,
 }: Props): JSX.Element => {
-  const classes = useStyles({ isRoot });
+  const { classes } = useStyles();
   const user = useAtomValue(userAtom);
   const hoveredNavigationItems = useAtomValue(hoveredNavigationItemsAtom);
   const selectedNavigationItems = useAtomValue(selectedNavigationItemsAtom);

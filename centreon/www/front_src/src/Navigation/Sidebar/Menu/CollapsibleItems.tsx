@@ -8,12 +8,11 @@ import {
 } from 'react';
 
 import { equals } from 'ramda';
-import clsx from 'clsx';
 import { useUpdateAtom, useAtomValue } from 'jotai/utils';
+import { makeStyles } from 'tss-react/mui';
 
 import Collapse from '@mui/material/Collapse';
 import List from '@mui/material/List';
-import makeStyles from '@mui/styles/makeStyles';
 import ListSubheader from '@mui/material/ListSubheader';
 
 import { useMemoComponent } from '@centreon/ui';
@@ -50,7 +49,11 @@ interface StyleProps {
 
 const collapseWidth = 24;
 
-const useStyles = makeStyles((theme) => ({
+// TODO jss-to-tss-react codemod: Unable to handle style definition reliably. ArrowFunctionExpression in CSS prop.
+// TODO jss-to-tss-react codemod: Unable to handle style definition reliably. ArrowFunctionExpression in CSS prop.
+// TODO jss-to-tss-react codemod: Unable to handle style definition reliably. ArrowFunctionExpression in CSS prop.
+// TODO jss-to-tss-react codemod: Unable to handle style definition reliably. ArrowFunctionExpression in CSS prop.
+const useStyles = makeStyles()((theme) => ({
   label: {
     fontWeight: 'bold',
   },
@@ -117,7 +120,7 @@ const CollapsibleItems = ({
   setCollapseScrollMaxWidth,
   setCollapseScrollMaxHeight,
 }: Props): JSX.Element => {
-  const classes = useStyles({
+  const { classes, cx } = useStyles({
     collapseScrollMaxHeight,
     collapseScrollMaxWidth,
     currentTop,
@@ -208,7 +211,7 @@ const CollapsibleItems = ({
     Component: (
       <Collapse
         unmountOnExit
-        className={clsx(classes.root, classes.toggled)}
+        className={cx(classes.root, classes.toggled)}
         data-cy="collapse"
         enter={false}
         exit={false}

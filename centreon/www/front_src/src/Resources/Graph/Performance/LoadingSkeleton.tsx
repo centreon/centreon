@@ -1,4 +1,5 @@
-import makeStyles from '@mui/styles/makeStyles';
+import { makeStyles } from 'tss-react/mui';
+
 import { Skeleton } from '@mui/material';
 
 interface Props {
@@ -6,7 +7,8 @@ interface Props {
   graphHeight: number;
 }
 
-const useSkeletonStyles = makeStyles((theme) => ({
+// TODO jss-to-tss-react codemod: Unable to handle style definition reliably. ArrowFunctionExpression in CSS prop.
+const useSkeletonStyles = makeStyles()((theme) => ({
   loadingSkeleton: {
     display: 'grid',
     gridGap: theme.spacing(1),
@@ -26,7 +28,7 @@ const LoadingSkeleton = ({
   graphHeight,
   displayTitleSkeleton,
 }: Props): JSX.Element => {
-  const classes = useSkeletonStyles({ displayTitleSkeleton, graphHeight });
+  const { classes } = useSkeletonStyles({ displayTitleSkeleton, graphHeight });
 
   const skeletonLine = <Skeleton className={classes.loadingSkeletonLine} />;
 
