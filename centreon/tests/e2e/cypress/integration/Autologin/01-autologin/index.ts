@@ -25,7 +25,7 @@ Given('an administrator is logged in the platform', () => {
       rootItemNumber: 4,
       subMenu: 'Parameters',
     })
-    .wait('@getTimeZone')
+    .wait('@getTimeZone');
 });
 
 When('the administrator activates autologin on the platform', () => {
@@ -40,7 +40,7 @@ When('the administrator activates autologin on the platform', () => {
 });
 
 Then(
-  'any user of the plateform should be able to generate an autologin link',
+  'any user of the platform should be able to generate an autologin link',
   () => {
     cy.isInProfileMenu('Edit profile')
       .click()
@@ -75,7 +75,7 @@ Then(
 );
 
 Given(
-  'an authenticated user and autologin configuration menus can be accessed',
+  'an authenticated user and the autologin configuration menu can be accessed',
   () => {
     cy.logout()
       .reload()
@@ -117,7 +117,7 @@ Then('the key is properly generated and displayed', () => {
     .reload();
 });
 
-Given('a user with autologin key generated', () => {
+Given('a user with an autologin key generated', () => {
   cy.isInProfileMenu('Copy autologin link').should('be.exist');
 });
 

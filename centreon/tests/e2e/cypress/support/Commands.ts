@@ -48,9 +48,9 @@ Cypress.Commands.add('setUserTokenApiV1', (): Cypress.Chainable => {
 
 Cypress.Commands.add(
   'loginByTypeOfUser',
-  ({ fixtureName, preserveToken }): Cypress.Chainable => {
+  ({ jsonName, preserveToken }): Cypress.Chainable => {
     if (preserveToken) {
-      cy.fixture(`users/${fixtureName}.json`)
+      cy.fixture(`users/${jsonName}.json`)
         .then((user) => {
           return cy.request({
             body: {
@@ -69,7 +69,7 @@ Cypress.Commands.add(
     }
 
     return cy
-      .fixture(`users/${fixtureName}.json`)
+      .fixture(`users/${jsonName}.json`)
       .then((credential) => {
         cy.getByLabel({ label: 'Alias', tag: 'input' }).type(credential.login);
         cy.getByLabel({ label: 'Password', tag: 'input' }).type(
