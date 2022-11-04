@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { prop } from 'ramda';
 
-import { render, fireEvent } from '../testRenderer';
+import { render, fireEvent, within } from '../testRenderer';
 
 import { ColumnType } from './models';
 import { labelAddColumns } from './translatedLabels';
@@ -196,15 +196,17 @@ describe('Listing', () => {
   });
 
   it('resets the page number to 0 when changing the limit and the current page is different than 0', () => {
-    const { container, getByText } = render(<PaginationTable />);
+    const { getByLabelText, getByRole, getByText } = render(
+      <PaginationTable />,
+    );
 
     expect(getByText('41-50 of 100'));
 
-    fireEvent.change(container.querySelector('select') as HTMLSelectElement, {
-      target: {
-        value: 90,
-      },
-    });
+    fireEvent.mouseDown(getByLabelText('Rows per page'));
+
+    const listbox = within(getByRole('listbox'));
+
+    fireEvent.click(listbox.getByText('90'));
 
     expect(getByText('1-90 of 100'));
   });

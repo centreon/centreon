@@ -1,3 +1,5 @@
+const { equals } = require("ramda");
+
 const excludeNodeModulesExceptCentreonUi =
   /node_modules(\\|\/)(?!(centreon-frontend(\\|\/)packages(\\|\/)(ui-context|centreon-ui)))/;
   
@@ -5,7 +7,10 @@ module.exports = {
   core: {
     builder: 'webpack5',
   },
-  stories: ['../src/**/*.stories.@(jsx|tsx)'],
+  features: {
+    previewMdx2: true,
+  },
+  stories: ['../src/*.stories.mdx', '../src/**/*.stories.@(jsx|tsx)'],
   typescript: {
     reactDocgen: 'react-docgen-typescript'
   },
@@ -21,7 +26,6 @@ module.exports = {
     },
   ],
   webpackFinal: (config) => {
-
     delete config.resolve.alias['emotion-theming'];
     delete config.resolve.alias['@emotion/styled'];
     delete config.resolve.alias['@emotion/core'];
@@ -51,6 +55,7 @@ module.exports = {
                     syntax: 'typescript',
                   },
                 },
+                parseMap: true,
               },
             }
           },
@@ -67,6 +72,7 @@ module.exports = {
               },
             ],
           },
+          ...(config.module.rules.filter(({ type }) => !equals(type, 'asset/resource'))),
         ],
       },
     }

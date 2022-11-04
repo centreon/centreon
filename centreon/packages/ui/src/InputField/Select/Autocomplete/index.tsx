@@ -11,7 +11,10 @@ import {
   AutocompleteProps,
   useTheme,
 } from '@mui/material';
+import { autocompleteClasses } from '@mui/material/Autocomplete';
 import { UseAutocompleteProps } from '@mui/material/useAutocomplete';
+
+import { ThemeMode } from '@centreon/ui-context';
 
 import Option from '../Option';
 import TextField from '../../Text';
@@ -95,6 +98,20 @@ const useStyles = makeStyles<StyledProps>()((theme, { hideInput }) => ({
     gridGap: theme.spacing(1),
   },
   popper: {
+    [`& .${autocompleteClasses.listbox}`]: {
+      [`& .${autocompleteClasses.option}`]: {
+        [`&:hover, &[aria-selected="true"], &.${autocompleteClasses.focused},
+        &.${autocompleteClasses.focused}[aria-selected="true"]`]: {
+          background: equals(theme.palette.mode, ThemeMode.dark)
+            ? theme.palette.primary.dark
+            : theme.palette.primary.light,
+          color: equals(theme.palette.mode, ThemeMode.dark)
+            ? theme.palette.common.white
+            : theme.palette.primary.main,
+        },
+      },
+      padding: 0,
+    },
     zIndex: theme.zIndex.tooltip + 1,
   },
   textfield: {
