@@ -48,9 +48,9 @@ Cypress.Commands.add('setUserTokenApiV1', (): Cypress.Chainable => {
 
 Cypress.Commands.add(
   'loginByTypeOfUser',
-  ({ fixtureName, preserveToken }): Cypress.Chainable => {
+  ({ jsonName, preserveToken }): Cypress.Chainable => {
     if (preserveToken) {
-      cy.fixture(`users/${fixtureName}.json`)
+      cy.fixture(`users/${jsonName}.json`)
         .then((user) => {
           return cy.request({
             body: {
@@ -69,7 +69,7 @@ Cypress.Commands.add(
     }
 
     return cy
-      .fixture(`users/${fixtureName}.json`)
+      .fixture(`users/${jsonName}.json`)
       .then((credential) => {
         cy.getByLabel({ label: 'Alias', tag: 'input' }).type(credential.login);
         cy.getByLabel({ label: 'Password', tag: 'input' }).type(
@@ -110,13 +110,6 @@ Cypress.Commands.add('getIframeBody', (): Cypress.Chainable => {
     .should('not.be.empty')
     .then(cy.wrap);
 });
-
-Cypress.Commands.add(
-  'getFormFieldByIndex',
-  (rootItemNumber: number): Cypress.Chainable => {
-    return cy.getIframeBody().find('#Form').find('tr').eq(rootItemNumber);
-  },
-);
 
 Cypress.Commands.add(
   'isInProfileMenu',
@@ -168,6 +161,10 @@ Cypress.Commands.add('removeACL', (): Cypress.Chainable => {
   });
 });
 
+Cypress.Commands.add('getRefreshDataOnIframe', () => {
+  return cy.wait('@getTimeZone').wait('@getTimeZone');
+});
+
 interface GetByLabelProps {
   label: string;
   tag?: string;
@@ -189,8 +186,8 @@ declare global {
     interface Chainable {
       executeCommandsViaClapi: (fixtureFile: string) => Cypress.Chainable;
       getByLabel: ({ tag, label }: GetByLabelProps) => Cypress.Chainable;
-      getFormFieldByIndex: (rootItemNumber: number) => Cypress.Chainable;
       getIframeBody: () => Cypress.Chainable;
+      getRefreshDataOnIframe: () => Cypress.Chainable;
       hoverRootMenuItem: (rootItemNumber: number) => Cypress.Chainable;
       isInProfileMenu: (targetedMenu: string) => Cypress.Chainable;
       loginByTypeOfUser: ({
