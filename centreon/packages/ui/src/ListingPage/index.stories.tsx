@@ -4,12 +4,12 @@ import { useState } from 'react';
 
 import { makeStyles } from 'tss-react/mui';
 
-import { Typography, Paper, Button, Tab } from '@mui/material';
+import { Button, Paper, Tab, Typography } from '@mui/material';
 import { grey } from '@mui/material/colors';
 
+import { SearchField } from '..';
 import Listing from '../Listing';
 import { ColumnType } from '../Listing/models';
-import { SearchField } from '..';
 import Panel from '../Panel';
 
 import Filter from './Filter';
@@ -294,6 +294,31 @@ export const withFixedPanel = (): JSX.Element => {
       panelFixed
       filter={<FilterWithOpenButton onOpen={(): void => setOpen(true)} />}
       listing={listing}
+      panel={<DetailsPanel onClose={(): void => setOpen(false)} />}
+      panelOpen={open}
+    />
+  );
+};
+
+export const withResponsivePaginationTable = (): JSX.Element => {
+  const [open, setOpen] = useState(true);
+
+  return (
+    <ListingPage
+      filter={<FilterWithOpenButton onOpen={(): void => setOpen(true)} />}
+      listing={
+        <Listing
+          columns={columns}
+          currentPage={0}
+          limit={elements.length}
+          moveTablePagination={open}
+          rowColorConditions={rowColorConditions}
+          rows={elements}
+          totalRows={elements.length}
+          widthToMoveTablePagination={550}
+        />
+      }
+      memoListingProps={[open]}
       panel={<DetailsPanel onClose={(): void => setOpen(false)} />}
       panelOpen={open}
     />
