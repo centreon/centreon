@@ -34,6 +34,8 @@ const IconButton = ({
           aria-label={ariaLabel}
           className={cx(classes.button, className)}
           color="primary"
+          data-testid={ariaLabel}
+          id={ariaLabel?.replace(/[^A-Z0-9]+/gi, '')}
           {...props}
         />
       </span>

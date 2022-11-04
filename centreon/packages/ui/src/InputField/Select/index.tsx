@@ -42,7 +42,7 @@ export interface SelectEntry {
 type Props = {
   ariaLabel?: string;
   compact?: boolean;
-  dataTestId?: string;
+  dataTestId: string;
   error?: string;
   label?: string;
   onChange;
@@ -89,6 +89,7 @@ const SelectField = ({
             [classes.compact]: compact,
           }),
           'data-testid': dataTestId,
+          id: dataTestId?.replace(/[^A-Z0-9]+/gi, ''),
           ...inputProps,
         }}
         label={label}

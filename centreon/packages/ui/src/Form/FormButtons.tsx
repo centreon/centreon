@@ -58,13 +58,16 @@ const FormButtons = (): JSX.Element => {
       <div className={classes.buttons}>
         <Button
           aria-label={t(labelReset)}
+          data-testid={labelReset}
           disabled={not(canReset)}
+          id={labelReset?.replace(/[^A-Z0-9]+/gi, '')}
           size="small"
           onClick={reset}
         >
           {t(labelReset)}
         </Button>
         <SaveButton
+          dataTestId={labelSave}
           disabled={not(canSubmit)}
           labelLoading={labelSaving}
           labelSave={labelSave}

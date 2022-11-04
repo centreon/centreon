@@ -51,7 +51,7 @@ export type Props = {
   StartAdornment?: React.FC;
   ariaLabel?: string;
   className?: string;
-  dataTestId?: string;
+  dataTestId: string;
   displayErrorInTooltip?: boolean;
   error?: string;
   open?: boolean;
@@ -103,8 +103,10 @@ const TextField = forwardRef(
               </OptionalLabelInputAdornment>
             ),
           }}
+          data-testid={dataTestId}
           error={!isNil(error)}
           helperText={displayErrorInTooltip ? undefined : error}
+          id={dataTestId?.replace(/[^A-Z0-9]+/gi, '')}
           inputProps={{
             ...rest.inputProps,
             'aria-label': ariaLabel,

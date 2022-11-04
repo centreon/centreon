@@ -66,6 +66,8 @@ const SaveButton = ({
             className,
           )}
           color="primary"
+          data-testid={labelSave}
+          id={labelSave?.replace(/[^A-Z0-9]+/gi, '')}
           loading={loading}
           loadingPosition={labelLoading ? 'start' : 'center'}
           size={size}

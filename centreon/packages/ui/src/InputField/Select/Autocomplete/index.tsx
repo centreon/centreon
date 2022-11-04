@@ -23,13 +23,12 @@ import { searchLabel } from '../../translatedLabels';
 
 export type Props = {
   autoFocus?: boolean;
-  dataTestId?: string;
   displayOptionThumbnail?: boolean;
   displayPopupIcon?: boolean;
   endAdornment?: React.ReactElement;
   error?: string;
   hideInput?: boolean;
-  label?: string;
+  label: string;
   loading?: boolean;
   onTextChange?;
   placeholder?: string | undefined;
@@ -135,7 +134,6 @@ type DisableClearable = boolean;
 type FreeSolo = boolean;
 
 const AutocompleteField = ({
-  dataTestId,
   options,
   label,
   placeholder,
@@ -174,7 +172,6 @@ const AutocompleteField = ({
       }}
       InputProps={{
         ...params.InputProps,
-        'data-testid': dataTestId,
         endAdornment: (
           <>
             {endAdornment && (
@@ -195,6 +192,8 @@ const AutocompleteField = ({
       inputProps={{
         ...params.inputProps,
         'aria-label': label,
+        'data-testid': label,
+        id: label?.replace(/[^A-Z0-9]+/gi, ''),
       }}
       label={label}
       placeholder={isNil(placeholder) ? t(searchLabel) : placeholder}

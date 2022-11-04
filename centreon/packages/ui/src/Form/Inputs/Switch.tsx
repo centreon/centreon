@@ -50,10 +50,11 @@ const Switch = ({
         control={
           <MUISwitch
             checked={value}
+            data-testid={dataTestId}
             disabled={disabled}
+            id={dataTestId?.replace(/[^A-Z0-9]+/gi, '')}
             inputProps={{
               'aria-label': t(label),
-              'data-testid': dataTestId,
             }}
             onChange={changeSwitchValue}
           />

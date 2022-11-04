@@ -68,10 +68,14 @@ const Radio = ({
             <FormControlLabel
               control={
                 <MUIRadio
+                  data-testid={`${dataTestId} ${optionLabel}`}
                   disabled={disabled}
+                  id={`${dataTestId}${optionLabel}`?.replace(
+                    /[^A-Z0-9]+/gi,
+                    '',
+                  )}
                   inputProps={{
                     'aria-label': t(optionLabel),
-                    'data-testid': dataTestId,
                   }}
                 />
               }
