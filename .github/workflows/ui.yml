@@ -62,10 +62,6 @@ jobs:
           sudo apt update
           sudo apt install -y google-chrome-stable
 
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
-        working-directory: ${{ env.directory }}
-
       - name: Install Centreon dependencies
         run: npm ci --legacy-peer-deps
         working-directory: ${{ env.centreon_directory }}
