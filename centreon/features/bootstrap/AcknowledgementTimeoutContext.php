@@ -115,7 +115,7 @@ class AcknowledgementTimeoutContext extends CentreonContext
     public function hostAcknowledged()
     {
         $page = new MonitoringHostsPage($this);
-        $url = 'http://' . $this->container->getHost() . ':' . $this->container->getPort(80, 'web') .
+        $url = 'http://' . $this->container->getHost() . ':' . $this->container->getPort(80, $this->webService) .
             '/centreon/include/monitoring/external_cmd/cmdPopup.php';
         $page->addAcknowledgementOnHost(
             $this->hostName,
@@ -143,7 +143,7 @@ class AcknowledgementTimeoutContext extends CentreonContext
         $hostName = $this->serviceHostName;
         $serviceName = $this->serviceName;
         $page = new MonitoringServicesPage($this);
-        $url = 'http://' . $this->container->getHost() . ':' . $this->container->getPort(80, 'web') .
+        $url = 'http://' . $this->container->getHost() . ':' . $this->container->getPort(80, $this->webService) .
             '/centreon/include/monitoring/external_cmd/cmdPopup.php';
         $page->addAcknowledgementOnService(
             $hostName,

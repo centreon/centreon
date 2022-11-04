@@ -311,7 +311,7 @@ class DowntimeDSTContext extends CentreonContext
             $this->container->execute(
                 "faketime '" . $this->downtimeProperties['faketime'] . "'" .
                 " php /usr/share/centreon/cron/downtimeManager.php",
-                'web'
+                $this->webService
             );
         }
     }
@@ -325,7 +325,7 @@ class DowntimeDSTContext extends CentreonContext
             function ($context) {
                 $return = $context->container->execute(
                     "cat /var/log/centreon-engine/centengine.log",
-                    'web'
+                    $this->webService
                 );
                 $output = $return['output'];
                 if (preg_match_all(
@@ -376,7 +376,7 @@ class DowntimeDSTContext extends CentreonContext
                 $scheduled = true;
                 $return = $context->container->execute(
                     "cat /var/log/centreon-engine/centengine.log",
-                    'web'
+                    $this->webService
                 );
                 $output = $return['output'];
                 if (preg_match(
