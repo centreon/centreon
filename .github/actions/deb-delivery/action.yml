@@ -66,6 +66,7 @@ runs:
           echo "Repo: $REPO"
           echo "Version: $VERSION"
 
-          curl -v -u ${{ inputs.nexus_username }}:${{ inputs.nexus_password }} -H "Content-Type: multipart/form-data" --data-binary "@./$FILE" "http://nexus-svc.nexus.svc.cluster.local:8081/repository/$VERSION-$REPO/"
+          curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -X PUT "https://artifactory.apps.centreon.com/artifactory/debian-$VERSION$REPO/pool/$FILE;deb.distribution=bullseye;deb.component=main;deb.architecture=amd64" -T "./$FILE"
+
         done
       shell: bash
