@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { useAtomValue } from 'jotai/utils';
-import { CSSInterpolation } from 'tss-react/types';
+import { CSSInterpolation } from 'tss-react';
 import { equals } from 'ramda';
 
 import {
