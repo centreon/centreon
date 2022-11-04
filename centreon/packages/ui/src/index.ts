@@ -111,7 +111,10 @@ export type {
   ListsSearchParameter,
 } from './api/buildListingEndpoint/models';
 
-export { default as useMemoComponent } from './utils/useMemoComponent';
+export {
+  default as useMemoComponent,
+  useDeepCompare,
+} from './utils/useMemoComponent';
 export { default as useCopyToClipboard } from './utils/useCopyToClipboard';
 
 export { default as MenuSkeleton } from './MenuSkeleton';
