@@ -79,7 +79,6 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
-    "@centreon/ui-context": "file:../ui-context",
     "@dnd-kit/core": "^6.0.5",
     "@dnd-kit/sortable": "^7.0.1",
     "@mui/icons-material": "^5.10.9",
