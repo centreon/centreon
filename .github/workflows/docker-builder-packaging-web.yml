@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - develop
+      - dev-22.04.x
     paths:
       - ".github/workflows/docker-builder-packaging-web.yml"
       - "ci/docker/Dockerfile.packaging-web-centos7"
