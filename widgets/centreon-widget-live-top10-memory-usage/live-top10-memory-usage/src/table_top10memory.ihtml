@@ -1,0 +1,76 @@
+<html>
+<head>
+    <title>live-top10-memory-usage</title>
+    <link href="../../Themes/Generic-theme/style.css" rel="stylesheet" type="text/css"/>
+    <link href="../../Themes/Generic-theme/color.css" rel="stylesheet" type="text/css"/>
+    <link href="../../Themes/{($theme === "Generic-theme") ? ($theme|cat:"/Variables-css") : $theme}/variables.css"
+          rel="stylesheet" type="text/css"/>
+    {literal}
+    <style>
+        @import url('src/top10_memory.css');
+    </style>
+    {/literal}
+<body>
+    {if $preferences.service_description != '' && $preferences.metric_name != '' && $preferences.nb_lin != ''}
+    <div id="top-10-memory">
+    <table class="styleTable ListTable">
+    <tr class="ListHeader">
+        <td class="ListColHeaderCenter">#</td>
+        <td class="ListColHeaderCenter">%</td>
+        <td class="ListColHeaderLeft">Hosts</td>
+        <td></td>
+    </tr>
+    {assign var='classStyle' value='list_two'}
+    {foreach item=elem from=$data}
+        {if $classStyle == 'list_two'}
+            {assign var='classStyle' value='list_one'}
+        {else}
+            {assign var='classStyle' value='list_two'}
+        {/if}
+        <tr class="{$classStyle}">
+            <td class="index ListColCenter">#{$elem.numLin}</td>
+            <td class="ui-widget-content stat">
+                <div class="bar">
+                {if $elem.status == 0 }
+                    <span class="progress-ok"  style="width: {$elem.ratio}%;"></span>
+                    <span class="percent" style="color: #88b917;">{$elem.ratio}%</span>
+                {/if}
+                {if $elem.status == 1 }
+                    <span class="progress-warning" style="width: {$elem.ratio}%;"></span>
+                    <span class="percent" style="color: #ff9a13;">{$elem.ratio}%</span>
+                {/if}
+                {if $elem.status == 2 }
+                    <span class="progress-critical" style="width: {$elem.ratio}%;"></span>
+                    <span  class="percent" style="color: #e00b3d;">{$elem.ratio}%</span>
+                {/if}
+                {if $elem.status == 3 }
+                    <span class="progress-unknown" style="width: {$elem.ratio}%;" style="background-color: #bcbdc0;"></span>
+                    <span class="percent">{$elem.ratio}%</span>
+                {/if}
+                </div>
+            </td>
+            <td class="ListColLeft">
+                <a href="{$elem.details_uri}" target="_blank">{$elem.host_name}</a>
+            </td>
+            <td class="ListColLeft">{$elem.remaining_space} {$elem.unit} remaining</td>
+    {/foreach}
+    </tr>
+    </table>
+    </div>
+    {else if $preferences.service_description == '' && $preferences.metric_name == '' && $preferences.nb_lin == ''}
+    <center>
+        <div class="update" style="text-align:center;width:360px;">
+            Please select a metric_name, nb_lin, service_description
+        </div>
+    </center>
+    {/if}
+    <script>
+        var widgetId = "{$widgetId}";
+        var autoRefresh = "{$autoRefresh}";
+    </script>
+    <script type="text/javascript" src="../../include/common/javascript/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="../../include/common/javascript/jquery/jquery-ui.js"></script>
+    <script type="text/javascript" src="../../include/common/javascript/widgetUtils.js"></script>
+    <script type="text/javascript" src="src/data_js.js"></script>
+</body>
+</html>
