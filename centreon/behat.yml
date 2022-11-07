@@ -6,6 +6,8 @@ default:
         default:
           selenium2: ~
     Centreon\Test\Behat\Extensions\ContainerExtension:
+      log_directory: ../acceptance-logs
+      docker_compose_web: docker-compose.yml
   gherkin:
     cache: ~
   suites:
