@@ -27,6 +27,7 @@ runs:
     - name: Install dependencies
       run: pnpm install
       working-directory: ${{ env.base_directory }}
+      shell: bash
 
     - name: Build frontend
       run: pnpm build
