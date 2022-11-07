@@ -8,7 +8,7 @@ on:
       - "widgets/centreon-widget-hostgroup-monitoring/**"
   push:
     branches:
-      - develop
+      - dev-22.04.x
     paths:
       - ".github/workflows/centreon-widget-hostgroup-monitoring.yml"
       - "widgets/centreon-widget-hostgroup-monitoring/**"
