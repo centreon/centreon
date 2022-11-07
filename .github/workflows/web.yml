@@ -236,7 +236,34 @@ jobs:
           push: true
           tags: registry-docker.centreon.com/docker-global/${{ matrix.project }}-widgets-${{ matrix.distrib }}:${{ github.head_ref || github.ref_name }}
 
-  test-e2e:
+  api-integration-test:
+    needs: [dockerize]
+    uses: ./.github/workflows/behat-test.yml
+    with:
+      name: api
+      module_name: centreon
+      image_name: centreon-web
+      features_path: tests/api/features
+      config_file: tests/api/behat.yml
+    secrets:
+      nexus_username: ${{ secrets.ARTI_USER }}
+      nexus_password: ${{ secrets.ARTI_PASSWD }}
+      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+
+  legacy-e2e-test:
+    needs: [dockerize]
+    uses: ./.github/workflows/behat-test.yml
+    with:
+      name: e2e
+      module_name: centreon
+      image_name: centreon-web
+      features_path: features
+    secrets:
+      nexus_username: ${{ secrets.ARTI_USER }}
+      nexus_password: ${{ secrets.ARTI_PASSWD }}
+      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
+
+  e2e-test:
     runs-on: ubuntu-22.04
     needs: [dockerize]
 
@@ -274,7 +301,7 @@ jobs:
           comment_mode: failures
           junit_files: centreon/tests/e2e/cypress-result.xml
 
-  test-performances:
+  performances-test:
     runs-on: ubuntu-22.04
     needs: [dockerize]
 
@@ -303,36 +330,9 @@ jobs:
           name: lighthouse-report
           path: centreon/lighthouse/report/lighthouseci-index.html
 
-  api-integration-test:
-    needs: [dockerize]
-    uses: ./.github/workflows/behat-test.yml
-    with:
-      name: api
-      module_name: centreon
-      image_name: centreon-web
-      features_path: tests/api/features
-      config_file: tests/api/behat.yml
-    secrets:
-      nexus_username: ${{ secrets.ARTI_USER }}
-      nexus_password: ${{ secrets.ARTI_PASSWD }}
-      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
-
-  legacy-e2e-test:
-    needs: [dockerize]
-    uses: ./.github/workflows/behat-test.yml
-    with:
-      name: e2e
-      module_name: centreon
-      image_name: centreon-web
-      features_path: features
-    secrets:
-      nexus_username: ${{ secrets.ARTI_USER }}
-      nexus_password: ${{ secrets.ARTI_PASSWD }}
-      composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
-
   deliver-rpm:
     runs-on: ubuntu-22.04
-    needs: [test-e2e, test-performances, api-integration-test, legacy-e2e-test]
+    needs: [api-integration-test, legacy-e2e-test, e2e-test, performances-test]
     strategy:
       matrix:
         distrib: [el7, el8]
@@ -353,7 +353,7 @@ jobs:
 
   deliver-deb:
     runs-on: ubuntu-22.04
-    needs: [test-e2e, test-performances, legacy-e2e-test]
+    needs: [api-integration-test, legacy-e2e-test, e2e-test, performances-test]
     strategy:
       matrix:
         distrib: [bullseye]
