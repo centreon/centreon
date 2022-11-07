@@ -13,12 +13,14 @@ importers:
       '@date-io/dayjs': ^2.13.1
       '@dnd-kit/core': ^6.0.5
       '@dnd-kit/sortable': ^7.0.1
+      '@dnd-kit/utilities': ^3.2.0
       '@emotion/react': ^11.7.1
       '@emotion/styled': ^11.6.0
       '@mui/icons-material': ^5.3.1
       '@mui/lab': ^5.0.0-alpha.63
       '@mui/material': ^5.4.0
       '@mui/styles': ^5.3.0
+      '@mui/system': ^5.10.12
       '@mui/x-date-pickers': ^5.0.6
       '@pmmmwh/react-refresh-webpack-plugin': ^0.5.4
       '@svgr/webpack': ^6.2.1
@@ -102,6 +104,7 @@ importers:
       react-material-ui-carousel: ^3.1.1
       react-mock-router: ^1.0.15
       react-refresh: ^0.11.0
+      react-router: ^6.4.3
       react-router-dom: ^6.2.1
       react-select: ^5.2.2
       react-spring: ^9.4.2
@@ -129,13 +132,15 @@ importers:
       '@date-io/dayjs': 2.16.0_dayjs@1.11.6
       '@dnd-kit/core': 6.0.5_biqbaboplfbrettd7655fr4n2y
       '@dnd-kit/sortable': 7.0.1_vvd3dzag27tc7rclyb2whqqnpe
+      '@dnd-kit/utilities': 3.2.0_react@18.2.0
       '@emotion/react': 11.10.5_react@18.2.0
       '@emotion/styled': 11.10.5_hp5f5nkljdiwilp4rgxyefcplu
       '@mui/icons-material': 5.10.9_mo5gypylvz6jbywgfdwdjppqyu
       '@mui/lab': 5.0.0-alpha.106_yom4jwjumhd6cmuiogsnmvm6dm
       '@mui/material': 5.10.12_5rzy53przelm5jchjmb5vr6dxy
       '@mui/styles': 5.10.10_react@18.2.0
-      '@mui/x-date-pickers': 5.0.7_c625sczzop6jjwsahwv2pqg54q
+      '@mui/system': 5.10.12_dovxhg2tvkkxkdnqyoum6wzcxm
+      '@mui/x-date-pickers': 5.0.7_53kvnyvpuhau4gfmct3qdqmtk4
       '@tanstack/react-query': 4.14.5_biqbaboplfbrettd7655fr4n2y
       '@visx/curve': 2.1.0
       '@visx/shape': 2.12.2_react@18.2.0
@@ -144,7 +149,7 @@ importers:
       axios: 0.25.0
       classnames: 2.3.2
       clsx: 1.2.1
-      connected-react-router: 6.9.3_react@18.2.0
+      connected-react-router: 6.9.3_n6chwcsdq6puvu4oljeyhosdga
       d3-array: 3.1.1
       d3-scale: 4.0.2
       dayjs: 1.11.6
@@ -168,7 +173,8 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-i18next: 11.18.6_vfm63zmruocgezzfl2v26zlzpy
-      react-material-ui-carousel: 3.4.2_bghksmy7fl67ylsf2xwnj4arxu
+      react-material-ui-carousel: 3.4.2_am7jzsgcygpj6btxwdwdqzuxp4
+      react-router: 6.4.3_react@18.2.0
       react-router-dom: 6.4.3_biqbaboplfbrettd7655fr4n2y
       react-select: 5.6.0_biqbaboplfbrettd7655fr4n2y
       react-spring: 9.5.5_biqbaboplfbrettd7655fr4n2y
@@ -3986,7 +3992,7 @@ packages:
       react-is: 18.2.0
     dev: false
 
-  /@mui/x-date-pickers/5.0.7_c625sczzop6jjwsahwv2pqg54q:
+  /@mui/x-date-pickers/5.0.7_53kvnyvpuhau4gfmct3qdqmtk4:
     resolution: {integrity: sha512-NhxG4tGj+NabxTCQxw4d5RVYl8yzBycHw3YbfawaPVRAsBk/1p3ktSdTbiEi/j+8IUrT8C7Kh/XMNNnOwub/3Q==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
@@ -4023,6 +4029,7 @@ packages:
       '@emotion/react': 11.10.5_react@18.2.0
       '@emotion/styled': 11.10.5_hp5f5nkljdiwilp4rgxyefcplu
       '@mui/material': 5.10.12_5rzy53przelm5jchjmb5vr6dxy
+      '@mui/system': 5.10.12_dovxhg2tvkkxkdnqyoum6wzcxm
       '@mui/utils': 5.10.9_react@18.2.0
       '@types/react-transition-group': 4.4.5
       clsx: 1.2.1
@@ -9546,7 +9553,7 @@ packages:
     engines: {node: '>=0.8'}
     dev: true
 
-  /connected-react-router/6.9.3_react@18.2.0:
+  /connected-react-router/6.9.3_n6chwcsdq6puvu4oljeyhosdga:
     resolution: {integrity: sha512-4ThxysOiv/R2Dc4Cke1eJwjKwH1Y51VDwlOrOfs1LjpdYOVvCNjNkZDayo7+sx42EeGJPQUNchWkjAIJdXGIOQ==}
     peerDependencies:
       history: ^4.7.2
@@ -9558,6 +9565,7 @@ packages:
       lodash.isequalwith: 4.4.0
       prop-types: 15.8.1
       react: 18.2.0
+      react-router: 6.4.3_react@18.2.0
     optionalDependencies:
       immutable: 4.1.0
       seamless-immutable: 7.1.4
@@ -17424,13 +17432,14 @@ packages:
       react-dom: 18.2.0_react@18.2.0
     dev: true
 
-  /react-material-ui-carousel/3.4.2_bghksmy7fl67ylsf2xwnj4arxu:
+  /react-material-ui-carousel/3.4.2_am7jzsgcygpj6btxwdwdqzuxp4:
     resolution: {integrity: sha512-jUbC5aBWqbbbUOOdUe3zTVf4kMiZFwKJqwhxzHgBfklaXQbSopis4iWAHvEOLcZtSIJk4JAGxKE0CmxDoxvUuw==}
     peerDependencies:
       '@emotion/react': ^11.4.1
       '@emotion/styled': ^11.3.0
       '@mui/icons-material': ^5.0.0
       '@mui/material': ^5.0.0
+      '@mui/system': ^5.0.0
       react: ^17.0.1 || ^18.0.0
       react-dom: ^17.0.2 || ^18.0.0
     dependencies:
@@ -17442,8 +17451,6 @@ packages:
       framer-motion: 4.1.17_biqbaboplfbrettd7655fr4n2y
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
-    transitivePeerDependencies:
-      - '@types/react'
     dev: false
 
   /react-mock-router/1.0.15:
