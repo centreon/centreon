@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useTranslation } from 'react-i18next';
 import { always, cond, lt, lte, map, not, pick, T } from 'ramda';
 import { Responsive } from '@visx/visx';
@@ -5,19 +6,36 @@ import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 
 import {
   Paper,
+=======
+import * as React from 'react';
+
+import { useTranslation } from 'react-i18next';
+import { always, cond, lt, lte, map, not, pick, T } from 'ramda';
+import { Responsive } from '@visx/visx';
+
+import {
+  Paper,
+  makeStyles,
+>>>>>>> centreon/dev-21.10.x
   ButtonGroup,
   Button,
   useTheme,
   Tooltip,
   Theme,
+<<<<<<< HEAD
 } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import { CreateCSSProperties } from '@mui/styles';
+=======
+} from '@material-ui/core';
+import { CreateCSSProperties } from '@material-ui/styles';
+>>>>>>> centreon/dev-21.10.x
 
 import { useMemoComponent } from '@centreon/ui';
 
 import { timePeriods } from '../../../Details/tabs/Graph/models';
 import GraphOptions from '../ExportableGraphWithTimeline/GraphOptions';
+<<<<<<< HEAD
 
 import CustomTimePeriodPickers from './CustomTimePeriodPickers';
 import {
@@ -26,6 +44,11 @@ import {
   customTimePeriodAtom,
   selectedTimePeriodAtom,
 } from './timePeriodAtoms';
+=======
+import { useResourceContext } from '../../../Context';
+
+import CustomTimePeriodPickers from './CustomTimePeriodPickers';
+>>>>>>> centreon/dev-21.10.x
 
 interface StylesProps {
   disablePaper: boolean;
@@ -34,7 +57,10 @@ interface StylesProps {
 const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
   button: {
     fontSize: theme.typography.body2.fontSize,
+<<<<<<< HEAD
     pointerEvents: 'all',
+=======
+>>>>>>> centreon/dev-21.10.x
   },
   buttonGroup: {
     alignSelf: 'center',
@@ -44,7 +70,11 @@ const useStyles = makeStyles<Theme, StylesProps>((theme) => ({
     backgroundColor: disablePaper ? 'transparent' : 'undefined',
     border: disablePaper ? 'unset' : 'undefined',
     boxShadow: disablePaper ? 'unset' : 'undefined',
+<<<<<<< HEAD
     columnGap: theme.spacing(2),
+=======
+    columnGap: `${theme.spacing(2)}px`,
+>>>>>>> centreon/dev-21.10.x
     display: 'grid',
     gridTemplateColumns: `repeat(3, auto)`,
     justifyContent: 'center',
@@ -69,6 +99,7 @@ const TimePeriodButtonGroup = ({
   const { t } = useTranslation();
   const theme = useTheme();
 
+<<<<<<< HEAD
   const customTimePeriod = useAtomValue(customTimePeriodAtom);
   const selectedTimePeriod = useAtomValue(selectedTimePeriodAtom);
   const changeCustomTimePeriod = useUpdateAtom(
@@ -77,6 +108,14 @@ const TimePeriodButtonGroup = ({
   const changeSelectedTimePeriod = useUpdateAtom(
     changeSelectedTimePeriodDerivedAtom,
   );
+=======
+  const {
+    customTimePeriod,
+    changeCustomTimePeriod,
+    changeSelectedTimePeriod,
+    selectedTimePeriod,
+  } = useResourceContext();
+>>>>>>> centreon/dev-21.10.x
 
   const translatedTimePeriodOptions = timePeriodOptions.map((timePeriod) => ({
     ...timePeriod,
@@ -142,7 +181,10 @@ const TimePeriodButtonGroup = ({
       disableGraphOptions,
       disablePaper,
       selectedTimePeriod?.id,
+<<<<<<< HEAD
       customTimePeriod,
+=======
+>>>>>>> centreon/dev-21.10.x
     ],
   });
 };

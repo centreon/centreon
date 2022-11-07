@@ -30,10 +30,20 @@ use Centreon\Domain\Contact\Interfaces\ContactServiceInterface;
 class ContactService implements ContactServiceInterface
 {
     /**
+<<<<<<< HEAD
      * @param ContactRepositoryInterface $contactRepository
      */
     public function __construct(private ContactRepositoryInterface $contactRepository)
     {
+=======
+     * @var ContactRepositoryInterface
+     */
+    private $contactRepository;
+
+    public function __construct(ContactRepositoryInterface $contactRepository)
+    {
+        $this->contactRepository = $contactRepository;
+>>>>>>> centreon/dev-21.10.x
     }
 
     /**
@@ -94,6 +104,7 @@ class ContactService implements ContactServiceInterface
             throw ContactServiceException::errorWhileSearchingContact($ex);
         }
     }
+<<<<<<< HEAD
 
     /**
      * @inheritDoc
@@ -102,4 +113,6 @@ class ContactService implements ContactServiceInterface
     {
         return $this->contactRepository->findByEmail($email);
     }
+=======
+>>>>>>> centreon/dev-21.10.x
 }

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useRef, useEffect } from 'react';
 
 import {
@@ -51,6 +52,18 @@ import {
   customFiltersAtom,
   getCriteriaValueDerivedAtom,
 } from '../../Filter/filterAtoms';
+=======
+import * as React from 'react';
+
+import { equals, isNil, not, prop } from 'ramda';
+
+import { SelectEntry } from '@centreon/ui';
+import { useUserContext } from '@centreon/ui-context';
+
+import { useResourceContext } from '../../Context';
+import { SortOrder } from '../../models';
+import { searchableFields } from '../../Filter/Criterias/searchQueryLanguage';
+>>>>>>> centreon/dev-21.10.x
 
 export interface LoadResources {
   initAutorefreshAndLoad: () => void;
@@ -60,6 +73,7 @@ const secondSortField = 'last_status_change';
 const defaultSecondSortCriteria = { [secondSortField]: SortOrder.desc };
 
 const useLoadResources = (): LoadResources => {
+<<<<<<< HEAD
   const { t } = useTranslation();
 
   const { sendRequest, sending } = useRequest<ResourceListing>({
@@ -100,6 +114,26 @@ const useLoadResources = (): LoadResources => {
   const clearSelectedResource = useUpdateAtom(clearSelectedResourceDerivedAtom);
 
   const refreshIntervalRef = useRef<number>();
+=======
+  const {
+    limit,
+    page,
+    setPage,
+    setListing,
+    sendRequest,
+    enabledAutorefresh,
+    customFilters,
+    loadDetails,
+    details,
+    selectedResourceId,
+    getCriteriaValue,
+    appliedFilter,
+  } = useResourceContext();
+
+  const refreshIntervalRef = React.useRef<number>();
+
+  const { refreshInterval } = useUserContext();
+>>>>>>> centreon/dev-21.10.x
 
   const refreshIntervalMs = refreshInterval * 1000;
 
@@ -121,6 +155,7 @@ const useLoadResources = (): LoadResources => {
     };
   };
 
+<<<<<<< HEAD
   const loadDetails = (): void => {
     if (isNil(selectedResourceId)) {
       return;
@@ -135,6 +170,8 @@ const useLoadResources = (): LoadResources => {
       });
   };
 
+=======
+>>>>>>> centreon/dev-21.10.x
   const load = (): void => {
     const searchCriteria = getCriteriaValue('search');
     const search = searchCriteria
@@ -164,10 +201,13 @@ const useLoadResources = (): LoadResources => {
       return criteriaValue?.map(prop('name')) as Array<string>;
     };
 
+<<<<<<< HEAD
     if (getUrlQueryParameters().fromTopCounter) {
       return;
     }
 
+=======
+>>>>>>> centreon/dev-21.10.x
     sendRequest({
       hostGroups: getCriteriaNames('host_groups'),
       limit,
@@ -210,17 +250,29 @@ const useLoadResources = (): LoadResources => {
     load();
   };
 
+<<<<<<< HEAD
   useEffect(() => {
     initAutorefresh();
   }, [enabledAutorefresh, selectedResourceId]);
 
   useEffect(() => {
+=======
+  React.useEffect(() => {
+    initAutorefresh();
+  }, [enabledAutorefresh, selectedResourceId]);
+
+  React.useEffect(() => {
+>>>>>>> centreon/dev-21.10.x
     return (): void => {
       clearInterval(refreshIntervalRef.current);
     };
   }, []);
 
+<<<<<<< HEAD
   useEffect(() => {
+=======
+  React.useEffect(() => {
+>>>>>>> centreon/dev-21.10.x
     if (isNil(details)) {
       return;
     }
@@ -228,7 +280,11 @@ const useLoadResources = (): LoadResources => {
     initAutorefresh();
   }, [isNil(details)]);
 
+<<<<<<< HEAD
   useEffect(() => {
+=======
+  React.useEffect(() => {
+>>>>>>> centreon/dev-21.10.x
     if (isNil(page)) {
       return;
     }
@@ -236,7 +292,11 @@ const useLoadResources = (): LoadResources => {
     initAutorefreshAndLoad();
   }, [page]);
 
+<<<<<<< HEAD
   useEffect(() => {
+=======
+  React.useEffect(() => {
+>>>>>>> centreon/dev-21.10.x
     if (page === 1) {
       initAutorefreshAndLoad();
     }
@@ -244,6 +304,7 @@ const useLoadResources = (): LoadResources => {
     setPage(1);
   }, [limit, appliedFilter]);
 
+<<<<<<< HEAD
   useEffect(() => {
     setSending(sending);
   }, [sending]);
@@ -257,6 +318,8 @@ const useLoadResources = (): LoadResources => {
     loadDetails();
   }, [selectedResourceUuid]);
 
+=======
+>>>>>>> centreon/dev-21.10.x
   return { initAutorefreshAndLoad };
 };
 

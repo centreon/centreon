@@ -23,14 +23,21 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Authentication\Exception;
 
+<<<<<<< HEAD
 use Core\Domain\Security\Authentication\AuthenticationException as CoreAuthenticationException;
 
+=======
+>>>>>>> centreon/dev-21.10.x
 /**
  * This class is designed to contain all exceptions for the context of the authentication process.
  *
  * @package Centreon\Domain\Authentication\Exception
  */
+<<<<<<< HEAD
 class AuthenticationException extends CoreAuthenticationException
+=======
+class AuthenticationException extends \Exception
+>>>>>>> centreon/dev-21.10.x
 {
     /**
      * @return self
@@ -43,6 +50,17 @@ class AuthenticationException extends CoreAuthenticationException
     /**
      * @return self
      */
+<<<<<<< HEAD
+=======
+    public static function notAuthenticated(): self
+    {
+        return new self(_('Authentication failed'));
+    }
+
+    /**
+     * @return self
+     */
+>>>>>>> centreon/dev-21.10.x
     public static function notAllowedToReachWebApplication(): self
     {
         return new self(_('User is not allowed to reach web application'));

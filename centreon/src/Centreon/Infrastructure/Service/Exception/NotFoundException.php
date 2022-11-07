@@ -6,4 +6,8 @@ use RuntimeException;
 
 class NotFoundException extends RuntimeException
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
 }

@@ -85,6 +85,7 @@ function testTPExistence($name = null)
         $id = $form->getSubmitValue('tp_id');
     }
 
+<<<<<<< HEAD
     $query = "SELECT tp_name, tp_id FROM timeperiod WHERE tp_name = '" .
         htmlentities($centreon->checkIllegalChar($name), ENT_QUOTES, "UTF-8") . "'";
     $dbResult = $pearDB->query($query);
@@ -94,6 +95,21 @@ function testTPExistence($name = null)
         return true;
     } #Duplicate entry
     elseif ($dbResult->rowCount() >= 1 && $tp["tp_id"] != $id) {
+=======
+    $query = 'SELECT tp_name, tp_id FROM timeperiod WHERE tp_name = :tp_name';
+    $statement = $pearDB->prepare($query);
+    $statement->bindValue(
+        ':tp_name',
+        htmlentities($centreon->checkIllegalChar($name), ENT_QUOTES, "UTF-8"),
+        \PDO::PARAM_STR
+    );
+    $statement->execute();
+    $tp = $statement->fetch(\PDO::FETCH_ASSOC);
+    #Modif case
+    if ($statement->rowCount() >= 1 && $tp["tp_id"] == $id) {
+        return true;
+    } elseif ($statement->rowCount() >= 1 && $tp["tp_id"] != $id) { #Duplicate entry
+>>>>>>> centreon/dev-21.10.x
         return false;
     } else {
         return true;
@@ -132,15 +148,23 @@ function multipleTimeperiodInDB($timeperiods = array(), $nbrDup = array())
         $row = $dbResult->fetch();
         $row["tp_id"] = null;
         for ($i = 1; $i <= $nbrDup[$key]; $i++) {
+<<<<<<< HEAD
             $val = null;
+=======
+            $val = [];
+>>>>>>> centreon/dev-21.10.x
             foreach ($row as $key2 => $value2) {
                 if ($key2 == "tp_name") {
                     $value2 .= "_" . $i;
                 }
                 $key2 == "tp_name" ? ($tp_name = $value2) : "";
+<<<<<<< HEAD
                 $val
                     ? $val .= ($value2 != null ? (", '" . $value2 . "'") : ", NULL")
                     : $val .= ($value2 != null ? ("'" . $value2 . "'") : "NULL");
+=======
+                $val[] = $value2 ?: null;
+>>>>>>> centreon/dev-21.10.x
                 if ($key2 != "tp_id") {
                     $fields[$key2] = $value2;
                 }
@@ -149,6 +173,7 @@ function multipleTimeperiodInDB($timeperiods = array(), $nbrDup = array())
                 }
             }
             if (isset($tp_name) && testTPExistence($tp_name)) {
+<<<<<<< HEAD
                 $pearDB->query($val ? $rq = "INSERT INTO timeperiod VALUES (" . $val . ")" : $rq = null);
 
                 /*
@@ -173,6 +198,14 @@ function multipleTimeperiodInDB($timeperiods = array(), $nbrDup = array())
                 $pearDB->query($query);
 
                 $centreon->CentreonLogAction->insertLog("timeperiod", $tp_id["MAX(tp_id)"], $tp_name, "a", $fields);
+=======
+                $params = [
+                    'values' => $val,
+                    'timeperiod_id' => $key
+                ];
+                $tpId = duplicateTimePeriod($params);
+                $centreon->CentreonLogAction->insertLog("timeperiod", $tpId, $tp_name, "a", $fields);
+>>>>>>> centreon/dev-21.10.x
             }
         }
     }
@@ -329,6 +362,7 @@ function insertTimeperiod($ret = array(), $exceptions = null)
     }
     if (isset($my_tab['nbOfExceptions'])) {
         $already_stored = array();
+<<<<<<< HEAD
         for ($i = 0; $i <= $my_tab['nbOfExceptions']; $i++) {
             $exInput = "exceptionInput_" . $i;
             $exValue = "exceptionTimerange_" . $i;
@@ -339,6 +373,22 @@ function insertTimeperiod($ret = array(), $exceptions = null)
                     "VALUES ('" . $tp_id['MAX(tp_id)'] . "', LOWER('" . $pearDB->escape($my_tab[$exInput]) . "'), '" .
                     $pearDB->escape($my_tab[$exValue]) . "')";
                 $pearDB->query($query);
+=======
+        $query = "INSERT INTO timeperiod_exceptions (`timeperiod_id`, `days`, `timerange`) " .
+                 "VALUES (:timeperiod_id, :days, :timerange)";
+        $statement = $pearDB->prepare($query);
+        for ($i = 0; $i <= $my_tab['nbOfExceptions']; $i++) {
+            $exInput = "exceptionInput_" . $i;
+            $exValue = "exceptionTimerange_" . $i;
+            if (
+                isset($my_tab[$exInput]) && !isset($already_stored[strtolower($my_tab[$exInput])]) &&
+                $my_tab[$exInput]
+            ) {
+                $statement->bindValue(':timeperiod_id', (int) $tp_id['MAX(tp_id)'], \PDO::PARAM_INT);
+                $statement->bindValue(':days', strtolower($my_tab[$exInput]), \PDO::PARAM_STR);
+                $statement->bindValue(':timerange', $my_tab[$exValue], \PDO::PARAM_STR);
+                $statement->execute();
+>>>>>>> centreon/dev-21.10.x
                 $fields[$my_tab[$exInput]] = $my_tab[$exValue];
                 $already_stored[strtolower($my_tab[$exInput])] = 1;
             }
@@ -475,3 +525,117 @@ function testTemplateLoop($value)
 
     return true;
 }
+<<<<<<< HEAD
+=======
+
+/**
+ * All in one function to duplicate time periods
+ *
+ * @param array $params
+ * @return int
+ */
+function duplicateTimePeriod(array $params): int
+{
+    global $pearDB;
+
+    $isAlreadyInTransaction = $pearDB->inTransaction();
+    if (!$isAlreadyInTransaction) {
+        $pearDB->beginTransaction();
+    }
+    try {
+        $params['tp_id'] = createTimePeriod($params);
+        createTimePeriodsExceptions($params);
+        createTimePeriodsIncludeRelations($params);
+        createTimePeriodsExcludeRelations($params);
+        if (!$isAlreadyInTransaction) {
+            $pearDB->commit();
+        }
+    } catch (\Exception $e) {
+        if (!$isAlreadyInTransaction) {
+            $pearDB->rollBack();
+        }
+    }
+    return $params['tp_id'];
+}
+
+/**
+ * Creates time period and returns id.
+ *
+ * @param array $params
+ * @return int
+ */
+function createTimePeriod(array $params): int
+{
+    global $pearDB;
+
+    $queryBindValues = [];
+    foreach ($params['values'] as $index => $value) {
+        $queryBindValues[':value_' . $index] = $value;
+    }
+    $bindValues = implode(', ', array_keys($queryBindValues));
+    $statement = $pearDB->prepare("INSERT INTO timeperiod VALUES ($bindValues)");
+    foreach ($queryBindValues as $bindKey => $bindValue) {
+        if (array_key_first($queryBindValues) === $bindKey) {
+            $statement->bindValue($bindKey, (int) $bindValue, \PDO::PARAM_INT);
+        } else {
+            $statement->bindValue($bindKey, $bindValue, \PDO::PARAM_STR);
+        }
+    }
+    $statement->execute();
+    return (int) $pearDB->lastInsertId();
+}
+
+/**
+ * Creates time periods exclude relations
+ *
+ * @param array $params
+ */
+function createTimePeriodsExcludeRelations(array $params): void
+{
+    global $pearDB;
+
+    $query = "INSERT INTO timeperiod_exclude_relations (timeperiod_id, timeperiod_exclude_id) " .
+             "SELECT :tp_id, timeperiod_exclude_id FROM timeperiod_exclude_relations " .
+             "WHERE timeperiod_id = :timeperiod_id";
+    $statement = $pearDB->prepare($query);
+    $statement->bindValue(':tp_id', $params['tp_id'], \PDO::PARAM_INT);
+    $statement->bindValue(':timeperiod_id', (int) $params['timeperiod_id'], \PDO::PARAM_INT);
+    $statement->execute();
+}
+
+/**
+ * Creates time periods include relations
+ *
+ * @param array $params
+ */
+function createTimePeriodsIncludeRelations(array $params): void
+{
+    global $pearDB;
+
+    $query = "INSERT INTO timeperiod_include_relations (timeperiod_id, timeperiod_include_id) " .
+             "SELECT :tp_id, timeperiod_include_id FROM timeperiod_include_relations " .
+             "WHERE timeperiod_id = :timeperiod_id";
+    $statement = $pearDB->prepare($query);
+    $statement->bindValue(':tp_id', $params['tp_id'], \PDO::PARAM_INT);
+    $statement->bindValue(':timeperiod_id', (int) $params['timeperiod_id'], \PDO::PARAM_INT);
+    $statement->execute();
+}
+
+/**
+ * Creates time periods exceptions
+ *
+ * @param array $params
+ */
+function createTimePeriodsExceptions(array $params): void
+{
+    global $pearDB;
+
+    $query = "INSERT INTO timeperiod_exceptions (timeperiod_id, days, timerange) " .
+             "SELECT :tp_id, days, timerange FROM timeperiod_exceptions " .
+             "WHERE timeperiod_id = :timeperiod_id";
+    $statement = $pearDB->prepare($query);
+    $statement->bindValue(':tp_id', $params['tp_id'], \PDO::PARAM_INT);
+    $statement->bindValue(':timeperiod_id', (int) $params['timeperiod_id'], \PDO::PARAM_INT);
+    $statement->execute();
+}
+>>>>>>> centreon/dev-21.10.x

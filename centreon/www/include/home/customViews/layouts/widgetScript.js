@@ -42,6 +42,7 @@ jQuery(function () {
                     event: 'dblclick'
                 }
             );
+<<<<<<< HEAD
             wrenchSpan = '<svg xmlns="http://www.w3.org/2000/svg" class="ui-icon ui-icon-wrench" viewBox="0 0 24 24">' +
                 '<path clip-rule="evenodd" d="M0 0h24v24H0z" fill="none"/>' +
                 '<path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 ' +
@@ -49,6 +50,10 @@ jQuery(function () {
             trashSpan = '<svg xmlns="http://www.w3.org/2000/svg" class="ui-icon ui-icon-trash" viewBox="0 0 24 24">' +
                 '<path d="M0 0h24v24H0z" fill="none"/><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 ' +
                 '4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>';
+=======
+            wrenchSpan = '<span class="ui-icon ui-icon-wrench"></span>';
+            trashSpan = '<span class="ui-icon ui-icon-trash"></span>';
+>>>>>>> centreon/dev-21.10.x
         }
 
         if (!ownership) {
@@ -61,6 +66,7 @@ jQuery(function () {
         jQuery(".portlet").addClass("ui-widget ui-widget-content ui-helper-clearfix ui-corner-all")
             .find(".portlet-header")
             .addClass("ui-widget-header ui-corner-all")
+<<<<<<< HEAD
             .prepend(
                 '<svg xmlns="http://www.w3.org/2000/svg" class="ui-icon ui-icon-refresh" height="18px" ' +
                 'viewBox="0 0 24 24" width="18px" fill="#000000"><path d="M0 0h24v24H0z" fill="none"/>' +
@@ -71,6 +77,12 @@ jQuery(function () {
             .prepend(trashSpan)
             .prepend('<svg xmlns="http://www.w3.org/2000/svg" class="show-hide ui-icon ui-icon-minusthick" ' +
                 'viewBox="0 0 24 24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M6 19h12v2H6z"/></svg>')
+=======
+            .prepend('<span class="ui-icon ui-icon-refresh"></span>')
+            .prepend(wrenchSpan)
+            .prepend(trashSpan)
+            .prepend('<span class="show-hide ui-icon ui-icon-minusthick"></span>')
+>>>>>>> centreon/dev-21.10.x
             .end()
             .find(".portlet-content");
 
@@ -115,7 +127,11 @@ jQuery(function () {
         });
     });
 
+<<<<<<< HEAD
     jQuery("svg[class='ui-icon ui-icon-trash']").each(function (index, element) {
+=======
+    jQuery("span[class='ui-icon ui-icon-trash']").each(function (index, element) {
+>>>>>>> centreon/dev-21.10.x
         var tmp = jQuery(element).parents('.portlet').attr('name')
         var widgetIndex = tmp.split("portlet_");
         var widgetId = widgetIndex[1];

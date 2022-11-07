@@ -34,7 +34,10 @@ use Security\Domain\Authentication\Exceptions\ProviderException;
 use Security\Domain\Authentication\Interfaces\ProviderServiceInterface;
 use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
 use Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface;
+<<<<<<< HEAD
 use Security\Domain\Authentication\Interfaces\LocalProviderInterface;
+=======
+>>>>>>> centreon/dev-21.10.x
 
 class AuthenticateApi
 {
@@ -119,6 +122,7 @@ class AuthenticateApi
     /**
      * Find the local provider or throw an Exception.
      *
+<<<<<<< HEAD
      * @return LocalProviderInterface
      * @throws ProviderException
      */
@@ -127,6 +131,13 @@ class AuthenticateApi
         /**
          * @var LocalProviderInterface|null
          */
+=======
+     * @return ProviderInterface
+     * @throws ProviderException
+     */
+    private function findLocalProviderOrFail(): ProviderInterface
+    {
+>>>>>>> centreon/dev-21.10.x
         $localProvider = $this->providerService->findProviderByConfigurationName(LocalProvider::NAME);
 
         if ($localProvider === null) {
@@ -139,7 +150,11 @@ class AuthenticateApi
     /**
      * Authenticate the user or throw an Exception.
      *
+<<<<<<< HEAD
      * @param LocalProviderInterface $localProvider
+=======
+     * @param ProviderInterface $localProvider
+>>>>>>> centreon/dev-21.10.x
      * @param AuthenticateApiRequest $request
      * @throws AuthenticationException
      */
@@ -149,18 +164,36 @@ class AuthenticateApi
          * Authenticate with the legacy mechanism encapsulated into the Local Provider.
          */
         $this->debug('[AUTHENTICATE API] Authentication using provider', ['provider_name' => LocalProvider::NAME]);
+<<<<<<< HEAD
         $localProvider->authenticateOrFail(
             [
                 'login' => $request->getLogin(),
                 'password' => $request->getPassword(),
             ],
         );
+=======
+        $localProvider->authenticate(['login' => $request->getLogin(), 'password' => $request->getPassword()]);
+        if (!$localProvider->isAuthenticated()) {
+            $this->critical(
+                "[AUTHENTICATE API] Provider can't authenticate successfully user ",
+                [
+                    "provider_name" => $localProvider->getName(),
+                    "user" => $request->getLogin()
+                ]
+            );
+            throw AuthenticationException::invalidCredentials();
+        }
+>>>>>>> centreon/dev-21.10.x
     }
 
     /**
      * Retrieve user from provider or throw an Exception.
      *
+<<<<<<< HEAD
      * @param LocalProviderInterface $localProvider
+=======
+     * @param ProviderInterface $localProvider
+>>>>>>> centreon/dev-21.10.x
      * @return ContactInterface
      * @throws AuthenticationException
      */

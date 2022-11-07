@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* eslint-disable react/jsx-no-constructed-context-values */
 import axios from 'axios';
 import { omit, head, prop } from 'ramda';
@@ -7,6 +8,23 @@ import { RenderResult, render, waitFor, fireEvent, act } from '@centreon/ui';
 
 import Context, { ResourceContext } from '../../testUtils/Context';
 import useFilter from '../../testUtils/useFilter';
+=======
+import * as React from 'react';
+
+import axios from 'axios';
+import {
+  RenderResult,
+  render,
+  waitFor,
+  fireEvent,
+  act,
+} from '@testing-library/react';
+import { omit, head, prop } from 'ramda';
+import { makeDnd, DND_DIRECTION_DOWN } from 'react-beautiful-dnd-test-utils';
+
+import Context, { ResourceContext } from '../../Context';
+import useFilter from '../useFilter';
+>>>>>>> centreon/dev-21.10.x
 import { labelFilter, labelName, labelDelete } from '../../translatedLabels';
 import { filterEndpoint } from '../api';
 import { defaultSortField, defaultSortOrder } from '../Criterias/default';
@@ -33,12 +51,15 @@ const EditFilterPanelTest = (): JSX.Element => {
   );
 };
 
+<<<<<<< HEAD
 const EditFilterPanelTestWithJotai = (): JSX.Element => (
   <Provider>
     <EditFilterPanelTest />
   </Provider>
 );
 
+=======
+>>>>>>> centreon/dev-21.10.x
 const retrievedCustomFilters = {
   meta: {
     limit: 30,
@@ -96,7 +117,11 @@ const retrievedCustomFilters = {
 };
 
 const renderEditFilterPanel = (): RenderResult =>
+<<<<<<< HEAD
   render(<EditFilterPanelTestWithJotai />);
+=======
+  render(<EditFilterPanelTest />);
+>>>>>>> centreon/dev-21.10.x
 
 describe(EditFilterPanel, () => {
   beforeEach(() => {
@@ -132,12 +157,15 @@ describe(EditFilterPanel, () => {
 
     mockedAxios.put.mockResolvedValue({ data: updatedFilter });
 
+<<<<<<< HEAD
     await waitFor(() =>
       expect(
         getByLabelText(`${labelFilter}-${firstFilter.id}-${labelName}`),
       ).toBeInTheDocument(),
     );
 
+=======
+>>>>>>> centreon/dev-21.10.x
     const renameFilterInput = getByLabelText(
       `${labelFilter}-${firstFilter.id}-${labelName}`,
     );
@@ -163,7 +191,11 @@ describe(EditFilterPanel, () => {
   });
 
   it('deletes a filter and sends a delete request when the corresponding delete button is clicked', async () => {
+<<<<<<< HEAD
     const { getAllByLabelText, getByText } = renderEditFilterPanel();
+=======
+    const { getAllByTitle, getByText } = renderEditFilterPanel();
+>>>>>>> centreon/dev-21.10.x
 
     const [firstFilter] = retrievedCustomFilters.result;
 
@@ -176,12 +208,19 @@ describe(EditFilterPanel, () => {
       expect(mockedAxios.get).toHaveBeenCalled();
     });
 
+<<<<<<< HEAD
     await waitFor(() => expect(getAllByLabelText(labelDelete)).toHaveLength(2));
 
     fireEvent.click(
       head(getAllByLabelText(labelDelete))?.firstElementChild as HTMLElement,
     );
     fireEvent.click(getByText(labelDelete) as HTMLElement);
+=======
+    fireEvent.click(
+      head(getAllByTitle(labelDelete))?.firstElementChild as HTMLElement,
+    );
+    fireEvent.click(getByText(labelDelete).parentElement as HTMLElement);
+>>>>>>> centreon/dev-21.10.x
 
     await waitFor(() => {
       expect(filterState.customFilters.map(prop('id'))).not.toContain(
@@ -193,4 +232,42 @@ describe(EditFilterPanel, () => {
       );
     });
   });
+<<<<<<< HEAD
+=======
+
+  it('reorders the filter and sends a reorder request when it is dragged to a different position', async () => {
+    const [firstFilter] = retrievedCustomFilters.result;
+
+    const { getByText, container } = renderEditFilterPanel();
+
+    act(() => {
+      filterState.loadCustomFilters();
+      filterState.setEditPanelOpen(true);
+    });
+
+    await waitFor(() => {
+      expect(mockedAxios.get).toHaveBeenCalled();
+    });
+
+    const firstFilterDraggable = container.querySelector(
+      `[data-rbd-drag-handle-draggable-id="${firstFilter.id}"]`,
+    );
+
+    await makeDnd({
+      direction: DND_DIRECTION_DOWN,
+      getByText,
+      getDragEl: () => firstFilterDraggable,
+      positions: 1,
+    });
+
+    await waitFor(() => {
+      expect(filterState.customFilters.map(prop('id'))).toEqual([1, 0]);
+      expect(mockedAxios.patch).toHaveBeenCalledWith(
+        `${filterEndpoint}/${firstFilter.id}`,
+        { order: 1 },
+        expect.anything(),
+      );
+    });
+  });
+>>>>>>> centreon/dev-21.10.x
 });

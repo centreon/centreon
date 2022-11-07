@@ -7,6 +7,10 @@ Centreon\Domain\Monitoring\Resource:
             groups:
                 - 'resource_main'
                 - 'resource_parent'
+<<<<<<< HEAD
+=======
+                - 'resource_details'
+>>>>>>> centreon/dev-21.10.x
         getDuration:
             name: getDuration
             serialized_name: duration
@@ -32,6 +36,10 @@ Centreon\Domain\Monitoring\Resource:
             groups:
                 - 'resource_main'
                 - 'resource_parent'
+<<<<<<< HEAD
+=======
+                - 'resource_details'
+>>>>>>> centreon/dev-21.10.x
         type:
             type: string
             groups:
@@ -42,21 +50,48 @@ Centreon\Domain\Monitoring\Resource:
             groups:
                 - 'resource_main'
                 - 'resource_parent'
+<<<<<<< HEAD
+=======
+                - 'resource_details'
+>>>>>>> centreon/dev-21.10.x
         alias:
             type: string
             groups:
                 - 'resource_main'
                 - 'resource_parent'
+<<<<<<< HEAD
+=======
+                - 'resource_details'
+>>>>>>> centreon/dev-21.10.x
         fqdn:
             type: string
             groups:
                 - 'resource_main'
                 - 'resource_parent'
+<<<<<<< HEAD
+=======
+                - 'resource_details'
+>>>>>>> centreon/dev-21.10.x
         icon:
             type: Centreon\Domain\Monitoring\Icon
             groups:
                 - 'resource_main'
                 - 'resource_parent'
+<<<<<<< HEAD
+=======
+        commandLine:
+            type: string
+            groups:
+                - 'resource_details'
+        timezone:
+            type: string
+            access_type: public_method
+            accessor:
+              getter: getSanitizedTimezone
+              setter: setTimezone
+            groups:
+                - 'resource_details'
+>>>>>>> centreon/dev-21.10.x
         parent:
             type: Centreon\Domain\Monitoring\Resource
             groups:
@@ -66,10 +101,29 @@ Centreon\Domain\Monitoring\Resource:
             groups:
                 - 'resource_main'
                 - 'resource_parent'
+<<<<<<< HEAD
+=======
+                - 'resource_details'
+>>>>>>> centreon/dev-21.10.x
         flapping:
             type: bool
             groups:
                 - 'resource_main'
+<<<<<<< HEAD
+=======
+        percentStateChange:
+            type: double
+            groups:
+                - 'resource_details'
+        lastCheck:
+            type: DateTime<'Y-m-d\TH:i:sP'>
+            groups:
+                - 'resource_details'
+        nextCheck:
+            type: DateTime<'Y-m-d\TH:i:sP'>
+            groups:
+                - 'resource_details'
+>>>>>>> centreon/dev-21.10.x
         inDowntime:
             type: bool
             groups:
@@ -103,6 +157,21 @@ Centreon\Domain\Monitoring\Resource:
             type: DateTime<'Y-m-d\TH:i:sP'>
             groups:
                 - 'resource_main'
+<<<<<<< HEAD
+=======
+        lastTimeWithNoIssue:
+            type: DateTime<'Y-m-d\TH:i:sP'>
+            groups:
+                - 'resource_details'  
+        lastNotification:
+            type: DateTime
+            groups:
+                - 'resource_details'
+        notificationNumber:
+            type: int
+            groups:
+                - 'resource_details'
+>>>>>>> centreon/dev-21.10.x
         tries:
             type: string
             groups:
@@ -115,10 +184,41 @@ Centreon\Domain\Monitoring\Resource:
             type: string
             groups:
                 - 'resource_main'
+<<<<<<< HEAD
+=======
+        executionTime:
+            type: double
+            groups:
+                - 'resource_details'
+        latency:
+            type: double
+            groups:
+                - 'resource_details'
+        downtimes:
+            type: array<Centreon\Domain\Downtime\Downtime>
+            groups:
+                - 'resource_details'
+        acknowledgement:
+            type: Centreon\Domain\Acknowledgement\Acknowledgement
+            groups:
+                - 'resource_details'
+        groups:
+            type: array<Centreon\Domain\Monitoring\ResourceGroup>
+            groups:
+                - 'resource_details'
+>>>>>>> centreon/dev-21.10.x
         monitoringServerName:
             type: string
             groups:
                 - 'resource_main'
+<<<<<<< HEAD
+=======
+                - 'resource_details'
+        calculationType:
+            type: string
+            groups:
+                - 'resource_details'
+>>>>>>> centreon/dev-21.10.x
         notificationEnabled:
             type: bool
             groups:

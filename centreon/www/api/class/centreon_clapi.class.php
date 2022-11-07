@@ -51,6 +51,10 @@ require_once _CENTREON_PATH_ . '/www/class/centreon-clapi/centreonAPI.class.php'
  */
 class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiInterface
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * @var \Pimple\Container
      */
@@ -191,13 +195,21 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
         for ($i = 0; $i < count($lines); $i++) {
             if (strpos($lines[$i], ';') !== false) {
                 $tmpLine = explode(';', $lines[$i]);
+<<<<<<< HEAD
 
+=======
+                
+>>>>>>> centreon/dev-21.10.x
                 if (count($tmpLine) > count($headers)) {
                     /* Handle ; in variable (more values than headers) */
                     $tmpLine[count($headers) - 1] = implode(';', array_slice($tmpLine, count($headers) - 1));
                     $tmpLine = array_slice($tmpLine, 0, count($headers));
                 }
+<<<<<<< HEAD
 
+=======
+                
+>>>>>>> centreon/dev-21.10.x
                 foreach ($tmpLine as &$line) {
                     if (strpos($line, "|") !== false) {
                         $line = explode("|", $line);
@@ -210,11 +222,19 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
                 $return['result'][] = $lines[$i];
             }
         }
+<<<<<<< HEAD
 
         if (is_array($return['result'])) {
             array_walk($return['result'], [$this, 'clearCarriageReturns']);
         }
 
+=======
+        
+        if (is_array($return['result'])) {
+            array_walk($return['result'], [$this, 'clearCarriageReturns']);
+        }
+            
+>>>>>>> centreon/dev-21.10.x
         return $return;
     }
 
@@ -230,7 +250,11 @@ class CentreonClapi extends CentreonWebService implements CentreonWebServiceDiIn
     {
         if (
             parent::authorize($action, $user, $isInternal)
+<<<<<<< HEAD
             || ($user && $user->hasAccessRestApiConfiguration())
+=======
+            || ($user && $user->is_admin())
+>>>>>>> centreon/dev-21.10.x
         ) {
             return true;
         }

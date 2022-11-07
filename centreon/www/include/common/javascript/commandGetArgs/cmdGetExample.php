@@ -58,6 +58,7 @@ if (isset($_POST["index"])) {
         exit();
     }
 
+<<<<<<< HEAD
     $DBRESULT = $pearDB->query(
         "SELECT `command_example` FROM `command` WHERE `command_id` = '". $pearDB->escape($_POST["index"]) ."'"
     );
@@ -66,5 +67,16 @@ if (isset($_POST["index"])) {
     }
     unset($arg);
     unset($DBRESULT);
+=======
+    $statement = $pearDB->prepare(
+        "SELECT `command_example` FROM `command` WHERE `command_id` = :command_id"
+    );
+    $statement->bindValue(':command_id', (int) $_POST["index"], \PDO::PARAM_INT);
+    $statement->execute();
+    while ($arg = $statement->fetch(\PDO::FETCH_ASSOC)) {
+        echo myDecodeService($arg["command_example"]);
+    }
+    unset($arg, $statement);
+>>>>>>> centreon/dev-21.10.x
     $pearDB = null;
 }

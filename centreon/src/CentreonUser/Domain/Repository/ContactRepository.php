@@ -32,7 +32,10 @@ class ContactRepository extends ServiceEntityRepository
     /**
      * Check list of IDs
      *
+<<<<<<< HEAD
      * @param int[] $ids
+=======
+>>>>>>> centreon/dev-21.10.x
      * @return bool
      */
     public function checkListOfIds(array $ids): bool

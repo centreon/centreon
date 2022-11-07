@@ -1,5 +1,8 @@
 <?php
+<<<<<<< HEAD
 
+=======
+>>>>>>> centreon/dev-21.10.x
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -26,10 +29,18 @@ use CentreonRemote\Infrastructure\Export\ExportParserInterface;
 
 final class ExportCommitment
 {
+<<<<<<< HEAD
     /**
      * @var int[]
      */
     private $pollers;
+=======
+
+    /**
+     * @var int
+     */
+    private $poller;
+>>>>>>> centreon/dev-21.10.x
 
     /**
      * @var string
@@ -42,34 +53,51 @@ final class ExportCommitment
     private $parser;
 
     /**
+<<<<<<< HEAD
      * @var array<mixed>
+=======
+     * @var array
+>>>>>>> centreon/dev-21.10.x
      */
     private $exporters;
 
     /**
+<<<<<<< HEAD
      * @var array<mixed>
      */
     private $meta;
 
     /**
+=======
+>>>>>>> centreon/dev-21.10.x
      * @var int
      */
     private $filePermission = 0775;
 
     /**
+<<<<<<< HEAD
      * @var int
      */
     private $remote;
 
     /**
+=======
+>>>>>>> centreon/dev-21.10.x
      * Construct
      *
      * @param int $remote
      * @param int[] $pollers
+<<<<<<< HEAD
      * @param array<mixed> $meta
      * @param \CentreonRemote\Infrastructure\Export\ExportParserInterface $parser
      * @param string $path
      * @param array<int,string> $exporters
+=======
+     * @param array $meta
+     * @param \CentreonRemote\Infrastructure\Export\ExportParserInterface $parser
+     * @param string $path
+     * @param array $exporters
+>>>>>>> centreon/dev-21.10.x
      */
     public function __construct(
         int $remote = null,
@@ -93,7 +121,11 @@ final class ExportCommitment
             $this->path = _CENTREON_CACHEDIR_ . '/config/export/' . $this->remote;
         }
 
+<<<<<<< HEAD
         $this->parser = $parser ?? new ExportParserJson();
+=======
+        $this->parser = $parser ?? new ExportParserJson;
+>>>>>>> centreon/dev-21.10.x
     }
 
     public function getRemote(): int
@@ -101,18 +133,25 @@ final class ExportCommitment
         return $this->remote;
     }
 
+<<<<<<< HEAD
     /**
      * @return int[]
      */
+=======
+>>>>>>> centreon/dev-21.10.x
     public function getPollers(): array
     {
         return $this->pollers;
     }
 
+<<<<<<< HEAD
     /**
      * @return array<mixed>|null
      */
     public function getMeta()
+=======
+    public function getMeta(): ?array
+>>>>>>> centreon/dev-21.10.x
     {
         return $this->meta;
     }
@@ -122,9 +161,12 @@ final class ExportCommitment
         return $this->path;
     }
 
+<<<<<<< HEAD
     /**
      * @return array<mixed>
      */
+=======
+>>>>>>> centreon/dev-21.10.x
     public function getExporters(): array
     {
         return $this->exporters;

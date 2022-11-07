@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\Engine;
 
+<<<<<<< HEAD
 use Centreon\Domain\Common\Assertion\Assertion;
 
 class EngineConfiguration
@@ -36,6 +37,10 @@ class EngineConfiguration
         self::NOTIFICATIONS_OPTION_DEFAULT,
     ];
 
+=======
+class EngineConfiguration
+{
+>>>>>>> centreon/dev-21.10.x
     /**
      * @var int|null
      */
@@ -57,11 +62,14 @@ class EngineConfiguration
     private $name;
 
     /**
+<<<<<<< HEAD
      * @var int
      */
     private $notificationsEnabledOption = self::NOTIFICATIONS_OPTION_ENABLED;
 
     /**
+=======
+>>>>>>> centreon/dev-21.10.x
      * @return int|null
      */
     public function getId(): ?int
@@ -158,6 +166,7 @@ class EngineConfiguration
     {
         return $stringToCheck !== $this->removeIllegalCharacters($stringToCheck);
     }
+<<<<<<< HEAD
 
     /**
      * @return int
@@ -183,4 +192,6 @@ class EngineConfiguration
 
         return $this;
     }
+=======
+>>>>>>> centreon/dev-21.10.x
 }

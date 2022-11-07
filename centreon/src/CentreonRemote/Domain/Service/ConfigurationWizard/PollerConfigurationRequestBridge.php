@@ -1,5 +1,6 @@
 <?php
 
+<<<<<<< HEAD
 /*
  * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
  *
@@ -19,6 +20,8 @@
  *
  */
 
+=======
+>>>>>>> centreon/dev-21.10.x
 namespace CentreonRemote\Domain\Service\ConfigurationWizard;
 
 use Centreon\Infrastructure\CentreonLegacyDB\CentreonDBAdapter;
@@ -101,10 +104,17 @@ class PollerConfigurationRequestBridge
     /**
      * Get pollers to link a set of poller information
      *
+<<<<<<< HEAD
      * @param array<mixed> $pollers the pollers to get list of poller objects
      * @return PollerServer[] the pollers to link
      */
     private function getPollersToLink(array $pollers)
+=======
+     * @param array $pollers the pollers to get list of poller objects
+     * @return PollerServer[] the pollers to link
+     */
+    private function getPollersToLink(array $pollers): array
+>>>>>>> centreon/dev-21.10.x
     {
         if (empty($pollers)) {
             return [];
@@ -131,7 +141,11 @@ class PollerConfigurationRequestBridge
         $data = [];
 
         foreach ($results as $result) {
+<<<<<<< HEAD
             $poller = new PollerServer();
+=======
+            $poller = new PollerServer;
+>>>>>>> centreon/dev-21.10.x
             $poller->setId($result->id);
             $poller->setName($result->name);
             $poller->setIp($result->ip);

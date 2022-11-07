@@ -621,6 +621,7 @@ if (!is_null($host_id)) {
             $status .= "&value[" . $key . "]=" . $value;
         }
 
+<<<<<<< HEAD
         $optionsURL = "host_name=" . urlencode($host_name) . "&service_description=" . urlencode($svc_description);
 
         $query = "SELECT id FROM `index_data`, `metrics` WHERE host_name = '" . $pearDBO->escape($host_name) .
@@ -633,6 +634,19 @@ if (!is_null($host_id)) {
         }
         $optionsURL2 = "index=" . $index_data;
 
+=======
+        $query = "SELECT id FROM `index_data`, `metrics` WHERE host_name = :host_name" .
+            " AND service_description = :svc_description AND id = index_id LIMIT 1";
+        $statement = $pearDBO->prepare($query);
+        $statement->bindValue(':host_name', $host_name, \PDO::PARAM_STR);
+        $statement->bindValue(':svc_description', $svc_description, \PDO::PARAM_STR);
+        $statement->execute();
+        $index_data = 0;
+        if ($statement->rowCount()) {
+            $row = $statement->fetchRow();
+            $index_data = $row['id'];
+        }
+>>>>>>> centreon/dev-21.10.x
         /*
          * Assign translations
          */
@@ -875,6 +889,7 @@ if (!is_null($host_id)) {
         $tpl->assign("sv_ext_action_url_lang", _("Action URL"));
         $tpl->assign("sv_ext_action_url", CentreonUtils::escapeSecure($actionurl));
         $tpl->assign("sv_ext_icon_image_alt", getMyServiceExtendedInfoField($service_id, "esi_icon_image_alt"));
+<<<<<<< HEAD
         $tpl->assign("options", $optionsURL);
         $tpl->assign("index_data", $index_data);
         $tpl->assign("options2", CentreonUtils::escapeSecure($optionsURL2));
@@ -907,6 +922,9 @@ if (!is_null($host_id)) {
         if (count($tools) > 0) {
             $tpl->assign("tools", CentreonUtils::escapeSecure($tools));
         }
+=======
+        $tpl->assign("index_data", $index_data);
+>>>>>>> centreon/dev-21.10.x
 
         /**
          * Build the service detail URI that will be used in the
@@ -932,6 +950,7 @@ if (!is_null($host_id)) {
         }
         $DBRESULT->closeCursor();
         $tpl->assign("isRemote", $isRemote);
+<<<<<<< HEAD
         $tpl->assign(
             "chartIcon",
             returnSvg(
@@ -941,6 +960,8 @@ if (!is_null($host_id)) {
                 18
             )
         );
+=======
+>>>>>>> centreon/dev-21.10.x
 
         $tpl->display("serviceDetails.ihtml");
     }

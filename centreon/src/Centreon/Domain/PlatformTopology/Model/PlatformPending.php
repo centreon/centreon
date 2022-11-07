@@ -138,7 +138,11 @@ class PlatformPending implements PlatformInterface
             $type = strtolower($type);
 
             // Check if the server_type is available
+<<<<<<< HEAD
             if (!in_array($type, self::AVAILABLE_TYPES)) {
+=======
+            if (!in_array($type, static::AVAILABLE_TYPES)) {
+>>>>>>> centreon/dev-21.10.x
                 throw new \InvalidArgumentException(
                     sprintf(
                         _("The platform type of '%s'@'%s' is not consistent"),
@@ -196,6 +200,7 @@ class PlatformPending implements PlatformInterface
     {
         // Check for valid IPv4 or IPv6 IP
         // or not sent address (in the case of Central's "parent_address")
+<<<<<<< HEAD
         if (null === $address || false !== filter_var($address, FILTER_VALIDATE_IP)) {
             return $address;
         }
@@ -203,6 +208,13 @@ class PlatformPending implements PlatformInterface
         // check for DNS to be resolved
         $addressResolved = filter_var(gethostbyname($address), FILTER_VALIDATE_IP);
         if (false === $addressResolved) {
+=======
+        if (
+            $address !== null
+            && ! filter_var($address, FILTER_VALIDATE_IP)
+            && ! filter_var($address, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
+        ) {
+>>>>>>> centreon/dev-21.10.x
             throw new \InvalidArgumentException(
                 sprintf(
                     _("The address '%s' of '%s' is not valid or not resolvable"),
@@ -212,7 +224,11 @@ class PlatformPending implements PlatformInterface
             );
         }
 
+<<<<<<< HEAD
         return $addressResolved;
+=======
+        return $address;
+>>>>>>> centreon/dev-21.10.x
     }
 
     /**

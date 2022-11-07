@@ -65,7 +65,11 @@
             data: jQuery('#form_step5').serialize(),
             success: (data) => {
                 var result = JSON.parse(data);
+<<<<<<< HEAD
                 if (!result.required.length && result.email && result.password && result.password_security_policy) {
+=======
+                if (!result.required.length && result.email && result.password) {
+>>>>>>> centreon/dev-21.10.x
                     loadStep("nextStep");
                 } else {
                     result.required.forEach(function (element) {
@@ -77,12 +81,15 @@
                     if (!result.password) {
                         jQuery('input[name="confirm_password"]').next().html("Password does not match");
                     };
+<<<<<<< HEAD
                     if (!result.password_security_policy) {
                         jQuery(
                             'input[name="admin_password"]').next().html("Password must contain at least: " +
                             "1 letter uppercase, 1 letter lowercase, 1 number, 1 special character from '@$!%*?&' " +
                             "and should be at least 12 characters long");
                     };
+=======
+>>>>>>> centreon/dev-21.10.x
                 }
             }
         });

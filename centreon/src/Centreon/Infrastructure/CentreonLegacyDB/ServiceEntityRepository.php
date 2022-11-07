@@ -46,6 +46,10 @@ use Centreon\Infrastructure\CentreonLegacyDB\Mapping;
  */
 abstract class ServiceEntityRepository
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * @var \CentreonDB
      */
@@ -97,7 +101,11 @@ abstract class ServiceEntityRepository
     {
         $this->db = $db;
         $this->manager = $manager;
+<<<<<<< HEAD
         $this->classMetadata = new Mapping\ClassMetadata();
+=======
+        $this->classMetadata = new Mapping\ClassMetadata;
+>>>>>>> centreon/dev-21.10.x
 
         // load metadata for Entity implemented MetadataInterface
         $this->loadMetadata();

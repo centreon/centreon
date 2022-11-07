@@ -128,7 +128,12 @@ class BrokerInfo extends AbstractObject
             $this->stmtBrokerInfo = $this->backendInstance->db->prepare(
                 "SELECT *
                 FROM cfg_centreonbroker_info
+<<<<<<< HEAD
                 WHERE config_id = :config_id"
+=======
+                WHERE config_id = :config_id
+                AND config_group <> 'logger'"
+>>>>>>> centreon/dev-21.10.x
             );
         }
 

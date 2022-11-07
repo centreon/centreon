@@ -1,5 +1,8 @@
 <?php
+<<<<<<< HEAD
 
+=======
+>>>>>>> centreon/dev-21.10.x
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -26,6 +29,10 @@ use Centreon\Test\Traits\TestCaseExtensionTrait;
 use CentreonRemote\Infrastructure\Export\ExportParserJson;
 use CentreonRemote\Infrastructure\Export\ExportCommitment;
 use CentreonRemote\Infrastructure\Export\ExportManifest;
+<<<<<<< HEAD
+=======
+use DateTime;
+>>>>>>> centreon/dev-21.10.x
 
 /**
  * @group CentreonRemote
@@ -51,7 +58,11 @@ class ExportManifestTest extends TestCase
     protected $version = '18.10';
 
     /**
+<<<<<<< HEAD
      * @var array<mixed>
+=======
+     * @var array
+>>>>>>> centreon/dev-21.10.x
      */
     protected $dumpData = [];
 
@@ -101,7 +112,11 @@ class ExportManifestTest extends TestCase
     /**
      * @covers \CentreonRemote\Infrastructure\Export\ExportManifest::get
      */
+<<<<<<< HEAD
     public function testGet(): void
+=======
+    public function testGet()
+>>>>>>> centreon/dev-21.10.x
     {
         $this->assertNull($this->manifest->get('missing-data'));
     }
@@ -109,7 +124,11 @@ class ExportManifestTest extends TestCase
     /**
      * @covers \CentreonRemote\Infrastructure\Export\ExportManifest::dump
      */
+<<<<<<< HEAD
     public function testDump(): void
+=======
+    public function testDump()
+>>>>>>> centreon/dev-21.10.x
     {
         $date = date('l jS \of F Y h:i:s A');
         $this->manifest->dump([

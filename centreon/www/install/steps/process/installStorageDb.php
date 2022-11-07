@@ -49,7 +49,11 @@ $step = new \CentreonLegacy\Core\Install\Step\Step6($dependencyInjector);
 $parameters = $step->getDatabaseConfiguration();
 
 try {
+<<<<<<< HEAD
     $db = new \PDO(
+=======
+    $link = new \PDO(
+>>>>>>> centreon/dev-21.10.x
         'mysql:host=' . $parameters['address'] . ';port=' . $parameters['port'],
         $parameters['root_user'],
         $parameters['root_password']
@@ -61,6 +65,7 @@ try {
 }
 
 try {
+<<<<<<< HEAD
     //Check if realtime database exists
     $statementShowDatabase = $db->prepare("SHOW DATABASES LIKE :dbStorage");
     $statementShowDatabase->bindValue(':dbStorage', $parameters['db_storage'], \PDO::PARAM_STR);
@@ -98,6 +103,35 @@ try {
         '../../createTablesCentstorage.sql',
         ';',
         $db,
+=======
+    $link->exec(sprintf('CREATE DATABASE `%s`', $parameters['db_storage']));
+} catch (\PDOException $e) {
+    if (!is_file('../../tmp/createTablesCentstorage')) {
+        $return['msg'] = $e->getMessage();
+        echo json_encode($return);
+        exit;
+    }
+}
+
+$macros = array_merge(
+    $step->getBaseConfiguration(),
+    $step->getDatabaseConfiguration(),
+    $step->getAdminConfiguration(),
+    $step->getEngineConfiguration(),
+    $step->getBrokerConfiguration()
+);
+
+try {
+    $result = $link->query(sprintf('use `%s`', $parameters['db_storage']));
+    if (!$result) {
+        throw new \Exception('Cannot access to "' . $parameters['db_storage'] . '" database');
+    }
+
+    $result = splitQueries(
+        '../../createTablesCentstorage.sql',
+        ';',
+        $link,
+>>>>>>> centreon/dev-21.10.x
         '../../tmp/createTablesCentstorage',
         $macros
     );
@@ -106,10 +140,18 @@ try {
         echo json_encode($return);
         exit;
     }
+<<<<<<< HEAD
     $result = splitQueries(
         '../../installBroker.sql',
         ';',
         $db,
+=======
+
+    $result = splitQueries(
+        '../../installBroker.sql',
+        ';',
+        $link,
+>>>>>>> centreon/dev-21.10.x
         '../../tmp/installBroker',
         $macros
     );
@@ -119,11 +161,17 @@ try {
         exit;
     }
 } catch (\Exception $e) {
+<<<<<<< HEAD
     if (!is_file('../../tmp/createTablesCentstorage')) {
         $return['msg'] = $e->getMessage();
         echo json_encode($return);
         exit;
     }
+=======
+    $return['msg'] = $e->getMessage();
+    echo json_encode($return);
+    exit;
+>>>>>>> centreon/dev-21.10.x
 }
 
 $return['result'] = 0;

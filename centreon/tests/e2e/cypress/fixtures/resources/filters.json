@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
   "name": "OK services",
+=======
+  "name": "E2E",
+>>>>>>> centreon/dev-21.10.x
   "criterias": [
     {
       "name": "resource_types",
@@ -14,7 +18,16 @@
     },
     {
       "name": "states",
+<<<<<<< HEAD
       "value": [],
+=======
+      "value": [
+        {
+          "id": "unhandled_problems",
+          "name": "Unhandled"
+        }
+      ],
+>>>>>>> centreon/dev-21.10.x
       "type": "multi_select",
       "object_type": null
     },
@@ -22,8 +35,25 @@
       "name": "statuses",
       "value": [
         {
+<<<<<<< HEAD
           "id": "OK",
           "name": "Ok"
+=======
+          "id": "WARNING",
+          "name": "Warning"
+        },
+        {
+          "id": "DOWN",
+          "name": "Down"
+        },
+        {
+          "id": "CRITICAL",
+          "name": "Critical"
+        },
+        {
+          "id": "UNKNOWN",
+          "name": "Unknown"
+>>>>>>> centreon/dev-21.10.x
         }
       ],
       "type": "multi_select",

@@ -1,5 +1,6 @@
 <?php
 
+<<<<<<< HEAD
 /*
  * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
  *
@@ -19,6 +20,8 @@
  *
  */
 
+=======
+>>>>>>> centreon/dev-21.10.x
 namespace CentreonRemote\Domain\Service;
 
 use Centreon\Domain\Repository\InformationsRepository;
@@ -83,9 +86,14 @@ class NotifyMasterService
      * Ping the master IP requesting to be slave for it.
      * @param string $ip The IP address of the master
      * @param boolean $noCheckCertificate To do not check SLL CA on master
+<<<<<<< HEAD
      * @param boolean $noProxy
      * @param (string|null|false)[] $data The information for the master how to contact the remote
      * @return string[]
+=======
+     * @param array $data The information for the master how to contact the remote
+     * @return array
+>>>>>>> centreon/dev-21.10.x
      * @throws \ErrorException
      */
     public function pingMaster($ip, $data, $noCheckCertificate = false, $noProxy = false)

@@ -20,6 +20,7 @@
     <div class="graph-options">
         <div class="refresh" id="chart-refresh">
             <div class="icon refresh-icon">
+<<<<<<< HEAD
                 <span class="ico-14">
                     {php}displaySvg("www/img/icons/refresh.svg", "var(--icons-fill-color)", 14, 14){/php}
                 </span>
@@ -29,6 +30,13 @@
                 <span class="ico-14 timer-icon">
                     {php}displaySvg("www/img/icons/timer.svg", "var(--icons-disabled-fill-color)", 14, 14){/php}
                 </span>
+=======
+                <img class="ico-14" src="./img/icons/refresh.png">
+            </div>
+            <span class="time" style="display: none"></span>
+            <div class="icon">
+                <img class="ico-14 timer-icon" src="./img/icons/timer-gray.png">
+>>>>>>> centreon/dev-21.10.x
             </div>
             <ul class="refresh-list">
                 <li data-interval="0">{t}None{/t}</li>
@@ -50,6 +58,7 @@
             {foreach from=$metrics item=metric}
             <div id="graph_wrapper_{$metric.id}" data-graph-id="{$metric.id}" class="graph">
                 <div class="title">
+<<<<<<< HEAD
                     <span class="remove ico-14 margin_right">
                         {php}displaySvg("www/img/icons/circle-crossed.svg", "var(--icons-fill-color)", 14, 14){/php}
                     </span>
@@ -58,6 +67,12 @@
                         <span class="ico-14 margin_right">
                             {php}displaySvg("www/img/icons/picture.svg", "var(--icons-fill-color)", 14, 14){/php}
                         </span>
+=======
+                    <img class="remove ico-14 margin_right" src="./img/icons/circle-cross.png">
+                    <span>{$metric.title}</span>
+                    <a class="actions" href="#" data-href="./include/views/graphs/generateGraphs/generateMetricImage.php?cpt=1">
+                        <img alt="Export graph" src="./img/icons/picture.png" class="ico-14 margin_right">
+>>>>>>> centreon/dev-21.10.x
                     </a>
                 </div>
                 <div class="content">
@@ -115,11 +130,17 @@ function initRefresh() {
                 .find('.time')
                 .hide()
                 .text('');
+<<<<<<< HEAD
             var timerDisabled = "{/literal}{$timerDisabled}{literal}";
             $refresh
                 .find('.timer-icon')
                 .empty()
                 .append(timerDisabled);
+=======
+            $refresh
+                .find('.timer-icon')
+                .attr('src', './img/icons/timer-gray.png');
+>>>>>>> centreon/dev-21.10.x
             jQuery('.chart').centreonGraph('setRefresh', 0);
         } else {
             parseInterval = interval.match(/(\d+)([a-z]+)/i);
@@ -127,11 +148,17 @@ function initRefresh() {
                 .find('.time')
                 .show()
                 .text(text);
+<<<<<<< HEAD
             var timerEnabled = "{/literal}{$timerEnabled}{literal}";
             $refresh
                 .find('.timer-icon')
                 .empty()
                 .append(timerEnabled);
+=======
+            $refresh
+                .find('.timer-icon')
+                .attr('src', './img/icons/timer-blue.png');
+>>>>>>> centreon/dev-21.10.x
             jQuery('.chart').centreonGraph(
                 'setRefresh',
                 moment.duration(

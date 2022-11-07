@@ -45,9 +45,16 @@ use Centreon\Tests\Resources\Mock\ClapiMock;
 
 class CentreonClapiServiceTest extends TestCase
 {
+<<<<<<< HEAD
     public function testAdd(): void
     {
         $service = new CentreonClapiService();
+=======
+
+    public function testAdd()
+    {
+        $service = new CentreonClapiService;
+>>>>>>> centreon/dev-21.10.x
         $this->assertInstanceOf(ContainerInterface::class, $service);
 
         // check if return this object and add webservice
@@ -59,9 +66,15 @@ class CentreonClapiServiceTest extends TestCase
         $this->assertSame(ClapiMock::class, $service->get($serviceId));
     }
 
+<<<<<<< HEAD
     public function testAddWithoutInterface(): void
     {
         $service = new CentreonClapiService();
+=======
+    public function testAddWithoutInterface()
+    {
+        $service = new CentreonClapiService;
+>>>>>>> centreon/dev-21.10.x
         $this->assertInstanceOf(ContainerInterface::class, $service);
 
         $this->expectException(NotFoundException::class);

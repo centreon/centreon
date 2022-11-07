@@ -44,6 +44,7 @@ use CentreonModule\Application\Webservice\CentreonModulesWebservice;
 
 class CentreonModulesWebserviceTest extends TestCase
 {
+<<<<<<< HEAD
     /**
      * @var CentreonModulesWebservice|\PHPUnit\Framework\MockObject\MockObject
      */
@@ -59,6 +60,12 @@ class CentreonModulesWebserviceTest extends TestCase
     /**
      * @var string[][][]
      */
+=======
+
+    public static $sqlQueriesWitoutData = [
+        'SELECT * FROM modules_informations ' => [],
+    ];
+>>>>>>> centreon/dev-21.10.x
     public static $sqlQueries = [
         'SELECT * FROM modules_informations ' => [
             [
@@ -87,10 +94,17 @@ class CentreonModulesWebserviceTest extends TestCase
     /**
      * @covers \CentreonModule\Application\Webservice\CentreonModulesWebservice::postGetBamModuleInfo
      */
+<<<<<<< HEAD
     public function testPostGetBamModuleInfoWithoutModule(): void
     {
         // dependencies
         $container = new Container();
+=======
+    public function testPostGetBamModuleInfoWithoutModule()
+    {
+        // dependencies
+        $container = new Container;
+>>>>>>> centreon/dev-21.10.x
         $container[\CentreonLegacy\ServiceProvider::CENTREON_LEGACY_MODULE_INFORMATION] = $this
             ->getMockBuilder(\CentreonLegacy\Core\Module\Information::class)
             ->disableOriginalConstructor()
@@ -119,9 +133,15 @@ class CentreonModulesWebserviceTest extends TestCase
     /**
      * @covers \CentreonModule\Application\Webservice\CentreonModulesWebservice::postGetBamModuleInfo
      */
+<<<<<<< HEAD
     public function testPostGetBamModuleInfoWithModule(): void
     {
         $container = new Container();
+=======
+    public function testPostGetBamModuleInfoWithModule()
+    {
+        $container = new Container;
+>>>>>>> centreon/dev-21.10.x
         $container[\CentreonLegacy\ServiceProvider::CENTREON_LEGACY_MODULE_INFORMATION] = $this
             ->getMockBuilder(\CentreonLegacy\Core\Module\Information::class)
             ->disableOriginalConstructor()
@@ -146,13 +166,21 @@ class CentreonModulesWebserviceTest extends TestCase
         $this->assertTrue($result['enabled']);
     }
 
+<<<<<<< HEAD
     public function testAuthorize(): void
+=======
+    public function testAuthorize()
+>>>>>>> centreon/dev-21.10.x
     {
         $result = $this->webservice->authorize(null, null);
         $this->assertTrue($result);
     }
 
+<<<<<<< HEAD
     public function testGetName(): void
+=======
+    public function testGetName()
+>>>>>>> centreon/dev-21.10.x
     {
         $this->assertEquals('centreon_modules_webservice', CentreonModulesWebservice::getName());
     }

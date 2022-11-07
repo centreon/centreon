@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Centreon\Application\Controller\Configuration;
 
+<<<<<<< HEAD
 use FOS\RestBundle\View\View;
 use Centreon\Domain\Proxy\Proxy;
 use Centreon\Domain\Contact\Contact;
@@ -34,6 +35,19 @@ use JMS\Serializer\Exception\ValidationFailedException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Centreon\Domain\Proxy\Interfaces\ProxyServiceInterface;
+=======
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Entity\EntityValidator;
+use Centreon\Domain\Proxy\Interfaces\ProxyServiceInterface;
+use Centreon\Domain\Proxy\Proxy;
+use Centreon\Application\Controller\AbstractController;
+use FOS\RestBundle\View\View;
+use JMS\Serializer\Exception\ValidationFailedException;
+use JMS\Serializer\SerializerInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+>>>>>>> centreon/dev-21.10.x
 
 /**
  * This class is design to manage all API REST requests concerning the proxy configuration.
@@ -65,11 +79,15 @@ class ProxyController extends AbstractController
     {
         $this->denyAccessUnlessGrantedForApiConfiguration();
 
+<<<<<<< HEAD
         /**
          * @var Contact $contact
          */
         $contact = $this->getUser();
         if (!$contact->isAdmin() && !$this->isGranted('ROLE_ADMINISTRATION_PARAMETERS_CENTREON_UI_RW')) {
+=======
+        if (!$this->getUser()->isAdmin() && !$this->isGranted('ROLE_ADMINISTRATION_PARAMETERS_CENTREON_UI_RW')) {
+>>>>>>> centreon/dev-21.10.x
             return $this->view(null, Response::HTTP_FORBIDDEN);
         }
         return $this->view($this->proxyService->getProxy());

@@ -41,6 +41,10 @@
  */
 class CentreonMonitoring
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     protected $poller;
     protected $DB;
     protected $objBroker;
@@ -167,7 +171,11 @@ class CentreonMonitoring
         }
 
         $rq .= " order by tri asc, service_name";
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> centreon/dev-21.10.x
         $tab = array();
         $DBRESULT = $objXMLBG->DBC->query($rq);
         while ($svc = $DBRESULT->fetchRow()) {

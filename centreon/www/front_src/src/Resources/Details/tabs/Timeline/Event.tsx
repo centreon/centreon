@@ -1,13 +1,29 @@
+<<<<<<< HEAD
+=======
+/* eslint-disable hooks/sort */
+// Issue : https://github.com/hiukky/eslint-plugin-hooks/issues/3
+
+import * as React from 'react';
+
+>>>>>>> centreon/dev-21.10.x
 import { prop, isNil, filter, equals } from 'ramda';
 import { TFunction, useTranslation } from 'react-i18next';
 import dayjs, { Dayjs } from 'dayjs';
 
+<<<<<<< HEAD
 import { Chip, Typography } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import EventIcon from '@mui/icons-material/Event';
 import CommentIcon from '@mui/icons-material/Comment';
 import NotificationIcon from '@mui/icons-material/Notifications';
 import FaceIcon from '@mui/icons-material/Face';
+=======
+import { makeStyles, Chip, Typography } from '@material-ui/core';
+import EventIcon from '@material-ui/icons/Event';
+import CommentIcon from '@material-ui/icons/Comment';
+import NotificationIcon from '@material-ui/icons/Notifications';
+import FaceIcon from '@material-ui/icons/Face';
+>>>>>>> centreon/dev-21.10.x
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
@@ -128,8 +144,13 @@ const Author = ({ event }: Props): JSX.Element => {
 };
 
 const EventTimelineEvent = ({ event }: Props): JSX.Element => {
+<<<<<<< HEAD
   const classes = useStyles();
   const { t } = useTranslation();
+=======
+  const { t } = useTranslation();
+  const classes = useStyles();
+>>>>>>> centreon/dev-21.10.x
 
   return (
     <div className={classes.event}>
@@ -186,9 +207,15 @@ const AcknowledgeTimelineEvent = ({ event }: Props): JSX.Element => {
 };
 
 const DowntimeTimelineEvent = ({ event }: Props): JSX.Element => {
+<<<<<<< HEAD
   const classes = useStyles();
   const { t } = useTranslation();
   const { format } = useLocaleDateTimeFormat();
+=======
+  const { t } = useTranslation();
+  const { format } = useLocaleDateTimeFormat();
+  const classes = useStyles();
+>>>>>>> centreon/dev-21.10.x
 
   const getCaption = (): string => {
     const formattedStartDate = format({

@@ -334,8 +334,12 @@ final class ResourceRepositoryRDB extends AbstractRepositoryDRB implements Resou
             $resource->setIcon($icon);
         }
 
+<<<<<<< HEAD
         $parent = null;
         if ($resource->getType() === ResourceEntity::TYPE_SERVICE) {
+=======
+        if ($data['parent_id'] !== null) {
+>>>>>>> centreon/dev-21.10.x
             // parse parent Resource object
             $parent = EntityCreator::createEntityByArray(
                 ResourceEntity::class,
@@ -343,6 +347,7 @@ final class ResourceRepositoryRDB extends AbstractRepositoryDRB implements Resou
                 'parent_'
             );
 
+<<<<<<< HEAD
             if ($parent->getId()) {
                 $parentIcon = EntityCreator::createEntityByArray(
                     Icon::class,
@@ -364,6 +369,27 @@ final class ResourceRepositoryRDB extends AbstractRepositoryDRB implements Resou
         }
 
         $resource->setParent($parent);
+=======
+            $parentIcon = EntityCreator::createEntityByArray(
+                Icon::class,
+                $data,
+                'parent_icon_'
+            );
+
+            if ($parentIcon->getUrl()) {
+                $parent->setIcon($parentIcon);
+            }
+
+            $parentStatus = EntityCreator::createEntityByArray(
+                ResourceStatus::class,
+                $data,
+                'parent_status_'
+            );
+            $parent->setStatus($parentStatus);
+
+            $resource->setParent($parent);
+        }
+>>>>>>> centreon/dev-21.10.x
 
         // Setting the External links
         $externalLinks = $resource->getLinks()->getExternals();

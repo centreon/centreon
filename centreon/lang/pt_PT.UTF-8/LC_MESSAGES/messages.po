@@ -10238,10 +10238,13 @@ msgstr "Checagem de Manutenção"
 msgid "Preexec definition"
 msgstr "Definição de pré-execução"
 
+<<<<<<< HEAD
 #: centreon-web/www/include/configuration/configObject/traps/formTraps.php:376
 msgid "The same OID element already exists"
 msgstr "O mesmo OID já existe"
 
+=======
+>>>>>>> centreon/dev-21.10.x
 #: centreon-web/www/include/configuration/configObject/traps/formTraps.php:384
 msgid "Advanced matching rules"
 msgstr "Regras de correspondencia avançada"
@@ -15186,6 +15189,7 @@ msgstr ""
 msgid "Last check with OK status"
 msgstr ""
 
+<<<<<<< HEAD
 # msgid "Define the password security policy"
 # msgstr ""
 
@@ -15300,6 +15304,8 @@ msgstr ""
 # msgid "This will not be used because the number of attempts is not defined"
 # msgstr ""
 
+=======
+>>>>>>> centreon/dev-21.10.x
 # msgid "Status type"
 # msgstr ""
 
@@ -15309,6 +15315,7 @@ msgstr ""
 # msgid "Soft"
 # msgstr ""
 
+<<<<<<< HEAD
 # msgid "You are disconnected"
 # msgstr ""
 
@@ -15542,3 +15549,10 @@ msgstr ""
 
 # msgid "Do not use configured proxy to connect to this server"
 # msgstr ""
+=======
+# msgid "Force active checks"
+# msgstr ""
+
+#  msgid "Warning, maximum size exceeded for input '%s' (max: %d), it will be truncated upon saving"
+#  msgstr ""
+>>>>>>> centreon/dev-21.10.x

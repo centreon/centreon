@@ -24,7 +24,10 @@ namespace Centreon\Infrastructure\HostConfiguration\Repository;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+<<<<<<< HEAD
 use Centreon\Domain\HostConfiguration\Host;
+=======
+>>>>>>> centreon/dev-21.10.x
 use Centreon\Domain\HostConfiguration\Interfaces\HostSeverity\HostSeverityReadRepositoryInterface;
 use Centreon\Domain\HostConfiguration\Model\HostSeverity;
 use Centreon\Domain\Repository\RepositoryException;
@@ -274,6 +277,7 @@ class HostSeverityRepositoryRDB extends AbstractRepositoryDRB implements HostSev
         }
         return null;
     }
+<<<<<<< HEAD
 
     /**
      * @inheritDoc
@@ -305,4 +309,6 @@ class HostSeverityRepositoryRDB extends AbstractRepositoryDRB implements HostSev
         }
         return null;
     }
+=======
+>>>>>>> centreon/dev-21.10.x
 }

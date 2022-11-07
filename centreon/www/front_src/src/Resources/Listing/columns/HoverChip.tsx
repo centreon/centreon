@@ -1,9 +1,17 @@
+<<<<<<< HEAD
 import { useState, useEffect } from 'react';
 
 import { not } from 'ramda';
 
 import { Tooltip } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
+=======
+import * as React from 'react';
+
+import { not } from 'ramda';
+
+import { Tooltip, makeStyles } from '@material-ui/core';
+>>>>>>> centreon/dev-21.10.x
 
 import { useMemoComponent } from '@centreon/ui';
 
@@ -34,13 +42,21 @@ const HoverChip = ({
 }: Props): JSX.Element => {
   const classes = useStyles();
 
+<<<<<<< HEAD
   const [isChipHovered, setIsChipHovered] = useState<boolean>(false);
+=======
+  const [isChipHovered, setIsChipHovered] = React.useState<boolean>(false);
+>>>>>>> centreon/dev-21.10.x
 
   const openTooltip = (): void => setIsChipHovered(true);
 
   const closeTooltip = (): void => setIsChipHovered(false);
 
+<<<<<<< HEAD
   useEffect(() => {
+=======
+  React.useEffect(() => {
+>>>>>>> centreon/dev-21.10.x
     if (not(isHovered)) {
       return;
     }
@@ -50,6 +66,10 @@ const HoverChip = ({
   return useMemoComponent({
     Component: (
       <Tooltip
+<<<<<<< HEAD
+=======
+        interactive
+>>>>>>> centreon/dev-21.10.x
         PopperProps={{
           onClick: (e): void => {
             e.preventDefault();

@@ -86,7 +86,11 @@ class ResourceStatus
      */
     public function getName(): ?string
     {
+<<<<<<< HEAD
         return $this->name;
+=======
+        return $this->name ? _($this->name) : $this->name;
+>>>>>>> centreon/dev-21.10.x
     }
 
     /**

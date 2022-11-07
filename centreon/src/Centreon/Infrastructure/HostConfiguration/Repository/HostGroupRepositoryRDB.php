@@ -24,7 +24,10 @@ namespace Centreon\Infrastructure\HostConfiguration\Repository;
 
 use Assert\AssertionFailedException;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
+<<<<<<< HEAD
 use Centreon\Domain\HostConfiguration\Host;
+=======
+>>>>>>> centreon/dev-21.10.x
 use Centreon\Domain\HostConfiguration\Interfaces\HostGroup\HostGroupReadRepositoryInterface;
 use Centreon\Domain\HostConfiguration\Interfaces\HostGroup\HostGroupWriteRepositoryInterface;
 use Centreon\Domain\HostConfiguration\Model\HostGroup;
@@ -115,12 +118,18 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
             | AssertionFailedException $ex
         ) {
             throw new RepositoryException($ex->getMessage(), 0, $ex);
+<<<<<<< HEAD
+=======
+        } catch (\Exception $ex) {
+            throw $ex;
+>>>>>>> centreon/dev-21.10.x
         }
     }
 
     /**
      * @inheritDoc
      */
+<<<<<<< HEAD
     public function findAllByHost(Host $host): array
     {
         if ($host->getId() === null) {
@@ -163,6 +172,8 @@ class HostGroupRepositoryRDB extends AbstractRepositoryDRB implements
     /**
      * @inheritDoc
      */
+=======
+>>>>>>> centreon/dev-21.10.x
     public function findAllByContact(ContactInterface $contact): array
     {
         try {

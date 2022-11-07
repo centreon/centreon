@@ -42,8 +42,14 @@ use CentreonModule\Infrastructure\Entity\Module;
 
 class CentreonModuleService
 {
+<<<<<<< HEAD
     /**
      * @var array<string,mixed>
+=======
+
+    /**
+     * @var array
+>>>>>>> centreon/dev-21.10.x
      */
     protected $sources = [];
 
@@ -57,6 +63,7 @@ class CentreonModuleService
         $this->initSources($services);
     }
 
+<<<<<<< HEAD
     /**
      * @param string|null $search
      * @param boolean|null $installed
@@ -64,6 +71,8 @@ class CentreonModuleService
      * @param array<mixed>|null $typeList
      * @return array<string|int,\CentreonModule\Infrastructure\Entity\Module[]>
      */
+=======
+>>>>>>> centreon/dev-21.10.x
     public function getList(
         string $search = null,
         bool $installed = null,
@@ -95,11 +104,14 @@ class CentreonModuleService
         return $result;
     }
 
+<<<<<<< HEAD
     /**
      * @param string $id
      * @param string $type
      * @return Module|null
      */
+=======
+>>>>>>> centreon/dev-21.10.x
     public function getDetail(string $id, string $type): ?Module
     {
         if (!array_key_exists($type, $this->sources)) {
@@ -111,11 +123,14 @@ class CentreonModuleService
         return $result;
     }
 
+<<<<<<< HEAD
     /**
      * @param string $id
      * @param string $type
      * @return Module|null
      */
+=======
+>>>>>>> centreon/dev-21.10.x
     public function install(string $id, string $type): ?Module
     {
         if (!array_key_exists($type, $this->sources)) {
@@ -127,11 +142,14 @@ class CentreonModuleService
         return $result;
     }
 
+<<<<<<< HEAD
     /**
      * @param string $id
      * @param string $type
      * @return Module|null
      */
+=======
+>>>>>>> centreon/dev-21.10.x
     public function update(string $id, string $type): ?Module
     {
         if (!array_key_exists($type, $this->sources)) {
@@ -143,11 +161,14 @@ class CentreonModuleService
         return $result;
     }
 
+<<<<<<< HEAD
     /**
      * @param string $id
      * @param string $type
      * @return bool|null
      */
+=======
+>>>>>>> centreon/dev-21.10.x
     public function remove(string $id, string $type): ?bool
     {
         if (!array_key_exists($type, $this->sources)) {
@@ -164,7 +185,11 @@ class CentreonModuleService
      *
      * @param ContainerInterface $services
      */
+<<<<<<< HEAD
     protected function initSources(ContainerInterface $services): void
+=======
+    protected function initSources(ContainerInterface $services)
+>>>>>>> centreon/dev-21.10.x
     {
         $this->sources = [
             Source\ModuleSource::TYPE => new Source\ModuleSource($services),
@@ -180,9 +205,14 @@ class CentreonModuleService
      * - Installed (then by name)
      *
      * @param \CentreonModule\Infrastructure\Entity\Module[] $list
+<<<<<<< HEAD
      * @return \CentreonModule\Infrastructure\Entity\Module[]
      */
     protected function sortList(array $list): array
+=======
+     */
+    protected function sortList(array $list)
+>>>>>>> centreon/dev-21.10.x
     {
         usort($list, function ($a, $b) {
             $aVal = $a->getName();

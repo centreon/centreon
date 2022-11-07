@@ -50,6 +50,10 @@ require_once './include/reporting/dashboard/initReport.php';
  *  Getting hostgroup to report
  */
 $id = filter_var($_GET['item'] ?? $_POST['itemElement'] ?? false, FILTER_VALIDATE_INT);
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
 /*
  * Formulary
  *

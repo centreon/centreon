@@ -130,6 +130,7 @@ for ($i = 0; $resources = $statement->fetchRow(); $i++) {
         . $resources['acl_res_id'] . "]'></input>";
 
     /* Contacts */
+<<<<<<< HEAD
     $ctNbr = array();
     $rq = "SELECT COUNT(*) AS nbr
           FROM acl_resources_host_relations
@@ -137,6 +138,8 @@ for ($i = 0; $resources = $statement->fetchRow(); $i++) {
     $DBRESULT2 = $pearDB->query($rq);
     $ctNbr = $DBRESULT2->fetchRow();
 
+=======
+>>>>>>> centreon/dev-21.10.x
     $allHostgroups = (isset($resources["all_hostgroups"]) && $resources["all_hostgroups"] == 1 ? _("Yes") : _("No"));
     $allServicegroups = (isset($resources["all_servicegroups"]) && $resources["all_servicegroups"] == 1 ?
         _("Yes") :

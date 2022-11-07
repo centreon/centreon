@@ -81,14 +81,22 @@ class CentreonConfigurationPoller extends CentreonConfigurationObjects
 
         if (isset($this->arguments['t'])) {
             if ($this->arguments['t'] == 'remote') {
+<<<<<<< HEAD
                 $queryPoller .= "JOIN remote_servers rs ON (ns.ns_ip_address = rs.ip) ";
+=======
+                $queryPoller .= "JOIN remote_servers rs ON ns.id = rs.server_id ";
+>>>>>>> centreon/dev-21.10.x
                 // Exclude selected master Remote Server
                 if (isset($this->arguments['e'])) {
                     $queryPoller .= 'WHERE ns.id <> :masterId ';
                     $queryValues['masterId'] = (int)$this->arguments['e'];
                 }
             } elseif ($this->arguments['t'] == 'poller') {
+<<<<<<< HEAD
                 $queryPoller .= "LEFT JOIN remote_servers rs ON (ns.ns_ip_address = rs.ip) "
+=======
+                $queryPoller .= "LEFT JOIN remote_servers rs ON  ns.id = rs.server_id "
+>>>>>>> centreon/dev-21.10.x
                     . "WHERE rs.ip IS NULL "
                     . "AND ns.localhost = '0' ";
             } elseif ($this->arguments['t'] == 'central') {

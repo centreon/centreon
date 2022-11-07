@@ -40,8 +40,16 @@ try {
         WHERE `cb_field_id` = 31"
     );
 
+<<<<<<< HEAD
     $errorMessage = 'Cannot purge host macros';
     $cache = loadHosts($pearDB);
+=======
+    $pearDB->commit();
+
+    $errorMessage = 'Cannot purge host macros';
+    $cache = loadHosts($pearDB);
+    $pearDB->beginTransaction();
+>>>>>>> centreon/dev-21.10.x
     foreach ($cache as $hostId => $value) {
         cleanDuplicateHostMacros($pearDB, $centreonLog, $cache, (int) $hostId);
     }

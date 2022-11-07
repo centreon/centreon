@@ -33,6 +33,10 @@ use Centreon\Infrastructure\DatabaseConnection;
  */
 final class AccessGroupRepositoryRDB implements AccessGroupRepositoryInterface
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * @var DatabaseConnection
      */

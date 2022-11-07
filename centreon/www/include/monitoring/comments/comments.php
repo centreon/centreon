@@ -78,7 +78,11 @@ switch ($o) {
             if (!empty($select)) {
                 foreach ($select as $key => $value) {
                     $res = explode(';', urldecode($key));
+<<<<<<< HEAD
                     DeleteComment($res[0], [(int)$res[1] . ';' . (int)$res[2] => 'on']);
+=======
+                    DeleteComment($res[0], [$res[1] . ';' . (int)$res[2] => 'on']);
+>>>>>>> centreon/dev-21.10.x
                 }
             }
         } else {

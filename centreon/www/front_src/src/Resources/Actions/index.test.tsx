@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import mockDate from 'mockdate';
 import axios from 'axios';
 import { last, pick, map, head } from 'ramda';
@@ -5,12 +6,20 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'jotai';
 import dayjs from 'dayjs';
 
+=======
+import * as React from 'react';
+
+import mockDate from 'mockdate';
+import axios from 'axios';
+import { last, pick, map } from 'ramda';
+>>>>>>> centreon/dev-21.10.x
 import {
   render,
   RenderResult,
   waitFor,
   fireEvent,
   act,
+<<<<<<< HEAD
   SeverityCode,
   screen,
 } from '@centreon/ui';
@@ -21,6 +30,13 @@ import {
   refreshIntervalAtom,
   userAtom,
 } from '@centreon/ui-context';
+=======
+} from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
+import { useUserContext } from '@centreon/ui-context';
+import { SeverityCode } from '@centreon/ui';
+>>>>>>> centreon/dev-21.10.x
 
 import {
   labelAcknowledgedBy,
@@ -34,7 +50,13 @@ import {
   labelAcknowledgeServices,
   labelNotify,
   labelFixed,
+<<<<<<< HEAD
   labelCheck,
+=======
+  labelChangeEndDate,
+  labelCheck,
+  labelServicesDenied,
+>>>>>>> centreon/dev-21.10.x
   labelHostsDenied,
   labelMoreActions,
   labelDisacknowledge,
@@ -51,6 +73,7 @@ import {
   labelCritical,
   labelUnknown,
   labelAddComment,
+<<<<<<< HEAD
   labelEndTime,
   labelEndDateGreaterThanStartDate,
   labelInvalidFormat,
@@ -65,12 +88,26 @@ import { Resource } from '../models';
 import useLoadDetails from '../testUtils/useLoadDetails';
 import useDetails from '../Details/useDetails';
 import useActions from '../testUtils/useActions';
+=======
+  labelPersistent,
+} from '../translatedLabels';
+import useLoadResources from '../Listing/useLoadResources';
+import useListing from '../Listing/useListing';
+import useFilter from '../Filter/useFilter';
+import Context, { ResourceContext } from '../Context';
+import { Resource } from '../models';
+import useDetails from '../Details/useDetails';
+>>>>>>> centreon/dev-21.10.x
 
 import {
   acknowledgeEndpoint,
   downtimeEndpoint,
   checkEndpoint,
 } from './api/endpoint';
+<<<<<<< HEAD
+=======
+import useActions from './useActions';
+>>>>>>> centreon/dev-21.10.x
 import { disacknowledgeEndpoint } from './Resource/Disacknowledge/api';
 import { submitStatusEndpoint } from './Resource/SubmitStatus/api';
 
@@ -80,6 +117,7 @@ const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 const onRefresh = jest.fn();
 
+<<<<<<< HEAD
 jest.mock('@centreon/ui-context', () =>
   jest.requireActual('centreon-frontend/packages/ui-context'),
 );
@@ -123,6 +161,57 @@ const mockAcknowledgement = {
   sticky: true,
   with_services: true,
 };
+=======
+jest.mock('react-redux', () => ({
+  ...(jest.requireActual('react-redux') as jest.Mocked<unknown>),
+  useSelector: jest.fn(),
+}));
+
+const mockUserContext = {
+  acknowledgement: {
+    persistent: true,
+    sticky: false,
+  },
+  acl: {
+    actions: {
+      host: {
+        acknowledgement: true,
+        check: true,
+        comment: true,
+        disacknowledgement: true,
+        downtime: true,
+        submit_status: true,
+      },
+      service: {
+        acknowledgement: true,
+        check: true,
+        comment: true,
+        disacknowledgement: true,
+        downtime: true,
+        submit_status: true,
+      },
+    },
+  },
+  alias: 'admin',
+  downtime: {
+    duration: 7200,
+    fixed: true,
+    with_services: false,
+  },
+  locale: 'en',
+  name: 'admin',
+
+  refreshInterval: 15,
+  timezone: 'Europe/Paris',
+};
+
+jest.mock('@centreon/centreon-frontend/packages/ui-context', () => ({
+  ...(jest.requireActual('@centreon/ui-context') as jest.Mocked<unknown>),
+  useUserContext: jest.fn(),
+}));
+
+const mockedUserContext = useUserContext as jest.Mock;
+>>>>>>> centreon/dev-21.10.x
 
 jest.mock('../icons/Downtime');
 
@@ -150,13 +239,20 @@ const service = {
 } as Resource;
 
 const ActionsWithContext = (): JSX.Element => {
+<<<<<<< HEAD
   const detailsState = useLoadDetails();
+=======
+  const detailsState = useDetails();
+>>>>>>> centreon/dev-21.10.x
   const listingState = useListing();
   const actionsState = useActions();
   const filterState = useFilter();
 
+<<<<<<< HEAD
   useDetails();
 
+=======
+>>>>>>> centreon/dev-21.10.x
   context = {
     ...detailsState,
     ...listingState,
@@ -171,6 +267,7 @@ const ActionsWithContext = (): JSX.Element => {
   );
 };
 
+<<<<<<< HEAD
 const renderActions = (aclAtions = mockAcl): RenderResult => {
   return render(
     <Provider
@@ -185,6 +282,10 @@ const renderActions = (aclAtions = mockAcl): RenderResult => {
       <ActionsWithContext />
     </Provider>,
   );
+=======
+const renderActions = (): RenderResult => {
+  return render(<ActionsWithContext />);
+>>>>>>> centreon/dev-21.10.x
 };
 
 describe(Actions, () => {
@@ -194,6 +295,7 @@ describe(Actions, () => {
   const mockNow = '2020-01-01';
 
   beforeEach(() => {
+<<<<<<< HEAD
     Object.defineProperty(window, 'matchMedia', {
       value: (query: string): MediaQueryList => ({
         addEventListener: (): void => undefined,
@@ -238,10 +340,41 @@ describe(Actions, () => {
 
   it('executes a listing request when the refresh button is clicked', async () => {
     renderActions();
+=======
+    mockedAxios.get
+      .mockResolvedValueOnce({
+        data: {
+          meta: {
+            limit: 30,
+            page: 1,
+            total: 0,
+          },
+          result: [],
+        },
+      })
+      .mockResolvedValueOnce({ data: [] });
+
+    mockDate.set(mockNow);
+
+    mockedUserContext.mockReturnValue(mockUserContext);
+  });
+
+  afterEach(() => {
+    mockDate.reset();
+    mockedAxios.get.mockReset();
+    mockedAxios.post.mockReset();
+
+    mockedUserContext.mockReset();
+  });
+
+  it('executes a listing request when the refresh button is clicked', async () => {
+    const { getByLabelText } = renderActions();
+>>>>>>> centreon/dev-21.10.x
 
     await waitFor(() => expect(mockedAxios.get).toHaveBeenCalled());
 
     mockedAxios.get.mockResolvedValueOnce({ data: {} });
+<<<<<<< HEAD
 
     await waitFor(() => {
       expect(screen.getByLabelText(labelRefresh)).toBeInTheDocument();
@@ -252,6 +385,15 @@ describe(Actions, () => {
     await waitFor(() => expect(refreshButton.firstChild).toBeEnabled());
 
     userEvent.click(refreshButton.firstChild as HTMLElement);
+=======
+    mockedAxios.post.mockResolvedValueOnce({});
+
+    const refreshButton = getByLabelText(labelRefresh);
+
+    await waitFor(() => expect(refreshButton).toBeEnabled());
+
+    fireEvent.click(refreshButton.firstElementChild as HTMLElement);
+>>>>>>> centreon/dev-21.10.x
 
     expect(onRefresh).toHaveBeenCalled();
   });
@@ -285,7 +427,11 @@ describe(Actions, () => {
       const selectedResources = [host];
 
       act(() => {
+<<<<<<< HEAD
         context.setSelectedResources?.(selectedResources);
+=======
+        context.setSelectedResources(selectedResources);
+>>>>>>> centreon/dev-21.10.x
       });
 
       await waitFor(() =>
@@ -296,34 +442,62 @@ describe(Actions, () => {
 
       const commentField = await findByText(labelComment);
 
+<<<<<<< HEAD
       userEvent.clear(commentField);
 
       await waitFor(() =>
         expect(
           last<HTMLElement>(getAllByText(labelConfirmAction)) as HTMLElement,
+=======
+      fireEvent.change(commentField, {
+        target: { value: '' },
+      });
+
+      await waitFor(() =>
+        expect(
+          (last<HTMLElement>(getAllByText(labelConfirmAction)) as HTMLElement)
+            .parentElement,
+>>>>>>> centreon/dev-21.10.x
         ).toBeDisabled(),
       );
     },
   );
 
   it('sends an acknowledgement request when Resources are selected and the Ackowledgement action is clicked and confirmed', async () => {
+<<<<<<< HEAD
     const { getByText, findByLabelText, getAllByText } = renderActions();
+=======
+    const { getByText, getByLabelText, findByLabelText, getAllByText } =
+      renderActions();
+>>>>>>> centreon/dev-21.10.x
 
     const selectedResources = [host, service];
 
     act(() => {
+<<<<<<< HEAD
       context.setSelectedResources?.(selectedResources);
     });
 
     await waitFor(() => {
       expect(getByText(labelAcknowledge)).toBeInTheDocument();
+=======
+      context.setSelectedResources(selectedResources);
+>>>>>>> centreon/dev-21.10.x
     });
 
     fireEvent.click(getByText(labelAcknowledge));
 
     const notifyCheckbox = await findByLabelText(labelNotify);
+<<<<<<< HEAD
 
     fireEvent.click(notifyCheckbox);
+=======
+    const persistentCheckbox = await findByLabelText(labelPersistent);
+
+    fireEvent.click(notifyCheckbox);
+    fireEvent.click(persistentCheckbox);
+    fireEvent.click(getByLabelText(labelAcknowledgeServices));
+>>>>>>> centreon/dev-21.10.x
 
     mockedAxios.get.mockResolvedValueOnce({ data: {} });
     mockedAxios.post.mockResolvedValueOnce({});
@@ -336,10 +510,16 @@ describe(Actions, () => {
         {
           acknowledgement: {
             comment: labelAcknowledgedByAdmin,
+<<<<<<< HEAD
             force_active_checks: false,
             is_notify_contacts: true,
             is_persistent_comment: true,
             is_sticky: true,
+=======
+            is_notify_contacts: true,
+            is_persistent_comment: false,
+            is_sticky: false,
+>>>>>>> centreon/dev-21.10.x
             with_services: true,
           },
 
@@ -351,11 +531,16 @@ describe(Actions, () => {
   });
 
   it('sends a discknowledgement request when Resources are selected and the Disackowledgement action is clicked and confirmed', async () => {
+<<<<<<< HEAD
     const { getByLabelText, getAllByText, getByText } = renderActions();
+=======
+    const { getByTitle, getAllByText, getByText } = renderActions();
+>>>>>>> centreon/dev-21.10.x
 
     const selectedResources = [host];
 
     act(() => {
+<<<<<<< HEAD
       context.setSelectedResources?.(selectedResources);
     });
 
@@ -366,6 +551,12 @@ describe(Actions, () => {
     });
 
     fireEvent.click(getByLabelText(labelMoreActions).firstChild as HTMLElement);
+=======
+      context.setSelectedResources(selectedResources);
+    });
+
+    fireEvent.click(getByTitle(labelMoreActions).firstChild as HTMLElement);
+>>>>>>> centreon/dev-21.10.x
 
     fireEvent.click(getByText(labelDisacknowledge));
 
@@ -393,11 +584,15 @@ describe(Actions, () => {
     const selectedResources = [service];
 
     act(() => {
+<<<<<<< HEAD
       context.setSelectedResources?.(selectedResources);
     });
 
     await waitFor(() => {
       expect(getByText(labelAcknowledge)).toBeInTheDocument();
+=======
+      context.setSelectedResources(selectedResources);
+>>>>>>> centreon/dev-21.10.x
     });
 
     fireEvent.click(getByText(labelAcknowledge));
@@ -408,11 +603,16 @@ describe(Actions, () => {
   });
 
   it('does not display the "Discknowledge services attached to host" checkbox when only services are selected and the Disacknowledge action is clicked', async () => {
+<<<<<<< HEAD
     const { getByText, queryByText, getByLabelText } = renderActions();
+=======
+    const { getByText, queryByText, getByTitle } = renderActions();
+>>>>>>> centreon/dev-21.10.x
 
     const selectedResources = [service];
 
     act(() => {
+<<<<<<< HEAD
       context.setSelectedResources?.(selectedResources);
     });
 
@@ -423,6 +623,12 @@ describe(Actions, () => {
     });
 
     fireEvent.click(getByLabelText(labelMoreActions).firstChild as HTMLElement);
+=======
+      context.setSelectedResources(selectedResources);
+    });
+
+    fireEvent.click(getByTitle(labelMoreActions).firstChild as HTMLElement);
+>>>>>>> centreon/dev-21.10.x
 
     fireEvent.click(getByText(labelDisacknowledge));
 
@@ -432,11 +638,17 @@ describe(Actions, () => {
   });
 
   it('cannot send a downtime request when Downtime action is clicked, type is flexible and duration is empty', async () => {
+<<<<<<< HEAD
     const { findByText, getAllByText, getByLabelText } = renderActions();
+=======
+    const { findByText, getAllByText, getByLabelText, getByDisplayValue } =
+      renderActions();
+>>>>>>> centreon/dev-21.10.x
 
     const selectedResources = [host];
 
     act(() => {
+<<<<<<< HEAD
       context.setSelectedResources?.(selectedResources);
     });
 
@@ -444,35 +656,52 @@ describe(Actions, () => {
       expect(
         last(getAllByText(labelSetDowntime)) as HTMLElement,
       ).toBeInTheDocument();
+=======
+      context.setSelectedResources(selectedResources);
+>>>>>>> centreon/dev-21.10.x
     });
 
     fireEvent.click(last(getAllByText(labelSetDowntime)) as HTMLElement);
 
     await findByText(labelDowntimeByAdmin);
 
+<<<<<<< HEAD
     await waitFor(() => {
       expect(getByLabelText(labelDuration)).toBeInTheDocument();
     });
 
     fireEvent.click(getByLabelText(labelFixed));
     fireEvent.change(getByLabelText(labelDuration), {
+=======
+    fireEvent.click(getByLabelText(labelFixed));
+    fireEvent.change(getByDisplayValue('7200'), {
+>>>>>>> centreon/dev-21.10.x
       target: { value: '' },
     });
 
     await waitFor(() =>
       expect(
+<<<<<<< HEAD
         last(getAllByText(labelSetDowntime)) as HTMLElement,
+=======
+        (last(getAllByText(labelSetDowntime)) as HTMLElement).parentElement,
+>>>>>>> centreon/dev-21.10.x
       ).toBeDisabled(),
     );
   });
 
   it('cannot send a downtime request when Downtime action is clicked and start date is greater than end date', async () => {
+<<<<<<< HEAD
     const { getByLabelText, getAllByText, findByText, getByText } =
+=======
+    const { container, getByLabelText, getAllByText, findByText } =
+>>>>>>> centreon/dev-21.10.x
       renderActions();
 
     const selectedResources = [host];
 
     act(() => {
+<<<<<<< HEAD
       context.setSelectedResources?.(selectedResources);
     });
 
@@ -550,6 +779,29 @@ describe(Actions, () => {
     await waitFor(() =>
       expect(last(getAllByText(labelSetDowntime)) as HTMLElement).toBeEnabled(),
     );
+=======
+      context.setSelectedResources(selectedResources);
+    });
+
+    await waitFor(() =>
+      expect(last(getAllByText(labelSetDowntime))).toBeEnabled(),
+    );
+
+    fireEvent.click(last(getAllByText(labelSetDowntime)) as HTMLElement);
+
+    await findByText(labelDowntimeByAdmin);
+
+    // set previous day as end date using left arrow key
+    fireEvent.click(getByLabelText(labelChangeEndDate));
+    fireEvent.keyDown(container, { code: 37, key: 'ArrowLeft' });
+    fireEvent.keyDown(container, { code: 13, key: 'Enter' });
+
+    await waitFor(() =>
+      expect(
+        (last(getAllByText(labelSetDowntime)) as HTMLElement).parentElement,
+      ).toBeDisabled(),
+    );
+>>>>>>> centreon/dev-21.10.x
   });
 
   it('sends a downtime request when Resources are selected and the Downtime action is clicked and confirmed', async () => {
@@ -558,6 +810,7 @@ describe(Actions, () => {
     const selectedResources = [host];
 
     act(() => {
+<<<<<<< HEAD
       context.setSelectedResources?.(selectedResources);
     });
 
@@ -565,11 +818,15 @@ describe(Actions, () => {
       expect(
         last(getAllByText(labelSetDowntime)) as HTMLElement,
       ).toBeInTheDocument();
+=======
+      context.setSelectedResources(selectedResources);
+>>>>>>> centreon/dev-21.10.x
     });
 
     fireEvent.click(last(getAllByText(labelSetDowntime)) as HTMLElement);
 
     mockedAxios.get.mockResolvedValueOnce({ data: {} });
+<<<<<<< HEAD
     mockedAxios.post.mockResolvedValueOnce({});
 
     await findAllByText(labelDowntimeByAdmin);
@@ -578,6 +835,12 @@ describe(Actions, () => {
       expect(last(getAllByText(labelSetDowntime)) as HTMLElement).toBeEnabled();
     });
 
+=======
+    mockedAxios.post.mockResolvedValueOnce({}).mockResolvedValueOnce({});
+
+    await findAllByText(labelDowntimeByAdmin);
+
+>>>>>>> centreon/dev-21.10.x
     fireEvent.click(last(getAllByText(labelSetDowntime)) as HTMLElement);
 
     await waitFor(() =>
@@ -605,17 +868,24 @@ describe(Actions, () => {
     const selectedResources = [host, service];
 
     act(() => {
+<<<<<<< HEAD
       context.setSelectedResources?.(selectedResources);
+=======
+      context.setSelectedResources(selectedResources);
+>>>>>>> centreon/dev-21.10.x
     });
 
     mockedAxios.get.mockResolvedValueOnce({ data: {} });
     mockedAxios.all.mockResolvedValueOnce([]);
     mockedAxios.post.mockResolvedValueOnce({});
 
+<<<<<<< HEAD
     await waitFor(() => {
       expect(getByText(labelCheck)).toBeInTheDocument();
     });
 
+=======
+>>>>>>> centreon/dev-21.10.x
     fireEvent.click(getByText(labelCheck));
 
     await waitFor(() => {
@@ -632,6 +902,7 @@ describe(Actions, () => {
   it('sends a submit status request when a Resource is selected and the Submit status action is clicked', async () => {
     mockedAxios.post.mockResolvedValueOnce({});
 
+<<<<<<< HEAD
     const { getByText, getByLabelText, getAllByText } = renderActions();
 
     act(() => {
@@ -649,6 +920,18 @@ describe(Actions, () => {
     );
 
     fireEvent.click(getByText(labelSubmitStatus) as HTMLElement);
+=======
+    const { getByText, getByLabelText, getByTitle, queryByText } =
+      renderActions();
+
+    act(() => {
+      context.setSelectedResources([service]);
+    });
+
+    fireEvent.click(getByTitle(labelMoreActions).firstChild as HTMLElement);
+
+    fireEvent.click(getByText(labelSubmitStatus));
+>>>>>>> centreon/dev-21.10.x
 
     userEvent.click(getByText(labelOk));
 
@@ -694,6 +977,7 @@ describe(Actions, () => {
       );
     });
 
+<<<<<<< HEAD
     act(() => {
       context.setSelectedResources?.([host]);
     });
@@ -703,6 +987,19 @@ describe(Actions, () => {
     );
 
     fireEvent.click(getAllByText(labelSubmitStatus)[1] as HTMLElement);
+=======
+    await waitFor(() => {
+      expect(queryByText(labelSubmitStatus)).toBeNull();
+    });
+
+    act(() => {
+      context.setSelectedResources([host]);
+    });
+
+    fireEvent.click(getByTitle(labelMoreActions).firstChild as HTMLElement);
+
+    fireEvent.click(getByText(labelSubmitStatus));
+>>>>>>> centreon/dev-21.10.x
 
     userEvent.click(getByText(labelUp));
 
@@ -713,6 +1010,7 @@ describe(Actions, () => {
   });
 
   it('cannot execute an action when associated ACL are not sufficient', async () => {
+<<<<<<< HEAD
     const { getByText, getByLabelText } = renderActions({
       actions: {
         host: {
@@ -730,10 +1028,33 @@ describe(Actions, () => {
           disacknowledgement: false,
           downtime: false,
           submit_status: false,
+=======
+    mockedUserContext.mockReset().mockReturnValue({
+      ...mockUserContext,
+      acl: {
+        actions: {
+          host: {
+            acknowledgement: false,
+            check: false,
+            comment: false,
+            disacknowledgement: false,
+            downtime: false,
+            submit_status: false,
+          },
+          service: {
+            acknowledgement: false,
+            check: false,
+            comment: false,
+            disacknowledgement: false,
+            downtime: false,
+            submit_status: false,
+          },
+>>>>>>> centreon/dev-21.10.x
         },
       },
     });
 
+<<<<<<< HEAD
     const selectedResources = [host, service];
 
     act(() => {
@@ -747,6 +1068,23 @@ describe(Actions, () => {
     });
 
     fireEvent.click(getByLabelText(labelMoreActions).firstChild as HTMLElement);
+=======
+    const { getByText, getByTitle } = renderActions();
+
+    const selectedResources = [host, service];
+
+    act(() => {
+      context.setSelectedResources(selectedResources);
+    });
+
+    await waitFor(() => {
+      expect(getByText(labelCheck).parentElement).toBeDisabled();
+      expect(getByText(labelAcknowledge).parentElement).toBeDisabled();
+      expect(getByText(labelSetDowntime).parentElement).toBeDisabled();
+    });
+
+    fireEvent.click(getByTitle(labelMoreActions).firstChild as HTMLElement);
+>>>>>>> centreon/dev-21.10.x
 
     expect(getByText(labelDisacknowledge)).toHaveAttribute(
       'aria-disabled',
@@ -757,9 +1095,15 @@ describe(Actions, () => {
 
   const cannotDowntimeServicesAcl = {
     actions: {
+<<<<<<< HEAD
       ...mockAcl.actions,
       service: {
         ...mockAcl.actions.service,
+=======
+      ...mockUserContext.acl.actions,
+      service: {
+        ...mockUserContext.acl.actions.service,
+>>>>>>> centreon/dev-21.10.x
         downtime: false,
       },
     },
@@ -767,9 +1111,15 @@ describe(Actions, () => {
 
   const cannotAcknowledgeServicesAcl = {
     actions: {
+<<<<<<< HEAD
       ...mockAcl.actions,
       service: {
         ...mockAcl.actions.service,
+=======
+      ...mockUserContext.acl.actions,
+      service: {
+        ...mockUserContext.acl.actions.service,
+>>>>>>> centreon/dev-21.10.x
         acknowledgement: false,
       },
     },
@@ -777,9 +1127,15 @@ describe(Actions, () => {
 
   const cannotDisacknowledgeServicesAcl = {
     actions: {
+<<<<<<< HEAD
       ...mockAcl.actions,
       service: {
         ...mockAcl.actions.service,
+=======
+      ...mockUserContext.acl.actions,
+      service: {
+        ...mockUserContext.acl.actions.service,
+>>>>>>> centreon/dev-21.10.x
         disacknowledgement: false,
       },
     },
@@ -787,9 +1143,15 @@ describe(Actions, () => {
 
   const cannotDowntimeHostsAcl = {
     actions: {
+<<<<<<< HEAD
       ...mockAcl.actions,
       host: {
         ...mockAcl.actions.host,
+=======
+      ...mockUserContext.acl.actions,
+      host: {
+        ...mockUserContext.acl.actions.host,
+>>>>>>> centreon/dev-21.10.x
         downtime: false,
       },
     },
@@ -797,9 +1159,15 @@ describe(Actions, () => {
 
   const cannotAcknowledgeHostsAcl = {
     actions: {
+<<<<<<< HEAD
       ...mockAcl.actions,
       host: {
         ...mockAcl.actions.host,
+=======
+      ...mockUserContext.acl.actions,
+      host: {
+        ...mockUserContext.acl.actions.host,
+>>>>>>> centreon/dev-21.10.x
         acknowledgement: false,
       },
     },
@@ -807,9 +1175,15 @@ describe(Actions, () => {
 
   const cannotDisacknowledgeHostsAcl = {
     actions: {
+<<<<<<< HEAD
       ...mockAcl.actions,
       host: {
         ...mockAcl.actions.host,
+=======
+      ...mockUserContext.acl.actions,
+      host: {
+        ...mockUserContext.acl.actions.host,
+>>>>>>> centreon/dev-21.10.x
         disacknowledgement: false,
       },
     },
@@ -819,6 +1193,21 @@ describe(Actions, () => {
     [
       labelSetDowntime,
       labelSetDowntime,
+<<<<<<< HEAD
+=======
+      labelServicesDenied,
+      cannotDowntimeServicesAcl,
+    ],
+    [
+      labelAcknowledge,
+      labelAcknowledge,
+      labelServicesDenied,
+      cannotAcknowledgeServicesAcl,
+    ],
+    [
+      labelSetDowntime,
+      labelSetDowntime,
+>>>>>>> centreon/dev-21.10.x
       labelHostsDenied,
       cannotDowntimeHostsAcl,
     ],
@@ -837,11 +1226,21 @@ describe(Actions, () => {
   ])(
     'displays a warning message when trying to %p with limited ACL',
     async (_, labelAction, labelAclWarning, acl) => {
+<<<<<<< HEAD
       const { getByText, getByLabelText } = renderActions(acl);
+=======
+      mockedUserContext.mockReset().mockReturnValue({
+        ...mockUserContext,
+        acl,
+      });
+
+      const { getByText, getByTitle } = renderActions();
+>>>>>>> centreon/dev-21.10.x
 
       const selectedResources = [host, service];
 
       act(() => {
+<<<<<<< HEAD
         context.setSelectedResources?.(selectedResources);
       });
 
@@ -854,6 +1253,12 @@ describe(Actions, () => {
       fireEvent.click(
         getByLabelText(labelMoreActions).firstChild as HTMLElement,
       );
+=======
+        context.setSelectedResources(selectedResources);
+      });
+
+      fireEvent.click(getByTitle(labelMoreActions).firstChild as HTMLElement);
+>>>>>>> centreon/dev-21.10.x
 
       fireEvent.click(getByText(labelAction));
 
@@ -885,6 +1290,7 @@ describe(Actions, () => {
   ])(
     'disables services propagation option when trying to %p on hosts when ACL on services are not sufficient',
     async (_, labelAction, labelAppliesOnServices, acl) => {
+<<<<<<< HEAD
       const { getByText, getByLabelText } = renderActions(acl);
 
       act(() => {
@@ -894,6 +1300,20 @@ describe(Actions, () => {
       fireEvent.click(
         getByLabelText(labelMoreActions).firstChild as HTMLElement,
       );
+=======
+      mockedUserContext.mockReset().mockReturnValue({
+        ...mockUserContext,
+        acl,
+      });
+
+      const { getByText, getByTitle } = renderActions();
+
+      act(() => {
+        context.setSelectedResources([host]);
+      });
+
+      fireEvent.click(getByTitle(labelMoreActions).firstChild as HTMLElement);
+>>>>>>> centreon/dev-21.10.x
 
       fireEvent.click(getByText(labelAction));
 
@@ -908,21 +1328,42 @@ describe(Actions, () => {
   );
 
   it('disables the submit status action when one of the following condition is met: ACL are not sufficient, more than one resource is selected, selected resource is not passive', async () => {
+<<<<<<< HEAD
     const { getByText, getByLabelText } = renderActions({
       actions: {
         ...mockAcl.actions,
         host: {
           ...mockAcl.actions.host,
           submit_status: false,
+=======
+    const { getByText, getByTitle } = renderActions();
+
+    mockedUserContext.mockReset().mockReturnValue({
+      ...mockUserContext,
+      acl: {
+        actions: {
+          ...mockUserContext.acl.actions,
+          host: {
+            ...mockUserContext.acl.actions.host,
+            submit_status: false,
+          },
+>>>>>>> centreon/dev-21.10.x
         },
       },
     });
 
     act(() => {
+<<<<<<< HEAD
       context.setSelectedResources?.([host, service]);
     });
 
     fireEvent.click(getByLabelText(labelMoreActions).firstChild as HTMLElement);
+=======
+      context.setSelectedResources([host, service]);
+    });
+
+    fireEvent.click(getByTitle(labelMoreActions).firstChild as HTMLElement);
+>>>>>>> centreon/dev-21.10.x
 
     await waitFor(() => {
       expect(getByText(labelSubmitStatus)).toHaveAttribute(
@@ -932,7 +1373,11 @@ describe(Actions, () => {
     });
 
     act(() => {
+<<<<<<< HEAD
       context.setSelectedResources?.([host]);
+=======
+      context.setSelectedResources([host]);
+>>>>>>> centreon/dev-21.10.x
     });
 
     await waitFor(() => {
@@ -943,6 +1388,7 @@ describe(Actions, () => {
     });
 
     act(() => {
+<<<<<<< HEAD
       context.setSelectedResources?.([service]);
     });
 
@@ -952,6 +1398,20 @@ describe(Actions, () => {
 
     act(() => {
       context.setSelectedResources?.([{ ...service, passive_checks: false }]);
+=======
+      context.setSelectedResources([service]);
+    });
+
+    await waitFor(() => {
+      expect(getByText(labelSubmitStatus)).toHaveAttribute(
+        'aria-disabled',
+        'false',
+      );
+    });
+
+    act(() => {
+      context.setSelectedResources([{ ...service, passive_checks: false }]);
+>>>>>>> centreon/dev-21.10.x
     });
 
     await waitFor(() => {
@@ -963,21 +1423,42 @@ describe(Actions, () => {
   });
 
   it('disables the comment action when the ACL are not sufficient or more than one resource is selected', async () => {
+<<<<<<< HEAD
     const { getByText, getByLabelText } = renderActions({
       actions: {
         ...mockAcl.actions,
         host: {
           ...mockAcl.actions.host,
           comment: false,
+=======
+    const { getByText, getByTitle } = renderActions();
+
+    mockedUserContext.mockReset().mockReturnValue({
+      ...mockUserContext,
+      acl: {
+        actions: {
+          ...mockUserContext.acl.actions,
+          host: {
+            ...mockUserContext.acl.actions.host,
+            comment: false,
+          },
+>>>>>>> centreon/dev-21.10.x
         },
       },
     });
 
     act(() => {
+<<<<<<< HEAD
       context.setSelectedResources?.([host, service]);
     });
 
     fireEvent.click(getByLabelText(labelMoreActions).firstChild as HTMLElement);
+=======
+      context.setSelectedResources([host, service]);
+    });
+
+    fireEvent.click(getByTitle(labelMoreActions).firstChild as HTMLElement);
+>>>>>>> centreon/dev-21.10.x
 
     await waitFor(() => {
       expect(getByText(labelAddComment)).toHaveAttribute(
@@ -987,7 +1468,11 @@ describe(Actions, () => {
     });
 
     act(() => {
+<<<<<<< HEAD
       context.setSelectedResources?.([host]);
+=======
+      context.setSelectedResources([host]);
+>>>>>>> centreon/dev-21.10.x
     });
 
     await waitFor(() => {
@@ -998,11 +1483,22 @@ describe(Actions, () => {
     });
 
     act(() => {
+<<<<<<< HEAD
       context.setSelectedResources?.([service]);
     });
 
     await waitFor(() => {
       expect(getByText(labelAddComment)).not.toHaveAttribute('aria-disabled');
+=======
+      context.setSelectedResources([service]);
+    });
+
+    await waitFor(() => {
+      expect(getByText(labelAddComment)).toHaveAttribute(
+        'aria-disabled',
+        'false',
+      );
+>>>>>>> centreon/dev-21.10.x
     });
   });
 
@@ -1010,7 +1506,11 @@ describe(Actions, () => {
     const { getByText } = renderActions();
 
     act(() => {
+<<<<<<< HEAD
       context.setSelectedResources?.([
+=======
+      context.setSelectedResources([
+>>>>>>> centreon/dev-21.10.x
         {
           ...host,
           status: {
@@ -1029,7 +1529,11 @@ describe(Actions, () => {
     });
 
     await waitFor(() => {
+<<<<<<< HEAD
       expect(getByText(labelAcknowledge)).toBeDisabled();
+=======
+      expect(getByText(labelAcknowledge).parentElement).toBeDisabled();
+>>>>>>> centreon/dev-21.10.x
     });
   });
 });

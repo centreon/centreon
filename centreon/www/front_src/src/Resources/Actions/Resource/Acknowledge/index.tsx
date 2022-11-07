@@ -1,12 +1,22 @@
+<<<<<<< HEAD
 import { useEffect } from 'react';
+=======
+import * as React from 'react';
+>>>>>>> centreon/dev-21.10.x
 
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useTranslation } from 'react-i18next';
+<<<<<<< HEAD
 import { useAtomValue } from 'jotai/utils';
 
 import { useSnackbar, useRequest } from '@centreon/ui';
 import { acknowledgementAtom, userAtom } from '@centreon/ui-context';
+=======
+
+import { useSnackbar, useRequest } from '@centreon/ui';
+import { useUserContext } from '@centreon/ui-context';
+>>>>>>> centreon/dev-21.10.x
 
 import {
   labelRequired,
@@ -56,8 +66,12 @@ const AcknowledgeForm = ({
     request: acknowledgeResources,
   });
 
+<<<<<<< HEAD
   const { alias } = useAtomValue(userAtom);
   const acknowledgement = useAtomValue(acknowledgementAtom);
+=======
+  const { alias, acknowledgement } = useUserContext();
+>>>>>>> centreon/dev-21.10.x
 
   const form = useFormik<AcknowledgeFormValues>({
     initialValues: {
@@ -80,7 +94,11 @@ const AcknowledgeForm = ({
     validationSchema,
   });
 
+<<<<<<< HEAD
   useEffect(() => {
+=======
+  React.useEffect(() => {
+>>>>>>> centreon/dev-21.10.x
     form.setFieldValue('comment', `${t(labelAcknowledgedBy)} ${alias}`);
   }, []);
 

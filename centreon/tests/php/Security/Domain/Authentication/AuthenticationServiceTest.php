@@ -27,10 +27,16 @@ use Security\Domain\Authentication\AuthenticationService;
 use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
 use Security\Domain\Authentication\Interfaces\ProviderServiceInterface;
 use Security\Domain\Authentication\Interfaces\SessionRepositoryInterface;
+<<<<<<< HEAD
 use Security\Domain\Authentication\Interfaces\LocalProviderInterface;
 use Security\Domain\Authentication\Model\AuthenticationTokens;
 use Security\Domain\Authentication\Model\ProviderToken;
 use Core\Application\Security\Repository\WriteTokenRepositoryInterface;
+=======
+use Security\Domain\Authentication\Interfaces\ProviderInterface;
+use Security\Domain\Authentication\Model\AuthenticationTokens;
+use Security\Domain\Authentication\Model\ProviderToken;
+>>>>>>> centreon/dev-21.10.x
 use Centreon\Domain\Authentication\Exception\AuthenticationException;
 
 /**
@@ -54,12 +60,16 @@ class AuthenticationServiceTest extends TestCase
     private $sessionRepository;
 
     /**
+<<<<<<< HEAD
      * @var WriteTokenRepositoryInterface|\PHPUnit\Framework\MockObject\MockObject
      */
     private $writeTokenRepository;
 
     /**
      * @var LocalProviderInterface|\PHPUnit\Framework\MockObject\MockObject
+=======
+     * @var ProviderInterface|\PHPUnit\Framework\MockObject\MockObject
+>>>>>>> centreon/dev-21.10.x
      */
     private $provider;
 
@@ -73,21 +83,30 @@ class AuthenticationServiceTest extends TestCase
      */
     private $providerToken;
 
+<<<<<<< HEAD
     /**
      * @var ProviderToken|\PHPUnit\Framework\MockObject\MockObject
      */
     private $refreshToken;
 
+=======
+>>>>>>> centreon/dev-21.10.x
     protected function setUp(): void
     {
         $this->authenticationRepository = $this->createMock(AuthenticationRepositoryInterface::class);
         $this->providerService = $this->createMock(ProviderServiceInterface::class);
         $this->sessionRepository = $this->createMock(SessionRepositoryInterface::class);
+<<<<<<< HEAD
         $this->writeTokenRepository = $this->createMock(WriteTokenRepositoryInterface::class);
         $this->provider = $this->createMock(LocalProviderInterface::class);
         $this->authenticationTokens = $this->createMock(AuthenticationTokens::class);
         $this->providerToken = $this->createMock(ProviderToken::class);
         $this->refreshToken = $this->createMock(ProviderToken::class);
+=======
+        $this->provider = $this->createMock(ProviderInterface::class);
+        $this->authenticationTokens = $this->createMock(AuthenticationTokens::class);
+        $this->providerToken = $this->createMock(ProviderToken::class);
+>>>>>>> centreon/dev-21.10.x
     }
 
     /**
@@ -98,8 +117,12 @@ class AuthenticationServiceTest extends TestCase
         $providerService = new AuthenticationService(
             $this->authenticationRepository,
             $this->providerService,
+<<<<<<< HEAD
             $this->sessionRepository,
             $this->writeTokenRepository,
+=======
+            $this->sessionRepository
+>>>>>>> centreon/dev-21.10.x
         );
 
         $this->authenticationRepository
@@ -121,8 +144,12 @@ class AuthenticationServiceTest extends TestCase
         $providerService = new AuthenticationService(
             $this->authenticationRepository,
             $this->providerService,
+<<<<<<< HEAD
             $this->sessionRepository,
             $this->writeTokenRepository,
+=======
+            $this->sessionRepository
+>>>>>>> centreon/dev-21.10.x
         );
 
         $this->authenticationRepository
@@ -149,8 +176,12 @@ class AuthenticationServiceTest extends TestCase
         $providerService = new AuthenticationService(
             $this->authenticationRepository,
             $this->providerService,
+<<<<<<< HEAD
             $this->sessionRepository,
             $this->writeTokenRepository,
+=======
+            $this->sessionRepository
+>>>>>>> centreon/dev-21.10.x
         );
 
         $this->authenticationRepository
@@ -192,8 +223,12 @@ class AuthenticationServiceTest extends TestCase
         $providerService = new AuthenticationService(
             $this->authenticationRepository,
             $this->providerService,
+<<<<<<< HEAD
             $this->sessionRepository,
             $this->writeTokenRepository,
+=======
+            $this->sessionRepository
+>>>>>>> centreon/dev-21.10.x
         );
 
         $this->authenticationRepository
@@ -212,21 +247,27 @@ class AuthenticationServiceTest extends TestCase
             ->method('getProviderToken')
             ->willReturn($this->providerToken);
 
+<<<<<<< HEAD
         $this->authenticationTokens
             ->expects($this->any())
             ->method('getProviderRefreshToken')
             ->willReturn($this->refreshToken);
 
+=======
+>>>>>>> centreon/dev-21.10.x
         $this->providerToken
             ->expects($this->once())
             ->method('isExpired')
             ->willReturn(true);
 
+<<<<<<< HEAD
         $this->refreshToken
             ->expects($this->once())
             ->method('isExpired')
             ->willReturn(false);
 
+=======
+>>>>>>> centreon/dev-21.10.x
         $this->provider
             ->expects($this->once())
             ->method('canRefreshToken')
@@ -250,8 +291,12 @@ class AuthenticationServiceTest extends TestCase
         $providerService = new AuthenticationService(
             $this->authenticationRepository,
             $this->providerService,
+<<<<<<< HEAD
             $this->sessionRepository,
             $this->writeTokenRepository,
+=======
+            $this->sessionRepository
+>>>>>>> centreon/dev-21.10.x
         );
 
         $this->authenticationRepository
@@ -270,6 +315,7 @@ class AuthenticationServiceTest extends TestCase
             ->method('getProviderToken')
             ->willReturn($this->providerToken);
 
+<<<<<<< HEAD
         $this->authenticationTokens
             ->expects($this->any())
             ->method('getProviderRefreshToken')
@@ -280,6 +326,8 @@ class AuthenticationServiceTest extends TestCase
             ->method('isExpired')
             ->willReturn(false);
 
+=======
+>>>>>>> centreon/dev-21.10.x
         $this->providerToken
             ->expects($this->once())
             ->method('isExpired')
@@ -308,8 +356,12 @@ class AuthenticationServiceTest extends TestCase
         $providerService = new AuthenticationService(
             $this->authenticationRepository,
             $this->providerService,
+<<<<<<< HEAD
             $this->sessionRepository,
             $this->writeTokenRepository,
+=======
+            $this->sessionRepository
+>>>>>>> centreon/dev-21.10.x
         );
 
         $this->authenticationRepository
@@ -336,8 +388,12 @@ class AuthenticationServiceTest extends TestCase
         $providerService = new AuthenticationService(
             $this->authenticationRepository,
             $this->providerService,
+<<<<<<< HEAD
             $this->sessionRepository,
             $this->writeTokenRepository,
+=======
+            $this->sessionRepository
+>>>>>>> centreon/dev-21.10.x
         );
 
         $this->authenticationRepository
@@ -361,11 +417,18 @@ class AuthenticationServiceTest extends TestCase
         $providerService = new AuthenticationService(
             $this->authenticationRepository,
             $this->providerService,
+<<<<<<< HEAD
             $this->sessionRepository,
             $this->writeTokenRepository,
         );
 
         $this->writeTokenRepository
+=======
+            $this->sessionRepository
+        );
+
+        $this->authenticationRepository
+>>>>>>> centreon/dev-21.10.x
             ->expects($this->once())
             ->method('deleteExpiredSecurityTokens')
             ->willThrowException(new \Exception());
@@ -384,11 +447,18 @@ class AuthenticationServiceTest extends TestCase
         $providerService = new AuthenticationService(
             $this->authenticationRepository,
             $this->providerService,
+<<<<<<< HEAD
             $this->sessionRepository,
             $this->writeTokenRepository,
         );
 
         $this->writeTokenRepository
+=======
+            $this->sessionRepository
+        );
+
+        $this->authenticationRepository
+>>>>>>> centreon/dev-21.10.x
             ->expects($this->once())
             ->method('deleteExpiredSecurityTokens');
 
@@ -403,8 +473,12 @@ class AuthenticationServiceTest extends TestCase
         $providerService = new AuthenticationService(
             $this->authenticationRepository,
             $this->providerService,
+<<<<<<< HEAD
             $this->sessionRepository,
             $this->writeTokenRepository,
+=======
+            $this->sessionRepository
+>>>>>>> centreon/dev-21.10.x
         );
 
         $this->authenticationRepository
@@ -427,8 +501,12 @@ class AuthenticationServiceTest extends TestCase
         $providerService = new AuthenticationService(
             $this->authenticationRepository,
             $this->providerService,
+<<<<<<< HEAD
             $this->sessionRepository,
             $this->writeTokenRepository,
+=======
+            $this->sessionRepository
+>>>>>>> centreon/dev-21.10.x
         );
 
         $this->authenticationRepository
@@ -447,8 +525,12 @@ class AuthenticationServiceTest extends TestCase
         $providerService = new AuthenticationService(
             $this->authenticationRepository,
             $this->providerService,
+<<<<<<< HEAD
             $this->sessionRepository,
             $this->writeTokenRepository,
+=======
+            $this->sessionRepository
+>>>>>>> centreon/dev-21.10.x
         );
 
         $this->authenticationRepository
@@ -471,8 +553,12 @@ class AuthenticationServiceTest extends TestCase
         $providerService = new AuthenticationService(
             $this->authenticationRepository,
             $this->providerService,
+<<<<<<< HEAD
             $this->sessionRepository,
             $this->writeTokenRepository,
+=======
+            $this->sessionRepository
+>>>>>>> centreon/dev-21.10.x
         );
 
         $this->authenticationRepository

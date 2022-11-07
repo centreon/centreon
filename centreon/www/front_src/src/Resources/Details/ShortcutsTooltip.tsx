@@ -1,18 +1,35 @@
+<<<<<<< HEAD
 import { isNil, prop } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import LogsIcon from '@mui/icons-material/Assignment';
 import ReportIcon from '@mui/icons-material/Assessment';
+=======
+import * as React from 'react';
+
+import { isNil, prop } from 'ramda';
+import { useTranslation } from 'react-i18next';
+
+import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
+import LogsIcon from '@material-ui/icons/Assignment';
+import ReportIcon from '@material-ui/icons/Assessment';
+>>>>>>> centreon/dev-21.10.x
 import {
   Link,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
+<<<<<<< HEAD
   Tooltip,
 } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
+=======
+  makeStyles,
+  Tooltip,
+} from '@material-ui/core';
+>>>>>>> centreon/dev-21.10.x
 
 import { PopoverMenu } from '@centreon/ui';
 

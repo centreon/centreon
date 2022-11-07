@@ -1,7 +1,15 @@
+<<<<<<< HEAD
 import { Responsive } from '@visx/visx';
 
 import { Typography, Box } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
+=======
+import * as React from 'react';
+
+import { Responsive } from '@visx/visx';
+
+import { Typography, Box, makeStyles } from '@material-ui/core';
+>>>>>>> centreon/dev-21.10.x
 
 const useStyles = makeStyles((theme) => ({
   lineText: {

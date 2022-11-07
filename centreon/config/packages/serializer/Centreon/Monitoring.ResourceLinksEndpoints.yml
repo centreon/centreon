@@ -23,8 +23,11 @@ Centreon\Domain\Monitoring\ResourceLinksEndpoints:
         downtime:
             type: string
             groups:
+<<<<<<< HEAD
                 - 'resource_status_main'
         notificationPolicy:
             type: string
             groups:
+=======
+>>>>>>> centreon/dev-21.10.x
                 - 'resource_status_main'

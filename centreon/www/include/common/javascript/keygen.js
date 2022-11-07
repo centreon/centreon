@@ -2,6 +2,7 @@
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
+<<<<<<< HEAD
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
@@ -30,21 +31,60 @@
  *
  * For more information : contact@centreon.com
  *
+=======
+ * 
+ * This program is free software; you can redistribute it and/or modify it under 
+ * the terms of the GNU General Public License as published by the Free Software 
+ * Foundation ; either version 2 of the License.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+ * PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License along with 
+ * this program; if not, see <http://www.gnu.org/licenses>.
+ * 
+ * Linking this program statically or dynamically with other modules is making a 
+ * combined work based on this program. Thus, the terms and conditions of the GNU 
+ * General Public License cover the whole combination.
+ * 
+ * As a special exception, the copyright holders of this program give Centreon 
+ * permission to link this program with independent modules to produce an executable, 
+ * regardless of the license terms of these independent modules, and to copy and 
+ * distribute the resulting executable under terms of Centreon choice, provided that 
+ * Centreon also meet, for each linked independent module, the terms  and conditions 
+ * of the license of that module. An independent module is a module which is not 
+ * derived from this program. If you modify this program, you may extend this 
+ * exception to your version of the program, but you are not obliged to do so. If you
+ * do not wish to do so, delete this exception statement from your version.
+ * 
+ * For more information : contact@centreon.com
+ * 
+>>>>>>> centreon/dev-21.10.x
  */
 
  /*
   * Script found on http://www.blazonry.com/javascript/password.php
   * simplified to generate a random password for autologin_key
   */
+<<<<<<< HEAD
 function generatePassword(what, securityPolicy = null)
 {
     securityPolicy = JSON.parse(securityPolicy);
+=======
+function generatePassword(what)
+{
+>>>>>>> centreon/dev-21.10.x
     if (parseInt(navigator.appVersion) <= 3) {
         alert("Sorry this only works in 4.0+ browsers");
         return true;
     }
 
+<<<<<<< HEAD
     var length = securityPolicy.password_length;
+=======
+    var length=8;
+>>>>>>> centreon/dev-21.10.x
     var sPassword = "";
 
     /*
@@ -71,6 +111,7 @@ function generatePassword(what, securityPolicy = null)
      * TODO (maybe): Rechange the type if typing into the box...
      */
     if (what == "aKey") {
+<<<<<<< HEAD
         document.getElementById('aKey').value = sPassword;
     } else {
         sPassword = generatePasswordWithSecurityPolicy(securityPolicy)
@@ -78,6 +119,14 @@ function generatePassword(what, securityPolicy = null)
         document.getElementById('passwd1').setAttribute('type','text');
         document.getElementById('passwd2').value = sPassword;
         document.getElementById('passwd2').setAttribute('type','text');
+=======
+		document.getElementById('aKey').value = sPassword;
+    } else {
+		document.getElementById('passwd1').value = sPassword;
+		document.getElementById('passwd1').setAttribute('type','text');
+		document.getElementById('passwd2').value = sPassword;
+		document.getElementById('passwd2').setAttribute('type','text');
+>>>>>>> centreon/dev-21.10.x
     }
     return true;
 }
@@ -110,6 +159,7 @@ function resetPwdType(elem)
 {
 	elem.setAttribute('type', 'password');
 }
+<<<<<<< HEAD
 
 //Password generated with at least 1 number, 1 upper case character, 1 lower case character and 1 Special character
 function generatePasswordWithSecurityPolicy(securityPolicy)
@@ -155,3 +205,5 @@ function shuffleArray(array)
 }
   return array;
 }
+=======
+>>>>>>> centreon/dev-21.10.x

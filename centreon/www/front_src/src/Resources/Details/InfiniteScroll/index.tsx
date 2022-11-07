@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { RefObject, useEffect, useRef, useState } from 'react';
+=======
+import * as React from 'react';
+>>>>>>> centreon/dev-21.10.x
 
 import {
   always,
@@ -13,25 +17,42 @@ import {
   length,
 } from 'ramda';
 import { useTranslation } from 'react-i18next';
+<<<<<<< HEAD
 import { useAtomValue } from 'jotai/utils';
+=======
+>>>>>>> centreon/dev-21.10.x
 
 import {
   CircularProgress,
   Fab,
   Fade,
   LinearProgress,
+<<<<<<< HEAD
   Tooltip,
 } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+=======
+  makeStyles,
+  Tooltip,
+} from '@material-ui/core';
+import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+>>>>>>> centreon/dev-21.10.x
 
 import { useIntersectionObserver, ListingModel } from '@centreon/ui';
 
 import NoResultsMessage from '../NoResultsMessage';
+<<<<<<< HEAD
 import memoizeComponent from '../../memoizedComponent';
 import { labelScrollToTop } from '../../translatedLabels';
 import { selectedResourceIdAtom } from '../detailsAtoms';
 import { ResourceDetails } from '../models';
+=======
+import { ResourceDetails } from '../models';
+import { ResourceContext, useResourceContext } from '../../Context';
+import memoizeComponent from '../../memoizedComponent';
+import { labelScrollToTop } from '../../translatedLabels';
+>>>>>>> centreon/dev-21.10.x
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -95,13 +116,24 @@ interface Props<TEntity> {
   }) => Promise<ListingModel<TEntity>>;
 }
 
+<<<<<<< HEAD
 const InfiniteScrollContent = <TEntity extends { id: number }>({
   limit,
   filter,
+=======
+type InfiniteScrollContentProps<TEntity> = Props<TEntity> &
+  Pick<ResourceContext, 'selectedResourceId'>;
+
+const InfiniteScrollContent = <TEntity extends { id: number }>({
+  limit,
+  filter,
+  details,
+>>>>>>> centreon/dev-21.10.x
   reloadDependencies = [],
   loadingSkeleton,
   loading,
   preventReloadWhen = false,
+<<<<<<< HEAD
   sendListingRequest,
   children,
   details,
@@ -118,6 +150,22 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
   const preventScrollingRef = useRef(false);
 
   const selectedResourceId = useAtomValue(selectedResourceIdAtom);
+=======
+  selectedResourceId,
+  sendListingRequest,
+  children,
+}: InfiniteScrollContentProps<TEntity>): JSX.Element => {
+  const classes = useStyles();
+  const { t } = useTranslation();
+
+  const [entities, setEntities] = React.useState<Array<TEntity>>();
+  const [page, setPage] = React.useState(1);
+  const [total, setTotal] = React.useState(0);
+  const [loadingMoreEvents, setLoadingMoreEvents] = React.useState(false);
+  const [isScrolling, setIsScrolling] = React.useState(false);
+  const scrollableContainerRef = React.useRef<HTMLDivElement | undefined>();
+  const preventScrollingRef = React.useRef(false);
+>>>>>>> centreon/dev-21.10.x
 
   const listEntities = (
     { atPage } = {
@@ -145,7 +193,11 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
       .catch(() => undefined);
   };
 
+<<<<<<< HEAD
   useEffect(() => {
+=======
+  React.useEffect(() => {
+>>>>>>> centreon/dev-21.10.x
     if (isNil(details)) {
       setEntities(undefined);
     }
@@ -157,7 +209,11 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
     reload();
   }, [details]);
 
+<<<<<<< HEAD
   useEffect(() => {
+=======
+  React.useEffect(() => {
+>>>>>>> centreon/dev-21.10.x
     if (isNil(entities) || page === 1) {
       return;
     }
@@ -169,7 +225,11 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
       .catch(() => undefined);
   }, [page]);
 
+<<<<<<< HEAD
   useEffect(() => {
+=======
+  React.useEffect(() => {
+>>>>>>> centreon/dev-21.10.x
     if (isNil(details) || isNil(entities)) {
       return;
     }
@@ -179,7 +239,11 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
     reload();
   }, reloadDependencies);
 
+<<<<<<< HEAD
   useEffect(() => {
+=======
+  React.useEffect(() => {
+>>>>>>> centreon/dev-21.10.x
     if (selectedResourceId !== details?.id) {
       setEntities(undefined);
       setPage(1);
@@ -230,7 +294,11 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
   return (
     <div
       className={classes.scrollableContainer}
+<<<<<<< HEAD
       ref={scrollableContainerRef as RefObject<HTMLDivElement>}
+=======
+      ref={scrollableContainerRef as React.RefObject<HTMLDivElement>}
+>>>>>>> centreon/dev-21.10.x
       onScroll={scroll}
     >
       <div className={classes.container}>
@@ -275,19 +343,39 @@ const InfiniteScrollContent = <TEntity extends { id: number }>({
 const MemoizedInfiniteScrollContent = memoizeComponent({
   Component: InfiniteScrollContent,
   memoProps: [
+<<<<<<< HEAD
     'limit',
+=======
+    'selectedResourceId',
+    'limit',
+    'details',
+>>>>>>> centreon/dev-21.10.x
     'reloadDependencies',
     'loading',
     'preventReloadWhen',
     'filter',
+<<<<<<< HEAD
     'details',
+=======
+>>>>>>> centreon/dev-21.10.x
   ],
 }) as typeof InfiniteScrollContent;
 
 const InfiniteScroll = <TEntity extends { id: number }>(
   props: Props<TEntity>,
 ): JSX.Element => {
+<<<<<<< HEAD
   return <MemoizedInfiniteScrollContent {...props} />;
+=======
+  const { selectedResourceId } = useResourceContext();
+
+  return (
+    <MemoizedInfiniteScrollContent
+      selectedResourceId={selectedResourceId}
+      {...props}
+    />
+  );
+>>>>>>> centreon/dev-21.10.x
 };
 
 export default InfiniteScroll;

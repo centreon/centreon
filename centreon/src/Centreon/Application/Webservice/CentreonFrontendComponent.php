@@ -42,6 +42,10 @@ use Pimple\Psr11\ServiceLocator;
 
 class CentreonFrontendComponent extends Webservice\WebServiceAbstract implements WebserviceAutorizePublicInterface
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * @var \Psr\Container\ContainerInterface
      */

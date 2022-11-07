@@ -2815,6 +2815,13 @@ msgstr "Information sur le moteur de supervision"
 msgid "Admin information"
 msgstr "Informations de l'administrateur"
 
+<<<<<<< HEAD
+=======
+#: centreon-web/www/install/steps/step5.php:66
+msgid "Login"
+msgstr "Login"
+
+>>>>>>> centreon/dev-21.10.x
 #: centreon-web/www/install/steps/step5.php:73
 #: centreon-web/www/include/Administration/myAccount/formMyAccount.php:97
 #: centreon-web/www/include/configuration/configObject/host/formHost.php:566
@@ -5296,6 +5303,15 @@ msgstr "Afficher les commentaires sur le graphique"
 msgid "Are you sure you want to change this parameter? Please read the help before."
 msgstr "Êtes-vous sûr de vouloir changer ce paramètre ? Veuillez lire l'aide avant."
 
+<<<<<<< HEAD
+=======
+msgid "Trusted client addresses"
+msgstr "Adresses des clients de confiance"
+
+msgid "Blacklist client addresses"
+msgstr "Adresses des clients bloqués"
+
+>>>>>>> centreon/dev-21.10.x
 msgid "Base Url"
 msgstr "URL de base"
 
@@ -9554,10 +9570,13 @@ msgstr "Contrôle si le service est en plage de maintenance"
 msgid "Preexec definition"
 msgstr "Définition de la commande PREEXEC"
 
+<<<<<<< HEAD
 #: centreon-web/www/include/configuration/configObject/traps/formTraps.php:360
 msgid "The same OID element already exists"
 msgstr "Le même OID existe déjà"
 
+=======
+>>>>>>> centreon/dev-21.10.x
 #: centreon-web/www/include/configuration/configObject/traps/formTraps.php:368
 msgid "Advanced matching rules"
 msgstr "Règles de correspondance avancées"
@@ -15930,7 +15949,11 @@ msgstr "Commande de désacquittement envoyée"
 msgid "Unable to find the Engine configuration"
 msgstr "Impossible de trouver la configuration du moteur de supervision"
 
+<<<<<<< HEAD
 msgid "Ip address cannot be empty"
+=======
+msgid "Ip address can not be empty"
+>>>>>>> centreon/dev-21.10.x
 msgstr "L'adresse IP ne peut pas être vide"
 
 msgid "Monitoring server is not correctly defined"
@@ -16150,7 +16173,11 @@ msgid "The duration must be lesser than a year"
 msgstr "La durée doit être inférieure à une année"
 
 msgid "Authentication failed"
+<<<<<<< HEAD
 msgstr "Echec de l'authentification"
+=======
+msgstr "Authentification échouée"
+>>>>>>> centreon/dev-21.10.x
 
 msgid "User cannot be logout"
 msgstr "L'utilisateur ne peut pas être déconnecté"
@@ -16308,6 +16335,7 @@ msgstr "Soft"
 msgid "User is not allowed to reach web application"
 msgstr "L'utilisateur n'est pas autorisé à joindre l'application web"
 
+<<<<<<< HEAD
 msgid "You are disconnected"
 msgstr "Vous êtes déconnecté"
 
@@ -16494,12 +16522,15 @@ msgstr "Politique de sécurité non trouvée. Veuillez vérifier que votre insta
 msgid "Error while reading local provider configuration"
 msgstr "Erreur lors de la lecture de la configuration du fournisseur local"
 
+=======
+>>>>>>> centreon/dev-21.10.x
 msgid "Your autologin key must be different than your current password"
 msgstr "Votre clé d'autologin doit être différente de votre mot de passe actuel"
 
 msgid "Your new password and autologin key must be different"
 msgstr "Votre nouveau mot de passe et votre clé d'autologin doivent être différents"
 
+<<<<<<< HEAD
 msgid "Error on adding a host (Reason: %s)"
 msgstr "Erreur lors de l'ajout d'un hôte (Raison : %s)"
 
@@ -16814,3 +16845,10 @@ msgstr "Erreur"
 
 msgid "Do not use configured proxy to connect to this server"
 msgstr "Ne pas utiliser le proxy configuré pour se connecter à ce serveur"
+=======
+# msgid "Force active checks"
+# msgstr "Forcer les contrôles actif"
+
+msgid "Warning, maximum size exceeded for input '%s' (max: %d), it will be truncated upon saving"
+msgstr "Attention, taille maximale dépassée pour le champ '%s' (max: %d), il sera tronqué à l'enregistrement"
+>>>>>>> centreon/dev-21.10.x

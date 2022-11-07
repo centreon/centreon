@@ -38,6 +38,10 @@ namespace Centreon\Infrastructure\CentreonLegacyDB\Interfaces;
 
 interface PaginationRepositoryInterface
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * Get a list of elements by criteria
      *

@@ -33,7 +33,11 @@
  * For more information : contact@centreon.com
  *
  */
+<<<<<<< HEAD
 
+=======
+ 
+>>>>>>> centreon/dev-21.10.x
 echo _("Time in seconds to wait before launching failover.");
 echo _("Category filter for flux in output");
 echo _("Trusted CA's certificate.");

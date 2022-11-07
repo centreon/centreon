@@ -43,4 +43,8 @@ namespace Centreon\Application\Validation\Validator\Interfaces;
  */
 interface CentreonValidatorInterface
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
 }

@@ -87,7 +87,11 @@ $args = "&redirect=" . urlencode(http_build_query($_GET));
 // if session is not valid and autologin token is not given, then redirect to login page
 if (!isset($_SESSION["centreon"])) {
     if (!isset($_GET['autologin'])) {
+<<<<<<< HEAD
         include __DIR__ . '/../../../index.html';
+=======
+        header("Location: index.php?disconnect=1" . $args);
+>>>>>>> centreon/dev-21.10.x
     } else {
         $args = null;
         foreach ($_GET as $key => $value) {
@@ -165,6 +169,32 @@ switch (strlen($p)) {
         break;
 }
 
+<<<<<<< HEAD
+=======
+/*
+ * Define Skin path
+ */
+
+$tab_file_css = array();
+$i = 0;
+if ($handle = @opendir("./Themes/Centreon-2/Color")) {
+    while ($file = @readdir($handle)) {
+        if (is_file("./Themes/Centreon-2/Color" . "/" . $file)) {
+            $tab_file_css[$i++] = $file;
+        }
+    }
+    @closedir($handle);
+}
+
+$colorfile = "Color/" . $tab_file_css[0];
+
+//Get CSS Order and color
+$DBRESULT = $pearDB->query("SELECT `css_name` FROM `css_color_menu` WHERE `menu_nb` = '" . $level1 . "'");
+if ($DBRESULT->rowCount() && ($elem = $DBRESULT->fetch())) {
+    $colorfile = "Color/" . $elem["css_name"];
+}
+
+>>>>>>> centreon/dev-21.10.x
 //Update Session Table For last_reload and current_page row
 $page = '' . $level1 . $level2 . $level3 . $level4;
 if (empty($page)) {

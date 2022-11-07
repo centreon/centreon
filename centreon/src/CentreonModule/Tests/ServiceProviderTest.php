@@ -56,6 +56,7 @@ class ServiceProviderTest extends TestCase
 {
     use SourceDependencyTrait;
 
+<<<<<<< HEAD
     /**
      * @var Container
      */
@@ -64,12 +65,19 @@ class ServiceProviderTest extends TestCase
     /**
      * @var ServiceProvider
      */
+=======
+    protected $container;
+>>>>>>> centreon/dev-21.10.x
     protected $provider;
 
     protected function setUp(): void
     {
         $this->provider = new ServiceProvider();
+<<<<<<< HEAD
         $this->container = new Container();
+=======
+        $this->container = new Container;
+>>>>>>> centreon/dev-21.10.x
         $this->container['finder'] = $this->getMockBuilder(Finder::class)
             ->disableOriginalConstructor()
             ->getMock()
@@ -79,7 +87,11 @@ class ServiceProviderTest extends TestCase
 
         $this->container['configuration'] = $this->createMock(Configuration::class);
 
+<<<<<<< HEAD
         $this->container['realtime_db'] = $this->container['configuration_db'] = new Mock\CentreonDB();
+=======
+        $this->container['realtime_db'] = $this->container['configuration_db'] = new Mock\CentreonDB;
+>>>>>>> centreon/dev-21.10.x
         $this->container['configuration_db']
             ->addResultSet("SELECT `name` AS `id`, `mod_release` AS `version` FROM `modules_informations`", [])
             ->addResultSet("SELECT `directory` AS `id`, `version` FROM `widget_models`", [])
@@ -91,6 +103,7 @@ class ServiceProviderTest extends TestCase
         ]);
         $this->container[\Centreon\ServiceProvider::CENTREON_DB_MANAGER] = new CentreonDBManagerService($locator);
         $this->container[\Centreon\ServiceProvider::CENTREON_WEBSERVICE] = new class {
+<<<<<<< HEAD
             /**
              * @var array<mixed>
              */
@@ -100,10 +113,17 @@ class ServiceProviderTest extends TestCase
              * @param mixed $class
              */
             public function add($class): void
+=======
+
+            protected $services = [];
+
+            public function add($class)
+>>>>>>> centreon/dev-21.10.x
             {
                 $this->services[$class] = $class;
             }
 
+<<<<<<< HEAD
             /**
              * @return array<mixed>
              */
@@ -112,6 +132,10 @@ class ServiceProviderTest extends TestCase
                 /**
                  * @return array<mixed>
                  */
+=======
+            public function getServices(): array
+            {
+>>>>>>> centreon/dev-21.10.x
                 return $this->services;
             }
         };
@@ -122,7 +146,11 @@ class ServiceProviderTest extends TestCase
     /**
      * @covers \CentreonModule\ServiceProvider::register
      */
+<<<<<<< HEAD
     public function testCheckServicesByList(): void
+=======
+    public function testCheckServicesByList()
+>>>>>>> centreon/dev-21.10.x
     {
         $checkList = [
             ServiceProvider::CENTREON_MODULE => Service\CentreonModuleService::class,
@@ -152,7 +180,11 @@ class ServiceProviderTest extends TestCase
     /**
      * @covers \CentreonModule\ServiceProvider::order
      */
+<<<<<<< HEAD
     public function testOrder(): void
+=======
+    public function testOrder()
+>>>>>>> centreon/dev-21.10.x
     {
         $this->assertGreaterThanOrEqual(1, $this->provider::order());
         $this->assertLessThanOrEqual(20, $this->provider::order());

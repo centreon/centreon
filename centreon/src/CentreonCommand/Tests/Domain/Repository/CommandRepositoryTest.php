@@ -34,7 +34,11 @@ class CommandRepositoryTest extends TestCase
 {
 
     /**
+<<<<<<< HEAD
      * @var array<int, array<string, array<int, array<string, int|string>>|string>>
+=======
+     * @var array
+>>>>>>> centreon/dev-21.10.x
      */
     protected $datasets = [];
 
@@ -96,7 +100,11 @@ class CommandRepositoryTest extends TestCase
      *
      * @covers \CentreonCommand\Domain\Repository\CommandRepository::getPaginationList
      */
+<<<<<<< HEAD
     public function testGetPaginationList(): void
+=======
+    public function testGetPaginationList()
+>>>>>>> centreon/dev-21.10.x
     {
         $result = $this->repository->getPaginationList();
         $command = new Command();
@@ -118,7 +126,11 @@ class CommandRepositoryTest extends TestCase
      *
      * @covers \CentreonCommand\Domain\Repository\CommandRepository::getPaginationList
      */
+<<<<<<< HEAD
     public function testGetPaginationListWithArguments(): void
+=======
+    public function testGetPaginationListWithArguments()
+>>>>>>> centreon/dev-21.10.x
     {
         $filters = [
             'search' => 'name',
@@ -148,7 +160,11 @@ class CommandRepositoryTest extends TestCase
      *
      * @covers \CentreonCommand\Domain\Repository\CommandRepository::getPaginationListTotal
      */
+<<<<<<< HEAD
     public function testGetPaginationListTotal(): void
+=======
+    public function testGetPaginationListTotal()
+>>>>>>> centreon/dev-21.10.x
     {
         $total = $this->datasets[2]['data'][0]['number'];
         $result = $this->repository->getPaginationListTotal();

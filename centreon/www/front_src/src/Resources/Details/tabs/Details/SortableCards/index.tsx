@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { useState } from 'react';
+=======
+import * as React from 'react';
+>>>>>>> centreon/dev-21.10.x
 
 import { useTranslation } from 'react-i18next';
 import { rectIntersection } from '@dnd-kit/core';
@@ -16,10 +20,17 @@ import {
   remove,
   difference,
   uniq,
+<<<<<<< HEAD
 } from 'ramda';
 import { useAtom } from 'jotai';
 
 import { Box, Grid } from '@mui/material';
+=======
+  prop,
+} from 'ramda';
+
+import { Box, Grid } from '@material-ui/core';
+>>>>>>> centreon/dev-21.10.x
 
 import {
   SortableItems,
@@ -30,7 +41,14 @@ import {
 
 import getDetailCardLines, { DetailCardLine } from '../DetailsCard/cards';
 import { ResourceDetails } from '../../../models';
+<<<<<<< HEAD
 import { detailsCardsAtom } from '../detailsCardsAtom';
+=======
+import {
+  getStoredOrDefaultDetailsCards,
+  storeDetailsCards,
+} from '../storedDetailsCards';
+>>>>>>> centreon/dev-21.10.x
 
 import { CardsLayout, ChangeExpandedCardsProps, ExpandAction } from './models';
 import Content from './Content';
@@ -60,9 +78,15 @@ const mergeDefaultAndStoredCards = ({
 const SortableCards = ({ panelWidth, details }: Props): JSX.Element => {
   const { toDateTime } = useLocaleDateTimeFormat();
   const { t } = useTranslation();
+<<<<<<< HEAD
   const [expandedCards, setExpandedCards] = useState<Array<string>>([]);
 
   const [storedDetailsCards, storeDetailsCards] = useAtom(detailsCardsAtom);
+=======
+  const [expandedCards, setExpandedCards] = React.useState<Array<string>>([]);
+
+  const storedDetailsCards = getStoredOrDefaultDetailsCards([]);
+>>>>>>> centreon/dev-21.10.x
 
   const changeExpandedCards = ({
     action,
@@ -115,7 +139,11 @@ const SortableCards = ({ panelWidth, details }: Props): JSX.Element => {
     </Grid>
   );
 
+<<<<<<< HEAD
   const dragEnd = ({ items }): void => {
+=======
+  const dragEnd = (items: Array<string>): void => {
+>>>>>>> centreon/dev-21.10.x
     storeDetailsCards(items);
   };
 
@@ -123,7 +151,10 @@ const SortableCards = ({ panelWidth, details }: Props): JSX.Element => {
     Component: (
       <Box>
         <SortableItems<CardsLayout>
+<<<<<<< HEAD
           updateSortableItemsOnItemsChange
+=======
+>>>>>>> centreon/dev-21.10.x
           Content={Content}
           RootComponent={RootComponent}
           collisionDetection={rectIntersection}
@@ -141,7 +172,17 @@ const SortableCards = ({ panelWidth, details }: Props): JSX.Element => {
         />
       </Box>
     ),
+<<<<<<< HEAD
     memoProps: [panelWidth, expandedCards, details],
+=======
+    memoProps: [
+      defaultDetailsCardsLayout,
+      panelWidth,
+      expandedCards,
+      details,
+      displayedCards.map(prop('id')),
+    ],
+>>>>>>> centreon/dev-21.10.x
   });
 };
 

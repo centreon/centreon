@@ -131,6 +131,10 @@ class CentreonUserLog
 
 class CentreonLog
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     private $errorType;
     private $path;
 

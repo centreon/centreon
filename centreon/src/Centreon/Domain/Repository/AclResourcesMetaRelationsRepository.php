@@ -6,6 +6,10 @@ use Centreon\Domain\Repository\Interfaces\AclResourceRefreshInterface;
 
 class AclResourcesMetaRelationsRepository extends ServiceEntityRepository implements AclResourceRefreshInterface
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * Refresh
      */

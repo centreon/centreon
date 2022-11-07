@@ -65,6 +65,7 @@ class EngineConfigurationRepositoryRDB extends AbstractRepositoryDRB implements 
     /**
      * @inheritDoc
      */
+<<<<<<< HEAD
     public function findCentralEngineConfiguration(): ?EngineConfiguration
     {
         $engineConfiguration = null;
@@ -92,6 +93,8 @@ class EngineConfigurationRepositoryRDB extends AbstractRepositoryDRB implements 
     /**
      * @inheritDoc
      */
+=======
+>>>>>>> centreon/dev-21.10.x
     public function findEngineConfigurationByHost(Host $host): ?EngineConfiguration
     {
         if ($host->getId() === null) {
@@ -112,8 +115,12 @@ class EngineConfigurationRepositoryRDB extends AbstractRepositoryDRB implements 
                 ->setId((int) $records['nagios_id'])
                 ->setName($records['nagios_name'])
                 ->setIllegalObjectNameCharacters($records['illegal_object_name_chars'])
+<<<<<<< HEAD
                 ->setMonitoringServerId((int) $records['nagios_server_id'])
                 ->setNotificationsEnabledOption((int) $records['enable_notifications']);
+=======
+                ->setMonitoringServerId((int) $records['nagios_server_id']);
+>>>>>>> centreon/dev-21.10.x
         }
         return null;
     }

@@ -294,6 +294,7 @@ function insertResource($ret = array())
     if (!count($ret)) {
         $ret = $form->getSubmitValues();
     }
+<<<<<<< HEAD
     $rq = "INSERT INTO cfg_resource ";
     $rq .= "(resource_name, resource_line, resource_comment, resource_activate) ";
     $rq .= "VALUES (";
@@ -311,6 +312,36 @@ function insertResource($ret = array())
         : $rq .= "NULL";
     $rq .= ")";
     $pearDB->query($rq);
+=======
+    $statement = $pearDB->prepare(
+        "INSERT INTO cfg_resource
+        (resource_name, resource_line, resource_comment, resource_activate)
+        VALUES (:name, :line, :comment, :is_activated)"
+    );
+    $statement->bindValue(
+        ':name',
+        ! empty($ret["resource_name"])
+            ? $ret["resource_name"]
+            : null
+    );
+    $statement->bindValue(
+        ':line',
+        ! empty($ret["resource_line"])
+            ? $ret["resource_line"]
+            : null
+    );
+    $statement->bindValue(
+        ':comment',
+        ! empty($ret["resource_comment"])
+            ? $ret["resource_comment"]
+            : null
+    );
+    $isActivated = isset($ret["resource_activate"]["resource_activate"])
+        && (bool) (int) $ret["resource_activate"]["resource_activate"];
+    $statement->bindValue(':is_activated', (string) (int) $isActivated);
+    $statement->execute();
+
+>>>>>>> centreon/dev-21.10.x
     $dbResult = $pearDB->query("SELECT MAX(resource_id) FROM cfg_resource");
     $resource_id = $dbResult->fetch();
 

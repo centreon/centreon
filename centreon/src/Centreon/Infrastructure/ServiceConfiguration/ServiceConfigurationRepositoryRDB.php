@@ -30,6 +30,10 @@ use Centreon\Domain\ServiceConfiguration\Interfaces\ServiceConfigurationReposito
 use Centreon\Domain\ServiceConfiguration\Service;
 use Centreon\Domain\ServiceConfiguration\ServiceMacro;
 use Centreon\Infrastructure\AccessControlList\AccessControlListRepositoryTrait;
+<<<<<<< HEAD
+=======
+use Centreon\Infrastructure\CentreonLegacyDB\StatementCollector;
+>>>>>>> centreon/dev-21.10.x
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\Repository\AbstractRepositoryDRB;
 use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
@@ -43,6 +47,11 @@ class ServiceConfigurationRepositoryRDB extends AbstractRepositoryDRB implements
 {
     use AccessControlListRepositoryTrait;
 
+<<<<<<< HEAD
+=======
+    private const MAX_INSERT_BY_QUERY = 50;
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * @var SqlRequestParametersTranslator
      */
@@ -155,7 +164,11 @@ class ServiceConfigurationRepositoryRDB extends AbstractRepositoryDRB implements
         $request = $this->translateDbName(
             'SELECT service_id AS id, service_template_model_stm_id AS template_id, display_name AS name,
             service_description AS description, service_locked AS is_locked, service_register AS service_type,
+<<<<<<< HEAD
             service_activate AS is_activated, service_notifications_enabled
+=======
+            service_activate AS is_activated
+>>>>>>> centreon/dev-21.10.x
             FROM `:db`.service
             WHERE service_id = :service_id'
         );
@@ -174,7 +187,11 @@ class ServiceConfigurationRepositoryRDB extends AbstractRepositoryDRB implements
     /**
      * @inheritDoc
      */
+<<<<<<< HEAD
     public function findOnDemandServiceMacros(int $serviceId, bool $isUsingInheritance = false): array
+=======
+    public function findOnDemandServiceMacros(int $serviceId, bool $useInheritance = false): array
+>>>>>>> centreon/dev-21.10.x
     {
         /* CTE recurse request next release:
          *       WITH RECURSIVE inherite AS (
@@ -207,7 +224,11 @@ class ServiceConfigurationRepositoryRDB extends AbstractRepositoryDRB implements
          */
         $request = $this->translateDbName(
             'SELECT
+<<<<<<< HEAD
                 srv.service_id AS service_id, demand.svc_macro_id AS id, 
+=======
+                srv.service_id AS service_id, demand.svc_macro_id AS id,
+>>>>>>> centreon/dev-21.10.x
                 svc_macro_name AS name, svc_macro_value AS `value`,
                 macro_order AS `order`, is_password, description, service_template_model_stm_id
              FROM `:db`.service srv
@@ -238,7 +259,11 @@ class ServiceConfigurationRepositoryRDB extends AbstractRepositoryDRB implements
                     $record
                 );
             }
+<<<<<<< HEAD
             if (!$isUsingInheritance) {
+=======
+            if (!$useInheritance) {
+>>>>>>> centreon/dev-21.10.x
                 break;
             }
         }
@@ -371,6 +396,7 @@ class ServiceConfigurationRepositoryRDB extends AbstractRepositoryDRB implements
         }
         return $services;
     }
+<<<<<<< HEAD
 
     /**
      * @inheritDoc
@@ -387,4 +413,6 @@ class ServiceConfigurationRepositoryRDB extends AbstractRepositoryDRB implements
         $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
         $statement->execute();
     }
+=======
+>>>>>>> centreon/dev-21.10.x
 }

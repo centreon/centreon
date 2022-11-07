@@ -44,16 +44,38 @@ use CentreonLegacy\ServiceProvider as ServiceProviderLegacy;
 
 class WidgetSource extends SourceAbstract
 {
+<<<<<<< HEAD
     public const TYPE = 'widget';
     public const PATH = 'www/widgets/';
     public const CONFIG_FILE = 'configs.xml';
 
     /**
      * @var string[]
+=======
+    const TYPE = 'widget';
+    const PATH = 'www/widgets/';
+    const CONFIG_FILE = 'configs.xml';
+
+    /**
+     * @var array
+>>>>>>> centreon/dev-21.10.x
      */
     private $info;
 
     /**
+<<<<<<< HEAD
+=======
+     * @var \CentreonLegacy\Core\Widget\Installer
+     */
+    protected $installer;
+
+    /**
+     * @var \CentreonLegacy\Core\Widget\Upgrader
+     */
+    protected $upgrader;
+
+    /**
+>>>>>>> centreon/dev-21.10.x
      * Construct
      *
      * @param \Psr\Container\ContainerInterface $services
@@ -67,7 +89,11 @@ class WidgetSource extends SourceAbstract
         parent::__construct($services);
     }
 
+<<<<<<< HEAD
     public function initInfo(): void
+=======
+    public function initInfo()
+>>>>>>> centreon/dev-21.10.x
     {
         $this->info = $this->db
             ->getRepository(WidgetModelsRepository::class)
@@ -75,6 +101,7 @@ class WidgetSource extends SourceAbstract
         ;
     }
 
+<<<<<<< HEAD
     /**
      * @param string|null $search
      * @param boolean|null $installed
@@ -82,6 +109,9 @@ class WidgetSource extends SourceAbstract
      * @return array<int,\CentreonModule\Infrastructure\Entity\Module>
      */
     public function getList(string $search = null, bool $installed = null, bool $updated = null): array
+=======
+    public function getList(string $search = null, bool $installed = null, bool $updated = null) : array
+>>>>>>> centreon/dev-21.10.x
     {
         $files = $this->finder
             ->files()
@@ -105,10 +135,13 @@ class WidgetSource extends SourceAbstract
         return $result;
     }
 
+<<<<<<< HEAD
     /**
      * @param string $id
      * @return Module|null
      */
+=======
+>>>>>>> centreon/dev-21.10.x
     public function getDetail(string $id): ?Module
     {
         $result = null;
@@ -133,10 +166,13 @@ class WidgetSource extends SourceAbstract
         return $result;
     }
 
+<<<<<<< HEAD
     /**
      * @param string $configFile
      * @return Module
      */
+=======
+>>>>>>> centreon/dev-21.10.x
     public function createEntityFromConfig(string $configFile): Module
     {
         // force linux path format

@@ -38,7 +38,10 @@ ini_set("display_errors", "Off");
 
 use App\Kernel;
 use Centreon\Domain\Contact\Interfaces\ContactServiceInterface;
+<<<<<<< HEAD
 use Core\Domain\Engine\Model\EngineCommandGenerator;
+=======
+>>>>>>> centreon/dev-21.10.x
 
 require_once realpath(dirname(__FILE__) . "/../../../../../config/centreon.config.php");
 require_once realpath(__DIR__ . "/../../../../../config/bootstrap.php");
@@ -52,12 +55,17 @@ require_once _CENTREON_PATH_ . "www/class/centreonBroker.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreonACL.class.php";
 require_once _CENTREON_PATH_ . "www/class/centreonUser.class.php";
 
+<<<<<<< HEAD
 if (!defined('STATUS_OK')) {
     define('STATUS_OK', 0);
 }
 if (!defined('STATUS_NOK')) {
     define('STATUS_NOK', 1);
 }
+=======
+define('STATUS_OK', 0);
+define('STATUS_NOK', 1);
+>>>>>>> centreon/dev-21.10.x
 
 $pearDB = new CentreonDB();
 $xml = new CentreonXML();
@@ -65,6 +73,7 @@ $xml = new CentreonXML();
 $okMsg = "<b><font color='green'>OK</font></b>";
 $nokMsg = "<b><font color='red'>NOK</font></b>";
 
+<<<<<<< HEAD
 $kernel = new Kernel('prod', false);
 $kernel->boot();
 $container = $kernel->getContainer();
@@ -72,6 +81,17 @@ if ($container == null) {
     throw new Exception(_('Unable to load the Symfony container'));
 }
 if (isset($_SERVER['HTTP_X_AUTH_TOKEN'])) {
+=======
+
+if (isset($_SERVER['HTTP_X_AUTH_TOKEN'])) {
+    $kernel = new Kernel('prod', false);
+    $kernel->boot();
+
+    $container = $kernel->getContainer();
+    if ($container == null) {
+        throw new Exception(_('Unable to load the Symfony container'));
+    }
+>>>>>>> centreon/dev-21.10.x
     $contactService = $container->get(ContactServiceInterface::class);
     $contact = $contactService->findByAuthenticationToken($_SERVER['HTTP_X_AUTH_TOKEN']);
 
@@ -82,12 +102,19 @@ if (isset($_SERVER['HTTP_X_AUTH_TOKEN'])) {
         $xml->writeElement("error", 'Contact not found');
         $xml->endElement();
 
+<<<<<<< HEAD
         if (!headers_sent()) {
             header('Content-Type: application/xml');
             header('Cache-Control: no-cache');
             header('Expires: 0');
             header('Cache-Control: no-cache, must-revalidate');
         }
+=======
+        header('Content-Type: application/xml');
+        header('Cache-Control: no-cache');
+        header('Expires: 0');
+        header('Cache-Control: no-cache, must-revalidate');
+>>>>>>> centreon/dev-21.10.x
 
         $xml->output();
         exit();
@@ -133,9 +160,16 @@ $generatePhpErrors = array();
  *
  * @see set_error_handler
  */
+<<<<<<< HEAD
 $log_error = function ($errno, $errstr, $errfile, $errline) {
     global $generatePhpErrors;
     if (!(error_reporting() && $errno)) {
+=======
+function log_error($errno, $errstr, $errfile, $errline)
+{
+    global $generatePhpErrors;
+    if (!(error_reporting() & $errno)) {
+>>>>>>> centreon/dev-21.10.x
         return;
     }
 
@@ -152,7 +186,11 @@ $log_error = function ($errno, $errstr, $errfile, $errline) {
             break;
     }
     return true;
+<<<<<<< HEAD
 };
+=======
+}
+>>>>>>> centreon/dev-21.10.x
 
 try {
     $pollers = explode(',', $_POST['poller']);
@@ -166,7 +204,11 @@ try {
     $centreonBrokerPath = _CENTREON_CACHEDIR_ . "/config/broker/";
 
     /*  Set new error handler */
+<<<<<<< HEAD
     set_error_handler($log_error);
+=======
+    set_error_handler('log_error');
+>>>>>>> centreon/dev-21.10.x
 
     if (defined('_CENTREON_VARLIB_')) {
         $centcore_pipe = _CENTREON_VARLIB_ . "/centcore.cmd";
@@ -208,6 +250,7 @@ try {
      */
     $brk = new CentreonBroker($pearDB);
     $brk->reload();
+<<<<<<< HEAD
     /**
      * @var EngineCommandGenerator $commandGenerator
      */
@@ -219,6 +262,13 @@ try {
                     ? $commandGenerator->getEngineCommand('RELOAD')
                     : 'RELOAD';
                 fwrite($fh, $reloadCommand . ':' . $host["id"] . "\n");
+=======
+
+    foreach ($poller as $host) {
+        if ($ret["restart_mode"] == 1) {
+            if ($fh = @fopen($centcore_pipe, 'a+')) {
+                fwrite($fh, "RELOAD:" . $host["id"] . "\n");
+>>>>>>> centreon/dev-21.10.x
                 fclose($fh);
             } else {
                 throw new Exception(_("Could not write into centcore.cmd. Please check file permissions."));
@@ -234,10 +284,14 @@ try {
             );
         } elseif ($ret["restart_mode"] == 2) {
             if ($fh = @fopen($centcore_pipe, 'a+')) {
+<<<<<<< HEAD
                 $restartCommand = ($commandGenerator !== null)
                     ? $commandGenerator->getEngineCommand('RESTART')
                     : 'RESTART';
                 fwrite($fh, $restartCommand . ':' . $host["id"] . "\n");
+=======
+                fwrite($fh, "RESTART:" . $host["id"] . "\n");
+>>>>>>> centreon/dev-21.10.x
                 fclose($fh);
             } else {
                 throw new Exception(_("Could not write into centcore.cmd. Please check file permissions."));
@@ -259,6 +313,7 @@ try {
         $msg_restart[$key] = str_replace("\n", "<br>", $str);
     }
 
+<<<<<<< HEAD
     /* Find restart / reload action from modules */
     foreach ($centreon->modules as $key => $value) {
         if (
@@ -271,6 +326,8 @@ try {
         }
     }
 
+=======
+>>>>>>> centreon/dev-21.10.x
     $xml->startElement("response");
     $xml->writeElement("status", $okMsg);
     $xml->writeElement("statuscode", STATUS_OK);
@@ -301,12 +358,19 @@ $xml->endElement();
 $xml->endElement();
 
 // Headers
+<<<<<<< HEAD
 if (!headers_sent()) {
     header('Content-Type: application/xml');
     header('Cache-Control: no-cache');
     header('Expires: 0');
     header('Cache-Control: no-cache, must-revalidate');
 }
+=======
+header('Content-Type: application/xml');
+header('Cache-Control: no-cache');
+header('Expires: 0');
+header('Cache-Control: no-cache, must-revalidate');
+>>>>>>> centreon/dev-21.10.x
 
 // Send Data
 $xml->output();

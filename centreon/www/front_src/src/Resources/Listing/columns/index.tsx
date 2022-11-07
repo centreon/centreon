@@ -1,6 +1,10 @@
 import { pipe, split, head, propOr, T } from 'ramda';
 
+<<<<<<< HEAD
 import makeStyles from '@mui/styles/makeStyles';
+=======
+import { makeStyles } from '@material-ui/core';
+>>>>>>> centreon/dev-21.10.x
 
 import { ColumnType, Column } from '@centreon/ui';
 

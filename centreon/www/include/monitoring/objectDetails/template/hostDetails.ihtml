@@ -505,6 +505,7 @@
                     </td>
                 </tr>
                 {/if}
+<<<<<<< HEAD
                 {section name=tool loop=$tools}
                 {if !empty(tool)}
                     <tr class='list_two'>
@@ -518,6 +519,8 @@
                     </tr>
                 {/if}
                 {/section}
+=======
+>>>>>>> centreon/dev-21.10.x
             </table>
         </td>
     </tr>

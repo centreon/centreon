@@ -1,5 +1,6 @@
 <?php
 
+<<<<<<< HEAD
 /*
  * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
  *
@@ -25,11 +26,20 @@ use Centreon\Infrastructure\CentreonLegacyDB\CentreonDBAdapter;
 use CentreonRemote\Domain\Resources\RemoteConfig\NagiosServer;
 use CentreonRemote\Domain\Resources\RemoteConfig\CfgNagios;
 use CentreonRemote\Domain\Resources\RemoteConfig\CfgNagiosLogger;
+=======
+namespace CentreonRemote\Domain\Service\ConfigurationWizard;
+
+use Centreon\Infrastructure\CentreonLegacyDB\CentreonDBAdapter;
+
+use CentreonRemote\Domain\Resources\RemoteConfig\NagiosServer;
+use CentreonRemote\Domain\Resources\RemoteConfig\CfgNagios;
+>>>>>>> centreon/dev-21.10.x
 use CentreonRemote\Domain\Resources\RemoteConfig\CfgNagiosBrokerModule;
 use CentreonRemote\Domain\Resources\RemoteConfig\BamBrokerCfgInfo;
 
 abstract class ServerConnectionConfigurationService
 {
+<<<<<<< HEAD
     /** @var CentreonDBAdapter */
     protected $dbAdapter;
 
@@ -58,6 +68,28 @@ abstract class ServerConnectionConfigurationService
     protected $isLinkedToCentralServer = false;
 
     /** @var int|null */
+=======
+
+    /** @var CentreonDBAdapter */
+    protected $dbAdapter;
+
+    protected $serverIp;
+
+    protected $centralIp;
+
+    protected $dbUser;
+
+    protected $dbPassword;
+
+    protected $name;
+
+    protected $onePeerRetention = false;
+
+    protected $shouldInsertBamBrokers = false;
+
+    protected $isLinkedToCentralServer = false;
+
+>>>>>>> centreon/dev-21.10.x
     protected $brokerID = null;
 
     public function __construct(CentreonDBAdapter $dbAdapter)
@@ -67,32 +99,52 @@ abstract class ServerConnectionConfigurationService
 
     abstract protected function insertConfigCentreonBroker(int $serverID): void;
 
+<<<<<<< HEAD
     /** @param string|null $ip */
     public function setServerIp($ip): void
+=======
+    public function setServerIp($ip)
+>>>>>>> centreon/dev-21.10.x
     {
         $this->serverIp = $ip;
     }
 
+<<<<<<< HEAD
     /** @param string|null $name */
     public function setName($name): void
+=======
+    public function setName($name)
+>>>>>>> centreon/dev-21.10.x
     {
         $this->name = $name;
     }
 
+<<<<<<< HEAD
     /** @param string|null $ip */
     public function setCentralIp($ip): void
+=======
+    public function setCentralIp($ip)
+>>>>>>> centreon/dev-21.10.x
     {
         $this->centralIp = $ip;
     }
 
+<<<<<<< HEAD
     /** @param string|null $user */
     public function setDbUser($user): void
+=======
+    public function setDbUser($user)
+>>>>>>> centreon/dev-21.10.x
     {
         $this->dbUser = $user;
     }
 
+<<<<<<< HEAD
     /** @param string|null $password */
     public function setDbPassword($password): void
+=======
+    public function setDbPassword($password)
+>>>>>>> centreon/dev-21.10.x
     {
         $this->dbPassword = $password;
     }
@@ -113,10 +165,18 @@ abstract class ServerConnectionConfigurationService
     }
 
     /**
+<<<<<<< HEAD
      * @throws \Exception
      * @return int
      */
     public function insert(): int
+=======
+     * @return bool
+     *
+     * @throws \Exception
+     */
+    public function insert()
+>>>>>>> centreon/dev-21.10.x
     {
         $this->getDbAdapter()->beginTransaction();
 
@@ -141,11 +201,16 @@ abstract class ServerConnectionConfigurationService
         return $serverID;
     }
 
+<<<<<<< HEAD
     protected function insertNagiosServer(): int
+=======
+    protected function insertNagiosServer()
+>>>>>>> centreon/dev-21.10.x
     {
         return $this->insertWithAdapter('nagios_server', NagiosServer::getConfiguration($this->name, $this->serverIp));
     }
 
+<<<<<<< HEAD
     /**
      * @param int $serverID
      * @return int
@@ -156,6 +221,12 @@ abstract class ServerConnectionConfigurationService
 
         $this->insertWithAdapter('cfg_nagios_logger', CfgNagiosLogger::getConfiguration($configID));
 
+=======
+    protected function insertConfigNagios($serverID)
+    {
+        $configID = $this->insertWithAdapter('cfg_nagios', CfgNagios::getConfiguration($this->name, $serverID));
+
+>>>>>>> centreon/dev-21.10.x
         $configBroker = CfgNagiosBrokerModule::getConfiguration($configID, $this->name);
 
         $this->insertWithAdapter('cfg_nagios_broker_module', $configBroker[0]);
@@ -164,11 +235,15 @@ abstract class ServerConnectionConfigurationService
         return $configID;
     }
 
+<<<<<<< HEAD
     /**
      * @throws \Exception
      * @param int $serverID
      */
     protected function insertConfigResources($serverID): void
+=======
+    protected function insertConfigResources($serverID)
+>>>>>>> centreon/dev-21.10.x
     {
         $sql = 'SELECT `resource_id`, `resource_name` FROM `cfg_resource`';
         $sql .= "WHERE `resource_name` IN('\$USER1$', '\$CENTREONPLUGINS$') ORDER BY `resource_name` DESC";
@@ -193,6 +268,7 @@ abstract class ServerConnectionConfigurationService
         $this->insertWithAdapter('cfg_resource_instance_relations', $pluginResourceData);
     }
 
+<<<<<<< HEAD
     /**
      * insert broker log information
      *
@@ -209,6 +285,9 @@ abstract class ServerConnectionConfigurationService
      * @throws \Exception
      */
     protected function insertBamBrokers(): void
+=======
+    protected function insertBamBrokers()
+>>>>>>> centreon/dev-21.10.x
     {
         global $conf_centreon;
 
@@ -229,6 +308,7 @@ abstract class ServerConnectionConfigurationService
         }
     }
 
+<<<<<<< HEAD
     /**
      * @param string $table
      * @param array<string,mixed> $data
@@ -236,6 +316,9 @@ abstract class ServerConnectionConfigurationService
      * @return int
      */
     protected function insertWithAdapter($table, array $data): int
+=======
+    protected function insertWithAdapter($table, array $data)
+>>>>>>> centreon/dev-21.10.x
     {
         try {
             $result = $this->getDbAdapter()->insert($table, $data);
@@ -247,12 +330,20 @@ abstract class ServerConnectionConfigurationService
         return $result;
     }
 
+<<<<<<< HEAD
     public function shouldInsertBamBrokers(): void
+=======
+    public function shouldInsertBamBrokers()
+>>>>>>> centreon/dev-21.10.x
     {
         $this->shouldInsertBamBrokers = true;
     }
 
+<<<<<<< HEAD
     public function isLinkedToCentralServer(): void
+=======
+    public function isLinkedToCentralServer()
+>>>>>>> centreon/dev-21.10.x
     {
         $this->isLinkedToCentralServer = true;
     }

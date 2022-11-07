@@ -1,9 +1,17 @@
+<<<<<<< HEAD
 import { ChangeEvent, useState } from 'react';
+=======
+import * as React from 'react';
+>>>>>>> centreon/dev-21.10.x
 
 import { useTranslation } from 'react-i18next';
 import { isEmpty, isNil, pipe, trim } from 'ramda';
 
+<<<<<<< HEAD
 import { Grid, Typography } from '@mui/material';
+=======
+import { Grid, Typography } from '@material-ui/core';
+>>>>>>> centreon/dev-21.10.x
 
 import {
   Dialog,
@@ -40,13 +48,21 @@ const AddCommentForm = ({
   const { t } = useTranslation();
   const { toIsoString, toDateTime } = useLocaleDateTimeFormat();
   const { showSuccessMessage } = useSnackbar();
+<<<<<<< HEAD
   const [comment, setComment] = useState<string>();
+=======
+  const [comment, setComment] = React.useState<string>();
+>>>>>>> centreon/dev-21.10.x
 
   const { sendRequest, sending } = useRequest({
     request: commentResources,
   });
 
+<<<<<<< HEAD
   const changeComment = (event: ChangeEvent<HTMLInputElement>): void => {
+=======
+  const changeComment = (event: React.ChangeEvent<HTMLInputElement>): void => {
+>>>>>>> centreon/dev-21.10.x
     setComment(event.target.value);
   };
 

@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 import { useTheme } from '@mui/material';
+=======
+import * as React from 'react';
+
+import { useTheme } from '@material-ui/core';
+>>>>>>> centreon/dev-21.10.x
 
 import IconDowntime from '../icons/Downtime';
 

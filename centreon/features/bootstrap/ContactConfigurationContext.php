@@ -34,8 +34,13 @@ class ContactConfigurationContext extends CentreonContext
         'service_notification_period' => 'none',
         'service_notification_command' => 'host-notify-by-email',
         'access' => 0,
+<<<<<<< HEAD
         'password' => 'Contact!pwd1',
         'password2' => 'Contact!pwd1',
+=======
+        'password' => 'contactpwd',
+        'password2' => 'contactpwd',
+>>>>>>> centreon/dev-21.10.x
         'language' => 'en_US',
         'location' => 'America/Guadeloupe',
         'autologin_key' => 'contactAutologinKey',
@@ -79,8 +84,13 @@ class ContactConfigurationContext extends CentreonContext
         'service_notification_period' => 'workhours',
         'service_notification_command' => 'service-notify-by-jabber',
         'access' => 1,
+<<<<<<< HEAD
         'password' => '',
         'password2' => '',
+=======
+        'password' => 'contactpwd2',
+        'password2' => 'contactpwd2',
+>>>>>>> centreon/dev-21.10.x
         'language' => 'Detection by browser',
         'location' => 'Europe/Paris',
         'autologin_key' => 'modifiedContactAutologinKey',

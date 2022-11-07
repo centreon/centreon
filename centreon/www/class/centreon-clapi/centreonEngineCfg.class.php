@@ -77,6 +77,10 @@ class CentreonEngineCfg extends CentreonObject
             'execute_host_checks' => '2',
             'accept_passive_host_checks' => '2',
             'enable_event_handlers' => '1',
+<<<<<<< HEAD
+=======
+            'log_archive_path' => '/var/log/centreon-engine/archives/',
+>>>>>>> centreon/dev-21.10.x
             'check_external_commands' => '1',
             'command_check_interval' => '1s',
             'command_file' => '/var/log/centreon-engine/rw/nagios.cmd',
@@ -138,8 +142,12 @@ class CentreonEngineCfg extends CentreonObject
             'debug_level' => '0',
             'debug_level_opt' => '0',
             'debug_verbosity' => '2',
+<<<<<<< HEAD
             'cached_host_check_horizon' => '60',
             'logger_version' => 'log_v2_enabled',
+=======
+            'cached_host_check_horizon' => '60'
+>>>>>>> centreon/dev-21.10.x
         );
         $this->nbOfCompulsoryParams = 3;
         $this->activateField = "nagios_activate";
@@ -212,6 +220,7 @@ class CentreonEngineCfg extends CentreonObject
                 'ocsp_command',
                 'ochp_command'
             );
+<<<<<<< HEAD
             $loggerColumns = [
                 'log_v2_logger',
                 'log_level_functions',
@@ -229,12 +238,17 @@ class CentreonEngineCfg extends CentreonObject
                 'log_level_runtime',
             ];
             $canUpdateParams = true;
+=======
+>>>>>>> centreon/dev-21.10.x
             if ($params[1] == "instance" || $params[1] == "nagios_server_id") {
                 $params[1] = "nagios_server_id";
                 $params[2] = $this->instanceObj->getInstanceId($params[2]);
             } elseif ($params[1] == "broker_module") {
                 $this->setBrokerModule($objectId, $params[2]);
+<<<<<<< HEAD
                 $canUpdateParams = false;
+=======
+>>>>>>> centreon/dev-21.10.x
             } elseif (preg_match('/(' . implode('|', $commandColumns) . ')/', $params[1], $matches)) {
                 if ($params[2]) {
                     $commandObj = new \Centreon_Object_Command($this->dependencyInjector);
@@ -247,6 +261,7 @@ class CentreonEngineCfg extends CentreonObject
                 } else {
                     $params[2] = null;
                 }
+<<<<<<< HEAD
             } elseif ($params[1] === 'logger_version' && $params[2] === 'log_v2_enabled') {
                 $this->createLoggerV2Cfg($objectId);
             } elseif (preg_match('/(' . implode('|', $loggerColumns) . ')/', $params[1], $matches)) {
@@ -254,6 +269,10 @@ class CentreonEngineCfg extends CentreonObject
                 $canUpdateParams = false;
             }
             if ($canUpdateParams) {
+=======
+            }
+            if ($params[1] != "broker_module") {
+>>>>>>> centreon/dev-21.10.x
                 $p = strtolower($params[1]);
                 if ($params[2] == "") {
                     if (isset($this->params[$p]) && $this->params[$p] == 2) {
@@ -328,8 +347,11 @@ class CentreonEngineCfg extends CentreonObject
         );
 
         foreach ($elements as $element) {
+<<<<<<< HEAD
             $element = array_merge($element, $this->getLoggerV2Cfg($element['nagios_id']));
 
+=======
+>>>>>>> centreon/dev-21.10.x
             /* ADD action */
             $addStr = $this->action . $this->delim . "ADD";
             foreach ($this->insertParams as $param) {
@@ -479,6 +501,7 @@ class CentreonEngineCfg extends CentreonObject
             }
         }
     }
+<<<<<<< HEAD
 
     /**
      * This method is automatically called in CentreonObject
@@ -555,4 +578,6 @@ class CentreonEngineCfg extends CentreonObject
         $statement->bindValue(':cfgNagiosId', $nagiosId, \PDO::PARAM_INT);
         $statement->execute();
     }
+=======
+>>>>>>> centreon/dev-21.10.x
 }

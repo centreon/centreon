@@ -4,7 +4,11 @@
 OPTIONS=":t:v:r:l:"
 declare -A SUPPORTED_LOG_LEVEL=([DEBUG]=0 [INFO]=1 [WARN]=2 [ERROR]=3)
 declare -A SUPPORTED_TOPOLOGY=([central]=1 [poller]=1)
+<<<<<<< HEAD
 declare -A SUPPORTED_VERSION=([22.04]=1)
+=======
+declare -A SUPPORTED_VERSION=([21.10]=1)
+>>>>>>> centreon/dev-21.10.x
 declare -A SUPPORTED_REPOSITORY=([testing]=1 [unstable]=1 [stable]=1)
 default_timeout_in_sec=5
 script_short_name="$(basename $0)"
@@ -17,7 +21,11 @@ passwords_file=/etc/centreon/generated.tobesecured         #File where the gener
 tmp_passwords_file=$(mktemp /tmp/generated.XXXXXXXXXXXXXX) #Random tmp file as the /etc/centreon does not exist yet
 
 topology=${ENV_CENTREON_TOPOLOGY:-"central"}    #Default topology to be installed
+<<<<<<< HEAD
 version=${ENV_CENTREON_VERSION:-"22.04"}        #Default version to be installed
+=======
+version=${ENV_CENTREON_VERSION:-"21.10"}        #Default version to be installed
+>>>>>>> centreon/dev-21.10.x
 repo=${ENV_CENTREON_REPO:-"stable"}             #Default repository to used
 operation=${ENV_CENTREON_OPERATION:-"install"}  #Default operation to be executed
 runtime_log_level=${ENV_LOG_LEVEL:-"INFO"}      #Default log level to be used
@@ -26,6 +34,7 @@ wizard_autoplay=${ENV_WIZARD_AUTOPLAY:-"false"} #Default the install wizard is n
 central_ip=${ENV_CENTRAL_IP:-$default_ip}       #Default central ip is the first of hostname -I
 
 function genpasswd() {
+<<<<<<< HEAD
   local _pwd
 
   PWD_LOWER=$(cat /dev/urandom | tr -dc 'a-z' | head -c4)
@@ -45,6 +54,20 @@ function genpasswd() {
 
   #return the generated password
   echo $_pwd
+=======
+	local _pwd
+	_pwd=$(date +%s%N | sha256sum | base64 | head -c 32)
+
+	echo "Random password generated for user [$1] is [$_pwd]" >>$tmp_passwords_file
+
+	if [ $? -ne 0 ]; then
+		echo "ERROR : Cannot save the random password to [$tmp_passwords_file]"
+		exit 1
+	fi
+
+	#return the generated password
+	echo $_pwd
+>>>>>>> centreon/dev-21.10.x
 
 }
 
@@ -96,7 +119,11 @@ function usage() {
 	echo
 	echo "Usage :"
 	echo
+<<<<<<< HEAD
 	echo " $script_short_name [install|upgrade (default: install)] [-t <central|poller> (default: central)] [-v <22.04> (default: 22.04)] [-r <stable|testing|unstable> (default: stable)] [-l <DEBUG|INFO|WARN|ERROR>"
+=======
+	echo " $script_short_name [install|upgrade (default: install)] [-t <central|poller> (default: central)] [-v <21.10> (default: 21.10)] [-r <stable|testing|unstable> (default: stable)] [-l <DEBUG|INFO|WARN|ERROR>"
+>>>>>>> centreon/dev-21.10.x
 	echo
 	echo Example:
 	echo
@@ -356,7 +383,11 @@ function set_required_prerequisite() {
             subscription-manager repos --enable codeready-builder-for-rhel-8-x86_64-rpms
             ;;
 
+<<<<<<< HEAD
         centos-release-8.[3-9]* | centos-linux-release* | centos-stream-release* | almalinux-release* | rocky-release*)
+=======
+        centos-release-8.[3-9]* | centos-linux-release* | centos-stream-release*)
+>>>>>>> centreon/dev-21.10.x
             BASE_PACKAGES=(dnf-plugins-core epel-release)
             $PKG_MGR config-manager --set-enabled powertools
             ;;

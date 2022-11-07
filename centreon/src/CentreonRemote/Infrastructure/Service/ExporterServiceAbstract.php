@@ -1,5 +1,8 @@
 <?php
+<<<<<<< HEAD
 
+=======
+>>>>>>> centreon/dev-21.10.x
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -55,11 +58,14 @@ abstract class ExporterServiceAbstract implements ExporterServiceInterface
     protected $config;
 
     /**
+<<<<<<< HEAD
      * @var mixed
      */
     protected $manifest;
 
     /**
+=======
+>>>>>>> centreon/dev-21.10.x
      * Construct
      *
      * @param Container $services
@@ -71,33 +77,45 @@ abstract class ExporterServiceAbstract implements ExporterServiceInterface
         $this->config = $services['centreon.config'];
     }
 
+<<<<<<< HEAD
     /**
      * @param ExporterCacheService $cache
      */
+=======
+>>>>>>> centreon/dev-21.10.x
     public function setCache(ExporterCacheService $cache): void
     {
         $this->cache = $cache;
     }
 
+<<<<<<< HEAD
     /**
      * @param ExportCommitment $commitment
      */
+=======
+>>>>>>> centreon/dev-21.10.x
     public function setCommitment(ExportCommitment $commitment): void
     {
         $this->commitment = $commitment;
     }
 
+<<<<<<< HEAD
     /**
      * @param ExportManifest $manifest
      */
+=======
+>>>>>>> centreon/dev-21.10.x
     public function setManifest(ExportManifest $manifest): void
     {
         $this->manifest = $manifest;
     }
 
+<<<<<<< HEAD
     /**
      * @return string
      */
+=======
+>>>>>>> centreon/dev-21.10.x
     public static function getName(): string
     {
         return static::NAME;

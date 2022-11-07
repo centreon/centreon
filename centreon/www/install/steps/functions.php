@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 /*
  * Copyright 2005-2022 Centreon
@@ -38,6 +39,8 @@ require_once __DIR__ . '/../../class/centreonAuth.class.php';
 
 use Symfony\Component\Yaml\Yaml;
 
+=======
+>>>>>>> centreon/dev-21.10.x
 /**
  * Checks if line is sql comment
  *
@@ -196,6 +199,27 @@ function splitQueries($file, $delimiter = ';', $connector = null, $tmpFile = "",
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * Import file, mainly INSERT clauses
+ *
+ * @param string $file
+ * @return void
+ */
+function importFile($db, $file)
+{
+    $db->beginTransaction();
+    try {
+        splitQueries($db, $file);
+        $db->commit();
+    } catch (\PDOException $e) {
+        $db->rollBack();
+        exitProcess(PROCESS_ID, 1, $e->getMessage());
+    }
+}
+
+/**
+>>>>>>> centreon/dev-21.10.x
  * Exit process
  *
  * @param string $id | name of the process
@@ -300,6 +324,7 @@ function getDatabaseVariable($db, $variable)
 
     return $value;
 }
+<<<<<<< HEAD
 
 /**
  * Get gorgone api credentials from configuration file
@@ -335,3 +360,5 @@ function getGorgoneApiCredentialMacros(string $gorgoneEtcPath): array
 
     return $macros;
 }
+=======
+>>>>>>> centreon/dev-21.10.x

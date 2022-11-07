@@ -1,8 +1,16 @@
+<<<<<<< HEAD
 import { lazy, Suspense } from 'react';
 
 import { isNil, find, propEq, invertObj, path, equals } from 'ramda';
 
 import makeStyles from '@mui/styles/makeStyles';
+=======
+import * as React from 'react';
+
+import { isNil, find, propEq, invertObj, path, equals } from 'ramda';
+
+import { makeStyles } from '@material-ui/core';
+>>>>>>> centreon/dev-21.10.x
 
 import {
   labelDetails,
@@ -10,6 +18,7 @@ import {
   labelTimeline,
   labelServices,
   labelMetrics,
+<<<<<<< HEAD
   labelNotification,
 } from '../../translatedLabels';
 import { ResourceDetails } from '../models';
@@ -23,13 +32,27 @@ const TimelineTab = lazy(() => import('./Timeline'));
 const ServicesTab = lazy(() => import('./Services'));
 const MetricsTab = lazy(() => import('./Metrics'));
 const NotificationsTab = lazy(() => import('./Notifications'));
+=======
+} from '../../translatedLabels';
+import { ResourceDetails } from '../models';
+
+import DetailsTab from './Details';
+import GraphTab from './Graph';
+import { Tab, TabId } from './models';
+import TimelineTab from './Timeline';
+import ServicesTab from './Services';
+import MetricsTab from './Metrics';
+>>>>>>> centreon/dev-21.10.x
 
 const detailsTabId = 0;
 const servicesTabId = 1;
 const timelineTabId = 2;
 const graphTabId = 3;
 const metricsTabId = 4;
+<<<<<<< HEAD
 const notificationsTabId = 5;
+=======
+>>>>>>> centreon/dev-21.10.x
 
 export interface TabProps {
   details?: ResourceDetails;
@@ -85,6 +108,7 @@ const tabs: Array<Tab> = [
     id: metricsTabId,
     title: labelMetrics,
   },
+<<<<<<< HEAD
   {
     Component: NotificationsTab,
     ariaLabel: labelNotification,
@@ -92,6 +116,8 @@ const tabs: Array<Tab> = [
     id: notificationsTabId,
     title: labelNotification,
   },
+=======
+>>>>>>> centreon/dev-21.10.x
 ];
 
 const useStyles = makeStyles((theme) => ({
@@ -112,9 +138,13 @@ const TabById = ({ id, details }: TabByIdProps): JSX.Element | null => {
 
   return (
     <div className={classes.container}>
+<<<<<<< HEAD
       <Suspense fallback={<DetailsLoadingSkeleton />}>
         <Component details={details} />
       </Suspense>
+=======
+      <Component details={details} />
+>>>>>>> centreon/dev-21.10.x
     </div>
   );
 };
@@ -123,7 +153,10 @@ const tabIdByLabel = {
   details: detailsTabId,
   graph: graphTabId,
   metrics: metricsTabId,
+<<<<<<< HEAD
   notification: notificationsTabId,
+=======
+>>>>>>> centreon/dev-21.10.x
   services: servicesTabId,
   timeline: timelineTabId,
 };
@@ -148,7 +181,10 @@ export {
   graphTabId,
   servicesTabId,
   metricsTabId,
+<<<<<<< HEAD
   notificationsTabId,
+=======
+>>>>>>> centreon/dev-21.10.x
   tabs,
   TabById,
   getTabIdFromLabel,

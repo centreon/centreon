@@ -1,5 +1,8 @@
 <?php
+<<<<<<< HEAD
 
+=======
+>>>>>>> centreon/dev-21.10.x
 /*
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
@@ -90,7 +93,11 @@ class MetricUtils
         } else {
             $preProcessing[$pointer] = $pointer;
         }
+<<<<<<< HEAD
 
+=======
+     
+>>>>>>> centreon/dev-21.10.x
         foreach ($dependency[$pointer] as $i => $v) {
             if (isset($dependency[$v])) {
                 if (!$this->processTopoSort($v, $dependency, $order, $preProcessing)) {
@@ -104,7 +111,11 @@ class MetricUtils
         unset($preProcessing[$pointer]);
         return true;
     }
+<<<<<<< HEAD
 
+=======
+ 
+>>>>>>> centreon/dev-21.10.x
     /**
      * Function to do a topological sort on a directed acyclic graph
      *
@@ -163,7 +174,11 @@ class CentreonGraphNg
     protected $vmetricsOrder;
     protected $graphData;
     protected $rrdCachedOptions;
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> centreon/dev-21.10.x
     /**
      * Connect to databases
      *
@@ -172,7 +187,11 @@ class CentreonGraphNg
     private function initDatabase()
     {
         global $conf_centreon;
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> centreon/dev-21.10.x
         $mysqlHost = $conf_centreon["hostCentreon"];
         $mysqlDatabase = $conf_centreon["db"];
         $mysqlUser = $conf_centreon["user"];
@@ -208,12 +227,20 @@ class CentreonGraphNg
     {
         $this->initDatabase();
         $this->metricUtils = MetricUtils::getInstance();
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> centreon/dev-21.10.x
         $this->cacheAllMetrics = array();
         $this->vnodes = array();
         $this->vnodesDependencies = array();
         $this->vmetricsOrder = array();
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> centreon/dev-21.10.x
         $this->arguments = array();
         $this->indexIds = array();
         $this->dsDefault = null;
@@ -226,16 +253,27 @@ class CentreonGraphNg
         $this->templateInformations = array();
         $this->extraDatas = array();
         $this->multipleServices = false;
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> centreon/dev-21.10.x
         $stmt = $this->dbCs->prepare("SELECT RRDdatabase_path, RRDdatabase_status_path FROM config");
         $stmt->execute();
         $config = $stmt->fetch(PDO::FETCH_ASSOC);
         $this->dbPath = $config['RRDdatabase_path'];
         $this->dbStatusPath = $config['RRDdatabase_status_path'];
+<<<<<<< HEAD
 
         $stmt = $this->db->prepare("SELECT `key`, `value` FROM options");
         $stmt->execute();
         $this->generalOpt = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
+=======
+        
+        $stmt = $this->db->prepare("SELECT `key`, `value` FROM options");
+        $stmt->execute();
+        $this->generalOpt = $stmt->fetchAll(PDO::FETCH_GROUP|PDO::FETCH_UNIQUE|PDO::FETCH_ASSOC);
+>>>>>>> centreon/dev-21.10.x
 
         /* Get RRDCacheD options */
         $stmt = $this->db->query(
@@ -290,7 +328,11 @@ class CentreonGraphNg
         $this->createLegend();
         return $this->getJsonStream();
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> centreon/dev-21.10.x
     /**
      * Initiate the Graph objects
      *
@@ -333,7 +375,11 @@ class CentreonGraphNg
             $this->extraDatas['scaled'] = 0;
         }
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> centreon/dev-21.10.x
     /**
      * Get Curve Config
      *
@@ -344,12 +390,17 @@ class CentreonGraphNg
     protected function getCurveDsConfig($metric)
     {
         $dsData = null;
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> centreon/dev-21.10.x
         if (is_null($this->componentsDsCache)) {
             $stmt = $this->db->prepare("SELECT * FROM giv_components_template ORDER BY host_id DESC");
             $stmt->execute();
             $this->componentsDsCache = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
+<<<<<<< HEAD
 
         $dsDataAssociated = null;
         $dsDataRegular = null;
@@ -359,6 +410,16 @@ class CentreonGraphNg
 
             if (
                 isset($metric['host_id']) && isset($metric['service_id']) &&
+=======
+        
+        $dsDataAssociated = null;
+        $dsDataRegular = null;
+        foreach ($this->componentsDsCache as $dsVal) {
+            $metricPattern = '/^' . str_replace('/', '\/', $dsVal['ds_name']).'$/i';
+            $metricPattern = str_replace('*', '.*', $metricPattern);
+
+            if (isset($metric['host_id']) && isset($metric['service_id']) &&
+>>>>>>> centreon/dev-21.10.x
                 ($dsVal['host_id'] == $metric['host_id'] || $dsVal['host_id'] == '') &&
                 ($dsVal['service_id'] == $metric['service_id'] || $dsVal['service_id'] == '') &&
                 preg_match($metricPattern, $metric['metric_name'])
@@ -367,8 +428,12 @@ class CentreonGraphNg
                 break;
             }
 
+<<<<<<< HEAD
             if (
                 is_null($dsDataRegular)
+=======
+            if (is_null($dsDataRegular)
+>>>>>>> centreon/dev-21.10.x
                 && preg_match('/^' . preg_quote($dsVal['ds_name'], '/') . '$/i', $metric['metric_name'])
             ) {
                 $dsDataRegular = $dsVal;
@@ -384,8 +449,13 @@ class CentreonGraphNg
         if (is_null($dsData)) {
             if (is_null($this->dsDefault)) {
                 $stmt = $this->db->prepare(
+<<<<<<< HEAD
                     "SELECT ds_min, ds_max, ds_minmax_int, ds_last, ds_average, ds_total,
                         ds_tickness, ds_color_line_mode, ds_color_line
+=======
+                    "SELECT ds_min, ds_max, ds_minmax_int, ds_last, ds_average, ds_total, 
+                        ds_tickness, ds_color_line_mode, ds_color_line 
+>>>>>>> centreon/dev-21.10.x
                      FROM giv_components_template WHERE default_tpl1 = '1'"
                 );
                 $stmt->execute();
@@ -393,6 +463,7 @@ class CentreonGraphNg
             }
             $dsData = $this->dsDefault;
         }
+<<<<<<< HEAD
 
         if ($dsData['ds_color_line_mode'] == '1') {
             $dsData['ds_color_line'] = $this->getOVDColor($metric['index_id'], $metric['metric_id']);
@@ -401,6 +472,16 @@ class CentreonGraphNg
         return $dsData;
     }
 
+=======
+        
+        if ($dsData['ds_color_line_mode'] == '1') {
+            $dsData['ds_color_line'] = $this->getOVDColor($metric['index_id'], $metric['metric_id']);
+        }
+        
+        return $dsData;
+    }
+    
+>>>>>>> centreon/dev-21.10.x
     /**
      * Get Legend
      *
@@ -415,9 +496,15 @@ class CentreonGraphNg
             $legend = str_replace('"', '\"', $metric['ds_data']['ds_legend']);
         } else {
             if (!isset($metric['ds_data']['ds_name']) || !preg_match('/DS/', $metric['ds_data']['ds_name'], $matches)) {
+<<<<<<< HEAD
                 $legend = $this->cleanupDsNameForLegend($metric['metric']);
             } else {
                 $legend = (isset($metric['ds_data']['ds_name']) ? $metric['ds_data']['ds_name'] : "");
+=======
+                 $legend = $this->cleanupDsNameForLegend($metric['metric']);
+            } else {
+                 $legend = (isset($metric['ds_data']['ds_name']) ? $metric['ds_data']['ds_name'] : "");
+>>>>>>> centreon/dev-21.10.x
             }
             $legend = str_replace(":", "\:", $legend);
         }
@@ -433,13 +520,21 @@ class CentreonGraphNg
     private function manageMetrics()
     {
         $this->vmetricsOrder = array();
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> centreon/dev-21.10.x
         if (count($this->vmetrics) == 0) {
             return 0;
         }
         foreach ($this->vmetrics as $vmetricId => &$tm) {
             $this->vnodes[$vmetricId] = $vmetricId;
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> centreon/dev-21.10.x
             $rpns = explode(',', $tm['rpn_function']);
             foreach ($rpns as &$rpn) {
                 if (isset($this->cacheAllMetrics['r:' . $rpn])) {
@@ -450,6 +545,7 @@ class CentreonGraphNg
                     $rpn = 'vv' . $vmetricIdChild;
                 }
             }
+<<<<<<< HEAD
 
             $tm['rpn_function'] = implode(',', $rpns);
         }
@@ -457,6 +553,15 @@ class CentreonGraphNg
         $this->vmetricsOrder = $this->metricUtils->topologicalSort($this->vnodes, $this->vnodesDependencies);
     }
 
+=======
+            
+            $tm['rpn_function'] = implode(',', $rpns);
+        }
+        
+        $this->vmetricsOrder = $this->metricUtils->topologicalSort($this->vnodes, $this->vnodesDependencies);
+    }
+    
+>>>>>>> centreon/dev-21.10.x
     /**
      * Add a regular metric (not virtual)
      *
@@ -473,8 +578,13 @@ class CentreonGraphNg
         if (isset($this->metrics[$metric['metric_id']])) {
             return ;
         }
+<<<<<<< HEAD
 
         $this->log("found metric " . $metric["metric_id"]);
+=======
+        
+        $this->log("found metric ". $metric["metric_id"]);
+>>>>>>> centreon/dev-21.10.x
 
         /**
          * List of id metrics for rrdcached
@@ -500,9 +610,15 @@ class CentreonGraphNg
 
         $this->metrics[$metric['metric_id']]['legend'] = $this->getLegend($this->metrics[$metric["metric_id"]]);
 
+<<<<<<< HEAD
         $this->metrics[$metric['metric_id']]["stack"] =
             (isset($dsData["ds_stack"]) && $dsData["ds_stack"] ? $dsData["ds_stack"] : 0);
 
+=======
+        $this->metrics[$metric['metric_id']]["stack"] = 
+            (isset($dsData["ds_stack"]) && $dsData["ds_stack"] ? $dsData["ds_stack"] : 0);
+        
+>>>>>>> centreon/dev-21.10.x
         $this->metrics[$metric["metric_id"]]["warn"] = $metric["warn"];
         $this->metrics[$metric["metric_id"]]["warn_low"] = $metric["warn_low"];
         $this->metrics[$metric["metric_id"]]["crit"] = $metric["crit"];
@@ -513,6 +629,7 @@ class CentreonGraphNg
         if (!isset($dsData["ds_color_area_crit"]) || empty($dsData["ds_color_area_crit"])) {
             $this->metrics[$metric["metric_id"]]["ds_color_area_crit"] = $this->generalOpt["color_critical"]['value'];
         }
+<<<<<<< HEAD
 
         $this->metrics[$metric["metric_id"]]["ds_order"] =
             (isset($dsData["ds_order"]) && $dsData["ds_order"] ? $dsData["ds_order"] : 0);
@@ -530,11 +647,28 @@ class CentreonGraphNg
                 !is_null($this->metrics[$metric['metric_id']]['max'])
                 && is_numeric($this->metrics[$metric['metric_id']]['max'])
             ) {
+=======
+        
+        $this->metrics[$metric["metric_id"]]["ds_order"] = 
+            (isset($dsData["ds_order"]) && $dsData["ds_order"] ? $dsData["ds_order"] : 0);
+        
+        $this->metrics[$metric['metric_id']]['hidden'] = is_null($hidden) ? 0 : $hidden;
+
+        if (isset($dsData['ds_invert']) && $dsData['ds_invert']) {
+            if (!is_null($this->metrics[$metric['metric_id']]['min']) && is_numeric($this->metrics[$metric['metric_id']]['min'])) {
+                $this->metrics[$metric['metric_id']]['min'] = $metric['min'] * -1;
+            }
+            if (!is_null($this->metrics[$metric['metric_id']]['max']) && is_numeric($this->metrics[$metric['metric_id']]['max'])) {
+>>>>>>> centreon/dev-21.10.x
                 $this->metrics[$metric['metric_id']]['max'] = $metric['max'] * -1;
             }
         }
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> centreon/dev-21.10.x
     /**
      * Add a virtual metric
      *
@@ -548,8 +682,13 @@ class CentreonGraphNg
         if (isset($this->vmetrics[$vmetric['vmetric_id']])) {
             return ;
         }
+<<<<<<< HEAD
 
         $this->log("found vmetric " . $vmetric["vmetric_id"]);
+=======
+        
+        $this->log("found vmetric ". $vmetric["vmetric_id"]);
+>>>>>>> centreon/dev-21.10.x
         $this->vmetrics[$vmetric['vmetric_id']] = array(
             'index_id' => $vmetric['index_id'],
             'vmetric_id' => $vmetric['vmetric_id'],
@@ -563,6 +702,7 @@ class CentreonGraphNg
             'rpn_function' => $vmetric['rpn_function'],
             'virtual' => 1,
         );
+<<<<<<< HEAD
 
         if (!is_null($hidden)) {
             $this->vmetrics[$vmetric['vmetric_id']]['hidden'] = $hidden;
@@ -570,12 +710,22 @@ class CentreonGraphNg
 
         $this->cacheAllMetrics['v:' . $vmetric['vmetric_name']] = $vmetric['vmetric_id'];
 
+=======
+        
+        if (!is_null($hidden)) {
+            $this->vmetrics[$vmetric['vmetric_id']]['hidden'] = $hidden;
+        }
+        
+        $this->cacheAllMetrics['v:' . $vmetric['vmetric_name']] = $vmetric['vmetric_id'];
+        
+>>>>>>> centreon/dev-21.10.x
         if ($this->vmetrics[$vmetric['vmetric_id']]['hidden'] == 0) {
             # Not cleaning. Should have its own metric_id for ods_view_details
             $vmetric['metric_name'] = $vmetric['vmetric_name'];
             $vmetric['metric_id'] = $vmetric['vmetric_id'];
             $dsData = $this->getCurveDsConfig($vmetric);
             $this->vmetrics[$vmetric['vmetric_id']]['ds_data'] = $dsData;
+<<<<<<< HEAD
 
             $this->vmetrics[$vmetric['vmetric_id']]['legend'] =
                 $this->getLegend($this->vmetrics[$vmetric["vmetric_id"]]);
@@ -584,6 +734,16 @@ class CentreonGraphNg
         }
     }
 
+=======
+            
+            $this->vmetrics[$vmetric['vmetric_id']]['legend'] = 
+                $this->getLegend($this->vmetrics[$vmetric["vmetric_id"]]);
+            $this->vmetrics[$vmetric['vmetric_id']]['ds_order'] = 
+                (isset($dsData["ds_order"]) && $dsData["ds_order"] ? $dsData["ds_order"] : 0);
+        }
+    }
+    
+>>>>>>> centreon/dev-21.10.x
     /**
      * Add metrics for a service
      *
@@ -596,13 +756,22 @@ class CentreonGraphNg
     {
         $indexId = null;
         $stmt = $this->dbCs->prepare(
+<<<<<<< HEAD
             "SELECT
                 m.index_id, host_id, service_id, metric_id, metric_name,
+=======
+            "SELECT 
+                m.index_id, host_id, service_id, metric_id, metric_name, 
+>>>>>>> centreon/dev-21.10.x
                 unit_name, min, max, warn, warn_low, crit, crit_low
             FROM metrics AS m, index_data AS i
             WHERE i.host_id = :host_id
                 AND i.service_id = :service_id
+<<<<<<< HEAD
                 AND i.id = m.index_id
+=======
+                AND i.id = m.index_id 
+>>>>>>> centreon/dev-21.10.x
                 AND m.hidden = '0'"
         );
         $stmt->bindParam(':host_id', $hostId, PDO::PARAM_INT);
@@ -614,7 +783,11 @@ class CentreonGraphNg
             $this->addIndexId($metric['index_id']);
             $this->addRealMetric($metric);
         }
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> centreon/dev-21.10.x
         $stmt = $this->db->prepare(
             "SELECT *
              FROM virtual_metrics
@@ -624,7 +797,11 @@ class CentreonGraphNg
         $stmt->bindParam(':index_id', $indexId, PDO::PARAM_INT);
         $stmt->execute();
         $vmetrics = $stmt->fetchAll(PDO::FETCH_ASSOC);
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> centreon/dev-21.10.x
         foreach ($vmetrics as $vmetric) {
             $this->addVirtualMetric($vmetric);
         }
@@ -738,7 +915,11 @@ class CentreonGraphNg
             $this->addIndexId($metric['index_id']);
             $this->addRealMetric($metric, 1);
         }
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> centreon/dev-21.10.x
         $vmetrics = $this->getVirtualMetricsByIndexId($vmetric['index_id']);
         foreach ($vmetrics as $vmetric) {
             $this->addVirtualMetric($vmetric);
@@ -753,7 +934,11 @@ class CentreonGraphNg
     private function initCurveList()
     {
         uasort($this->metrics, array("CentreonGraphNg", "cmpmultiple"));
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> centreon/dev-21.10.x
         foreach ($this->metrics as $metricId => &$tm) {
             if (isset($tm['ds_data']['ds_invert']) && $tm['ds_data']['ds_invert']) {
                 $this->addArgument("DEF:vi" . $metricId . "=" . $this->dbPath . $metricId . ".rrd:value:AVERAGE CDEF:v"
@@ -770,7 +955,11 @@ class CentreonGraphNg
                 . $this->vmetrics[$vmetricId]['rpn_function']);
         }
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> centreon/dev-21.10.x
     /**
      * Switch graph limits
      *
@@ -809,7 +998,11 @@ class CentreonGraphNg
         $newDsName = str_replace(array("'", "\\"), array(" ", "\\\\"), $dsname);
         return $newDsName;
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> centreon/dev-21.10.x
     /**
      * Add rrdtool legends
      *
@@ -827,6 +1020,7 @@ class CentreonGraphNg
         if ($isVirtual == 1) {
             $prefix = 'vv';
         }
+<<<<<<< HEAD
 
         foreach (
             array("last" => "LAST", "min" => "MINIMUM", "max" => "MAXIMUM",
@@ -836,6 +1030,15 @@ class CentreonGraphNg
                 continue;
             }
 
+=======
+        
+        foreach (array("last" => "LAST", "min" => "MINIMUM", "max" => "MAXIMUM",
+                       "average" => "AVERAGE", "total" => "TOTAL") as $name => $cf) {
+            if (!$metric['ds_data']['ds_' . $name]) {
+                continue;
+            }
+            
+>>>>>>> centreon/dev-21.10.x
             $dispname = ucfirst($name);
             if (isset($metric['ds_data']['ds_invert']) && $metric['ds_data']['ds_invert']) {
                 $vdefs .= "VDEF:" . $prefix . "i" . $metricId . $dispname . "="
@@ -844,23 +1047,36 @@ class CentreonGraphNg
                 $vdefs .= "VDEF:" . $prefix . $metricId . $dispname . "="
                     . $prefix . $metricId . "," . $cf . " ";
             }
+<<<<<<< HEAD
             if (
                 ($name == "min" || $name == "max") &&
                 (isset($metric['ds_data']['ds_minmax_int']) && $metric['ds_data']['ds_minmax_int'])
             ) {
+=======
+            if (($name == "min" || $name == "max") &&
+                (isset($metric['ds_data']['ds_minmax_int']) && $metric['ds_data']['ds_minmax_int'])) {
+>>>>>>> centreon/dev-21.10.x
                 $displayformat = "%.0lf";
             } else {
                 $displayformat = "%.2lf";
             }
             if (isset($metric['ds_data']['ds_invert']) && $metric['ds_data']['ds_invert']) {
                 $prints .= "GPRINT:" . $prefix . "i" . $metricId . $dispname . ":\""
+<<<<<<< HEAD
                     . $dispname . "\:" . $displayformat . "\" ";
+=======
+                    . $dispname . "\:" . $displayformat. "\" ";
+>>>>>>> centreon/dev-21.10.x
             } else {
                 $prints .= "GPRINT:" . $prefix . $metricId  . $dispname . ":\""
                     . $dispname . "\:" . $displayformat . "\" ";
             }
         }
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> centreon/dev-21.10.x
         $this->addArgument($vdefs);
         $this->addArgument($prints);
     }
@@ -880,12 +1096,20 @@ class CentreonGraphNg
             $this->addArgument($arg);
             $this->legendAddPrint($tm, $metricId);
         }
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> centreon/dev-21.10.x
         foreach ($this->vmetricsOrder as $vmetricId) {
             if ($this->vmetrics[$vmetricId]['hidden'] == 1) {
                 continue;
             }
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> centreon/dev-21.10.x
             $arg = "LINE1:vv" . $vmetricId . "#0000ff:vv" . $vmetricId;
             $this->addArgument($arg);
             $this->legendAddPrint($this->vmetrics[$vmetricId], $vmetricId, 1);
@@ -1027,7 +1251,11 @@ class CentreonGraphNg
         } else {
             $this->templateId = htmlentities($_GET["template_id"], ENT_QUOTES, "UTF-8");
         }
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> centreon/dev-21.10.x
         $stmt = $this->db->prepare("SELECT * FROM giv_graphs_template WHERE graph_id = :graph_id");
         $stmt->bindParam(':graph_id', $this->templateId, PDO::PARAM_INT);
         $stmt->execute();
@@ -1056,8 +1284,13 @@ class CentreonGraphNg
      */
     public function setRRDOption($name, $value = null)
     {
+<<<<<<< HEAD
         if (strpos($value, " ") !== false) {
             $value = "'" . $value . "'";
+=======
+        if (strpos($value, " ")!==false) {
+            $value = "'".$value."'";
+>>>>>>> centreon/dev-21.10.x
         }
         $this->rrdOptions[$name] = $value;
     }
@@ -1204,10 +1437,17 @@ class CentreonGraphNg
             if ($this->vmetrics[$vmetricId]['hidden'] == 1) {
                 continue;
             }
+<<<<<<< HEAD
 
             $this->graphData['metrics'][] = $this->vmetrics[$vmetricId];
         }
 
+=======
+            
+            $this->graphData['metrics'][] = $this->vmetrics[$vmetricId];
+        }
+        
+>>>>>>> centreon/dev-21.10.x
         if (is_resource($process)) {
             fwrite($pipes[0], $commandLine);
             fclose($pipes[0]);
@@ -1218,7 +1458,11 @@ class CentreonGraphNg
             $str = preg_replace("/OK u:.*$/", "", $str);
             $rrdData = json_decode($str, true);
         }
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> centreon/dev-21.10.x
         $this->formatByMetrics($rrdData);
         return $this->graphData;
     }
@@ -1262,11 +1506,18 @@ class CentreonGraphNg
             );
             $stmt->bindParam(':index_id', $indexId, PDO::PARAM_INT);
             $stmt->execute();
+<<<<<<< HEAD
             $this->colorCache[$indexId] = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
         }
 
         if (
             isset($this->colorCache[$indexId][$metricId])
+=======
+            $this->colorCache[$indexId] = $stmt->fetchAll(PDO::FETCH_GROUP|PDO::FETCH_UNIQUE|PDO::FETCH_ASSOC);
+        }
+
+        if (isset($this->colorCache[$indexId][$metricId])
+>>>>>>> centreon/dev-21.10.x
             && preg_match("/^\#[a-f0-9]{6,6}/i", $this->colorCache[$indexId][$metricId]['rnd_color'])
         ) {
             return $this->colorCache[$indexId][$metricId]['rnd_color'];
@@ -1361,12 +1612,19 @@ class CentreonGraphNg
      */
     private function log($message)
     {
+<<<<<<< HEAD
         if (
             $this->generalOpt['debug_rrdtool']['value'] &&
             is_writable($this->generalOpt['debug_path']['value'])
         ) {
             error_log(
                 "[" . date("d/m/Y H:i") . "] RDDTOOL : " . $message . " \n",
+=======
+        if ($this->generalOpt['debug_rrdtool']['value'] &&
+            is_writable($this->generalOpt['debug_path']['value'])) {
+            error_log(
+                "[" . date("d/m/Y H:i") ."] RDDTOOL : ".$message." \n",
+>>>>>>> centreon/dev-21.10.x
                 3,
                 $this->generalOpt['debug_path']['value'] . "rrdtool.log"
             );
@@ -1397,8 +1655,12 @@ class CentreonGraphNg
      */
     protected function flushRrdcached($metricsId)
     {
+<<<<<<< HEAD
         if (
             !isset($this->rrdCachedOptions['rrd_cached_option'])
+=======
+        if (!isset($this->rrdCachedOptions['rrd_cached_option'])
+>>>>>>> centreon/dev-21.10.x
             || !in_array($this->rrdCachedOptions['rrd_cached_option'], ['unix', 'tcp'])
         ) {
             return true;
@@ -1450,7 +1712,11 @@ class CentreonGraphNg
         fclose($sock);
         return true;
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> centreon/dev-21.10.x
     /**
      * Returns index data id
      *
@@ -1470,7 +1736,11 @@ class CentreonGraphNg
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return is_null($row) ? 0 : $row['id'];
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> centreon/dev-21.10.x
     /**
      * Returns true if status graph exists
      *
@@ -1482,12 +1752,20 @@ class CentreonGraphNg
     public function statusGraphExists($hostId, $serviceId)
     {
         $id = $this->getIndexDataId($hostId, $serviceId);
+<<<<<<< HEAD
         if (is_file($this->dbStatusPath . "/" . $id . ".rrd")) {
+=======
+        if (is_file($this->dbStatusPath."/".$id.".rrd")) {
+>>>>>>> centreon/dev-21.10.x
             return true;
         }
         return false;
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> centreon/dev-21.10.x
     /**
      * Add Index ID
      *
@@ -1512,18 +1790,30 @@ class CentreonGraphNg
     private function getRealMetricsByIndexId($indexId)
     {
         $stmt = $this->dbCs->prepare(
+<<<<<<< HEAD
             "SELECT m.index_id, host_id, service_id, metric_id, metric_name,
                 unit_name, min, max, warn, warn_low, crit, crit_low
              FROM metrics AS m, index_data AS i
              WHERE i.id = :index_id
                 AND i.id = m.index_id
+=======
+            "SELECT m.index_id, host_id, service_id, metric_id, metric_name, 
+                unit_name, min, max, warn, warn_low, crit, crit_low
+             FROM metrics AS m, index_data AS i
+             WHERE i.id = :index_id
+                AND i.id = m.index_id 
+>>>>>>> centreon/dev-21.10.x
                 AND m.hidden = '0'"
         );
         $stmt->bindParam(':index_id', $indexId, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> centreon/dev-21.10.x
     /**
      * Get virtual metrics
      *

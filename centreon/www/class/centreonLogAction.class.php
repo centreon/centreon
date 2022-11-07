@@ -36,14 +36,23 @@ require_once(__DIR__ . '/centreonAuth.class.php');
 
 class CentreonLogAction
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     protected $logUser;
     protected $uselessKey;
 
     /**
      * Const use to keep the changelog mechanism with hidden password values
      */
+<<<<<<< HEAD
     public const PASSWORD_BEFORE = '*******';
     public const PASSWORD_AFTER = CentreonAuth::PWS_OCCULTATION;
+=======
+    const PASSWORD_BEFORE = '*******';
+    const PASSWORD_AFTER = CentreonAuth::PWS_OCCULTATION;
+>>>>>>> centreon/dev-21.10.x
     /*
      * Initializes variables
      */

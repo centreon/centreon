@@ -69,7 +69,11 @@ class CommentController extends AbstractController
      *
      * @param Request $request
      * @param string $jsonValidatorFile
+<<<<<<< HEAD
      * @return array<string,mixed> $receivedData
+=======
+     * @return array $receivedData
+>>>>>>> centreon/dev-21.10.x
      * @throws \InvalidArgumentException
      */
     private function validateAndRetrievePostData(Request $request, string $jsonValidatorFile): array
@@ -107,7 +111,11 @@ class CommentController extends AbstractController
      * on the selected resources
      *
      * @param Contact $contact
+<<<<<<< HEAD
      * @param array<string,mixed> $resources
+=======
+     * @param array $resources
+>>>>>>> centreon/dev-21.10.x
      * @return boolean
      */
     private function hasCommentRightsForResources(Contact $contact, array $resources): bool

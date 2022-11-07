@@ -128,10 +128,20 @@ function multipleServiceGroupDependencyInDB($dependencies = array(), $nbrDup = a
                         "WHERE dependency_dep_id = '" . $key . "'";
                     $dbResult = $pearDB->query($query);
                     $fields["dep_sgParents"] = "";
+<<<<<<< HEAD
                     while ($sg = $dbResult->fetch()) {
                         $query = "INSERT INTO dependency_servicegroupParent_relation " .
                             "VALUES ('" . $maxId["MAX(dep_id)"] . "', '" . $sg["servicegroup_sg_id"] . "')";
                         $pearDB->query($query);
+=======
+                    $query = "INSERT INTO dependency_servicegroupParent_relation " .
+                             "VALUES (:dep_id, :servicegroup_sg_id)";
+                    $statement = $pearDB->prepare($query);
+                    while ($sg = $dbResult->fetch()) {
+                        $statement->bindValue(':dep_id', (int) $maxId["MAX(dep_id)"], \PDO::PARAM_INT);
+                        $statement->bindValue(':servicegroup_sg_id', (int) $sg["servicegroup_sg_id"], \PDO::PARAM_INT);
+                        $statement->execute();
+>>>>>>> centreon/dev-21.10.x
                         $fields["dep_sgParents"] .= $sg["servicegroup_sg_id"] . ",";
                     }
                     $fields["dep_sgParents"] = trim($fields["dep_sgParents"], ",");
@@ -140,10 +150,20 @@ function multipleServiceGroupDependencyInDB($dependencies = array(), $nbrDup = a
                         "WHERE dependency_dep_id = '" . $key . "'";
                     $dbResult = $pearDB->query($query);
                     $fields["dep_sgChilds"] = "";
+<<<<<<< HEAD
                     while ($sg = $dbResult->fetch()) {
                         $query = "INSERT INTO dependency_servicegroupChild_relation " .
                             "VALUES ('" . $maxId["MAX(dep_id)"] . "', '" . $sg["servicegroup_sg_id"] . "')";
                         $pearDB->query($query);
+=======
+                    $query = "INSERT INTO dependency_servicegroupChild_relation " .
+                             "VALUES (:dep_id, :servicegroup_sg_id)";
+                    $statement = $pearDB->prepare($query);
+                    while ($sg = $dbResult->fetch()) {
+                        $statement->bindValue(':dep_id', (int) $maxId["MAX(dep_id)"], \PDO::PARAM_INT);
+                        $statement->bindValue(':servicegroup_sg_id', (int) $sg["servicegroup_sg_id"], \PDO::PARAM_INT);
+                        $statement->execute();
+>>>>>>> centreon/dev-21.10.x
                         $fields["dep_sgChilds"] .= $sg["servicegroup_sg_id"] . ",";
                     }
                     $fields["dep_sgChilds"] = trim($fields["dep_sgChilds"], ",");

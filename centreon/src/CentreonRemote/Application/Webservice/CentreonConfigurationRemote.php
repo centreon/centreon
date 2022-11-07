@@ -82,7 +82,11 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      *
      * Get remotes servers waitlist
      *
+<<<<<<< HEAD
      * @return array<int, array<mixed>>
+=======
+     * @return array
+>>>>>>> centreon/dev-21.10.x
      */
     public function postGetWaitList(): array
     {
@@ -97,7 +101,11 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
     /**
      * Get Pollers servers waitlist
      *
+<<<<<<< HEAD
      * @return array<int, array<mixed>>
+=======
+     * @return array
+>>>>>>> centreon/dev-21.10.x
      */
     public function postGetPollerWaitList(): array
     {
@@ -150,7 +158,11 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      *
      * Get list with connected remotes
      *
+<<<<<<< HEAD
      * @return array<int, array<mixed>>
+=======
+     * @return array
+>>>>>>> centreon/dev-21.10.x
      * @example [['id' => 'poller id', 'ip' => 'poller ip address', 'name' => 'poller name']]
      */
     public function getList(): array
@@ -205,13 +217,21 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      *
      * Get list with connected remotes
      *
+<<<<<<< HEAD
      * @return array<int, array<mixed>>
+=======
+     * @return array
+>>>>>>> centreon/dev-21.10.x
      * @example [['id' => 'poller id', 'ip' => 'poller ip address', 'name' => 'poller name']]
      */
     public function postGetRemotesList(): array
     {
         $query = 'SELECT ns.id, ns.ns_ip_address as ip, ns.name FROM nagios_server as ns ' .
+<<<<<<< HEAD
             'JOIN remote_servers as rs ON rs.ip = ns.ns_ip_address ' .
+=======
+            'JOIN remote_servers as rs ON rs.server_id = ns.id ' .
+>>>>>>> centreon/dev-21.10.x
             'WHERE rs.is_connected = 1';
         $statement = $this->pearDB->query($query);
 
@@ -329,7 +349,11 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      *
      * Link centreon remote server
      *
+<<<<<<< HEAD
      * @return array<string,bool|int|string|null>
+=======
+     * @return array
+>>>>>>> centreon/dev-21.10.x
      * @throws \RestBadRequestException
      * @throws \Exception
      * @example ['success' => true, 'task_id' => 'task id']
@@ -469,6 +493,10 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
 
             // add server to the list of remote servers in database (table remote_servers)
             $this->addServerToListOfRemotes(
+<<<<<<< HEAD
+=======
+                (int) $serverId,
+>>>>>>> centreon/dev-21.10.x
                 $serverIP,
                 $centreonPath,
                 $httpMethod,
@@ -520,18 +548,30 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      *
      * @return bool If the user has access to the action
      */
+<<<<<<< HEAD
     public function authorize($action, $user, $isInternal = false): bool
+=======
+    public function authorize($action, $user, $isInternal = false)
+>>>>>>> centreon/dev-21.10.x
     {
         if (parent::authorize($action, $user, $isInternal)) {
             return true;
         }
 
+<<<<<<< HEAD
         return $user->hasAccessRestApiConfiguration();
+=======
+        return $user && $user->hasAccessRestApiConfiguration();
+>>>>>>> centreon/dev-21.10.x
     }
 
     /**
      * Add server ip in table of remote servers
      *
+<<<<<<< HEAD
+=======
+     * @param int $serverId the poller id
+>>>>>>> centreon/dev-21.10.x
      * @param string $serverIP the IP of the server
      * @param string $centreonPath the path to access to Centreon
      * @param string $httpMethod the method to access to server (HTTP/HTTPS)
@@ -540,6 +580,10 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      * @param bool $noProxy to do not use configured proxy
      */
     private function addServerToListOfRemotes(
+<<<<<<< HEAD
+=======
+        int $serverId,
+>>>>>>> centreon/dev-21.10.x
         string $serverIP,
         string $centreonPath,
         string $httpMethod,
@@ -547,6 +591,7 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
         bool $noCheckCertificate,
         bool $noProxy
     ): void {
+<<<<<<< HEAD
         $dbAdapter = $this->getDi()[\Centreon\ServiceProvider::CENTREON_DB_MANAGER]->getAdapter('configuration_db');
         $date = date('Y-m-d H:i:s');
 
@@ -576,13 +621,59 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
                 'no_proxy' => $noProxy ?: 0
             ];
             $dbAdapter->insert('remote_servers', $data);
+=======
+        $currentDate = date('Y-m-d H:i:s');
+
+        $statement = $this->pearDB->prepare('SELECT 1 FROM `remote_servers` WHERE `server_id` = :server_id');
+        $statement->bindValue(':server_id', $serverId, \PDO::PARAM_INT);
+        $statement->execute();
+        $remoteAlreadyExists = (bool) $statement->rowCount();
+
+        if ($remoteAlreadyExists) {
+            $updateStatement = $this->pearDB->prepare(
+                'UPDATE `remote_servers` SET
+                `is_connected` = 1, `connected_at` = :connected_at, `centreon_path` = :centreon_path,
+                `no_check_certificate` = :no_check_certificate, `no_proxy` = :no_proxy, `ip_address` = :ip_address
+                WHERE `server_id` = :server_id'
+            );
+            $updateStatement->bindValue(':connected_at', $currentDate, \PDO::PARAM_STR);
+            $updateStatement->bindValue(':centreon_path', $centreonPath, \PDO::PARAM_STR);
+            $updateStatement->bindValue(':no_check_certificate', $noCheckCertificate ? '1' : '0', \PDO::PARAM_STR);
+            $updateStatement->bindValue(':no_proxy', $noProxy ? '1' : '0', \PDO::PARAM_STR);
+            $updateStatement->bindValue(':ip_address', $serverIP, \PDO::PARAM_STR);
+            $updateStatement->bindValue(':server_id', $serverId, \PDO::PARAM_INT);
+            $updateStatement->execute();
+        } else {
+            $insertStatement = $this->pearDB->prepare(
+                'INSERT INTO `remote_servers`
+                (`ip`, `app_key`, `version`, `is_connected`, `created_at`, `connected_at`, `centreon_path`,
+                `http_method`, `http_port`, `no_check_certificate`, `no_proxy`, `server_id`)
+                VALUES
+                (:ip_address, "", "", 1, :created_at, :connected_at, :centreon_path, :http_method, :http_port,
+                :no_check_certificate, :no_proxy, :server_id)'
+            );
+            $insertStatement->bindValue(':ip_address', $serverIP, \PDO::PARAM_STR);
+            $insertStatement->bindValue(':created_at', $currentDate, \PDO::PARAM_STR);
+            $insertStatement->bindValue(':connected_at', $currentDate, \PDO::PARAM_STR);
+            $insertStatement->bindValue(':centreon_path', $centreonPath, \PDO::PARAM_STR);
+            $insertStatement->bindValue(':http_method', $httpMethod, \PDO::PARAM_STR);
+            $insertStatement->bindValue(':http_port', $httpPort ?: null, \PDO::PARAM_INT);
+            $insertStatement->bindValue(':no_check_certificate', $noCheckCertificate ? '1' : '0', \PDO::PARAM_STR);
+            $insertStatement->bindValue(':no_proxy', $noProxy ? '1' : '0', \PDO::PARAM_STR);
+            $insertStatement->bindValue(':server_id', $serverId, \PDO::PARAM_INT);
+            $insertStatement->execute();
+>>>>>>> centreon/dev-21.10.x
         }
     }
 
     /**
      * Set current centreon instance as central
      */
+<<<<<<< HEAD
     private function setCentreonInstanceAsCentral(): void
+=======
+    private function setCentreonInstanceAsCentral()
+>>>>>>> centreon/dev-21.10.x
     {
         $dbAdapter = $this->getDi()[\Centreon\ServiceProvider::CENTREON_DB_MANAGER]->getAdapter('configuration_db');
 
@@ -606,7 +697,11 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
      * Create New Task for export
      *
      * @return bool|int
+<<<<<<< HEAD
      * @param array<string,mixed> $params
+=======
+     * @var $params array
+>>>>>>> centreon/dev-21.10.x
      */
     private function createExportTask(array $params)
     {
@@ -614,7 +709,11 @@ class CentreonConfigurationRemote extends CentreonWebServiceAbstract
     }
 
     /**
+<<<<<<< HEAD
      * @param array<string,mixed> $topologyInformation
+=======
+     * @param array $topologyInformation
+>>>>>>> centreon/dev-21.10.x
      * @throws \Exception
      */
     private function updateServerInPlatformTopology(array $topologyInformation): void

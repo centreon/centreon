@@ -49,6 +49,13 @@ default:
       paths: [ "%paths.base%/features/AcknowledgementTimeout.feature" ]
       contexts: [ AcknowledgementTimeoutContext ]
 
+<<<<<<< HEAD
+=======
+    recovery_notification_delay:
+      paths: [ "%paths.base%/features/RecoveryNotificationDelay.feature" ]
+      contexts: [ RecoveryNotificationDelayContext ]
+
+>>>>>>> centreon/dev-21.10.x
     partitioning:
       paths: [ "%paths.base%/features/Partitioning.feature" ]
       contexts: [ PartitioningContext ]
@@ -150,11 +157,27 @@ default:
       paths: [ "%paths.base%/features/HostTemplateConfiguration.feature" ]
       contexts: [ HostTemplateConfigurationContext ]
 
+<<<<<<< HEAD
+=======
+    module:
+      paths: [ "%paths.base%/features/Module.feature" ]
+      contexts:
+      - ModuleContext
+
+>>>>>>> centreon/dev-21.10.x
     module_api:
       paths: [ "%paths.base%/features/ModuleApi.feature" ]
       contexts:
       - ModuleApiContext
 
+<<<<<<< HEAD
+=======
+    widget:
+      paths: [ "%paths.base%/features/Widget.feature" ]
+      contexts:
+      - WidgetContext
+
+>>>>>>> centreon/dev-21.10.x
     rest_api:
       paths: [ "%paths.base%/features/RestApi.feature" ]
       contexts: [ RestApiContext ]
@@ -208,6 +231,13 @@ default:
       paths: [ "%paths.base%/features/ModifyDefaultPageConnection.feature" ]
       contexts: [ ModifyDefaultPageConnectionContext ]
 
+<<<<<<< HEAD
+=======
+    control_login:
+      paths: [ "%paths.base%/features/ControlLogin.feature" ]
+      contexts: [ ControlLoginContext ]
+
+>>>>>>> centreon/dev-21.10.x
     acl_access_groups:
       paths: [ "%paths.base%/features/AclAccessGroups.feature" ]
       contexts: [ AclAccessGroupsContext ]
@@ -308,6 +338,13 @@ default:
       paths: [ "%paths.base%/features/VendorConfiguration.feature" ]
       contexts: [ VendorConfigurationContext ]
 
+<<<<<<< HEAD
+=======
+    first_notification_delay:
+      paths: [ "%paths.base%/features/FirstNotificationDelay.feature" ]
+      contexts: [ FirstNotificationDelayContext ]
+
+>>>>>>> centreon/dev-21.10.x
     meta_service_dependency_configuration:
       paths: [ "%paths.base%/features/MetaServiceDependencyConfiguration.feature" ]
       contexts: [ MetaServiceDependencyConfigurationContext ]

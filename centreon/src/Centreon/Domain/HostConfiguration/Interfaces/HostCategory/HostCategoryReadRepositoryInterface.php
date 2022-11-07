@@ -25,7 +25,10 @@ namespace Centreon\Domain\HostConfiguration\Interfaces\HostCategory;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\HostConfiguration\Exception\HostCategoryException;
 use Centreon\Domain\HostConfiguration\Model\HostCategory;
+<<<<<<< HEAD
 use Centreon\Domain\HostConfiguration\Host;
+=======
+>>>>>>> centreon/dev-21.10.x
 
 /**
  * This interface gathers all the reading operations on the host category repository.
@@ -97,6 +100,7 @@ interface HostCategoryReadRepositoryInterface
      * @throws \Throwable
      */
     public function findByNameAndContact(string $hostCategoryName, ContactInterface $contact): ?HostCategory;
+<<<<<<< HEAD
 
     /**
      * Find host categories by host.
@@ -105,4 +109,6 @@ interface HostCategoryReadRepositoryInterface
      * @return HostCategory[]
      */
     public function findAllByHost(Host $host): array;
+=======
+>>>>>>> centreon/dev-21.10.x
 }

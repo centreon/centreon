@@ -28,12 +28,20 @@ use Centreon\Domain\Annotation\EntityDescriptor;
 class HostMacro implements MacroInterface
 {
     /**
+<<<<<<< HEAD
      * @var int|null
+=======
+     * @var int
+>>>>>>> centreon/dev-21.10.x
      */
     private $id;
 
     /**
+<<<<<<< HEAD
      * @var string|null Macro name
+=======
+     * @var string Macro name
+>>>>>>> centreon/dev-21.10.x
      */
     private $name;
 
@@ -64,32 +72,52 @@ class HostMacro implements MacroInterface
     private $hostId;
 
     /**
+<<<<<<< HEAD
      * @return int|null
      */
     public function getId(): ?int
+=======
+     * @return int
+     */
+    public function getId(): int
+>>>>>>> centreon/dev-21.10.x
     {
         return $this->id;
     }
 
     /**
+<<<<<<< HEAD
      * @param int|null $id
      * @return self
      */
     public function setId(?int $id): self
+=======
+     * @param int $id
+     * @return self
+     */
+    public function setId(int $id): self
+>>>>>>> centreon/dev-21.10.x
     {
         $this->id = $id;
         return $this;
     }
 
     /**
+<<<<<<< HEAD
      * @return string|null
      */
     public function getName(): ?string
+=======
+     * @return string
+     */
+    public function getName(): string
+>>>>>>> centreon/dev-21.10.x
     {
         return $this->name;
     }
 
     /**
+<<<<<<< HEAD
      * @param string|null $name
      * @return self
      */
@@ -106,6 +134,20 @@ class HostMacro implements MacroInterface
         } else {
             $this->name = null;
         }
+=======
+     * @param string $name
+     * @return self
+     */
+    public function setName(string $name): self
+    {
+        if (strpos($name, '$_HOST') !== 0) {
+            $name = '$_HOST' . $name;
+            if ($name[-1] !== '$') {
+                $name .= '$';
+            }
+        }
+        $this->name = strtoupper($name);
+>>>>>>> centreon/dev-21.10.x
         return $this;
     }
 

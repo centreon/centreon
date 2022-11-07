@@ -1,7 +1,15 @@
+<<<<<<< HEAD
 import { isNil, isEmpty } from 'ramda';
 
 import { Avatar, Tooltip } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
+=======
+import * as React from 'react';
+
+import { isNil, isEmpty } from 'ramda';
+
+import { Avatar, makeStyles, Tooltip } from '@material-ui/core';
+>>>>>>> centreon/dev-21.10.x
 
 import { IconButton } from '@centreon/ui';
 
@@ -59,8 +67,12 @@ const UrlColumn = ({
         <IconButton
           ariaLabel={title}
           data-testid={title || endpoint}
+<<<<<<< HEAD
           size="large"
           title={title || endpoint}
+=======
+          title={title}
+>>>>>>> centreon/dev-21.10.x
           onClick={(): null => {
             return null;
           }}

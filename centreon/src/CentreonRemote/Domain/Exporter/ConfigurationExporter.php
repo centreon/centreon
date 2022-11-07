@@ -1,5 +1,8 @@
 <?php
+<<<<<<< HEAD
 
+=======
+>>>>>>> centreon/dev-21.10.x
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -21,12 +24,20 @@
 
 namespace CentreonRemote\Domain\Exporter;
 
+<<<<<<< HEAD
 use CentreonRemote\Infrastructure\Export\ExportManifest;
 use CentreonRemote\Infrastructure\Service\ExporterServiceAbstract;
+=======
+use Pimple\Container;
+use CentreonRemote\Infrastructure\Export\ExportManifest;
+use CentreonRemote\Infrastructure\Service\ExporterServiceAbstract;
+
+>>>>>>> centreon/dev-21.10.x
 use ConfigGenerateRemote\Manifest;
 
 class ConfigurationExporter extends ExporterServiceAbstract
 {
+<<<<<<< HEAD
     public const NAME = 'configuration';
     private const MEDIA_PATH = _CENTREON_PATH_ . 'www/img/media';
 
@@ -34,11 +45,22 @@ class ConfigurationExporter extends ExporterServiceAbstract
      * @var \ConfigGenerateRemote\Generate
      */
     private $generateService;
+=======
+
+    const NAME = 'configuration';
+    const MEDIA_PATH = _CENTREON_PATH_ . 'www/img/media';
+>>>>>>> centreon/dev-21.10.x
 
     /**
      * Set generate service
      *
+<<<<<<< HEAD
      * @param \ConfigGenerateRemote\Generate $generateService
+=======
+     * @param Container $dependencyInjector
+     * @param \ConfigGenerateRemote\Generate $generateService
+     * @return void
+>>>>>>> centreon/dev-21.10.x
      */
     public function setGenerateService(\ConfigGenerateRemote\Generate $generateService): void
     {
@@ -47,8 +69,11 @@ class ConfigurationExporter extends ExporterServiceAbstract
 
     /**
      * Export data
+<<<<<<< HEAD
      * @param int $remoteId
      * @return mixed[]
+=======
+>>>>>>> centreon/dev-21.10.x
      */
     public function export(int $remoteId): array
     {
@@ -133,16 +158,25 @@ class ConfigurationExporter extends ExporterServiceAbstract
 
         // media copy
         $exportPathMedia = $this->commitment->getPath() . "/media";
+<<<<<<< HEAD
         $mediaPath = self::MEDIA_PATH;
+=======
+        $mediaPath = static::MEDIA_PATH;
+>>>>>>> centreon/dev-21.10.x
         $this->recursiveCopy($exportPathMedia, $mediaPath);
     }
 
     /**
      * Copy directory recursively
+<<<<<<< HEAD
      * @param string $src
      * @param string $dst
      */
     private function recursiveCopy($src, $dst): void
+=======
+     */
+    private function recursiveCopy($src, $dst)
+>>>>>>> centreon/dev-21.10.x
     {
         $dir = opendir($src);
         @mkdir($dst, $this->commitment->getFilePermission(), true);

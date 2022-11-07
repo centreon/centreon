@@ -146,6 +146,7 @@ function testExistence($name = null): bool
         $id = $form->getSubmitValue('id');
     }
 
+<<<<<<< HEAD
     $query = "SELECT name, id FROM `nagios_server` WHERE `name` = '" . htmlentities($name, ENT_QUOTES, "UTF-8") . "'";
     $dbResult = $pearDB->query($query);
     $row = $dbResult->fetch();
@@ -153,6 +154,17 @@ function testExistence($name = null): bool
     if ($dbResult->rowCount() >= 1 && $row["id"] == $id) {
         return true;
     } elseif ($dbResult->rowCount() >= 1 && $row["id"] != $id) {
+=======
+    $query = 'SELECT name, id FROM `nagios_server` WHERE `name` = :name';
+    $statement = $pearDB->prepare($query);
+    $statement->bindValue(':name', htmlentities($name, ENT_QUOTES, "UTF-8"), \PDO::PARAM_STR);
+    $statement->execute();
+    $row = $statement->fetch(\PDO::FETCH_ASSOC);
+
+    if ($statement->rowCount() >= 1 && $row["id"] == $id) {
+        return true;
+    } elseif ($statement->rowCount() >= 1 && $row["id"] != $id) {
+>>>>>>> centreon/dev-21.10.x
         return false;
     } else {
         return true;
@@ -282,6 +294,7 @@ function deleteServerInDB(array $serverIds): void
         $row = $result->fetch();
 
         // Is a Remote Server?
+<<<<<<< HEAD
         $result = $pearDB->query(
             "SELECT * FROM remote_servers WHERE ip = '" . $row['ip'] . "'"
         );
@@ -291,6 +304,21 @@ function deleteServerInDB(array $serverIds): void
             $pearDB->query(
                 "DELETE FROM remote_servers WHERE ip = '" . $row['ip'] . "'"
             );
+=======
+        $statement = $pearDB->prepare(
+            'SELECT * FROM remote_servers WHERE server_id = :id'
+        );
+        $statement->bindValue(':id', $serverId, \PDO::PARAM_INT);
+        $statement->execute();
+
+        if ($statement->rowCount() > 0) {
+            // Delete entry from remote_servers
+            $statement = $pearDB->prepare(
+                'DELETE FROM remote_servers WHERE server_id = :id'
+            );
+            $statement->bindValue(':id', $serverId, \PDO::PARAM_INT);
+            $statement->execute();
+>>>>>>> centreon/dev-21.10.x
             // Delete all relation between this Remote Server and pollers
             $pearDB->query(
                 "DELETE FROM rs_poller_relation WHERE remote_server_id = '" . $serverId . "'"
@@ -394,6 +422,7 @@ function duplicateServer(array $server, array $nbrDup): void
                     $pearDB->query('INSERT INTO `nagios_server` VALUES (' . $queryValues . ')');
                 }
 
+<<<<<<< HEAD
                 $queryGetId = 'SELECT id FROM nagios_server WHERE name = "' . $serverName . '"';
                 try {
                     $res = $pearDB->query($queryGetId);
@@ -409,10 +438,32 @@ function duplicateServer(array $server, array $nbrDup): void
                                         " VALUES ('" . $iId . "', '" . $valBk["broker_module"] . "')";
                                 }
                                 $pearDB->query($rqBk);
+=======
+                $queryGetId = 'SELECT id FROM nagios_server WHERE name = :name';
+                try {
+                    $statement = $pearDB->prepare($queryGetId);
+                    $statement->bindValue(':name', $serverName, \PDO::PARAM_STR);
+                    $statement->execute();
+                    if ($statement->rowCount() > 0) {
+                        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+                        $iId = $obj->insertServerInCfgNagios($serverId, $row['id'], $serverName);
+
+                        if (isset($rowBks)) {
+                            $rqBk = "INSERT INTO cfg_nagios_broker_module (`cfg_nagios_id`, `broker_module`)" .
+                                    " VALUES (:cfg_nagios_id, :broker_module)";
+                            $statement = $pearDB->prepare($rqBk);
+                            foreach ($rowBks as $keyBk => $valBk) {
+                                if ($valBk["broker_module"]) {
+                                    $statement->bindValue(':cfg_nagios_id', (int) $iId, \PDO::PARAM_INT);
+                                    $statement->bindValue(':broker_module', $valBk["broker_module"], \PDO::PARAM_STR);
+                                    $statement->execute();
+                                }
+>>>>>>> centreon/dev-21.10.x
                             }
                         }
 
                         $queryRel = 'INSERT INTO cfg_resource_instance_relations (resource_id, instance_id) ' .
+<<<<<<< HEAD
                             'SELECT b.resource_id, ' . $row['id'] . ' FROM ' .
                             'cfg_resource_instance_relations as b WHERE b.instance_id = ' . $serverId;
                         $pearDB->query($queryRel);
@@ -420,6 +471,23 @@ function duplicateServer(array $server, array $nbrDup): void
                             'SELECT ' . $row['id'] . ', b.command_id, b.command_order FROM ' .
                             'poller_command_relations as b WHERE b.poller_id = ' . $serverId;
                         $pearDB->query($queryCmd);
+=======
+                            'SELECT b.resource_id, :instance_id FROM ' .
+                            'cfg_resource_instance_relations as b WHERE b.instance_id = :b_instance_id';
+                        $statement = $pearDB->prepare($queryRel);
+                        $statement->bindValue(':instance_id', (int) $row['id'], \PDO::PARAM_INT);
+                        $statement->bindValue(':b_instance_id', (int) $serverId, \PDO::PARAM_INT);
+                        $statement->execute();
+                        $queryCmd = 'INSERT INTO poller_command_relations (poller_id, command_id, command_order) ' .
+                            'SELECT :poller_id, b.command_id, b.command_order FROM ' .
+                            'poller_command_relations as b WHERE b.poller_id = :b_poller_id';
+                        $statement = $pearDB->prepare($queryCmd);
+                        $statement->bindValue(':poller_id', (int) $row['id'], \PDO::PARAM_INT);
+                        $statement->bindValue(':b_poller_id', (int) $serverId, \PDO::PARAM_INT);
+                        $statement->execute();
+
+                        duplicateRemoteServerInformation((int) $serverId, (int) $row['id']);
+>>>>>>> centreon/dev-21.10.x
                     }
                 } catch (\PDOException $e) {
                     // Nothing to do
@@ -481,7 +549,10 @@ function insertServerInDB(array $data): int
 
     if (!empty($iIdNagios)) {
         $srvObj->insertBrokerDefaultDirectives($iIdNagios, 'ui');
+<<<<<<< HEAD
         $srvObj->insertDefaultCfgNagiosLogger($iIdNagios);
+=======
+>>>>>>> centreon/dev-21.10.x
     }
     addUserRessource($id);
 
@@ -751,6 +822,7 @@ function addUserRessource(int $serverId): bool
  * Update Remote Server information
  *
  * @param array $data
+<<<<<<< HEAD
  * @param string|null $oldIpAddress Old IP address of the server before the upgrade
  */
 function updateRemoteServerInformation(array $data, string $oldIpAddress = null)
@@ -759,22 +831,43 @@ function updateRemoteServerInformation(array $data, string $oldIpAddress = null)
 
     $statement = $pearDB->prepare("SELECT COUNT(*) AS total FROM remote_servers WHERE ip = :ip");
     $statement->bindValue(':ip', $oldIpAddress ?? $data["ns_ip_address"]);
+=======
+ * @param int $id remote server id
+ */
+function updateRemoteServerInformation(array $data, int $id)
+{
+    global $pearDB;
+
+    $statement = $pearDB->prepare("SELECT COUNT(*) AS total FROM remote_servers WHERE server_id = :id");
+    $statement->bindValue(':id', $id, \PDO::PARAM_INT);
+>>>>>>> centreon/dev-21.10.x
     $statement->execute();
     $total = (int) $statement->fetch(\PDO::FETCH_ASSOC)['total'];
 
     if ($total === 1) {
         $statement = $pearDB->prepare("
+<<<<<<< HEAD
             UPDATE remote_servers
             SET http_method = :http_method, http_port = :http_port,
                 no_check_certificate = :no_check_certificate, no_proxy = :no_proxy, ip = :new_ip
             WHERE ip = :ip
+=======
+            UPDATE remote_servers 
+            SET http_method = :http_method, http_port = :http_port,
+                no_check_certificate = :no_check_certificate, no_proxy = :no_proxy, ip = :new_ip
+            WHERE server_id = :id
+>>>>>>> centreon/dev-21.10.x
         ");
         $statement->bindValue(':http_method', $data["http_method"]);
         $statement->bindValue(':http_port', $data["http_port"] ?? null, \PDO::PARAM_INT);
         $statement->bindValue(':no_proxy', $data["no_proxy"]["no_proxy"]);
         $statement->bindValue(':no_check_certificate', $data["no_check_certificate"]["no_check_certificate"]);
         $statement->bindValue(':new_ip', $data["ns_ip_address"]);
+<<<<<<< HEAD
         $statement->bindValue(':ip', $oldIpAddress ?? $data["ns_ip_address"]);
+=======
+        $statement->bindValue(':id', $id, \PDO::PARAM_INT);
+>>>>>>> centreon/dev-21.10.x
         $statement->execute();
     }
 }
@@ -994,13 +1087,21 @@ function updateServer(int $id, array $data): void
         $stmt->bindValue($key, $value);
     }
     $stmt->execute();
+<<<<<<< HEAD
+=======
+
+    updateRemoteServerInformation($data, $id);
+>>>>>>> centreon/dev-21.10.x
     try {
         updateServerIntoPlatformTopology($retValue, $id);
     } catch (\Exception $e) {
         // catch exception but don't return anything to avoid blank pages on form
     }
+<<<<<<< HEAD
 
     updateRemoteServerInformation($data, $ipAddressBeforeChanges);
+=======
+>>>>>>> centreon/dev-21.10.x
     additionnalRemoteServersByPollerId(
         $id,
         $data["remote_additional_id"] ?? null
@@ -1051,7 +1152,11 @@ WHERE log_action.object_type = 'host' AND action_log_date > $lastRestart GROUP B
 UNION
 SELECT instance_id, COUNT(*) as num_logs, MAX(action_log_date) as action_log_date FROM log_action
     INNER JOIN (
+<<<<<<< HEAD
         SELECT nagios_server_id as instance_id, host_host_id as host_id FROM {$conf_centreon['db']}.ns_host_relation
+=======
+        SELECT nagios_server_id as instance_id, host_host_id as host_id FROM `{$conf_centreon['db']}`.ns_host_relation
+>>>>>>> centreon/dev-21.10.x
          WHERE nagios_server_id IN ($pollersSearch)
     ) AS subtable ON log_action.object_id = subtable.host_id
 WHERE log_action.object_type = 'host' AND action_log_date > $lastRestart GROUP BY subtable.instance_id
@@ -1067,7 +1172,11 @@ UNION
 SELECT instance_id, COUNT(*) as num_logs, MAX(action_log_date) as action_log_date FROM log_action
     INNER JOIN (
         SELECT nagios_server_id as instance_id, service_service_id as service_id
+<<<<<<< HEAD
         FROM {$conf_centreon['db']}.ns_host_relation nhr, {$conf_centreon['db']}.host_service_relation hsr
+=======
+        FROM `{$conf_centreon['db']}`.ns_host_relation nhr, `{$conf_centreon['db']}`.host_service_relation hsr
+>>>>>>> centreon/dev-21.10.x
         WHERE nagios_server_id IN ($pollersSearch)
             AND hsr.host_host_id = nhr.host_host_id
     ) AS subtable ON log_action.object_id = subtable.service_id
@@ -1076,7 +1185,11 @@ UNION
 
 SELECT instance_id, COUNT(*) as num_logs, MAX(action_log_date) as action_log_date FROM log_action
     INNER JOIN (
+<<<<<<< HEAD
         SELECT h.instance_id, servicegroup_id FROM services_servicegroups sg
+=======
+        SELECT h.instance_id, servicegroup_id FROM services_servicegroups sg 
+>>>>>>> centreon/dev-21.10.x
         INNER JOIN hosts h ON h.host_id = sg.host_id AND h.instance_id IN ($pollersSearch)
     ) AS subtable ON log_action.action_type = 'd' AND log_action.object_id = subtable.servicegroup_id
 WHERE log_action.object_type = 'servicegroup' AND action_log_date > $lastRestart GROUP BY subtable.instance_id
@@ -1084,7 +1197,11 @@ UNION
 SELECT instance_id, COUNT(*) as num_logs, MAX(action_log_date) as action_log_date FROM log_action
     INNER JOIN (
         SELECT nhr.nagios_server_id as instance_id, servicegroup_sg_id as servicegroup_id
+<<<<<<< HEAD
         FROM {$conf_centreon['db']}.servicegroup_relation sgr, {$conf_centreon['db']}.ns_host_relation nhr
+=======
+        FROM `{$conf_centreon['db']}`.servicegroup_relation sgr, `{$conf_centreon['db']}`.ns_host_relation nhr
+>>>>>>> centreon/dev-21.10.x
         WHERE nhr.nagios_server_id IN ($pollersSearch)
             AND sgr.host_host_id = nhr.host_host_id
     ) AS subtable ON log_action.object_id = subtable.servicegroup_id
@@ -1101,7 +1218,11 @@ UNION
 SELECT instance_id, COUNT(*) as num_logs, MAX(action_log_date) as action_log_date FROM log_action
     INNER JOIN (
         SELECT nhr.nagios_server_id as instance_id, hostgroup_hg_id as hostgroup_id
+<<<<<<< HEAD
         FROM {$conf_centreon['db']}.hostgroup_relation hr, {$conf_centreon['db']}.ns_host_relation nhr
+=======
+        FROM `{$conf_centreon['db']}`.hostgroup_relation hr, `{$conf_centreon['db']}`.ns_host_relation nhr
+>>>>>>> centreon/dev-21.10.x
         WHERE nhr.nagios_server_id IN ($pollersSearch)
             AND hr.host_host_id = nhr.host_host_id
     ) AS subtable ON log_action.object_id = subtable.hostgroup_id
@@ -1161,7 +1282,11 @@ AND (
       )
       OR object_id IN (
         SELECT host_host_id
+<<<<<<< HEAD
         FROM {$conf_centreon['db']}.ns_host_relation
+=======
+        FROM `{$conf_centreon['db']}`.ns_host_relation`
+>>>>>>> centreon/dev-21.10.x
         WHERE nagios_server_id = $poller_id
       )
     )
@@ -1179,7 +1304,11 @@ AND (
       )
       OR object_id IN (
         SELECT service_service_id
+<<<<<<< HEAD
         FROM {$conf_centreon['db']}.ns_host_relation nhr, {$conf_centreon['db']}.host_service_relation hsr
+=======
+        FROM `{$conf_centreon['db']}`.ns_host_relation nhr, `{$conf_centreon['db']}`.host_service_relation hsr
+>>>>>>> centreon/dev-21.10.x
         WHERE nagios_server_id = $poller_id
         AND hsr.host_host_id = nhr.host_host_id
       )
@@ -1199,7 +1328,11 @@ AND (
       )
       OR object_id IN (
         SELECT DISTINCT servicegroup_sg_id
+<<<<<<< HEAD
         FROM {$conf_centreon['db']}.servicegroup_relation sgr, {$conf_centreon['db']}.ns_host_relation nhr
+=======
+        FROM `{$conf_centreon['db']}`.servicegroup_relation sgr, `{$conf_centreon['db']}`.ns_host_relation nhr
+>>>>>>> centreon/dev-21.10.x
         WHERE sgr.host_host_id = nhr.host_host_id
         AND nhr.nagios_server_id = $poller_id
       )
@@ -1219,7 +1352,11 @@ AND (
       )
       OR object_id IN (
         SELECT DISTINCT hr.hostgroup_hg_id
+<<<<<<< HEAD
         FROM {$conf_centreon['db']}.hostgroup_relation hr, {$conf_centreon['db']}.ns_host_relation nhr
+=======
+        FROM `{$conf_centreon['db']}`.hostgroup_relation hr, `{$conf_centreon['db']}`.ns_host_relation nhr
+>>>>>>> centreon/dev-21.10.x
         WHERE hr.host_host_id = nhr.host_host_id
         AND nhr.nagios_server_id = $poller_id
       )
@@ -1331,8 +1468,13 @@ function updateServerIntoPlatformTopology(array $pollerInformations, int $server
     /**
      * Check if we are updating a Remote Server
      */
+<<<<<<< HEAD
     $statement = $pearDB->prepare("SELECT * FROM remote_servers WHERE ip = :address");
     $statement->bindValue(':address', $pollerIp, \PDO::PARAM_STR);
+=======
+    $statement = $pearDB->prepare("SELECT 1 FROM remote_servers WHERE server_id = :id");
+    $statement->bindValue(':id', $serverId, \PDO::PARAM_INT);
+>>>>>>> centreon/dev-21.10.x
     $statement->execute();
     $isRemote = $statement->fetch(\PDO::FETCH_ASSOC);
     if ($isRemote) {
@@ -1479,3 +1621,76 @@ function ipCanBeUpdated(array $options): bool
     }
     return true;
 }
+<<<<<<< HEAD
+=======
+
+/**
+ * Get Remote servers information
+ *
+ * @param integer $serverId
+ * @return array<string,string>
+ */
+function getRemoteServerInformation(int $serverId): array
+{
+    global $pearDB;
+
+    $statement = $pearDB->prepare("SELECT * FROM remote_servers WHERE server_id = :id LIMIT 1");
+    $statement->bindValue(':id', $serverId, \PDO::PARAM_INT);
+    $statement->execute();
+    if (($result = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+        return $result;
+    }
+
+    return [];
+}
+
+/**
+ * Duplicate information for remote server
+ *
+ * @param int $duplicatedId
+ * @param int $newId
+ */
+function duplicateRemoteServerInformation(int $duplicatedId, int $newId): void
+{
+    global $pearDB;
+    $remoteServerInformation = getRemoteServerInformation($duplicatedId);
+    if (! empty($remoteServerInformation)) {
+        $insertRemoteServerStatement = $pearDB->prepare(
+            "INSERT INTO `remote_servers` (ip, `version`, is_connected,
+            centreon_path, http_method, http_port, no_check_certificate, no_proxy, server_id) VALUES
+            (:ip, :version, :isConnected, :centreonPath, :httpMethod, :httpPort,
+            :noCheckCertificate, :noProxy, :serverId)"
+        );
+        $insertRemoteServerStatement->bindValue(":ip", $remoteServerInformation["ip"], \PDO::PARAM_STR);
+        $insertRemoteServerStatement->bindValue(":version", $remoteServerInformation["version"], \PDO::PARAM_STR);
+        $insertRemoteServerStatement->bindValue(
+            ":isConnected",
+            (int) $remoteServerInformation["is_connected"],
+            \PDO::PARAM_INT
+        );
+        $insertRemoteServerStatement->bindValue(
+            ":centreonPath",
+            $remoteServerInformation["centreon_path"],
+            \PDO::PARAM_STR
+        );
+        $insertRemoteServerStatement->bindValue(
+            ":httpMethod",
+            $remoteServerInformation["http_method"],
+            \PDO::PARAM_STR
+        );
+        $insertRemoteServerStatement->bindValue(
+            ":httpPort",
+            $remoteServerInformation["http_port"] !== null ? (int) $remoteServerInformation["http_port"] : null,
+            \PDO::PARAM_INT
+        );
+        $insertRemoteServerStatement->bindValue(
+            ":noCheckCertificate",
+            $remoteServerInformation["no_check_certificate"],
+            \PDO::PARAM_STR
+        );
+        $insertRemoteServerStatement->bindValue(":noProxy", $remoteServerInformation["no_proxy"], \PDO::PARAM_STR);
+        $insertRemoteServerStatement->bindValue(":serverId", $newId, \PDO::PARAM_INT);
+        $insertRemoteServerStatement->execute();
+    }
+}
+>>>>>>> centreon/dev-21.10.x

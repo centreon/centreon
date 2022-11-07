@@ -11,7 +11,13 @@ fos_rest:
         mime_types:
             json: ['application/json', 'application/json;version=1.0']
 
+<<<<<<< HEAD
     routing_loader: false
+=======
+    routing_loader:
+        prefix_methods: true
+        include_format: false
+>>>>>>> centreon/dev-21.10.x
     param_fetcher_listener: true
     exception:
         enabled: true # All exceptions will be serialized to Json

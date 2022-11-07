@@ -1,7 +1,11 @@
 <?php
 
 /*
+<<<<<<< HEAD
  * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+=======
+ * Copyright 2005 - 2021 Centreon (https://www.centreon.com/)
+>>>>>>> centreon/dev-21.10.x
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +26,7 @@ declare(strict_types=1);
 
 namespace Security\Domain\Authentication\Model;
 
+<<<<<<< HEAD
 use Pimple\Container;
 use Centreon\Domain\Log\LoggerTrait;
 use Core\Domain\Security\User\Model\User;
@@ -38,32 +43,75 @@ use Core\Application\Security\User\Repository\WriteUserRepositoryInterface;
 use Core\Domain\Security\ProviderConfiguration\Local\ConfigurationException;
 use Core\Application\Security\ProviderConfiguration\Local\Repository\ReadConfigurationRepositoryInterface;
 use Security\Domain\Authentication\Interfaces\ProviderConfigurationInterface;
+=======
+use Centreon\Domain\Contact\Interfaces\ContactInterface;
+use Centreon\Domain\Contact\Interfaces\ContactServiceInterface;
+use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\Option\Interfaces\OptionServiceInterface;
+use Pimple\Container;
+use Security\Domain\Authentication\Interfaces\ProviderInterface;
+use Security\Domain\Authentication\Model\ProviderConfiguration;
+>>>>>>> centreon/dev-21.10.x
 
 /**
  * @package Security\Authentication\Model
  */
+<<<<<<< HEAD
 class LocalProvider implements LocalProviderInterface
+=======
+class LocalProvider implements ProviderInterface
+>>>>>>> centreon/dev-21.10.x
 {
     use LoggerTrait;
 
     public const NAME = 'local';
 
     /**
+<<<<<<< HEAD
+=======
+     * @var boolean
+     */
+    private $isAuthenticated;
+
+    /**
+>>>>>>> centreon/dev-21.10.x
      * @var int
      */
     private $contactId;
 
     /**
+<<<<<<< HEAD
+=======
+     * @var ContactServiceInterface
+     */
+    private $contactService;
+
+    /**
+     * @var Container
+     */
+    private $dependencyInjector;
+
+    /**
+>>>>>>> centreon/dev-21.10.x
      * @var ProviderConfiguration
      */
     private $configuration;
 
     /**
+<<<<<<< HEAD
+=======
+     * @var OptionServiceInterface
+     */
+    private $optionService;
+
+    /**
+>>>>>>> centreon/dev-21.10.x
      * @var \Centreon
      */
     private $legacySession;
 
     /**
+<<<<<<< HEAD
      * LocalProvider constructor.
      *
      * @param int $sessionExpirationDelay
@@ -83,12 +131,39 @@ class LocalProvider implements LocalProviderInterface
         private ReadUserRepositoryInterface $readUserRepository,
         private WriteUserRepositoryInterface $writeUserRepository,
     ) {
+=======
+     * @var int
+     */
+    private $sessionExpirationDelay;
+
+    /**
+     * LocalProvider constructor.
+     *
+     * @param ContactServiceInterface $contactService
+     * @param Container $dependencyInjector
+     * @param OptionServiceInterface $optionService
+     */
+    public function __construct(
+        int $sessionExpirationDelay,
+        ContactServiceInterface $contactService,
+        Container $dependencyInjector,
+        OptionServiceInterface $optionService
+    ) {
+        $this->sessionExpirationDelay = $sessionExpirationDelay;
+        $this->contactService = $contactService;
+        $this->dependencyInjector = $dependencyInjector;
+        $this->optionService = $optionService;
+>>>>>>> centreon/dev-21.10.x
     }
 
     /**
      * @inheritDoc
      */
+<<<<<<< HEAD
     public function authenticateOrFail(array $credentials): void
+=======
+    public function authenticate(array $credentials): void
+>>>>>>> centreon/dev-21.10.x
     {
         global $pearDB;
         $pearDB = $this->dependencyInjector['configuration_db'];
@@ -104,11 +179,14 @@ class LocalProvider implements LocalProviderInterface
             \CentreonAuth::ENCRYPT_MD5,
             ""
         );
+<<<<<<< HEAD
 
         if ($auth->userInfos === null) {
             throw AuthenticationException::notAuthenticated();
         }
 
+=======
+>>>>>>> centreon/dev-21.10.x
         $this->debug(
             '[LOCAL PROVIDER] local provider trying to authenticate using legacy Authentication',
             [
@@ -117,6 +195,7 @@ class LocalProvider implements LocalProviderInterface
             function () use ($auth) {
                 $userInfos = $auth->userInfos;
                 return [
+<<<<<<< HEAD
                     'contact_id' => $userInfos['contact_id'] ?? null,
                     'contact_alias' => $userInfos['contact_alias'] ?? null,
                     'contact_auth_type' => $userInfos['contact_auth_type'] ?? null,
@@ -157,6 +236,26 @@ class LocalProvider implements LocalProviderInterface
         $this->contactId = (int) $auth->userInfos['contact_id'];
         $this->setLegacySession(new \Centreon($auth->userInfos));
         $this->info('[LOCAL PROVIDER] authentication succeed');
+=======
+                    'contact_id' => $userInfos['contact_id'],
+                    'contact_alias' => $userInfos['contact_alias'],
+                    'contact_auth_type' => $userInfos['contact_auth_type'],
+                    'contact_ldap_dn' => $userInfos['contact_ldap_dn']
+                ];
+            }
+        );
+        if ($auth->passwdOk === 1) {
+            if ($auth->userInfos !== null) {
+                $this->contactId = (int) $auth->userInfos['contact_id'];
+                $this->setLegacySession(new \Centreon($auth->userInfos));
+            }
+            $this->isAuthenticated = true;
+            $this->info('[LOCAL PROVIDER] authentication succeed');
+        } else {
+            $this->isAuthenticated = false;
+            $this->info('[LOCAL PROVIDER] authentication failed');
+        }
+>>>>>>> centreon/dev-21.10.x
     }
 
     /**
@@ -215,11 +314,16 @@ class LocalProvider implements LocalProviderInterface
     /**
      * @inheritDoc
      */
+<<<<<<< HEAD
     public function setConfiguration(ProviderConfigurationInterface $configuration): void
     {
         if (!is_a($configuration, ProviderConfiguration::class)) {
             throw new \InvalidArgumentException('Bad provider configuration');
         }
+=======
+    public function setConfiguration(ProviderConfiguration $configuration): void
+    {
+>>>>>>> centreon/dev-21.10.x
         $this->configuration = $configuration;
     }
 
@@ -234,6 +338,17 @@ class LocalProvider implements LocalProviderInterface
     /**
      * @inheritDoc
      */
+<<<<<<< HEAD
+=======
+    public function isAuthenticated(): bool
+    {
+        return $this->isAuthenticated;
+    }
+
+    /**
+     * @inheritDoc
+     */
+>>>>>>> centreon/dev-21.10.x
     public function getProviderToken(string $token): ProviderToken
     {
         $sessionExpireOption = $this->optionService->findSelectedOptions(['session_expire']);
@@ -255,6 +370,7 @@ class LocalProvider implements LocalProviderInterface
     {
         return null;
     }
+<<<<<<< HEAD
 
     /**
      * Check if local security policy is respected
@@ -385,4 +501,6 @@ class LocalProvider implements LocalProviderInterface
 
         return false;
     }
+=======
+>>>>>>> centreon/dev-21.10.x
 }

@@ -1,8 +1,14 @@
 <?php
+<<<<<<< HEAD
 
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
+=======
+/*
+ * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+ * 
+>>>>>>> centreon/dev-21.10.x
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,6 +29,7 @@ namespace CentreonRemote\Infrastructure\Export;
 
 interface ExportParserInterface
 {
+<<<<<<< HEAD
     /**
      * @param string $filename
      * @param callable|null $macros
@@ -34,5 +41,10 @@ interface ExportParserInterface
      * @param array<mixed> $input
      * @param string $filename
      */
+=======
+
+    public function parse(string $filename, callable $macros = null): array;
+
+>>>>>>> centreon/dev-21.10.x
     public function dump(array $input, string $filename): void;
 }

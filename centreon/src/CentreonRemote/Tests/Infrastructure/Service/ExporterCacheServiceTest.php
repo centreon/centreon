@@ -1,5 +1,6 @@
 <?php
 
+<<<<<<< HEAD
 /*
  * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
  *
@@ -19,6 +20,8 @@
  *
  */
 
+=======
+>>>>>>> centreon/dev-21.10.x
 namespace CentreonRemote\Tests\Infrastructure\Service;
 
 use PHPUnit\Framework\TestCase;
@@ -29,10 +32,13 @@ use CentreonRemote\Infrastructure\Service\ExporterCacheService;
  */
 class ExporterCacheServiceTest extends TestCase
 {
+<<<<<<< HEAD
     /**
      * @var ExporterCacheService
      */
     private $cache;
+=======
+>>>>>>> centreon/dev-21.10.x
 
     protected function setUp(): void
     {
@@ -44,7 +50,11 @@ class ExporterCacheServiceTest extends TestCase
     /**
      * @covers \CentreonRemote\Infrastructure\Service\ExporterCacheService::getIf
      */
+<<<<<<< HEAD
     public function testGetIf(): void
+=======
+    public function testGetIf()
+>>>>>>> centreon/dev-21.10.x
     {
         $callable = function () {
             return 'val1a';
@@ -62,7 +72,11 @@ class ExporterCacheServiceTest extends TestCase
     /**
      * @covers \CentreonRemote\Infrastructure\Service\ExporterCacheService::get
      */
+<<<<<<< HEAD
     public function testGet(): void
+=======
+    public function testGet()
+>>>>>>> centreon/dev-21.10.x
     {
         $result = $this->cache->get('key1');
 
@@ -76,7 +90,11 @@ class ExporterCacheServiceTest extends TestCase
     /**
      * @covers \CentreonRemote\Infrastructure\Service\ExporterCacheService::has
      */
+<<<<<<< HEAD
     public function testHas(): void
+=======
+    public function testHas()
+>>>>>>> centreon/dev-21.10.x
     {
         $result = $this->cache->has('key1');
 
@@ -90,7 +108,11 @@ class ExporterCacheServiceTest extends TestCase
     /**
      * @covers \CentreonRemote\Infrastructure\Service\ExporterCacheService::merge
      */
+<<<<<<< HEAD
     public function testMerge(): void
+=======
+    public function testMerge()
+>>>>>>> centreon/dev-21.10.x
     {
         $this->cache->set('key3', ['val3']);
         $this->cache->merge('key3', ['val3a']);
@@ -105,7 +127,11 @@ class ExporterCacheServiceTest extends TestCase
     /**
      * @covers \CentreonRemote\Infrastructure\Service\ExporterCacheService::set
      */
+<<<<<<< HEAD
     public function testSet(): void
+=======
+    public function testSet()
+>>>>>>> centreon/dev-21.10.x
     {
         $this->cache->set('key4', 'val4');
 
@@ -120,7 +146,11 @@ class ExporterCacheServiceTest extends TestCase
     /**
      * @covers \CentreonRemote\Infrastructure\Service\ExporterCacheService::destroy
      */
+<<<<<<< HEAD
     public function testDestroy(): void
+=======
+    public function testDestroy()
+>>>>>>> centreon/dev-21.10.x
     {
         $this->assertTrue($this->cache->has('key1'));
 

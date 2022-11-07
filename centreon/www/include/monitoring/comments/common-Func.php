@@ -47,7 +47,10 @@ function DeleteComment($type = null, $hosts = [])
 
     foreach ($hosts as $key => $value) {
         $res = preg_split("/\;/", $key);
+<<<<<<< HEAD
         $res[0] = filter_var($res[0] ?? 0, FILTER_VALIDATE_INT);
+=======
+>>>>>>> centreon/dev-21.10.x
         $res[1] = filter_var($res[1] ?? 0, FILTER_VALIDATE_INT);
         write_command(" DEL_" . $type . "_COMMENT;" . $res[1], GetMyHostPoller($pearDB, $res[0]));
     }

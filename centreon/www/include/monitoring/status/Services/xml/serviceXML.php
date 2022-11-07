@@ -1,4 +1,8 @@
 <?php
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -35,6 +39,7 @@
 
 // Require configuration.
 require_once realpath(__DIR__ . "/../../../../../../bootstrap.php");
+<<<<<<< HEAD
 include_once _CENTREON_PATH_ . "www/class/centreonUtils.class.php";
 
 // Require Specific XML / Ajax Class
@@ -46,6 +51,19 @@ include_once _CENTREON_PATH_ . "www/class/centreonMedia.class.php";
 // Require common Files.
 include_once _CENTREON_PATH_ . "www/include/monitoring/status/Common/common-Func.php";
 include_once _CENTREON_PATH_ . "www/include/common/common-Func.php";
+=======
+require_once  _CENTREON_PATH_ . "www/class/centreonUtils.class.php";
+
+// Require Specific XML / Ajax Class
+require_once  _CENTREON_PATH_ . "www/class/centreonXMLBGRequest.class.php";
+require_once  _CENTREON_PATH_ . "www/class/centreonInstance.class.php";
+require_once  _CENTREON_PATH_ . "www/class/centreonCriticality.class.php";
+require_once  _CENTREON_PATH_ . "www/class/centreonMedia.class.php";
+
+// Require common Files.
+require_once  _CENTREON_PATH_ . "www/include/monitoring/status/Common/common-Func.php";
+require_once  _CENTREON_PATH_ . "www/include/common/common-Func.php";
+>>>>>>> centreon/dev-21.10.x
 
 // Create XML Request Objects
 CentreonSession::start();
@@ -142,7 +160,11 @@ if ($outputToSearch) {
 }
 
 $tabOrder = [];
+<<<<<<< HEAD
 $tabOrder["criticality_id"] = " ORDER BY isnull " .$order . ", criticality " . $order . ", h.name, s.description ";
+=======
+$tabOrder["criticality_id"] = " ORDER BY isnull " . $order . ", criticality " . $order . ", h.name, s.description ";
+>>>>>>> centreon/dev-21.10.x
 $tabOrder["host_name"] = " ORDER BY h.name " . $order . ", s.description ";
 $tabOrder["service_description"] = " ORDER BY s.description " . $order . ", h.name";
 $tabOrder["current_state"] = " ORDER BY s.state " . $order . ", h.name, s.description";
@@ -480,7 +502,11 @@ if (!$sqlError) {
         $obj->XML->writeElement("sc", $obj->colorService[$data["state"]]);
         $obj->XML->writeElement("cs", _($obj->statusService[$data["state"]]), false);
         $obj->XML->writeElement("ssc", $data["state"]);
+<<<<<<< HEAD
         $obj->XML->writeElement("po", CentreonUtils::escapeSecure($pluginShortOuput));
+=======
+        $obj->XML->writeElement("po", htmlspecialchars(htmlspecialchars($pluginShortOuput)));
+>>>>>>> centreon/dev-21.10.x
         $obj->XML->writeElement(
             "ca",
             $data["current_attempt"] . "/" . $data["max_check_attempts"]
@@ -659,7 +685,10 @@ if (!$sqlError) {
             "svc_index",
             (isset($graphs[$data["host_id"]][$data["service_id"]]) ? $graphs[$data["host_id"]][$data["service_id"]] : 0)
         );
+<<<<<<< HEAD
         $obj->XML->writeElement("chartIcon", returnSvg("www/img/icons/chart.svg", "var(--icons-fill-color)", 18, 18));
+=======
+>>>>>>> centreon/dev-21.10.x
         $obj->XML->endElement();
     }
     $dbResult->closeCursor();

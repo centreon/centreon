@@ -23,6 +23,10 @@ declare(strict_types=1);
 namespace Centreon\Domain\Monitoring\Interfaces;
 
 use Centreon\Domain\Monitoring\ResourceFilter;
+<<<<<<< HEAD
+=======
+use Centreon\Domain\Exception\EntityNotFoundException;
+>>>>>>> centreon/dev-21.10.x
 use Centreon\Domain\Monitoring\Resource as ResourceEntity;
 use Centreon\Domain\Monitoring\Exception\ResourceException;
 
@@ -116,12 +120,59 @@ interface ResourceServiceInterface
     public function extractResourcesWithGraphData(array $resources): array;
 
     /**
+<<<<<<< HEAD
      * Replace macros set in the external links by their actual values
      *
      * @param ResourceEntity $resource
      * @return void
      */
     public function replaceMacrosInExternalLinks(ResourceEntity $resource): void;
+=======
+     * Enrich resource object with specific host data
+     *
+     * @param ResourceEntity $resource
+     */
+    public function enrichHostWithDetails(ResourceEntity $resource): void;
+
+    /**
+     * Enrich resource object with specific service data
+     *
+     * @param ResourceEntity $resource
+     * @throws ResourceException
+     */
+    public function enrichServiceWithDetails(ResourceEntity $resource): void;
+
+    /**
+     * Enrich resource object with specific meta service data
+     *
+     * @param ResourceEntity $resource
+     * @throws ResourceException
+     */
+    public function enrichMetaServiceWithDetails(ResourceEntity $resource): void;
+
+    /**
+     * Replace macros in the URL provided by their actual values for a Service Resource
+     *
+     * @param int $hostId
+     * @param int $serviceId
+     * @param string $urlType
+     * @return string
+     * @throws \Exception
+     * @throws EntityNotFoundException
+     */
+    public function replaceMacrosInServiceUrl(int $hostId, int $serviceId, string $urlType): string;
+
+    /**
+     * Replace macros in the URL provided by their actual values for a Host Resource
+     *
+     * @param int $hostId
+     * @param string $urlType
+     * @return string
+     * @throws \Exception
+     * @throws EntityNotFoundException
+     */
+    public function replaceMacrosInHostUrl(int $hostId, string $urlType): string;
+>>>>>>> centreon/dev-21.10.x
 
     /**
      * Used to filter requests according to a contact.

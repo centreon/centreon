@@ -1,12 +1,21 @@
+<<<<<<< HEAD
 import { RefObject } from 'react';
+=======
+import * as React from 'react';
+>>>>>>> centreon/dev-21.10.x
 
 import { equals, last, not, isEmpty } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { Dayjs } from 'dayjs';
+<<<<<<< HEAD
 import { useAtomValue } from 'jotai/utils';
 
 import { Typography, Paper } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
+=======
+
+import { Typography, Paper, makeStyles } from '@material-ui/core';
+>>>>>>> centreon/dev-21.10.x
 import {
   Timeline,
   TimelineConnector,
@@ -14,10 +23,17 @@ import {
   TimelineDot,
   TimelineItem,
   TimelineSeparator,
+<<<<<<< HEAD
 } from '@mui/lab';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
+=======
+} from '@material-ui/lab';
+
+import { useUserContext } from '@centreon/ui-context';
+import { useLocaleDateTimeFormat } from '@centreon/centreon-frontend/packages/centreon-ui/src';
+>>>>>>> centreon/dev-21.10.x
 
 import { labelFrom, labelTo } from '../../../../translatedLabels';
 import { TimelineEvent } from '../models';
@@ -57,14 +73,22 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 interface Props {
+<<<<<<< HEAD
   infiniteScrollTriggerRef: RefObject<HTMLDivElement>;
+=======
+  infiniteScrollTriggerRef: React.RefObject<HTMLDivElement>;
+>>>>>>> centreon/dev-21.10.x
   timeline: Array<TimelineEvent>;
 }
 
 const Events = ({ timeline, infiniteScrollTriggerRef }: Props): JSX.Element => {
   const classes = useStyles();
   const { t } = useTranslation();
+<<<<<<< HEAD
   const { locale } = useAtomValue(userAtom);
+=======
+  const { locale } = useUserContext();
+>>>>>>> centreon/dev-21.10.x
   const { format } = useLocaleDateTimeFormat();
 
   const lastEvent = last(timeline.sort(sortEventsByDate));

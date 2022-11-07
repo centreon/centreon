@@ -55,6 +55,10 @@ if (!isset($gopt["nagios_path_img"])) {
     $gopt["nagios_path_img"] = _CENTREON_PATH_ . 'www/img/media/';
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
 $attrsText = array("size" => "40");
 $attrsText2 = array("size" => "5");
 $attrsAdvSelect = null;

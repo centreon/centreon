@@ -54,18 +54,25 @@ class CentreonModuleServiceTest extends TestCase
     use TestCaseExtensionTrait;
     use SourceDependencyTrait;
 
+<<<<<<< HEAD
     /**
      * @var CentreonModuleService|\PHPUnit\Framework\MockObject\MockObject
      */
     private $service;
 
+=======
+>>>>>>> centreon/dev-21.10.x
     protected function setUp(): void
     {
         $this->service = $this->getMockBuilder(CentreonModuleService::class)
             ->onlyMethods([
                 'initSources',
             ])
+<<<<<<< HEAD
             ->setConstructorArgs([new ContainerWrap(new Container())])
+=======
+            ->setConstructorArgs([new ContainerWrap(new Container)])
+>>>>>>> centreon/dev-21.10.x
             ->getMock()
         ;
 
@@ -92,12 +99,17 @@ class CentreonModuleServiceTest extends TestCase
             $sources[$type]
                 ->method('getList')
                 ->will($this->returnCallback(function () use ($type) {
+<<<<<<< HEAD
                     return [$type];
+=======
+                        return [$type];
+>>>>>>> centreon/dev-21.10.x
                 }))
             ;
             $sources[$type]
                 ->method('getDetail')
                 ->will($this->returnCallback(function () use ($type) {
+<<<<<<< HEAD
                     $entity = new Module();
                     $entity->setType($type);
                     $entity->setName($type);
@@ -106,11 +118,22 @@ class CentreonModuleServiceTest extends TestCase
                     $entity->setUpdated(false);
 
                     return $entity;
+=======
+                        $entity = new Module();
+                        $entity->setType($type);
+                        $entity->setName($type);
+                        $entity->setKeywords('test,module,lorem');
+                        $entity->setInstalled(true);
+                        $entity->setUpdated(false);
+
+                        return $entity;
+>>>>>>> centreon/dev-21.10.x
                 }))
             ;
             $sources[$type]
                 ->method('install')
                 ->will($this->returnCallback(function ($id) use ($type) {
+<<<<<<< HEAD
                     $entity = new Module();
                     $entity->setId($id);
                     $entity->setType($type);
@@ -120,11 +143,23 @@ class CentreonModuleServiceTest extends TestCase
                     $entity->setUpdated(false);
 
                     return $entity;
+=======
+                        $entity = new Module();
+                        $entity->setId($id);
+                        $entity->setType($type);
+                        $entity->setName($type);
+                        $entity->setKeywords('test,module,lorem');
+                        $entity->setInstalled(true);
+                        $entity->setUpdated(false);
+
+                        return $entity;
+>>>>>>> centreon/dev-21.10.x
                 }))
             ;
             $sources[$type]
                 ->method('update')
                 ->will($this->returnCallback(function ($id) use ($type) {
+<<<<<<< HEAD
                     $entity = new Module();
                     $entity->setId($id);
                     $entity->setType($type);
@@ -134,11 +169,26 @@ class CentreonModuleServiceTest extends TestCase
                     $entity->setUpdated(false);
 
                     return $entity;
+=======
+                        $entity = new Module();
+                        $entity->setId($id);
+                        $entity->setType($type);
+                        $entity->setName($type);
+                        $entity->setKeywords('test,module,lorem');
+                        $entity->setInstalled(true);
+                        $entity->setUpdated(false);
+
+                        return $entity;
+>>>>>>> centreon/dev-21.10.x
                 }))
             ;
             $sources[$type]
                 ->method('remove')
+<<<<<<< HEAD
                 ->will($this->returnCallback(function ($id) {
+=======
+                ->will($this->returnCallback(function ($id) use ($type) {
+>>>>>>> centreon/dev-21.10.x
                     if ($id === ModuleSourceTest::$moduleName) {
                         throw new \Exception('Removed');
                     }
@@ -150,7 +200,11 @@ class CentreonModuleServiceTest extends TestCase
         $this->setProtectedProperty($this->service, 'sources', $sources);
     }
 
+<<<<<<< HEAD
     public function testGetList(): void
+=======
+    public function testGetList()
+>>>>>>> centreon/dev-21.10.x
     {
         (function () {
             $result = $this->service->getList();
@@ -174,7 +228,11 @@ class CentreonModuleServiceTest extends TestCase
         })();
     }
 
+<<<<<<< HEAD
     public function testGetDetails(): void
+=======
+    public function testGetDetails()
+>>>>>>> centreon/dev-21.10.x
     {
         (function () {
             $result = $this->service->getDetail('test-module', Source\ModuleSource::TYPE);
@@ -190,7 +248,11 @@ class CentreonModuleServiceTest extends TestCase
         })();
     }
 
+<<<<<<< HEAD
     public function testInstall(): void
+=======
+    public function testInstall()
+>>>>>>> centreon/dev-21.10.x
     {
         $result = $this->service->install(ModuleSourceTest::$moduleName, Source\ModuleSource::TYPE);
 
@@ -200,14 +262,22 @@ class CentreonModuleServiceTest extends TestCase
     /**
      * @covers \CentreonModule\Infrastructure\Service\CentreonModuleService::install
      */
+<<<<<<< HEAD
     public function testInstallMissingType(): void
+=======
+    public function testInstallMissingType()
+>>>>>>> centreon/dev-21.10.x
     {
         $result = $this->service->install(ModuleSourceTest::$moduleName, 'missing-type');
 
         $this->assertNull($result);
     }
 
+<<<<<<< HEAD
     public function testUpdate(): void
+=======
+    public function testUpdate()
+>>>>>>> centreon/dev-21.10.x
     {
         $result = $this->service->update(ModuleSourceTest::$moduleName, Source\ModuleSource::TYPE);
 
@@ -217,17 +287,25 @@ class CentreonModuleServiceTest extends TestCase
     /**
      * @covers \CentreonModule\Infrastructure\Service\CentreonModuleService::update
      */
+<<<<<<< HEAD
     public function testUpdateMissingType(): void
+=======
+    public function testUpdateMissingType()
+>>>>>>> centreon/dev-21.10.x
     {
         $result = $this->service->update(ModuleSourceTest::$moduleName, 'missing-type');
 
         $this->assertNull($result);
     }
 
+<<<<<<< HEAD
     /**
      * @throws \Exception
      */
     public function testRemove(): void
+=======
+    public function testRemove()
+>>>>>>> centreon/dev-21.10.x
     {
         (function () {
             $result = null;
@@ -248,7 +326,11 @@ class CentreonModuleServiceTest extends TestCase
     /**
      * @covers \CentreonModule\Infrastructure\Service\CentreonModuleService::remove
      */
+<<<<<<< HEAD
     public function testRemoveMissingType(): void
+=======
+    public function testRemoveMissingType()
+>>>>>>> centreon/dev-21.10.x
     {
         $result = $this->service->remove(ModuleSourceTest::$moduleName, 'missing-type');
 
@@ -258,12 +340,21 @@ class CentreonModuleServiceTest extends TestCase
     /**
      * @covers \CentreonModule\Infrastructure\Service\CentreonModuleService::initSources
      */
+<<<<<<< HEAD
     public function testInitSources(): void
     {
         $container = new Container();
         $container['finder'] = null;
         $container['configuration'] = $this->createMock(Configuration::class);
         $container[\Centreon\ServiceProvider::CENTREON_DB_MANAGER] = new Mock\CentreonDBManagerService();
+=======
+    public function testInitSources()
+    {
+        $container = new Container;
+        $container['finder'] = null;
+        $container['configuration'] = $this->createMock(Configuration::class);
+        $container[\Centreon\ServiceProvider::CENTREON_DB_MANAGER] = new Mock\CentreonDBManagerService;
+>>>>>>> centreon/dev-21.10.x
 
         // Data sets
         $queries = array_merge(ModuleSourceTest::$sqlQueryVsData, WidgetSourceTest::$sqlQueryVsData);
@@ -284,7 +375,11 @@ class CentreonModuleServiceTest extends TestCase
         $this->assertInstanceOf(Source\WidgetSource::class, $sources[Source\WidgetSource::TYPE]);
     }
 
+<<<<<<< HEAD
     public function testSortList(): void
+=======
+    public function testSortList()
+>>>>>>> centreon/dev-21.10.x
     {
         $service = $this->createMock(CentreonModuleService::class);
 
@@ -298,6 +393,7 @@ class CentreonModuleServiceTest extends TestCase
         ];
         $list = [
             (function () {
+<<<<<<< HEAD
                 $entity = new Module();
                 $entity->setName('B');
                 $entity->setInstalled(true);
@@ -344,6 +440,54 @@ class CentreonModuleServiceTest extends TestCase
                 $entity->setUpdated(false);
 
                 return $entity;
+=======
+                    $entity = new Module;
+                    $entity->setName('B');
+                    $entity->setInstalled(true);
+                    $entity->setUpdated(true);
+
+                    return $entity;
+            })(),
+            (function () {
+                    $entity = new Module;
+                    $entity->setName('A');
+                    $entity->setInstalled(true);
+                    $entity->setUpdated(true);
+
+                    return $entity;
+            })(),
+            (function () {
+                    $entity = new Module;
+                    $entity->setName('B');
+                    $entity->setInstalled(true);
+                    $entity->setUpdated(false);
+
+                    return $entity;
+            })(),
+            (function () {
+                    $entity = new Module;
+                    $entity->setName('C');
+                    $entity->setInstalled(true);
+                    $entity->setUpdated(false);
+
+                    return $entity;
+            })(),
+            (function () {
+                    $entity = new Module;
+                    $entity->setName('D');
+                    $entity->setInstalled(false);
+                    $entity->setUpdated(false);
+
+                    return $entity;
+            })(),
+            (function () {
+                    $entity = new Module;
+                    $entity->setName('F');
+                    $entity->setInstalled(false);
+                    $entity->setUpdated(false);
+
+                    return $entity;
+>>>>>>> centreon/dev-21.10.x
             })(),
         ];
         $list = $this->invokeMethod($service, 'sortList', [$list]);

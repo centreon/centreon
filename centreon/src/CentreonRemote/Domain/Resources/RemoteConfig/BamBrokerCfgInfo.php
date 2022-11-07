@@ -1,5 +1,6 @@
 <?php
 
+<<<<<<< HEAD
 /*
  * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
  *
@@ -19,6 +20,8 @@
  *
  */
 
+=======
+>>>>>>> centreon/dev-21.10.x
 namespace CentreonRemote\Domain\Resources\RemoteConfig;
 
 /**
@@ -31,7 +34,11 @@ class BamBrokerCfgInfo
      * @todo move it as yml
      *
      * @param string $dbPassword the centreon database password
+<<<<<<< HEAD
      * @return array<string, array<int, string[]>> the configuration template
+=======
+     * @return array the configuration template
+>>>>>>> centreon/dev-21.10.x
      */
     public static function getConfiguration(string $dbPassword): array
     {

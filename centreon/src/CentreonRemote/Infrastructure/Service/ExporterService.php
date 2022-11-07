@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 /*
  * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
@@ -19,6 +20,8 @@
  *
  */
 
+=======
+>>>>>>> centreon/dev-21.10.x
 namespace CentreonRemote\Infrastructure\Service;
 
 use Centreon\Infrastructure\Service\Exception\NotFoundException;
@@ -28,12 +31,18 @@ use Centreon\Infrastructure\Service\Traits\ServiceContainerTrait;
 
 class ExporterService implements ContainerInterface
 {
+<<<<<<< HEAD
     use ServiceContainerTrait;
 
     /**
      * @param string $object
      * @param callable $factory
      */
+=======
+
+    use ServiceContainerTrait;
+
+>>>>>>> centreon/dev-21.10.x
     public function add(string $object, callable $factory): void
     {
         $interface = ExporterServiceInterface::class;
@@ -54,10 +63,13 @@ class ExporterService implements ContainerInterface
         $this->sort();
     }
 
+<<<<<<< HEAD
     /**
      * @param string $id
      * @return bool
      */
+=======
+>>>>>>> centreon/dev-21.10.x
     public function has($id): bool
     {
         $result = $this->getKey($id);
@@ -65,10 +77,13 @@ class ExporterService implements ContainerInterface
         return $result !== null;
     }
 
+<<<<<<< HEAD
     /**
      * @param string $id
      * @return int[]
      */
+=======
+>>>>>>> centreon/dev-21.10.x
     public function get($id): array
     {
         $key = $this->getKey($id);
@@ -81,10 +96,13 @@ class ExporterService implements ContainerInterface
         return $result;
     }
 
+<<<<<<< HEAD
     /**
      * @param string $id
      * @return int|null
      */
+=======
+>>>>>>> centreon/dev-21.10.x
     private function getKey($id): ?int
     {
         foreach ($this->objects as $key => $object) {

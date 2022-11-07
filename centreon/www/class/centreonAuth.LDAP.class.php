@@ -40,6 +40,10 @@ require_once _CENTREON_PATH_ . 'www/class/centreonLDAP.class.php';
  */
 class CentreonAuthLDAP
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     protected $pearDB;
     protected $ldap;
     protected $CentreonLog;
@@ -111,8 +115,12 @@ class CentreonAuthLDAP
             $this->contactInfos['contact_ldap_dn'] = $this->ldap->findUserDn($this->contactInfos['contact_alias']);
 
         /* Validate if user exists in this resource */
+<<<<<<< HEAD
         } elseif (
             isset($this->contactInfos['contact_ldap_dn'])
+=======
+        } elseif (isset($this->contactInfos['contact_ldap_dn'])
+>>>>>>> centreon/dev-21.10.x
             && $this->contactInfos['contact_ldap_dn'] != ''
             && $this->ldap->findUserDn($this->contactInfos['contact_alias']) !== $this->contactInfos['contact_ldap_dn']
         ) {
@@ -227,8 +235,12 @@ class CentreonAuthLDAP
 
             //getting user's email
             $userEmail = $this->contactInfos['contact_email'];
+<<<<<<< HEAD
             if (
                 isset($userInfos[$this->ldap->getAttrName('user', 'email')])
+=======
+            if (isset($userInfos[$this->ldap->getAttrName('user', 'email')])
+>>>>>>> centreon/dev-21.10.x
                 && trim($userInfos[$this->ldap->getAttrName('user', 'email')]) != ''
             ) {
                 if (is_array($userInfos[$this->ldap->getAttrName('user', 'email')])) {
@@ -242,8 +254,12 @@ class CentreonAuthLDAP
             }
             //getting user's pager
             $userPager = $this->contactInfos['contact_pager'];
+<<<<<<< HEAD
             if (
                 isset($userInfos[$this->ldap->getAttrName('user', 'pager')])
+=======
+            if (isset($userInfos[$this->ldap->getAttrName('user', 'pager')])
+>>>>>>> centreon/dev-21.10.x
                 && trim($userInfos[$this->ldap->getAttrName('user', 'pager')]) != ''
             ) {
                 if (is_array($userInfos[$this->ldap->getAttrName('user', 'pager')])) {
@@ -271,8 +287,12 @@ class CentreonAuthLDAP
                 );
                 try {
                     // checking if the LDAP synchronization on login is enabled or needed
+<<<<<<< HEAD
                     if (
                         !$this->ldap->isSyncNeededAtLogin($this->arId, $this->contactInfos['contact_id'])
+=======
+                    if (!$this->ldap->isSyncNeededAtLogin($this->arId, $this->contactInfos['contact_id'])
+>>>>>>> centreon/dev-21.10.x
                     ) {
                         // skipping the update
                         return true;

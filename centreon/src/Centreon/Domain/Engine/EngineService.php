@@ -110,8 +110,13 @@ class EngineService extends AbstractCentreonService implements
             'ACKNOWLEDGE_HOST_PROBLEM;%s;%d;%d;%d;%s;%s',
             $host->getName(),
             $acknowledgement->isSticky()
+<<<<<<< HEAD
                 ? self::ACKNOWLEDGEMENT_WITH_STICKY_OPTION
                 : self::ACKNOWLEDGEMENT_WITH_NO_STICKY_OPTION,
+=======
+                ? static::ACKNOWLEDGEMENT_WITH_STICKY_OPTION
+                : static::ACKNOWLEDGEMENT_WITH_NO_STICKY_OPTION,
+>>>>>>> centreon/dev-21.10.x
             (int) $acknowledgement->isNotifyContacts(),
             (int) $acknowledgement->isPersistentComment(),
             $this->contact->getAlias(),
@@ -144,8 +149,13 @@ class EngineService extends AbstractCentreonService implements
             $service->getHost()->getName(),
             $service->getDescription(),
             $acknowledgement->isSticky()
+<<<<<<< HEAD
                 ? self::ACKNOWLEDGEMENT_WITH_STICKY_OPTION
                 : self::ACKNOWLEDGEMENT_WITH_NO_STICKY_OPTION,
+=======
+                ? static::ACKNOWLEDGEMENT_WITH_STICKY_OPTION
+                : static::ACKNOWLEDGEMENT_WITH_NO_STICKY_OPTION,
+>>>>>>> centreon/dev-21.10.x
             (int) $acknowledgement->isNotifyContacts(),
             (int) $acknowledgement->isPersistentComment(),
             $this->contact->getAlias(),
@@ -314,6 +324,7 @@ class EngineService extends AbstractCentreonService implements
     /**
      * @inheritDoc
      */
+<<<<<<< HEAD
     public function findCentralEngineConfiguration(): ?EngineConfiguration
     {
         try {
@@ -330,6 +341,8 @@ class EngineService extends AbstractCentreonService implements
     /**
      * @inheritDoc
      */
+=======
+>>>>>>> centreon/dev-21.10.x
     public function findEngineConfigurationByHost(\Centreon\Domain\HostConfiguration\Host $host): ?EngineConfiguration
     {
         if ($host->getId() === null) {

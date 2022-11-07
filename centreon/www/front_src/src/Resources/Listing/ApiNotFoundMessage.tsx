@@ -1,6 +1,14 @@
+<<<<<<< HEAD
 import { useTranslation } from 'react-i18next';
 
 import { Link } from '@mui/material';
+=======
+import * as React from 'react';
+
+import { useTranslation } from 'react-i18next';
+
+import { Link } from '@material-ui/core';
+>>>>>>> centreon/dev-21.10.x
 
 import {
   labelApiNotFoundNotUpToDate,

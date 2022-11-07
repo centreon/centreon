@@ -28,10 +28,17 @@ default:
       paths: [ "%paths.base%/features/RealTimeMonitoringServer.feature" ]
       contexts:
         - Centreon\Test\Api\Context\RealTimeMonitoringServerContext
+<<<<<<< HEAD
     local_authentication:
       paths: [ "%paths.base%/features/LocalAuthentication.feature" ]
       contexts:
         - Centreon\Test\Api\Context\LocalAuthenticationContext
+=======
+    authentication:
+      paths: [ "%paths.base%/features/Authentication.feature" ]
+      contexts:
+        - Centreon\Test\Api\Context\AuthenticationContext
+>>>>>>> centreon/dev-21.10.x
     user_filter:
       paths: [ "%paths.base%/features/UserFilter.feature" ]
       contexts:
@@ -40,10 +47,13 @@ default:
       paths: [ "%paths.base%/features/UserParameters.feature" ]
       contexts:
         - Centreon\Test\Api\Context\UserParametersContext
+<<<<<<< HEAD
     user_configuration:
       paths: [ "%paths.base%/features/ConfigurationUsers.feature" ]
       contexts:
         - Centreon\Test\Behat\Api\Context\ApiContext
+=======
+>>>>>>> centreon/dev-21.10.x
     check:
       paths: [ "%paths.base%/features/Check.feature" ]
       contexts:

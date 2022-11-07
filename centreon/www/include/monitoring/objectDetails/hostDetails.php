@@ -725,6 +725,7 @@ if (!$is_admin && !$haveAccess) {
             $tpl->assign("h_ext_icon_image_alt", getMyHostExtendedInfoField($hostDB["host_id"], "ehi_icon_image_alt"));
         }
 
+<<<<<<< HEAD
         /*
          * Dynamics tools
          */
@@ -759,6 +760,8 @@ if (!$is_admin && !$haveAccess) {
             $tpl->assign("tools", $tools);
         }
 
+=======
+>>>>>>> centreon/dev-21.10.x
         // Check if central or remote server
         $DBRESULT = $pearDB->query("SELECT `value` FROM `informations` WHERE `key` = 'isRemote'");
         $result = $DBRESULT->fetchRow();

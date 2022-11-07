@@ -113,7 +113,11 @@ class Utils
 
     /**
      *
+<<<<<<< HEAD
      * @param string $fileName
+=======
+     * @param type $fileName
+>>>>>>> centreon/dev-21.10.x
      * @throws \Exception
      */
     public function executePhpFile($fileName)
@@ -215,9 +219,12 @@ class Utils
             case 'sha1':
                 $encodePassword .= 'sha1__' . sha1($password);
                 break;
+<<<<<<< HEAD
             case PASSWORD_BCRYPT:
                 $encodePassword = password_hash($password, PASSWORD_BCRYPT);
                 break;
+=======
+>>>>>>> centreon/dev-21.10.x
             default:
                 $encodePassword .= 'md5__' . md5($password);
                 break;

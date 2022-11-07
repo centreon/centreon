@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 /*
  * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
@@ -19,6 +20,8 @@
  *
  */
 
+=======
+>>>>>>> centreon/dev-21.10.x
 namespace CentreonRemote\Infrastructure\Export;
 
 use CentreonRemote\Infrastructure\Export\ExportParserInterface;
@@ -26,11 +29,15 @@ use Symfony\Component\Yaml\Yaml;
 
 class ExportParserYaml implements ExportParserInterface
 {
+<<<<<<< HEAD
     /**
      * @param string $filename
      * @param callable|null $macros
      * @return array<mixed>
      */
+=======
+
+>>>>>>> centreon/dev-21.10.x
     public function parse(string $filename, callable $macros = null): array
     {
         if (!file_exists($filename)) {
@@ -48,10 +55,13 @@ class ExportParserYaml implements ExportParserInterface
         return $value;
     }
 
+<<<<<<< HEAD
     /**
      * @param string[] $input
      * @param string $filename
      */
+=======
+>>>>>>> centreon/dev-21.10.x
     public function dump(array $input, string $filename): void
     {
         if (!$input) {

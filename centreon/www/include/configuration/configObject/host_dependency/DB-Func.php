@@ -123,11 +123,22 @@ function multipleHostDependencyInDB($dependencies = array(), $nbrDup = array())
                         "WHERE dependency_dep_id = " . $key;
                     $dbResult = $pearDB->query($query);
                     $fields["dep_serviceChilds"] = "";
+<<<<<<< HEAD
                     while ($service = $dbResult->fetch()) {
                         $query = "INSERT INTO dependency_serviceChild_relation VALUES ('" .
                             $maxId["MAX(dep_id)"] . "', '" . $service["service_service_id"] . "', '" .
                             $service["host_host_id"] . "')";
                         $pearDB->query($query);
+=======
+                    $statement = $pearDB->prepare("INSERT INTO dependency_serviceChild_relation " .
+                        " VALUES (:max_dep_id, :service_id, :host_host_id)");
+                    while ($service = $dbResult->fetch()) {
+                        $statement->bindValue(':max_dep_id', (int)$maxId["MAX(dep_id)"], \PDO::PARAM_INT);
+                        $statement->bindValue(':service_id', (int)$service["service_service_id"], \PDO::PARAM_INT);
+                        $statement->bindValue(':host_host_id', (int)$service["host_host_id"], \PDO::PARAM_INT);
+                        $statement->execute();
+
+>>>>>>> centreon/dev-21.10.x
                         $fields["dep_serviceChilds"] .= $service["host_host_id"] .
                             '-' . $service["service_service_id"] . ",";
                     }
@@ -136,10 +147,19 @@ function multipleHostDependencyInDB($dependencies = array(), $nbrDup = array())
                         "WHERE dependency_dep_id = '" . $key . "'";
                     $dbResult = $pearDB->query($query);
                     $fields["dep_hostParents"] = "";
+<<<<<<< HEAD
                     while ($host = $dbResult->fetch()) {
                         $query = "INSERT INTO dependency_hostParent_relation " .
                             "VALUES ('" . $maxId["MAX(dep_id)"] . "', '" . $host["host_host_id"] . "')";
                         $pearDB->query($query);
+=======
+                    $statement = $pearDB->prepare("INSERT INTO dependency_hostParent_relation " .
+                        "VALUES (:max_dep_id, :host_host_id)");
+                    while ($host = $dbResult->fetch()) {
+                        $statement->bindValue(':max_dep_id', (int)$maxId["MAX(dep_id)"], \PDO::PARAM_INT);
+                        $statement->bindValue(':host_host_id', (int)$host["host_host_id"], \PDO::PARAM_INT);
+                        $statement->execute();
+>>>>>>> centreon/dev-21.10.x
                         $fields["dep_hostParents"] .= $host["host_host_id"] . ",";
                     }
                     $fields["dep_hostParents"] = trim($fields["dep_hostParents"], ",");
@@ -148,10 +168,19 @@ function multipleHostDependencyInDB($dependencies = array(), $nbrDup = array())
                         "WHERE dependency_dep_id = '" . $key . "'";
                     $dbResult = $pearDB->query($query);
                     $fields["dep_hostChilds"] = "";
+<<<<<<< HEAD
                     while ($host = $dbResult->fetch()) {
                         $query = "INSERT INTO dependency_hostChild_relation " .
                             "VALUES ('" . $maxId["MAX(dep_id)"] . "', '" . $host["host_host_id"] . "')";
                         $pearDB->query($query);
+=======
+                    $statement = $pearDB->prepare("INSERT INTO dependency_hostChild_relation " .
+                        "VALUES (:max_dep_id, :host_host_id)");
+                    while ($host = $dbResult->fetch()) {
+                        $statement->bindValue(':max_dep_id', (int)$maxId["MAX(dep_id)"], \PDO::PARAM_INT);
+                        $statement->bindValue(':host_host_id', (int)$host["host_host_id"], \PDO::PARAM_INT);
+                        $statement->execute();
+>>>>>>> centreon/dev-21.10.x
                         $fields["dep_hostChilds"] .= $host["host_host_id"] . ",";
                     }
                     $fields["dep_hostChilds"] = trim($fields["dep_hostChilds"], ",");

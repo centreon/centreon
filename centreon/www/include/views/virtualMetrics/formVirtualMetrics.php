@@ -236,7 +236,11 @@ if ($o == METRIC_MODIFY || $o == METRIC_ADD) {
             var e_txtarea = document.Form.rpn_function;
             var e_select = document.getElementById('sl_list_metrics');
             var sd_o = e_select.selectedIndex;
+<<<<<<< HEAD
             if (sd_o != 0) {
+=======
+            if (sd_o != -1) {
+>>>>>>> centreon/dev-21.10.x
                 var chaineAj = '';
                 chaineAj = e_select.options[sd_o].text;
                 //chaineAj = chaineAj.substring(0, chaineAj.length - 3);
@@ -329,7 +333,11 @@ if ($valid) {
     $tpl->display("formVirtualMetrics.ihtml");
 }
 $vdef = 1; /* Display VDEF too */
+<<<<<<< HEAD
 include_once("./include/views/graphs/common/makeJS_formMetricsList.php");
+=======
+
+>>>>>>> centreon/dev-21.10.x
 if ($o == METRIC_MODIFY || $o == METRIC_WATCH) {
     isset($_POST["host_id"]) && $_POST["host_id"] != null
         ? $host_service_id = $_POST["host_id"]
@@ -340,11 +348,30 @@ if ($o == METRIC_MODIFY || $o == METRIC_WATCH) {
         : $host_service_id = 0;
 }
 ?>
+<<<<<<< HEAD
 
 <script type="text/javascript">
     update_select_list('<?php echo $host_service_id;?>');
 
     jQuery("#host_id").on('change', function () {
         update_select_list(this.value);
+=======
+<script type="text/javascript">
+    jQuery(function () {
+        jQuery('#sl_list_metrics').centreonSelect2({
+            select2: {
+                ajax: {
+                    url: './api/internal.php?object=centreon_metric&action=ListOfMetricsByService'
+                },
+                placeholder: "List of known metrics",
+                containerCssClass: 'filter-select'
+            },
+            multiple: false,
+            allowClear: true,
+            additionnalFilters: {
+                id: '#host_id',
+            }
+        });
+>>>>>>> centreon/dev-21.10.x
     });
 </script>

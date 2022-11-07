@@ -321,7 +321,11 @@ if (!$isRemote) {
             "link" => "./poller-wizard/1",
             "text" => _("Add"),
             "class" => "btc bt-poller-action bt_success",
+<<<<<<< HEAD
             "icon" => returnSvg("www/img/icons/add.svg", "var(--button-icons-fill-color)", 16, 16)
+=======
+            "iconClass" => "ui-icon-plus"
+>>>>>>> centreon/dev-21.10.x
         )
     );
 
@@ -331,7 +335,11 @@ if (!$isRemote) {
             "link" => "main.php?p=" . $p . "&o=a",
             "text" => _("Add (advanced)"),
             "class" => "btc bt-poller-action bt_success",
+<<<<<<< HEAD
             "icon" => returnSvg("www/img/icons/add.svg", "var(--button-icons-fill-color)", 16, 16)
+=======
+            "iconClass" => "ui-icon-plus"
+>>>>>>> centreon/dev-21.10.x
         )
     );
 
@@ -342,7 +350,11 @@ if (!$isRemote) {
             "text" => _("Duplicate"),
             "class" => "btc bt-poller-action bt_success",
             "name" => "duplicate_action",
+<<<<<<< HEAD
             "icon" => returnSvg("www/img/icons/duplicate.svg", "var(--button-icons-fill-color)", 16, 14),
+=======
+            "iconClass" => "ui-icon-copy",
+>>>>>>> centreon/dev-21.10.x
             "onClickAction" => "javascript: " .
                 " var bChecked = isChecked(); " .
                 " if (!bChecked) { alert('" . _("Please select one or more items") . "'); return false;} " .
@@ -356,7 +368,11 @@ if (!$isRemote) {
             "text" => _("Delete"),
             "class" => "btc bt-poller-action bt_danger",
             "name" => "delete_action",
+<<<<<<< HEAD
             "icon" => returnSvg("www/img/icons/trash.svg", "var(--button-icons-fill-color)", 16, 16),
+=======
+            "iconClass" => "ui-icon-trash",
+>>>>>>> centreon/dev-21.10.x
             "onClickAction" => "javascript: " .
                 " var bChecked = isChecked(); " .
                 " if (!bChecked) { alert('" . _("Please select one or more items") . "'); return false;} " .
@@ -373,7 +389,11 @@ if (!$isRemote) {
             "text" => _("Export configuration"),
             "class" => "btc bt-poller-action bt_info",
             "name" => "apply_configuration",
+<<<<<<< HEAD
             "icon" => returnSvg("www/img/icons/export.svg", "var(--button-icons-fill-color)", 14, 14),
+=======
+            "iconClass" => "ui-icon-extlink",
+>>>>>>> centreon/dev-21.10.x
             "onClickAction" => "applyConfiguration();"
         )
     );

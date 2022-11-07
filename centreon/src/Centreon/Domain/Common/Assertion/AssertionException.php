@@ -120,6 +120,7 @@ class AssertionException extends \InvalidArgumentException
     }
 
     /**
+<<<<<<< HEAD
      * Exception when the value does not respect email format.
      *
      * @param string $value Tested value
@@ -138,6 +139,8 @@ class AssertionException extends \InvalidArgumentException
     }
 
     /**
+=======
+>>>>>>> centreon/dev-21.10.x
      * Exception when the value of the date is higher than the expected date.
      *
      * @param \DateTime $date Tested date
@@ -208,6 +211,7 @@ class AssertionException extends \InvalidArgumentException
             )
         );
     }
+<<<<<<< HEAD
 
     /**
      * Exception when the value is not expected.
@@ -284,4 +288,6 @@ class AssertionException extends \InvalidArgumentException
             )
         );
     }
+=======
+>>>>>>> centreon/dev-21.10.x
 }

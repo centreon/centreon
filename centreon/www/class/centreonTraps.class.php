@@ -172,6 +172,7 @@ class CentreonTraps
 
     /**
      *
+<<<<<<< HEAD
      * tests if trap already exists
      * @param $oid
      */
@@ -203,6 +204,8 @@ class CentreonTraps
 
     /**
      *
+=======
+>>>>>>> centreon/dev-21.10.x
      * Delete Traps
      * @param $traps
      */

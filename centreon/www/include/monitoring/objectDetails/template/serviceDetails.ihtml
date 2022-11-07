@@ -135,8 +135,13 @@
                             <tr class='list_two'>
                                 <td class="ListColLeft ColPopup">{$m_mon_last_update}</td>
                                 <td class="ListColLeft ColPopup
+<<<<<<< HEAD
                                     {if !isset($service_data.last_update) || ($service_data.last_update == 0)}
                                 "> {else} isTimestamp">{$service_data.last_update} {/if}</td>
+=======
+                                    {if !isset($service_data.status_update_time) || ($service_data.status_update_time == 0)}
+                                "> {else} isTimestamp">{$service_data.status_update_time} {/if}</td>
+>>>>>>> centreon/dev-21.10.x
                             </tr>
                             {if $service_data.command_line}
                             <tr class='list_one'>
@@ -154,6 +159,7 @@
                         </table>
                     </td>
                 </tr>
+<<<<<<< HEAD
 
                 <tr>
                     <td>
@@ -179,6 +185,8 @@
                         {/if}
                     </td>
                 </tr>
+=======
+>>>>>>> centreon/dev-21.10.x
                 <tr>
                     <td>
                         {if $index_data}
@@ -187,9 +195,13 @@
                               <td class="FormHeader" colspan="2">
                                 <h4>
                                   {$detailed_graph}<a href="./main.php?p=20401&mode=0&svc_id={$url_svc_id}">
+<<<<<<< HEAD
                                         <span class="ico-18 pull-right">
                                             {$chartIcon}
                                         </span>
+=======
+                                    <img class="ico-18 pull-right" src="./img/icons/chart.png"/>
+>>>>>>> centreon/dev-21.10.x
                                   </a>
                                 </h4>
                               </td>

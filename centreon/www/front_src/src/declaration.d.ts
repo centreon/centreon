@@ -14,6 +14,9 @@ declare module '*.svg' {
   export const ReactComponent;
   export default content;
 }
+<<<<<<< HEAD
 
 declare module '*.png';
 declare module '*.jpg';
+=======
+>>>>>>> centreon/dev-21.10.x

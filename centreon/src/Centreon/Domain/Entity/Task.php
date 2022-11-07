@@ -9,17 +9,30 @@ class Task implements EntityInterface
     /**
      * Task types
      */
+<<<<<<< HEAD
     public const TYPE_EXPORT = 'export';
     public const TYPE_IMPORT = 'import';
     public const TYPE_VERIFY = 'verify';
+=======
+    const TYPE_EXPORT = 'export';
+    const TYPE_IMPORT = 'import';
+    const TYPE_VERIFY = 'verify';
+>>>>>>> centreon/dev-21.10.x
 
     /**
      * Task states
      */
+<<<<<<< HEAD
     public const STATE_PENDING = 'pending';
     public const STATE_PROGRESS = 'inprogress';
     public const STATE_COMPLETED = 'completed';
     public const STATE_FAILED = 'failed';
+=======
+    const STATE_PENDING = 'pending';
+    const STATE_PROGRESS = 'inprogress';
+    const STATE_COMPLETED = 'completed';
+    const STATE_FAILED = 'failed';
+>>>>>>> centreon/dev-21.10.x
 
     /**
      * Task type
@@ -56,7 +69,11 @@ class Task implements EntityInterface
 
     /**
      * Parameters to be serialized into DB that define task options
+<<<<<<< HEAD
      * @var string
+=======
+     * @var array
+>>>>>>> centreon/dev-21.10.x
      */
     private $params;
 
@@ -74,6 +91,7 @@ class Task implements EntityInterface
     }
 
     /**
+<<<<<<< HEAD
      * @param int $id
      */
     public function setId(int $id): void
@@ -82,6 +100,8 @@ class Task implements EntityInterface
     }
 
     /**
+=======
+>>>>>>> centreon/dev-21.10.x
      * @return string
      */
     public function getType(): string
@@ -179,7 +199,10 @@ class Task implements EntityInterface
 
     /**
      * convert parameters to array
+<<<<<<< HEAD
      * @return array<string,string|int>
+=======
+>>>>>>> centreon/dev-21.10.x
      */
     public function toArray(): array
     {
@@ -194,6 +217,7 @@ class Task implements EntityInterface
 
     /**
      * return all statuses
+<<<<<<< HEAD
      * @return array<mixed>
      */
     public function getStatuses()
@@ -201,6 +225,14 @@ class Task implements EntityInterface
         $ref = new ReflectionClass(__CLASS__);
         $constants = $ref->getConstants();
         $statusConstants = $this->arrayFilterKey($constants, function ($key) {
+=======
+     */
+    public function getStatuses(): array
+    {
+        $ref = new ReflectionClass(__CLASS__);
+        $constants = $ref->getConstants();
+        $statusConstants = self::array_filter_key($constants, function ($key) {
+>>>>>>> centreon/dev-21.10.x
             return strpos($key, 'STATE_') === 0;
         });
         $statuses = [];
@@ -212,6 +244,7 @@ class Task implements EntityInterface
 
     /**
      * Filters array keys
+<<<<<<< HEAD
      * @param array<mixed> $input
      * @param mixed $callback
      * @return array<mixed>|null
@@ -220,6 +253,16 @@ class Task implements EntityInterface
     {
         if (!is_array($input)) {
             trigger_error('arrayFilterKey() expects parameter 1 to be array, ' . gettype($input) .
+=======
+     * @param $input
+     * @param $callback
+     * @return array|null
+     */
+    private function array_filter_key($input, $callback)
+    {
+        if (!is_array($input)) {
+            trigger_error('array_filter_key() expects parameter 1 to be array, ' . gettype($input) .
+>>>>>>> centreon/dev-21.10.x
                 ' given', E_USER_WARNING);
             return null;
         }

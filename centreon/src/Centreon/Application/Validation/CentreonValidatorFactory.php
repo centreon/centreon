@@ -45,6 +45,10 @@ use Pimple\Container;
 
 class CentreonValidatorFactory implements ConstraintValidatorFactoryInterface
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * @var \Pimple\Container
      */

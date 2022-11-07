@@ -103,6 +103,12 @@ class CentreonSession
      */
     public static function checkSession($sessionId, CentreonDB $db): bool
     {
+<<<<<<< HEAD
+=======
+        // First, Drop expired sessions
+        self::deleteExpiredSession($db);
+
+>>>>>>> centreon/dev-21.10.x
         if (empty($sessionId)) {
             return false;
         }
@@ -113,6 +119,30 @@ class CentreonSession
     }
 
     /**
+<<<<<<< HEAD
+=======
+     * Delete all expired sessions
+     * @param CentreonDB $db
+     */
+    public static function deleteExpiredSession(CentreonDB $db): void
+    {
+        $db->query(
+            "DELETE FROM `session`
+            WHERE last_reload <
+                (SELECT UNIX_TIMESTAMP(NOW() - INTERVAL (`value` * 60) SECOND)
+                FROM `options`
+                WHERE `key` = 'session_expire')
+            OR last_reload IS NULL"
+        );
+
+        $db->query(
+            "DELETE FROM `security_token`
+            WHERE expiration_date < UNIX_TIMESTAMP(NOW())"
+        );
+    }
+
+    /**
+>>>>>>> centreon/dev-21.10.x
      * Update session to keep alive
      *
      * @param \CentreonDB $pearDB

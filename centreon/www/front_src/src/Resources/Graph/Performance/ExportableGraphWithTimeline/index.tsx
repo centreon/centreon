@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { MutableRefObject, useEffect, useMemo, useRef, useState } from 'react';
 
 import { path, isNil, or, not } from 'ramda';
@@ -8,6 +9,16 @@ import makeStyles from '@mui/styles/makeStyles';
 
 import { useRequest, ListingModel } from '@centreon/ui';
 import { userAtom } from '@centreon/ui-context';
+=======
+import * as React from 'react';
+
+import { path, isNil, or, not } from 'ramda';
+
+import { Paper, Theme, makeStyles } from '@material-ui/core';
+
+import { useRequest, ListingModel } from '@centreon/ui';
+import { useUserContext } from '@centreon/ui-context';
+>>>>>>> centreon/dev-21.10.x
 
 import { TimelineEvent } from '../../../Details/tabs/Timeline/models';
 import { listTimelineEvents } from '../../../Details/tabs/Timeline/api';
@@ -17,6 +28,7 @@ import { Resource } from '../../../models';
 import { ResourceDetails } from '../../../Details/models';
 import { GraphOptionId } from '../models';
 import { useIntersection } from '../useGraphIntersection';
+<<<<<<< HEAD
 import {
   adjustTimePeriodDerivedAtom,
   customTimePeriodAtom,
@@ -28,6 +40,12 @@ import {
 import { detailsAtom } from '../../../Details/detailsAtoms';
 
 import { graphOptionsAtom } from './graphOptionsAtoms';
+=======
+import { useResourceContext } from '../../../Context';
+import { ResourceGraphMousePosition } from '../../../Details/tabs/Services/Graphs';
+
+import { defaultGraphOptions, useGraphOptionsContext } from './useGraphOptions';
+>>>>>>> centreon/dev-21.10.x
 
 const useStyles = makeStyles((theme: Theme) => ({
   graph: {
@@ -38,7 +56,10 @@ const useStyles = makeStyles((theme: Theme) => ({
   graphContainer: {
     display: 'grid',
     gridTemplateRows: '1fr',
+<<<<<<< HEAD
     height: '93%',
+=======
+>>>>>>> centreon/dev-21.10.x
     padding: theme.spacing(2, 1, 1),
   },
 }));
@@ -47,16 +68,41 @@ interface Props {
   graphHeight: number;
   limitLegendRows?: boolean;
   resource?: Resource | ResourceDetails;
+<<<<<<< HEAD
+=======
+  resourceGraphMousePosition?: ResourceGraphMousePosition | null;
+  updateResourceGraphMousePosition?: (
+    resourceGraphMousePosition: ResourceGraphMousePosition | null,
+  ) => void;
+>>>>>>> centreon/dev-21.10.x
 }
 
 const ExportablePerformanceGraphWithTimeline = ({
   resource,
   graphHeight,
   limitLegendRows,
+<<<<<<< HEAD
 }: Props): JSX.Element => {
   const classes = useStyles();
 
   const [timeline, setTimeline] = useState<Array<TimelineEvent>>();
+=======
+  updateResourceGraphMousePosition,
+  resourceGraphMousePosition,
+}: Props): JSX.Element => {
+  const classes = useStyles();
+
+  const {
+    customTimePeriod,
+    getIntervalDates,
+    periodQueryParameters,
+    adjustTimePeriod,
+    selectedTimePeriod,
+    resourceDetailsUpdated,
+  } = useResourceContext();
+
+  const [timeline, setTimeline] = React.useState<Array<TimelineEvent>>();
+>>>>>>> centreon/dev-21.10.x
   const { sendRequest: sendGetTimelineRequest } = useRequest<
     ListingModel<TimelineEvent>
   >({
@@ -64,6 +110,7 @@ const ExportablePerformanceGraphWithTimeline = ({
     request: listTimelineEvents,
   });
 
+<<<<<<< HEAD
   const { alias } = useAtomValue(userAtom);
   const graphOptions = useAtomValue(graphOptionsAtom);
   const getGraphQueryParameters = useAtomValue(graphQueryParametersDerivedAtom);
@@ -75,6 +122,13 @@ const ExportablePerformanceGraphWithTimeline = ({
   const adjustTimePeriod = useUpdateAtom(adjustTimePeriodDerivedAtom);
 
   const graphContainerRef = useRef<HTMLElement | null>(null);
+=======
+  const { alias } = useUserContext();
+
+  const graphOptions =
+    useGraphOptionsContext()?.graphOptions || defaultGraphOptions;
+  const graphContainerRef = React.useRef<HTMLElement | null>(null);
+>>>>>>> centreon/dev-21.10.x
 
   const { setElement, isInViewport } = useIntersection();
 
@@ -96,7 +150,11 @@ const ExportablePerformanceGraphWithTimeline = ({
       return;
     }
 
+<<<<<<< HEAD
     const [start, end] = getIntervalDates(selectedTimePeriod);
+=======
+    const [start, end] = getIntervalDates();
+>>>>>>> centreon/dev-21.10.x
 
     sendGetTimelineRequest({
       endpoint: timelineEndpoint,
@@ -121,7 +179,11 @@ const ExportablePerformanceGraphWithTimeline = ({
     });
   };
 
+<<<<<<< HEAD
   useEffect(() => {
+=======
+  React.useEffect(() => {
+>>>>>>> centreon/dev-21.10.x
     if (isNil(endpoint)) {
       return;
     }
@@ -129,15 +191,24 @@ const ExportablePerformanceGraphWithTimeline = ({
     retrieveTimeline();
   }, [endpoint, selectedTimePeriod, customTimePeriod, displayEventAnnotations]);
 
+<<<<<<< HEAD
   useEffect(() => {
     setElement(graphContainerRef.current);
   }, []);
 
   const graphEndpoint = useMemo((): string | undefined => {
+=======
+  React.useEffect(() => {
+    setElement(graphContainerRef.current);
+  }, []);
+
+  const getEndpoint = (): string | undefined => {
+>>>>>>> centreon/dev-21.10.x
     if (isNil(endpoint)) {
       return undefined;
     }
 
+<<<<<<< HEAD
     const graphQuerParameters = getGraphQueryParameters({
       endDate: customTimePeriod.end,
       startDate: customTimePeriod.start,
@@ -150,6 +221,10 @@ const ExportablePerformanceGraphWithTimeline = ({
     customTimePeriod.end.toISOString(),
     details,
   ]);
+=======
+    return `${endpoint}${periodQueryParameters}`;
+  };
+>>>>>>> centreon/dev-21.10.x
 
   const addCommentToTimeline = ({ date, comment }): void => {
     const [id] = crypto.getRandomValues(new Uint16Array(1));
@@ -170,20 +245,34 @@ const ExportablePerformanceGraphWithTimeline = ({
     <Paper className={classes.graphContainer}>
       <div
         className={classes.graph}
+<<<<<<< HEAD
         ref={graphContainerRef as MutableRefObject<HTMLDivElement>}
+=======
+        ref={graphContainerRef as React.MutableRefObject<HTMLDivElement>}
+>>>>>>> centreon/dev-21.10.x
       >
         <PerformanceGraph
           toggableLegend
           adjustTimePeriod={adjustTimePeriod}
           customTimePeriod={customTimePeriod}
           displayEventAnnotations={displayEventAnnotations}
+<<<<<<< HEAD
           endpoint={graphEndpoint}
+=======
+          endpoint={getEndpoint()}
+>>>>>>> centreon/dev-21.10.x
           graphHeight={graphHeight}
           isInViewport={isInViewport}
           limitLegendRows={limitLegendRows}
           resource={resource as Resource}
           resourceDetailsUpdated={resourceDetailsUpdated}
+<<<<<<< HEAD
           timeline={timeline}
+=======
+          resourceGraphMousePosition={resourceGraphMousePosition}
+          timeline={timeline}
+          updateResourceGraphMousePosition={updateResourceGraphMousePosition}
+>>>>>>> centreon/dev-21.10.x
           xAxisTickFormat={
             selectedTimePeriod?.dateTimeFormat ||
             customTimePeriod.xAxisTickFormat

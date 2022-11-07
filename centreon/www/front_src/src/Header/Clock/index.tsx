@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 import { useRef, useState, useEffect } from 'react';
 
 import { Typography } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
+=======
+import * as React from 'react';
+
+import { Typography, makeStyles } from '@material-ui/core';
+>>>>>>> centreon/dev-21.10.x
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';
 
@@ -14,8 +20,13 @@ const useStyles = makeStyles((theme) => ({
 const Clock = (): JSX.Element => {
   const classes = useStyles();
 
+<<<<<<< HEAD
   const refreshIntervalRef = useRef<number>();
   const [dateTime, setDateTime] = useState({
+=======
+  const refreshIntervalRef = React.useRef<number>();
+  const [dateTime, setDateTime] = React.useState({
+>>>>>>> centreon/dev-21.10.x
     date: '',
     time: '',
   });
@@ -31,7 +42,11 @@ const Clock = (): JSX.Element => {
     setDateTime({ date, time });
   };
 
+<<<<<<< HEAD
   useEffect(() => {
+=======
+  React.useEffect(() => {
+>>>>>>> centreon/dev-21.10.x
     updateDateTime();
 
     const thirtySeconds = 30 * 1000;

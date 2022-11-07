@@ -127,10 +127,19 @@ function multipleServiceDependencyInDB($dependencies = array(), $nbrDup = array(
                     $query = "SELECT * FROM dependency_hostChild_relation WHERE dependency_dep_id = '" . $key . "'";
                     $dbResult = $pearDB->query($query);
                     $fields["dep_hostPar"] = "";
+<<<<<<< HEAD
                     while ($host = $dbResult->fetch()) {
                         $query = "INSERT INTO dependency_hostChild_relation VALUES ('" . $maxId["MAX(dep_id)"] .
                             "', '" . $host["host_host_id"] . "')";
                         $pearDB->query($query);
+=======
+                    $query = "INSERT INTO dependency_hostChild_relation VALUES (:dep_id, :host_host_id)";
+                    $statement = $pearDB->prepare($query);
+                    while ($host = $dbResult->fetch()) {
+                        $statement->bindValue(':dep_id', (int) $maxId["MAX(dep_id)"], \PDO::PARAM_INT);
+                        $statement->bindValue(':host_host_id', (int) $host["host_host_id"], \PDO::PARAM_INT);
+                        $statement->execute();
+>>>>>>> centreon/dev-21.10.x
                         $fields["dep_hostPar"] .= $host["host_host_id"] . ",";
                     }
                     $fields["dep_hostPar"] = trim($fields["dep_hostPar"], ",");
@@ -138,21 +147,51 @@ function multipleServiceDependencyInDB($dependencies = array(), $nbrDup = array(
                     $query = "SELECT * FROM dependency_serviceParent_relation WHERE dependency_dep_id = '" . $key . "'";
                     $dbResult = $pearDB->query($query);
                     $fields["dep_hSvPar"] = "";
+<<<<<<< HEAD
                     while ($service = $dbResult->fetch()) {
                         $query = "INSERT INTO dependency_serviceParent_relation VALUES ('" .
                             $maxId["MAX(dep_id)"] . "', '" . $service["service_service_id"] . "', '" .
                             $service["host_host_id"] . "')";
                         $pearDB->query($query);
+=======
+                    $query = "INSERT INTO dependency_serviceParent_relation 
+                        VALUES (:dep_id, :service_service_id, :host_host_id)";
+                    $statement = $pearDB->prepare($query);
+                    while ($service = $dbResult->fetch()) {
+                        $statement->bindValue(':dep_id', (int) $maxId["MAX(dep_id)"], \PDO::PARAM_INT);
+                        $statement->bindValue(
+                            ':service_service_id',
+                            (int) $service["service_service_id"],
+                            \PDO::PARAM_INT
+                        );
+                        $statement->bindValue(':host_host_id', (int) $service["host_host_id"], \PDO::PARAM_INT);
+                        $statement->execute();
+>>>>>>> centreon/dev-21.10.x
                         $fields["dep_hSvPar"] .= $service["service_service_id"] . ",";
                     }
                     $fields["dep_hSvPar"] = trim($fields["dep_hSvPar"], ",");
                     $query = "SELECT * FROM dependency_serviceChild_relation WHERE dependency_dep_id = '" . $key . "'";
                     $dbResult = $pearDB->query($query);
                     $fields["dep_hSvChi"] = "";
+<<<<<<< HEAD
                     while ($service = $dbResult->fetch()) {
                         $query = "INSERT INTO dependency_serviceChild_relation VALUES ('" . $maxId["MAX(dep_id)"] .
                             "', '" . $service["service_service_id"] . "', '" . $service["host_host_id"] . "')";
                         $pearDB->query($query);
+=======
+                    $query = "INSERT INTO dependency_serviceChild_relation 
+                        VALUES (:dep_id, :service_service_id, :host_host_id)";
+                    $statement = $pearDB->prepare($query);
+                    while ($service = $dbResult->fetch()) {
+                        $statement->bindValue(':dep_id', (int) $maxId["MAX(dep_id)"], \PDO::PARAM_INT);
+                        $statement->bindValue(
+                            ':service_service_id',
+                            (int) $service["service_service_id"],
+                            \PDO::PARAM_INT
+                        );
+                        $statement->bindValue(':host_host_id', (int) $service["host_host_id"], \PDO::PARAM_INT);
+                        $statement->execute();
+>>>>>>> centreon/dev-21.10.x
                         $fields["dep_hSvChi"] .= $service["service_service_id"] . ",";
                     }
                     $fields["dep_hSvChi"] = trim($fields["dep_hSvChi"], ",");

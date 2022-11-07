@@ -1,7 +1,16 @@
+<<<<<<< HEAD
 import { useTranslation } from 'react-i18next';
 import { equals, not } from 'ramda';
 
 import makeStyles from '@mui/styles/makeStyles';
+=======
+import * as React from 'react';
+
+import { useTranslation } from 'react-i18next';
+import { equals, not } from 'ramda';
+
+import { makeStyles } from '@material-ui/core';
+>>>>>>> centreon/dev-21.10.x
 
 import { useMemoComponent } from '@centreon/ui';
 

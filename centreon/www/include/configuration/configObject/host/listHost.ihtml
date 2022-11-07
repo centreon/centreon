@@ -59,6 +59,7 @@
             <td class="ListColPicker">{$elemArr[elem].RowMenu_select}</td>
             <td class="ListColLeft">
                 <a href="{$elemArr[elem].RowMenu_link}">
+<<<<<<< HEAD
                     {if $elemArr[elem].isSvgFile}
                         <span class="ico-18  margin_right">
                             {$elemArr[elem].RowMenu_icone}
@@ -67,13 +68,20 @@
                         <img src="{$elemArr[elem].RowMenu_icone}" class="ico-18  margin_right"/>
                     {/if}
                     {$elemArr[elem].RowMenu_name}
+=======
+                    <img src="{$elemArr[elem].RowMenu_icone}" class="ico-18  margin_right"/>{$elemArr[elem].RowMenu_name}
+>>>>>>> centreon/dev-21.10.x
                 </a>
             </td>
             <td class="ListColCenter">
                 <a href='./main.php?p=602&search={$elemArr[elem].RowMenu_name}'>
+<<<<<<< HEAD
                     <span class="ico-16" title='{$HelpServices}'>
                         {$listServicesIcon}
                     </span>
+=======
+                    <img src="./img/icons/all_services.png" class="ico-16" title='{$HelpServices}'>
+>>>>>>> centreon/dev-21.10.x
                 </a>
             </td>
             <td class="ListColLeft resizeTitle">

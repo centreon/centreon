@@ -82,6 +82,7 @@ $checkMysqlVersion = "SHOW VARIABLES WHERE Variable_name LIKE 'version%'";
 
 // creating the user - mandatory for MySQL DB
 $alterQuery = "ALTER USER :dbUser@:host IDENTIFIED WITH mysql_native_password BY :dbPass";
+<<<<<<< HEAD
 
 // Set defined privileges for the user.
 $mandatoryPrivileges = [
@@ -205,10 +206,53 @@ try {
         }
     }
 } catch (\Exception $e) {
+=======
+$query = "GRANT ALL PRIVILEGES ON `%s`.* TO '" . $parameters['db_user'] . "'@'" . $host . "'";
+$flushQuery = "FLUSH PRIVILEGES";
+
+try {
+    $prepareCreate = $link->prepare($createUser);
+    $prepareAlter = $link->prepare($alterQuery);
+    foreach ($queryValues as $key => $value) {
+        $prepareCreate->bindValue($key, $value, \PDO::PARAM_STR);
+        $prepareAlter->bindValue($key, $value, \PDO::PARAM_STR);
+    }
+    // creating the user
+    $prepareCreate->execute();
+
+    // checking mysql version before trying to alter the password plugin
+    $prepareCheckVersion = $link->query($checkMysqlVersion);
+    $versionName = $versionNumber = "";
+    while ($row = $prepareCheckVersion->fetch()) {
+        if ($row['Variable_name'] === "version") {
+            $versionNumber = $row['Variable_name'];
+        } elseif ($row['Variable_name'] === "version_comment") {
+            $versionName = $row['Variable_name'];
+        }
+    }
+    if ((strpos($versionName, "MariaDB") !== false && version_compare($versionNumber, '10.2.0') >= 0)
+        || (strpos($versionName, "MySQL") !== false && version_compare($versionNumber, '8.0.0') >= 0)
+    ) {
+        // altering the mysql's password plugin using the ALTER USER request
+        $prepareAlter->execute();
+    }
+
+    // granting privileges
+    $link->exec(sprintf($query, $parameters['db_configuration']));
+    $link->exec(sprintf($query, $parameters['db_storage']));
+
+    // enabling the new parameters
+    $link->exec($flushQuery);
+} catch (\PDOException $e) {
+>>>>>>> centreon/dev-21.10.x
     $return['msg'] = $e->getMessage();
     echo json_encode($return);
     exit;
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
 $return['result'] = 0;
 echo json_encode($return);
 exit;

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* eslint-disable react/jsx-no-constructed-context-values */
 import axios from 'axios';
 import { last, omit } from 'ramda';
@@ -8,6 +9,23 @@ import { render, RenderResult, fireEvent, waitFor, act } from '@centreon/ui';
 
 import useFilter from '../../testUtils/useFilter';
 import Context, { ResourceContext } from '../../testUtils/Context';
+=======
+import * as React from 'react';
+
+import {
+  render,
+  RenderResult,
+  fireEvent,
+  waitFor,
+  act,
+} from '@testing-library/react';
+import axios from 'axios';
+import { last, omit, propEq } from 'ramda';
+import userEvent from '@testing-library/user-event';
+
+import useFilter from '../useFilter';
+import Context, { ResourceContext } from '../../Context';
+>>>>>>> centreon/dev-21.10.x
 import {
   labelSaveFilter,
   labelSave,
@@ -46,6 +64,7 @@ const SaveMenuTest = (): JSX.Element => {
   );
 };
 
+<<<<<<< HEAD
 const SaveMenuTestWithJotai = (): JSX.Element => (
   <Provider>
     <SaveMenuTest />
@@ -53,6 +72,9 @@ const SaveMenuTestWithJotai = (): JSX.Element => (
 );
 
 const renderSaveMenu = (): RenderResult => render(<SaveMenuTestWithJotai />);
+=======
+const renderSaveMenu = (): RenderResult => render(<SaveMenuTest />);
+>>>>>>> centreon/dev-21.10.x
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
@@ -94,6 +116,15 @@ const getFilter = ({ search = 'my search', name = 'MyFilter' }): Filter => ({
       ],
     },
     {
+<<<<<<< HEAD
+=======
+      name: 'status_types',
+      object_type: null,
+      type: 'multi_select',
+      value: [],
+    },
+    {
+>>>>>>> centreon/dev-21.10.x
       name: 'host_groups',
       object_type: 'host_groups',
       type: 'multi_select',
@@ -147,6 +178,12 @@ const retrievedCustomFilters = {
   result: [getFilter({})],
 };
 
+<<<<<<< HEAD
+=======
+const getCustomFilter = (): Filter =>
+  context.customFilters.find(propEq('id', filterId));
+
+>>>>>>> centreon/dev-21.10.x
 describe(SaveMenu, () => {
   beforeEach(() => {
     mockedAxios.get.mockResolvedValue({ data: retrievedCustomFilters });
@@ -161,11 +198,19 @@ describe(SaveMenu, () => {
   });
 
   it('disables save menus when the current filter has no changes', async () => {
+<<<<<<< HEAD
     const { getByLabelText, getAllByText } = renderSaveMenu();
 
     await waitFor(() => expect(mockedAxios.get).toHaveBeenCalled());
 
     userEvent.click(getByLabelText(labelSaveFilter));
+=======
+    const { getByTitle, getAllByText } = renderSaveMenu();
+
+    await waitFor(() => expect(mockedAxios.get).toHaveBeenCalled());
+
+    userEvent.click(getByTitle(labelSaveFilter));
+>>>>>>> centreon/dev-21.10.x
 
     expect(last(getAllByText(labelSaveAsNew))).toHaveAttribute(
       'aria-disabled',
@@ -182,7 +227,11 @@ describe(SaveMenu, () => {
 
     await waitFor(() => expect(mockedAxios.get).toHaveBeenCalled());
 
+<<<<<<< HEAD
     const filter = getFilter({});
+=======
+    const filter = getCustomFilter();
+>>>>>>> centreon/dev-21.10.x
 
     act(() => {
       context.setCurrentFilter(
@@ -196,7 +245,11 @@ describe(SaveMenu, () => {
 
     expect(
       last(getAllByText(labelSave))?.parentElement?.parentElement,
+<<<<<<< HEAD
     ).not.toHaveAttribute('aria-disabled');
+=======
+    ).toHaveAttribute('aria-disabled', 'false');
+>>>>>>> centreon/dev-21.10.x
 
     fireEvent.click(last(getAllByText(labelSaveAsNew)) as HTMLElement);
 
@@ -224,7 +277,11 @@ describe(SaveMenu, () => {
 
     await waitFor(() => expect(mockedAxios.get).toHaveBeenCalled());
 
+<<<<<<< HEAD
     const filter = getFilter({});
+=======
+    const filter = getCustomFilter();
+>>>>>>> centreon/dev-21.10.x
 
     const newSearch = 'new search';
 
@@ -242,9 +299,15 @@ describe(SaveMenu, () => {
       );
     });
 
+<<<<<<< HEAD
     expect(last(getAllByText(labelSave))?.parentElement).not.toHaveAttribute(
       'aria-disabled',
     );
+=======
+    expect(
+      last(getAllByText(labelSave))?.parentElement?.parentElement,
+    ).toHaveAttribute('aria-disabled', 'false');
+>>>>>>> centreon/dev-21.10.x
 
     fireEvent.click(last(getAllByText(labelSave)) as HTMLElement);
 

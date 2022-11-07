@@ -1,9 +1,17 @@
+<<<<<<< HEAD
 Feature: AliasContactModification
+=======
+Feature: AliasContactModification 
+>>>>>>> centreon/dev-21.10.x
     As a Centreon admin user
     I want to modify an existing non admin contact alias including a special character
     Modified contact is saved
     Modified contact can log in Centreon Web
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> centreon/dev-21.10.x
    Background:
        Given I am logged in a Centreon server
        And one non admin contact has been created

@@ -1,5 +1,6 @@
 <?php
 
+<<<<<<< HEAD
 /*
  * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
  *
@@ -19,6 +20,8 @@
  *
  */
 
+=======
+>>>>>>> centreon/dev-21.10.x
 namespace CentreonRemote\Domain\Value;
 
 class PollerServer
@@ -39,18 +42,26 @@ class PollerServer
     private $ip;
 
 
+<<<<<<< HEAD
     /**
      * @return int
      */
     public function getId(): int
+=======
+    public function getId()
+>>>>>>> centreon/dev-21.10.x
     {
         return $this->id;
     }
 
+<<<<<<< HEAD
     /**
      * @param int $id
      */
     public function setId($id): void
+=======
+    public function setId($id)
+>>>>>>> centreon/dev-21.10.x
     {
         $this->id = $id;
     }
@@ -75,18 +86,26 @@ class PollerServer
         $this->name = $name;
     }
 
+<<<<<<< HEAD
     /**
      * @return string
      */
     public function getIp(): string
+=======
+    public function getIp()
+>>>>>>> centreon/dev-21.10.x
     {
         return $this->ip;
     }
 
+<<<<<<< HEAD
     /**
      * @param string $ip
      */
     public function setIp($ip): void
+=======
+    public function setIp($ip)
+>>>>>>> centreon/dev-21.10.x
     {
         $this->ip = $ip;
     }

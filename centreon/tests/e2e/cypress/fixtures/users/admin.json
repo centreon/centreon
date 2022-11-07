@@ -1,4 +1,8 @@
 {
   "login": "admin",
+<<<<<<< HEAD
   "password": "Centreon!2021"
+=======
+  "password": "centreon"
+>>>>>>> centreon/dev-21.10.x
 }

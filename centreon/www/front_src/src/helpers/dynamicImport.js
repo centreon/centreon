@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 /* eslint-disable import/no-relative-packages */
+=======
+>>>>>>> centreon/dev-21.10.x
 /* eslint-disable no-console */
 /* eslint-disable no-async-promise-executor */
 /* eslint-disable consistent-return */

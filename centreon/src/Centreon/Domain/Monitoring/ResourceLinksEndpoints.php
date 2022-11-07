@@ -65,11 +65,14 @@ class ResourceLinksEndpoints
     private $metrics;
 
     /**
+<<<<<<< HEAD
      * @var string|null
      */
     private $notificationPolicy;
 
     /**
+=======
+>>>>>>> centreon/dev-21.10.x
      * @return string|null
      */
     public function getDetails(): ?string
@@ -201,6 +204,7 @@ class ResourceLinksEndpoints
 
         return $this;
     }
+<<<<<<< HEAD
 
     /**
      * @return string|null
@@ -220,4 +224,6 @@ class ResourceLinksEndpoints
 
         return $this;
     }
+=======
+>>>>>>> centreon/dev-21.10.x
 }

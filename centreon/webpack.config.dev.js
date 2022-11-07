@@ -3,7 +3,12 @@ const os = require('os');
 
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const { merge } = require('webpack-merge');
+<<<<<<< HEAD
 const devConfig = require('centreon-frontend/packages/frontend-config/webpack/patch/dev');
+=======
+
+const devConfig = require('@centreon/centreon-frontend/packages/frontend-config/webpack/patch/dev');
+>>>>>>> centreon/dev-21.10.x
 
 const baseConfig = require('./webpack.config');
 
@@ -14,8 +19,12 @@ const externalInterface = Object.keys(interfaces).find(
   (interfaceName) =>
     !interfaceName.includes('docker') &&
     interfaces[interfaceName][0].family === 'IPv4' &&
+<<<<<<< HEAD
     interfaces[interfaceName][0].internal === false &&
     !process.env.IS_STATIC_PORT_FORWARDED,
+=======
+    interfaces[interfaceName][0].internal === false,
+>>>>>>> centreon/dev-21.10.x
 );
 
 const devServerAddress = externalInterface
@@ -36,6 +45,7 @@ const output =
       }
     : {};
 
+<<<<<<< HEAD
 const getStaticDirectoryPath = (moduleName) =>
   `${__dirname}/www/modules/${moduleName}/static`;
 
@@ -57,6 +67,20 @@ const modules = [
     getDirectoryPath: () => `${__dirname}/www/modules/centreon-map4-web-client`,
     name: 'centreon-map4-web-client',
   },
+=======
+const modules = [
+  'centreon-license-manager',
+  'centreon-autodiscovery-server',
+  'centreon-bam-server',
+  'centreon-augmented-services',
+];
+
+const modules = [
+  'centreon-license-manager',
+  'centreon-autodiscovery-server',
+  'centreon-bam-server',
+  'centreon-augmented-services',
+>>>>>>> centreon/dev-21.10.x
 ];
 
 module.exports = merge(baseConfig, devConfig, {
@@ -66,8 +90,14 @@ module.exports = merge(baseConfig, devConfig, {
     host: '0.0.0.0',
     hot: true,
     port: devServerPort,
+<<<<<<< HEAD
     static: modules.map(({ name, getDirectoryPath }) => ({
       directory: path.resolve(getDirectoryPath(name)),
+=======
+
+    static: modules.map((module) => ({
+      directory: path.resolve(`${__dirname}/www/modules/${module}/static`),
+>>>>>>> centreon/dev-21.10.x
       publicPath,
       watch: true,
     })),
@@ -76,7 +106,11 @@ module.exports = merge(baseConfig, devConfig, {
   plugins,
   resolve: {
     alias: {
+<<<<<<< HEAD
       '@mui/material': path.resolve('./node_modules/@mui/material'),
+=======
+      '@material-ui/core': path.resolve('./node_modules/@material-ui/core'),
+>>>>>>> centreon/dev-21.10.x
       dayjs: path.resolve('./node_modules/dayjs'),
       'react-router-dom': path.resolve('./node_modules/react-router-dom'),
     },

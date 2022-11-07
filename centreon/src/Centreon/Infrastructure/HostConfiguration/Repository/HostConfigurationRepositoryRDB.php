@@ -47,6 +47,10 @@ use Centreon\Infrastructure\RequestParameters\SqlRequestParametersTranslator;
  */
 class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements HostConfigurationRepositoryInterface
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * @var SqlRequestParametersTranslator
      */
@@ -67,8 +71,13 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
     public function addHost(Host $host): void
     {
         $request = $this->translateDbName(
+<<<<<<< HEAD
             'INSERT INTO `:db`.host
             (host_name, host_alias, display_name, host_address, host_comment, geo_coords, host_activate,
+=======
+            'INSERT INTO `:db`.host 
+            (host_name, host_alias, display_name, host_address, host_comment, geo_coords, host_activate, 
+>>>>>>> centreon/dev-21.10.x
             host_register, host_active_checks_enabled, host_passive_checks_enabled, host_checks_enabled,
             host_obsess_over_host, host_check_freshness, host_event_handler_enabled, host_flap_detection_enabled,
             host_process_perf_data, host_retain_status_information, host_retain_nonstatus_information,
@@ -111,10 +120,17 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
         if ($host->getExtendedHost() !== null) {
             $this->addExtendedHost($hostId, $host->getExtendedHost());
         }
+<<<<<<< HEAD
         $this->linkHostTemplatesToHost($hostId, $host->getTemplates());
         $this->linkHostCategoriesToHost($host);
         $this->linkSeverityToHost($host);
         $this->linkHostGroupsToHost($host);
+=======
+        $this->linkToTemplate($hostId, $host->getTemplates());
+        $this->linkCategoryToHost($host);
+        $this->linkSeveritiesToHost($host);
+        $this->linkGroupToHost($host);
+>>>>>>> centreon/dev-21.10.x
     }
 
     /**
@@ -130,7 +146,11 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
         Assertion::notNull($host->getId());
         if ($monitoringServer->getId() !== null) {
             $request = $this->translateDbName(
+<<<<<<< HEAD
                 'INSERT INTO `:db`.ns_host_relation
+=======
+                'INSERT INTO `:db`.ns_host_relation 
+>>>>>>> centreon/dev-21.10.x
                 (nagios_server_id, host_host_id)
                 VALUES (:monitoring_server_id, :host_id)'
             );
@@ -145,7 +165,11 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
             }
         } elseif (!empty($monitoringServer->getName())) {
             $request = $this->translateDbName(
+<<<<<<< HEAD
                 'INSERT INTO `:db`.ns_host_relation
+=======
+                'INSERT INTO `:db`.ns_host_relation 
+>>>>>>> centreon/dev-21.10.x
                 (nagios_server_id, host_host_id)
                 SELECT nagios_server.id, :host_id
                 FROM `:db`.nagios_server
@@ -173,7 +197,11 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
     private function addExtendedHost(int $hostId, ExtendedHost $extendedHost): void
     {
         $request = $this->translateDbName(
+<<<<<<< HEAD
             'INSERT INTO `:db`.extended_host_information
+=======
+            'INSERT INTO `:db`.extended_host_information 
+>>>>>>> centreon/dev-21.10.x
             (host_host_id, ehi_notes, ehi_notes_url, ehi_action_url)
             VALUES (:host_id, :notes, :url, :action_url)'
         );
@@ -186,14 +214,22 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
     }
 
     /**
+<<<<<<< HEAD
      * Link a host to a given list of host templates.
+=======
+     * Add a host template.
+>>>>>>> centreon/dev-21.10.x
      *
      * @param int $hostId Host id for which this templates will be associated
      * @param Host[] $hostTemplates Host template to be added
      * @throws RepositoryException
      * @throws \Exception
      */
+<<<<<<< HEAD
     private function linkHostTemplatesToHost(int $hostId, array $hostTemplates): void
+=======
+    private function linkToTemplate(int $hostId, array $hostTemplates): void
+>>>>>>> centreon/dev-21.10.x
     {
         if (empty($hostTemplates)) {
             return;
@@ -202,10 +238,43 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
         foreach ($hostTemplates as $order => $template) {
             if ($template->getId() !== null) {
                 // Associate the host and host template using template id
+<<<<<<< HEAD
                 $this->addHostTemplateToHostById($hostId, $template->getId(), ((int) $order) + 1);
             } elseif (!empty($template->getName())) {
                 // Associate the host and host template using template name
                 $this->addHostTemplateToHostByName($hostId, $template->getName(), ((int) $order) + 1);
+=======
+                $request = $this->translateDbName(
+                    'INSERT INTO `:db`.host_template_relation
+                    (`host_host_id`, `host_tpl_id`, `order`)
+                    VALUES (:host_id, :template_id, :order)'
+                );
+                $statement = $this->db->prepare($request);
+                $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+                $statement->bindValue(':template_id', $template->getId(), \PDO::PARAM_INT);
+                $statement->bindValue(':order', ((int) $order) + 1, \PDO::PARAM_INT);
+                $statement->execute();
+                if ($statement->rowCount() === 0) {
+                    throw new RepositoryException(sprintf(_('Template with id %d not found'), $template->getId()));
+                }
+            } elseif (!empty($template->getName())) {
+                // Associate the host and host template using template name
+                $request = $this->translateDbName(
+                    'INSERT INTO `:db`.host_template_relation
+                    (`host_host_id`, `host_tpl_id`, `order`)
+                    SELECT :host_id, host.host_id, :order
+                    FROM `:db`.host
+                    WHERE host.host_name = :template_name'
+                );
+                $statement = $this->db->prepare($request);
+                $statement->bindValue(':host_id', $hostId, \PDO::PARAM_INT);
+                $statement->bindValue(':template_name', $template->getName(), \PDO::PARAM_STR);
+                $statement->bindValue(':order', ((int) $order), \PDO::PARAM_INT);
+                $statement->execute();
+                if ($statement->rowCount() === 0) {
+                    throw new RepositoryException(sprintf(_('Template %s not found'), $template->getName()));
+                }
+>>>>>>> centreon/dev-21.10.x
             }
         }
     }
@@ -213,6 +282,7 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
     /**
      * @inheritDoc
      */
+<<<<<<< HEAD
     public function findHostByAccessGroupIds(int $hostId, array $accessGroupIds): ?Host
     {
         if (empty($accessGroupIds)) {
@@ -248,6 +318,14 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
             'SELECT host.host_id, host.host_name, host.host_alias, host.display_name AS host_display_name,
             host.host_address AS host_ip_address, host.host_comment, host.geo_coords AS host_geo_coords,
             host.host_activate AS host_is_activated, host.host_notifications_enabled, nagios.id AS monitoring_server_id,
+=======
+    public function findHost(int $hostId): ?Host
+    {
+        $request = $this->translateDbName(
+            'SELECT host.host_id, host.host_name, host.host_alias, host.display_name AS host_display_name,
+            host.host_address AS host_ip_address, host.host_comment, host.geo_coords AS host_geo_coords,
+            host.host_activate AS host_is_activated, nagios.id AS monitoring_server_id,
+>>>>>>> centreon/dev-21.10.x
             nagios.name AS monitoring_server_name, ext.*
             FROM `:db`.host host
             LEFT JOIN `:db`.extended_host_information ext
@@ -255,9 +333,14 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
             INNER JOIN `:db`.ns_host_relation host_server
                 ON host_server.host_host_id = host.host_id
             INNER JOIN `:db`.nagios_server nagios
+<<<<<<< HEAD
                 ON nagios.id = host_server.nagios_server_id '  .
             ($accessGroupRequest !== null ? $accessGroupRequest : '') .
             'WHERE host.host_id = :host_id
+=======
+                ON nagios.id = host_server.nagios_server_id
+            WHERE host.host_id = :host_id
+>>>>>>> centreon/dev-21.10.x
             AND host.host_register = \'1\''
         );
         $statement = $this->db->prepare($request);
@@ -265,7 +348,30 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
         $statement->execute();
 
         if (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+<<<<<<< HEAD
             return $this->createHost($record);
+=======
+            /**
+             * @var Host $host
+             */
+            $host = EntityCreator::createEntityByArray(Host::class, $record, 'host_');
+            /**
+             * @var ExtendedHost $extendedHost
+             */
+            $extendedHost = EntityCreator::createEntityByArray(ExtendedHost::class, $record, 'ehi_');
+            $host->setExtendedHost($extendedHost);
+            /**
+             * @var MonitoringServer $monitoringServer
+             */
+            $monitoringServer = EntityCreator::createEntityByArray(
+                MonitoringServer::class,
+                $record,
+                'monitoring_server_'
+            );
+            $host->setMonitoringServer($monitoringServer);
+
+            return $host;
+>>>>>>> centreon/dev-21.10.x
         }
         return null;
     }
@@ -413,7 +519,11 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
                 command.command_line, relation.templates
              FROM `:db`.host
                 LEFT JOIN `:db`.command ON command.command_id = host.command_command_id,
+<<<<<<< HEAD
                 (SELECT GROUP_CONCAT(host_tpl_id) as templates
+=======
+                (SELECT GROUP_CONCAT(host_tpl_id) as templates 
+>>>>>>> centreon/dev-21.10.x
                  FROM `:db`.host_template_relation htr
                  WHERE htr.host_host_id = :host_id ORDER BY `order` ASC) as relation
              WHERE host.host_id = :host_id LIMIT 1'
@@ -493,12 +603,20 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
          */
         $request = $this->translateDbName(
             'SELECT
+<<<<<<< HEAD
                 host.host_id, macro.host_macro_id AS id, macro.host_macro_name AS name,
+=======
+                host.host_id, macro.host_macro_id AS id, macro.host_macro_name AS name, 
+>>>>>>> centreon/dev-21.10.x
                 macro.host_macro_value AS `value`, macro.macro_order AS `order`,
                 macro.is_password, macro.description, relation.templates
              FROM `:db`.host
                 LEFT JOIN `:db`.on_demand_macro_host macro ON macro.host_host_id = host.host_id,
+<<<<<<< HEAD
                 (SELECT GROUP_CONCAT(host_tpl_id) as templates
+=======
+                (SELECT GROUP_CONCAT(host_tpl_id) as templates 
+>>>>>>> centreon/dev-21.10.x
                  FROM `:db`.host_template_relation htr
                  WHERE htr.host_host_id = :host_id ORDER BY `order` ASC) as relation
              WHERE host.host_id = :host_id'
@@ -572,6 +690,13 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
             $names[] = (string) $name;
         }
 
+<<<<<<< HEAD
+=======
+        if (empty($names)) {
+            return [];
+        }
+
+>>>>>>> centreon/dev-21.10.x
         $statement = $this->db->prepare(
             $this->translateDbName(
                 sprintf(
@@ -602,9 +727,15 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
                 ]
             );
             $request = $this->translateDbName(
+<<<<<<< HEAD
                 'SELECT SQL_CALC_FOUND_ROWS h.*, ext.*, icon.img_id AS icon_id, icon.img_name AS icon_name,
                     CONCAT(iconD.dir_name,\'/\',icon.img_path) AS icon_path,
                     icon.img_comment AS icon_comment, smi.img_id AS smi_id, smi.img_name AS smi_name,
+=======
+                'SELECT SQL_CALC_FOUND_ROWS h.*, ext.*, icon.img_id AS icon_id, icon.img_name AS icon_name, 
+                    CONCAT(iconD.dir_name,\'/\',icon.img_path) AS icon_path,
+                    icon.img_comment AS icon_comment, smi.img_id AS smi_id, smi.img_name AS smi_name, 
+>>>>>>> centreon/dev-21.10.x
                     smi.img_path AS smi_path, smi.img_comment AS smi_comment,
                     GROUP_CONCAT(DISTINCT htr.host_tpl_id) AS parents
                 FROM `:db`.host h
@@ -670,7 +801,11 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
      * @param Host $host
      * @throws HostCategoryException
      */
+<<<<<<< HEAD
     private function linkHostCategoriesToHost(Host $host): void
+=======
+    private function linkCategoryToHost(Host $host): void
+>>>>>>> centreon/dev-21.10.x
     {
         foreach ($host->getCategories() as $category) {
             try {
@@ -698,7 +833,11 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
      * @param Host $host
      * @throws HostGroupException
      */
+<<<<<<< HEAD
     private function linkHostGroupsToHost(Host $host): void
+=======
+    private function linkGroupToHost(Host $host): void
+>>>>>>> centreon/dev-21.10.x
     {
         foreach ($host->getGroups() as $group) {
             try {
@@ -707,8 +846,15 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
                 }
                 $statement = $this->db->prepare(
                     $this->translateDbName(
+<<<<<<< HEAD
                         'INSERT INTO `:db`.hostgroup_relation (host_host_id, hostgroup_hg_id)
                         VALUES (:host_id, :group_id)'
+=======
+                        '
+                    INSERT INTO `:db`.hostgroup_relation (host_host_id, hostgroup_hg_id)
+                    VALUES (:host_id, :group_id)
+                '
+>>>>>>> centreon/dev-21.10.x
                     )
                 );
                 $statement->bindValue(':host_id', $host->getId(), \PDO::PARAM_INT);
@@ -721,11 +867,16 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
     }
 
     /**
+<<<<<<< HEAD
      * Link the severity to host only if id is not null.
+=======
+     * Link the severities to host only if their id is not null.
+>>>>>>> centreon/dev-21.10.x
      *
      * @param Host $host
      * @throws HostSeverityException
      */
+<<<<<<< HEAD
     private function linkSeverityToHost(Host $host): void
     {
         if ($host->getSeverity()?->getId() === null) {
@@ -1064,5 +1215,27 @@ class HostConfigurationRepositoryRDB extends AbstractRepositoryDRB implements Ho
             return $this->createHost($record);
         }
         return null;
+=======
+    private function linkSeveritiesToHost(Host $host): void
+    {
+        foreach ($host->getSeverities() as $severity) {
+            try {
+                if ($severity->getId() === null) {
+                    continue;
+                }
+                $statement = $this->db->prepare(
+                    $this->translateDbName('
+                    INSERT INTO `:db`.hostcategories_relation (host_host_id, hostcategories_hc_id)
+                    VALUES (:host_id, :severity_id)
+                ')
+                );
+                $statement->bindValue(':host_id', $host->getId(), \PDO::PARAM_INT);
+                $statement->bindValue(':severity_id', $severity->getId(), \PDO::PARAM_INT);
+                $statement->execute();
+            } catch (\Throwable $ex) {
+                throw HostSeverityException::notFoundException(['id' => $severity->getId()], $ex);
+            }
+        }
+>>>>>>> centreon/dev-21.10.x
     }
 }

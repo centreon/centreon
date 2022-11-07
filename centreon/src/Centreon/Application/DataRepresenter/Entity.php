@@ -1,5 +1,8 @@
 <?php
+<<<<<<< HEAD
 
+=======
+>>>>>>> centreon/dev-21.10.x
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -42,6 +45,10 @@ use ReflectionClass;
 
 class Entity implements JsonSerializable
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * @var mixed
      */
@@ -60,7 +67,11 @@ class Entity implements JsonSerializable
     /**
      * JSON serialization of entity
      *
+<<<<<<< HEAD
      * @return array<mixed>
+=======
+     * @return array
+>>>>>>> centreon/dev-21.10.x
      */
     public function jsonSerialize()
     {
@@ -68,11 +79,19 @@ class Entity implements JsonSerializable
     }
 
     /**
+<<<<<<< HEAD
      * @param object $object
      * @return array<mixed>
      * @throws \ReflectionException
      */
     public static function dismount(object $object): array
+=======
+     * @param $object
+     * @return array
+     * @throws \ReflectionException
+     */
+    public static function dismount(object $object) : array
+>>>>>>> centreon/dev-21.10.x
     {
         $reflectionClass = new ReflectionClass(get_class($object));
         $array = [];

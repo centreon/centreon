@@ -5,6 +5,10 @@ use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
 
 class CommandCategoryRelationRepository extends ServiceEntityRepository
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * Export
      *

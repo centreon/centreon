@@ -1,5 +1,6 @@
 <?php
 
+<<<<<<< HEAD
 /*
  * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
  *
@@ -19,6 +20,8 @@
  *
  */
 
+=======
+>>>>>>> centreon/dev-21.10.x
 namespace CentreonRemote\Domain\Resources\RemoteConfig;
 
 /**
@@ -32,9 +35,15 @@ class CfgNagiosBrokerModule
      *
      * @param int $configID the broker config id
      * @param string $pollerName the poller name
+<<<<<<< HEAD
      * @return array<int, array<string,string|int>> the configuration template
      */
     public static function getConfiguration(int $configID, string $pollerName): array
+=======
+     * @return array the configuration template
+     */
+    public static function getConfiguration(int $configID, string $pollerName) : array
+>>>>>>> centreon/dev-21.10.x
     {
         $pollerName = strtolower(str_replace(' ', '-', $pollerName));
 

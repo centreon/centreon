@@ -47,7 +47,11 @@ $step = new \CentreonLegacy\Core\Install\Step\Step6($dependencyInjector);
 $parameters = $step->getDatabaseConfiguration();
 
 try {
+<<<<<<< HEAD
     $db = new \PDO(
+=======
+    $link = new \PDO(
+>>>>>>> centreon/dev-21.10.x
         'mysql:host=' . $parameters['address'] . ';port=' . $parameters['port'],
         $parameters['root_user'],
         $parameters['root_password']
@@ -59,7 +63,11 @@ try {
 }
 
 /* Check if MySQL innodb_file_perf_table is enabled */
+<<<<<<< HEAD
 $innodb_file_per_table = getDatabaseVariable($db, 'innodb_file_per_table');
+=======
+$innodb_file_per_table = getDatabaseVariable($link, 'innodb_file_per_table');
+>>>>>>> centreon/dev-21.10.x
 if (is_null($innodb_file_per_table) || strtolower($innodb_file_per_table) == 'off') {
     $return['msg'] =
         _('Add innodb_file_per_table=1 in my.cnf file under the [mysqld] section and restart MySQL Server.');
@@ -68,7 +76,11 @@ if (is_null($innodb_file_per_table) || strtolower($innodb_file_per_table) == 'of
 }
 
 /* Check if MySQL open_files_limit parameter is higher than 32000 */
+<<<<<<< HEAD
 $open_files_limit = getDatabaseVariable($db, 'open_files_limit');
+=======
+$open_files_limit = getDatabaseVariable($link, 'open_files_limit');
+>>>>>>> centreon/dev-21.10.x
 if (is_null($open_files_limit)) {
     $open_files_limit = 0;
 }
@@ -82,6 +94,7 @@ if ($open_files_limit < 32000) {
 }
 
 try {
+<<<<<<< HEAD
     //Check if configuration database exists
     $statementShowDatabase = $db->prepare("SHOW DATABASES LIKE :dbConfiguration");
     $statementShowDatabase->bindValue(':dbConfiguration', $parameters['db_configuration'], \PDO::PARAM_STR);
@@ -123,6 +136,10 @@ try {
         exit;
     }
 } catch (\Exception $e) {
+=======
+    $link->exec(sprintf('CREATE DATABASE `%s`', $parameters['db_configuration']));
+} catch (\PDOException $e) {
+>>>>>>> centreon/dev-21.10.x
     if (!is_file('../../tmp/createTables')) {
         $return['msg'] = $e->getMessage();
         echo json_encode($return);
@@ -130,6 +147,20 @@ try {
     }
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * Create tables
+ */
+$link->exec(sprintf('use `%s`', $parameters['db_configuration']));
+$result = splitQueries('../../createTables.sql', ';', $link, '../../tmp/createTables');
+if ("0" != $result) {
+    $return['msg'] = $result;
+    echo json_encode($return);
+    exit;
+}
+
+>>>>>>> centreon/dev-21.10.x
 $return['result'] = 0;
 echo json_encode($return);
 exit;

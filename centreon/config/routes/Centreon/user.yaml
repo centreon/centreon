@@ -8,6 +8,7 @@ centreon_application_user_getParameters:
   methods: GET
   path: /configuration/users/current/parameters
   controller: 'Centreon\Application\Controller\UserController::getUserParameters'
+<<<<<<< HEAD
   condition: "request.attributes.get('version') >= 21.10"
 
 centreon_application_configuration_users:
@@ -22,3 +23,6 @@ centreon_application_patch_users:
   controller: 'Core\Infrastructure\Configuration\User\Api\PatchUser\PatchUserController'
   condition: "request.attributes.get('version') >= 22.04"
 
+=======
+  condition: "request.attributes.get('version') >= 21.10"
+>>>>>>> centreon/dev-21.10.x

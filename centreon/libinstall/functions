@@ -1394,6 +1394,7 @@ prepare_apache_config() {
 
     # Prepare apache config
     ${CAT} << __EOT__ > $directory/centreon.apache.conf
+<<<<<<< HEAD
 Define base_uri "/centreon"
 Define install_dir "$INSTALL_DIR_CENTREON"
 
@@ -1441,6 +1442,63 @@ ServerTokens Prod
         RedirectMatch ^/$ ${base_uri}
     </If>
 </VirtualHost>
+=======
+Header set X-Frame-Options: "sameorigin"
+Header always edit Set-Cookie ^(.*)$ $1;HttpOnly;SameSite=Strict
+ServerSignature Off
+ServerTokens Prod
+TraceEnable Off
+
+Alias /centreon/api $INSTALL_DIR_CENTREON
+Alias /centreon $INSTALL_DIR_CENTREON/www/
+
+<LocationMatch ^/centreon/(?!api/latest/|api/beta/|api/v[0-9]+/|api/v[0-9]+\.[0-9]+/)(.*\.php(/.*)?)$>
+  ProxyPassMatch fcgi://127.0.0.1:9042${INSTALL_DIR_CENTREON}/www/\$1
+</LocationMatch>
+
+<LocationMatch ^/centreon/(authentication|api/(latest|beta|v[0-9]+|v[0-9]+\.[0-9]+))/.*$>
+  ProxyPassMatch fcgi://127.0.0.1:9042${INSTALL_DIR_CENTREON}/api/index.php/\$1
+</LocationMatch>
+
+ProxyTimeout 300
+
+<IfModule mod_security2.c>
+  # https://github.com/SpiderLabs/ModSecurity/issues/652
+  SecRuleRemoveById 200003
+</IfModule>
+
+<Directory "$INSTALL_DIR_CENTREON/www">
+    DirectoryIndex index.php
+    Options Indexes
+    AllowOverride all
+    Order allow,deny
+    Allow from all
+    Require all granted
+    <IfModule mod_php5.c>
+        php_admin_value engine Off
+    </IfModule>
+
+    FallbackResource /centreon/index.html
+
+    AddType text/plain hbs
+</Directory>
+
+<Directory "$INSTALL_DIR_CENTREON/api">
+    Options Indexes
+    AllowOverride all
+    Order allow,deny
+    Allow from all
+    Require all granted
+    <IfModule mod_php5.c>
+        php_admin_value engine Off
+    </IfModule>
+
+    AddType text/plain hbs
+</Directory>
+
+RedirectMatch ^/$ /centreon
+
+>>>>>>> centreon/dev-21.10.x
 __EOT__
 
     if [ -e $directory/centreon.apache.conf ] ; then

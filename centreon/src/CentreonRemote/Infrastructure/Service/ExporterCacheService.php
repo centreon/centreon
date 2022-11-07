@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 /*
  * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
@@ -19,12 +20,20 @@
  *
  */
 
+=======
+>>>>>>> centreon/dev-21.10.x
 namespace CentreonRemote\Infrastructure\Service;
 
 class ExporterCacheService
 {
+<<<<<<< HEAD
     /**
      * @var mixed
+=======
+
+    /**
+     * @var array
+>>>>>>> centreon/dev-21.10.x
      */
     private $data;
 

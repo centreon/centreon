@@ -245,6 +245,7 @@ $interval_length = $centreon->optGen['interval_length'];
 
 $centreonToken = createCSRFToken();
 
+<<<<<<< HEAD
 for ($i = 0; $service = $dbResult->fetch(); $i++) {
     //Get Number of Hosts linked to this one.
     $dbResult2 = $pearDB->query(
@@ -253,6 +254,18 @@ for ($i = 0; $service = $dbResult->fetch(); $i++) {
     $data = $dbResult2->fetch();
     $service["nbr"] = $data["COUNT(*)"];
     $dbResult2->closeCursor();
+=======
+$statement = $pearDB->prepare(
+    "SELECT COUNT(*) FROM host_service_relation WHERE service_service_id = :service_id"
+);
+for ($i = 0; $service = $dbResult->fetch(); $i++) {
+    //Get Number of Hosts linked to this one.
+    $statement->bindValue(':service_id', $service["service_id"], \PDO::PARAM_INT);
+    $statement->execute();
+    $data = $statement->fetch(\PDO::FETCH_ASSOC);
+    $service["nbr"] = $data["COUNT(*)"];
+    $statement->closeCursor();
+>>>>>>> centreon/dev-21.10.x
     unset($data);
 
     /**
@@ -320,9 +333,13 @@ for ($i = 0; $service = $dbResult->fetch(); $i++) {
         $retry_units = "sec";
     }
 
+<<<<<<< HEAD
     $isHostSvgFile = true;
     if ((isset($ehiCache[$service["host_id"]]) && $ehiCache[$service["host_id"]])) {
         $isHostSvgFile = false;
+=======
+    if ((isset($ehiCache[$service["host_id"]]) && $ehiCache[$service["host_id"]])) {
+>>>>>>> centreon/dev-21.10.x
         $host_icone = "./img/media/" . $mediaObj->getFilename($ehiCache[$service["host_id"]]);
     } elseif (
         $icone = $host_method->replaceMacroInString(
@@ -330,6 +347,7 @@ for ($i = 0; $service = $dbResult->fetch(); $i++) {
             getMyHostExtendedInfoImage($service["host_id"], "ehi_icon_image", 1)
         )
     ) {
+<<<<<<< HEAD
         $isHostSvgFile = false;
         $host_icone = "./img/media/" . $icone;
     } else {
@@ -340,6 +358,14 @@ for ($i = 0; $service = $dbResult->fetch(); $i++) {
     $isServiceSvgFile = true;
     if (isset($service['esi_icon_image']) && $service['esi_icon_image']) {
         $isServiceSvgFile = false;
+=======
+        $host_icone = "./img/media/" . $icone;
+    } else {
+        $host_icone = "./img/icons/host.png";
+    }
+
+    if (isset($service['esi_icon_image']) && $service['esi_icon_image']) {
+>>>>>>> centreon/dev-21.10.x
         $svc_icon = "./img/media/" . $mediaObj->getFilename($service['esi_icon_image']);
     } elseif (
         $icone = $mediaObj->getFilename(
@@ -349,11 +375,17 @@ for ($i = 0; $service = $dbResult->fetch(); $i++) {
             )
         )
     ) {
+<<<<<<< HEAD
         $isServiceSvgFile = false;
         $svc_icon = "./img/media/" . $icone;
     } else {
         $isServiceSvgFile = true;
         $svc_icon = returnSvg("www/img/icons/service.svg", "var(--icons-fill-color)", 18, 18);
+=======
+        $svc_icon = "./img/media/" . $icone;
+    } else {
+        $svc_icon = "./img/icons/service.png";
+>>>>>>> centreon/dev-21.10.x
     }
 
     $elemArr[$i] = array(
@@ -371,9 +403,13 @@ for ($i = 0; $service = $dbResult->fetch(); $i++) {
         "RowMenu_desc" => CentreonUtils::escapeSecure($service["service_description"]),
         "RowMenu_status" => $service["service_activate"] ? _("Enabled") : _("Disabled"),
         "RowMenu_badge" => $service["service_activate"] ? "service_ok" : "service_critical",
+<<<<<<< HEAD
         "RowMenu_options" => $moptions,
         "isHostSvgFile" => $isHostSvgFile,
         "isServiceSvgFile" => $isServiceSvgFile
+=======
+        "RowMenu_options" => $moptions
+>>>>>>> centreon/dev-21.10.x
     );
     $fgHost["print"] ? null : $elemArr[$i]["RowMenu_name"] = null;
     $style != "two" ? $style = "two" : $style = "one";

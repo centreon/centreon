@@ -29,7 +29,11 @@ class BrokerConfigurationService
      *
      * @param int $configId the config id to update
      * @param string $configGroup the config group to add (input, output...)
+<<<<<<< HEAD
      * @param \Centreon\Domain\Entity\CfgCentreonBrokerInfo[] $brokerInfoEntities the flow parameters to insert
+=======
+     * @param CfgCentreonBrokerInfo[] $brokerInfoEntities the flow parameters to insert
+>>>>>>> centreon/dev-21.10.x
      */
     public function addFlow(int $configId, string $configGroup, array $brokerInfoEntities): void
     {

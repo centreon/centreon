@@ -287,6 +287,7 @@ LOCK TABLES `log_traps_args` WRITE;
 /*!40000 ALTER TABLE `log_traps_args` ENABLE KEYS */;
 UNLOCK TABLES;
 
+<<<<<<< HEAD
 CREATE TABLE `severities` (
   `severity_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `id` bigint(20) unsigned NOT NULL,
@@ -354,6 +355,8 @@ CREATE TABLE `resources_tags` (
   CONSTRAINT `resources_tags_resources_resource_id_fk` FOREIGN KEY (`resource_id`) REFERENCES `resources` (`resource_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `resources_tags_tag_id_fk` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`tag_id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+=======
+>>>>>>> centreon/dev-21.10.x
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

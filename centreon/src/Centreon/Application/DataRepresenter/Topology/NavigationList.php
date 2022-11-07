@@ -1,5 +1,8 @@
 <?php
+<<<<<<< HEAD
 
+=======
+>>>>>>> centreon/dev-21.10.x
 /*
  * Copyright 2005-2019 Centreon
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
@@ -41,6 +44,10 @@ use JsonSerializable;
 
 class NavigationList implements JsonSerializable
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * @var array
      */
@@ -49,13 +56,23 @@ class NavigationList implements JsonSerializable
     /**
      * Configurations from navigation.yml
      *
+<<<<<<< HEAD
      * @var array<mixed>
+=======
+     * @var array
+>>>>>>> centreon/dev-21.10.x
      */
     private $navConfig;
 
     /**
+<<<<<<< HEAD
      * @param array<mixed> $entities
      * @param array<mixed> $navConfig
+=======
+     * Construct
+     *
+     * @param array
+>>>>>>> centreon/dev-21.10.x
      */
     public function __construct(array $entities, array $navConfig = [])
     {
@@ -63,10 +80,14 @@ class NavigationList implements JsonSerializable
         $this->entities = $entities;
     }
 
+<<<<<<< HEAD
     /**
      * @return array<mixed>
      */
     public function getNavConfig(): array
+=======
+    public function getNavConfig() : array
+>>>>>>> centreon/dev-21.10.x
     {
         return $this->navConfig;
     }
@@ -74,7 +95,11 @@ class NavigationList implements JsonSerializable
     /**
      * JSON serialization of entity
      *
+<<<<<<< HEAD
      * @return array<mixed>
+=======
+     * @return array
+>>>>>>> centreon/dev-21.10.x
      */
     public function jsonSerialize()
     {
@@ -190,6 +215,7 @@ class NavigationList implements JsonSerializable
                     ];
 
                     //check if topology has group index
+<<<<<<< HEAD
                     if (
                         !is_null(
                             $entity->getTopologyGroup()
@@ -202,6 +228,12 @@ class NavigationList implements JsonSerializable
                             !isset($naviList[$matches[1]]['children'][$levelTwo]['groups']
                                 [$entity->getTopologyGroup()])
                         ) {
+=======
+                    if (!is_null($entity->getTopologyGroup())
+                        && isset($groups[$levelTwo][$entity->getTopologyGroup()])) {
+                        if (!isset($naviList[$matches[1]]['children'][$levelTwo]['groups']
+                                [$entity->getTopologyGroup()])) {
+>>>>>>> centreon/dev-21.10.x
                             $naviList[$matches[1]]['children'][$levelTwo]['groups'][$entity->getTopologyGroup()] = [
                                 'label' => $groups[$levelTwo][$entity->getTopologyGroup()]['name'],
                                 'children' => []
@@ -234,8 +266,13 @@ class NavigationList implements JsonSerializable
     /**
      * Extract the array without keys to avoid serialization into objects
      *
+<<<<<<< HEAD
      * @param  array<mixed> $naviList
      * @return array<mixed>
+=======
+     * @param  array<array> $naviList
+     * @return array<array>
+>>>>>>> centreon/dev-21.10.x
      */
     private function removeKeysFromArray(array $naviList): array
     {

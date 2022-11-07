@@ -2,12 +2,17 @@
 -- Insert version
 --
 
+<<<<<<< HEAD
 INSERT INTO `informations` (`key` ,`value`) VALUES ('version', '22.04.0');
+=======
+INSERT INTO `informations` (`key` ,`value`) VALUES ('version', '21.10.13');
+>>>>>>> centreon/dev-21.10.x
 
 --
 -- Contenu de la table `contact`
 --
 
+<<<<<<< HEAD
 INSERT INTO `contact` (`contact_id`, `timeperiod_tp_id`, `timeperiod_tp_id2`, `contact_name`, `contact_alias`, `contact_lang`, `contact_host_notification_options`, `contact_service_notification_options`, `contact_email`, `contact_pager`, `contact_comment`, `contact_oreon`, `contact_admin`, `contact_type_msg`, `contact_activate`, `contact_auth_type`, `contact_ldap_dn`, `contact_enable_notifications`) VALUES(1, 1, 1, '@firstname@ @lastname@', 'admin', 'en_US.UTF-8', 'n', 'n', '@email@', NULL, NULL, '1', '1', 'txt', '1', 'local', NULL, '1');
 INSERT INTO `contact` (`contact_id`, `timeperiod_tp_id`, `timeperiod_tp_id2`, `contact_name`, `contact_alias`, `contact_lang`, `contact_host_notification_options`, `contact_service_notification_options`, `contact_email`, `contact_pager`, `contact_comment`, `contact_oreon`, `contact_admin`, `contact_type_msg`, `contact_activate`, `contact_auth_type`, `contact_ldap_dn`) VALUES(17, 1, 1, 'Guest', 'guest', 'en_US.UTF-8', 'n', 'n', 'guest@localhost', NULL, NULL, '0', '0', 'txt', '0', 'local', NULL);
 INSERT INTO `contact` (`contact_id`, `timeperiod_tp_id`, `timeperiod_tp_id2`, `contact_name`, `contact_alias`, `contact_lang`, `contact_host_notification_options`, `contact_service_notification_options`, `contact_email`, `contact_pager`, `contact_comment`, `contact_oreon`, `contact_admin`, `contact_type_msg`, `contact_activate`, `contact_auth_type`, `contact_ldap_dn`) VALUES(18, 1, 1, 'User', 'user', 'en_US.UTF-8', 'n', 'n', 'user@localhost', NULL, NULL, '0', '0', 'txt', '0', 'local', NULL);
@@ -15,6 +20,12 @@ INSERT INTO `contact` (`contact_id`, `timeperiod_tp_id`, `timeperiod_tp_id2`, `c
 
 INSERT INTO `contact_password` (`password`, `contact_id`, `creation_date`) VALUES ('@admin_password@', 1, (SELECT UNIX_TIMESTAMP(NOW())));
 INSERT INTO `contact_password` (`password`, `contact_id`, `creation_date`) VALUES ('@GORGONE_PASSWORD@', 4, (SELECT UNIX_TIMESTAMP(NOW())));
+=======
+INSERT INTO `contact` (`contact_id`, `timeperiod_tp_id`, `timeperiod_tp_id2`, `contact_name`, `contact_alias`, `contact_passwd`, `contact_lang`, `contact_host_notification_options`, `contact_service_notification_options`, `contact_email`, `contact_pager`, `contact_comment`, `contact_oreon`, `contact_admin`, `contact_type_msg`, `contact_activate`, `contact_auth_type`, `contact_ldap_dn`, `contact_enable_notifications`) VALUES(1, 1, 1, '@firstname@ @lastname@', 'admin', MD5('@admin_password@'), 'en_US.UTF-8', 'n', 'n', '@email@', NULL, NULL, '1', '1', 'txt', '1', 'local', NULL, '1');
+INSERT INTO `contact` (`contact_id`, `timeperiod_tp_id`, `timeperiod_tp_id2`, `contact_name`, `contact_alias`, `contact_passwd`, `contact_lang`, `contact_host_notification_options`, `contact_service_notification_options`, `contact_email`, `contact_pager`, `contact_comment`, `contact_oreon`, `contact_admin`, `contact_type_msg`, `contact_activate`, `contact_auth_type`, `contact_ldap_dn`) VALUES(17, 1, 1, 'Guest', 'guest', NULL, 'en_US.UTF-8', 'n', 'n', 'guest@localhost', NULL, NULL, '0', '0', 'txt', '0', 'local', NULL);
+INSERT INTO `contact` (`contact_id`, `timeperiod_tp_id`, `timeperiod_tp_id2`, `contact_name`, `contact_alias`, `contact_passwd`, `contact_lang`, `contact_host_notification_options`, `contact_service_notification_options`, `contact_email`, `contact_pager`, `contact_comment`, `contact_oreon`, `contact_admin`, `contact_type_msg`, `contact_activate`, `contact_auth_type`, `contact_ldap_dn`) VALUES(18, 1, 1, 'User', 'user', NULL, 'en_US.UTF-8', 'n', 'n', 'user@localhost', NULL, NULL, '0', '0', 'txt', '0', 'local', NULL);
+
+>>>>>>> centreon/dev-21.10.x
 
 --
 -- Contenu de la table `contact_param`
@@ -89,6 +100,10 @@ INSERT INTO `options` (`key`, `value`) VALUES
 ('maxViewConfiguration','30'),
 ('AjaxTimeReloadMonitoring','15'),
 ('AjaxTimeReloadStatistic','15'),
+<<<<<<< HEAD
+=======
+('template','Centreon-2'),
+>>>>>>> centreon/dev-21.10.x
 ('color_up','#88b917'),
 ('color_down','#e00b3d'),
 ('color_unreachable','#818285'),
@@ -166,8 +181,12 @@ INSERT INTO `options` (`key`, `value`) VALUES
 ('openid_connect_client_id', ''),
 ('openid_connect_client_secret', ''),
 ('openid_connect_client_basic_auth', '0'),
+<<<<<<< HEAD
 ('openid_connect_verify_peer', '0'),
 ('unified_sql_db_type', 'mysql');
+=======
+('openid_connect_verify_peer', '0');
+>>>>>>> centreon/dev-21.10.x
 
 --
 -- Contenu de la table `giv_components_template`
@@ -237,8 +256,13 @@ INSERT INTO `giv_graphs_template` (`graph_id`, `name`, `vertical_label`, `width`
 -- Contenu de la table Connector
 --
 INSERT INTO `connector` (`id`, `name`, `description`, `command_line`, `enabled`, `created`, `modified`) VALUES
+<<<<<<< HEAD
 (1, 'Perl Connector', '', 'centreon_connector_perl --log-file=@monitoring_varlog@/connector-perl.log', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
 (2, 'SSH Connector', '', 'centreon_connector_ssh --log-file=@monitoring_varlog@/connector-ssh.log', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
+=======
+(1, 'Perl Connector', '', 'centreon_connector_perl', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP()),
+(2, 'SSH Connector', '', 'centreon_connector_ssh', 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP());
+>>>>>>> centreon/dev-21.10.x
 
 
 --
@@ -544,8 +568,13 @@ INSERT INTO `cb_type` (`cb_type_id`, `type_name`, `type_shortname`, `cb_module_i
 (10, 'IPv6', 'ipv6', 2),
 (11, 'File', 'file', 3),
 (13, 'RRD file generator', 'rrd', 7),
+<<<<<<< HEAD
 (14, 'Perfdata Generator (Centreon Storage) - DEPRECATED', 'storage', 8),
 (16, 'Broker SQL database - DEPRECATED', 'sql', 1),
+=======
+(14, 'Perfdata Generator (Centreon Storage)', 'storage', 8),
+(16, 'Broker SQL database', 'sql', 1),
+>>>>>>> centreon/dev-21.10.x
 (17, 'File', 'file', 9),
 (18, 'Standard', 'standard', 9),
 (19, 'Syslog', 'syslog', 9),
@@ -556,8 +585,12 @@ INSERT INTO `cb_type` (`cb_type_id`, `type_name`, `type_shortname`, `cb_module_i
 (29, 'Database configuration writer', 'db_cfg_writer', 17),
 (30, 'Storage - Graphite', 'graphite', 18),
 (31, 'Storage - InfluxDB', 'influxdb', 19),
+<<<<<<< HEAD
 (33, 'Stream connector', 'lua', 21),
 (34, 'Unified SQL', 'unified_sql', 8);
+=======
+(33, 'Stream connector', 'lua', 21);
+>>>>>>> centreon/dev-21.10.x
 
 --
 -- Contenu de la table `cb_field`
@@ -622,8 +655,12 @@ INSERT INTO `cb_field` (`cb_field_id`, `fieldname`, `displayname`, `description`
 (69, 'storage_db_type', 'Storage DB type', 'Target DBMS.', 'select', NULL),
 (74, 'path', 'Path', 'Path of the lua script.', 'text', NULL),
 (75, 'connections_count', 'Number of connection to the database', 'Usually cpus/2', 'int', NULL),
+<<<<<<< HEAD
 (76, 'tls_hostname', 'TLS Host name', 'Expected TLS certificate common name (CN) - leave blank if unsure.', 'text', NULL),
 (77, 'db_type', 'DB type', 'Target DBMS.', 'text', 'T=options:C=value:CK=key:K=unified_sql_db_type');
+=======
+(76, 'tls_hostname', 'TLS Host name', 'Expected TLS certificate common name (CN) - leave blank if unsure.', 'text', NULL);
+>>>>>>> centreon/dev-21.10.x
 
 INSERT INTO `cb_fieldgroup` (`cb_fieldgroup_id`, `groupname`, `displayname`, `multiple`, `group_parent_id`) VALUES
 (1, 'filters', '', 0, NULL),
@@ -753,8 +790,12 @@ INSERT INTO `cb_tag_type_relation` (`cb_tag_id`, `cb_type_id`, `cb_type_uniq`) V
 (1, 29, 1),
 (1, 30, 0),
 (1, 31, 0),
+<<<<<<< HEAD
 (1, 33, 0),
 (1, 34, 0);
+=======
+(1, 33, 0);
+>>>>>>> centreon/dev-21.10.x
 
 --
 -- Contenu de la table `cb_type_field_relation`
@@ -889,6 +930,7 @@ INSERT INTO `cb_type_field_relation` (`cb_type_id`, `cb_field_id`, `is_required`
 (33, 47, 0, 2),
 (33, 72, 0, 3),
 (33, 71, 0, 4),
+<<<<<<< HEAD
 (3, 76, 0, 5),
 (34, 16, 1, 1),
 (34, 17, 1, 2),
@@ -908,6 +950,9 @@ INSERT INTO `cb_type_field_relation` (`cb_type_id`, `cb_field_id`, `is_required`
 (34, 49, 0, 16),
 (34, 50, 0, 17),
 (34, 77, 1, 18);
+=======
+(3, 76, 0, 5);
+>>>>>>> centreon/dev-21.10.x
 
 --
 -- Contenu de la table `cb_type_field_relation`
@@ -1414,6 +1459,7 @@ VALUES
   ('partitioning_backup_directory', '/var/cache/centreon/backup');
 
 -- Insert local authentication provider configuration
+<<<<<<< HEAD
 INSERT INTO `provider_configuration` (type, name, custom_configuration, is_active, is_forced)
 VALUES (
   'local',
@@ -1440,3 +1486,7 @@ VALUES (
 -- Exclude centreon-gorgone user from password policy
 INSERT INTO `password_expiration_excluded_users` (provider_configuration_id, user_id)
 VALUES (1, 4);
+=======
+INSERT INTO `provider_configuration` (type, name, is_active, is_forced)
+VALUES ('local', 'local', true, true);
+>>>>>>> centreon/dev-21.10.x

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?php
 
 /*
@@ -35,6 +36,8 @@
  */
 
 ?>
+=======
+>>>>>>> centreon/dev-21.10.x
 <header class="nav-top">
     <span class="hamburger material-icons" id="ham">menu</span>
     <div class="logo"></div>

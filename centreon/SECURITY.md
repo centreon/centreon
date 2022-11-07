@@ -22,14 +22,18 @@ To help us better understand the nature and scope of the possible issue, please 
 * Proof-of-concept or exploit code (if possible)
 * Impact of the issue, including how an attacker might exploit the issue
 
+<<<<<<< HEAD
 ## Bug bounty
 
 We don't have a bug bounty program but this is something we are thinking about.
 
+=======
+>>>>>>> centreon/dev-21.10.x
 ## PGP information
 
 ### Public key
 
+<<<<<<< HEAD
 | Tag | Value |
 | -- | -- |
 | ID | F92686A9EC269C1A |
@@ -110,6 +114,8 @@ i51yIfcTAPmxOst/YN5WXOxWHZjZ/STVi0Y=
 | Cipher |AES-256|
 | Fingerprint | C377 E9D5 2D5C 137D 3DD5 73B5 BEA F6EBF 6311 06F9 |
 
+=======
+>>>>>>> centreon/dev-21.10.x
 ```
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 
@@ -164,3 +170,20 @@ SL4taAGY0BDuA3zhB7p5tP8=
 =YBvx
 -----END PGP PUBLIC KEY BLOCK-----
 ```
+<<<<<<< HEAD
+=======
+
+| Tag | Value |
+| -- | -- |
+| ID | BEAF6EBF631106F9 |
+| Type | RSA |
+| Size | 4096 |
+| Created | 2020-02-11 |
+| Expires | 2022-01-13 |
+| Cipher |AES-256|
+| Fingerprint | C377 E9D5 2D5C 137D 3DD5 73B5 BEA F6EBF 6311 06F9 |
+
+## Bug bounty
+
+We don't have a bug bounty program but this is something we are thinking about.
+>>>>>>> centreon/dev-21.10.x

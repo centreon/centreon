@@ -49,6 +49,10 @@ use Centreon\Application\DataRepresenter;
  */
 class CentreonPaginationServiceMock extends CentreonPaginationService
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * Disable service requirements
      */

@@ -181,9 +181,13 @@ for ($i = 0; $host = $DBRESULT->fetch(); $i++) {
     }
 
     //Check icon
+<<<<<<< HEAD
     $isHostTemplateSvgFile = true;
     if ((isset($ehiCache[$host["host_id"]]) && $ehiCache[$host["host_id"]])) {
         $isHostTemplateSvgFile = false;
+=======
+    if ((isset($ehiCache[$host["host_id"]]) && $ehiCache[$host["host_id"]])) {
+>>>>>>> centreon/dev-21.10.x
         $host_icone = "./img/media/" . $mediaObj->getFilename($ehiCache[$host["host_id"]]);
     } elseif (
         $icone = $host_method->replaceMacroInString(
@@ -191,11 +195,17 @@ for ($i = 0; $host = $DBRESULT->fetch(); $i++) {
             getMyHostExtendedInfoImage($host["host_id"], "ehi_icon_image", 1)
         )
     ) {
+<<<<<<< HEAD
         $isHostTemplateSvgFile = false;
         $host_icone = "./img/media/" . $icone;
     } else {
         $isHostTemplateSvgFile = true;
         $host_icone = returnSvg("www/img/icons/host.svg", "var(--icons-fill-color)", 16, 16);
+=======
+        $host_icone = "./img/media/" . $icone;
+    } else {
+        $host_icone = "./img/icons/host.png";
+>>>>>>> centreon/dev-21.10.x
     }
 
     //Service List
@@ -213,8 +223,12 @@ for ($i = 0; $host = $DBRESULT->fetch(); $i++) {
         "RowMenu_parent" => CentreonUtils::escapeSecure($tplStr),
         "RowMenu_status" => $host["host_activate"] ? _("Enabled") : _("Disabled"),
         "RowMenu_badge" => $host["host_activate"] ? "service_ok" : "service_critical",
+<<<<<<< HEAD
         "RowMenu_options" => $moptions,
         "isHostTemplateSvgFile" => $isHostTemplateSvgFile
+=======
+        "RowMenu_options" => $moptions
+>>>>>>> centreon/dev-21.10.x
     );
     $style != "two" ? $style = "two" : $style = "one";
 }

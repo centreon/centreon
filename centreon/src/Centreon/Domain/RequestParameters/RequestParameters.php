@@ -326,7 +326,10 @@ class RequestParameters implements RequestParametersInterface
 
     /**
      * @inheritDoc
+<<<<<<< HEAD
      * @return array<mixed>
+=======
+>>>>>>> centreon/dev-21.10.x
      */
     public function getSort(): array
     {

@@ -80,7 +80,11 @@ class ModuleDetailEntity implements JsonSerializable
      *
      * JSON serialization of entity
      *
+<<<<<<< HEAD
      * @return array<string, mixed>
+=======
+     * @return array
+>>>>>>> centreon/dev-21.10.x
      */
     public function jsonSerialize()
     {

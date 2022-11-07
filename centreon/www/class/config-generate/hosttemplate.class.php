@@ -1,7 +1,12 @@
 <?php
+<<<<<<< HEAD
 
 /*
  * Copyright 2005-2022 Centreon
+=======
+/*
+ * Copyright 2005-2015 Centreon
+>>>>>>> centreon/dev-21.10.x
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -120,22 +125,35 @@ class HostTemplate extends AbstractHost
         'notes_url',
         'action_url',
         'icon_image',
+<<<<<<< HEAD
         'icon_id',
+=======
+>>>>>>> centreon/dev-21.10.x
         'icon_image_alt',
         'statusmap_image',
         '2d_coords',
         '3d_coords',
         'acknowledgement_timeout'
     );
+<<<<<<< HEAD
     protected $attributes_array = [
         'use',
         'category_tags',
     ];
+=======
+    protected $attributes_array = array(
+        'use'
+    );
+>>>>>>> centreon/dev-21.10.x
 
     /**
      * @param int $hostId
      */
+<<<<<<< HEAD
     public function addCacheHostTpl(int $hostId): void
+=======
+    public function addCacheHostTpl(int $hostId) : void
+>>>>>>> centreon/dev-21.10.x
     {
         // We use host_register = 1 because we don't want _Module_* hosts
         $stmt = $this->backend_instance->db->prepare("
@@ -155,12 +173,21 @@ class HostTemplate extends AbstractHost
 
     private function getHosts()
     {
+<<<<<<< HEAD
         $stmt = $this->backend_instance->db->prepare(
             "SELECT {$this->attributes_select}
             FROM host
             LEFT JOIN extended_host_information ON extended_host_information.host_host_id = host.host_id
             WHERE host.host_register = '0' AND host.host_activate = '1'"
         );
+=======
+        $stmt = $this->backend_instance->db->prepare("
+            SELECT {$this->attributes_select}
+            FROM host 
+                LEFT JOIN extended_host_information ON extended_host_information.host_host_id = host.host_id 
+            WHERE  
+                host.host_register = '0' AND host.host_activate = '1'");
+>>>>>>> centreon/dev-21.10.x
         $stmt->execute();
         $this->hosts = $stmt->fetchAll(PDO::FETCH_GROUP | PDO::FETCH_UNIQUE | PDO::FETCH_ASSOC);
     }
@@ -177,6 +204,7 @@ class HostTemplate extends AbstractHost
             Severity::getInstance($this->dependencyInjector)
                 ->getHostSeverityById($this->hosts[$host_id]['severity_id']);
         if (!is_null($severity)) {
+<<<<<<< HEAD
             $macros = [
                 '_CRITICALITY_LEVEL' => $severity['level'],
                 '_CRITICALITY_ID' => $severity['hc_id'],
@@ -184,6 +212,10 @@ class HostTemplate extends AbstractHost
             ];
 
             $this->hosts[$host_id]['macros'] = array_merge($this->hosts[$host_id]['macros'] ?? [], $macros);
+=======
+            $this->hosts[$host_id]['macros']['_CRITICALITY_LEVEL'] = $severity['level'];
+            $this->hosts[$host_id]['macros']['_CRITICALITY_ID'] = $severity['hc_id'];
+>>>>>>> centreon/dev-21.10.x
         }
     }
 
@@ -213,12 +245,15 @@ class HostTemplate extends AbstractHost
         $this->getHostTemplates($this->hosts[$host_id]);
         $this->getHostCommands($this->hosts[$host_id]);
         $this->getHostPeriods($this->hosts[$host_id]);
+<<<<<<< HEAD
 
         // Set HostCategories
         $hostCategory = HostCategory::getInstance($this->dependencyInjector);
         $this->insertHostInHostCategoryMembers($hostCategory, $this->hosts[$host_id]);
         $this->hosts[$host_id]['category_tags'] = $hostCategory->getIdsByHostId($host_id);
 
+=======
+>>>>>>> centreon/dev-21.10.x
         $this->getContactGroups($this->hosts[$host_id]);
         $this->getContacts($this->hosts[$host_id]);
         $this->getSeverity($host_id);

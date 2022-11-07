@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 
 /*
  * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
@@ -19,10 +20,13 @@
  *
  */
 
+=======
+>>>>>>> centreon/dev-21.10.x
 namespace Centreon\Domain\Repository\Interfaces;
 
 interface CfgCentreonBrokerInterface
 {
+<<<<<<< HEAD
     /**
      * Get config id of central broker
      * It can be useful to add bam broker configuration
@@ -39,4 +43,7 @@ interface CfgCentreonBrokerInterface
      * @return int the config id of poller broker
      */
     public function findBrokerConfigIdByPollerId(int $pollerId): int;
+=======
+    public function findCentralBrokerConfigId(): int;
+>>>>>>> centreon/dev-21.10.x
 }

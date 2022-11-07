@@ -6,7 +6,11 @@
     "module": "CommonJS",
     "outDir": "build",
     "esModuleInterop": true,
+<<<<<<< HEAD
     "resolveJsonModule": true
+=======
+    "resolveJsonModule": true,
+>>>>>>> centreon/dev-21.10.x
   },
   "include": ["./**/*.ts"],
   "exclude": ["node_modules"]

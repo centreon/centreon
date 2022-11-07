@@ -1,5 +1,6 @@
 <?php
 
+<<<<<<< HEAD
 /*
  * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
  *
@@ -19,12 +20,19 @@
  *
  */
 
+=======
+>>>>>>> centreon/dev-21.10.x
 namespace CentreonRemote\Domain\Service\ConfigurationWizard;
 
 use Centreon\Domain\Repository\Interfaces\CfgCentreonBrokerInterface;
 use Centreon\Domain\Service\BrokerConfigurationService;
+<<<<<<< HEAD
 use CentreonRemote\Domain\Resources\RemoteConfig\CfgCentreonBroker;
 use CentreonRemote\Domain\Resources\DefaultConfig\CfgCentreonBrokerLog;
+=======
+
+use CentreonRemote\Domain\Resources\RemoteConfig\CfgCentreonBroker;
+>>>>>>> centreon/dev-21.10.x
 use CentreonRemote\Domain\Resources\RemoteConfig\CfgCentreonBrokerInfo;
 use CentreonRemote\Domain\Resources\RemoteConfig\InputFlowOnePeerRetention;
 
@@ -45,7 +53,11 @@ class PollerConnectionConfigurationService extends ServerConnectionConfiguration
      *
      * @param CfgCentreonBrokerInterface $cfgCentreonBroker the centreon broker configuration repository
      */
+<<<<<<< HEAD
     public function setBrokerRepository(CfgCentreonBrokerInterface $cfgCentreonBroker): void
+=======
+    public function setBrokerRepository(CfgCentreonBrokerInterface $cfgCentreonBroker)
+>>>>>>> centreon/dev-21.10.x
     {
         $this->brokerRepository = $cfgCentreonBroker;
     }
@@ -55,7 +67,11 @@ class PollerConnectionConfigurationService extends ServerConnectionConfiguration
      *
      * @param BrokerConfigurationService $brokerConfigurationService the service to manage broker confiration
      */
+<<<<<<< HEAD
     public function setBrokerConfigurationService(BrokerConfigurationService $brokerConfigurationService): void
+=======
+    public function setBrokerConfigurationService(BrokerConfigurationService $brokerConfigurationService)
+>>>>>>> centreon/dev-21.10.x
     {
         $this->brokerConfigurationService = $brokerConfigurationService;
     }
@@ -75,6 +91,7 @@ class PollerConnectionConfigurationService extends ServerConnectionConfiguration
         $onePeerRetentionMode = 'no';
         $moduleID = $this->insertWithAdapter('cfg_centreonbroker', $configCentreonBrokerData['module']);
 
+<<<<<<< HEAD
         $this->insertBrokerLog(
             CfgCentreonBrokerLog::getConfiguration(
                 $this->getDbAdapter()->getCentreonDBInstance(),
@@ -82,6 +99,8 @@ class PollerConnectionConfigurationService extends ServerConnectionConfiguration
             )
         );
 
+=======
+>>>>>>> centreon/dev-21.10.x
         // if one peer retention mode is enabled,
         // we need to add an input in central broker configuration
         if ($this->onePeerRetention) {

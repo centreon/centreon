@@ -1,5 +1,6 @@
 <?php
 
+<<<<<<< HEAD
 /*
  * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
  *
@@ -19,6 +20,8 @@
  *
  */
 
+=======
+>>>>>>> centreon/dev-21.10.x
 namespace CentreonRemote\Domain\Service;
 
 use Centreon\Domain\Entity\Command;
@@ -84,7 +87,11 @@ class TaskService
     }
 
     /**
+<<<<<<< HEAD
      * @param \CentreonRestHttp $centreonRestHttp
+=======
+     * @return \CentreonRestHttp
+>>>>>>> centreon/dev-21.10.x
      */
     public function setCentreonRestHttp(\CentreonRestHttp $centreonRestHttp): void
     {
@@ -92,6 +99,7 @@ class TaskService
     }
 
     /**
+<<<<<<< HEAD
      * @return \CentreonRestHttp
      */
     public function getCentreonRestHttp(): \CentreonRestHttp
@@ -100,6 +108,8 @@ class TaskService
     }
 
     /**
+=======
+>>>>>>> centreon/dev-21.10.x
      * TaskService constructor
      * @param KeyGeneratorInterface $generator
      * @param CentreonDBManagerService $dbManager
@@ -118,11 +128,19 @@ class TaskService
      * Adds a new task
      *
      * @param string $type
+<<<<<<< HEAD
      * @param array<string, array<string,mixed>> $params
      * @param int $parentId
      * @return int|bool
      */
     public function addTask(string $type, array $params, int $parentId = null): int|bool
+=======
+     * @param array $params
+     * @param int $parentId
+     * @return int|bool
+     */
+    public function addTask(string $type, array $params, int $parentId = null)
+>>>>>>> centreon/dev-21.10.x
     {
         $newTask = new Task();
         $newTask->setStatus(Task::STATE_PENDING);

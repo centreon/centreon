@@ -1,5 +1,6 @@
 <?php
 
+<<<<<<< HEAD
 /*
  * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
  *
@@ -19,6 +20,8 @@
  *
  */
 
+=======
+>>>>>>> centreon/dev-21.10.x
 namespace CentreonRemote\Domain\Resources\RemoteConfig\BrokerInfo;
 
 /**
@@ -30,7 +33,11 @@ class OutputStatus
      * Get template configuration
      * @todo move it as yml
      *
+<<<<<<< HEAD
      * @return array<int, string[]> the configuration template
+=======
+     * @return array the configuration template
+>>>>>>> centreon/dev-21.10.x
      */
     public static function getConfiguration(): array
     {

@@ -547,10 +547,20 @@ function updateGroupResources($acl_group_id, $ret = array())
 function duplicateContacts($idTD, $acl_id, $pearDB)
 {
     $request = "INSERT INTO acl_group_contacts_relations (contact_contact_id, acl_group_id) "
+<<<<<<< HEAD
         . "SELECT contact_contact_id, '$acl_id' AS acl_group_id "
         . "FROM acl_group_contacts_relations "
         . "WHERE acl_group_id = '$idTD'";
     $pearDB->query($request);
+=======
+        . "SELECT contact_contact_id, :acl_group_id AS acl_group_id "
+        . "FROM acl_group_contacts_relations "
+        . "WHERE acl_group_id = :acl_group_id_td";
+    $statement = $pearDB->prepare($request);
+    $statement->bindValue(':acl_group_id', (int) $acl_id, \PDO::PARAM_INT);
+    $statement->bindValue(':acl_group_id_td', (int) $idTD, \PDO::PARAM_INT);
+    $statement->execute();
+>>>>>>> centreon/dev-21.10.x
 }
 
 /**
@@ -562,10 +572,20 @@ function duplicateContacts($idTD, $acl_id, $pearDB)
 function duplicateContactGroups($idTD, $acl_id, $pearDB)
 {
     $request = "INSERT INTO acl_group_contactgroups_relations (cg_cg_id, acl_group_id) "
+<<<<<<< HEAD
         . "SELECT cg_cg_id, '$acl_id' AS acl_group_id "
         . "FROM acl_group_contactgroups_relations "
         . "WHERE acl_group_id = '$idTD'";
     $pearDB->query($request);
+=======
+        . "SELECT cg_cg_id, :acl_group_id AS acl_group_id "
+        . "FROM acl_group_contactgroups_relations "
+        . "WHERE acl_group_id = :acl_group_id_td";
+    $statement = $pearDB->prepare($request);
+    $statement->bindValue(':acl_group_id', (int) $acl_id, \PDO::PARAM_INT);
+    $statement->bindValue(':acl_group_id_td', (int) $idTD, \PDO::PARAM_INT);
+    $statement->execute();
+>>>>>>> centreon/dev-21.10.x
 }
 
 /**
@@ -577,10 +597,20 @@ function duplicateContactGroups($idTD, $acl_id, $pearDB)
 function duplicateResources($idTD, $acl_id, $pearDB)
 {
     $request = "INSERT INTO acl_res_group_relations (acl_res_id, acl_group_id) "
+<<<<<<< HEAD
         . "SELECT acl_res_id, '$acl_id' AS acl_group_id "
         . "FROM acl_res_group_relations "
         . "WHERE acl_group_id = '$idTD'";
     $pearDB->query($request);
+=======
+        . "SELECT acl_res_id, :acl_group_id AS acl_group_id "
+        . "FROM acl_res_group_relations "
+        . "WHERE acl_group_id = :acl_group_id_td";
+    $statement = $pearDB->prepare($request);
+    $statement->bindValue(':acl_group_id', (int) $acl_id, \PDO::PARAM_INT);
+    $statement->bindValue(':acl_group_id_td', (int) $idTD, \PDO::PARAM_INT);
+    $statement->execute();
+>>>>>>> centreon/dev-21.10.x
 }
 
 /**
@@ -592,10 +622,20 @@ function duplicateResources($idTD, $acl_id, $pearDB)
 function duplicateActions($idTD, $acl_id, $pearDB)
 {
     $request = "INSERT INTO acl_group_actions_relations (acl_action_id, acl_group_id) "
+<<<<<<< HEAD
         . "SELECT acl_action_id, '$acl_id' AS acl_group_id "
         . "FROM acl_group_actions_relations "
         . "WHERE acl_group_id = '$idTD'";
     $pearDB->query($request);
+=======
+        . "SELECT acl_action_id, :acl_group_id AS acl_group_id "
+        . "FROM acl_group_actions_relations "
+        . "WHERE acl_group_id = :acl_group_id_td";
+    $statement = $pearDB->prepare($request);
+    $statement->bindValue(':acl_group_id', (int) $acl_id, \PDO::PARAM_INT);
+    $statement->bindValue(':acl_group_id_td', (int) $idTD, \PDO::PARAM_INT);
+    $statement->execute();
+>>>>>>> centreon/dev-21.10.x
 }
 
 /**
@@ -607,10 +647,20 @@ function duplicateActions($idTD, $acl_id, $pearDB)
 function duplicateMenus($idTD, $acl_id, $pearDB)
 {
     $request = "INSERT INTO acl_group_topology_relations (acl_topology_id, acl_group_id) "
+<<<<<<< HEAD
         . "SELECT acl_topology_id, '$acl_id' AS acl_group_id "
         . "FROM acl_group_topology_relations "
         . "WHERE acl_group_id = '$idTD'";
     $pearDB->query($request);
+=======
+        . "SELECT acl_topology_id, :acl_group_id AS acl_group_id "
+        . "FROM acl_group_topology_relations "
+        . "WHERE acl_group_id = :acl_group_id_td";
+    $statement = $pearDB->prepare($request);
+    $statement->bindValue(':acl_group_id', (int) $acl_id, \PDO::PARAM_INT);
+    $statement->bindValue(':acl_group_id_td', (int) $idTD, \PDO::PARAM_INT);
+    $statement->execute();
+>>>>>>> centreon/dev-21.10.x
 }
 
 /**

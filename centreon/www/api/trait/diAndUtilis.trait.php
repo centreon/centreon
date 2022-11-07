@@ -38,6 +38,10 @@ use CentreonLegacy\Core\Utils\Factory;
 
 trait CentreonWebServiceDiAndUtilisTrait
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * @var \Pimple\Container
      */

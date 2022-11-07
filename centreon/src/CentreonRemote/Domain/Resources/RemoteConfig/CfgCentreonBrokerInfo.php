@@ -1,5 +1,6 @@
 <?php
 
+<<<<<<< HEAD
 /*
  * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
  *
@@ -19,15 +20,26 @@
  *
  */
 
+=======
+>>>>>>> centreon/dev-21.10.x
 namespace CentreonRemote\Domain\Resources\RemoteConfig;
 
 use CentreonRemote\Domain\Resources\RemoteConfig\BrokerInfo\InputBroker;
 use CentreonRemote\Domain\Resources\RemoteConfig\BrokerInfo\InputRrd;
+<<<<<<< HEAD
 use CentreonRemote\Domain\Resources\RemoteConfig\BrokerInfo\OutputRrd;
 use CentreonRemote\Domain\Resources\RemoteConfig\BrokerInfo\OutputRrdMaster;
 use CentreonRemote\Domain\Resources\RemoteConfig\BrokerInfo\OutputForwardMaster;
 use CentreonRemote\Domain\Resources\RemoteConfig\BrokerInfo\OutputModuleMaster;
 use CentreonRemote\Domain\Resources\RemoteConfig\BrokerInfo\OutputUnifiedSql;
+=======
+use CentreonRemote\Domain\Resources\RemoteConfig\BrokerInfo\OutputPerfdata;
+use CentreonRemote\Domain\Resources\RemoteConfig\BrokerInfo\OutputRrd;
+use CentreonRemote\Domain\Resources\RemoteConfig\BrokerInfo\OutputRrdMaster;
+use CentreonRemote\Domain\Resources\RemoteConfig\BrokerInfo\OutputSqlMaster;
+use CentreonRemote\Domain\Resources\RemoteConfig\BrokerInfo\OutputForwardMaster;
+use CentreonRemote\Domain\Resources\RemoteConfig\BrokerInfo\OutputModuleMaster;
+>>>>>>> centreon/dev-21.10.x
 
 /**
  * Get broker configuration template
@@ -41,7 +53,11 @@ class CfgCentreonBrokerInfo
      * @param string $serverName the poller name
      * @param string|null $dbUser the database user
      * @param string|null $dbPassword the database password
+<<<<<<< HEAD
      * @return array<string, array<string, array<int, array<string>>>> the configuration template
+=======
+     * @return array the configuration template
+>>>>>>> centreon/dev-21.10.x
      */
     public static function getConfiguration(string $serverName, $dbUser, $dbPassword): array
     {
@@ -52,6 +68,7 @@ class CfgCentreonBrokerInfo
                 'broker'          => InputBroker::getConfiguration(),
                 'output_rrd'      => OutputRrdMaster::getConfiguration(),
                 'output_forward'  => OutputForwardMaster::getConfiguration(),
+<<<<<<< HEAD
                 'output_unified_sql' => OutputUnifiedSql::getConfiguration($dbUser, $dbPassword),
             ],
             'central-module' => [
@@ -60,6 +77,17 @@ class CfgCentreonBrokerInfo
             'central-rrd' => [
                 'input'  => InputRrd::getConfiguration(),
                 'output' => OutputRrd::getConfiguration(),
+=======
+                'output_prefdata' => OutputPerfdata::getConfiguration($dbUser, $dbPassword),
+                'output_sql'      => OutputSqlMaster::getConfiguration($dbUser, $dbPassword)
+            ],
+            'central-module' => [
+                'output' => OutputModuleMaster::getConfiguration()
+            ],
+            'central-rrd' => [
+                'input'  => InputRrd::getConfiguration(),
+                'output' => OutputRrd::getConfiguration()
+>>>>>>> centreon/dev-21.10.x
             ]
         ];
         return $data;

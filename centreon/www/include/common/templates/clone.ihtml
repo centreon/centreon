@@ -1,5 +1,9 @@
 <div id="{$cloneId}_controls">
+<<<<<<< HEAD
     <div id="{$cloneId}_add" class="add-new-entry">
+=======
+    <div id="{$cloneId}_add">
+>>>>>>> centreon/dev-21.10.x
         <span style="cursor:pointer;">
             {assign var=isFrozen value=0}
             {foreach from=$cloneSet item=v}

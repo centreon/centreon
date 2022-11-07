@@ -1,7 +1,12 @@
 <?php
+<<<<<<< HEAD
 
 /*
  * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
+=======
+/**
+ * Copyright 2019 Centreon
+>>>>>>> centreon/dev-21.10.x
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +19,12 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+<<<<<<< HEAD
  *
  * For more information : contact@centreon.com
  *
+=======
+>>>>>>> centreon/dev-21.10.x
  */
 
 namespace CentreonRemote\Tests\Resources\Traits;
@@ -34,6 +42,10 @@ use CentreonRemote\ServiceProvider;
  */
 trait ExporterTrait
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * Set up exporter service in container
      *

@@ -1,8 +1,17 @@
+<<<<<<< HEAD
 import { equals } from 'ramda';
 import { useTranslation } from 'react-i18next';
 
 import { Grid, Typography } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
+=======
+import * as React from 'react';
+
+import { equals } from 'ramda';
+import { useTranslation } from 'react-i18next';
+
+import { Grid, Typography, makeStyles } from '@material-ui/core';
+>>>>>>> centreon/dev-21.10.x
 
 import { labelGroups } from '../../../../translatedLabels';
 import { CriteriaNames } from '../../../../Filter/Criterias/models';

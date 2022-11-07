@@ -10,7 +10,11 @@ import {
   patchData,
 } from '@centreon/ui';
 
+<<<<<<< HEAD
 import { baseEndpoint } from '../../../api/endpoint';
+=======
+import { baseEndpoint } from '../../api/endpoint';
+>>>>>>> centreon/dev-21.10.x
 import { Filter } from '../models';
 
 const filterEndpoint = `${baseEndpoint}/users/filters/events-view`;
@@ -30,9 +34,15 @@ const buildListCustomFiltersEndpoint = (
 
 const listCustomFilters =
   (cancelToken: CancelToken) => (): Promise<ListingModel<Filter>> =>
+<<<<<<< HEAD
     getData<ListingModel<Filter>>(cancelToken)({
       endpoint: buildListCustomFiltersEndpoint({ limit: 100, page: 1 }),
     });
+=======
+    getData<ListingModel<Filter>>(cancelToken)(
+      buildListCustomFiltersEndpoint({ limit: 100, page: 1 }),
+    );
+>>>>>>> centreon/dev-21.10.x
 
 type FilterWithoutId = Omit<Filter, 'id'>;
 

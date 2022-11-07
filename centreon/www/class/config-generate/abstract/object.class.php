@@ -51,6 +51,7 @@ abstract class AbstractObject
     protected $broker = false;
     protected $dependencyInjector;
 
+<<<<<<< HEAD
     /**
      * @param \Pimple\Container $dependencyInjector
      * @return static
@@ -64,6 +65,11 @@ abstract class AbstractObject
         /**
          * @var class-string<static>
          */
+=======
+    public static function getInstance(\Pimple\Container $dependencyInjector)
+    {
+        static $instances = array();
+>>>>>>> centreon/dev-21.10.x
         $calledClass = get_called_class();
 
         if (!isset($instances[$calledClass])) {
@@ -91,9 +97,13 @@ abstract class AbstractObject
     {
         $this->close_file();
         $this->exported = array();
+<<<<<<< HEAD
         $this->openFileForUpdate(
             $this->backend_instance->getPath() . DIRECTORY_SEPARATOR . $this->generate_filename
         );
+=======
+        $this->createFile($this->backend_instance->getPath());
+>>>>>>> centreon/dev-21.10.x
     }
 
     /**
@@ -136,6 +146,7 @@ abstract class AbstractObject
         fwrite($this->fp, $this->toUTF8($header));
     }
 
+<<<<<<< HEAD
     /**
      * open file for update and move pointer to the end
      * write header if file is created
@@ -155,6 +166,16 @@ abstract class AbstractObject
         if (! $alreadyExists) {
             $this->setHeader();
         }
+=======
+    protected function createFile($dir)
+    {
+        $full_file = $dir . '/' . $this->generate_filename;
+        if (!($this->fp = @fopen($full_file, 'w+'))) {
+            throw new Exception("Cannot open file (writing permission) '" . $full_file . "'");
+        }
+        chmod($full_file, 0660);
+        $this->setHeader();
+>>>>>>> centreon/dev-21.10.x
     }
 
     private function toUTF8($str)
@@ -216,9 +237,13 @@ abstract class AbstractObject
     protected function generateObjectInFile($object, $id)
     {
         if (is_null($this->fp)) {
+<<<<<<< HEAD
             $this->openFileForUpdate(
                 $this->backend_instance->getPath() . DIRECTORY_SEPARATOR . $this->generate_filename
             );
+=======
+            $this->createFile($this->backend_instance->getPath());
+>>>>>>> centreon/dev-21.10.x
         }
         $this->writeObject($object);
         $this->exported[$id] = 1;
@@ -259,9 +284,13 @@ abstract class AbstractObject
     protected function generateFile($object)
     {
         if (is_null($this->fp)) {
+<<<<<<< HEAD
             $this->openFileForUpdate(
                 $this->backend_instance->getPath() . DIRECTORY_SEPARATOR . $this->generate_filename
             );
+=======
+            $this->createFile($this->backend_instance->getPath());
+>>>>>>> centreon/dev-21.10.x
         }
 
         $this->writeNoObject($object);
@@ -283,18 +312,26 @@ abstract class AbstractObject
         return array();
     }
 
+<<<<<<< HEAD
     /**
      * @return bool
      */
     public function isEngineObject(): bool
+=======
+    public function isEngineObject()
+>>>>>>> centreon/dev-21.10.x
     {
         return $this->engine;
     }
 
+<<<<<<< HEAD
     /**
      * @return bool
      */
     public function isBrokerObject(): bool
+=======
+    public function isBrokerObject()
+>>>>>>> centreon/dev-21.10.x
     {
         return $this->broker;
     }

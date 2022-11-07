@@ -1,5 +1,6 @@
 <?php
 
+<<<<<<< HEAD
 /*
  * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
  *
@@ -19,6 +20,8 @@
  *
  */
 
+=======
+>>>>>>> centreon/dev-21.10.x
 namespace Centreon\Domain\Repository;
 
 use Centreon\Infrastructure\CentreonLegacyDB\ServiceEntityRepository;
@@ -32,7 +35,15 @@ use Centreon\Infrastructure\Service\Exception\NotFoundException;
 class CfgCentreonBrokerRepository extends ServiceEntityRepository implements CfgCentreonBrokerInterface
 {
     /**
+<<<<<<< HEAD
      * {@inheritDoc}
+=======
+     * Get config id of central broker
+     * It can be useful to add bam broker configuration
+     * Or add an input to manage one peer retention
+     *
+     * @return int the config id of central broker
+>>>>>>> centreon/dev-21.10.x
      * @throws NotFoundException
      */
     public function findCentralBrokerConfigId(): int
@@ -61,7 +72,14 @@ class CfgCentreonBrokerRepository extends ServiceEntityRepository implements Cfg
     }
 
     /**
+<<<<<<< HEAD
      * {@inheritDoc}
+=======
+     * Get config id of poller broker
+     *
+     * @param int pollerId the poller id
+     * @return int the config id of poller broker
+>>>>>>> centreon/dev-21.10.x
      * @throws NotFoundException
      */
     public function findBrokerConfigIdByPollerId(int $pollerId): int

@@ -1,5 +1,6 @@
 <?php
 
+<<<<<<< HEAD
 /*
  * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
  *
@@ -19,12 +20,18 @@
  *
  */
 
+=======
+>>>>>>> centreon/dev-21.10.x
 namespace CentreonRemote\Infrastructure\Service;
 
 use Pimple\Container;
 
 class PollerInteractionService
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /** @var Container */
     private $di;
 
@@ -50,10 +57,14 @@ class PollerInteractionService
     }
 
 
+<<<<<<< HEAD
     /**
      * @param int[] $pollers
      */
     public function generateAndExport($pollers): void
+=======
+    public function generateAndExport($pollers)
+>>>>>>> centreon/dev-21.10.x
     {
         $pollers = (array) $pollers;
 
@@ -62,11 +73,15 @@ class PollerInteractionService
         $this->restartPoller($pollers);
     }
 
+<<<<<<< HEAD
     /**
      * @throws \Exception
      * @param int[] $pollerIDs
      */
     private function generateConfiguration(array $pollerIDs): void
+=======
+    private function generateConfiguration(array $pollerIDs)
+>>>>>>> centreon/dev-21.10.x
     {
         $username = 'unknown';
 
@@ -91,11 +106,15 @@ class PollerInteractionService
         }
     }
 
+<<<<<<< HEAD
     /**
      * @throws \Exception
      * @param int[] $pollerIDs
      */
     private function moveConfigurationFiles(array $pollerIDs): void
+=======
+    private function moveConfigurationFiles(array $pollerIDs)
+>>>>>>> centreon/dev-21.10.x
     {
         $centreonBrokerPath = _CENTREON_CACHEDIR_ . '/config/broker/';
 
@@ -144,11 +163,15 @@ class PollerInteractionService
         }
     }
 
+<<<<<<< HEAD
     /**
      * @throws \Exception
      * @param int[] $pollerIDs
      */
     private function restartPoller(array $pollerIDs): void
+=======
+    private function restartPoller(array $pollerIDs)
+>>>>>>> centreon/dev-21.10.x
     {
         $tabServers = [];
 

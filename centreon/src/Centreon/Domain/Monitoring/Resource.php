@@ -40,6 +40,10 @@ class Resource
     // Groups for serialization
     public const SERIALIZER_GROUP_MAIN = 'resource_main';
     public const SERIALIZER_GROUP_PARENT = 'resource_parent';
+<<<<<<< HEAD
+=======
+    public const SERIALIZER_GROUP_DETAILS = 'resource_details';
+>>>>>>> centreon/dev-21.10.x
 
     // Groups for validation
     public const VALIDATION_GROUP_ACK_HOST = ['ack_host'];
@@ -57,7 +61,11 @@ class Resource
     public const TYPE_META = 'metaservice';
 
     /**
+<<<<<<< HEAD
      * @var int|null
+=======
+     * @var int
+>>>>>>> centreon/dev-21.10.x
      */
     private $id;
 
@@ -147,6 +155,7 @@ class Resource
     private $acknowledged = false;
 
     /**
+<<<<<<< HEAD
      * @var bool
      */
     private $activeChecks = true;
@@ -155,6 +164,16 @@ class Resource
      * @var bool
      */
     private $passiveChecks = false;
+=======
+     * @var bool|null
+     */
+    private $activeChecks;
+
+    /**
+     * @var bool|null
+     */
+    private $passiveChecks;
+>>>>>>> centreon/dev-21.10.x
 
     /**
      * @var ResourceLinks
@@ -263,11 +282,14 @@ class Resource
     private $notificationEnabled = false;
 
     /**
+<<<<<<< HEAD
      * @var bool
      */
     private $hasGraph = false;
 
     /**
+=======
+>>>>>>> centreon/dev-21.10.x
      * Resource constructor.
      */
     public function __construct()
@@ -330,18 +352,31 @@ class Resource
     }
 
     /**
+<<<<<<< HEAD
      * @return int|null
      */
     public function getId(): ?int
+=======
+     * @return int
+     */
+    public function getId(): int
+>>>>>>> centreon/dev-21.10.x
     {
         return $this->id;
     }
 
     /**
+<<<<<<< HEAD
      * @param int|null $id
      * @return \Centreon\Domain\Monitoring\Resource
      */
     public function setId(?int $id): self
+=======
+     * @param int $id
+     * @return \Centreon\Domain\Monitoring\Resource
+     */
+    public function setId(int $id): self
+>>>>>>> centreon/dev-21.10.x
     {
         $this->id = $id;
 
@@ -401,6 +436,10 @@ class Resource
     public function setAlias(?string $alias): self
     {
         $this->alias = $alias;
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
         return $this;
     }
 
@@ -651,6 +690,10 @@ class Resource
     public function setInDowntime(bool $inDowntime): self
     {
         $this->inDowntime = $inDowntime;
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
         return $this;
     }
 
@@ -669,40 +712,70 @@ class Resource
     public function setAcknowledged(bool $acknowledged): self
     {
         $this->acknowledged = $acknowledged;
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
         return $this;
     }
 
     /**
+<<<<<<< HEAD
      * @return bool
      */
     public function getActiveChecks(): bool
+=======
+     * @return bool|null
+     */
+    public function getActiveChecks(): ?bool
+>>>>>>> centreon/dev-21.10.x
     {
         return $this->activeChecks;
     }
 
     /**
+<<<<<<< HEAD
      * @param bool $activeChecks
      * @return self
      */
     public function setActiveChecks(bool $activeChecks): self
+=======
+     * @param bool|null $activeChecks
+     * @return self
+     */
+    public function setActiveChecks(?bool $activeChecks): self
+>>>>>>> centreon/dev-21.10.x
     {
         $this->activeChecks = $activeChecks;
         return $this;
     }
 
     /**
+<<<<<<< HEAD
      * @return bool
      */
     public function getPassiveChecks(): bool
+=======
+     * @return bool|null
+     */
+    public function getPassiveChecks(): ?bool
+>>>>>>> centreon/dev-21.10.x
     {
         return $this->passiveChecks;
     }
 
     /**
+<<<<<<< HEAD
      * @param bool $passiveChecks
      * @return self
      */
     public function setPassiveChecks(bool $passiveChecks): self
+=======
+     * @param bool|null $passiveChecks
+     * @return self
+     */
+    public function setPassiveChecks(?bool $passiveChecks): self
+>>>>>>> centreon/dev-21.10.x
     {
         $this->passiveChecks = $passiveChecks;
         return $this;
@@ -1086,6 +1159,7 @@ class Resource
 
         return $this;
     }
+<<<<<<< HEAD
 
     /**
      * @param bool $hasGraph
@@ -1104,4 +1178,6 @@ class Resource
     {
         return $this->hasGraph;
     }
+=======
+>>>>>>> centreon/dev-21.10.x
 }

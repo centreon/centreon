@@ -1,10 +1,19 @@
 /* eslint-disable react/no-unused-prop-types */
 
+<<<<<<< HEAD
+=======
+import * as React from 'react';
+
+>>>>>>> centreon/dev-21.10.x
 import parse from 'html-react-parser';
 import DOMPurify from 'dompurify';
 import { useTranslation } from 'react-i18next';
 
+<<<<<<< HEAD
 import makeStyles from '@mui/styles/makeStyles';
+=======
+import { makeStyles } from '@material-ui/core';
+>>>>>>> centreon/dev-21.10.x
 
 import { ColumnType, useLocaleDateTimeFormat } from '@centreon/ui';
 
@@ -69,7 +78,10 @@ const DowntimeDetailsTable = ({ endpoint }: Props): JSX.Element => {
       width: 150,
     },
     {
+<<<<<<< HEAD
       // eslint-disable-next-line react/no-unstable-nested-components
+=======
+>>>>>>> centreon/dev-21.10.x
       getContent: ({ end_time }: DowntimeDetails): JSX.Element => (
         <span>{toDateTime(end_time)}</span>
       ),
@@ -82,7 +94,10 @@ const DowntimeDetailsTable = ({ endpoint }: Props): JSX.Element => {
     {
       className: classes.comment,
 
+<<<<<<< HEAD
       // eslint-disable-next-line react/no-unstable-nested-components
+=======
+>>>>>>> centreon/dev-21.10.x
       getContent: ({ comment }: DowntimeDetails): JSX.Element => {
         return (
           <span className={classes.comment}>

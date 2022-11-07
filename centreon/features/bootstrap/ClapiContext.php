@@ -4,6 +4,7 @@ use Centreon\Test\Behat\CentreonContext;
 
 class ClapiContext extends CentreonContext
 {
+<<<<<<< HEAD
     private const CLAPI_ACTIONS_ORDER = [
         "ACLACTION",
         "INSTANCE",
@@ -55,6 +56,9 @@ class ClapiContext extends CentreonContext
     ];
 
     private const CONFIGURATION_EXPORT_FILENAME = 'clapi-export.txt';
+=======
+
+>>>>>>> centreon/dev-21.10.x
     protected $test;
     protected $object;
     protected $parameter;
@@ -62,7 +66,11 @@ class ClapiContext extends CentreonContext
 
     public function exportClapi($file = null, $selectList = array(), $filter = null)
     {
+<<<<<<< HEAD
         $cmd = 'centreon -u admin -p Centreon!2021 -e';
+=======
+        $cmd = "centreon -u admin -p centreon -e";
+>>>>>>> centreon/dev-21.10.x
         if (!empty($selectList)) {
             foreach ($selectList as $select) {
                 $cmd .= " --select='" . $select . "'";
@@ -103,7 +111,11 @@ class ClapiContext extends CentreonContext
      */
     public function itWasImported()
     {
+<<<<<<< HEAD
         $cmd = "centreon -u admin -p Centreon!2021 -i " . $this->file['init'];
+=======
+        $cmd = "centreon -u admin -p centreon -i " . $this->file['init'];
+>>>>>>> centreon/dev-21.10.x
 
         $this->container->execute(
             $cmd,
@@ -140,6 +152,7 @@ class ClapiContext extends CentreonContext
             throw new \Exception('Configuration not imported');
         }
     }
+<<<<<<< HEAD
 
     /**
      * @When the user uses the clapi export command
@@ -222,4 +235,6 @@ class ClapiContext extends CentreonContext
             );
         }
     }
+=======
+>>>>>>> centreon/dev-21.10.x
 }

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { Theme } from '@mui/material';
+=======
+import { Theme } from '@material-ui/core';
+>>>>>>> centreon/dev-21.10.x
 
 interface Condition {
   color: string;

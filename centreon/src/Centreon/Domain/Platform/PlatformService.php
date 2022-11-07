@@ -32,6 +32,10 @@ use Centreon\Domain\Platform\Interfaces\PlatformServiceInterface;
  */
 class PlatformService implements PlatformServiceInterface
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * @var PlatformRepositoryInterface
      */

@@ -24,27 +24,43 @@ namespace Centreon\Domain\HostConfiguration;
 
 use Centreon\Domain\ActionLog\ActionLog;
 use Centreon\Domain\ActionLog\Interfaces\ActionLogServiceInterface;
+<<<<<<< HEAD
 use Centreon\Domain\Common\Assertion\Assertion;
 use Centreon\Domain\Contact\Interfaces\ContactInterface;
 use Centreon\Domain\Engine\Interfaces\EngineConfigurationServiceInterface;
 use Centreon\Domain\HostConfiguration\Exception\HostConfigurationServiceException;
+=======
+use Centreon\Domain\Engine\EngineConfiguration;
+use Centreon\Domain\Engine\Interfaces\EngineConfigurationServiceInterface;
+>>>>>>> centreon/dev-21.10.x
 use Centreon\Domain\HostConfiguration\Interfaces\HostCategory\HostCategoryServiceInterface;
 use Centreon\Domain\HostConfiguration\Interfaces\HostConfigurationRepositoryInterface;
 use Centreon\Domain\HostConfiguration\Interfaces\HostConfigurationServiceInterface;
 use Centreon\Domain\HostConfiguration\Interfaces\HostGroup\HostGroupServiceInterface;
 use Centreon\Domain\HostConfiguration\Interfaces\HostMacro\HostMacroServiceInterface;
+<<<<<<< HEAD
 use Centreon\Domain\HostConfiguration\Model\HostCategory;
 use Centreon\Domain\HostConfiguration\Model\HostGroup;
 use Centreon\Domain\Log\LoggerTrait;
 use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
+=======
+use Centreon\Domain\HostConfiguration\Interfaces\HostSeverity\HostSeverityServiceInterface;
+use Centreon\Domain\HostConfiguration\Model\HostCategory;
+use Centreon\Domain\HostConfiguration\Model\HostGroup;
+use Centreon\Domain\Repository\Interfaces\DataStorageEngineInterface;
+use Centreon\Infrastructure\HostConfiguration\API\Model\HostCategory\HostCategoryV2110Factory;
+>>>>>>> centreon/dev-21.10.x
 
 /**
  * @package Centreon\Domain\HostConfiguration
  */
 class HostConfigurationService implements HostConfigurationServiceInterface
 {
+<<<<<<< HEAD
     use LoggerTrait;
 
+=======
+>>>>>>> centreon/dev-21.10.x
     /**
      * @var HostConfigurationRepositoryInterface
      */
@@ -73,11 +89,18 @@ class HostConfigurationService implements HostConfigurationServiceInterface
      * @var HostGroupServiceInterface
      */
     private $hostGroupService;
+<<<<<<< HEAD
 
     /**
      * @var ContactInterface
      */
     private $contact;
+=======
+    /**
+     * @var HostSeverityServiceInterface
+     */
+    private $hostSeverityService;
+>>>>>>> centreon/dev-21.10.x
 
     /**
      * @param HostConfigurationRepositoryInterface $hostConfigurationRepository
@@ -85,9 +108,15 @@ class HostConfigurationService implements HostConfigurationServiceInterface
      * @param EngineConfigurationServiceInterface $engineConfigurationService
      * @param HostMacroServiceInterface $hostMacroService
      * @param HostCategoryServiceInterface $hostCategoryService
+<<<<<<< HEAD
      * @param HostGroupServiceInterface $hostGroupService
      * @param DataStorageEngineInterface $dataStorageEngine
      * @param ContactInterface $contact
+=======
+     * @param HostSeverityServiceInterface $hostSeverityService
+     * @param HostGroupServiceInterface $hostGroupService
+     * @param DataStorageEngineInterface $dataStorageEngine
+>>>>>>> centreon/dev-21.10.x
      */
     public function __construct(
         HostConfigurationRepositoryInterface $hostConfigurationRepository,
@@ -95,15 +124,22 @@ class HostConfigurationService implements HostConfigurationServiceInterface
         EngineConfigurationServiceInterface $engineConfigurationService,
         HostMacroServiceInterface $hostMacroService,
         HostCategoryServiceInterface $hostCategoryService,
+<<<<<<< HEAD
         HostGroupServiceInterface $hostGroupService,
         DataStorageEngineInterface $dataStorageEngine,
         ContactInterface $contact
+=======
+        HostSeverityServiceInterface $hostSeverityService,
+        HostGroupServiceInterface $hostGroupService,
+        DataStorageEngineInterface $dataStorageEngine
+>>>>>>> centreon/dev-21.10.x
     ) {
         $this->hostConfigurationRepository = $hostConfigurationRepository;
         $this->actionLogService = $actionLogService;
         $this->engineConfigurationService = $engineConfigurationService;
         $this->hostMacroService = $hostMacroService;
         $this->hostCategoryService = $hostCategoryService;
+<<<<<<< HEAD
         $this->hostGroupService = $hostGroupService;
         $this->dataStorageEngine = $dataStorageEngine;
         $this->contact = $contact;
@@ -138,18 +174,75 @@ class HostConfigurationService implements HostConfigurationServiceInterface
                     $this->debug('Start transaction');
                     $this->dataStorageEngine->startTransaction();
                 }
+=======
+        $this->hostSeverityService = $hostSeverityService;
+        $this->hostGroupService = $hostGroupService;
+        $this->dataStorageEngine = $dataStorageEngine;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function addHost(Host $host): void
+    {
+        if (empty($host->getName())) {
+            throw new HostConfigurationException(_('Host name can not be empty'));
+        }
+        try {
+            if (empty($host->getIpAddress())) {
+                throw new HostConfigurationException(_('Ip address can not be empty'));
+            }
+
+            if ($host->getMonitoringServer() === null || $host->getMonitoringServer()->getName() === null) {
+                throw new HostConfigurationException(_('Monitoring server is not correctly defined'));
+            }
+
+            /*
+             * To avoid defining a host name with illegal characters,
+             * we retrieve the engine configuration to retrieve the list of these characters.
+             */
+            $engineConfiguration = $this->engineConfigurationService->findEngineConfigurationByName(
+                $host->getMonitoringServer()->getName()
+            );
+            if ($engineConfiguration === null) {
+                throw new HostConfigurationException(_('Unable to find the Engine configuration'));
+            }
+
+            $safedHostName = $engineConfiguration->removeIllegalCharacters($host->getName());
+            if (empty($safedHostName)) {
+                throw new HostConfigurationException(_('Host name can not be empty'));
+            }
+            $host->setName($safedHostName);
+
+            if ($this->hostConfigurationRepository->hasHostWithSameName($host->getName())) {
+                throw new HostConfigurationException(_('Host name already exists'));
+            }
+            if ($host->getExtendedHost() === null) {
+                $host->setExtendedHost(new ExtendedHost());
+            }
+
+            if ($host->getMonitoringServer()->getId() === null) {
+                $host->getMonitoringServer()->setId($engineConfiguration->getMonitoringServerId());
+            }
+            $this->dataStorageEngine->startTransaction();
+            try {
+>>>>>>> centreon/dev-21.10.x
                 /**
                  * Create all the entities that will be associated with the host and that
                  * must exist beforehand and provided that their identifier is defined.
                  */
                 $this->createHostCategoriesBeforeLinking($host->getCategories());
                 $this->createHostGroupsBeforeLinking($host->getGroups());
+<<<<<<< HEAD
                 $this->debug('Adding host');
+=======
+>>>>>>> centreon/dev-21.10.x
                 $this->hostConfigurationRepository->addHost($host);
                 /**
                  * Create all the entities that will be associated with the host that must be created first.
                  */
                 foreach ($host->getMacros() as $macro) {
+<<<<<<< HEAD
                     $this->debug('Add macro ' . $macro->getName());
                     $this->hostMacroService->addMacroToHost($host, $macro);
                 }
@@ -216,6 +309,87 @@ class HostConfigurationService implements HostConfigurationServiceInterface
                 $this->dataStorageEngine->rollbackTransaction();
             }
             throw HostConfigurationServiceException::errorOnUpdatingAHost($ex);
+=======
+                    $this->hostMacroService->addMacroToHost($host, $macro);
+                }
+            } catch (\Throwable $ex) {
+                $this->dataStorageEngine->rollbackTransaction();
+                throw new HostConfigurationException(
+                    sprintf(
+                        _('Error when adding a host (Reason: %s)'),
+                        $ex->getMessage()
+                    ),
+                    0,
+                    $ex
+                );
+            }
+            $this->dataStorageEngine->commitTransaction();
+
+            if ($host->getId() !== null) {
+                $defaultStatus = 'Default';
+
+                // We create the list of changes concerning the creation of the host
+                $actionsDetails = [
+                    'Host name' => $host->getName() ?? '',
+                    'Host alias' => $host->getAlias() ?? '',
+                    'Host IP address' => $host->getIpAddress() ?? '',
+                    'Monitoring server name' => $host->getMonitoringServer()->getName() ?? '',
+                    'Create services linked to templates' => 'true',
+                    'Is activated' => $host->isActivated() ? 'true' : 'false',
+
+                    // We don't have these properties in the host object yet, so we display these default values
+                    'Active checks enabled' => $defaultStatus,
+                    'Passive checks enabled' => $defaultStatus,
+                    'Notifications enabled' => $defaultStatus,
+                    'Obsess over host' => $defaultStatus,
+                    'Check freshness' => $defaultStatus,
+                    'Flap detection enabled' => $defaultStatus,
+                    'Retain status information' => $defaultStatus,
+                    'Retain nonstatus information' => $defaultStatus,
+                    'Event handler enabled' => $defaultStatus,
+                ];
+                if (!empty($host->getTemplates())) {
+                    $templateNames = [];
+                    foreach ($host->getTemplates() as $template) {
+                        if (!empty($template->getName())) {
+                            $templateNames[] = $template->getName();
+                        }
+                    }
+                    $actionsDetails = array_merge(
+                        $actionsDetails,
+                        ['Templates selected' => implode(', ', $templateNames)]
+                    );
+                }
+
+                if (!empty($host->getMacros())) {
+                    $macroDetails = [];
+                    foreach ($host->getMacros() as $macro) {
+                        if (!empty($macro->getName())) {
+                            // We remove the symbol characters in the macro name
+                            $macroDetails[substr($macro->getName(), 2, strlen($macro->getName()) - 3)] =
+                                $macro->isPassword() ? '*****' : $macro->getValue() ?? '';
+                        }
+                    }
+                    $actionsDetails = array_merge(
+                        $actionsDetails,
+                        [
+                            'Macro names' => implode(', ', array_keys($macroDetails)),
+                            'Macro values' => implode(', ', array_values($macroDetails))
+                        ]
+                    );
+                }
+                $this->actionLogService->addAction(
+                // The userId is set to 0 because it is not yet possible to determine who initiated the action.
+                // We will see later how to get it back.
+                    new ActionLog('host', $host->getId(), $host->getName(), ActionLog::ACTION_TYPE_ADD, 0),
+                    $actionsDetails
+                );
+            }
+        } catch (HostConfigurationException $ex) {
+            throw $ex;
+        } catch (\Exception $ex) {
+            throw new HostConfigurationException(_('Error while creation of host'), 0, $ex);
+>>>>>>> centreon/dev-21.10.x
         }
     }
 
@@ -290,7 +464,11 @@ class HostConfigurationService implements HostConfigurationServiceInterface
 
             foreach ($matchedMacros as $matchedMacroName) {
                 // snmp macros are not custom macros
+<<<<<<< HEAD
                 if (in_array($matchedMacroName, ['$_HOSTSNMPCOMMUNITY$', '$_HOSTSNMPVERSION$']) === false) {
+=======
+                if (!in_array($matchedMacroName, ['$_HOSTSNMPCOMMUNITY$', '$_HOSTSNMPVERSION$'])) {
+>>>>>>> centreon/dev-21.10.x
                     $hostMacros[$matchedMacroName] = (new HostMacro())
                         ->setName($matchedMacroName)
                         ->setValue('');
@@ -367,23 +545,34 @@ class HostConfigurationService implements HostConfigurationServiceInterface
     }
 
     /**
+<<<<<<< HEAD
      * Create host categories if they don't exist, otherwise we initialise the ids with the existing categories.
+=======
+     * Create the host categories if they do not exist.
+>>>>>>> centreon/dev-21.10.x
      *
      * @param HostCategory[] $categories Host categories to be created
      * @throws Exception\HostCategoryException
      */
     private function createHostCategoriesBeforeLinking(array $categories): void
     {
+<<<<<<< HEAD
         $this->info('Create host categories before linking');
+=======
+>>>>>>> centreon/dev-21.10.x
         $namesToCheckBeforeCreation = [];
         foreach ($categories as $category) {
             if ($category->getId() === null) {
                 $namesToCheckBeforeCreation[] = $category->getName();
             }
         }
+<<<<<<< HEAD
 
         $categoriesAlreadyCreated = $this->hostCategoryService->findByNamesWithoutAcl($namesToCheckBeforeCreation);
 
+=======
+        $categoriesAlreadyCreated = $this->hostCategoryService->findByNamesWithoutAcl($namesToCheckBeforeCreation);
+>>>>>>> centreon/dev-21.10.x
         $categoriesToBeCreated = [];
 
         foreach ($categories as $category) {
@@ -397,7 +586,11 @@ class HostConfigurationService implements HostConfigurationServiceInterface
                     break;
                 }
             }
+<<<<<<< HEAD
             if ($found === false) {
+=======
+            if (!$found) {
+>>>>>>> centreon/dev-21.10.x
                 $categoriesToBeCreated[] = $category;
             }
         }
@@ -431,24 +624,35 @@ class HostConfigurationService implements HostConfigurationServiceInterface
     }
 
     /**
+<<<<<<< HEAD
      * Create host groups if they don't exist, otherwise we initialise the ids with the existing host groups.
+=======
+     * Create the host groups if they do not exist.
+>>>>>>> centreon/dev-21.10.x
      *
      * @param HostGroup[] $groups Host groups to be created
      * @throws Exception\HostGroupException
      */
     private function createHostGroupsBeforeLinking(array $groups): void
     {
+<<<<<<< HEAD
         $this->info('Create host groups before linking');
+=======
+>>>>>>> centreon/dev-21.10.x
         $namesToCheckBeforeCreation = [];
         foreach ($groups as $group) {
             if ($group->getId() === null) {
                 $namesToCheckBeforeCreation[] = $group->getName();
             }
         }
+<<<<<<< HEAD
 
         // We search for them as if we were an admin user
         $groupsAlreadyCreated = $this->hostGroupService->findByNamesWithoutAcl($namesToCheckBeforeCreation);
 
+=======
+        $groupsAlreadyCreated = $this->hostGroupService->findByNamesWithoutAcl($namesToCheckBeforeCreation);
+>>>>>>> centreon/dev-21.10.x
         $groupsToBeCreated = [];
 
         foreach ($groups as $group) {
@@ -462,7 +666,11 @@ class HostConfigurationService implements HostConfigurationServiceInterface
                     break;
                 }
             }
+<<<<<<< HEAD
             if ($found === false) {
+=======
+            if (!$found) {
+>>>>>>> centreon/dev-21.10.x
                 $groupsToBeCreated[] = $group;
             }
         }
@@ -494,6 +702,7 @@ class HostConfigurationService implements HostConfigurationServiceInterface
             }
         }
     }
+<<<<<<< HEAD
 
     /**
      * The host name is checked to remove any illegal characters that monitoring server cannot accept.
@@ -688,4 +897,6 @@ class HostConfigurationService implements HostConfigurationServiceInterface
             throw new HostConfigurationException(_('Error while searching for the host'), 0, $ex);
         }
     }
+=======
+>>>>>>> centreon/dev-21.10.x
 }

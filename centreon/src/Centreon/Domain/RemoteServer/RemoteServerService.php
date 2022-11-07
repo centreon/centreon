@@ -40,6 +40,10 @@ use Centreon\Domain\PlatformTopology\Interfaces\PlatformTopologyRegisterReposito
 
 class RemoteServerService implements RemoteServerServiceInterface
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * @var MenuRepositoryInterface
      */
@@ -137,16 +141,29 @@ class RemoteServerService implements RemoteServerServiceInterface
         if ($platformInformation->getPlatformName() !== null) {
             $topLevelPlatform->setName($platformInformation->getPlatformName());
         }
+<<<<<<< HEAD
+=======
+        $topLevelPlatform->setAddress($platformInformation->getAddress());
+
+>>>>>>> centreon/dev-21.10.x
         /**
          * Find any children platform and forward them to Central Parent.
          */
         $platforms = $this->platformTopologyRepository->findChildrenPlatformsByParentId(
             $topLevelPlatform->getId()
         );
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
         /**
          * Insert the Top Level Platform at the beginning of array, as it need to be registered first.
          */
         array_unshift($platforms, $topLevelPlatform);
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
         /**
          * Register the platforms on the Parent Central
          */

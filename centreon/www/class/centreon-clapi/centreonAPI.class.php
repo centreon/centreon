@@ -1,7 +1,12 @@
 <?php
+<<<<<<< HEAD
 
 /**
  * Copyright 2005-2021 CENTREON
+=======
+/**
+ * Copyright 2005-2015 CENTREON
+>>>>>>> centreon/dev-21.10.x
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -36,15 +41,21 @@
 
 namespace CentreonClapi;
 
+<<<<<<< HEAD
 use Security\Domain\Authentication\Exceptions\ProviderException;
 use Security\Domain\Authentication\Model\LocalProvider;
 
+=======
+>>>>>>> centreon/dev-21.10.x
 require_once _CENTREON_PATH_ . "www/class/centreon-clapi/centreonExported.class.php";
 require_once realpath(dirname(__FILE__) . "/../centreonDB.class.php");
 require_once realpath(dirname(__FILE__) . "/../centreonXML.class.php");
 require_once _CENTREON_PATH_ . "www/include/configuration/configGenerate/DB-Func.php";
 require_once _CENTREON_PATH_ . 'www/class/config-generate/generate.class.php';
+<<<<<<< HEAD
 require_once __DIR__ . '/../centreonAuth.class.php';
+=======
+>>>>>>> centreon/dev-21.10.x
 require_once _CENTREON_PATH_ . "www/class/centreonAuth.LDAP.class.php";
 require_once _CENTREON_PATH_ . 'www/class/centreonLog.class.php';
 require_once realpath(dirname(__FILE__) . "/../centreonSession.class.php");
@@ -506,6 +517,7 @@ class CentreonAPI
         /**
          * Check Login / Password
          */
+<<<<<<< HEAD
         $DBRESULT = $this->DB->prepare(
             "SELECT `contact`.*, `contact_password`.`password` AS `contact_passwd`,
             `contact_password`.`creation_date` AS `password_creation` FROM `contact`
@@ -516,6 +528,23 @@ class CentreonAPI
         );
         $DBRESULT->bindParam(':contactAlias', $this->login, \PDO::PARAM_STR);
         $DBRESULT->execute();
+=======
+        if ($useSha1) {
+            $pass = $this->dependencyInjector['utils']->encodePass($this->password, 'sha1');
+        } else {
+            $pass = $this->dependencyInjector['utils']->encodePass($this->password, 'md5');
+        }
+
+        if ($isWorker) {
+            $pass = 'md5__' . $this->password;
+        }
+
+        $DBRESULT = $this->DB->query("SELECT *
+                 FROM contact
+                 WHERE contact_alias = '" . $this->login . "'
+                 AND contact_activate = '1'");
+
+>>>>>>> centreon/dev-21.10.x
         if ($DBRESULT->rowCount()) {
             $row = $DBRESULT->fetchRow();
 
@@ -523,6 +552,7 @@ class CentreonAPI
                 print "You don't have permissions for CLAPI.\n";
                 exit(1);
             }
+<<<<<<< HEAD
             $contact = new \CentreonContact($this->DB);
             // Get Security Policy
             $securityPolicy = $contact->getPasswordSecurityPolicy();
@@ -583,6 +613,19 @@ class CentreonAPI
             if (password_verify($this->password, $row['contact_passwd'])) {
                 \CentreonClapi\CentreonUtils::setUserId($row['contact_id']);
                 $this->removeBlockingTimeOnUser();
+=======
+
+            $algo = $this->dependencyInjector['utils']->detectPassPattern($row['contact_passwd']);
+            if (!$algo) {
+                if ($useSha1) {
+                    $row['contact_passwd'] = 'sha1__' . $row['contact_passwd'];
+                } else {
+                    $row['contact_passwd'] = 'md5__' . $row['contact_passwd'];
+                }
+            }
+            if ($row['contact_passwd'] == $pass) {
+                \CentreonClapi\CentreonUtils::setUserId($row['contact_id']);
+>>>>>>> centreon/dev-21.10.x
                 return 1;
             } elseif ($row['contact_auth_type'] == 'ldap') {
                 $CentreonLog = new \CentreonUserLog(-1, $this->DB);
@@ -599,6 +642,7 @@ class CentreonAPI
                     return 1;
                 }
             }
+<<<<<<< HEAD
             if ($securityPolicy['attempts'] !== null && $securityPolicy['blocking_duration'] !== null) {
                 $this->exitOnInvalidCredentials(
                     (int) $row['login_attempts'],
@@ -606,6 +650,8 @@ class CentreonAPI
                     (int) $securityPolicy['blocking_duration']
                 );
             }
+=======
+>>>>>>> centreon/dev-21.10.x
         }
         print "Invalid credentials.\n";
         exit(1);
@@ -815,7 +861,11 @@ class CentreonAPI
                         $this->launchActionForImport();
                     } catch (CentreonClapiException $e) {
                         echo "Line $i : " . $e->getMessage() . "\n";
+<<<<<<< HEAD
                     } catch (\Exception $e) {
+=======
+                    } catch (Exception $e) {
+>>>>>>> centreon/dev-21.10.x
                         echo "Line $i : " . $e->getMessage() . "\n";
                     }
                     if ($this->return_code) {
@@ -903,8 +953,13 @@ class CentreonAPI
 
 
         if (isset($this->options['select'])) {
+<<<<<<< HEAD
             CentreonExported::getInstance()->setFilter(1);
             CentreonExported::getInstance()->setOptions($this->options);
+=======
+            CentreonExported::getInstance()->set_filter(1);
+            CentreonExported::getInstance()->set_options($this->options);
+>>>>>>> centreon/dev-21.10.x
             $selected = $this->options['select'];
 
             if (!is_array($this->options['select'])) {
@@ -1197,6 +1252,7 @@ class CentreonAPI
             }
         }
     }
+<<<<<<< HEAD
 
     /**
      * Increment login attempts for user.
@@ -1269,4 +1325,6 @@ class CentreonAPI
         $unblockStatement->bindValue(':contactAlias', $this->login, \PDO::PARAM_STR);
         $unblockStatement->execute();
     }
+=======
+>>>>>>> centreon/dev-21.10.x
 }

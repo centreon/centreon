@@ -38,4 +38,8 @@ namespace Centreon\Infrastructure\Webservice;
 
 interface WebserviceAutorizePublicInterface
 {
+<<<<<<< HEAD
+=======
+    
+>>>>>>> centreon/dev-21.10.x
 }

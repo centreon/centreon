@@ -71,7 +71,11 @@ class AcknowledgementController extends AbstractController
      *
      * @param Request $request
      * @param string $jsonValidatorFile
+<<<<<<< HEAD
      * @return array<string,mixed> $results
+=======
+     * @return array $results
+>>>>>>> centreon/dev-21.10.x
      * @throws \InvalidArgumentException
      */
     private function validateAndRetrievePostData(Request $request, string $jsonValidatorFile): array
@@ -417,9 +421,12 @@ class AcknowledgementController extends AbstractController
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
+<<<<<<< HEAD
         /**
          * @var Contact $contact
          */
+=======
+>>>>>>> centreon/dev-21.10.x
         $contact = $this->getUser();
         if (!$contact->isAdmin() && !$contact->hasRole(Contact::ROLE_SERVICE_ACKNOWLEDGEMENT)) {
             return $this->view(null, Response::HTTP_UNAUTHORIZED);
@@ -473,9 +480,12 @@ class AcknowledgementController extends AbstractController
     ): View {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
+<<<<<<< HEAD
         /**
          * @var Contact $contact
          */
+=======
+>>>>>>> centreon/dev-21.10.x
         $contact = $this->getUser();
         if (!$contact->isAdmin() && !$contact->hasRole(Contact::ROLE_SERVICE_ACKNOWLEDGEMENT)) {
             return $this->view(null, Response::HTTP_UNAUTHORIZED);
@@ -521,9 +531,12 @@ class AcknowledgementController extends AbstractController
     {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
+<<<<<<< HEAD
         /**
          * @var Contact $contact
          */
+=======
+>>>>>>> centreon/dev-21.10.x
         $contact = $this->getUser();
 
         if (!$contact->isAdmin() && !$contact->hasRole(Contact::ROLE_HOST_DISACKNOWLEDGEMENT)) {
@@ -549,9 +562,12 @@ class AcknowledgementController extends AbstractController
     {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
+<<<<<<< HEAD
         /**
          * @var Contact $contact
          */
+=======
+>>>>>>> centreon/dev-21.10.x
         $contact = $this->getUser();
 
         if (!$contact->isAdmin() && !$contact->hasRole(Contact::ROLE_SERVICE_DISACKNOWLEDGEMENT)) {
@@ -576,9 +592,12 @@ class AcknowledgementController extends AbstractController
     {
         $this->denyAccessUnlessGrantedForApiRealtime();
 
+<<<<<<< HEAD
         /**
          * @var Contact $contact
          */
+=======
+>>>>>>> centreon/dev-21.10.x
         $contact = $this->getUser();
 
         if (!$contact->isAdmin() && !$contact->hasRole(Contact::ROLE_SERVICE_DISACKNOWLEDGEMENT)) {
@@ -736,7 +755,11 @@ class AcknowledgementController extends AbstractController
         $errorList = new ConstraintViolationList();
 
         //validate resources
+<<<<<<< HEAD
         $resources = $ackRequest->getResources();
+=======
+        $resources = $ackRequest->getResources() ?? [];
+>>>>>>> centreon/dev-21.10.x
         foreach ($resources as $resource) {
             switch ($resource->getType()) {
                 case ResourceEntity::TYPE_HOST:

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import {
   apiBase,
   applyConfigurationViaClapi,
@@ -80,6 +81,16 @@ const tearDownResource = () => {
     .then(logout);
 };
 
+=======
+const stateFilterContainer = '[aria-label="State filter"]';
+const searchInput = 'input[placeholder="Search"]';
+const refreshButton = '[aria-label="Refresh"]';
+const serviceName = 'service_test';
+const serviceNameDowntime = 'service_test_dt';
+const searchValue = `s.description:${serviceName}`;
+const resourceMonitoringApi = /.+api\/beta\/monitoring\/resources.?page.+/;
+
+>>>>>>> centreon/dev-21.10.x
 const actionBackgroundColors = {
   acknowledge: 'rgb(247, 244, 229)',
   inDowntime: 'rgb(249, 231, 255)',
@@ -89,12 +100,16 @@ const actions = {
   setDowntime: 'Set downtime',
 };
 
+<<<<<<< HEAD
 let customFilterId = null;
 
+=======
+>>>>>>> centreon/dev-21.10.x
 export {
   stateFilterContainer,
   searchInput,
   refreshButton,
+<<<<<<< HEAD
   resourceMonitoringApi,
   actionBackgroundColors,
   actions,
@@ -102,4 +117,12 @@ export {
   setUserFilter,
   deleteUserFilter,
   tearDownResource,
+=======
+  serviceName,
+  serviceNameDowntime,
+  searchValue,
+  resourceMonitoringApi,
+  actionBackgroundColors,
+  actions,
+>>>>>>> centreon/dev-21.10.x
 };

@@ -130,6 +130,7 @@ for ($i = 0; $vmetric = $stmt->fetch(); $i++) {
         "\" maxlength=\"3\" size=\"3\" value='1' style=\"margin-bottom:0px;\" name='dupNbr[" .
         $vmetric['vmetric_id'] . "]' />";
 
+<<<<<<< HEAD
     try {
         $query = "SELECT id,host_id,service_id FROM index_data WHERE id = '" . $vmetric['index_id'] . "'";
         $dbindd = $pearDBO->query($query);
@@ -155,6 +156,39 @@ for ($i = 0; $vmetric = $stmt->fetch(); $i++) {
         }
         $hsrname = $dbhsrname->fetchRow();
         $dbhsrname->closeCursor();
+=======
+    $indexDataStatement = $pearDBO->prepare("SELECT id,host_id,service_id FROM index_data " .
+        "WHERE id = :indexId ");
+    try {
+        $indexDataStatement->bindValue(':indexId', (int) $vmetric['index_id'], \PDO::PARAM_INT);
+        $indexDataStatement->execute();
+    } catch (\PDOException $e) {
+        print "DB Error : " . $e->getMessage() . "<br />";
+    }
+    $indd = $indexDataStatement->fetchRow();
+
+    $indexDataStatement->closeCursor();
+    if ($indd !== false) {
+        try {
+            $hsrStatement = $pearDB->prepare("(SELECT concat(h.host_name,' > ',s.service_description) full_name " .
+                "FROM host_service_relation AS hsr, host AS h, service AS s WHERE hsr.host_host_id = h.host_id " .
+                "AND hsr.service_service_id = s.service_id AND h.host_id = :hostId " .
+                "AND s.service_id = :serviceId ) UNION " .
+                "(SELECT concat(h.host_name,' > ',s.service_description) full_name " .
+                "FROM host_service_relation AS hsr, host AS h, service AS s, hostgroup_relation AS hr " .
+                "WHERE hsr.hostgroup_hg_id = hr.hostgroup_hg_id AND hr.host_host_id = h.host_id " .
+                "AND hsr.service_service_id = s.Service_id AND h.host_id = :hostId " .
+                "AND s.service_id = :serviceId ) ORDER BY full_name");
+
+            $hsrStatement->bindValue(':hostId', (int) $indd["host_id"], \PDO::PARAM_INT);
+            $hsrStatement->bindValue(':serviceId', (int) $indd["service_id"], \PDO::PARAM_INT);
+            $hsrStatement->execute();
+        } catch (\PDOException $e) {
+            print "DB Error : " . $e->getMessage() . "<br />";
+        }
+        $hsrname = $hsrStatement->fetchRow();
+        $hsrStatement->closeCursor();
+>>>>>>> centreon/dev-21.10.x
         $hsrname["full_name"] = str_replace('#S#', "/", $hsrname["full_name"]);
         $hsrname["full_name"] = str_replace('#BS#', "\\", $hsrname["full_name"]);
     }

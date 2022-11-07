@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+import * as React from 'react';
+
+>>>>>>> centreon/dev-21.10.x
 import { Axis } from '@visx/visx';
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 

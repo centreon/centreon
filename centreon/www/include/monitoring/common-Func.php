@@ -41,6 +41,7 @@ if (!isset($centreon)) {
     exit();
 }
 
+<<<<<<< HEAD
 function getMyHostRow($host_id = null, $rowdata)
 {
     global $pearDB;
@@ -61,6 +62,8 @@ function getMyHostRow($host_id = null, $rowdata)
     }
 }
 
+=======
+>>>>>>> centreon/dev-21.10.x
 function get_user_param($user_id, $pearDB)
 {
     $list_param = array(

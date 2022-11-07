@@ -47,9 +47,13 @@ require_once dirname(__FILE__) . '/hosttemplate.class.php';
 require_once dirname(__FILE__) . '/command.class.php';
 require_once dirname(__FILE__) . '/timeperiod.class.php';
 require_once dirname(__FILE__) . '/hostgroup.class.php';
+<<<<<<< HEAD
 require_once dirname(__FILE__) . '/hostcategory.class.php';
 require_once dirname(__FILE__) . '/servicegroup.class.php';
 require_once dirname(__FILE__) . '/servicecategory.class.php';
+=======
+require_once dirname(__FILE__) . '/servicegroup.class.php';
+>>>>>>> centreon/dev-21.10.x
 require_once dirname(__FILE__) . '/contact.class.php';
 require_once dirname(__FILE__) . '/contactgroup.class.php';
 require_once dirname(__FILE__) . '/servicetemplate.class.php';
@@ -72,9 +76,12 @@ require_once dirname(__FILE__) . '/timezone.class.php';
 
 class Generate
 {
+<<<<<<< HEAD
     private const GENERATION_FOR_ENGINE = 1;
     private const GENERATION_FOR_BROKER = 2;
 
+=======
+>>>>>>> centreon/dev-21.10.x
     private $poller_cache = array();
     private $backend_instance = null;
     private $current_poller = null;
@@ -235,10 +242,14 @@ class Generate
         Contact::getInstance($this->dependencyInjector)->reset();
         Contactgroup::getInstance($this->dependencyInjector)->reset();
         Hostgroup::getInstance($this->dependencyInjector)->reset();
+<<<<<<< HEAD
         HostCategory::getInstance($this->dependencyInjector)->reset();
         Servicegroup::getInstance($this->dependencyInjector)->reset();
         Severity::getInstance($this->dependencyInjector)->reset();
         ServiceCategory::getInstance($this->dependencyInjector)->reset();
+=======
+        Servicegroup::getInstance($this->dependencyInjector)->reset();
+>>>>>>> centreon/dev-21.10.x
         Timeperiod::getInstance($this->dependencyInjector)->reset();
         Escalation::getInstance($this->dependencyInjector)->reset();
         Dependency::getInstance($this->dependencyInjector)->reset();
@@ -264,13 +275,21 @@ class Generate
             $this->current_poller['id'],
             $this->current_poller['localhost']
         );
+<<<<<<< HEAD
         $this->generateModuleObjects(self::GENERATION_FOR_ENGINE);
 
+=======
+        $this->generateModuleObjects(1);
+>>>>>>> centreon/dev-21.10.x
         Engine::getInstance($this->dependencyInjector)->generateFromPoller($this->current_poller);
         $this->backend_instance->movePath($this->current_poller['id']);
 
         $this->backend_instance->initPath($this->current_poller['id'], 2);
+<<<<<<< HEAD
         $this->generateModuleObjects(self::GENERATION_FOR_BROKER);
+=======
+        $this->generateModuleObjects(2);
+>>>>>>> centreon/dev-21.10.x
         Broker::getInstance($this->dependencyInjector)->generateFromPoller($this->current_poller);
         $this->backend_instance->movePath($this->current_poller['id']);
 
@@ -346,17 +365,22 @@ class Generate
         }
     }
 
+<<<<<<< HEAD
     /**
      * @param int $type (1: engine, 2: broker)
      * @return void
      */
     public function generateModuleObjects(int $type = self::GENERATION_FOR_ENGINE): void
+=======
+    public function generateModuleObjects($type = 1): void
+>>>>>>> centreon/dev-21.10.x
     {
         if (is_null($this->module_objects)) {
             $this->getModuleObjects();
         }
         if (is_array($this->module_objects)) {
             foreach ($this->module_objects as $module_object) {
+<<<<<<< HEAD
                 $externalModule = $module_object::getInstance($this->dependencyInjector);
                 if (
                     $externalModule instanceof ExternalModuleGenerationInterface
@@ -368,6 +392,15 @@ class Generate
                     $externalModule->generateFromPollerId(
                         (int) $this->current_poller['id'],
                         (bool) $this->current_poller['localhost']
+=======
+                if (
+                    ($type == 1 && $module_object::getInstance($this->dependencyInjector)->isEngineObject() == true)
+                    || ($type == 2 && $module_object::getInstance($this->dependencyInjector)->isBrokerObject() == true)
+                ) {
+                    $module_object::getInstance($this->dependencyInjector)->generateFromPollerId(
+                        $this->current_poller['id'],
+                        $this->current_poller['localhost']
+>>>>>>> centreon/dev-21.10.x
                     );
                 }
             }
@@ -381,10 +414,14 @@ class Generate
         }
         if (is_array($this->module_objects)) {
             foreach ($this->module_objects as $module_object) {
+<<<<<<< HEAD
                 $externalModule = $module_object::getInstance($this->dependencyInjector);
                 if ($externalModule instanceof ExternalModuleGenerationInterface) {
                     $externalModule->reset();
                 }
+=======
+                $module_object::getInstance($this->dependencyInjector)->reset();
+>>>>>>> centreon/dev-21.10.x
             }
         }
     }

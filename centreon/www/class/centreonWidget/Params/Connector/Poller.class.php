@@ -1,7 +1,14 @@
 <?php
+<<<<<<< HEAD
 /**
  * Copyright 2005-2015 Centreon
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
+=======
+
+/**
+ * Copyright 2005-2022 Centreon
+ * Centreon is developed by : Julien Mathis and Romain Le Merlus under
+>>>>>>> centreon/dev-21.10.x
  * GPL Licence 2.0.
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -46,6 +53,7 @@ class CentreonWidgetParamsConnectorPoller extends CentreonWidgetParamsList
     {
         static $tab;
 
+<<<<<<< HEAD
         if (!isset($tab)) {
             $query = "SELECT id, name FROM nagios_server WHERE ns_activate = '1' ";
             $query .= $this->acl->queryBuilder(
@@ -60,6 +68,57 @@ class CentreonWidgetParamsConnectorPoller extends CentreonWidgetParamsList
                 $tab[$row['id']] = $row['name'];
             }
         }
+=======
+        if (! isset($tab)) {
+            $tab = [null => null];
+            $userACL = new CentreonACL($this->userId);
+            $isContactAdmin = $userACL->admin;
+            $request = 'SELECT SQL_CALC_FOUND_ROWS id, name FROM nagios_server ns';
+
+            if (! $isContactAdmin) {
+                $request .= ' INNER JOIN acl_resources_poller_relations arpr
+                ON ns.id = arpr.poller_id
+                INNER JOIN acl_resources res
+                    ON arpr.acl_res_id = res.acl_res_id
+                INNER JOIN acl_res_group_relations argr
+                    ON res.acl_res_id = argr.acl_res_id
+                INNER JOIN acl_groups ag
+                    ON argr.acl_group_id = ag.acl_group_id
+                LEFT JOIN acl_group_contacts_relations agcr
+                    ON ag.acl_group_id = agcr.acl_group_id
+                LEFT JOIN acl_group_contactgroups_relations agcgr
+                    ON ag.acl_group_id = agcgr.acl_group_id
+                LEFT JOIN contactgroup_contact_relation cgcr
+                    ON cgcr.contactgroup_cg_id = agcgr.cg_cg_id
+                WHERE (agcr.contact_contact_id = :userId OR cgcr.contact_contact_id = :userId)';
+            }
+
+            $request .= ! $isContactAdmin ? ' AND' : ' WHERE';
+            $request .= " ns_activate = '1' ORDER BY name";
+            $statement = $this->db->prepare($request);
+
+            if (! $isContactAdmin) {
+                $statement->bindValue(':userId', $this->userId, \PDO::PARAM_INT);
+            }
+            $statement->execute();
+            $entriesCount = $this->db->query('SELECT FOUND_ROWS()');
+
+            if ($entriesCount !== false && ($total = $entriesCount->fetchColumn()) !== false) {
+                // it means here that there is poller relations with this user
+                if ((int) $total === 0) {
+                    // if no relations found for this user it means that he can see all poller available
+                    $statement = $this->db->query(
+                        "SELECT id, name FROM nagios_server WHERE ns_activate = '1'"
+                    );
+                }
+
+                while (($record = $statement->fetch(\PDO::FETCH_ASSOC)) !== false) {
+                    $tab[$record['id']] = $record['name'];
+                }
+            }
+        }
+
+>>>>>>> centreon/dev-21.10.x
         return $tab;
     }
 }

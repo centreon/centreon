@@ -2,7 +2,11 @@
 <div id='globalView'>
     {if $aclParameters == 1}
     <div class="toggleEdit">
+<<<<<<< HEAD
         <a href="#" title="{$editMode}">{$editModeIcon}</a>
+=======
+        <a href="#" title="{$editMode}"><img src="./img/icons/edit_mode.png" class="ico-14"></a>
+>>>>>>> centreon/dev-21.10.x
     </div>
     {/if}
 
@@ -12,7 +16,11 @@
         {if $aclAddView == 1}
         <!-- Button for add a view -->
         <div class="cntn">
+<<<<<<< HEAD
             <button class='addView btnAction btc bt_success'>{$addIcon} {t}Add view{/t}</button>
+=======
+            <button class='addView btnAction btc bt_success'>{t}Add view{/t}</button>
+>>>>>>> centreon/dev-21.10.x
             <!-- Form for add a view -->
             <div class="position_toggle_wrapper">
                 <div class="toggle_wrapper inactive" id="addView">
@@ -21,7 +29,11 @@
                         <table class="table">
                             <tr>
                                 <td class="FormHeader" colspan="2">
+<<<<<<< HEAD
                                     <h3 class="table-form-header-h3">{t}Create a view{/t}</h3>
+=======
+                                    <h3 style="color:#88b917;">{t}Create a view{/t}</h3>
+>>>>>>> centreon/dev-21.10.x
                                 </td>
                             </tr>
                             <tr class="list_two">
@@ -63,7 +75,11 @@
         <!-- Button for edit a view -->
         {if $aclEdit == 1}
         <div class="cntn">
+<<<<<<< HEAD
             <button class='editView btnAction btnExtraAction btc bt_info'>{$editIcon} {t}Edit view{/t}</button>
+=======
+            <button class='editView btnAction btnExtraAction btc bt_info'>{t}Edit view{/t}</button>
+>>>>>>> centreon/dev-21.10.x
             <div class="position_toggle_wrapper">
                 <div class="toggle_wrapper inactive" id="editView">
                 <div>
@@ -71,7 +87,11 @@
                         <table class="table">
                             <tr>
                                 <td class="FormHeader" colspan="2">
+<<<<<<< HEAD
                                     <h3 class="table-form-header-h3">{t}Edit a view{/t}</h3>
+=======
+                                    <h3 style="color:#00bfb3;">{t}Edit a view{/t}</h3>
+>>>>>>> centreon/dev-21.10.x
                                 </td>
                             </tr>
                             <tr>
@@ -106,25 +126,41 @@
 
         <!-- Button for delete a view -->
         {if $aclDeleteView == 1}
+<<<<<<< HEAD
         <button class='deleteView btnExtraAction btc bt_danger'>{$deleteIcon} {t}Delete view{/t}</button>
+=======
+        <button class='deleteView btnExtraAction btc bt_danger'>{t}Delete view{/t}</button>
+>>>>>>> centreon/dev-21.10.x
         {/if}
 
         <!-- Button for set default a view -->
         {if $aclSetDefault == 1}
+<<<<<<< HEAD
         <button class='setDefault btnExtraAction btc bt_default'>{$returnIcon} {t}Set default{/t}</button>
+=======
+        <button class='setDefault btnExtraAction btc bt_default'>{t}Set default{/t}</button>
+>>>>>>> centreon/dev-21.10.x
         {/if}
 
         <!-- Button for share a view -->
         {if $aclShare == 1}
         <div class="cntn">
+<<<<<<< HEAD
             <button class='shareView btnAction btnExtraAction btc bt_info'>{$folderIcon} {t}Share view{/t}</button>
+=======
+            <button class='shareView btnAction btnExtraAction btc bt_info'>{t}Share view{/t}</button>
+>>>>>>> centreon/dev-21.10.x
             <div class="position_toggle_wrapper">
                 <div class="toggle_wrapper inactive" id="shareView">
                 <form {$formShareView.attributes}>
                     <table class="table">
                         <tr>
                             <td class="FormHeader" colspan="2">
+<<<<<<< HEAD
                                 <h3 class="table-form-header-h3">{t}Share view{/t}</h3>
+=======
+                                <h3 style="color: #00bfb3;">{t}Share view{/t}</h3>
+>>>>>>> centreon/dev-21.10.x
                             </td>
                         </tr>
                         <tr>
@@ -166,14 +202,22 @@
         <!-- Button for add a widget -->
         {if $aclAddWidget == 1}
         <div class="cntn">
+<<<<<<< HEAD
             <button class='addWidget btnAction btnExtraAction btc bt_success'>{$addIcon} {t}Add widget{/t}</button>
+=======
+            <button class='addWidget btnAction btnExtraAction btc bt_success'>{t}Add widget{/t}</button>
+>>>>>>> centreon/dev-21.10.x
             <div class="position_toggle_wrapper">
                 <div class="toggle_wrapper inactive" id="addwdgt">
                 <form {$formAddWidget.attributes}>
                     <table class="table">
                         <tr>
                             <td class="FormHeader" colspan="2">
+<<<<<<< HEAD
                                 <h3 class="table-form-header-h3">{t}Add a widget{/t}</h3>
+=======
+                                <h3 style="color:#88b917;">{t}Add a widget{/t}</h3>
+>>>>>>> centreon/dev-21.10.x
                             </td>
                         </tr>
                         <tr>
@@ -202,7 +246,11 @@
         <!-- Button for activate rotation -->
         {if $aclRotation == 1}
         <div class="cntn">
+<<<<<<< HEAD
             <button class='setRotate btnAction btnExtraAction btc bt_info'>{$playIcon} {t}Rotation{/t}</button>
+=======
+            <button class='setRotate btnAction btnExtraAction btc bt_info'>{t}Rotation{/t}</button>
+>>>>>>> centreon/dev-21.10.x
             <div class="position_toggle_wrapper">
                 <div class="toggle_wrapper inactive" id="rotationTabs">
                 <div id='rotation_timer'></div>
@@ -220,9 +268,13 @@
     <div id="tabs">
         <div class="info_box">
             <h4>
+<<<<<<< HEAD
                 <span style='padding-right:5px;'>
                     {$helpIcon}
                 </span>
+=======
+                <img src='./img/icones/16x16/help_button.png' style='padding-right:5px;'>
+>>>>>>> centreon/dev-21.10.x
                 {t}No view available. To create a new view, please click "Add view" button.{/t}
             </h4>
         </div>
@@ -588,8 +640,12 @@ function toggleEdit(show) {
       jQuery(this).find('.ui-icon-wrench').hide();
       jQuery(this).find('.ui-icon-trash').hide();
     });
+<<<<<<< HEAD
     var editMode = "{/literal}{$editModeIcon}{literal}";
     $el.find('span').replaceWith(editMode);
+=======
+    $el.find('img').attr('src','./img/icons/edit_mode.png');
+>>>>>>> centreon/dev-21.10.x
   } else if (show === true) {
       jQuery('#actionBar').show();
       $el.addClass('edit');
@@ -599,8 +655,12 @@ function toggleEdit(show) {
         jQuery(this).find('.ui-icon-wrench').show();
         jQuery(this).find('.ui-icon-trash').show();
     });
+<<<<<<< HEAD
     var noEditMode = "{/literal}{$noEditModeIcon}{literal}";
     $el.find('span').replaceWith(noEditMode);
+=======
+    $el.find('img').attr('src','./img/icons/no_edit_mode.png');
+>>>>>>> centreon/dev-21.10.x
   }
 
   jQuery.ajax({
@@ -680,7 +740,11 @@ jQuery(function () {
   jQuery('#tabs').tabs();
 
   /* Initialize buttons */
+<<<<<<< HEAD
   jQuery('.addView').button().on('click', function () {
+=======
+  jQuery('.addView').button({icon: "ui-icon-plus"}).on('click', function () {
+>>>>>>> centreon/dev-21.10.x
     //reset select2
     jQuery("#formAddView #viewLoad").empty().append($('<option>'));
     //reset add view form
@@ -693,21 +757,35 @@ jQuery(function () {
     jQuery('#formAddView input[name="public"]').prop('checked', false);
   });
 
+<<<<<<< HEAD
     jQuery('.setDefault').button().on('click', function () {
+=======
+    jQuery('.setDefault').button({ icons : { primary: 'ui-icon-arrowreturnthick-1-w'}}).on('click', function () {
+>>>>>>> centreon/dev-21.10.x
         jQuery("#setDefaultConfirm").centreonPopin({
             open: true
         });
     });
 
+<<<<<<< HEAD
   jQuery('.editView').button();
 
     jQuery('.deleteView').button().on('click', function () {
+=======
+  jQuery('.editView').button({ icons : { primary: 'ui-icon-gear'}});
+
+    jQuery('.deleteView').button({ icons : { primary: 'ui-icon-trash'}}).on('click', function () {
+>>>>>>> centreon/dev-21.10.x
         jQuery("#deleteViewConfirm").centreonPopin({
             open: true
         });
     });
 
+<<<<<<< HEAD
   jQuery('.shareView').button().on('click', function () {
+=======
+  jQuery('.shareView').button({ icons : { primary: 'ui-icon-folder-open'}}).on('click', function () {
+>>>>>>> centreon/dev-21.10.x
     /* Get default information for a share view */
     var viewId = jQuery(
       jQuery('#tabs .ui-tabs-tab.ui-state-active')[0]
@@ -753,8 +831,13 @@ jQuery(function () {
       }
     });
   });
+<<<<<<< HEAD
   jQuery('.addWidget').button();
   jQuery('.setRotate').button();
+=======
+  jQuery('.addWidget').button({ icons : { primary: 'ui-icon-plus'}});
+  jQuery('.setRotate').button({ icons : { primary: 'ui-icon-play'}});
+>>>>>>> centreon/dev-21.10.x
 
   jQuery('input[name="create_load[create_load]"]').change(function (){
     if (jQuery(this).val() == 'load'){

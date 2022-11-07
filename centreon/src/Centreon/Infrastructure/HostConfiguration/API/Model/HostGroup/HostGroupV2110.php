@@ -29,6 +29,10 @@ namespace Centreon\Infrastructure\HostConfiguration\API\Model\HostGroup;
  */
 class HostGroupV2110
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * @var int|null
      */

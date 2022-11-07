@@ -55,6 +55,7 @@ class CentreonPaginationServiceTest extends TestCase
      */
     protected $service;
 
+<<<<<<< HEAD
     /**
      * @var Container
      */
@@ -63,6 +64,11 @@ class CentreonPaginationServiceTest extends TestCase
     public function setUp(): void
     {
         $this->container = new Container();
+=======
+    public function setUp(): void
+    {
+        $this->container = new Container;
+>>>>>>> centreon/dev-21.10.x
         $this->setUpCentreonDbManager($this->container);
         $this->container[ServiceProvider::SERIALIZER] = $this->createMock(Serializer::class);
 

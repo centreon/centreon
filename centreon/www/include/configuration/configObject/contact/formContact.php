@@ -33,7 +33,10 @@
  * For more information : contact@centreon.com
  *
  */
+<<<<<<< HEAD
 require_once __DIR__ . '/../../../../class/centreonContact.class.php';
+=======
+>>>>>>> centreon/dev-21.10.x
 
 use Centreon\Infrastructure\Event\EventDispatcher;
 
@@ -81,6 +84,7 @@ if ($result === false) {
     $isRemote = false;
 } else {
     $isRemote = array_map("myDecode", $result);
+<<<<<<< HEAD
     $isRemote = $isRemote['value'] === 'yes';
 }
 $dbResult->closeCursor();
@@ -95,6 +99,12 @@ try {
     return false;
 }
 
+=======
+    $isRemote = ($isRemote['value'] === 'yes') ? true : false;
+}
+$dbResult->closeCursor();
+
+>>>>>>> centreon/dev-21.10.x
 $cct = array();
 if (($o == MODIFY_CONTACT || $o == WATCH_CONTACT) && $contactId) {
     /**
@@ -172,10 +182,14 @@ $notifCgs = $cg->getListContactgroup(false);
 
 if (
     $centreon->optGen['ldap_auth_enable'] == 1
+<<<<<<< HEAD
     && !empty($cct['contact_id'])
     && $cct['contact_auth_type'] === 'ldap'
     && !empty($cct['ar_id'])
     && !empty($cct['contact_ldap_dn'])
+=======
+    && $cct['contact_auth_type'] == 'ldap' && isset($cct['ar_id']) && $cct['ar_id']
+>>>>>>> centreon/dev-21.10.x
 ) {
     $ldap = new CentreonLDAP($pearDB, null, $cct['ar_id']);
     if (false !== $ldap->connect()) {
@@ -320,6 +334,7 @@ if ($o != MASSIVE_CHANGE) {
     $form->addElement('text', 'contact_name', _("Full Name"), $attrsTextDescr);
     $form->addElement('text', 'contact_alias', _("Alias / Login"), $attrsText);
     $form->addElement('text', 'contact_autologin_key', _("Autologin Key"), array("size" => "90", "id" => "aKey"));
+<<<<<<< HEAD
     $form->addElement(
         'button',
         'contact_gen_akey',
@@ -330,6 +345,13 @@ if ($o != MASSIVE_CHANGE) {
     $form->addElement('text', 'contact_pager', _("Pager"), $attrsText);
 }
 
+=======
+    $form->addElement('button', 'contact_gen_akey', _("Generate"), array('onclick' => 'generatePassword("aKey");'));
+}
+
+$form->addElement('text', 'contact_email', _("Email"), $attrsTextMail);
+$form->addElement('text', 'contact_pager', _("Pager"), $attrsText);
+>>>>>>> centreon/dev-21.10.x
 
 /**
  * Contact template used
@@ -363,17 +385,26 @@ $attrContactgroup1 = array_merge(
     $attrContactgroups,
     array('defaultDatasetRoute' => $defaultDatasetRoute)
 );
+<<<<<<< HEAD
 $form->addElement('select2', 'contact_cgNotif', _("Linked to Contact Groups"), [], $attrContactgroup1);
+=======
+$form->addElement('select2', 'contact_cgNotif', _("Linked to Contact Groups"), array(), $attrContactgroup1);
+>>>>>>> centreon/dev-21.10.x
 
 /**
  * Contact Centreon information
  */
 $form->addElement('header', 'oreon', _("Centreon"));
+<<<<<<< HEAD
 $tab = [];
+=======
+$tab = array();
+>>>>>>> centreon/dev-21.10.x
 $tab[] = $form->createElement('radio', 'contact_oreon', null, _("Yes"), '1');
 $tab[] = $form->createElement('radio', 'contact_oreon', null, _("No"), '0');
 $form->addGroup($tab, 'contact_oreon', _("Reach Centreon Front-end"), '&nbsp;');
 
+<<<<<<< HEAD
 if ($o !== MASSIVE_CHANGE) {
     $form->addElement(
         'password',
@@ -404,6 +435,21 @@ if ($o !== MASSIVE_CHANGE) {
         ['onclick' => "generatePassword('passwd', '$encodedPasswordPolicy');"]
     );
 }
+=======
+$form->addElement(
+    'password',
+    'contact_passwd',
+    _("Password"),
+    array("size" => "30", "autocomplete" => "new-password", "id" => "passwd1", "onkeypress" => "resetPwdType(this);")
+);
+$form->addElement(
+    'password',
+    'contact_passwd2',
+    _("Confirm Password"),
+    array("size" => "30", "autocomplete" => "new-password", "id" => "passwd2", "onkeypress" => "resetPwdType(this);")
+);
+$form->addElement('button', 'contact_gen_passwd', _("Generate"), array('onclick' => 'generatePassword("passwd");'));
+>>>>>>> centreon/dev-21.10.x
 
 $form->addElement('select', 'contact_lang', _("Default Language"), $langs);
 $form->addElement(
@@ -484,12 +530,21 @@ if ($centreon->optGen['ldap_auth_enable'] == 1) {
     }
 }
 if ($o != MASSIVE_CHANGE) {
+<<<<<<< HEAD
     $form->setDefaults([
         'contact_oreon' => ['contact_oreon' => '1'],
         'contact_admin' => ['contact_admin' => '0'],
         'reach_api' => ['reach_api' => '0'],
         'reach_api_rt' => ['reach_api_rt' => '0']
     ]);
+=======
+    $form->setDefaults(array(
+        'contact_oreon' => '1',
+        'contact_admin' => '0',
+        'reach_api' => '0',
+        'reach_api_rt' => '0'
+    ));
+>>>>>>> centreon/dev-21.10.x
 }
 $form->addElement('select', 'contact_auth_type', _("Authentication Source"), $auth_type);
 
@@ -498,7 +553,11 @@ $form->addElement('select', 'contact_auth_type', _("Authentication Source"), $au
  */
 $form->addElement('header', 'notification', _("Notification"));
 
+<<<<<<< HEAD
 $tab = [];
+=======
+$tab = array();
+>>>>>>> centreon/dev-21.10.x
 $tab[] = $form->createElement('radio', 'contact_enable_notifications', null, _("Yes"), '1');
 $tab[] = $form->createElement('radio', 'contact_enable_notifications', null, _("No"), '0');
 $tab[] = $form->createElement('radio', 'contact_enable_notifications', null, _("Default"), '2');
@@ -724,7 +783,11 @@ if ($o != MASSIVE_CHANGE) {
     $ret = $form->getSubmitValues();
     $form->addRule('contact_name', _("Compulsory Name"), 'required');
     $form->addRule('contact_alias', _("Compulsory Alias"), 'required');
+<<<<<<< HEAD
     if ($isRemote === false) {
+=======
+    if ($isRemote == false) {
+>>>>>>> centreon/dev-21.10.x
         $form->addRule('contact_email', _("Valid Email"), 'required');
     }
     $form->addRule('contact_oreon', _("Required Field"), 'required');
@@ -737,7 +800,11 @@ if ($o != MASSIVE_CHANGE) {
     if (
         (isset($ret["contact_enable_notifications"]["contact_enable_notifications"])
         && $ret["contact_enable_notifications"]["contact_enable_notifications"] == 1)
+<<<<<<< HEAD
         && ($isRemote === false)
+=======
+        && ($isRemote == false)
+>>>>>>> centreon/dev-21.10.x
     ) {
         if (isset($ret["contact_template_id"]) && $ret["contact_template_id"] == '') {
             $form->addRule('timeperiod_tp_id', _("Compulsory Period"), 'required');
@@ -751,12 +818,17 @@ if ($o != MASSIVE_CHANGE) {
 
     $form->addRule(array('contact_passwd', 'contact_passwd2'), _("Passwords do not match"), 'compare');
     if ($o === ADD_CONTACT || $o === MODIFY_CONTACT) {
+<<<<<<< HEAD
         $form->addFormRule('validatePasswordCreation');
         $form->addFormRule('validateAutologin');
     }
     if ($o === MODIFY_CONTACT) {
         $form->addFormRule('validatePasswordModification');
     }
+=======
+        $form->addFormRule('validateAutologin');
+    }
+>>>>>>> centreon/dev-21.10.x
     $form->registerRule('exist', 'callback', 'testContactExistence');
     $form->addRule('contact_name', "<font style='color: red;'>*</font>&nbsp;" . _("Contact already exists"), 'exist');
     $form->registerRule('existAlias', 'callback', 'testAliasExistence');
@@ -821,11 +893,15 @@ if ($o == WATCH_CONTACT) {
     $res = $form->addElement('reset', 'reset', _("Reset"), array("class" => "btc bt_default"));
 }
 
+<<<<<<< HEAD
 if (
     !empty($cct['contact_id'])
     && $centreon->optGen['ldap_auth_enable'] == 1
     && $cct['contact_auth_type'] === 'ldap'
 ) {
+=======
+if ($centreon->optGen['ldap_auth_enable'] == 1 && $cct['contact_auth_type'] == 'ldap') {
+>>>>>>> centreon/dev-21.10.x
     $tpl->assign("ldap_group", _("Group Ldap"));
     if (isset($cgLdap)) {
         $tpl->assign("ldapGroups", $cgLdap);
@@ -900,7 +976,11 @@ if ($valid) {
     }
     $tpl->assign('auth_type', $contactAuthType);
 
+<<<<<<< HEAD
     if ($isRemote === false) {
+=======
+    if ($isRemote == false) {
+>>>>>>> centreon/dev-21.10.x
         $tpl->display("formContact.ihtml");
     } else {
         $tpl->display("formContactLight.ihtml");

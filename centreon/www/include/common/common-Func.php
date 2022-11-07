@@ -34,6 +34,7 @@
  *
  */
 
+<<<<<<< HEAD
 /**
  * Displays the SVG file in HTML.
  *
@@ -79,6 +80,8 @@ function returnSvg(string $svgPath, string $color, float $height, float $width):
         return 'SVG file not found: ' . $svgPath;
     }
 }
+=======
+>>>>>>> centreon/dev-21.10.x
 
 /*
  * Form Rules
@@ -158,9 +161,26 @@ function table_not_exists($table_name)
     }
 }
 
+<<<<<<< HEAD
 function myDecode($arg)
 {
     return html_entity_decode($arg, ENT_QUOTES, "UTF-8");
+=======
+function myDecode($data)
+{
+    if (is_string($data)) {
+        $data = html_entity_decode($data, ENT_QUOTES, "UTF-8");
+    }
+    return $data;
+}
+
+function myEncode($data)
+{
+    if (is_string($data)) {
+        $data = htmlentities($data);
+    }
+    return $data;
+>>>>>>> centreon/dev-21.10.x
 }
 
 /*
@@ -252,6 +272,27 @@ function myTrim($str)
     return (trim($str));
 }
 
+<<<<<<< HEAD
+=======
+/**
+ * @param string $value
+ * @return string
+ */
+function limitNotesLength(string $value): string
+{
+    return substr($value, 0, 512);
+}
+
+/**
+ * @param string $value
+ * @return string
+ */
+function limitUrlLength(string $value): string
+{
+    return substr($value, 0, 2048);
+}
+
+>>>>>>> centreon/dev-21.10.x
 /*
  * Hosts Functions
  */

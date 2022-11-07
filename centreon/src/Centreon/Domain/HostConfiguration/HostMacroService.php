@@ -22,10 +22,16 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\HostConfiguration;
 
+<<<<<<< HEAD
 use Centreon\Domain\Common\Assertion\Assertion;
 use Centreon\Domain\HostConfiguration\Exception\HostMacroServiceException;
 use Centreon\Domain\HostConfiguration\Interfaces\HostMacro\HostMacroReadRepositoryInterface;
 use Centreon\Domain\HostConfiguration\Interfaces\HostMacro\HostMacroServiceInterface;
+=======
+use Centreon\Domain\HostConfiguration\Exception\HostMacroException;
+use Centreon\Domain\HostConfiguration\Interfaces\HostMacro\HostMacroServiceInterface;
+use Centreon\Domain\HostConfiguration\Interfaces\HostMacro\HostMacroReadRepositoryInterface;
+>>>>>>> centreon/dev-21.10.x
 use Centreon\Domain\HostConfiguration\Interfaces\HostMacro\HostMacroWriteRepositoryInterface;
 
 /**
@@ -36,6 +42,7 @@ use Centreon\Domain\HostConfiguration\Interfaces\HostMacro\HostMacroWriteReposit
 class HostMacroService implements HostMacroServiceInterface
 {
     /**
+<<<<<<< HEAD
      * HostMacroService constructor.
      *
      * @param HostMacroWriteRepositoryInterface $writeRepository
@@ -45,6 +52,28 @@ class HostMacroService implements HostMacroServiceInterface
         private HostMacroWriteRepositoryInterface $writeRepository,
         private HostMacroReadRepositoryInterface $readRepository
     ) {
+=======
+     * @var HostMacroReadRepositoryInterface
+     */
+    private $readRepository;
+    /**
+     * @var HostMacroWriteRepositoryInterface
+     */
+    private $writeRepository;
+
+    /**
+     * HostMacroService constructor.
+     *
+     * @param HostMacroReadRepositoryInterface $readRepository
+     * @param HostMacroWriteRepositoryInterface $writeRepository
+     */
+    public function __construct(
+        HostMacroReadRepositoryInterface $readRepository,
+        HostMacroWriteRepositoryInterface $writeRepository
+    ) {
+        $this->readRepository = $readRepository;
+        $this->writeRepository = $writeRepository;
+>>>>>>> centreon/dev-21.10.x
     }
 
     /**
@@ -55,6 +84,7 @@ class HostMacroService implements HostMacroServiceInterface
         try {
             $this->writeRepository->addMacroToHost($host, $hostMacro);
         } catch (\Throwable $ex) {
+<<<<<<< HEAD
             throw HostMacroServiceException::addMacroException($ex);
         }
     }
@@ -83,6 +113,9 @@ class HostMacroService implements HostMacroServiceInterface
             $this->writeRepository->updateMacro($macro);
         } catch (\Throwable $ex) {
             throw HostMacroServiceException::errorOnUpdatingMacro($ex);
+=======
+            throw HostMacroException::addMacroException($ex);
+>>>>>>> centreon/dev-21.10.x
         }
     }
 }

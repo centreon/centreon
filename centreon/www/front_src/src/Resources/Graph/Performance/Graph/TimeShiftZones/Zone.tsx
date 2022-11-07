@@ -1,8 +1,17 @@
+<<<<<<< HEAD
 import { Shape } from '@visx/visx';
 import { equals, negate } from 'ramda';
 
 import { alpha, useTheme } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
+=======
+import * as React from 'react';
+
+import { Shape } from '@visx/visx';
+import { equals, negate } from 'ramda';
+
+import { alpha, makeStyles, useTheme } from '@material-ui/core';
+>>>>>>> centreon/dev-21.10.x
 
 import { useMemoComponent } from '@centreon/ui';
 

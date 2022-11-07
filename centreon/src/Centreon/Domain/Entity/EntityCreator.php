@@ -75,7 +75,11 @@ class EntityCreator
      */
     public static function setContact(Contact $contact): void
     {
+<<<<<<< HEAD
         self::$contact = $contact;
+=======
+        static::$contact = $contact;
+>>>>>>> centreon/dev-21.10.x
     }
 
     /**
@@ -132,6 +136,7 @@ class EntityCreator
         }
 
         foreach ($data as $column => $value) {
+<<<<<<< HEAD
             if (array_key_exists($column, self::$entityDescriptors[$this->className])) {
                 $descriptor = self::$entityDescriptors[$this->className][$column];
                 $setterMethod = ($descriptor !== null && $descriptor->modifier !== null)
@@ -139,6 +144,15 @@ class EntityCreator
                     : $this->createSetterMethod($column);
                 if (array_key_exists($setterMethod, self::$publicMethods[$this->className])) {
                     $parameters = self::$publicMethods[$this->className][$setterMethod]->getParameters();
+=======
+            if (array_key_exists($column, static::$entityDescriptors[$this->className])) {
+                $descriptor = static::$entityDescriptors[$this->className][$column];
+                $setterMethod = ($descriptor !== null && $descriptor->modifier !== null)
+                    ? $descriptor->modifier
+                    : $this->createSetterMethod($column);
+                if (array_key_exists($setterMethod, static::$publicMethods[$this->className])) {
+                    $parameters = static::$publicMethods[$this->className][$setterMethod]->getParameters();
+>>>>>>> centreon/dev-21.10.x
                     if (empty($parameters)) {
                         throw new \Exception(
                             sprintf(_('The public method %s::%s has no parameters'), $this->className, $setterMethod)
@@ -215,8 +229,13 @@ class EntityCreator
             case 'DateTime':
                 if (is_numeric($value)) {
                     $value = (new \DateTime())->setTimestamp((int) $value);
+<<<<<<< HEAD
                     if (self::$contact !== null) {
                         $value->setTimezone(self::$contact->getTimezone());
+=======
+                    if (static::$contact !== null) {
+                        $value->setTimezone(static::$contact->getTimezone());
+>>>>>>> centreon/dev-21.10.x
                     }
                     return $value;
                 }
@@ -233,6 +252,7 @@ class EntityCreator
      */
     private function readPublicMethod(): void
     {
+<<<<<<< HEAD
         if (isset(self::$publicMethods[$this->className])) {
             return;
         }
@@ -242,6 +262,17 @@ class EntityCreator
         foreach ($reflectionClass->getMethods() as $method) {
             if ($method->isPublic()) {
                 self::$publicMethods[$this->className][$method->getName()] = $method;
+=======
+        if (isset(static::$publicMethods[$this->className])) {
+            return;
+        }
+
+        static::$publicMethods[$this->className] = [];
+        $reflectionClass = new \ReflectionClass($this->className);
+        foreach ($reflectionClass->getMethods() as $method) {
+            if ($method->isPublic()) {
+                static::$publicMethods[$this->className][$method->getName()] = $method;
+>>>>>>> centreon/dev-21.10.x
             }
         }
     }
@@ -254,11 +285,19 @@ class EntityCreator
      */
     private function readAnnotations(): void
     {
+<<<<<<< HEAD
         if (isset(self::$entityDescriptors[$this->className])) {
             return;
         }
 
         self::$entityDescriptors[$this->className] = [];
+=======
+        if (isset(static::$entityDescriptors[$this->className])) {
+            return;
+        }
+
+        static::$entityDescriptors[$this->className] = [];
+>>>>>>> centreon/dev-21.10.x
         $reflectionClass = new ReflectionClass($this->className);
         $properties = $reflectionClass->getProperties();
         $reader = new AnnotationReader();
@@ -273,7 +312,11 @@ class EntityCreator
             $key = ($annotation !== null && $annotation->column !== null)
                 ? $annotation->column
                 : StringConverter::convertCamelCaseToSnakeCase($property->getName());
+<<<<<<< HEAD
             self::$entityDescriptors[$this->className][$key] = $annotation;
+=======
+            static::$entityDescriptors[$this->className][$key] = $annotation;
+>>>>>>> centreon/dev-21.10.x
         }
 
         // load entity descriptor data via static method with metadata
@@ -283,7 +326,11 @@ class EntityCreator
                 $descriptor->column = $column;
                 $descriptor->modifier = $modifier;
 
+<<<<<<< HEAD
                 self::$entityDescriptors[$this->className][$column] = $descriptor;
+=======
+                static::$entityDescriptors[$this->className][$column] = $descriptor;
+>>>>>>> centreon/dev-21.10.x
             }
         }
     }

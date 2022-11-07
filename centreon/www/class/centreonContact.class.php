@@ -1,7 +1,12 @@
 <?php
+<<<<<<< HEAD
 
 /*
  * Copyright 2005-2021 Centreon
+=======
+/*
+ * Copyright 2005-2013 Centreon
+>>>>>>> centreon/dev-21.10.x
  * Centreon is developped by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -34,8 +39,11 @@
  *
  */
 
+<<<<<<< HEAD
 use Core\Domain\Security\ProviderConfiguration\Local\Model\SecurityPolicy;
 
+=======
+>>>>>>> centreon/dev-21.10.x
 class CentreonContact
 {
     protected $db;
@@ -250,6 +258,7 @@ class CentreonContact
         }
         return $items;
     }
+<<<<<<< HEAD
 
     /**
      * Find contact id from alias
@@ -574,4 +583,6 @@ class CentreonContact
             $statement->execute();
         }
     }
+=======
+>>>>>>> centreon/dev-21.10.x
 }

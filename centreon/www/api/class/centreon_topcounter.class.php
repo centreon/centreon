@@ -1,7 +1,11 @@
 <?php
 
 /*
+<<<<<<< HEAD
  * Copyright 2005-2022 Centreon
+=======
+ * Copyright 2005-2021 Centreon
+>>>>>>> centreon/dev-21.10.x
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -34,9 +38,14 @@
  *
  */
 
+<<<<<<< HEAD
 require_once __DIR__ . '/webService.class.php';
 require_once __DIR__ . '/../../class/centreonDB.class.php';
 require_once __DIR__ . '/../../class/centreonContact.class.php';
+=======
+require_once _CENTREON_PATH_ . "/www/class/centreonDB.class.php";
+require_once __DIR__ . "/webService.class.php";
+>>>>>>> centreon/dev-21.10.x
 
 class CentreonTopCounter extends CentreonWebService
 {
@@ -262,7 +271,11 @@ class CentreonTopCounter extends CentreonWebService
             $autoLoginKey = $row['contact_autologin_key'] ?? null;
         }
 
+<<<<<<< HEAD
         return [
+=======
+        return array(
+>>>>>>> centreon/dev-21.10.x
             'userId' => $this->centreon->user->user_id,
             'fullname' => $this->centreon->user->name,
             'username' => $this->centreon->user->alias,
@@ -270,6 +283,7 @@ class CentreonTopCounter extends CentreonWebService
             'timezone' => $this->centreon->CentreonGMT->getActiveTimezone($this->centreon->user->gmt),
             'hasAccessToProfile' => $this->hasAccessToProfile,
             'autologinkey' => $autoLoginKey,
+<<<<<<< HEAD
             'soundNotificationsEnabled' => $this->soundNotificationsEnabled,
             'password_remaining_time' => $this->getPasswordRemainingTime(),
         ];
@@ -302,6 +316,10 @@ class CentreonTopCounter extends CentreonWebService
         }
 
         return $passwordRemainingTime;
+=======
+            'soundNotificationsEnabled' => $this->soundNotificationsEnabled
+        );
+>>>>>>> centreon/dev-21.10.x
     }
 
     /**
@@ -878,6 +896,7 @@ class CentreonTopCounter extends CentreonWebService
 
         $query = "SELECT * FROM log_action WHERE action_log_date > $lastRestart " .
             "AND ((object_type = 'host' AND ((action_type = 'd' AND object_id IN (SELECT host_id FROM hosts)) " .
+<<<<<<< HEAD
             "OR object_id IN (SELECT host_host_id FROM " .
             $conf_centreon['db'] . ".ns_host_relation WHERE nagios_server_id = '$pollerId'))) " .
             "OR (object_type = 'service' AND ((action_type = 'd' AND object_id IN (SELECT service_id FROM services)) OR " .
@@ -891,6 +910,22 @@ class CentreonTopCounter extends CentreonWebService
             "OR (object_type = 'hostgroup' AND ((action_type = 'd' AND object_id IN (SELECT DISTINCT hostgroup_id " .
             "FROM hosts_hostgroups)) OR object_id IN (SELECT DISTINCT hr.hostgroup_hg_id FROM " .
             $conf_centreon['db'] . ".hostgroup_relation hr, " . $conf_centreon['db'] . ".ns_host_relation nhr " .
+=======
+            "OR object_id IN (SELECT host_host_id FROM `" .
+            $conf_centreon['db'] . "`.ns_host_relation WHERE nagios_server_id = '$pollerId'))) " .
+            "OR (object_type = 'service' AND ((action_type = 'd' AND object_id IN (SELECT service_id FROM services)) OR " .
+            "object_id IN (SELECT service_service_id FROM `" .
+            $conf_centreon['db'] . "`.ns_host_relation nhr, `" . $conf_centreon['db'] . "`.host_service_relation hsr " .
+            "WHERE nagios_server_id = '$pollerId' AND hsr.host_host_id = nhr.host_host_id)))" .
+            "OR (object_type = 'servicegroup' AND ((action_type = 'd' AND object_id IN (SELECT DISTINCT servicegroup_id " .
+            "FROM services_servicegroups)) OR object_id IN (SELECT DISTINCT servicegroup_sg_id FROM `" .
+            $conf_centreon['db'] . "`.servicegroup_relation sgr, 
+            `" . $conf_centreon['db'] . "`.ns_host_relation nhr " .
+            "WHERE sgr.host_host_id = nhr.host_host_id AND nhr.nagios_server_id = '$pollerId')))" .
+            "OR (object_type = 'hostgroup' AND ((action_type = 'd' AND object_id IN (SELECT DISTINCT hostgroup_id " .
+            "FROM hosts_hostgroups)) OR object_id IN (SELECT DISTINCT hr.hostgroup_hg_id FROM `" .
+            $conf_centreon['db'] . "`.hostgroup_relation hr, `" . $conf_centreon['db'] . "`.ns_host_relation nhr " .
+>>>>>>> centreon/dev-21.10.x
             "WHERE hr.host_host_id = nhr.host_host_id AND nhr.nagios_server_id = '$pollerId'))))";
 
         try {

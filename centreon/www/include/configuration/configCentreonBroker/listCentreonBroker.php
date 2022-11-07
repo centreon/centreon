@@ -65,6 +65,10 @@ $tpl->assign("headerMenu_name", _("Name"));
 $tpl->assign("headerMenu_desc", _("Requester"));
 $tpl->assign("headerMenu_outputs", _("Outputs"));
 $tpl->assign("headerMenu_inputs", _("Inputs"));
+<<<<<<< HEAD
+=======
+$tpl->assign("headerMenu_loggers", _("Loggers"));
+>>>>>>> centreon/dev-21.10.x
 $tpl->assign("headerMenu_status", _("Status"));
 $tpl->assign("headerMenu_options", _("Options"));
 
@@ -124,6 +128,15 @@ $style = "one";
 $elemArr = array();
 $centreonToken = createCSRFToken();
 
+<<<<<<< HEAD
+=======
+$statementBrokerInfo = $pearDB->prepare(
+    "SELECT COUNT(DISTINCT(config_group_id)) as num " .
+    "FROM cfg_centreonbroker_info " .
+    "WHERE config_group = :config_group " .
+    "AND config_id = :config_id"
+);
+>>>>>>> centreon/dev-21.10.x
 
 for ($i = 0; $config = $dbResult->fetch(); $i++) {
     $moptions = "";
@@ -147,6 +160,7 @@ for ($i = 0; $config = $dbResult->fetch(); $i++) {
         . "style=\"margin-bottom:0px;\" name='dupNbr[" . $config['config_id'] . "]'></input>";
 
     // Number of output
+<<<<<<< HEAD
     $res = $pearDB->query(
         "SELECT COUNT(DISTINCT(config_group_id)) as num " .
         "FROM cfg_centreonbroker_info " .
@@ -165,11 +179,38 @@ for ($i = 0; $config = $dbResult->fetch(); $i++) {
     );
     $row = $res->fetch();
     $inputNumber = $row["num"];
+=======
+    $statementBrokerInfo->bindValue(':config_id', (int) $config['config_id'], \PDO::PARAM_INT);
+    $statementBrokerInfo->bindValue(':config_group', 'output', \PDO::PARAM_STR);
+    $statementBrokerInfo->execute();
+    $row = $statementBrokerInfo->fetch(\PDO::FETCH_ASSOC);
+    $outputNumber = $row["num"];
+
+    // Number of input
+    $statementBrokerInfo->bindValue(':config_group', 'input', \PDO::PARAM_STR);
+    $statementBrokerInfo->execute();
+    $row = $statementBrokerInfo->fetch(\PDO::FETCH_ASSOC);
+    $inputNumber = $row["num"];
+
+    // Number of logger
+    $res = $pearDB->query(
+        "SELECT COUNT(DISTINCT(config_group_id)) as num " .
+        "FROM cfg_centreonbroker_info " .
+        "WHERE config_group = 'logger' " .
+        "AND config_id = " . $config['config_id']
+    );
+    $row = $res->fetch();
+    $loggerNumber = $row["num"];
+>>>>>>> centreon/dev-21.10.x
 
     $elemArr[$i] = array(
         "MenuClass" => "list_" . $style,
         "RowMenu_select" => $selectedElements->toHtml(),
+<<<<<<< HEAD
         "RowMenu_name" => CentreonUtils::escapeSecure($config["config_name"]),
+=======
+        "RowMenu_name" => htmlentities($config["config_name"], ENT_QUOTES, 'UTF-8'),
+>>>>>>> centreon/dev-21.10.x
         "RowMenu_link" => "main.php?p=" . $p . "&o=c&id=" . $config['config_id'],
         "RowMenu_desc" => CentreonUtils::escapeSecure(
             substr(
@@ -180,6 +221,10 @@ for ($i = 0; $config = $dbResult->fetch(); $i++) {
         ),
         "RowMenu_inputs" => $inputNumber,
         "RowMenu_outputs" => $outputNumber,
+<<<<<<< HEAD
+=======
+        "RowMenu_loggers" => $loggerNumber,
+>>>>>>> centreon/dev-21.10.x
         "RowMenu_status" => $config["config_activate"] ? _("Enabled") : _("Disabled"),
         "RowMenu_badge" => $config["config_activate"] ? "service_ok" : "service_critical",
         "RowMenu_options" => $moptions

@@ -43,6 +43,10 @@ use Centreon\ServiceProvider;
 
 trait DependenciesTrait
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * List of dependencies
      *

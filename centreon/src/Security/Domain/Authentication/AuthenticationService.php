@@ -29,7 +29,10 @@ use Security\Domain\Authentication\Interfaces\AuthenticationServiceInterface;
 use Security\Domain\Authentication\Interfaces\AuthenticationRepositoryInterface;
 use Security\Domain\Authentication\Interfaces\ProviderServiceInterface;
 use Security\Domain\Authentication\Interfaces\SessionRepositoryInterface;
+<<<<<<< HEAD
 use Core\Application\Security\Repository\WriteTokenRepositoryInterface;
+=======
+>>>>>>> centreon/dev-21.10.x
 
 /**
  * @package Security\Authentication
@@ -54,6 +57,7 @@ class AuthenticationService implements AuthenticationServiceInterface
     private $sessionRepository;
 
     /**
+<<<<<<< HEAD
      * @var WriteTokenRepositoryInterface
      */
     private $writeTokenRepository;
@@ -63,17 +67,28 @@ class AuthenticationService implements AuthenticationServiceInterface
      * @param ProviderServiceInterface $providerService
      * @param SessionRepositoryInterface $sessionRepository
      * @param WriteTokenRepositoryInterface $writeTokenRepository
+=======
+     * @param AuthenticationRepositoryInterface $authenticationRepository
+     * @param ProviderServiceInterface $providerService
+>>>>>>> centreon/dev-21.10.x
      */
     public function __construct(
         AuthenticationRepositoryInterface $authenticationRepository,
         ProviderServiceInterface $providerService,
+<<<<<<< HEAD
         SessionRepositoryInterface $sessionRepository,
         WriteTokenRepositoryInterface $writeTokenRepository,
+=======
+        SessionRepositoryInterface $sessionRepository
+>>>>>>> centreon/dev-21.10.x
     ) {
         $this->authenticationRepository = $authenticationRepository;
         $this->sessionRepository = $sessionRepository;
         $this->providerService = $providerService;
+<<<<<<< HEAD
         $this->writeTokenRepository = $writeTokenRepository;
+=======
+>>>>>>> centreon/dev-21.10.x
     }
 
     /**
@@ -99,8 +114,13 @@ class AuthenticationService implements AuthenticationServiceInterface
         if ($authenticationTokens->getProviderToken()->isExpired()) {
             if (
                 !$provider->canRefreshToken()
+<<<<<<< HEAD
                 || $authenticationTokens->getProviderRefreshToken() === null
                 || $authenticationTokens->getProviderRefreshToken()->isExpired()
+=======
+                || ($authenticationTokens->getProviderRefreshToken() !== null
+                && $authenticationTokens->getProviderRefreshToken()->isExpired())
+>>>>>>> centreon/dev-21.10.x
             ) {
                 $this->notice('Your session has expired');
                 return false;
@@ -135,7 +155,11 @@ class AuthenticationService implements AuthenticationServiceInterface
     public function deleteExpiredSecurityTokens(): void
     {
         try {
+<<<<<<< HEAD
             $this->writeTokenRepository->deleteExpiredSecurityTokens();
+=======
+            $this->authenticationRepository->deleteExpiredSecurityTokens();
+>>>>>>> centreon/dev-21.10.x
         } catch (\Exception $ex) {
             throw AuthenticationException::deleteExpireToken($ex);
         }

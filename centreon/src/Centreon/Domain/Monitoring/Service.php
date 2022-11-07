@@ -182,7 +182,11 @@ class Service implements EntityDescriptorMetadataInterface
     protected $maxCheckAttempts;
 
     /**
+<<<<<<< HEAD
      * @var \DateTime
+=======
+     * @var \DateTime|null
+>>>>>>> centreon/dev-21.10.x
      */
     protected $nextCheck;
 
@@ -227,11 +231,28 @@ class Service implements EntityDescriptorMetadataInterface
     protected $flapping;
 
     /**
+<<<<<<< HEAD
      * @var \Centreon\Domain\Monitoring\ResourceStatus|null
+=======
+     * @var \Centreon\Domain\Monitoring\ResourceStatus
+>>>>>>> centreon/dev-21.10.x
      */
     private $status;
 
     /**
+<<<<<<< HEAD
+=======
+     * @var string|null
+     */
+    protected $actionUrl;
+
+    /**
+     * @var string|null
+     */
+    protected $notesUrl;
+
+    /**
+>>>>>>> centreon/dev-21.10.x
      * {@inheritdoc}
      */
     public static function loadEntityDescriptorMetadata(): array
@@ -640,7 +661,11 @@ class Service implements EntityDescriptorMetadataInterface
 
     /**
      * @param \DateTime|null $nextCheck
+<<<<<<< HEAD
      * @return Service|null
+=======
+     * @return Service
+>>>>>>> centreon/dev-21.10.x
      */
     public function setNextCheck(?\DateTime $nextCheck): Service
     {
@@ -919,18 +944,31 @@ class Service implements EntityDescriptorMetadataInterface
     }
 
     /**
+<<<<<<< HEAD
      * @return \Centreon\Domain\Monitoring\ResourceStatus|null
      */
     public function getStatus(): ?ResourceStatus
+=======
+     * @return \Centreon\Domain\Monitoring\ResourceStatus
+     */
+    public function getStatus(): ResourceStatus
+>>>>>>> centreon/dev-21.10.x
     {
         return $this->status;
     }
 
     /**
+<<<<<<< HEAD
      * @param \Centreon\Domain\Monitoring\ResourceStatus|null $status
      * @return \Centreon\Domain\Monitoring\Resource
      */
     public function setStatus(?ResourceStatus $status): self
+=======
+     * @param \Centreon\Domain\Monitoring\ResourceStatus $status
+     * @return self
+     */
+    public function setStatus(ResourceStatus $status): self
+>>>>>>> centreon/dev-21.10.x
     {
         $this->status = $status;
 
@@ -944,10 +982,53 @@ class Service implements EntityDescriptorMetadataInterface
     {
         $duration = null;
 
+<<<<<<< HEAD
         if ($this->getLastStateChange()) {
+=======
+        if ($this->getLastStateChange() !== null) {
+>>>>>>> centreon/dev-21.10.x
             $duration = CentreonDuration::toString(time() - $this->getLastStateChange()->getTimestamp());
         }
 
         return $duration;
     }
+<<<<<<< HEAD
+=======
+
+    /**
+     * @return string|null
+     */
+    public function getActionUrl(): ?string
+    {
+        return $this->actionUrl;
+    }
+
+    /**
+     * @param string|null $actionUrl
+     * @return self
+     */
+    public function setActionUrl(?string $actionUrl): self
+    {
+        $this->actionUrl = $actionUrl;
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getNotesUrl(): ?string
+    {
+        return $this->notesUrl;
+    }
+
+    /**
+     * @param string|null $notesUrl
+     * @return self
+     */
+    public function setNotesUrl(?string $notesUrl): self
+    {
+        $this->notesUrl = $notesUrl;
+        return $this;
+    }
+>>>>>>> centreon/dev-21.10.x
 }

@@ -1,5 +1,6 @@
 <?php
 
+<<<<<<< HEAD
 /*
  * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
  *
@@ -19,6 +20,8 @@
  *
  */
 
+=======
+>>>>>>> centreon/dev-21.10.x
 namespace CentreonRemote\Domain\Resources\RemoteConfig;
 
 /**
@@ -35,7 +38,11 @@ class NagiosServer
      *
      * @param string $name the poller name
      * @param string $ip the poller ip address
+<<<<<<< HEAD
      * @return array<string,int|string> the configuration template
+=======
+     * @return array the configuration template
+>>>>>>> centreon/dev-21.10.x
      */
     public static function getConfiguration(string $name, string $ip): array
     {

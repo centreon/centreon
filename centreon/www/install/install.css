@@ -60,7 +60,15 @@ a:link, a:visited {
 	font-size: 12px;
 	color: #333333;
 	text-decoration: none;
+<<<<<<< HEAD
 	}
+=======
+}
+
+.field_msg a:link {
+    font-size: 11px;
+}
+>>>>>>> centreon/dev-21.10.x
 
 a:hover {
 	color: #0072ce;
@@ -95,11 +103,14 @@ textarea {
 	}
 /* custom */
 
+<<<<<<< HEAD
 .bt_back_install {
     background: none !important;
     color: var(--color-mine-shaft) !important;
 }
 
+=======
+>>>>>>> centreon/dev-21.10.x
 table.shell {
 	border: 1px solid #fff;
 	height: 300px;

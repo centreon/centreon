@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useState, useEffect } from 'react';
 
 import { all, head, pathEq } from 'ramda';
@@ -8,6 +9,17 @@ import makeStyles from '@mui/styles/makeStyles';
 import IconAcknowledge from '@mui/icons-material/Person';
 import IconCheck from '@mui/icons-material/Sync';
 import IconMore from '@mui/icons-material/MoreHoriz';
+=======
+import * as React from 'react';
+
+import { all, head, pathEq, pick } from 'ramda';
+import { useTranslation } from 'react-i18next';
+
+import { makeStyles } from '@material-ui/core';
+import IconAcknowledge from '@material-ui/icons/Person';
+import IconCheck from '@material-ui/icons/Sync';
+import IconMore from '@material-ui/icons/MoreHoriz';
+>>>>>>> centreon/dev-21.10.x
 
 import {
   useCancelTokenSource,
@@ -28,6 +40,7 @@ import {
   labelAddComment,
   labelMoreActions,
 } from '../../translatedLabels';
+<<<<<<< HEAD
 import { checkResources } from '../api';
 import { Resource } from '../../models';
 import AddCommentForm from '../../Graph/Performance/Graph/AddCommentForm';
@@ -38,6 +51,13 @@ import {
   resourcesToSetDowntimeAtom,
   selectedResourcesAtom,
 } from '../actionsAtoms';
+=======
+import { ResourceContext, useResourceContext } from '../../Context';
+import { checkResources } from '../api';
+import { Resource } from '../../models';
+import AddCommentForm from '../../Graph/Performance/Graph/AddCommentForm';
+import memoizeComponent from '../../memoizedComponent';
+>>>>>>> centreon/dev-21.10.x
 
 import useAclQuery from './aclQuery';
 import DowntimeForm from './Downtime';
@@ -57,13 +77,43 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+<<<<<<< HEAD
 const ResourceActions = (): JSX.Element => {
+=======
+type Props = Pick<
+  ResourceContext,
+  | 'resourcesToCheck'
+  | 'selectedResources'
+  | 'resourcesToAcknowledge'
+  | 'resourcesToSetDowntime'
+  | 'resourcesToDisacknowledge'
+  | 'setSelectedResources'
+  | 'setResourcesToAcknowledge'
+  | 'setResourcesToSetDowntime'
+  | 'setResourcesToCheck'
+  | 'setResourcesToDisacknowledge'
+>;
+
+const ResourceActionsContent = ({
+  resourcesToCheck,
+  selectedResources,
+  resourcesToAcknowledge,
+  resourcesToSetDowntime,
+  resourcesToDisacknowledge,
+  setSelectedResources,
+  setResourcesToAcknowledge,
+  setResourcesToSetDowntime,
+  setResourcesToCheck,
+  setResourcesToDisacknowledge,
+}: Props): JSX.Element => {
+>>>>>>> centreon/dev-21.10.x
   const classes = useStyles();
   const { t } = useTranslation();
   const { cancel, token } = useCancelTokenSource();
   const { showErrorMessage, showSuccessMessage } = useSnackbar();
 
   const [resourceToSubmitStatus, setResourceToSubmitStatus] =
+<<<<<<< HEAD
     useState<Resource | null>();
   const [resourceToComment, setResourceToComment] = useState<Resource | null>();
 
@@ -80,6 +130,11 @@ const ResourceActions = (): JSX.Element => {
   const [resourcesToDisacknowledge, setResourcesToDisacknowledge] = useAtom(
     resourcesToDisacknowledgeAtom,
   );
+=======
+    React.useState<Resource | null>();
+  const [resourceToComment, setResourceToComment] =
+    React.useState<Resource | null>();
+>>>>>>> centreon/dev-21.10.x
 
   const {
     canAcknowledge,
@@ -102,7 +157,11 @@ const ResourceActions = (): JSX.Element => {
     setResourceToComment(null);
   };
 
+<<<<<<< HEAD
   useEffect(() => {
+=======
+  React.useEffect(() => {
+>>>>>>> centreon/dev-21.10.x
     if (!hasResourcesToCheck) {
       return;
     }
@@ -118,7 +177,11 @@ const ResourceActions = (): JSX.Element => {
       .catch(() => showErrorMessage(t(labelSomethingWentWrong)));
   }, [resourcesToCheck]);
 
+<<<<<<< HEAD
   useEffect(() => (): void => cancel(), []);
+=======
+  React.useEffect(() => (): void => cancel(), []);
+>>>>>>> centreon/dev-21.10.x
 
   const prepareToAcknowledge = (): void => {
     setResourcesToAcknowledge(selectedResources);
@@ -311,4 +374,37 @@ const ResourceActions = (): JSX.Element => {
   );
 };
 
+<<<<<<< HEAD
+=======
+const memoProps = [
+  'resourcesToCheck',
+  'selectedResources',
+  'resourcesToAcknowledge',
+  'resourcesToSetDowntime',
+  'resourcesToDisacknowledge',
+];
+
+const MemoizedResourceActionsContent = memoizeComponent<Props>({
+  Component: ResourceActionsContent,
+  memoProps,
+});
+
+const functionProps = [
+  'setSelectedResources',
+  'setResourcesToAcknowledge',
+  'setResourcesToSetDowntime',
+  'setResourcesToCheck',
+  'setResourcesToDisacknowledge',
+];
+
+const ResourceActions = (): JSX.Element => {
+  const resourceContextProps = pick(
+    [...memoProps, ...functionProps],
+    useResourceContext(),
+  );
+
+  return <MemoizedResourceActionsContent {...resourceContextProps} />;
+};
+
+>>>>>>> centreon/dev-21.10.x
 export default ResourceActions;

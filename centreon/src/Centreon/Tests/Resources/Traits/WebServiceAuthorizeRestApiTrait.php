@@ -48,6 +48,10 @@ use Centreon\Infrastructure\Webservice\WebserviceAutorizeRestApiInterface;
  */
 trait WebServiceAuthorizeRestApiTrait
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * Check is webservice implemented Rest API authorization interface
      *

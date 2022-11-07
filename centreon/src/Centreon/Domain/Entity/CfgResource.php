@@ -3,6 +3,10 @@ namespace Centreon\Domain\Entity;
 
 class CfgResource
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * @var int
      */

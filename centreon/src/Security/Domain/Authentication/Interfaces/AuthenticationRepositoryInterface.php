@@ -69,6 +69,15 @@ interface AuthenticationRepositoryInterface
     public function updateProviderToken(ProviderToken $providerToken): void;
 
     /**
+<<<<<<< HEAD
+=======
+     * Delete all expired API tokens registered.
+     *
+     */
+    public function deleteExpiredSecurityTokens(): void;
+
+    /**
+>>>>>>> centreon/dev-21.10.x
      * Delete a security token.
      *
      * @param string $token

@@ -349,8 +349,11 @@ foreach ($aTab as $key => $element) {
             );
             $obj->XML->endElement();
         }
+<<<<<<< HEAD
         $obj->XML->writeElement("chartIcon", returnSvg("www/img/icons/chart.svg", "var(--icons-fill-color)", 18, 18));
         $obj->XML->writeElement("viewIcon", returnSvg("www/img/icons/view.svg", "var(--icons-fill-color)", 18, 18));
+=======
+>>>>>>> centreon/dev-21.10.x
         $obj->XML->endElement();
         $count++;
     }

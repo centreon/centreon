@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+import * as React from 'react';
+
+>>>>>>> centreon/dev-21.10.x
 import { isNil } from 'ramda';
 
 import { ListingModel, useRequest } from '@centreon/ui';

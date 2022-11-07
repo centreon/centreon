@@ -23,7 +23,10 @@ declare(strict_types=1);
 namespace Centreon\Domain\ServiceConfiguration;
 
 use Centreon\Domain\Annotation\EntityDescriptor;
+<<<<<<< HEAD
 use Centreon\Domain\Common\Assertion\Assertion;
+=======
+>>>>>>> centreon/dev-21.10.x
 
 /**
  * This class is designed to represent a service configuration.
@@ -38,6 +41,7 @@ class Service
     public const TYPE_BUSINESS_ACTIVITY = 2;
     public const TYPE_ANOMALY_DETECTION = 3;
 
+<<<<<<< HEAD
     public const NOTIFICATIONS_OPTION_DISABLED = 0,
                  NOTIFICATIONS_OPTION_ENABLED = 1,
                  NOTIFICATIONS_OPTION_DEFAULT_ENGINE_VALUE = 2;
@@ -48,6 +52,8 @@ class Service
         self::NOTIFICATIONS_OPTION_DEFAULT_ENGINE_VALUE,
     ];
 
+=======
+>>>>>>> centreon/dev-21.10.x
     /**
      * @var int|null
      */
@@ -75,7 +81,10 @@ class Service
 
     /**
      * @var bool Indicates whether or not this service is locked
+<<<<<<< HEAD
      * @EntityDescriptor(column="is_locked", modifier="setLocked")
+=======
+>>>>>>> centreon/dev-21.10.x
      */
     private $isLocked;
 
@@ -100,11 +109,14 @@ class Service
      */
     private $extendedService;
 
+<<<<<<< HEAD
     /**
      * @var int
      */
     private $notificationsEnabledOption = self::NOTIFICATIONS_OPTION_DEFAULT_ENGINE_VALUE;
 
+=======
+>>>>>>> centreon/dev-21.10.x
     public function __construct()
     {
         $this->isLocked = false;
@@ -286,6 +298,7 @@ class Service
         $this->extendedService = $extendedService;
         return $this;
     }
+<<<<<<< HEAD
 
     /**
      * @return int
@@ -311,4 +324,6 @@ class Service
 
         return $this;
     }
+=======
+>>>>>>> centreon/dev-21.10.x
 }

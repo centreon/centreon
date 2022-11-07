@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { lazy, Suspense } from 'react';
 
 import { Routes, Route, useHref } from 'react-router-dom';
@@ -19,6 +20,23 @@ import ExternalComponents, {
 
 const NotAllowedPage = lazy(() => import('../../FallbackPages/NotAllowedPage'));
 const NotFoundPage = lazy(() => import('../../FallbackPages/NotFoundPage'));
+=======
+import * as React from 'react';
+
+import { connect } from 'react-redux';
+import { Switch, Route, withRouter } from 'react-router-dom';
+import { equals } from 'ramda';
+
+import { styled } from '@material-ui/core';
+
+import { PageSkeleton } from '@centreon/ui';
+
+import internalPagesRoutes from '../../route-maps';
+import { dynamicImport } from '../../helpers/dynamicImport';
+import NotAllowedPage from '../../route-components/notAllowedPage';
+import BreadcrumbTrail from '../../BreadcrumbTrail';
+import { allowedPagesSelector } from '../../redux/selectors/navigation/allowedPages';
+>>>>>>> centreon/dev-21.10.x
 
 const PageContainer = styled('div')(({ theme }) => ({
   background: theme.palette.background.default,
@@ -29,10 +47,23 @@ const PageContainer = styled('div')(({ theme }) => ({
 }));
 
 const getExternalPageRoutes = ({
+<<<<<<< HEAD
   allowedPages,
   pages,
   basename,
 }): Array<JSX.Element> => {
+=======
+  history,
+  allowedPages,
+  pages,
+}): Array<JSX.Element> => {
+  const basename = history.createHref({
+    hash: '',
+    pathname: '/',
+    search: '',
+  });
+
+>>>>>>> centreon/dev-21.10.x
   const pageEntries = Object.entries(pages);
   const isAllowedPage = (path): boolean =>
     allowedPages?.find((allowedPage) => path.includes(allowedPage));
@@ -40,6 +71,7 @@ const getExternalPageRoutes = ({
   const loadablePages = pageEntries.filter(([path]) => isAllowedPage(path));
 
   return loadablePages.map(([path, parameter]) => {
+<<<<<<< HEAD
     const Page = lazy(() => dynamicImport(basename, parameter));
 
     return (
@@ -56,12 +88,28 @@ const getExternalPageRoutes = ({
         }
         key={path}
         path={path}
+=======
+    const Page = React.lazy(() => dynamicImport(basename, parameter));
+
+    return (
+      <Route
+        exact
+        key={path}
+        path={path}
+        render={(renderProps): JSX.Element => (
+          <PageContainer>
+            <BreadcrumbTrail path={path} />
+            <Page {...renderProps} />
+          </PageContainer>
+        )}
+>>>>>>> centreon/dev-21.10.x
       />
     );
   });
 };
 
 interface Props {
+<<<<<<< HEAD
   allowedPages: Array<string | Array<string>>;
   externalPagesFetched: boolean;
   pages: Record<string, unknown>;
@@ -132,3 +180,59 @@ const ReactRouter = (): JSX.Element => {
 };
 
 export default ReactRouter;
+=======
+  allowedPages: Array<string>;
+  externalPagesFetched: boolean;
+  history;
+  pages: Record<string, unknown>;
+}
+
+const ReactRouter = React.memo<Props>(
+  ({ allowedPages, history, pages, externalPagesFetched }: Props) => {
+    if (!externalPagesFetched || !allowedPages) {
+      return <PageSkeleton />;
+    }
+
+    return (
+      <React.Suspense fallback={<PageSkeleton />}>
+        <Switch>
+          {internalPagesRoutes.map(({ path, comp: Comp, ...rest }) => (
+            <Route
+              exact
+              key={path}
+              path={path}
+              render={(renderProps): JSX.Element => (
+                <PageContainer>
+                  {allowedPages.includes(path) ? (
+                    <>
+                      <BreadcrumbTrail path={path} />
+                      <Comp {...renderProps} />
+                    </>
+                  ) : (
+                    <NotAllowedPage {...renderProps} />
+                  )}
+                </PageContainer>
+              )}
+              {...rest}
+            />
+          ))}
+          {getExternalPageRoutes({ allowedPages, history, pages })}
+          {externalPagesFetched && <Route component={NotAllowedPage} />}
+        </Switch>
+      </React.Suspense>
+    );
+  },
+  (previousProps, nextProps) =>
+    equals(previousProps.pages, nextProps.pages) &&
+    equals(previousProps.allowedPages, nextProps.allowedPages) &&
+    equals(previousProps.externalPagesFetched, nextProps.externalPagesFetched),
+);
+
+const mapStateToProps = (state): Record<string, unknown> => ({
+  allowedPages: allowedPagesSelector(state),
+  externalPagesFetched: state.externalComponents.fetched,
+  pages: state.externalComponents.pages,
+});
+
+export default connect(mapStateToProps)(withRouter(ReactRouter));
+>>>>>>> centreon/dev-21.10.x

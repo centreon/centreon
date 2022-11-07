@@ -37,7 +37,11 @@ class WizardConfigurationRequestValidator
      */
     public static function validate(): void
     {
+<<<<<<< HEAD
         (new self())->validateServerPostData();
+=======
+        (new static)->validateServerPostData();
+>>>>>>> centreon/dev-21.10.x
     }
 
     /**

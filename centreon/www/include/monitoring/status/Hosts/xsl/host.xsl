@@ -179,7 +179,15 @@
 			</xsl:if>
 			<xsl:element name="a">
 				<xsl:attribute name="href">./main.php?p=204&amp;mode=0&amp;svc_id=<xsl:value-of select="hnl"/></xsl:attribute>
+<<<<<<< HEAD
                 <xsl:value-of select="chartIcon" disable-output-escaping="yes"/>
+=======
+				<xsl:element name="img">
+					<xsl:attribute name="src">./img/icons/chart.png</xsl:attribute>
+					<xsl:attribute name="class">ico-18</xsl:attribute>
+					<xsl:attribute name="title">See Graphs of this host</xsl:attribute>
+				</xsl:element>
+>>>>>>> centreon/dev-21.10.x
 			</xsl:element>
 			
 		</td>

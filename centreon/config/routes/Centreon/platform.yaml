@@ -28,6 +28,7 @@ centreon_application_platform_updateplatform:
   methods: PATCH
   path: /platform
   controller: 'Centreon\Application\Controller\PlatformController::updatePlatform'
+<<<<<<< HEAD
   condition: "request.attributes.get('version') >= 21.10"
 
 centreon_application_platform_get_installation_status:
@@ -35,3 +36,6 @@ centreon_application_platform_get_installation_status:
   path: /platform/installation/status
   controller: 'Core\Infrastructure\Platform\Api\FindInstallationStatus\FindInstallationStatusController'
   condition: "request.attributes.get('version') >= 22.04"
+=======
+  condition: "request.attributes.get('version') >= 21.10"
+>>>>>>> centreon/dev-21.10.x

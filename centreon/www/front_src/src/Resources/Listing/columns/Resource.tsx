@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 import { Typography } from '@mui/material';
+=======
+import * as React from 'react';
+
+import { Typography } from '@material-ui/core';
+>>>>>>> centreon/dev-21.10.x
 
 import { ComponentColumnProps } from '@centreon/ui';
 

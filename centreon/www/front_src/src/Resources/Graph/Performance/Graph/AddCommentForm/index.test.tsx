@@ -1,7 +1,15 @@
+<<<<<<< HEAD
 import axios from 'axios';
 import userEvent from '@testing-library/user-event';
 
 import { render, screen, waitFor } from '@centreon/ui';
+=======
+import * as React from 'react';
+
+import axios from 'axios';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+>>>>>>> centreon/dev-21.10.x
 
 import { Resource } from '../../../../models';
 import { labelComment, labelAdd } from '../../../../translatedLabels';
@@ -38,7 +46,11 @@ describe(AddCommentForm, () => {
       />,
     );
 
+<<<<<<< HEAD
     expect(screen.getByText(labelAdd)).toBeDisabled();
+=======
+    expect(screen.getByText(labelAdd).parentElement).toBeDisabled();
+>>>>>>> centreon/dev-21.10.x
 
     userEvent.type(screen.getByLabelText(labelComment), 'plop');
 

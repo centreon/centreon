@@ -28,9 +28,15 @@ interface RemoteServerRepositoryInterface
     /**
      * Delete a Remote Server.
      *
+<<<<<<< HEAD
      * @param string $address
      */
     public function deleteRemoteServerByAddress(string $address): void;
+=======
+     * @param int $serverId
+     */
+    public function deleteRemoteServerByServerId(int $serverId): void;
+>>>>>>> centreon/dev-21.10.x
 
     /**
      * Delete an Additional Remote Server, for pollers linked to multiple Remote Servers.

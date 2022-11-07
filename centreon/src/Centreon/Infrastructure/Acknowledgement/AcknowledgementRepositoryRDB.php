@@ -122,6 +122,7 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
     }
 
     /**
+<<<<<<< HEAD
      * @inheritDoc
      */
     public function getAdmin(): bool
@@ -130,6 +131,8 @@ final class AcknowledgementRepositoryRDB extends AbstractRepositoryDRB implement
     }
 
     /**
+=======
+>>>>>>> centreon/dev-21.10.x
      * {@inheritDoc}
      * @throws \PDOException
      */

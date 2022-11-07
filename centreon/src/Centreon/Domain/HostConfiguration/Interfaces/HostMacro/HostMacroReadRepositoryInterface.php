@@ -22,7 +22,10 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\HostConfiguration\Interfaces\HostMacro;
 
+<<<<<<< HEAD
 use Centreon\Domain\HostConfiguration\Host;
+=======
+>>>>>>> centreon/dev-21.10.x
 use Centreon\Domain\HostConfiguration\HostMacro;
 
 /**
@@ -33,10 +36,21 @@ use Centreon\Domain\HostConfiguration\HostMacro;
 interface HostMacroReadRepositoryInterface
 {
     /**
+<<<<<<< HEAD
      * Find all macros linked to a host.
      *
      * @param Host $host
      * @return HostMacro[]
      */
     public function findAllByHost(Host $host): array;
+=======
+     * Find all service macros for the service.
+     *
+     * @param int $hostId Id of the Host
+     * @param bool $useInheritance Indicates whether to use inheritance to find service macros
+     * @return HostMacro[] List of host macros found
+     * @throws \Throwable
+     */
+    public function findOnDemandHostMacros(int $hostId, bool $useInheritance): array;
+>>>>>>> centreon/dev-21.10.x
 }

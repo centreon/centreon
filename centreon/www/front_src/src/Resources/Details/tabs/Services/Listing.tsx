@@ -1,6 +1,14 @@
+<<<<<<< HEAD
 import { useTranslation } from 'react-i18next';
 
 import makeStyles from '@mui/styles/makeStyles';
+=======
+import * as React from 'react';
+
+import { useTranslation } from 'react-i18next';
+
+import { makeStyles } from '@material-ui/core';
+>>>>>>> centreon/dev-21.10.x
 
 import { IconButton } from '@centreon/ui';
 
@@ -30,7 +38,10 @@ const Listing = ({
     <>
       <IconButton
         ariaLabel={t(switchButtonLabel)}
+<<<<<<< HEAD
         size="large"
+=======
+>>>>>>> centreon/dev-21.10.x
         title={t(switchButtonLabel)}
         onClick={onSwitchButtonClick}
       >

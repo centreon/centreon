@@ -1,5 +1,6 @@
 <?php
 
+<<<<<<< HEAD
 /*
  * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
  *
@@ -23,10 +24,16 @@ namespace CentreonRemote\Domain\Service\ConfigurationWizard;
 
 use CentreonRemote\Domain\Resources\RemoteConfig\CfgCentreonBroker;
 use CentreonRemote\Domain\Resources\DefaultConfig\CfgCentreonBrokerLog;
+=======
+namespace CentreonRemote\Domain\Service\ConfigurationWizard;
+
+use CentreonRemote\Domain\Resources\RemoteConfig\CfgCentreonBroker;
+>>>>>>> centreon/dev-21.10.x
 use CentreonRemote\Domain\Resources\RemoteConfig\CfgCentreonBrokerInfo;
 
 class RemoteConnectionConfigurationService extends ServerConnectionConfigurationService
 {
+<<<<<<< HEAD
     /**
      * @inheritDoc
      */
@@ -42,11 +49,19 @@ class RemoteConnectionConfigurationService extends ServerConnectionConfiguration
     {
         $brokerConfiguration = CfgCentreonBroker::getConfiguration($serverID, $this->name);
         $brokerInfoConfiguration = CfgCentreonBrokerInfo::getConfiguration(
+=======
+
+    protected function insertConfigCentreonBroker(int $serverID): void
+    {
+        $configCentreonBrokerData = CfgCentreonBroker::getConfiguration($serverID, $this->name);
+        $configCentreonBrokerInfoData = CfgCentreonBrokerInfo::getConfiguration(
+>>>>>>> centreon/dev-21.10.x
             $this->name,
             $this->dbUser,
             $this->dbPassword
         );
 
+<<<<<<< HEAD
         $this->brokerID = (int) $this->insertWithAdapter('cfg_centreonbroker', $brokerConfiguration['broker']);
         $moduleID = (int) $this->insertWithAdapter('cfg_centreonbroker', $brokerConfiguration['module']);
         $rrdID = (int) $this->insertWithAdapter('cfg_centreonbroker', $brokerConfiguration['rrd']);
@@ -91,8 +106,43 @@ class RemoteConnectionConfigurationService extends ServerConnectionConfiguration
                     $row['config_value'] = $this->centralIp;
                 }
 
+=======
+        $this->brokerID = $this->insertWithAdapter('cfg_centreonbroker', $configCentreonBrokerData['broker']);
+        $moduleID = $this->insertWithAdapter('cfg_centreonbroker', $configCentreonBrokerData['module']);
+        $rrdID = $this->insertWithAdapter('cfg_centreonbroker', $configCentreonBrokerData['rrd']);
+
+        foreach ($configCentreonBrokerInfoData['central-broker'] as $brokerConfig => $brokerData) {
+            foreach ($brokerData as $row) {
+                if ($brokerConfig == 'output_forward' && $row['config_key'] == 'host') {
+                    $row['config_value'] = $this->centralIp;
+                }
+
+                $row['config_id'] = $this->brokerID;
+                $this->insertWithAdapter('cfg_centreonbroker_info', $row);
+            }
+        }
+
+        foreach ($configCentreonBrokerInfoData['central-module'] as $brokerConfig => $brokerData) {
+            foreach ($brokerData as $row) {
+                $row['config_id'] = $moduleID;
+                $this->insertWithAdapter('cfg_centreonbroker_info', $row);
+            }
+        }
+
+        foreach ($configCentreonBrokerInfoData['central-rrd'] as $brokerConfig => $brokerData) {
+            foreach ($brokerData as $row) {
+                $row['config_id'] = $rrdID;
+>>>>>>> centreon/dev-21.10.x
                 $this->insertWithAdapter('cfg_centreonbroker_info', $row);
             }
         }
     }
+<<<<<<< HEAD
+=======
+
+    protected function isRemote(): bool
+    {
+        return true;
+    }
+>>>>>>> centreon/dev-21.10.x
 }

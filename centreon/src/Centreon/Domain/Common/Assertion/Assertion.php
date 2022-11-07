@@ -140,6 +140,7 @@ class Assertion
     }
 
     /**
+<<<<<<< HEAD
      * Assert that a string respects email format.
      *
      * @param string $value Value to test
@@ -161,6 +162,8 @@ class Assertion
     }
 
     /**
+=======
+>>>>>>> centreon/dev-21.10.x
      * Assert that a date is smaller as a given limit.
      *
      * @param \DateTime $value
@@ -258,6 +261,7 @@ class Assertion
         }
         return $length;
     }
+<<<<<<< HEAD
 
     /**
      * Assert that value is in array
@@ -307,4 +311,6 @@ class Assertion
             $propertyPath
         );
     }
+=======
+>>>>>>> centreon/dev-21.10.x
 }

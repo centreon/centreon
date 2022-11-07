@@ -160,8 +160,11 @@ $tpl->display("formGenerateFiles.ihtml");
     var postcmdOption;
 
     var tooltip = new CentreonToolTip();
+<<<<<<< HEAD
     var svg = "<?php displaySvg("www/img/icons/question.svg", "var(--help-tool-tip-icon-fill-color)", 18, 18); ?>"
     tooltip.setSource(svg);
+=======
+>>>>>>> centreon/dev-21.10.x
     var session_id = "<?php echo session_id(); ?>";
     tooltip.render();
     var msgTab = new Array();

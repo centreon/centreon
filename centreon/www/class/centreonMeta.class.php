@@ -305,8 +305,16 @@ class CentreonMeta
             $row = $res->fetchRow();
             $serviceId = $row['service_id'];
             if ($row['display_name'] !== $metaName) {
+<<<<<<< HEAD
                 $query = 'UPDATE service SET display_name = "' . $metaName . '" WHERE service_id = ' . $serviceId;
                 $this->db->query($query);
+=======
+                $query = 'UPDATE service SET display_name = :display_name WHERE service_id = :service_id';
+                $statement = $this->db->prepare($query);
+                $statement->bindValue(':display_name', $metaName, \PDO::PARAM_STR);
+                $statement->bindValue(':service_id', (int) $serviceId, \PDO::PARAM_INT);
+                $statement->execute();
+>>>>>>> centreon/dev-21.10.x
             }
         } else {
             $query = 'INSERT INTO service (service_description, display_name, service_register) '
@@ -314,11 +322,23 @@ class CentreonMeta
                 . '("' . $composedName . '", "' . $metaName . '", "2")';
             $this->db->query($query);
             $query = 'INSERT INTO host_service_relation(host_host_id, service_service_id) '
+<<<<<<< HEAD
                 . 'VALUES ('
                 . $hostId . ','
                 . '(SELECT service_id FROM service WHERE service_description = "' . $composedName . '" AND service_register = "2" LIMIT 1)'
                 . ')';
             $this->db->query($query);
+=======
+                . 'VALUES (:host_id,'
+                . '(SELECT service_id 
+                    FROM service 
+                    WHERE service_description = :service_description AND service_register = "2" LIMIT 1)'
+                . ')';
+            $statement = $this->db->prepare($query);
+            $statement->bindValue(':host_id', (int) $hostId, \PDO::PARAM_INT);
+            $statement->bindValue(':service_description', $composedName, \PDO::PARAM_STR);
+            $statement->execute();
+>>>>>>> centreon/dev-21.10.x
             $res = $this->db->query($queryService);
             if ($res->rowCount()) {
                 $row = $res->fetchRow();

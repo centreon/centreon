@@ -31,6 +31,7 @@ use Centreon\Domain\MonitoringServer\MonitoringServer;
 interface EngineConfigurationServiceInterface
 {
     /**
+<<<<<<< HEAD
      * Find the Engine configuration associated to the central poller.
      *
      * @throws EngineException
@@ -39,6 +40,8 @@ interface EngineConfigurationServiceInterface
     public function findCentralEngineConfiguration(): ?EngineConfiguration;
 
     /**
+=======
+>>>>>>> centreon/dev-21.10.x
      * Find the Engine configuration associated to a host.
      *
      * @param Host $host Host for which we want to find the Engine configuration

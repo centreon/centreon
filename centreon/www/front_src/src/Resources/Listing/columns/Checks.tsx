@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+import * as React from 'react';
+
+>>>>>>> centreon/dev-21.10.x
 import { pick } from 'ramda';
 
 import { ComponentColumnProps } from '@centreon/ui';

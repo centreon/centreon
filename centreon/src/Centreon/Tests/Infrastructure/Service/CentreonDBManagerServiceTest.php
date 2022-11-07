@@ -46,11 +46,16 @@ use Centreon\Tests\Resources\Mock\RepositoryMock;
 
 class CentreonDBManagerServiceTest extends TestCase
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * @var \Centreon\Infrastructure\Service\CentreonDBManagerService
      */
     protected $service;
 
+<<<<<<< HEAD
     /**
      * @var CentreonDB
      */
@@ -61,12 +66,18 @@ class CentreonDBManagerServiceTest extends TestCase
      */
     protected $db2;
 
+=======
+>>>>>>> centreon/dev-21.10.x
     public function setUp(): void
     {
         $this->db1 = new CentreonDB('database_1');
         $this->db2 = new CentreonDB('database_2');
 
+<<<<<<< HEAD
         $container = new Container();
+=======
+        $container = new Container;
+>>>>>>> centreon/dev-21.10.x
         $container['configuration_db'] = $this->db1;
         $container['realtime_db'] = $this->db2;
 

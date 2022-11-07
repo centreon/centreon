@@ -106,6 +106,7 @@ interface HostConfigurationReadRepositoryInterface
      * @return string[] Return the host names found
      */
     public function findHostNamesAlreadyUsed(array $namesToCheck): array;
+<<<<<<< HEAD
 
     /**
      * Find a host regarding user ACL
@@ -135,4 +136,6 @@ interface HostConfigurationReadRepositoryInterface
      * @throws \Throwable
      */
     public function findHostByName(string $hostName): ?Host;
+=======
+>>>>>>> centreon/dev-21.10.x
 }

@@ -1076,16 +1076,28 @@ class CentreonGraph
             return;
         } else {
             $command_id = getMyServiceField($this->indexData["service_id"], "command_command_id");
+<<<<<<< HEAD
             $DBRESULT = $this->DB->query("SELECT graph_id FROM command WHERE `command_id` = '" . $command_id . "'");
             if ($DBRESULT->rowCount()) {
                 $data = $DBRESULT->fetch();
+=======
+            $statement = $this->DB->prepare("SELECT graph_id FROM command WHERE `command_id` = :command_id");
+            $statement->bindValue(':command_id', (int) $command_id, \PDO::PARAM_INT);
+            $statement->execute();
+            if ($statement->rowCount()) {
+                $data = $statement->fetch();
+>>>>>>> centreon/dev-21.10.x
                 if ($data["graph_id"] != 0) {
                     $this->templateId = $data["graph_id"];
                     unset($data);
                     return;
                 }
             }
+<<<<<<< HEAD
             $DBRESULT->closeCursor();
+=======
+            $statement->closeCursor();
+>>>>>>> centreon/dev-21.10.x
             unset($command_id);
         }
         $DBRESULT = $this->DB->query("SELECT graph_id FROM giv_graphs_template WHERE default_tpl1 = '1' LIMIT 1");
@@ -1119,18 +1131,28 @@ class CentreonGraph
                 /*
                  * Graph is based on a module check point
                  */
+<<<<<<< HEAD
                 $DBRESULT_meta = $this->DB->query(
                     "SELECT graph_id
                         FROM meta_service
                         WHERE `meta_name` = '" . $this->indexData["service_description"] . "'"
                 );
                 $meta = $DBRESULT_meta->fetch();
+=======
+                $statement = $this->DB->prepare("SELECT graph_id
+                        FROM meta_service
+                        WHERE `meta_name` = :service_desc");
+                $statement->bindValue(':service_desc', $this->indexData["service_description"], PDO::PARAM_STR);
+                $statement->execute();
+                $meta = $statement->fetch();
+>>>>>>> centreon/dev-21.10.x
                 $this->templateId = $meta["graph_id"];
                 unset($meta);
             }
         } else {
             $this->templateId = htmlentities($_GET["template_id"], ENT_QUOTES, "UTF-8");
         }
+<<<<<<< HEAD
         $DBRESULT = $this->DB->query(
             "SELECT *
                 FROM giv_graphs_template
@@ -1138,6 +1160,17 @@ class CentreonGraph
         );
         $this->templateInformations = $DBRESULT->fetch();
         $DBRESULT->closeCursor();
+=======
+        $statement = $this->DB->prepare(
+            "SELECT *
+                FROM giv_graphs_template
+                WHERE graph_id = :graph_id LIMIT 1"
+        );
+        $statement->bindValue(':graph_id', (int) $this->templateId, \PDO::PARAM_INT);
+        $statement->execute();
+        $this->templateInformations = $statement->fetch(\PDO::FETCH_ASSOC);
+        $statement->closeCursor();
+>>>>>>> centreon/dev-21.10.x
     }
 
     /**
@@ -1149,6 +1182,7 @@ class CentreonGraph
         $service_id = $this->indexData["service_id"];
 
         $tab = array();
+<<<<<<< HEAD
         while (1) {
             $DBRESULT = $this->DB->query(
                 "SELECT esi.graph_id, service_template_model_stm_id
@@ -1157,6 +1191,16 @@ class CentreonGraph
                     WHERE service_id = '" . $service_id . "' LIMIT 1"
             );
             $row = $DBRESULT->fetch();
+=======
+        $statement = $this->DB->prepare("SELECT esi.graph_id, service_template_model_stm_id
+                    FROM service
+                    LEFT JOIN extended_service_information esi ON esi.service_service_id = service_id
+                    WHERE service_id = :service_id LIMIT 1");
+        while (1) {
+            $statement->bindValue(':service_id', (int) $service_id, \PDO::PARAM_INT);
+            $statement->execute();
+            $row = $statement->fetch();
+>>>>>>> centreon/dev-21.10.x
             if ($row["graph_id"]) {
                 $this->graphID = $row["graph_id"];
                 return $this->graphID;

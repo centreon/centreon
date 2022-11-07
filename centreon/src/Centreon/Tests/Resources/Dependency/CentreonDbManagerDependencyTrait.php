@@ -49,6 +49,10 @@ use Centreon\ServiceProvider;
  */
 trait CentreonDbManagerDependencyTrait
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * Set up DB manager service in container
      *

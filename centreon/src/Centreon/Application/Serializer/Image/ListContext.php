@@ -36,6 +36,10 @@ use Centreon\Domain\Entity\Image;
  */
 class ListContext implements SerializerContextInterface
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * {@inheritdoc}
      */

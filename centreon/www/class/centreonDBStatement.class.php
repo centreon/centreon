@@ -44,6 +44,7 @@ require_once realpath(dirname(__FILE__) . "/centreonDB.class.php");
 
 class CentreonDBStatement extends \PDOStatement
 {
+<<<<<<< HEAD
     /**
      * When data is retrieved from `numRows()` method, it is stored in `allFetched`
      * in order to be usable later without requesting one more time the database.
@@ -51,11 +52,16 @@ class CentreonDBStatement extends \PDOStatement
      * @var mixed[]|null
      */
     public $allFetched;
+=======
+    public $dbh;
+    public $fetchAll;
+>>>>>>> centreon/dev-21.10.x
 
     /**
      * @var CentreonLog
      */
     private $log;
+<<<<<<< HEAD
 
     /**
      * Constructor
@@ -89,19 +95,52 @@ class CentreonDBStatement extends \PDOStatement
      * This method wraps the Fetch method for legacy code compatibility
      * @return mixed
      */
+=======
+    
+    /**
+     *
+     * @var bool
+     */
+    private $debug;
+
+    protected function __construct($dbh, CentreonLog $log = null, $debug = null)
+    {
+        $this->dbh = $dbh;
+        $this->log = $log;
+        $this->debug = $debug ? true : false;
+        $this->fetchAll = null;
+    }
+
+    public function fetch($fetch_style = null, $cursor_orientation = PDO::FETCH_ORI_NEXT, $cursor_offset = 0)
+    {
+        if (is_null($this->fetchAll)) {
+            return parent::fetch();
+        } elseif (count($this->fetchAll) <= 0) {
+            return false;
+        } else {
+            return array_shift($this->fetchAll);
+        }
+    }
+
+>>>>>>> centreon/dev-21.10.x
     public function fetchRow()
     {
         return $this->fetch();
     }
 
+<<<<<<< HEAD
     /**
      * Free resources.
      */
     public function free(): void
+=======
+    public function free()
+>>>>>>> centreon/dev-21.10.x
     {
         $this->closeCursor();
     }
 
+<<<<<<< HEAD
     /**
      * Counts the number of rows returned by the query.\
      * This method fetches data if needed and store it in `allFetched`
@@ -124,15 +163,38 @@ class CentreonDBStatement extends \PDOStatement
     public function execute($parameters = null): bool
     {
         $this->allFetched = null;
+=======
+    public function numRows()
+    {
+        if (is_null($this->fetchAll)) {
+            $this->fetchAll = $this->fetchAll();
+        }
+        return count($this->fetchAll);
+    }
+
+    public function execute($parameters = null)
+    {
+        $this->fetchAll = null;
+>>>>>>> centreon/dev-21.10.x
 
         try {
             $result = parent::execute($parameters);
         } catch (\PDOException $e) {
+<<<<<<< HEAD
             $string = str_replace("`", "", $this->queryString);
             $string = str_replace('*', "\*", $string);
             $this->log->insertLog(2, $e->getMessage() . " QUERY : " . $string . ", " . json_encode($parameters));
 
             throw $e;
+=======
+            if ($this->debug) {
+                $string = str_replace("`", "", $this->queryString);
+                $string = str_replace('*', "\*", $string);
+                $this->log->insertLog(2, " QUERY : " . $string . ", " . json_encode($parameters));
+            }
+
+            throw new \PDOException($e->getMessage(), hexdec($e->getCode()));
+>>>>>>> centreon/dev-21.10.x
         }
 
         return $result;

@@ -44,6 +44,10 @@ use Pimple\Container;
  */
 class ClapiMock implements CentreonClapiServiceInterface
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * {@inheritdoc}
      */

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { KeyboardEvent, useState } from 'react';
 
 import { useFormik } from 'formik';
@@ -9,6 +10,26 @@ import { useAtom } from 'jotai';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import makeStyles from '@mui/styles/makeStyles';
+=======
+import * as React from 'react';
+
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import {
+  all,
+  equals,
+  any,
+  reject,
+  update,
+  findIndex,
+  propEq,
+  omit,
+} from 'ramda';
+import { useTranslation } from 'react-i18next';
+
+import DeleteIcon from '@material-ui/icons/Delete';
+import { makeStyles } from '@material-ui/core';
+>>>>>>> centreon/dev-21.10.x
 
 import {
   ContentWithCircularLoading,
@@ -31,11 +52,16 @@ import {
 } from '../../translatedLabels';
 import { updateFilter, deleteFilter } from '../api';
 import { Filter, newFilter } from '../models';
+<<<<<<< HEAD
 import {
   appliedFilterAtom,
   currentFilterAtom,
   customFiltersAtom,
 } from '../filterAtoms';
+=======
+import { ResourceContext, useResourceContext } from '../../Context';
+import memoizeComponent from '../../memoizedComponent';
+>>>>>>> centreon/dev-21.10.x
 
 const useStyles = makeStyles((theme) => ({
   filterCard: {
@@ -47,6 +73,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+<<<<<<< HEAD
 interface Props {
   filter: Filter;
 }
@@ -57,13 +84,42 @@ const areFilterIdsEqual =
     equals(Number(filter.id), Number(filterToCompare.id));
 
 const EditFilterCard = ({ filter }: Props): JSX.Element => {
+=======
+interface EditFilterCardProps {
+  filter: Filter;
+}
+
+type Props = EditFilterCardProps &
+  Pick<
+    ResourceContext,
+    | 'customFilters'
+    | 'setCurrentFilter'
+    | 'setCustomFilters'
+    | 'setAppliedFilter'
+    | 'currentFilter'
+    | 'currentFilter'
+  >;
+
+const EditFilterCardContent = ({
+  filter,
+  currentFilter,
+  customFilters,
+  setCurrentFilter,
+  setAppliedFilter,
+  setCustomFilters,
+}: Props): JSX.Element => {
+>>>>>>> centreon/dev-21.10.x
   const classes = useStyles();
 
   const { t } = useTranslation();
 
   const { showSuccessMessage } = useSnackbar();
 
+<<<<<<< HEAD
   const [deleting, setDeleting] = useState(false);
+=======
+  const [deleting, setDeleting] = React.useState(false);
+>>>>>>> centreon/dev-21.10.x
 
   const {
     sendRequest: sendUpdateFilterRequest,
@@ -79,10 +135,13 @@ const EditFilterCard = ({ filter }: Props): JSX.Element => {
     request: deleteFilter,
   });
 
+<<<<<<< HEAD
   const [currentFilter, setCurrentFilter] = useAtom(currentFilterAtom);
   const [customFilters, setCustomFilters] = useAtom(customFiltersAtom);
   const setAppliedFilter = useUpdateAtom(appliedFilterAtom);
 
+=======
+>>>>>>> centreon/dev-21.10.x
   const { name, id } = filter;
 
   const validationSchema = Yup.object().shape({
@@ -107,7 +166,11 @@ const EditFilterCard = ({ filter }: Props): JSX.Element => {
           setCurrentFilter(updatedFilter);
         }
 
+<<<<<<< HEAD
         const index = findIndex(areFilterIdsEqual(filter), customFilters);
+=======
+        const index = findIndex(propEq('id', updatedFilter.id), customFilters);
+>>>>>>> centreon/dev-21.10.x
 
         setCustomFilters(update(index, updatedFilter, customFilters));
       });
@@ -125,12 +188,20 @@ const EditFilterCard = ({ filter }: Props): JSX.Element => {
     sendDeleteFilterRequest(filter).then(() => {
       showSuccessMessage(t(labelFilterDeleted));
 
+<<<<<<< HEAD
       if (areFilterIdsEqual(filter)(currentFilter)) {
+=======
+      if (equals(filter.id, currentFilter.id)) {
+>>>>>>> centreon/dev-21.10.x
         setCurrentFilter({ ...filter, ...newFilter });
         setAppliedFilter({ ...filter, ...newFilter });
       }
 
+<<<<<<< HEAD
       setCustomFilters(reject(areFilterIdsEqual(filter), customFilters));
+=======
+      setCustomFilters(reject(equals(filter), customFilters));
+>>>>>>> centreon/dev-21.10.x
     });
   };
 
@@ -153,7 +224,11 @@ const EditFilterCard = ({ filter }: Props): JSX.Element => {
     form.submitForm();
   };
 
+<<<<<<< HEAD
   const renameOnEnterKey = (event: KeyboardEvent<HTMLDivElement>): void => {
+=======
+  const renameOnEnterKey = (event: React.KeyboardEvent): void => {
+>>>>>>> centreon/dev-21.10.x
     const enterKeyPressed = event.keyCode === 13;
 
     if (enterKeyPressed) {
@@ -168,12 +243,16 @@ const EditFilterCard = ({ filter }: Props): JSX.Element => {
         loading={sendingRequest}
         loadingIndicatorSize={24}
       >
+<<<<<<< HEAD
         <IconButton
           aria-label={t(labelDelete)}
           size="large"
           title={t(labelDelete)}
           onClick={askDelete}
         >
+=======
+        <IconButton title={t(labelDelete)} onClick={askDelete}>
+>>>>>>> centreon/dev-21.10.x
           <DeleteIcon fontSize="small" />
         </IconButton>
       </ContentWithCircularLoading>
@@ -201,4 +280,35 @@ const EditFilterCard = ({ filter }: Props): JSX.Element => {
   );
 };
 
+<<<<<<< HEAD
+=======
+const memoProps = ['filter', 'currentFilter', 'customFilters'];
+
+const MemoizedEditFilterCardContent = memoizeComponent<Props>({
+  Component: EditFilterCardContent,
+  memoProps,
+});
+
+const EditFilterCard = ({ filter }: EditFilterCardProps): JSX.Element => {
+  const {
+    setCurrentFilter,
+    filterWithParsedSearch,
+    setCustomFilters,
+    customFilters,
+    setAppliedFilter,
+  } = useResourceContext();
+
+  return (
+    <MemoizedEditFilterCardContent
+      currentFilter={filterWithParsedSearch}
+      customFilters={customFilters}
+      filter={filter}
+      setAppliedFilter={setAppliedFilter}
+      setCurrentFilter={setCurrentFilter}
+      setCustomFilters={setCustomFilters}
+    />
+  );
+};
+
+>>>>>>> centreon/dev-21.10.x
 export default EditFilterCard;

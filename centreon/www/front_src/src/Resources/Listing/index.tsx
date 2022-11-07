@@ -1,14 +1,24 @@
+<<<<<<< HEAD
 import { equals, includes, not } from 'ramda';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import { useAtom } from 'jotai';
 
 import { useTheme, alpha } from '@mui/material';
+=======
+import * as React from 'react';
+
+import { equals, includes, not } from 'ramda';
+import { useTranslation } from 'react-i18next';
+
+import { useTheme, alpha } from '@material-ui/core';
+>>>>>>> centreon/dev-21.10.x
 
 import { MemoizedListing as Listing, useSnackbar } from '@centreon/ui';
 
 import { graphTabId } from '../Details/tabs';
 import { rowColorConditions } from '../colors';
+<<<<<<< HEAD
 import Actions from '../Actions';
 import { Resource, SortOrder } from '../models';
 import { labelSelectAtLeastOneColumn, labelStatus } from '../translatedLabels';
@@ -42,6 +52,15 @@ import {
   selectedColumnIdsAtom,
   sendingAtom,
 } from './listingAtoms';
+=======
+import { useResourceContext } from '../Context';
+import Actions from '../Actions';
+import { Resource, SortOrder } from '../models';
+import { labelSelectAtLeastOneColumn, labelStatus } from '../translatedLabels';
+
+import { getColumns, defaultSelectedColumnIds } from './columns';
+import useLoadResources from './useLoadResources';
+>>>>>>> centreon/dev-21.10.x
 
 export const okStatuses = ['OK', 'UP'];
 
@@ -50,6 +69,7 @@ const ResourceListing = (): JSX.Element => {
   const { t } = useTranslation();
   const { showWarningMessage } = useSnackbar();
 
+<<<<<<< HEAD
   const [selectedResourceUuid, setSelectedResourceUuid] = useAtom(
     selectedResourceUuidAtom,
   );
@@ -81,6 +101,32 @@ const ResourceListing = (): JSX.Element => {
   const setCriteriaAndNewFilter = useUpdateAtom(
     setCriteriaAndNewFilterDerivedAtom,
   );
+=======
+  const {
+    listing,
+    setLimit,
+    page,
+    setPage,
+    setOpenDetailsTabId,
+    setSelectedResourceUuid,
+    setSelectedResourceId,
+    setSelectedResourceParentId,
+    setSelectedResourceType,
+    setSelectedResourceParentType,
+    selectedResourceUuid,
+    setSelectedResources,
+    selectedResources,
+    setResourcesToAcknowledge,
+    setResourcesToSetDowntime,
+    setResourcesToCheck,
+    sending,
+    setCriteriaAndNewFilter,
+    getCriteriaValue,
+    selectedColumnIds,
+    setSelectedColumnIds,
+    search,
+  } = useResourceContext();
+>>>>>>> centreon/dev-21.10.x
 
   const { initAutorefreshAndLoad } = useLoadResources();
 
@@ -191,7 +237,10 @@ const ResourceListing = (): JSX.Element => {
         selectedResources,
         selectedResourceUuid,
         sending,
+<<<<<<< HEAD
         enabledAutoRefresh,
+=======
+>>>>>>> centreon/dev-21.10.x
       ]}
       predefinedRowsSelection={predefinedRowsSelection}
       rowColorConditions={[

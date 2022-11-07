@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useEffect } from 'react';
 
 import { path, isNil, not } from 'ramda';
@@ -6,6 +7,14 @@ import { useAtomValue, useUpdateAtom } from 'jotai/utils';
 import { Paper } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import IconGraph from '@mui/icons-material/BarChart';
+=======
+import * as React from 'react';
+
+import { path, isNil, not } from 'ramda';
+
+import { makeStyles, Paper } from '@material-ui/core';
+import IconGraph from '@material-ui/icons/BarChart';
+>>>>>>> centreon/dev-21.10.x
 
 import { IconButton, ComponentColumnProps } from '@centreon/ui';
 
@@ -13,12 +22,16 @@ import { labelGraph, labelServiceGraphs } from '../../translatedLabels';
 import PerformanceGraph from '../../Graph/Performance';
 import { ResourceDetails } from '../../Details/models';
 import { Resource } from '../../models';
+<<<<<<< HEAD
 import {
   changeMousePositionAndTimeValueDerivedAtom,
   isListingGraphOpenAtom,
 } from '../../Graph/Performance/Graph/mouseTimeValueAtoms';
 import { graphQueryParametersDerivedAtom } from '../../Graph/Performance/TimePeriods/timePeriodAtoms';
 import { lastDayPeriod } from '../../Details/tabs/Graph/models';
+=======
+import useTimePeriod from '../../Graph/Performance/TimePeriods/useTimePeriod';
+>>>>>>> centreon/dev-21.10.x
 
 import HoverChip from './HoverChip';
 import IconColumn from './IconColumn';
@@ -43,6 +56,7 @@ const Graph = ({
   endpoint,
   displayCompleteGraph,
 }: GraphProps): JSX.Element => {
+<<<<<<< HEAD
   const getGraphQueryParameters = useAtomValue(graphQueryParametersDerivedAtom);
   const setIsListingGraphOpen = useUpdateAtom(isListingGraphOpenAtom);
   const changeMousePositionAndTimeValue = useUpdateAtom(
@@ -61,13 +75,20 @@ const Graph = ({
       changeMousePositionAndTimeValue({ position: null, timeValue: null });
     };
   }, []);
+=======
+  const { periodQueryParameters } = useTimePeriod({});
+>>>>>>> centreon/dev-21.10.x
 
   return (
     <PerformanceGraph
       limitLegendRows
       displayCompleteGraph={displayCompleteGraph}
       displayTitle={false}
+<<<<<<< HEAD
       endpoint={`${endpoint}${graphQueryParameters}`}
+=======
+      endpoint={`${endpoint}${periodQueryParameters}`}
+>>>>>>> centreon/dev-21.10.x
       graphHeight={150}
       resource={row}
       timeline={[]}
@@ -75,6 +96,7 @@ const Graph = ({
   );
 };
 
+<<<<<<< HEAD
 const renderChip =
   ({ onClick, label }) =>
   (): JSX.Element =>
@@ -89,6 +111,8 @@ const renderChip =
       </IconButton>
     );
 
+=======
+>>>>>>> centreon/dev-21.10.x
 const GraphColumn = ({
   onClick,
 }: {
@@ -118,7 +142,19 @@ const GraphColumn = ({
     return (
       <IconColumn>
         <HoverChip
+<<<<<<< HEAD
           Chip={renderChip({ label, onClick: () => onClick(row) })}
+=======
+          Chip={(): JSX.Element => (
+            <IconButton
+              ariaLabel={label}
+              title={label}
+              onClick={(): void => onClick(row)}
+            >
+              <IconGraph fontSize="small" />
+            </IconButton>
+          )}
+>>>>>>> centreon/dev-21.10.x
           isHovered={isHovered}
           label={label}
         >

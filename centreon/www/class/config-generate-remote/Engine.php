@@ -2,7 +2,11 @@
 
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
+<<<<<<< HEAD
  *
+=======
+ * 
+>>>>>>> centreon/dev-21.10.x
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -31,8 +35,13 @@ class Engine extends AbstractObject
     protected $table = 'cfg_nagios';
     protected $generateFilename = 'cfg_nagios.infile';
 
+<<<<<<< HEAD
     //skipped nagios parameters : temp_file, nagios_user, nagios_group,
     // lock_file
+=======
+    //skipped nagios parameters : temp_file, nagios_user, nagios_group, log_rotation_method, log_archive_path,
+    //lock_file, daemon_dumps_core
+>>>>>>> centreon/dev-21.10.x
     protected $attributesSelect = '
         nagios_server_id,
         nagios_id,
@@ -41,6 +50,10 @@ class Engine extends AbstractObject
         cfg_dir,
         cfg_file,
         log_file,
+<<<<<<< HEAD
+=======
+        log_archive_path,
+>>>>>>> centreon/dev-21.10.x
         status_file,
         status_update_interval,
         external_command_buffer_slots,
@@ -146,6 +159,10 @@ class Engine extends AbstractObject
         'nagios_name',
         'use_timezone',
         'log_file',
+<<<<<<< HEAD
+=======
+        'log_archive_path',
+>>>>>>> centreon/dev-21.10.x
         'status_file',
         'status_update_interval',
         'external_command_buffer_slots',

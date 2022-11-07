@@ -13,7 +13,11 @@
           </td>
         </tr>	 	
 		<tr class="list_one">
+<<<<<<< HEAD
             <td class="FormRowField"><img class="helpTooltip" name="host">&nbsp;{$form.nhost.label}</td>
+=======
+          <td class="FormRowField"><img class="helpTooltip" name="host">&nbsp;{$form.nhost.label}</td>
+>>>>>>> centreon/dev-21.10.x
           <td class="FormRowValue">
               <i id="noSelectedPoller" style="color:red;margin-left:20px;" hidden>{$noPollerSelectedLabel}</i>
               {$form.nhost.html}

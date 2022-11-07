@@ -1,9 +1,19 @@
+<<<<<<< HEAD
 import clsx from 'clsx';
 import { equals } from 'ramda';
 
 import { Theme } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import { CreateCSSProperties } from '@mui/styles';
+=======
+import * as React from 'react';
+
+import clsx from 'clsx';
+import { equals } from 'ramda';
+
+import { makeStyles, Theme } from '@material-ui/core';
+import { CreateCSSProperties } from '@material-ui/styles';
+>>>>>>> centreon/dev-21.10.x
 
 export enum LegendMarkerVariant {
   'dot',

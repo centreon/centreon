@@ -14,18 +14,36 @@ Feature: Handle Centreon Modules / Widgets
     And the response has a "status" property
     And the response has a "result" property
 
+<<<<<<< HEAD
   Scenario: Install and remove module
     Given I have a non-installed module ready for installation
     When I make a POST request to "/api/index.php?object=centreon_module&action=install&id=centreon-test&type=module"
+=======
+  Scenario: Install Module
+    Given I have a non-installed module ready for installation
+    When I make a POST request to "/api/index.php?object=centreon_module&action=install&id=centreon-license-manager&type=module"
+>>>>>>> centreon/dev-21.10.x
     Then the response code should be 200
     And the response has a "result" property
     And the response has a "status" property
 
+<<<<<<< HEAD
     When I make a GET request to "/api/index.php?object=centreon_module&action=details&id=centreon-test&type=module"
+=======
+  Scenario: View Module Details
+    When I make a GET request to "/api/index.php?object=centreon_module&action=details&id=centreon-license-manager&type=module"
+>>>>>>> centreon/dev-21.10.x
     Then the response code should be 200
     And the response has a "result" property
     And the response has a "status" property
 
+<<<<<<< HEAD
     When I make a DELETE request to "/api/index.php?object=centreon_module&action=remove&id=centreon-test&type=module"
     Then the response code should be 200
     And the response has a "status" property
+=======
+  Scenario: Remove Module
+    When I make a DELETE request to "/api/index.php?object=centreon_module&action=remove&id=centreon-license-manager&type=module"
+    Then the response code should be 200
+    And the response has a "status" property
+>>>>>>> centreon/dev-21.10.x

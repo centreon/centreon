@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Shape } from '@visx/visx';
 import { ScaleTime } from 'd3-scale';
 import { pick } from 'ramda';
@@ -13,6 +14,19 @@ import {
   getStrokeOpacityDerivedAtom,
   getStrokeWidthDerivedAtom,
 } from '../../annotationsAtoms';
+=======
+import * as React from 'react';
+
+import { Shape } from '@visx/visx';
+import { ScaleTime } from 'd3-scale';
+import { prop } from 'ramda';
+
+import { makeStyles } from '@material-ui/core';
+
+import { useLocaleDateTimeFormat, useMemoComponent } from '@centreon/ui';
+
+import useAnnotationsContext from '../../Context';
+>>>>>>> centreon/dev-21.10.x
 
 import Annotation, { Props as AnnotationProps, yMargin, iconSize } from '.';
 
@@ -49,10 +63,20 @@ const LineAnnotation = ({
 
   const classes = useStyles();
 
+<<<<<<< HEAD
   const annotationHovered = useAtomValue(annotationHoveredAtom);
   const getStrokeWidth = useAtomValue(getStrokeWidthDerivedAtom);
   const getStrokeOpacity = useAtomValue(getStrokeOpacityDerivedAtom);
   const getIconColor = useAtomValue(getIconColorDerivedAtom);
+=======
+  const {
+    annotationHovered,
+    setAnnotationHovered,
+    getStrokeWidth,
+    getStrokeOpacity,
+    getIconColor,
+  } = useAnnotationsContext();
+>>>>>>> centreon/dev-21.10.x
 
   const xIconMargin = -iconSize / 2;
 
@@ -60,14 +84,22 @@ const LineAnnotation = ({
 
   const header = toDateTime(date);
 
+<<<<<<< HEAD
   const annotation = pick(['event', 'resourceId'], props);
 
+=======
+>>>>>>> centreon/dev-21.10.x
   const line = (
     <Shape.Line
       from={{ x: xIcon, y: yMargin + iconSize + 2 }}
       stroke={color}
+<<<<<<< HEAD
       strokeOpacity={getStrokeOpacity(annotation)}
       strokeWidth={getStrokeWidth(annotation)}
+=======
+      strokeOpacity={getStrokeOpacity(prop('event', props))}
+      strokeWidth={getStrokeWidth(prop('event', props))}
+>>>>>>> centreon/dev-21.10.x
       to={{ x: xIcon, y: graphHeight }}
     />
   );
@@ -79,8 +111,13 @@ const LineAnnotation = ({
       height={iconSize}
       style={{
         color: getIconColor({
+<<<<<<< HEAD
           annotation,
           color,
+=======
+          color,
+          event: prop('event', props),
+>>>>>>> centreon/dev-21.10.x
         }),
       }}
       width={iconSize}
@@ -93,6 +130,10 @@ const LineAnnotation = ({
         header={header}
         icon={icon}
         marker={line}
+<<<<<<< HEAD
+=======
+        setAnnotationHovered={setAnnotationHovered}
+>>>>>>> centreon/dev-21.10.x
         xIcon={xIcon + xIconMargin}
         {...props}
       />

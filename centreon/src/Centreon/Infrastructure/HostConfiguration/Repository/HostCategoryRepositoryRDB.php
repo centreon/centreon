@@ -28,7 +28,10 @@ use Centreon\Domain\HostConfiguration\Exception\HostCategoryException;
 use Centreon\Domain\HostConfiguration\Interfaces\HostCategory\HostCategoryReadRepositoryInterface;
 use Centreon\Domain\HostConfiguration\Interfaces\HostCategory\HostCategoryWriteRepositoryInterface;
 use Centreon\Domain\HostConfiguration\Model\HostCategory;
+<<<<<<< HEAD
 use Centreon\Domain\HostConfiguration\Host;
+=======
+>>>>>>> centreon/dev-21.10.x
 use Centreon\Domain\RequestParameters\RequestParameters;
 use Centreon\Infrastructure\DatabaseConnection;
 use Centreon\Infrastructure\HostConfiguration\Repository\Model\HostCategoryFactoryRdb;
@@ -367,6 +370,7 @@ class HostCategoryRepositoryRDB extends AbstractRepositoryDRB implements
         }
         return null;
     }
+<<<<<<< HEAD
 
     /**
      * Find HostCategories by host id
@@ -392,4 +396,6 @@ class HostCategoryRepositoryRDB extends AbstractRepositoryDRB implements
         }
         return $hostCategories;
     }
+=======
+>>>>>>> centreon/dev-21.10.x
 }

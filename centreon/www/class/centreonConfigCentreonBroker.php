@@ -208,6 +208,10 @@ class CentreonConfigCentreonBroker
         }
         $query = "SELECT cb_tag_id, tagname
             FROM cb_tag
+<<<<<<< HEAD
+=======
+            WHERE tagname <> 'logger'
+>>>>>>> centreon/dev-21.10.x
             ORDER BY tagname";
         try {
             $res = $this->db->query($query);
@@ -675,6 +679,7 @@ class CentreonConfigCentreonBroker
     }
 
     /**
+<<<<<<< HEAD
      * @param array<string,mixed> $values
      * @return string[]
      */
@@ -713,11 +718,14 @@ class CentreonConfigCentreonBroker
     }
 
     /**
+=======
+>>>>>>> centreon/dev-21.10.x
      * Insert a configuration into the database
      *
      * @param array $values The post array
      * @return bool
      */
+<<<<<<< HEAD
     public function insertConfig(array $values): bool
     {
         $objMain = new CentreonMainCfg();
@@ -730,6 +738,19 @@ class CentreonConfigCentreonBroker
             . implode(', :', $columnNames)
             . ')';
 
+=======
+    public function insertConfig($values)
+    {
+        $objMain = new CentreonMainCfg();
+        // Insert the Centreon Broker configuration
+        $query = "INSERT INTO cfg_centreonbroker "
+            . "(config_name, config_filename, ns_nagios_server, config_activate, daemon, config_write_timestamp, "
+            . "config_write_thread_id, stats_activate, cache_directory, event_queue_max_size, command_file, "
+            . "pool_size, log_directory, log_filename, log_max_size) "
+            . "VALUES (:config_name, :config_filename, :ns_nagios_server, :config_activate, :daemon, "
+            . ":config_write_timestamp, :config_write_thread_id, :stats_activate, :cache_directory, "
+            . ":event_queue_max_size, :command_file, :pool_size, :log_directory, :log_filename, :log_max_size)";
+>>>>>>> centreon/dev-21.10.x
         try {
             $stmt = $this->db->prepare($query);
             $stmt->bindValue(':config_name', $values['name'], \PDO::PARAM_STR);
@@ -737,6 +758,7 @@ class CentreonConfigCentreonBroker
             $stmt->bindValue(':ns_nagios_server', $values['ns_nagios_server'], \PDO::PARAM_STR);
             $stmt->bindValue(':config_activate', $values['activate']['activate'], \PDO::PARAM_STR);
             $stmt->bindValue(':daemon', $values['activate_watchdog']['activate_watchdog'], \PDO::PARAM_STR);
+<<<<<<< HEAD
             $stmt->bindValue(':cache_directory', $values['cache_directory'], \PDO::PARAM_STR);
             $stmt->bindValue(':log_directory', $values['log_directory'] ?? null, \PDO::PARAM_STR);
             $stmt->bindValue(':log_filename', $values['log_filename'] ?? null, \PDO::PARAM_STR);
@@ -775,6 +797,26 @@ class CentreonConfigCentreonBroker
                 $stmt->bindValue(':bbdo_version', $values['bbdo_version'], \PDO::PARAM_STR);
             }
 
+=======
+            $stmt->bindValue(':config_write_timestamp', $values['write_timestamp']['write_timestamp'], \PDO::PARAM_STR);
+            $stmt->bindValue(':config_write_thread_id', $values['write_thread_id']['write_thread_id'], \PDO::PARAM_STR);
+            $stmt->bindValue(':stats_activate', $values['stats_activate']['stats_activate'], \PDO::PARAM_STR);
+            $stmt->bindValue(':cache_directory', $values['cache_directory'], \PDO::PARAM_STR);
+            $stmt->bindValue(':log_directory', $values['log_directory'], \PDO::PARAM_STR);
+            $stmt->bindValue(':log_filename', $values['log_filename'], \PDO::PARAM_STR);
+            $stmt->bindValue(':log_max_size', $values['log_max_size'], \PDO::PARAM_INT);
+            $stmt->bindValue(
+                ':event_queue_max_size',
+                (int)$this->checkEventMaxQueueSizeValue($values['event_queue_max_size']),
+                \PDO::PARAM_INT
+            );
+            $stmt->bindValue(':command_file', $values['command_file'], \PDO::PARAM_STR);
+            $stmt->bindValue(
+                ':pool_size',
+                !empty($values['pool_size']) ? (int)$values['pool_size'] : null,
+                \PDO::PARAM_INT
+            );
+>>>>>>> centreon/dev-21.10.x
             $stmt->execute();
         } catch (\PDOException $e) {
             return false;
@@ -784,12 +826,16 @@ class CentreonConfigCentreonBroker
         $iId = $objMain->insertServerInCfgNagios(-1, $iIdServer, $values['name']);
         if (!empty($iId)) {
             $objMain->insertBrokerDefaultDirectives($iId, 'wizard');
+<<<<<<< HEAD
             $objMain->insertDefaultCfgNagiosLogger($iId);
+=======
+>>>>>>> centreon/dev-21.10.x
         }
 
         /*
          * Get the ID
          */
+<<<<<<< HEAD
         $query = "SELECT config_id FROM cfg_centreonbroker WHERE config_name = '" . $values['name'] . "'";
         try {
             $res = $this->db->query($query);
@@ -797,6 +843,17 @@ class CentreonConfigCentreonBroker
             return false;
         }
         $row = $res->fetch();
+=======
+        $query = "SELECT config_id FROM cfg_centreonbroker WHERE config_name = :config_name";
+        try {
+            $statement = $this->db->prepare($query);
+            $statement->bindValue(':config_name', $values['name'], \PDO::PARAM_STR);
+            $statement->execute();
+        } catch (\PDOException $e) {
+            return false;
+        }
+        $row = $statement->fetch(\PDO::FETCH_ASSOC);
+>>>>>>> centreon/dev-21.10.x
         $id = $row['config_id'];
 
         /*
@@ -813,8 +870,12 @@ class CentreonConfigCentreonBroker
             $stmt->bindValue(':id_centreonbroker', (int) $id, \PDO::PARAM_INT);
             foreach ($logs as $logId => $logName) {
                 $stmt->bindValue(':log_' . $logId, (int) $logId, \PDO::PARAM_INT);
+<<<<<<< HEAD
                 $logValue = $values['log_' . $logName] ?? null;
                 $stmt->bindValue(':level_' . $logId, (int) $logValue, \PDO::PARAM_INT);
+=======
+                $stmt->bindValue(':level_' . $logId, (int) $values['log_' . $logName], \PDO::PARAM_INT);
+>>>>>>> centreon/dev-21.10.x
             }
             $stmt->execute();
         } catch (\PDOException $e) {
@@ -840,7 +901,11 @@ class CentreonConfigCentreonBroker
             . "stats_activate = :stats_activate, cache_directory = :cache_directory, "
             . "event_queue_max_size = :event_queue_max_size, command_file = :command_file , "
             . "log_directory = :log_directory, log_filename = :log_filename , log_max_size = :log_max_size , "
+<<<<<<< HEAD
             . "pool_size = :pool_size, bbdo_version = :bbdo_version WHERE config_id = " . $id;
+=======
+            . "pool_size = :pool_size WHERE config_id = " . $id;
+>>>>>>> centreon/dev-21.10.x
         try {
             $stmt = $this->db->prepare($query);
             $stmt->bindValue(':config_name', $values['name'], \PDO::PARAM_STR);
@@ -855,7 +920,10 @@ class CentreonConfigCentreonBroker
             $stmt->bindValue(':log_directory', $values['log_directory'], \PDO::PARAM_STR);
             $stmt->bindValue(':log_filename', $values['log_filename'], \PDO::PARAM_STR);
             $stmt->bindValue(':log_max_size', $values['log_max_size'], \PDO::PARAM_INT);
+<<<<<<< HEAD
             $stmt->bindValue(':bbdo_version', $values['bbdo_version'], \PDO::PARAM_STR);
+=======
+>>>>>>> centreon/dev-21.10.x
             $stmt->bindValue(
                 ':event_queue_max_size',
                 (int)$this->checkEventMaxQueueSizeValue($values['event_queue_max_size']),

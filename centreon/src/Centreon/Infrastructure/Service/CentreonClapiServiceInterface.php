@@ -40,6 +40,10 @@ use Pimple\Container;
 
 interface CentreonClapiServiceInterface
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * Construct
      *

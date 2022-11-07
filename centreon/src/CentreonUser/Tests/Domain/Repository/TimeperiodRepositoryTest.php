@@ -37,16 +37,23 @@ class TimeperiodRepositoryTest extends TestCase
     use Traits\PaginationListTrait;
 
     /**
+<<<<<<< HEAD
      * @var array<int, array<string, array<int, array<string, int|string>>|string>>
+=======
+     * @var array
+>>>>>>> centreon/dev-21.10.x
      */
     protected $datasets = [];
 
     /**
+<<<<<<< HEAD
      * @var CentreonDB
      */
     private $db;
 
     /**
+=======
+>>>>>>> centreon/dev-21.10.x
      * {@inheritdoc}
      */
     protected function setUp(): void
@@ -98,7 +105,11 @@ class TimeperiodRepositoryTest extends TestCase
     /**
      * Test the method entityClass
      */
+<<<<<<< HEAD
     public function testEntityClass(): void
+=======
+    public function testEntityClass()
+>>>>>>> centreon/dev-21.10.x
     {
         $this->assertEquals(Timeperiod::class, TimeperiodRepository::entityClass());
     }
@@ -106,7 +117,11 @@ class TimeperiodRepositoryTest extends TestCase
     /**
      * Test the method checkListOfIds
      */
+<<<<<<< HEAD
     public function testCheckListOfIds(): void
+=======
+    public function testCheckListOfIds()
+>>>>>>> centreon/dev-21.10.x
     {
         $this->checkListOfIdsTrait(
             TimeperiodRepository::class,
@@ -117,7 +132,11 @@ class TimeperiodRepositoryTest extends TestCase
     /**
      * Test the method getPaginationList
      */
+<<<<<<< HEAD
     public function testGetPaginationList(): void
+=======
+    public function testGetPaginationList()
+>>>>>>> centreon/dev-21.10.x
     {
         $this->getPaginationListTrait($this->datasets[0]['data'][0]);
     }
@@ -125,7 +144,11 @@ class TimeperiodRepositoryTest extends TestCase
     /**
      * Test the method getPaginationList with different set of arguments
      */
+<<<<<<< HEAD
     public function testGetPaginationListWithArguments(): void
+=======
+    public function testGetPaginationListWithArguments()
+>>>>>>> centreon/dev-21.10.x
     {
         $this->getPaginationListTrait(
             $this->datasets[1]['data'][0],
@@ -145,7 +168,11 @@ class TimeperiodRepositoryTest extends TestCase
     /**
      * Test the method getPaginationListTotal
      */
+<<<<<<< HEAD
     public function testGetPaginationListTotal(): void
+=======
+    public function testGetPaginationListTotal()
+>>>>>>> centreon/dev-21.10.x
     {
         $this->getPaginationListTotalTrait(
             $this->datasets[2]['data'][0]['number']

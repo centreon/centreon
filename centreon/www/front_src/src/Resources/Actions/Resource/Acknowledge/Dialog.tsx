@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+import * as React from 'react';
+
+>>>>>>> centreon/dev-21.10.x
 import { useTranslation } from 'react-i18next';
 import { FormikErrors, FormikHandlers, FormikValues } from 'formik';
 
@@ -6,8 +11,13 @@ import {
   FormControlLabel,
   FormHelperText,
   Grid,
+<<<<<<< HEAD
   Alert,
 } from '@mui/material';
+=======
+} from '@material-ui/core';
+import { Alert } from '@material-ui/lab';
+>>>>>>> centreon/dev-21.10.x
 
 import { Dialog, TextField } from '@centreon/ui';
 
@@ -18,8 +28,13 @@ import {
   labelNotify,
   labelNotifyHelpCaption,
   labelAcknowledgeServices,
+<<<<<<< HEAD
   labelSticky,
   labelPersistent,
+=======
+  labelPersistent,
+  labelSticky,
+>>>>>>> centreon/dev-21.10.x
 } from '../../../translatedLabels';
 import { Resource } from '../../../models';
 import useAclQuery from '../aclQuery';
@@ -101,6 +116,7 @@ const DialogAcknowledge = ({
           />
           <FormHelperText>{t(labelNotifyHelpCaption)}</FormHelperText>
         </Grid>
+<<<<<<< HEAD
         <Grid item>
           <FormControlLabel
             control={
@@ -129,6 +145,8 @@ const DialogAcknowledge = ({
             label={t(labelPersistent) as string}
           />
         </Grid>
+=======
+>>>>>>> centreon/dev-21.10.x
         {hasHosts && (
           <Grid item>
             <FormControlLabel
@@ -149,6 +167,37 @@ const DialogAcknowledge = ({
             />
           </Grid>
         )}
+<<<<<<< HEAD
+=======
+        <Grid item>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={values.persistent}
+                color="primary"
+                inputProps={{ 'aria-label': t(labelPersistent) }}
+                size="small"
+                onChange={handleChange('persistent')}
+              />
+            }
+            label={t(labelPersistent) as string}
+          />
+        </Grid>
+        <Grid item>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={values.isSticky}
+                color="primary"
+                inputProps={{ 'aria-label': t(labelSticky) }}
+                size="small"
+                onChange={handleChange('isSticky')}
+              />
+            }
+            label={t(labelSticky) as string}
+          />
+        </Grid>
+>>>>>>> centreon/dev-21.10.x
       </Grid>
     </Dialog>
   );

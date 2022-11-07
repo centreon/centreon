@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* eslint-disable react/jsx-no-constructed-context-values */
 import axios from 'axios';
 import { Simulate } from 'react-dom/test-utils';
@@ -7,13 +8,27 @@ import { Provider } from 'jotai';
 import {
   setUrlQueryParameters,
   getUrlQueryParameters,
+=======
+import * as React from 'react';
+
+import axios from 'axios';
+import {
+>>>>>>> centreon/dev-21.10.x
   fireEvent,
   waitFor,
   render,
   RenderResult,
   act,
+<<<<<<< HEAD
 } from '@centreon/ui';
 import { refreshIntervalAtom, userAtom } from '@centreon/ui-context';
+=======
+} from '@testing-library/react';
+import { Simulate } from 'react-dom/test-utils';
+import userEvent from '@testing-library/user-event';
+
+import { setUrlQueryParameters, getUrlQueryParameters } from '@centreon/ui';
+>>>>>>> centreon/dev-21.10.x
 
 import {
   labelHost,
@@ -34,8 +49,13 @@ import {
   labelType,
 } from '../translatedLabels';
 import useListing from '../Listing/useListing';
+<<<<<<< HEAD
 import useActions from '../testUtils/useActions';
 import Context, { ResourceContext } from '../testUtils/Context';
+=======
+import useActions from '../Actions/useActions';
+import Context, { ResourceContext } from '../Context';
+>>>>>>> centreon/dev-21.10.x
 import useLoadResources from '../Listing/useLoadResources';
 import {
   defaultStates,
@@ -46,12 +66,19 @@ import {
   searchableFields,
   defaultStateTypes,
 } from '../testUtils';
+<<<<<<< HEAD
 import useLoadDetails from '../testUtils/useLoadDetails';
+=======
+>>>>>>> centreon/dev-21.10.x
 import useDetails from '../Details/useDetails';
 
 import { allFilter, Filter as FilterModel } from './models';
 import useFilter from './useFilter';
+<<<<<<< HEAD
 import { filterKey } from './filterAtoms';
+=======
+import { filterKey } from './storedFilter';
+>>>>>>> centreon/dev-21.10.x
 import { defaultSortField, defaultSortOrder } from './Criterias/default';
 import { buildHostGroupsEndpoint } from './api/endpoint';
 
@@ -59,6 +86,7 @@ import Filter from '.';
 
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
+<<<<<<< HEAD
 const mockUser = {
   isExportButtonEnabled: true,
   locale: 'en',
@@ -66,6 +94,8 @@ const mockUser = {
 };
 const mockRefreshInterval = 60;
 
+=======
+>>>>>>> centreon/dev-21.10.x
 jest.useFakeTimers();
 
 const linuxServersHostGroup = {
@@ -208,6 +238,7 @@ const FilterWithLoading = (): JSX.Element => {
 };
 
 const FilterTest = (): JSX.Element | null => {
+<<<<<<< HEAD
   useFilter();
   const detailsState = useLoadDetails();
   const listingState = useListing();
@@ -215,12 +246,23 @@ const FilterTest = (): JSX.Element | null => {
 
   useDetails();
 
+=======
+  const filterState = useFilter();
+  const detailsState = useDetails();
+  const listingState = useListing();
+  const actionsState = useActions();
+
+>>>>>>> centreon/dev-21.10.x
   return (
     <Context.Provider
       value={
         {
           ...listingState,
           ...actionsState,
+<<<<<<< HEAD
+=======
+          ...filterState,
+>>>>>>> centreon/dev-21.10.x
           ...detailsState,
         } as ResourceContext
       }
@@ -230,6 +272,7 @@ const FilterTest = (): JSX.Element | null => {
   );
 };
 
+<<<<<<< HEAD
 const FilterTestWitJotai = (): JSX.Element => (
   <Provider
     initialValues={[
@@ -242,6 +285,9 @@ const FilterTestWitJotai = (): JSX.Element => (
 );
 
 const renderFilter = (): RenderResult => render(<FilterTestWitJotai />);
+=======
+const renderFilter = (): RenderResult => render(<FilterTest />);
+>>>>>>> centreon/dev-21.10.x
 
 const mockedLocalStorageGetItem = jest.fn();
 const mockedLocalStorageSetItem = jest.fn();
@@ -264,6 +310,10 @@ const dynamicCriteriaRequests = (): void => {
       },
     })
     .mockResolvedValueOnce({ data: {} })
+<<<<<<< HEAD
+=======
+    .mockResolvedValueOnce({ data: {} })
+>>>>>>> centreon/dev-21.10.x
     .mockResolvedValue({ data: hostGroupsData });
 };
 
@@ -416,10 +466,13 @@ describe(Filter, () => {
 
       mockedAxios.get.mockResolvedValueOnce({ data: {} });
 
+<<<<<<< HEAD
       await waitFor(() =>
         expect(getByText(labelUnhandledProblems)).toBeInTheDocument(),
       );
 
+=======
+>>>>>>> centreon/dev-21.10.x
       userEvent.click(getByText(labelUnhandledProblems));
 
       userEvent.click(getByText(filterGroup));
@@ -489,7 +542,11 @@ describe(Filter, () => {
     'accepts the selected autocomplete suggestion when the beginning of a dynamic criteria is input and the %p key is pressed',
     async (_, keyboardAction) => {
       dynamicCriteriaRequests();
+<<<<<<< HEAD
       const { getByPlaceholderText, getByText } = renderFilter();
+=======
+      const { getByPlaceholderText } = renderFilter();
+>>>>>>> centreon/dev-21.10.x
 
       await waitFor(() => {
         expect(mockedAxios.get).toHaveBeenCalledTimes(2);
@@ -523,6 +580,7 @@ describe(Filter, () => {
         );
       });
 
+<<<<<<< HEAD
       await waitFor(() => expect(getByText('ESX-Servers')).toBeInTheDocument());
 
       keyboardAction();
@@ -531,6 +589,12 @@ describe(Filter, () => {
         expect(getByPlaceholderText(labelSearch)).toHaveValue(
           'host_group:ESX-Servers',
         ),
+=======
+      keyboardAction();
+
+      expect(getByPlaceholderText(labelSearch)).toHaveValue(
+        'host_group:ESX-Servers',
+>>>>>>> centreon/dev-21.10.x
       );
 
       userEvent.type(getByPlaceholderText(labelSearch), ',');
@@ -557,16 +621,24 @@ describe(Filter, () => {
         );
       });
 
+<<<<<<< HEAD
       await waitFor(() => expect(getByText('Firewall')).toBeInTheDocument());
 
+=======
+>>>>>>> centreon/dev-21.10.x
       userEvent.keyboard('{ArrowDown}');
 
       keyboardAction();
 
+<<<<<<< HEAD
       await waitFor(() =>
         expect(getByPlaceholderText(labelSearch)).toHaveValue(
           'host_group:ESX-Servers,Firewall',
         ),
+=======
+      expect(getByPlaceholderText(labelSearch)).toHaveValue(
+        'host_group:ESX-Servers,Firewall',
+>>>>>>> centreon/dev-21.10.x
       );
     },
   );
@@ -636,6 +708,7 @@ describe(Filter, () => {
               page: 1,
               total: 0,
             },
+<<<<<<< HEAD
             result: [],
           },
         })
@@ -646,6 +719,8 @@ describe(Filter, () => {
               page: 1,
               total: 0,
             },
+=======
+>>>>>>> centreon/dev-21.10.x
             result: [linuxServersHostGroup],
           },
         })
@@ -667,6 +742,7 @@ describe(Filter, () => {
         queryByLabelText,
         findByPlaceholderText,
         getByLabelText,
+<<<<<<< HEAD
         findByText,
       } = renderResult;
 
@@ -675,6 +751,13 @@ describe(Filter, () => {
       await waitFor(() => {
         expect(mockedLocalStorageGetItem).toHaveBeenCalledWith(filterKey);
       });
+=======
+      } = renderResult;
+
+      await waitFor(() => expect(mockedAxios.get).toHaveBeenCalledTimes(2));
+
+      expect(mockedLocalStorageGetItem).toHaveBeenCalledWith(filterKey);
+>>>>>>> centreon/dev-21.10.x
 
       expect(queryByLabelText(labelUnhandledProblems)).not.toBeInTheDocument();
 
@@ -697,6 +780,7 @@ describe(Filter, () => {
       userEvent.click(getByText(labelStatus));
       expect(getByText(labelOk)).toBeInTheDocument();
 
+<<<<<<< HEAD
       userEvent.click(getByText(labelHostGroup));
 
       await waitFor(() => expect(mockedAxios.get).toHaveBeenCalled());
@@ -704,6 +788,15 @@ describe(Filter, () => {
       const linuxServerOption = await findByText(linuxServersHostGroup.name);
 
       expect(linuxServerOption).toBeInTheDocument();
+=======
+      act(() => {
+        userEvent.click(getByText(labelHostGroup));
+      });
+
+      await waitFor(() => expect(mockedAxios.get).toHaveBeenCalled());
+
+      expect(getByText(linuxServersHostGroup.name)).toBeInTheDocument();
+>>>>>>> centreon/dev-21.10.x
 
       act(() => {
         fireEvent.click(getByText(labelServiceGroup));
@@ -711,11 +804,15 @@ describe(Filter, () => {
 
       await waitFor(() => expect(mockedAxios.get).toHaveBeenCalled());
 
+<<<<<<< HEAD
       const webAccessServiceGroupOption = await findByText(
         webAccessServiceGroup.name,
       );
 
       expect(webAccessServiceGroupOption).toBeInTheDocument();
+=======
+      expect(getByText(webAccessServiceGroup.name)).toBeInTheDocument();
+>>>>>>> centreon/dev-21.10.x
     });
 
     it('stores filter values in localStorage when updated', async () => {
@@ -727,9 +824,15 @@ describe(Filter, () => {
 
       mockedAxios.get.mockResolvedValue({ data: {} });
 
+<<<<<<< HEAD
       const newFilterOption = await findByText(labelNewFilter);
 
       userEvent.click(newFilterOption);
+=======
+      const unhandledProblemsOption = await findByText(labelUnhandledProblems);
+
+      userEvent.click(unhandledProblemsOption);
+>>>>>>> centreon/dev-21.10.x
 
       userEvent.click(getByText(labelAll));
 
@@ -768,7 +871,10 @@ describe(Filter, () => {
         },
       ]);
 
+<<<<<<< HEAD
       mockedAxios.get.mockReset();
+=======
+>>>>>>> centreon/dev-21.10.x
       mockedAxios.get
         .mockResolvedValueOnce({
           data: {
@@ -787,6 +893,7 @@ describe(Filter, () => {
               page: 1,
               total: 0,
             },
+<<<<<<< HEAD
             result: [],
           },
         })
@@ -801,6 +908,12 @@ describe(Filter, () => {
           },
         })
         .mockResolvedValue({
+=======
+            result: [linuxServersHostGroup],
+          },
+        })
+        .mockResolvedValueOnce({
+>>>>>>> centreon/dev-21.10.x
           data: {
             meta: {
               limit: 30,
@@ -822,9 +935,13 @@ describe(Filter, () => {
         expect(mockedAxios.get).toHaveBeenCalledTimes(2);
       });
 
+<<<<<<< HEAD
       await waitFor(() => {
         expect(getByText('New filter')).toBeInTheDocument();
       });
+=======
+      expect(getByText('New filter')).toBeInTheDocument();
+>>>>>>> centreon/dev-21.10.x
       expect(
         getByDisplayValue(
           'type:host state:acknowledged status:ok host_group:Linux-servers service_group:Web-access Search me',
@@ -844,6 +961,7 @@ describe(Filter, () => {
       fireEvent.click(getByText(labelStatus));
       expect(getByText(labelOk)).toBeInTheDocument();
 
+<<<<<<< HEAD
       userEvent.click(getByText(labelHostGroup));
 
       await waitFor(() => expect(mockedAxios.get).toHaveBeenCalled());
@@ -851,11 +969,19 @@ describe(Filter, () => {
       await waitFor(() =>
         expect(getByText(linuxServersHostGroup.name)).toBeInTheDocument(),
       );
+=======
+      fireEvent.click(getByText(labelHostGroup));
+
+      await waitFor(() => expect(mockedAxios.get).toHaveBeenCalled());
+
+      expect(getByText(linuxServersHostGroup.name)).toBeInTheDocument();
+>>>>>>> centreon/dev-21.10.x
 
       await waitFor(() => {
         expect(mockedAxios.get).toHaveBeenCalled();
       });
 
+<<<<<<< HEAD
       userEvent.click(getByText(labelServiceGroup));
 
       await waitFor(() => expect(mockedAxios.get).toHaveBeenCalled());
@@ -863,6 +989,13 @@ describe(Filter, () => {
       await waitFor(() =>
         expect(getByText(webAccessServiceGroup.name)).toBeInTheDocument(),
       );
+=======
+      fireEvent.click(getByText(labelServiceGroup));
+
+      await waitFor(() => expect(mockedAxios.get).toHaveBeenCalled());
+
+      expect(getByText(webAccessServiceGroup.name)).toBeInTheDocument();
+>>>>>>> centreon/dev-21.10.x
 
       await waitFor(() => {
         expect(mockedAxios.get).toHaveBeenCalled();
@@ -903,9 +1036,13 @@ describe(Filter, () => {
         expect(mockedAxios.get).toHaveBeenCalledTimes(2);
       });
 
+<<<<<<< HEAD
       await waitFor(() =>
         expect(getByDisplayValue('Search me')).toBeInTheDocument(),
       );
+=======
+      expect(getByDisplayValue('Search me')).toBeInTheDocument();
+>>>>>>> centreon/dev-21.10.x
       expect(queryByText(labelHost)).toBeNull();
       expect(queryByText(labelAcknowledged)).toBeNull();
       expect(queryByText(labelOk)).toBeNull();

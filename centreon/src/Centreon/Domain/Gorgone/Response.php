@@ -75,7 +75,11 @@ class Response implements ResponseInterface
      */
     public static function setRepository(ResponseRepositoryInterface $responseRepository): void
     {
+<<<<<<< HEAD
         self::$staticResponseRepository = $responseRepository;
+=======
+        static::$staticResponseRepository = $responseRepository;
+>>>>>>> centreon/dev-21.10.x
     }
 
     /**
@@ -135,7 +139,11 @@ class Response implements ResponseInterface
                 $this->actionLogs[$key] = ActionLog::create($responseData);
             }
         }
+<<<<<<< HEAD
         $this->message = isset($jsonResponse['message']) ? (string) $jsonResponse['message'] : null;
+=======
+        $this->message = ((string) $jsonResponse['message'] ?? null);
+>>>>>>> centreon/dev-21.10.x
         return $this->actionLogs;
     }
 

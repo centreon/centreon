@@ -23,6 +23,11 @@ declare(strict_types=1);
 namespace Centreon\Domain\Monitoring;
 
 use Centreon\Domain\Entity\EntityValidator;
+<<<<<<< HEAD
+=======
+use Centreon\Domain\Exception\EntityNotFoundException;
+use Centreon\Domain\Monitoring\ResourceGroup;
+>>>>>>> centreon/dev-21.10.x
 use Centreon\Domain\Monitoring\ResourceFilter;
 use Centreon\Domain\Repository\RepositoryException;
 use Centreon\Domain\Service\AbstractCentreonService;
@@ -33,6 +38,14 @@ use Centreon\Domain\Monitoring\Interfaces\ResourceServiceInterface;
 use Centreon\Domain\Monitoring\Interfaces\ResourceRepositoryInterface;
 use Centreon\Domain\Security\Interfaces\AccessGroupRepositoryInterface;
 use Centreon\Domain\Monitoring\Interfaces\MonitoringRepositoryInterface;
+<<<<<<< HEAD
+=======
+use Centreon\Domain\MetaServiceConfiguration\Exception\MetaServiceConfigurationException;
+use Centreon\Domain\HostConfiguration\Interfaces\HostMacro\HostMacroReadRepositoryInterface;
+use Centreon\Domain\Log\LoggerTrait;
+use Centreon\Domain\ServiceConfiguration\Interfaces\ServiceConfigurationRepositoryInterface;
+use Centreon\Domain\MetaServiceConfiguration\Interfaces\MetaServiceConfigurationReadRepositoryInterface;
+>>>>>>> centreon/dev-21.10.x
 
 /**
  * Service manage the resources in real-time monitoring : hosts and services.
@@ -41,6 +54,11 @@ use Centreon\Domain\Monitoring\Interfaces\MonitoringRepositoryInterface;
  */
 class ResourceService extends AbstractCentreonService implements ResourceServiceInterface
 {
+<<<<<<< HEAD
+=======
+    use LoggerTrait;
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * @var ResourceRepositoryInterface
      */
@@ -57,18 +75,55 @@ class ResourceService extends AbstractCentreonService implements ResourceService
     private $accessGroupRepository;
 
     /**
+<<<<<<< HEAD
      * @param ResourceRepositoryInterface $resourceRepository
      * @param MonitoringRepositoryInterface $monitoringRepository,
      * @param AccessGroupRepositoryInterface $accessGroupRepository
+=======
+     * @var MetaServiceConfigurationReadRepositoryInterface
+     */
+    private $metaServiceConfigurationRepository;
+
+    /**
+     * @var HostMacroReadRepositoryInterface
+     */
+    private $hostMacroConfigurationRepository;
+
+    /**
+     * @var ServiceConfigurationRepositoryInterface
+     */
+    private $serviceMacroConfigurationRepository;
+
+    /**
+     * @param ResourceRepositoryInterface $resourceRepository
+     * @param MonitoringRepositoryInterface $monitoringRepository
+     * @param AccessGroupRepositoryInterface $accessGroupRepository
+     * @param MetaServiceConfigurationReadRepositoryInterface $metaServiceConfigurationRepository
+     * @param HostMacroReadRepositoryInterface $hostMacroConfigurationRepository
+     * @param ServiceConfigurationRepositoryInterface $serviceMacroConfigurationRepository
+>>>>>>> centreon/dev-21.10.x
      */
     public function __construct(
         ResourceRepositoryInterface $resourceRepository,
         MonitoringRepositoryInterface $monitoringRepository,
+<<<<<<< HEAD
         AccessGroupRepositoryInterface $accessGroupRepository
+=======
+        AccessGroupRepositoryInterface $accessGroupRepository,
+        MetaServiceConfigurationReadRepositoryInterface $metaServiceConfigurationRepository,
+        HostMacroReadRepositoryInterface $hostMacroConfigurationRepository,
+        ServiceConfigurationRepositoryInterface $serviceMacroConfigurationRepository
+>>>>>>> centreon/dev-21.10.x
     ) {
         $this->resourceRepository = $resourceRepository;
         $this->monitoringRepository = $monitoringRepository;
         $this->accessGroupRepository = $accessGroupRepository;
+<<<<<<< HEAD
+=======
+        $this->metaServiceConfigurationRepository = $metaServiceConfigurationRepository;
+        $this->hostMacroConfigurationRepository = $hostMacroConfigurationRepository;
+        $this->serviceMacroConfigurationRepository = $serviceMacroConfigurationRepository;
+>>>>>>> centreon/dev-21.10.x
     }
 
     /**
@@ -106,18 +161,142 @@ class ResourceService extends AbstractCentreonService implements ResourceService
     {
         // try to avoid exception from the regexp bad syntax in search criteria
         try {
+<<<<<<< HEAD
             $list = $this->resourceRepository->findResources($filter);
             // replace macros in external links
             foreach ($list as $resource) {
                 $this->replaceMacrosInExternalLinks($resource);
             }
+=======
+            return $this->resourceRepository->findResources($filter);
+>>>>>>> centreon/dev-21.10.x
         } catch (RepositoryException $ex) {
             throw new ResourceException($ex->getMessage(), 0, $ex);
         } catch (\Exception $ex) {
             throw new ResourceException($ex->getMessage(), 0, $ex);
         }
+<<<<<<< HEAD
 
         return $list;
+=======
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function enrichHostWithDetails(ResourceEntity $resource): void
+    {
+        $downtimes = $this->monitoringRepository->findDowntimes(
+            $resource->getId(),
+            0
+        );
+        $resource->setDowntimes($downtimes);
+
+        if ($resource->getAcknowledged()) {
+            $acknowledgements = $this->monitoringRepository->findAcknowledgements(
+                $resource->getId(),
+                0
+            );
+            if (!empty($acknowledgements)) {
+                $resource->setAcknowledgement($acknowledgements[0]);
+            }
+        }
+
+        /**
+         * @var HostGroup[]
+         */
+        $hostGroups = $this->monitoringRepository
+            ->findHostGroups($resource->getId());
+
+
+        $resourceGroups = [];
+
+        foreach ($hostGroups as $hostGroup) {
+            $resourceGroups[] = new ResourceGroup($hostGroup->getId(), $hostGroup->getName());
+        }
+
+        /**
+         * Assign those resource groups to the actual resource
+         */
+        $resource->setGroups($resourceGroups);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function enrichServiceWithDetails(ResourceEntity $resource): void
+    {
+        if ($resource->getParent() === null) {
+            throw new ResourceException(_('Parent of resource type service cannot be null'));
+        }
+
+        $downtimes = $this->monitoringRepository->findDowntimes(
+            $resource->getParent()->getId(),
+            $resource->getId()
+        );
+        $resource->setDowntimes($downtimes);
+
+        if ($resource->getAcknowledged()) {
+            $acknowledgements = $this->monitoringRepository->findAcknowledgements(
+                $resource->getParent()->getId(),
+                $resource->getId()
+            );
+            if (!empty($acknowledgements)) {
+                $resource->setAcknowledgement($acknowledgements[0]);
+            }
+        }
+
+        /**
+         * Get servicegroups to which belongs the actual service resource.
+         */
+        $serviceGroups = $this->monitoringRepository
+            ->findServiceGroupsByHostAndService($resource->getParent()->getId(), $resource->getId());
+
+        $resourceGroups = [];
+
+        foreach ($serviceGroups as $serviceGroup) {
+            $resourceGroups[] = new ResourceGroup($serviceGroup->getId(), $serviceGroup->getName());
+        }
+
+        /**
+         * Add those groups to the actual resource detailed.
+         */
+        $resource->setGroups($resourceGroups);
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    public function enrichMetaServiceWithDetails(ResourceEntity $resource): void
+    {
+        $downtimes = $this->monitoringRepository->findDowntimes(
+            $resource->getHostId(),
+            $resource->getServiceId()
+        );
+        $resource->setDowntimes($downtimes);
+
+        if ($resource->getAcknowledged()) {
+            $acknowledgements = $this->monitoringRepository->findAcknowledgements(
+                $resource->getHostId(),
+                $resource->getServiceId()
+            );
+            if (!empty($acknowledgements)) {
+                $resource->setAcknowledgement($acknowledgements[0]);
+            }
+        }
+        /**
+         * Specific to the Meta Service Resource Type
+         * we need to add the Meta Service calculationType
+         */
+        $metaConfiguration = $this->contact->isAdmin()
+            ? $this->metaServiceConfigurationRepository->findById($resource->getId())
+            : $this->metaServiceConfigurationRepository->findByIdAndContact($resource->getId(), $this->contact);
+
+        if (!is_null($metaConfiguration)) {
+            $resource->setCalculationType($metaConfiguration->getCalculationType());
+        }
+>>>>>>> centreon/dev-21.10.x
     }
 
     /**
@@ -130,10 +309,14 @@ class ResourceService extends AbstractCentreonService implements ResourceService
         $hostId = null;
         if ($resource->getType() === ResourceEntity::TYPE_HOST) {
             $hostId = (int) $resource->getId();
+<<<<<<< HEAD
         } elseif (
             $resource->getParent() !== null
             && $resource->getType() === ResourceEntity::TYPE_SERVICE
         ) {
+=======
+        } elseif ($resource->getType() === ResourceEntity::TYPE_SERVICE) {
+>>>>>>> centreon/dev-21.10.x
             $hostId = (int) $resource->getParent()->getId();
         }
 
@@ -141,6 +324,7 @@ class ResourceService extends AbstractCentreonService implements ResourceService
     }
 
     /**
+<<<<<<< HEAD
      * Replaces macros in the URL for host resource type
      *
      * @param ResourceEntity $resource
@@ -155,10 +339,24 @@ class ResourceService extends AbstractCentreonService implements ResourceService
         $url = str_replace('$HOSTSTATEID$', (string) $resource->getStatus()->getCode(), $url);
         $url = str_replace('$HOSTALIAS$', $resource->getAlias() ?? '', $url);
 
+=======
+     * Replace macros in the provided URL
+     *
+     * @param string $url
+     * @param array<string, mixed> $macros
+     * @return string
+     */
+    private function replaceMacrosByValues(string $url, array $macros): string
+    {
+        foreach ($macros as $name => $value) {
+            $url = str_replace($name, (string) $value, $url);
+        }
+>>>>>>> centreon/dev-21.10.x
         return $url;
     }
 
     /**
+<<<<<<< HEAD
      * Replaces macros in the URL for service resource type
      *
      * @param ResourceEntity $resource
@@ -206,13 +404,209 @@ class ResourceService extends AbstractCentreonService implements ResourceService
             }
             $resource->getLinks()->getExternals()->getNotes()?->setUrl($notesUrl);
         }
+=======
+     * Returns possible standard macros for Service
+     *
+     * @param Service $service
+     * @return array<string, mixed>
+     */
+    private function getStandardMacrosForService(Service $service): array
+    {
+        $standardHostMacros = [];
+        if ($service->getHost() !== null) {
+            $standardHostMacros = $this->getStandardMacrosForHost($service->getHost());
+        }
+        $standardServiceMacros = [
+            '$SERVICEDESC$' => $service->getDescription(),
+            '$SERVICESTATE$' => $service->getStatus()->getName(),
+            '$SERVICESTATEID$' => $service->getStatus()->getCode()
+        ];
+
+        return array_merge($standardHostMacros, $standardServiceMacros);
+    }
+
+    /**
+     * Returns possible standard macros for Host
+     *
+     * @param Host $host
+     * @return array<string, mixed>
+     */
+    private function getStandardMacrosForHost(Host $host): array
+    {
+        return [
+            '$HOSTNAME$' => $host->getName(),
+            '$HOSTSTATE$' => $host->getStatus()->getName(),
+            '$HOSTSTATEID$' => $host->getStatus()->getCode(),
+            '$HOSTALIAS$' => $host->getAlias(),
+            '$INSTANCENAME$' => $host->getPollerName(),
+            '$HOSTADDRESS$' => $host->getAddressIp()
+        ];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function replaceMacrosInHostUrl(int $hostId, string $urlType): string
+    {
+        try {
+            $host = $this->monitoringRepository->findOneHost($hostId);
+        } catch (\Exception $ex) {
+            throw new \Exception($ex->getMessage());
+        }
+        if ($host === null) {
+            throw new EntityNotFoundException(_('Host not found'));
+        }
+        $url = ($urlType === 'action-url') ? $host->getActionUrl() : $host->getNotesUrl();
+
+        if ($url === null) {
+            return '';
+        }
+
+        $standardMacros = $this->getStandardMacrosForHost($host);
+        $customMacros = $this->getCustomMacrosOutOfUrl($hostId, 0, $url);
+        $macros = array_merge($standardMacros, $customMacros);
+        $this->info(
+            'Replacing macros found in URL',
+            [
+                'url_type' => $urlType,
+                'url' => $url,
+                'macros' => $macros
+            ]
+        );
+        return $this->replaceMacrosByValues($url, $macros);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function replaceMacrosInServiceUrl(int $hostId, int $serviceId, string $urlType): string
+    {
+        try {
+            $host = $this->monitoringRepository->findOneHost($hostId);
+        } catch (\Exception $ex) {
+            throw new \Exception($ex->getMessage());
+        }
+        if ($host === null) {
+            throw new EntityNotFoundException(_('Host not found'));
+        }
+
+        try {
+            $service = $this->monitoringRepository->findOneService($hostId, $serviceId);
+        } catch (\Exception $ex) {
+            throw new \Exception($ex->getMessage());
+        }
+        if ($service === null) {
+            throw new EntityNotFoundException(_('Service not found'));
+        }
+
+        $service->setHost($host);
+
+        $url = ($urlType === 'action-url') ? $service->getActionUrl() : $service->getNotesUrl();
+
+        if ($url === null) {
+            return '';
+        }
+
+        $standardMacros = $this->getStandardMacrosForService($service);
+        $customMacros = $this->getCustomMacrosOutOfUrl($hostId, $serviceId, $url);
+
+        return $this->replaceMacrosByValues($url, array_merge($standardMacros, $customMacros));
+    }
+
+    /**
+     * Finds all custom macros in the URL provided and get their values.
+     *
+     * @param int $hostId
+     * @param int $serviceId
+     * @param string $url
+     * @return array<string, mixed>
+     */
+    private function getCustomMacrosOutOfUrl(int $hostId, int $serviceId, string $url): array
+    {
+        $foundMacros = [];
+        $hasServiceMacros = false;
+        $hasHostMacros = false;
+        $customMacros = [];
+
+        /**
+         * Searching for custom macros potentially used in the URL provided
+         */
+        if (empty($url) === false) {
+            /**
+             * preg_match_all default flag PREG_PATTERN_ORDER ensures that matches
+             * are in the same order regarding capturing groups
+             * ex: $matches[0] = full match = $_SERVICEARG1$
+             *     $matches[1] = suffix match = ARG1
+             *
+             * outcome $foundMacros = [
+             *  '$_SERVICEARG1$' => 'ARG1',
+             *  '$_HOSTARG1$' => 'ARG1'
+             *  ...
+             * ]
+             */
+            preg_match_all('/\$_SERVICE([0-9a-zA-Z\_\-]+)\$/', $url, $matches);
+            foreach ($matches[0] as $key => $fullMatch) {
+                $hasServiceMacros = true;
+                $foundMacros[$fullMatch] = $matches[1][$key];
+            }
+
+            preg_match_all('/\$_HOST([0-9a-zA-Z\_\-]+)\$/', $url, $matches);
+            foreach ($matches[0] as $key => $fullMatch) {
+                $hasHostMacros = true;
+                $foundMacros[$fullMatch] = $matches[1][$key];
+            }
+        }
+
+        $hostRealtimeMacros = [];
+        $hostConfigurationMacros = [];
+
+        // Finding all HOST macros from configuration and realtime linked to the Resource
+        if ($hasHostMacros) {
+            $hostRealtimeMacros = $this->monitoringRepository->findCustomMacrosValues($hostId, 0);
+            $hostConfigurationMacros = $this->hostMacroConfigurationRepository->findOnDemandHostMacros($hostId, true);
+        }
+
+        $serviceRealtimeMacros = [];
+        $serviceConfigurationMacros = [];
+
+        // Finding all SERVICE macros from configuration and realtime linked to the Resource
+        if ($hasServiceMacros) {
+            $serviceRealtimeMacros = $this->monitoringRepository->findCustomMacrosValues($hostId, $serviceId);
+            $serviceConfigurationMacros = $this->serviceMacroConfigurationRepository->findOnDemandServiceMacros(
+                $serviceId,
+                true
+            );
+        }
+
+        $realtimeMacros = array_merge($hostRealtimeMacros, $serviceRealtimeMacros);
+        $configurationMacros = array_merge($hostConfigurationMacros, $serviceConfigurationMacros);
+
+        foreach ($configurationMacros as $macro) {
+            $macroName = $macro->getName();
+            if (
+                array_key_exists($macroName, $foundMacros)
+                && array_key_exists($foundMacros[$macro->getName()], $realtimeMacros)
+            ) {
+                // hidding password type macros that should not be displayed in the realtime context
+                $customMacros[$macroName] = $macro->isPassword() === false
+                    ? $realtimeMacros[$foundMacros[$macroName]]
+                    : '';
+            }
+        }
+
+        return $customMacros;
+>>>>>>> centreon/dev-21.10.x
     }
 
     /**
      * Validates input for resource based on groups
      * @param EntityValidator $validator
      * @param ResourceEntity $resource
+<<<<<<< HEAD
      * @param array<string> $contextGroups
+=======
+     * @param array<string, mixed> $contextGroups
+>>>>>>> centreon/dev-21.10.x
      * @return ConstraintViolationListInterface<mixed>
      */
     public static function validateResource(

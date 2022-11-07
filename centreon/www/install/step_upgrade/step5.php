@@ -119,7 +119,11 @@ if ($moveable) {
                 url: './step_upgrade/process/process_step5.php',
                 data: jQuery('input[name="send_statistics"]').serialize(),
                 success: () => {
+<<<<<<< HEAD
                     javascript:self.location = "../index.html"
+=======
+                    javascript:self.location = "../index.php"
+>>>>>>> centreon/dev-21.10.x
                 }
             })
         }

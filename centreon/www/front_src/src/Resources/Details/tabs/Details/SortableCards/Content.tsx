@@ -1,13 +1,23 @@
+<<<<<<< HEAD
 import { RefObject } from 'react';
+=======
+import * as React from 'react';
+>>>>>>> centreon/dev-21.10.x
 
 import { isNil } from 'ramda';
 import { DraggableSyntheticListeners } from '@dnd-kit/core';
 import { useTranslation } from 'react-i18next';
 
+<<<<<<< HEAD
 import { Theme, Grid, GridSize, Paper } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { CreateCSSProperties } from '@mui/styles';
+=======
+import { makeStyles, Theme, Grid, GridSize, Paper } from '@material-ui/core';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
+import { CreateCSSProperties } from '@material-ui/styles';
+>>>>>>> centreon/dev-21.10.x
 
 import DetailsCard from '../DetailsCard';
 
@@ -32,7 +42,11 @@ const useStyles = makeStyles<Theme, { isDragging: boolean }>((theme) => ({
 interface ContentProps extends CardsLayout {
   attributes;
   isDragging: boolean;
+<<<<<<< HEAD
   itemRef: RefObject<HTMLDivElement>;
+=======
+  itemRef: React.RefObject<HTMLDivElement>;
+>>>>>>> centreon/dev-21.10.x
   listeners: DraggableSyntheticListeners;
   style;
 }

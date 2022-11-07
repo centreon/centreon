@@ -44,6 +44,10 @@
  */
 class Config
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     public $XMLfile;
     private $defaultConfiguration;
     public $tables;

@@ -174,6 +174,10 @@ class CentreonHostGroup extends CentreonObject
             $listParam = explode('|', $params[1]);
             $exportedFields = [];
             $resultString = "";
+<<<<<<< HEAD
+=======
+            $paramString = "";
+>>>>>>> centreon/dev-21.10.x
             foreach ($listParam as $paramSearch) {
                 if (!$paramString) {
                     $paramString = $paramSearch;
@@ -257,6 +261,7 @@ class CentreonHostGroup extends CentreonObject
     public function getIdIcon($path)
     {
         $iconData = explode('/', $path);
+<<<<<<< HEAD
         $query = 'SELECT dir_id FROM view_img_dir WHERE dir_name = "' . $iconData[0] . '"';
         $res = $this->db->query($query);
         $row = $res->fetch();
@@ -271,6 +276,26 @@ class CentreonHostGroup extends CentreonObject
             'WHERE dir_dir_parent_id = ' . $dirId . ' AND img_img_id = ' . $iconId;
         $res = $this->db->query($query);
         $row = $res->fetch();
+=======
+        $dirStatement = $this->db->prepare("SELECT dir_id FROM view_img_dir WHERE dir_name = :IconData");
+        $dirStatement->bindValue(':IconData', $iconData[0], \PDO::PARAM_STR);
+        $dirStatement->execute();
+        $row = $dirStatement->fetch();
+        $dirId = $row['dir_id'];
+
+        $imgStatement = $this->db->prepare("SELECT img_id FROM view_img WHERE img_path = :iconData");
+        $imgStatement->bindValue(':iconData', $iconData[1], \PDO::PARAM_STR);
+        $imgStatement->execute();
+        $row = $imgStatement->fetch();
+        $iconId = $row['img_id'];
+
+        $vidrStatement = $this->db->prepare("SELECT vidr_id FROM view_img_dir_relation " .
+            "WHERE dir_dir_parent_id = :dirId AND img_img_id = :iconId");
+        $vidrStatement->bindValue(':dirId', (int) $dirId, \PDO::PARAM_INT);
+        $vidrStatement->bindValue(':iconId', (int) $iconId, \PDO::PARAM_INT);
+        $vidrStatement->execute();
+        $row = $vidrStatement->fetch();
+>>>>>>> centreon/dev-21.10.x
         return $row['vidr_id'];
     }
 

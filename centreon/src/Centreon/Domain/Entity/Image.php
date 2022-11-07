@@ -26,6 +26,10 @@ use ReflectionClass;
 
 class Image
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     public const TABLE = 'view_img';
     public const MEDIA_DIR = 'img/media/';
     public const SERIALIZER_GROUP_LIST = 'image-list';
@@ -73,9 +77,19 @@ class Image
      * @param string $prop
      * @param string $val
      */
+<<<<<<< HEAD
     public function __set($prop, $val): void
     {
         $ref = new ReflectionClass(ImageDir::class);
+=======
+    public function __set($prop, $val)
+    {
+        try {
+            $ref = new ReflectionClass(ImageDir::class);
+        } catch (\ReflectionException $e) {
+        }
+
+>>>>>>> centreon/dev-21.10.x
         $props = $ref->getProperties();
         $propArray = [];
 
@@ -119,7 +133,11 @@ class Image
     }
 
     /**
+<<<<<<< HEAD
      * @param int $id
+=======
+     * @param int $img_id
+>>>>>>> centreon/dev-21.10.x
      */
     public function setImgId(int $id): void
     {
@@ -135,7 +153,11 @@ class Image
     }
 
     /**
+<<<<<<< HEAD
      * @param string $name
+=======
+     * @param string $img_name
+>>>>>>> centreon/dev-21.10.x
      */
     public function setImgName(string $name = null): void
     {
@@ -151,7 +173,11 @@ class Image
     }
 
     /**
+<<<<<<< HEAD
      * @param string $path
+=======
+     * @param string $img_path
+>>>>>>> centreon/dev-21.10.x
      */
     public function setImgPath(string $path = null): void
     {
@@ -167,7 +193,11 @@ class Image
     }
 
     /**
+<<<<<<< HEAD
      * @param string $comment
+=======
+     * @param string $img_comment
+>>>>>>> centreon/dev-21.10.x
      */
     public function setImgComment(string $comment = null): void
     {
@@ -195,7 +225,11 @@ class Image
      */
 
     /**
+<<<<<<< HEAD
      * @param int $dirId
+=======
+     * @param int $dir_id
+>>>>>>> centreon/dev-21.10.x
      */
     public function setDirId(int $dirId = null): void
     {
@@ -203,7 +237,11 @@ class Image
     }
 
     /**
+<<<<<<< HEAD
      * @param string $dirName
+=======
+     * @param string $dir_name
+>>>>>>> centreon/dev-21.10.x
      */
     public function setDirName(string $dirName = null): void
     {
@@ -211,7 +249,11 @@ class Image
     }
 
     /**
+<<<<<<< HEAD
      * @param string $dirAlias
+=======
+     * @param string $dir_alias
+>>>>>>> centreon/dev-21.10.x
      */
     public function setDirAlias(string $dirAlias = null): void
     {
@@ -219,7 +261,11 @@ class Image
     }
 
     /**
+<<<<<<< HEAD
      * @param string $dirComment
+=======
+     * @param string $dir_comment
+>>>>>>> centreon/dev-21.10.x
      */
     public function setDirComment(string $dirComment = null): void
     {

@@ -358,6 +358,7 @@ class CentreonCriticality
         }
         return 0;
     }
+<<<<<<< HEAD
 
     public function getHostTplCriticities($host_id, $cache)
     {
@@ -383,4 +384,6 @@ class CentreonCriticality
         }
         return null;
     }
+=======
+>>>>>>> centreon/dev-21.10.x
 }

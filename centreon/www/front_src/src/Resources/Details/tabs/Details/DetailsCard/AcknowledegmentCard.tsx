@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+import * as React from 'react';
+
+>>>>>>> centreon/dev-21.10.x
 import { useTranslation } from 'react-i18next';
 
 import { useLocaleDateTimeFormat } from '@centreon/ui';

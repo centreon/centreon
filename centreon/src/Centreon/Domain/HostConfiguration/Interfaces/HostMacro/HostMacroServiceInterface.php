@@ -22,10 +22,16 @@ declare(strict_types=1);
 
 namespace Centreon\Domain\HostConfiguration\Interfaces\HostMacro;
 
+<<<<<<< HEAD
 use Centreon\Domain\HostConfiguration\Exception\HostMacroServiceException;
 use Centreon\Domain\HostConfiguration\Host;
 use Centreon\Domain\HostConfiguration\HostMacro;
 use Centreon\Domain\HostConfiguration\HostMacroService;
+=======
+use Centreon\Domain\HostConfiguration\Exception\HostMacroException;
+use Centreon\Domain\HostConfiguration\Host;
+use Centreon\Domain\HostConfiguration\HostMacro;
+>>>>>>> centreon/dev-21.10.x
 
 /**
  * @package Centreon\Domain\HostConfiguration\Interfaces\HostMacro
@@ -37,6 +43,7 @@ interface HostMacroServiceInterface
      *
      * @param Host $host Host linked to host macro to be added
      * @param HostMacro $hostMacro Host macro to be added
+<<<<<<< HEAD
      * @throws HostMacroServiceException
      */
     public function addMacroToHost(Host $host, HostMacro $hostMacro): void;
@@ -57,4 +64,9 @@ interface HostMacroServiceInterface
      * @throws HostMacroServiceException
      */
     public function updateMacro(HostMacro $macro): void;
+=======
+     * @throws HostMacroException
+     */
+    public function addMacroToHost(Host $host, HostMacro $hostMacro): void;
+>>>>>>> centreon/dev-21.10.x
 }

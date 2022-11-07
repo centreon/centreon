@@ -11,7 +11,11 @@
   "devDependencies": {
     "@babel/core": "^7.14.0",
     "@babel/preset-env": "^7.14.1",
+<<<<<<< HEAD
     "@centreon/frontend-core": "github:centreon/frontend-core",
+=======
+    "centreon-frontend": "git+https://centreon@github.com/centreon/centreon-frontend.git#dev-21.10.x",
+>>>>>>> centreon/dev-21.10.x
     "@cypress/webpack-preprocessor": "^5.7.0",
     "@types/cypress": "^1.1.3",
     "@types/cypress-cucumber-preprocessor": "^4.0.0",
@@ -19,7 +23,10 @@
     "babel-loader": "^8.2.2",
     "cypress": "^8.1.0",
     "cypress-cucumber-preprocessor": "^4.1.0",
+<<<<<<< HEAD
     "cypress-wait-until": "^1.7.2",
+=======
+>>>>>>> centreon/dev-21.10.x
     "eslint-plugin-cypress": "^2.11.3",
     "path": "^0.12.7",
     "shell-exec": "^1.0.2",

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { RefObject } from 'react';
+=======
+import * as React from 'react';
+>>>>>>> centreon/dev-21.10.x
 
 import { equals, last } from 'ramda';
 
@@ -6,7 +10,11 @@ import { Resource, Status } from '../../../models';
 import ServiceCard from '../Details/ServiceCard';
 
 interface Props {
+<<<<<<< HEAD
   infiniteScrollTriggerRef: RefObject<HTMLDivElement>;
+=======
+  infiniteScrollTriggerRef: React.RefObject<HTMLDivElement>;
+>>>>>>> centreon/dev-21.10.x
   onSelectService: (service: Resource) => void;
   services: Array<Resource>;
 }

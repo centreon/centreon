@@ -6,6 +6,10 @@ use PDO;
 
 class TimePeriodRepository extends ServiceEntityRepository
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * Export
      *
@@ -155,7 +159,11 @@ SQL;
         while ($row = $stmt->fetch()) {
             $isExisting = array_key_exists($row['id'], $result);
             $result[$row['id']] = $row['id'];
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> centreon/dev-21.10.x
             if (!$isExisting) {
                 $this->getChainByParant($row['id'], $result);
             }

@@ -1,5 +1,8 @@
 <?php
+<<<<<<< HEAD
 
+=======
+>>>>>>> centreon/dev-21.10.x
 /*
  * Copyright 2005 - 2019 Centreon (https://www.centreon.com/)
  *
@@ -24,7 +27,11 @@ namespace App;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Config\Resource\FileResource;
+<<<<<<< HEAD
 use Symfony\Component\ErrorHandler\Debug;
+=======
+use Symfony\Component\Debug\Debug;
+>>>>>>> centreon/dev-21.10.x
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 use Symfony\Component\Routing\RouteCollectionBuilder;
@@ -38,10 +45,13 @@ class Kernel extends BaseKernel
 {
     use MicroKernelTrait;
 
+<<<<<<< HEAD
     /**
      *
      * @var \App\Kernel
      */
+=======
+>>>>>>> centreon/dev-21.10.x
     private static $instance;
 
     /**
@@ -61,18 +71,30 @@ class Kernel extends BaseKernel
      */
     public static function createForWeb(): Kernel
     {
+<<<<<<< HEAD
         if (self::$instance === null) {
+=======
+        if (static::$instance === null) {
+>>>>>>> centreon/dev-21.10.x
             include_once __DIR__ . '/../config/bootstrap.php';
             if ($_SERVER['APP_DEBUG']) {
                 umask(0000);
 
                 Debug::enable();
             }
+<<<<<<< HEAD
             self::$instance = new Kernel($_SERVER['APP_ENV'], (bool)$_SERVER['APP_DEBUG']);
             self::$instance->boot();
         }
 
         return self::$instance;
+=======
+            static::$instance = new Kernel($_SERVER['APP_ENV'], (bool)$_SERVER['APP_DEBUG']);
+            static::$instance->boot();
+        }
+
+        return static::$instance;
+>>>>>>> centreon/dev-21.10.x
     }
 
     /**
@@ -93,7 +115,11 @@ class Kernel extends BaseKernel
     }
 
     /**
+<<<<<<< HEAD
      * @return iterable<mixed>
+=======
+     * @return iterable
+>>>>>>> centreon/dev-21.10.x
      */
     public function registerBundles(): iterable
     {

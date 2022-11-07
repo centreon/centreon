@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 import { memo } from 'react';
 
 import { equals, isNil, map, pipe, not } from 'ramda';
+=======
+import * as React from 'react';
+
+import { equals, isNil, map, pipe } from 'ramda';
+>>>>>>> centreon/dev-21.10.x
 import { ScaleLinear, ScaleTime } from 'd3-scale';
 
 import { bisectDate } from '../../Graph';
@@ -16,7 +22,10 @@ export type StackValue = [number, number, StackData];
 
 interface Props {
   areaColor: string;
+<<<<<<< HEAD
   displayTimeValues: boolean;
+=======
+>>>>>>> centreon/dev-21.10.x
   lineColor: string;
   stackValues: Array<StackValue>;
   timeTick: Date | null;
@@ -54,9 +63,14 @@ const StackedAnchorPoint = ({
   areaColor,
   transparency,
   lineColor,
+<<<<<<< HEAD
   displayTimeValues,
 }: Props): JSX.Element | null => {
   if (isNil(timeTick) || not(displayTimeValues)) {
+=======
+}: Props): JSX.Element | null => {
+  if (isNil(timeTick)) {
+>>>>>>> centreon/dev-21.10.x
     return null;
   }
   const xAnchorPoint = xScale(timeTick);
@@ -67,10 +81,13 @@ const StackedAnchorPoint = ({
     yScale,
   });
 
+<<<<<<< HEAD
   if (isNil(yAnchorPoint)) {
     return null;
   }
 
+=======
+>>>>>>> centreon/dev-21.10.x
   return (
     <AnchorPoint
       areaColor={areaColor}
@@ -82,7 +99,11 @@ const StackedAnchorPoint = ({
   );
 };
 
+<<<<<<< HEAD
 export default memo(
+=======
+export default React.memo(
+>>>>>>> centreon/dev-21.10.x
   StackedAnchorPoint,
   (prevProps, nextProps) =>
     equals(prevProps.timeTick, nextProps.timeTick) &&

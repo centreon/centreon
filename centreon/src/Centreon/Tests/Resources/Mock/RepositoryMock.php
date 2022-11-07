@@ -44,6 +44,10 @@ use Centreon\Tests\Resources\Mock\EntityMock;
  */
 class RepositoryMock extends ServiceEntityRepository
 {
+<<<<<<< HEAD
+=======
+
+>>>>>>> centreon/dev-21.10.x
     /**
      * {@inheritdoc}
      */

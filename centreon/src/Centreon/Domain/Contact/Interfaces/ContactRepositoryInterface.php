@@ -51,6 +51,7 @@ interface ContactRepositoryInterface
     public function findByName(string $name): ?Contact;
 
     /**
+<<<<<<< HEAD
      * Find a contact by email.
      *
      * @param string $email email
@@ -60,6 +61,8 @@ interface ContactRepositoryInterface
     public function findByEmail(string $email): ?Contact;
 
     /**
+=======
+>>>>>>> centreon/dev-21.10.x
      * Find a contact by id
      *
      * @param int $contactId Contact id

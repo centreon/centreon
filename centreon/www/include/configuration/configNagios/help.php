@@ -155,6 +155,18 @@ $help["enable_event_handlers"] = dgettext(
     . "use_retained_program_state is enabled), you'll have to use the appropriate external command "
     . "or change it via the web interface. Option is enabled by default."
 );
+<<<<<<< HEAD
+=======
+$help["log_rotation_method"] = dgettext(
+    "help",
+    "This is the rotation method that you would like Monitoring Engine to use for your log file."
+);
+$help["log_archive_path"] = dgettext(
+    "help",
+    "This is the directory where Monitoring Engine should place log files that have been rotated. "
+    . "This option is ignored if you choose to not use the log rotation functionality."
+);
+>>>>>>> centreon/dev-21.10.x
 $help["check_external_commands"] = dgettext(
     "help",
     "This option determines whether or not Monitoring Engine will check the command file "
@@ -861,6 +873,14 @@ $help["max_debug_file_size"] = dgettext(
     "automatically be deleted. This helps ensure your disk space usage doesn't get out of control when debugging " .
     "Monitoring Engine."
 );
+<<<<<<< HEAD
+=======
+$help["daemon_dumps_core"] = dgettext(
+    "help",
+    "This option allows dumping core in case a segmentation fault occurs. Warning: Make sure that server has " .
+    "sufficient disk space for these dumps (ulimit). This option is discarded when using Centreon Engine."
+);
+>>>>>>> centreon/dev-21.10.x
 $help["debug_verbosity"] = dgettext(
     "help",
     "This option determines how much debugging information Monitoring Engine should write to the debug_file. " .

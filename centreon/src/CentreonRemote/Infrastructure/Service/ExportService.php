@@ -1,5 +1,6 @@
 <?php
 
+<<<<<<< HEAD
 /*
  * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
  *
@@ -19,6 +20,8 @@
  *
  */
 
+=======
+>>>>>>> centreon/dev-21.10.x
 namespace CentreonRemote\Infrastructure\Service;
 
 use Psr\Container\ContainerInterface;
@@ -42,6 +45,14 @@ class ExportService
     private $exporter;
 
     /**
+<<<<<<< HEAD
+=======
+     * @var \CentreonRemote\Infrastructure\Service\ExporterCacheService
+     */
+    private $cache;
+
+    /**
+>>>>>>> centreon/dev-21.10.x
      * @var \CentreonClapi\CentreonACL
      */
     private $acl;
@@ -64,6 +75,10 @@ class ExportService
     public function __construct(ContainerInterface $services)
     {
         $this->exporter = $services->get('centreon_remote.exporter');
+<<<<<<< HEAD
+=======
+        $this->cache = $services->get('centreon_remote.exporter.cache');
+>>>>>>> centreon/dev-21.10.x
         $this->acl = $services->get('centreon.acl');
         $this->db = $services->get(\Centreon\ServiceProvider::CENTREON_DB_MANAGER);
 

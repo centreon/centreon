@@ -38,8 +38,13 @@ class Engine extends AbstractObject
     protected $engine = null;
     protected $generate_filename = null; # it's in 'cfg_nagios' table
     protected $object_name = null;
+<<<<<<< HEAD
     # skipped nagios parameters : temp_file, nagios_user, nagios_group,
     # lock_file
+=======
+    # skipped nagios parameters : temp_file, nagios_user, nagios_group, log_rotation_method, log_archive_path,
+    # lock_file, daemon_dumps_core
+>>>>>>> centreon/dev-21.10.x
     protected $attributes_select = '
         nagios_id,
         use_timezone,
@@ -151,8 +156,12 @@ class Engine extends AbstractObject
         enable_environment_macros,
         use_setpgid,
         enable_macros_filter,
+<<<<<<< HEAD
         macros_filter,
         logger_version
+=======
+        macros_filter
+>>>>>>> centreon/dev-21.10.x
     ';
     protected $attributes_write = array(
         'use_timezone',
@@ -227,6 +236,7 @@ class Engine extends AbstractObject
         'service_perfdata_file_processing_command',
         'macros_filter',
         'enable_macros_filter',
+<<<<<<< HEAD
         'grpc_port',
         'log_v2_enabled',
         'log_legacy_enabled',
@@ -244,6 +254,9 @@ class Engine extends AbstractObject
         'log_level_macros',
         'log_level_process',
         'log_level_runtime',
+=======
+        'grpc_port'
+>>>>>>> centreon/dev-21.10.x
     );
     protected $attributes_default = array(
         'instance_heartbeat_interval',
@@ -326,8 +339,11 @@ class Engine extends AbstractObject
             $value['cfg_file'][] = $value['path'] . '/meta_timeperiod.cfg';
             $value['cfg_file'][] = $value['path'] . '/meta_host.cfg';
             $value['cfg_file'][] = $value['path'] . '/meta_services.cfg';
+<<<<<<< HEAD
             $value['cfg_file'][] = $value['path'] . '/tags.cfg';
             $value['cfg_file'][] = $value['path'] . '/severities.cfg';
+=======
+>>>>>>> centreon/dev-21.10.x
 
             foreach ($this->add_cfg_files as $add_cfg_file) {
                 $value['cfg_file'][] = $value['path'] . '/' . $add_cfg_file;
@@ -361,6 +377,7 @@ class Engine extends AbstractObject
         $this->engine['interval_length'] = $this->stmt_interval_length->fetchAll(PDO::FETCH_COLUMN);
     }
 
+<<<<<<< HEAD
     /**
      *  If log V2 enabled, set logger V2 configuration and unset logger legacy elements
      */
@@ -386,6 +403,8 @@ class Engine extends AbstractObject
         }
     }
 
+=======
+>>>>>>> centreon/dev-21.10.x
     private function generate($poller_id)
     {
         if (is_null($this->stmt_engine)) {
@@ -406,7 +425,10 @@ class Engine extends AbstractObject
         }
 
         $this->buildCfgFile($poller_id);
+<<<<<<< HEAD
         $this->setLoggerCfg();
+=======
+>>>>>>> centreon/dev-21.10.x
         $this->getBrokerModules();
         $this->getIntervalLength();
 

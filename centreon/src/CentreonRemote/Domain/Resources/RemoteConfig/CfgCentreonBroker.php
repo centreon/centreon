@@ -1,5 +1,6 @@
 <?php
 
+<<<<<<< HEAD
 /*
  * Copyright 2005 - 2022 Centreon (https://www.centreon.com/)
  *
@@ -19,6 +20,8 @@
  *
  */
 
+=======
+>>>>>>> centreon/dev-21.10.x
 namespace CentreonRemote\Domain\Resources\RemoteConfig;
 
 /**
@@ -32,7 +35,11 @@ class CfgCentreonBroker
      *
      * @param int $serverID the poller id
      * @param string $pollerName the poller name
+<<<<<<< HEAD
      * @return array<string, array<string, int|string>> the configuration template
+=======
+     * @return array the configuration template
+>>>>>>> centreon/dev-21.10.x
      */
     public static function getConfiguration(int $serverID, string $pollerName): array
     {

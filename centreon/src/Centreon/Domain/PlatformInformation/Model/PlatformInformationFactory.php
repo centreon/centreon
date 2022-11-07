@@ -54,6 +54,12 @@ class PlatformInformationFactory
         $platformInformation = new PlatformInformation($isRemote);
         foreach ($information as $key => $value) {
             switch ($key) {
+<<<<<<< HEAD
+=======
+                case 'address':
+                    $platformInformation->setAddress($value);
+                    break;
+>>>>>>> centreon/dev-21.10.x
                 case 'centralServerAddress':
                     $platformInformation->setCentralServerAddress($value);
                     break;

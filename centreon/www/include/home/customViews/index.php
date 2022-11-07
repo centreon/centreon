@@ -328,6 +328,7 @@ try {
     $formAddWidget->accept($rendererAddWidget);
     $template->assign('formAddWidget', $rendererAddWidget->toArray());
     $template->assign('rotationTimer', $rotationTimer);
+<<<<<<< HEAD
     $template->assign(
         'editModeIcon',
         returnSvg(
@@ -374,6 +375,8 @@ try {
         'helpIcon',
         returnSvg("www/img/icons/question.svg", "var(--help-tool-tip-icon-fill-color)", 18, 18)
     );
+=======
+>>>>>>> centreon/dev-21.10.x
 
     $template->display("index.ihtml");
 } catch (CentreonCustomViewException $e) {

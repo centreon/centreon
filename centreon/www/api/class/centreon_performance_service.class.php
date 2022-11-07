@@ -114,7 +114,12 @@ class CentreonPerformanceService extends CentreonConfigurationObjects
         }
 
         if ($excludeAnomalyDetection) {
+<<<<<<< HEAD
             $additionalCondition .= 'AND s.service_id NOT IN (SELECT service_id FROM ' . $conf_centreon['db'] . '.mod_anomaly_service) ';
+=======
+            $additionalCondition .= 'AND s.service_id NOT IN (SELECT service_id 
+            FROM `' . $conf_centreon['db'] . '`.mod_anomaly_service) ';
+>>>>>>> centreon/dev-21.10.x
         }
         if (isset($this->arguments['hostgroup'])) {
             $additionalCondition .= 'AND (hg.host_id = i.host_id ' .

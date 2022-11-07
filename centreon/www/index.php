@@ -1,7 +1,11 @@
 <?php
 
 /*
+<<<<<<< HEAD
  * Copyright 2005-2022 Centreon
+=======
+ * Copyright 2005-2021 Centreon
+>>>>>>> centreon/dev-21.10.x
  * Centreon is developed by : Julien Mathis and Romain Le Merlus under
  * GPL Licence 2.0.
  *
@@ -34,6 +38,7 @@
  *
  */
 
+<<<<<<< HEAD
 require_once __DIR__ . '/../bootstrap.php';
 require_once __DIR__ . "/class/centreonSession.class.php";
 require_once __DIR__ . "/class/centreonAuth.class.php";
@@ -47,18 +52,126 @@ include __DIR__ . '/index.html';
 
 CentreonSession::start();
 
+=======
+require_once realpath(__DIR__ . '/../config/centreon.config.php');
+
+$etc = _CENTREON_ETC_;
+
+define('SMARTY_DIR', realpath('../vendor/smarty/smarty/libs/') . '/');
+
+ini_set('display_errors', 'Off');
+
+clearstatcache(true, $etc . "/centreon.conf.php");
+if (!file_exists($etc . "/centreon.conf.php") && is_dir('./install')) {
+    header("Location: ./install/install.php");
+    return;
+} elseif (file_exists("$etc/centreon.conf.php") && is_dir('install')) {
+    require_once $etc . "/centreon.conf.php";
+    header("Location: ./install/upgrade.php");
+} else {
+    if (file_exists($etc . "/centreon.conf.php")) {
+        require_once $etc . "/centreon.conf.php";
+    }
+    $freeze = 0;
+}
+
+require_once $classdir . "/centreon.class.php";
+require_once $classdir . "/centreonSession.class.php";
+require_once $classdir . "/centreonAuth.SSO.class.php";
+require_once $classdir . "/centreonLog.class.php";
+require_once $classdir . "/centreonDB.class.php";
+
+/*
+ * Get auth type
+ */
+global $pearDB;
+$pearDB = new CentreonDB();
+
+$dbResult = $pearDB->query("SELECT * FROM `options`");
+while ($generalOption = $dbResult->fetch()) {
+    $generalOptions[$generalOption["key"]] = $generalOption["value"];
+}
+$dbResult->closeCursor();
+
+/*
+ * detect installation dir
+ */
+$file_install_access = 0;
+if (file_exists("./install/setup.php")) {
+    $error_msg = "Installation Directory '" . __DIR__ .
+        "/install/' is accessible. Delete this directory to prevent security problem.";
+    $file_install_access = 1;
+}
+
+/**
+ * Install frontend assets if needed
+ */
+$requestUri = filter_var(
+    $_SERVER['REQUEST_URI'],
+    FILTER_SANITIZE_STRING,
+    [
+        'options' => [
+            'default' => '/centreon/'
+        ]
+    ]
+);
+$basePath = '/' . trim(explode('index.php', $requestUri)[0], "/") . '/';
+$basePath = str_replace('//', '/', $basePath);
+$indexHtmlPath = './index.html';
+$indexHtmlContent = file_get_contents($indexHtmlPath);
+
+// update base path only if it has changed
+if (!preg_match('/.*<base\shref="' . preg_quote($basePath, '/') . '">/', $indexHtmlContent)) {
+    $indexHtmlContent = preg_replace(
+        '/(^.*<base\shref=")\S+(">.*$)/s',
+        '${1}' . $basePath . '${2}',
+        $indexHtmlContent
+    );
+
+    file_put_contents($indexHtmlPath, $indexHtmlContent);
+}
+
+CentreonSession::start();
+
+if (isset($_GET["disconnect"])) {
+    $centreon = &$_SESSION["centreon"];
+
+    /*
+     * Init log class
+     */
+    if (is_object($centreon)) {
+        $CentreonLog = new CentreonUserLog($centreon->user->get_id(), $pearDB);
+        $CentreonLog->insertLog(1, "Contact '" . $centreon->user->get_alias() . "' logout");
+
+        $pearDB->query("DELETE FROM session WHERE session_id = '" . session_id() . "'");
+
+        $sessionStatement = $pearDB->prepare("DELETE FROM security_token WHERE token = :sessionId");
+        $sessionStatement->bindValue(':sessionId', session_id(), \PDO::PARAM_STR);
+        $sessionStatement->execute();
+
+        CentreonSession::restart();
+    }
+}
+
+>>>>>>> centreon/dev-21.10.x
 /*
  * Already connected
  */
 if (isset($_SESSION["centreon"])) {
+<<<<<<< HEAD
     $pearDB = new CentreonDB();
     manageRedirection($_SESSION["centreon"], $pearDB);
     return;
+=======
+    $centreon = &$_SESSION["centreon"];
+    header('Location: main.php');
+>>>>>>> centreon/dev-21.10.x
 }
 
 /*
  * Check PHP version
  *
+<<<<<<< HEAD
  *  Centreon >= 22.04 doesn't support PHP < 8.0
  *
  */
@@ -232,4 +345,13 @@ function manageRedirection(Centreon $centreon, CentreonDB $pearDB): void
         }
     }
     header("Location: " . $headerRedirection);
+=======
+ *  Centreon >= 18.10 doesn't support PHP < 7.1
+ *
+ */
+if (version_compare(phpversion(), '7.1') < 0) {
+    echo "<div class='msg'> PHP version is < 7.1. Please Upgrade PHP</div>";
+} else {
+    include_once "./include/core/login/login.php";
+>>>>>>> centreon/dev-21.10.x
 }
