@@ -5,11 +5,11 @@
   "main": "src",
   "scripts": {
     "eslint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "eslint:fix": "npm run eslint -- --fix",
+    "eslint:fix": "pnpm run eslint --fix",
     "storybook": "start-storybook -p 9001 -c .storybook",
     "build:storybook": "build-storybook -c .storybook -o .out",
     "test": "node testRunner.js",
-    "test:storyshot": "npm run test storyshots.test.js -- --story"
+    "test:storyshot": "pnpm test storyshots.test.js --story"
   },
   "sideEffects": false,
   "repository": {
