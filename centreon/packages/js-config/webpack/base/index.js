@@ -36,7 +36,7 @@ const getBaseConfiguration = ({
         use: ['@svgr/webpack'],
       },
       {
-        exclude: excludeNodeModulesExceptCentreonUi,
+        exclude: /node_modules/,
         test: /\.(bmp|png|jpg|jpeg|gif|svg)$/,
         use: [
           {

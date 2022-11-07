@@ -63,7 +63,7 @@ jobs:
         working-directory: centreon
 
       - name: Lint
-        run: pnpm eslint -- -o checkstyle.xml -f checkstyle --quiet
+        run: pnpm eslint -o checkstyle.xml -f checkstyle --quiet
         working-directory: centreon
 
       - name: Publish report
