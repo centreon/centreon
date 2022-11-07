@@ -73,6 +73,7 @@ runs:
 
           echo "[DEBUG] - Version: $VERSION"
 
-          curl -v -u ${{ inputs.nexus_username }}:${{ inputs.nexus_password }} -X PUT "https://artifactory.apps.centreon.com/artifactory/debian-$VERSION$REPO/" -T "$FILE"
+          curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -X PUT "https://artifactory.apps.centreon.com/artifactory/debian-$VERSION$REPO/pool/$FILE;deb.distribution=bullseye;deb.component=main;deb.architecture=amd64" -T "./$FILE"
+
         done
       shell: bash

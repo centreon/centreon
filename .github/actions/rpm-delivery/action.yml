@@ -79,7 +79,6 @@ runs:
           echo "[DEBUG] - Distrib: $DISTRIB"
           echo "[DEBUG] - Arch: $ARCH"
 
-          curl -v -u ${{ inputs.nexus_username }}:${{ inputs.nexus_password }} -X PUT "https://artifactory.apps.centreon.com/artifactory/rpm-$VERSION$DELIM$REPO/$DISTRIB/$REPO/$ARCH" -T "$FILE"
-
+          curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -X PUT "https://artifactory.apps.centreon.com/artifactory/rpm-$VERSION$DELIM$REPO/$DISTRIB/$REPO/$ARCH/${{ inputs.module_name }}" -T "./$FILE"
         done
       shell: bash
