@@ -6,7 +6,7 @@
   "scripts": {
     "start": "tsc && node ./build/lighthouseReport.js",
     "eslint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "eslint:fix": "npm run eslint -- --fix"
+    "eslint:fix": "pnpm eslint --fix"
   },
   "devDependencies": {
     "eslint": "^8.8.0",
