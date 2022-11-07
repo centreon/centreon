@@ -318,7 +318,7 @@ jobs:
       composer_token: ${{ secrets.CENTREON_TECHNIQUE_PAT }}
 
   legacy-e2e-test:
-    needs: [api-integration-test]
+    needs: [dockerize]
     uses: ./.github/workflows/behat-test.yml
     with:
       name: e2e
@@ -332,7 +332,7 @@ jobs:
 
   deliver-rpm:
     runs-on: ubuntu-22.04
-    needs: [test-e2e, test-performances, legacy-e2e-test]
+    needs: [test-e2e, test-performances, api-integration-test, legacy-e2e-test]
     strategy:
       matrix:
         distrib: [el7, el8]
