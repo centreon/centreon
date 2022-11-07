@@ -38,9 +38,7 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
   },
   wrapper: {
-    backgroundColor: theme.palette.background.paper,
     display: 'flex',
-    fontFamily: theme.typography.fontFamily,
     height: '100%',
     overflow: 'hidden',
   },
