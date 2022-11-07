@@ -73,6 +73,7 @@ runs:
           echo "[DEBUG] - Arch:    $ARCH"
           echo "[DEBUG] - Module:  $MODULE"
 
-          curl -v -u ${{ inputs.nexus_username }}:${{ inputs.nexus_password }} --upload-file ./$FILE "http://nexus-svc.nexus.svc.cluster.local:8081/repository/standard/$VERSION/$DISTRIB/$REPO/$ARCH/$MODULE/"
+          curl -v -u "${{ inputs.nexus_username }}":"${{ inputs.nexus_password }}" -X PUT "https://artifactory.apps.centreon.com/artifactory/rpm-$VERSION$DELIM$REPO/$DISTRIB/$REPO/$ARCH/" -T "./$FILE"
+
         done
       shell: bash
