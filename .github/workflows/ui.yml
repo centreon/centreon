@@ -36,7 +36,7 @@ jobs:
         working-directory: ${{ env.centreon_directory }}
 
       - name: Lint
-        run: pnpm eslint -- -o checkstyle.xml -f checkstyle
+        run: pnpm eslint -o checkstyle.xml -f checkstyle
         working-directory: ${{ env.directory }}
 
       - name: Publish report
@@ -71,7 +71,7 @@ jobs:
         working-directory: ${{ env.directory }}
 
       - name: Unit test
-        run: pnpm t -- --silent --reporters=jest-junit
+        run: pnpm t --silent --reporters=jest-junit
         working-directory: ${{ env.directory }}
 
       - name: Publish unit tests report

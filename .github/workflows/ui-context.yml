@@ -36,7 +36,7 @@ jobs:
         working-directory: ${{ env.centreon_directory }}
 
       - name: Lint
-        run: pnpm eslint -- -o checkstyle.xml -f checkstyle
+        run: pnpm eslint -o checkstyle.xml -f checkstyle
         working-directory: ${{ env.directory }}
 
       - name: Publish report
