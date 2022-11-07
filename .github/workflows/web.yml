@@ -132,7 +132,7 @@ jobs:
           junit_files: "centreon/build/phpunit.xml"
 
   package:
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
     needs: [
       backend-dependencies,
       backend-unit-test,
@@ -179,7 +179,7 @@ jobs:
           nexus_password: ${{ secrets.ARTI_PASSWD }}
 
   dockerize:
-    runs-on: [self-hosted, common]
+    runs-on: ubuntu-22.04
     needs: [package]
 
     strategy:
