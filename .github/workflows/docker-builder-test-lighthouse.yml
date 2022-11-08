@@ -8,7 +8,7 @@ on:
       - "ci/docker/Dockerfile.lighthouse"
   push:
     branches:
-      - dev-22.04.x
+      - dev-21.10.x
     paths:
       - ".github/workflows/docker-builder-test-lighthouse.yml"
       - "ci/docker/Dockerfile.lighthouse"

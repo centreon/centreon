@@ -8,7 +8,7 @@ on:
       - "widgets/centreon-widget-single-metric/**"
   push:
     branches:
-      - dev-22.04.x
+      - dev-21.10.x
     paths:
       - ".github/workflows/centreon-widget-single-metric.yml"
       - "widgets/centreon-widget-single-metric/**"

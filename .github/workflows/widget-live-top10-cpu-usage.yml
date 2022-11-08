@@ -8,7 +8,7 @@ on:
       - "widgets/centreon-widget-live-top10-cpu-usage/**"
   push:
     branches:
-      - dev-22.04.x
+      - dev-21.10.x
     paths:
       - ".github/workflows/centreon-widget-live-top10-cpu-usage.yml"
       - "widgets/centreon-widget-live-top10-cpu-usage/**"
