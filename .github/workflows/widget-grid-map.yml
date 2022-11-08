@@ -13,10 +13,10 @@ on:
       - ".github/workflows/centreon-widget-grid-map.yml"
       - "widgets/centreon-widget-grid-map/**"
     tags:
-      - centreon-widget-grid-map-22.04.**
+      - centreon-widget-grid-map-21.10.**
 
 env:
-  version: "22.04"
+  version: "21.10"
 
 jobs:
   package:
