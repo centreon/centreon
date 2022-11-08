@@ -5,13 +5,15 @@ const { ModuleFederationPlugin } = require('webpack').container;
 
 const excludeNodeModulesExceptCentreonUi = /node_modules(\\|\/)(?!(@centreon))/;
 
-//comment 
 const getBaseConfiguration = ({
   moduleName,
   moduleFederationConfig,
   jscTransformConfiguration,
 }) => ({
   cache: false,
+  experiments: {
+    outputModule: true,
+  },
   module: {
     rules: [
       {
@@ -62,8 +64,7 @@ const getBaseConfiguration = ({
   output: {
     chunkFilename: '[name].[chunkhash:8].chunk.js',
     filename: '[name].[chunkhash:8].js',
-    libraryTarget: 'umd',
-    umdNamedDefine: true,
+    libraryTarget: 'module',
   },
   plugins: [
     new CleanWebpackPlugin(),
