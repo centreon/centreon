@@ -13,7 +13,7 @@ on:
       - ".github/workflows/centreon-widget-global-health.yml"
       - "widgets/centreon-widget-global-health/**"
     tags:
-      - centreon-widget-global-health-22.04.**
+      - centreon-widget-global-health-21.10.**
 
 env:
   version: "21.10"

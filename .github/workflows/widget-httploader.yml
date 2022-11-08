@@ -13,7 +13,7 @@ on:
       - ".github/workflows/centreon-widget-httploader.yml"
       - "widgets/centreon-widget-httploader/**"
     tags:
-      - centreon-widget-httploader-22.04.**
+      - centreon-widget-httploader-21.10.**
 
 env:
   version: "21.10"

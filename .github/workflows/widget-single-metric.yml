@@ -13,7 +13,7 @@ on:
       - ".github/workflows/centreon-widget-single-metric.yml"
       - "widgets/centreon-widget-single-metric/**"
     tags:
-      - centreon-widget-single-metric-22.04.**
+      - centreon-widget-single-metric-21.10.**
 
 env:
   version: "21.10"

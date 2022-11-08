@@ -13,7 +13,7 @@ on:
       - ".github/workflows/centreon-widget-live-top10-memory-usage.yml"
       - "widgets/centreon-widget-live-top10-memory-usage/**"
     tags:
-      - centreon-widget-live-top10-memory-usage-22.04.**
+      - centreon-widget-live-top10-memory-usage-21.10.**
 
 env:
   version: "21.10"

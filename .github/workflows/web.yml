@@ -16,7 +16,7 @@ on:
       - "!centreon/packages/**"
 
     tags:
-      - centreon-22.04.**
+      - centreon-21.10.**
 
 env:
   version: "21.10"

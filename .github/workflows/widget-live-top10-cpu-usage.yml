@@ -13,7 +13,7 @@ on:
       - ".github/workflows/centreon-widget-live-top10-cpu-usage.yml"
       - "widgets/centreon-widget-live-top10-cpu-usage/**"
     tags:
-      - centreon-widget-live-top10-cpu-usage-22.04.**
+      - centreon-widget-live-top10-cpu-usage-21.10.**
 
 env:
   version: "21.10"
