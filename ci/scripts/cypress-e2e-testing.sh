@@ -6,4 +6,4 @@ export HOME=$PWD/cache
 
 cd $MODULE/tests/e2e
 
-$(npm bin)/cypress run --quiet --browser chrome --reporter junit --reporter-options mochaFile=cypress-result.xml,toConsole=false
+pnpm cypress run --quiet --browser chrome --reporter junit --reporter-options mochaFile=cypress-result.xml,toConsole=false
