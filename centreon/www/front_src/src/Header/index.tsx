@@ -19,6 +19,7 @@ export const isDarkMode = (theme: Theme): boolean =>
 
 export const headerHeight = 7;
 
+// no meaning comment
 const useStyles = makeStyles((theme) => ({
   header: {
     alignItems: 'center',
