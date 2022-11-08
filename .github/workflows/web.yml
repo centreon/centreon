@@ -264,6 +264,14 @@ jobs:
           username: ${{ secrets.ARTI_USER }}
           password: ${{ secrets.ARTI_PASSWD }}
 
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+
+      - name: Install dependencies
+        run: pnpm install
+        working-directory: centreon
+
       - name: Cypress e2e testing
         uses: ./.github/actions/cypress-e2e-testing
         with:
@@ -300,6 +308,14 @@ jobs:
           registry: registry-docker.centreon.com
           username: ${{ secrets.ARTI_USER }}
           password: ${{ secrets.ARTI_PASSWD }}
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 7
+
+      - name: Install dependencies
+        run: pnpm install
+        working-directory: centreon
 
       - name: Run lighthouse
         uses: ./.github/actions/lighthouse-performance-testing

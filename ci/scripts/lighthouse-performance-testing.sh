@@ -13,6 +13,4 @@ docker exec lighthouse-tests-centreon sed -i 's/127.0.0.1/localhost/g' /usr/shar
 docker exec lighthouse-tests-centreon bash -c "cd /usr/share/centreon-injector && bin/console centreon:inject-data" || true
 docker exec lighthouse-tests-centreon bash -c "centreon -u admin -p Centreon\!2021 -a APPLYCFG -v 1"
 
-npm ci --legacy-peer-deps
-
 npm start
