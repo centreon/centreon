@@ -20,7 +20,14 @@ const createReportFile = async (report): Promise<void> => {
 
 const captureReport = async (): Promise<void> => {
   const browser = await puppeteer.launch({
-    args: ['--lang=en-US,en', '--no-sandbox'],
+    args: [
+      '--lang=en-US,en',
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-gpu',
+      '--disable-dev-shm-usage',
+      '--no-first-run',
+    ],
     headless: true,
   });
   const page = await browser.newPage();
