@@ -26,7 +26,7 @@ cp -rv /src/$PROJECT/ci/debian /build/$PROJECT/
 
 ls -lart
 cd /build/$PROJECT
-debmake -f "${AUTHOR}" -e "${AUTHOR_EMAIL}" -u "$VERSION" -y -r "$RELEASE"
+debmake -f "${AUTHOR}" -e "${AUTHOR_EMAIL}" -u "$VERSION" -y -r "$DISTRIB"
 debuild-pbuilder
 cd /build
 
