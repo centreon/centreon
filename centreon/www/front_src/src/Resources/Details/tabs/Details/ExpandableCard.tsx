@@ -1,9 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { isEmpty, pipe, reject, slice } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
-import { Typography, Divider, CardActions, Button, Theme } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-import { CreateCSSProperties } from '@mui/styles';
+import { Typography, Divider, CardActions, Button } from '@mui/material';
 
 import { getStatusColors } from '@centreon/ui';
 
@@ -18,10 +17,14 @@ const Line = (line, index): JSX.Element => (
   </Typography>
 );
 
-const useStyles = makeStyles<Theme, { severityCode?: number }>((theme) => {
-  const getStatusBackgroundColor = (severityCode): string =>
+interface StylesProps {
+  severityCode?: number;
+}
+
+const useStyles = makeStyles<StylesProps>()((theme, { severityCode }) => {
+  const getStatusBackgroundColor = (severity): string =>
     getStatusColors({
-      severityCode,
+      severityCode: severity,
       theme,
     }).backgroundColor;
 
@@ -32,16 +35,23 @@ const useStyles = makeStyles<Theme, { severityCode?: number }>((theme) => {
     }).text;
 
   return {
-    card: ({ severityCode }): CreateCSSProperties => ({
+    card: {
       ...(severityCode && {
         backgroundColor: getStatusBackgroundColor(severityCode),
         border: 0,
         color: getStatusTextColor(severityCode),
       }),
+<<<<<<< HEAD
     }),
     title: ({ severityCode }): CreateCSSProperties => ({
       ...(severityCode && { color: getStatusTextColor(severityCode) }),
     }),
+=======
+    },
+    title: {
+      ...(severityCode && { color: getStatusBackgroundColor(severityCode) }),
+    },
+>>>>>>> centreon/MON-14841-replace-makestyles-from-@mui/styles-by-tss-react
   };
 });
 
@@ -60,7 +70,7 @@ const ExpandableCard = ({
   expandedCard,
   changeExpandedCards,
 }: Props): JSX.Element => {
-  const classes = useStyles({ severityCode });
+  const { classes } = useStyles({ severityCode });
   const { t } = useTranslation();
 
   const lines = content.split(/\n|\\n/);

@@ -1,14 +1,25 @@
 import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 
 import { useAtom } from 'jotai';
+<<<<<<< HEAD
 import { equals, path } from 'ramda';
 import { useTranslation } from 'react-i18next';
+=======
+import { makeStyles } from 'tss-react/mui';
+>>>>>>> centreon/MON-14841-replace-makestyles-from-@mui/styles-by-tss-react
 
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+<<<<<<< HEAD
 import ResetIcon from '@mui/icons-material/SettingsBackupRestore';
 import { Button, Divider, Slider, Tooltip, Typography } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
+=======
+import Slider from '@mui/material/Slider';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import Button from '@mui/material/Button';
+>>>>>>> centreon/MON-14841-replace-makestyles-from-@mui/styles-by-tss-react
 
 import { IconButton, putData, useRequest } from '@centreon/ui';
 
@@ -25,7 +36,7 @@ import {
 import { countedRedCirclesAtom } from './anomalyDetectionAtom';
 import { CustomFactorsData } from './models';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles()((theme) => ({
   body: {
     display: 'flex',
     flexDirection: 'column',
@@ -113,7 +124,7 @@ const AnomalyDetectionSlider = ({
   sendReloadGraphPerformance,
   setIsResizeEnvelope,
 }: Props): JSX.Element => {
-  const classes = useStyles();
+  const { classes } = useStyles();
   const { t } = useTranslation();
 
   const [currentValue, setCurrentValue] = useState(sensitivity.current_value);

@@ -9,6 +9,7 @@
     "eslint": "eslint ./www/front_src --ext .js,.jsx,.ts,.tsx",
     "eslint:fix": "npm run eslint -- --fix",
     "test": "jest",
+    "test:silent": "jest --silent",
     "test:watch": "npm test -- --watch",
     "build:watch": "cross-env WEBPACK_ENV=serve webpack serve --mode development --config ./webpack.config.dev.js",
     "test:coverage": "jest --coverage",
@@ -89,8 +90,11 @@
     "@mui/icons-material": "^5.3.1",
     "@mui/lab": "^5.0.0-alpha.63",
     "@mui/material": "^5.4.0",
+<<<<<<< HEAD
     "@mui/styles": "^5.3.0",
     "@mui/x-date-pickers": "^5.0.6",
+=======
+>>>>>>> centreon/MON-14841-replace-makestyles-from-@mui/styles-by-tss-react
     "@tanstack/react-query": "^4.1.0",
     "@visx/threshold": "^2.12.2",
     "@visx/visx": "2.9.0",

@@ -13,17 +13,16 @@ import {
   LinkProps as RouterLinkProps,
 } from 'react-router-dom';
 import { equals } from 'ramda';
+import { makeStyles } from 'tss-react/mui';
 
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import makeStyles from '@mui/styles/makeStyles';
-import { CreateCSSProperties } from '@mui/styles';
+import { Theme } from '@mui/material';
 
 import { useMemoComponent } from '@centreon/ui';
-import { userAtom } from '@centreon/ui-context';
+import { ThemeMode, userAtom } from '@centreon/ui-context';
 
-import { isDarkMode } from '../../../Header';
 import { searchUrlFromEntry } from '../helpers/getUrlFromEntry';
 import { Page } from '../../models';
 import {
@@ -34,6 +33,9 @@ import {
 import ArrowIcon from './ArrowIcon';
 
 const rootHeightItem = 37;
+
+export const isDarkMode = (theme: Theme): boolean =>
+  equals(theme.palette.mode, ThemeMode.dark);
 
 interface Props {
   data: Page;
@@ -49,8 +51,17 @@ interface Props {
   onMouseEnter: (e: MouseEvent<HTMLElement>) => void;
 }
 
+<<<<<<< HEAD
 const useStyles = makeStyles((theme) => ({
   activated: (): CreateCSSProperties => ({
+=======
+interface StyleProps {
+  isRoot?: boolean;
+}
+
+const useStyles = makeStyles<StyleProps>()((theme, { isRoot }) => ({
+  activated: {
+>>>>>>> centreon/MON-14841-replace-makestyles-from-@mui/styles-by-tss-react
     '& .MuiListItemText-root': {
       '& .MuiTypography-root': {
         color: 'inherit',
@@ -65,6 +76,7 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: isDarkMode(theme)
         ? theme.palette.primary.dark
         : theme.palette.primary.light,
+<<<<<<< HEAD
     },
     backgroundColor: isDarkMode(theme)
       ? theme.palette.primary.dark
@@ -73,6 +85,13 @@ const useStyles = makeStyles((theme) => ({
       ? theme.palette.common.white
       : theme.palette.primary.main,
   }),
+=======
+    color:
+      isDarkMode(theme) && isRoot
+        ? theme.palette.common.white
+        : theme.palette.primary.main,
+  },
+>>>>>>> centreon/MON-14841-replace-makestyles-from-@mui/styles-by-tss-react
   arrowIcon: {
     color: 'inherit',
   },
@@ -113,7 +132,7 @@ const MenuItems = ({
   isRoot,
   isDoubleClickedFromRoot,
 }: Props): JSX.Element => {
-  const classes = useStyles({ isRoot });
+  const { classes } = useStyles({ isRoot });
   const user = useAtomValue(userAtom);
   const hoveredNavigationItems = useAtomValue(hoveredNavigationItemsAtom);
   const selectedNavigationItems = useAtomValue(selectedNavigationItemsAtom);

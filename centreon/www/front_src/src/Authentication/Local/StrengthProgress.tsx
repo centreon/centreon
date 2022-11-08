@@ -2,9 +2,9 @@ import { useMemo } from 'react';
 
 import { findLast, gt, lt } from 'ramda';
 import { useTranslation } from 'react-i18next';
+import { makeStyles } from 'tss-react/mui';
 
-import { alpha, LinearProgress, Theme, Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
+import { alpha, LinearProgress, Typography } from '@mui/material';
 
 import memoizeComponent from '../../Resources/memoizedComponent';
 
@@ -20,12 +20,17 @@ interface Props {
   thresholds: Array<Threshold>;
   value: number;
 }
-const useStyles = makeStyles<Theme, Threshold>((theme) => ({
+
+interface StyleProps {
+  color: string;
+}
+
+const useStyles = makeStyles<StyleProps>()((theme, { color }) => ({
   linear: {
-    backgroundColor: ({ color }): string => color,
+    backgroundColor: color,
   },
   linearBackground: {
-    backgroundColor: ({ color }): string => alpha(color, 0.3),
+    backgroundColor: alpha(color, 0.3),
     width: '100%',
   },
   progressContainer: {
@@ -48,10 +53,10 @@ const StrengthProgress = ({
       thresholds[0],
     [thresholds, value],
   );
-  const classes = useStyles(currentThreshold);
-  const { t } = useTranslation();
 
-  const { label } = currentThreshold;
+  const { color, label } = currentThreshold;
+  const { classes } = useStyles({ color });
+  const { t } = useTranslation();
 
   const computeProgress = (): number =>
     gt(value, max) ? 100 : (value / max) * 100;
@@ -74,9 +79,7 @@ const StrengthProgress = ({
         value={progressValue}
         variant="determinate"
       />
-      <Typography className={classes.label} variant="caption">
-        {t(label)}
-      </Typography>
+      <Typography variant="caption">{t(label)}</Typography>
     </div>
   );
 };
