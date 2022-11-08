@@ -1,0 +1,10 @@
+FROM registry-docker.centreon.com/docker-global/centos:7
+
+RUN <<EOF
+
+yum -y install git gettext rpm-build dos2unix
+yum clean all
+
+EOF
+
+WORKDIR /src
