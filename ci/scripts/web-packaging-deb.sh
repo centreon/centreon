@@ -32,5 +32,4 @@ cp -rp packaging/debian .
 #packaging
 sed -i "s/^centreon:version=.*$/centreon:version=$(echo $VERSION | egrep -o '^[0-9][0-9].[0-9][0-9]')/" debian/substvars
 debmake -f "${AUTHOR}" -e "${AUTHOR_EMAIL}" -u "$VERSION" -y -r "${DISTRIB}"
-debuild-pbuilder
-cd ../
+debuild-pbuilder --no-lintian
