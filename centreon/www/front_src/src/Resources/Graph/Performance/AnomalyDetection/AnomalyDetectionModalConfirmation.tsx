@@ -4,7 +4,16 @@ import { useTranslation } from 'react-i18next';
 
 import { Dialog } from '@centreon/ui';
 
+<<<<<<< HEAD
 import { labelCancel, labelMenageEnvelope } from '../../../translatedLabels';
+=======
+import {
+  labelEditAnomalyDetectionConfirmation,
+  labelMenageEnvelope,
+  labelSave,
+  labelCancel
+} from '../../../translatedLabels';
+>>>>>>> centreon/MON-15036-remove-comma-dangle-in-prettiers-config-23-04
 
 interface Props {
   children: ReactNode;
@@ -19,9 +28,13 @@ const AnomalyDetectionModalConfirmation = ({
   open,
   setOpen,
   sendCancel,
+<<<<<<< HEAD
   sendConfirm,
   children,
   labelConfirm,
+=======
+  sendConfirm
+>>>>>>> centreon/MON-15036-remove-comma-dangle-in-prettiers-config-23-04
 }: Props): JSX.Element => {
   const { t } = useTranslation();
 

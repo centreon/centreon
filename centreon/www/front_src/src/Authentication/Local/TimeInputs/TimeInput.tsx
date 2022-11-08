@@ -15,7 +15,7 @@ import {
   getDaysOptions,
   getHoursOptions,
   getMinutesOptions,
-  getMonthsOptions,
+  getMonthsOptions
 } from './options';
 
 const weeksUnit = 'weeks';
@@ -29,7 +29,7 @@ const getTimeOptions = {
   days: getDaysOptions,
   hours: getHoursOptions,
   minutes: getMinutesOptions,
-  months: getMonthsOptions,
+  months: getMonthsOptions
 };
 
 interface Labels {
@@ -56,14 +56,14 @@ export interface TimeInputProps {
 const useStyles = makeStyles((theme) => ({
   small: {
     fontSize: 'small',
-    padding: theme.spacing(0.75),
+    padding: theme.spacing(0.75)
   },
   timeInput: {
     alignItems: 'center',
     columnGap: theme.spacing(0.5),
     display: 'grid',
-    gridTemplateColumns: `${theme.spacing(8)} auto`,
-  },
+    gridTemplateColumns: `${theme.spacing(8)} auto`
+  }
 }));
 
 const TimeInput = ({
@@ -78,7 +78,7 @@ const TimeInput = ({
   inputLabel,
   maxOption,
   minOption,
-  maxDuration,
+  maxDuration
 }: TimeInputProps): JSX.Element => {
   const classes = useStyles();
   const { t } = useTranslation();
@@ -100,7 +100,7 @@ const TimeInput = ({
       const currentDuration = dayjs.duration(timeValue || 0);
 
       const previousValue = Math.floor(
-        currentDuration[functionGetDurationValue](unit),
+        currentDuration[functionGetDurationValue](unit)
       );
 
       if (Number.isNaN(value)) {
@@ -118,10 +118,7 @@ const TimeInput = ({
       if (
         and(
           equals(unit, 'months'),
-          equals(
-            currentDuration.clone().add(diffDuration, unit).asMonths(),
-            12,
-          ),
+          equals(currentDuration.clone().add(diffDuration, unit).asMonths(), 12)
         )
       ) {
         const newDuration = currentDuration
@@ -140,7 +137,7 @@ const TimeInput = ({
         .asMilliseconds();
       onChange(normalizeDuration(newDuration));
     },
-    [functionGetDurationValue, unit, timeValue],
+    [functionGetDurationValue, unit, timeValue]
   );
 
   const normalizedValue = useMemo(
@@ -148,9 +145,9 @@ const TimeInput = ({
       normalizeValue({
         functionGetDurationValue,
         unit,
-        value: timeValue || 0,
+        value: timeValue || 0
       }),
-    [functionGetDurationValue, unit, timeValue],
+    [functionGetDurationValue, unit, timeValue]
   );
   const inputValue = Math.floor(normalizedValue);
 
@@ -161,8 +158,12 @@ const TimeInput = ({
       <div className={classes.timeInput}>
         <SelectField
           inputProps={{
+<<<<<<< HEAD
             'aria-label': `${t(inputLabel)} ${t(label)}`,
             'data-testid': dataTestId,
+=======
+            'aria-label': `${t(inputLabel)} ${t(label)}`
+>>>>>>> centreon/MON-15036-remove-comma-dangle-in-prettiers-config-23-04
           }}
           name={name}
           options={getTimeOptions[unit]({ max: maxOption, min: minOption })}
@@ -180,8 +181,8 @@ const TimeInput = ({
       name,
       required,
       getAbsoluteValue,
-      classes,
-    ],
+      classes
+    ]
   });
 };
 

@@ -29,26 +29,27 @@ const TimeBeforeNewPassword = (): JSX.Element => {
 
   const delayBeforeNewPasswordValue = getField<number>({
     field: delayBeforeNewPasswordFieldName,
-    object: values,
+    object: values
   });
 
   const delayBeforeNewPasswordError = getField<string>({
     field: delayBeforeNewPasswordFieldName,
-    object: errors,
+    object: errors
   });
 
   const maxHoursOption = useMemo(
     (): number | undefined =>
       lte(
         dayjs.duration({ days: 7 }).asMilliseconds(),
-        delayBeforeNewPasswordValue,
+        delayBeforeNewPasswordValue
       )
         ? 0
         : undefined,
-    [delayBeforeNewPasswordValue],
+    [delayBeforeNewPasswordValue]
   );
 
   const timeInputConfigurations: Array<TimeInputConfiguration> = [
+<<<<<<< HEAD
     {
       dataTestId: 'local_timeBetweenPasswordChangesDays',
       maxOption: 7,
@@ -59,6 +60,10 @@ const TimeBeforeNewPassword = (): JSX.Element => {
       maxOption: maxHoursOption,
       unit: 'hours',
     },
+=======
+    { maxOption: 7, unit: 'days' },
+    { maxOption: maxHoursOption, unit: 'hours' }
+>>>>>>> centreon/MON-15036-remove-comma-dangle-in-prettiers-config-23-04
   ];
 
   return useMemoComponent({
@@ -78,7 +83,7 @@ const TimeBeforeNewPassword = (): JSX.Element => {
         )}
       </div>
     ),
-    memoProps: [delayBeforeNewPasswordValue, delayBeforeNewPasswordError],
+    memoProps: [delayBeforeNewPasswordValue, delayBeforeNewPasswordError]
   });
 };
 

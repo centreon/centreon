@@ -22,7 +22,7 @@ const useStyles = makeStyles<Theme, { severityCode?: number }>((theme) => {
   const getStatusBackgroundColor = (severityCode): string =>
     getStatusColors({
       severityCode,
-      theme,
+      theme
     }).backgroundColor;
 
   const getStatusTextColor = (severityCode): string =>
@@ -34,6 +34,7 @@ const useStyles = makeStyles<Theme, { severityCode?: number }>((theme) => {
   return {
     card: ({ severityCode }): CreateCSSProperties => ({
       ...(severityCode && {
+<<<<<<< HEAD
         backgroundColor: getStatusBackgroundColor(severityCode),
         border: 0,
         color: getStatusTextColor(severityCode),
@@ -42,6 +43,16 @@ const useStyles = makeStyles<Theme, { severityCode?: number }>((theme) => {
     title: ({ severityCode }): CreateCSSProperties => ({
       ...(severityCode && { color: getStatusTextColor(severityCode) }),
     }),
+=======
+        borderColor: getStatusBackgroundColor(severityCode),
+        borderStyle: 'solid',
+        borderWidth: 2
+      })
+    }),
+    title: ({ severityCode }): CreateCSSProperties => ({
+      ...(severityCode && { color: getStatusBackgroundColor(severityCode) })
+    })
+>>>>>>> centreon/MON-15036-remove-comma-dangle-in-prettiers-config-23-04
   };
 });
 
@@ -58,7 +69,7 @@ const ExpandableCard = ({
   content,
   severityCode,
   expandedCard,
-  changeExpandedCards,
+  changeExpandedCards
 }: Props): JSX.Element => {
   const classes = useStyles({ severityCode });
   const { t } = useTranslation();

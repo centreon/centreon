@@ -5,18 +5,22 @@ import Card from '../Card';
 
 const useStyles = makeStyles((theme) => ({
   active: {
-    color: theme.palette.success.main,
+    color: theme.palette.success.main
   },
   container: {
+<<<<<<< HEAD
     border: 0,
     overflow: 'hidden',
+=======
+    overflow: 'hidden'
+>>>>>>> centreon/MON-15036-remove-comma-dangle-in-prettiers-config-23-04
   },
   title: {
     display: 'flex',
     gridGap: theme.spacing(1),
     overflow: 'hidden',
-    textOverflow: 'ellipsis',
-  },
+    textOverflow: 'ellipsis'
+  }
 }));
 
 interface Props {
@@ -28,7 +32,7 @@ interface Props {
 const DetailsCard = ({
   title,
   line,
-  isCustomCard = false,
+  isCustomCard = false
 }: Props): JSX.Element => {
   const classes = useStyles();
 

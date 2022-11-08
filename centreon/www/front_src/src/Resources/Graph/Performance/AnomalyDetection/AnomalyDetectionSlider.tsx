@@ -17,9 +17,16 @@ import {
   labelCancel,
   labelMenageEnvelope,
   labelMenageEnvelopeSubTitle,
+<<<<<<< HEAD
   labelPointsOutsideOfEnvelopeCount,
   labelSave,
   labelResetToDefaultValue,
+=======
+  labelCancel,
+  labelSave,
+  labelUseDefaultValue,
+  labelPointsOutsideOfEnvelopeCount
+>>>>>>> centreon/MON-15036-remove-comma-dangle-in-prettiers-config-23-04
 } from '../../../translatedLabels';
 
 import { countedRedCirclesAtom } from './anomalyDetectionAtom';
@@ -28,22 +35,22 @@ import { CustomFactorsData } from './models';
 const useStyles = makeStyles((theme) => ({
   body: {
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'column'
   },
   bodyContainer: {
     alignItems: 'center',
     display: 'flex',
     marginBottom: theme.spacing(2),
-    marginTop: theme.spacing(5),
+    marginTop: theme.spacing(5)
   },
   confirmButton: {
-    marginLeft: theme.spacing(2),
+    marginLeft: theme.spacing(2)
   },
   container: {
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-evenly',
-    padding: theme.spacing(2),
+    padding: theme.spacing(2)
   },
   defaultButton: {
     justifyContent: 'flex-start',
@@ -54,42 +61,50 @@ const useStyles = makeStyles((theme) => ({
   },
   footer: {
     display: 'flex',
+<<<<<<< HEAD
     justifyContent: 'space-between',
+=======
+    justifyContent: 'flex-end'
+>>>>>>> centreon/MON-15036-remove-comma-dangle-in-prettiers-config-23-04
   },
   header: {
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'column'
   },
   icon: {
     display: 'flex',
-    flexDirection: 'column',
+    flexDirection: 'column'
   },
   slider: {
     '& .MuiSlider-mark': {
       borderLeft: '1px solid',
       height: theme.spacing(2),
-      width: 0,
+      width: 0
     },
     '& .MuiSlider-thumb': {
       height: theme.spacing(3),
-      width: 1,
+      width: 1
     },
     '& .MuiSlider-valueLabel': {
       backgroundColor: theme.palette.primary.main,
+<<<<<<< HEAD
       borderRadius: '50%',
       height: theme.spacing(2.25),
       width: theme.spacing(1.25),
+=======
+      borderRadius: '50%'
+>>>>>>> centreon/MON-15036-remove-comma-dangle-in-prettiers-config-23-04
     },
     '& .MuiSlider-valueLabel:before': {
-      width: 0,
+      width: 0
     },
     '& .MuiSlider-valueLabelOpen': {
-      transform: 'translateY(-60%) scale(1)',
+      transform: 'translateY(-60%) scale(1)'
     },
     display: 'flex',
     justifyContent: 'space-evenly',
-    width: theme.spacing(35),
-  },
+    width: theme.spacing(35)
+  }
 }));
 
 interface Props {
@@ -111,7 +126,7 @@ const AnomalyDetectionSlider = ({
   isEnvelopeResizingCanceled,
   isResizeEnvelope,
   sendReloadGraphPerformance,
-  setIsResizeEnvelope,
+  setIsResizeEnvelope
 }: Props): JSX.Element => {
   const classes = useStyles();
   const { t } = useTranslation();
@@ -121,27 +136,27 @@ const AnomalyDetectionSlider = ({
   const [isResizingConfirmed, setIsResizingConfirmed] = useState(false);
   const [openTooltip, setOpenTooltip] = useState(false);
   const { sendRequest } = useRequest({
-    request: putData,
+    request: putData
   });
   const [countedRedCircles, setCountedRedCircles] = useAtom(
-    countedRedCirclesAtom,
+    countedRedCirclesAtom
   );
 
   const tooltipMessage = `${countedRedCircles} ${t(
-    labelPointsOutsideOfEnvelopeCount,
+    labelPointsOutsideOfEnvelopeCount
   )}`;
 
   const step = 0.1;
   const sensitivityEndPoint = path<string>(
     ['links', 'endpoints', 'sensitivity'],
-    details,
+    details
   );
 
   const marks = [
     {
       label: 'Default',
-      value: sensitivity.default_value,
-    },
+      value: sensitivity.default_value
+    }
   ];
 
   const isEnvelopeUpdateSliderEnabled = (): void => {
@@ -189,7 +204,7 @@ const AnomalyDetectionSlider = ({
   const resizeEnvelope = (): void => {
     sendRequest({
       data: { sensitivity: currentValue },
-      endpoint: sensitivityEndPoint,
+      endpoint: sensitivityEndPoint
     });
 
     sendReloadGraphPerformance(true);
@@ -232,7 +247,7 @@ const AnomalyDetectionSlider = ({
     sendFactors({
       currentFactor: sensitivity.current_value,
       isResizing: isResizingConfirmed,
-      simulatedFactor: currentValue,
+      simulatedFactor: currentValue
     });
   }, [currentValue, isResizingConfirmed]);
 

@@ -9,7 +9,7 @@ import {
   RenderResult,
   screen,
   waitFor,
-  SnackbarProvider,
+  SnackbarProvider
 } from '@centreon/ui';
 
 import { areUserParametersLoadedAtom } from '../Main/useUser';
@@ -27,7 +27,7 @@ import {
   labelRequired,
   labelHideThePassword,
   labelLoginWith,
-  labelPasswordHasExpired,
+  labelPasswordHasExpired
 } from './translatedLabels';
 import { loginEndpoint, providersConfigurationEndpoint } from './api/endpoint';
 
@@ -41,6 +41,14 @@ jest.mock('../assets/logo-centreon-colors.png');
 jest.mock('../assets/centreon-wallpaper-xl.jpg');
 jest.mock('../assets/centreon-wallpaper-lg.jpg');
 jest.mock('../assets/centreon-wallpaper-sm.jpg');
+<<<<<<< HEAD
+=======
+
+jest.mock('@centreon/ui-context', () =>
+  jest.requireActual('centreon-frontend/packages/ui-context')
+);
+
+>>>>>>> centreon/MON-15036-remove-comma-dangle-in-prettiers-config-23-04
 const mockNow = '2020-01-01';
 
 const retrievedUser = {
@@ -50,13 +58,13 @@ const retrievedUser = {
   locale: 'fr_FR.UTF8',
   name: 'Admin',
   timezone: 'Europe/Paris',
-  use_deprecated_pages: false,
+  use_deprecated_pages: false
 };
 
 const retrievedWeb = {
   web: {
-    version: '21.10.1',
-  },
+    version: '21.10.1'
+  }
 };
 
 const retrievedProvidersConfiguration = [
@@ -65,28 +73,28 @@ const retrievedProvidersConfiguration = [
       '/centreon/authentication/providers/configurations/local',
     id: 1,
     is_active: true,
-    name: 'local',
+    name: 'local'
   },
   {
     authentication_uri:
       '/centreon/authentication/providers/configurations/openid',
     id: 2,
     is_active: true,
-    name: 'openid',
+    name: 'openid'
   },
   {
     authentication_uri:
       '/centreon/authentication/providers/configurations/ldap',
     id: 3,
     is_active: false,
-    name: 'ldap',
-  },
+    name: 'ldap'
+  }
 ];
 
 const retrievedTranslations = {
   en: {
-    hello: 'Hello',
-  },
+    hello: 'Hello'
+  }
 };
 
 const TestComponent = (): JSX.Element => (
@@ -97,9 +105,9 @@ const TestComponent = (): JSX.Element => (
           [areUserParametersLoadedAtom, false],
           [
             platformInstallationStatusAtom,
-            { availableVersion: null, installedVersion: '21.10.1' },
+            { availableVersion: null, installedVersion: '21.10.1' }
           ],
-          [platformVersionsAtom, retrievedWeb],
+          [platformVersionsAtom, retrievedWeb]
         ]}
       >
         <LoginPage />
@@ -113,8 +121,8 @@ const renderLoginPage = (): RenderResult => render(<TestComponent />);
 const mockPostLoginSuccess = (): void => {
   mockedAxios.post.mockResolvedValue({
     data: {
-      redirect_uri: '/monitoring/resources',
-    },
+      redirect_uri: '/monitoring/resources'
+    }
   });
 };
 
@@ -122,8 +130,8 @@ const mockPostLoginInvalidCredentials = (): void => {
   mockedAxios.post.mockRejectedValueOnce({
     response: {
       data: { code: 401, message: labelInvalidCredentials },
-      status: 401,
-    },
+      status: 401
+    }
   });
 };
 
@@ -132,10 +140,10 @@ const mockPostLoginPasswordExpired = (): void => {
     response: {
       data: {
         password_is_expired: true,
-        redirect_uri: '/monitoring/resources',
+        redirect_uri: '/monitoring/resources'
       },
-      status: 401,
-    },
+      status: 401
+    }
   });
 };
 
@@ -145,10 +153,10 @@ const mockPostLoginServerError = (): void => {
   mockedAxios.post.mockRejectedValue({
     response: {
       data: {
-        message: labelError,
+        message: labelError
       },
-      status: 500,
-    },
+      status: 500
+    }
   });
 };
 
@@ -159,13 +167,13 @@ describe('Login Page', () => {
     mockDate.set(mockNow);
     mockedAxios.get
       .mockResolvedValueOnce({
-        data: retrievedTranslations,
+        data: retrievedTranslations
       })
       .mockResolvedValueOnce({
-        data: retrievedProvidersConfiguration,
+        data: retrievedProvidersConfiguration
       })
       .mockResolvedValue({
-        data: retrievedUser,
+        data: retrievedUser
       });
     window.history.pushState({}, '', '/');
   });
@@ -183,7 +191,7 @@ describe('Login Page', () => {
     await waitFor(() => {
       expect(mockedAxios.get).toHaveBeenCalledWith(
         providersConfigurationEndpoint,
-        cancelTokenRequestParam,
+        cancelTokenRequestParam
       );
     });
 
@@ -200,11 +208,11 @@ describe('Login Page', () => {
     await waitFor(() => {
       expect(screen.getByText(`${labelLoginWith} openid`)).toHaveAttribute(
         'href',
-        '/centreon/authentication/providers/configurations/openid',
+        '/centreon/authentication/providers/configurations/openid'
       );
     });
     expect(
-      screen.queryByText(`${labelLoginWith} ldap`),
+      screen.queryByText(`${labelLoginWith} ldap`)
     ).not.toBeInTheDocument();
     expect(screen.getByText('Copyright © 2005 - 2020')).toBeInTheDocument();
   });
@@ -220,12 +228,12 @@ describe('Login Page', () => {
     await waitFor(() => {
       expect(mockedAxios.post).toHaveBeenCalledWith(loginEndpoint, {
         login: 'admin',
-        password: 'centreon',
+        password: 'centreon'
       });
     });
     expect(mockedAxios.get).toHaveBeenCalledWith(
       userEndpoint,
-      cancelTokenRequestParam,
+      cancelTokenRequestParam
     );
 
     await waitFor(() => {
@@ -246,12 +254,12 @@ describe('Login Page', () => {
     await waitFor(() => {
       expect(mockedAxios.post).toHaveBeenCalledWith(loginEndpoint, {
         login: 'invalid_alias',
-        password: 'invalid_pwd',
+        password: 'invalid_pwd'
       });
     });
     expect(mockedAxios.get).not.toHaveBeenCalledWith(
       userEndpoint,
-      cancelTokenRequestParam,
+      cancelTokenRequestParam
     );
 
     await waitFor(() => {
@@ -276,7 +284,7 @@ describe('Login Page', () => {
     userEvent.type(screen.getByLabelText(labelAlias), '{selectall}{backspace}');
     userEvent.type(
       screen.getByLabelText(labelPassword),
-      '{selectall}{backspace}',
+      '{selectall}{backspace}'
     );
 
     await waitFor(() => {
@@ -292,12 +300,12 @@ describe('Login Page', () => {
     renderLoginPage();
 
     userEvent.click(
-      screen.getByLabelText(labelDisplayThePassword).firstChild as HTMLElement,
+      screen.getByLabelText(labelDisplayThePassword).firstChild as HTMLElement
     );
 
     expect(screen.getByLabelText(labelPassword)).toHaveAttribute(
       'type',
-      'text',
+      'text'
     );
     expect(screen.getByLabelText(labelHideThePassword)).toBeInTheDocument();
   });

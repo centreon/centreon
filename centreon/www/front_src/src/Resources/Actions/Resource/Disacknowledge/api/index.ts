@@ -15,7 +15,7 @@ const disacknowledgeResources =
   (cancelToken: CancelToken) =>
   ({
     resources,
-    disacknowledgeAttachedResources,
+    disacknowledgeAttachedResources
   }: ResourcesWithDisacknowledgeParams): Promise<Array<AxiosResponse>> => {
     const payload = resources.map(({ type, id, parent, service_id }) => ({
       id: equals(type, ResourceType.anomalydetection) ? service_id : id,
@@ -27,10 +27,15 @@ const disacknowledgeResources =
       cancelToken,
       data: {
         disacknowledgement: {
-          with_services: disacknowledgeAttachedResources,
+          with_services: disacknowledgeAttachedResources
         },
+<<<<<<< HEAD
         resources: payload,
       },
+=======
+        resources: map(pick(['type', 'id', 'parent']), resources)
+      }
+>>>>>>> centreon/MON-15036-remove-comma-dangle-in-prettiers-config-23-04
     });
   };
 
